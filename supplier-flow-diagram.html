@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supplier Evaluation Flow - Hertzwave</title>
+  <style>
+    :root {
+      --hz-light: #A8E6A3;
+      --hz-primary: #4A7C59;
+      --hz-dark: #2F4F3F;
+      --hz-black: #000000;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #f5f5f0 0%, #e8f5e9 100%);
+      color: #333;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      color: var(--hz-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      font-size: 1.125rem;
+      color: #666;
+    }
+
+    .flow-container {
+      background: white;
+      border-radius: 1rem;
+      padding: 3rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+
+    .phase {
+      margin-bottom: 3rem;
+      position: relative;
+      padding-left: 3rem;
+    }
+
+    .phase::before {
+      content: '';
+      position: absolute;
+      left: 0.875rem;
+      top: 3rem;
+      bottom: -2rem;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--hz-primary), var(--hz-light));
+    }
+
+    .phase:last-child::before {
+      display: none;
+    }
+
+    .phase-number {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      background: var(--hz-primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      box-shadow: 0 2px 8px rgba(74, 124, 89, 0.3);
+    }
+
+    .phase-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 1rem;
+    }
+
+    .phase-description {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .step-card {
+      background: linear-gradient(135deg, #f9fafb 0%, white 100%);
+      border: 1px solid #e5e5e5;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      transition: all 0.3s;
+    }
+
+    .step-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      border-color: var(--hz-primary);
+    }
+
+    .step-icon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .step-title {
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .step-description {
+      font-size: 0.875rem;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .actors-section {
+      margin-top: 3rem;
+      background: linear-gradient(135deg, var(--hz-light), white);
+      border-radius: 1rem;
+      padding: 2rem;
+    }
+
+    .actors-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .actors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .actor-card {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .actor-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--hz-primary), var(--hz-dark));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .actor-name {
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .actor-responsibilities {
+      font-size: 0.875rem;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .features-section {
+      margin-top: 2rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border-left: 4px solid var(--hz-primary);
+    }
+
+    .feature-title {
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 1rem;
+      font-size: 1.125rem;
+    }
+
+    .feature-list {
+      list-style: none;
+    }
+
+    .feature-list li {
+      padding: 0.5rem 0;
+      padding-left: 1.5rem;
+      position: relative;
+      color: #666;
+      font-size: 0.875rem;
+    }
+
+    .feature-list li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--hz-primary);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🌱 Hertzwave Supplier Evaluation Module</h1>
+      <p>Complete Application Flow & Architecture</p>
+    </div>
+
+    <div class="flow-container">
+      <!-- Phase 1 -->
+      <div class="phase">
+        <div class="phase-number">1</div>
+        <h2 class="phase-title">Enterprise Admin Setup & Supplier Invitation</h2>
+        <p class="phase-description">
+          Enterprise sustainability managers configure evaluation criteria, set up questionnaire templates, and invite suppliers to join the carbon accounting program.
+        </p>
+        
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-icon">⚙️</div>
+            <div class="step-title">Configure Evaluation Criteria</div>
+            <div class="step-description">
+              Set scoring weights: Carbon Performance (40%), Data Quality (25%), Engagement (20%), Improvement (15%)
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">📋</div>
+            <div class="step-title">Create Questionnaires</div>
+            <div class="step-description">
+              Design ESG questionnaires, carbon reduction target templates, and supplier self-assessment forms
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">📧</div>
+            <div class="step-title">Invite Suppliers</div>
+            <div class="step-description">
+              Send automated email invitations with login credentials, onboarding instructions, and data requirements
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 2 -->
+      <div class="phase">
+        <div class="phase-number">2</div>
+        <h2 class="phase-title">Supplier Onboarding & Registration</h2>
+        <p class="phase-description">
+          Suppliers receive invitation emails, create their accounts, complete company profiles, and review data submission requirements.
+        </p>
+        
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-icon">🔐</div>
+            <div class="step-title">Account Creation</div>
+            <div class="step-description">
+              Secure login with email verification, password setup, and optional SSO integration for enterprise suppliers
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">🏢</div>
+            <div class="step-title">Company Profile</div>
+            <div class="step-description">
+              Complete organization details: industry sector, revenue range, locations, primary contact information
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">📊</div>
+            <div class="step-title">Requirements Review</div>
+            <div class="step-description">
+              View requested data categories (Scope 1/2/3), reporting frequency, first reporting period, and deadlines
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 3 -->
+      <div class="phase">
+        <div class="phase-number">3</div>
+        <h2 class="phase-title">Data Collection & Submission</h2>
+        <p class="phase-description">
+          Suppliers submit emissions data through guided forms, upload supporting documents, and complete ESG questionnaires on a quarterly or annual basis.
+        </p>
+        
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-icon">🔥</div>
+            <div class="step-title">Scope 1 Emissions</div>
+            <div class="step-description">
+              Direct emissions: fuel combustion (diesel, natural gas), company vehicles, fugitive emissions (refrigerants)
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">⚡</div>
+            <div class="step-title">Scope 2 Emissions</div>
+            <div class="step-description">
+              Indirect emissions: purchased electricity, steam, heating/cooling; location-based and market-based calculations
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">🔗</div>
+            <div class="step-title">Scope 3 Emissions</div>
+            <div class="step-description">
+              Value chain: purchased goods, upstream transport, waste, business travel, employee commuting
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">📄</div>
+            <div class="step-title">Supporting Documents</div>
+            <div class="step-description">
+              Upload utility bills, fuel receipts, shipping manifests, travel reports (PDF, Excel, CSV, images)
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">📝</div>
+            <div class="step-title">ESG Questionnaires</div>
+            <div class="step-description">
+              Complete customizable questionnaires on sustainability practices, certifications, reduction initiatives
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">🎯</div>
+            <div class="step-title">Reduction Targets</div>
+            <div class="step-description">
+              Set and track carbon reduction goals, describe planned initiatives, submit progress updates
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 4 -->
+      <div class="phase">
+        <div class="phase-number">4</div>
+        <h2 class="phase-title">ML-Powered Validation & Quality Scoring</h2>
+        <p class="phase-description">
+          Advanced AI algorithms validate submitted data, detect anomalies, suggest emission factors, and generate comprehensive quality scores.
+        </p>
+        
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-icon">🤖</div>
+            <div class="step-title">Schema Validation</div>
+            <div class="step-description">
+              ML-powered column mapping with ≥90% confidence, automatic unit recognition, intelligent field type inference
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">🔍</div>
+            <div class="step-title">Anomaly Detection</div>
+            <div class="step-description">
+              Statistical outlier detection, time-series pattern analysis, cross-reference validation against industry benchmarks
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">🎲</div>
+            <div class="step-title">Duplicate Detection</div>
+            <div class="step-description">
+              Fuzzy matching for similar records, cross-batch detection, supplier name normalization with confidence scoring
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">📊</div>
+            <div class="step-title">EF Intelligence</div>
+            <div class="step-description">
+              Smart emission factor matching based on region + industry + material, confidence intervals, learning system
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">✅</div>
+            <div class="step-title">Quality Scoring</div>
+            <div class="step-description">
+              Record-level scores (0-100) based on completeness, EF availability, consistency, cross-validation, source reliability
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">👤</div>
+            <div class="step-title">Human Review</div>
+            <div class="step-description">
+              Flagged records routed to validators, approval workflow for overrides, feedback loop improves ML accuracy
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 5 -->
+      <div class="phase">
+        <div class="phase-number">5</div>
+        <h2 class="phase-title">Multi-Dimensional Evaluation & Scoring</h2>
+        <p class="phase-description">
+          System calculates comprehensive supplier performance scores across four dimensions and updates real-time leaderboards.
+        </p>
+        
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-icon">📉</div>
+            <div class="step-title">Carbon Performance (40%)</div>
+            <div class="step-description">
+              Emission intensity per dollar spent (tCO₂e/$M), comparison to industry benchmarks and peer suppliers
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">✓</div>
+            <div class="step-title">Data Quality (25%)</div>
+            <div class="step-description">
+              Completeness and accuracy of submitted data, consistency over time, supporting documentation quality
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">🤝</div>
+            <div class="step-title">Engagement (20%)</div>
+            <div class="step-description">
+              Response rate to questionnaires, timely data submission, participation in reduction initiatives
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">📈</div>
+            <div class="step-title">Improvement (15%)</div>
+            <div class="step-description">
+              Year-over-year emission reduction progress, achievement of stated targets, innovation in sustainability
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 6 -->
+      <div class="phase">
+        <div class="phase-number">6</div>
+        <h2 class="phase-title">Enterprise Dashboard & Analytics</h2>
+        <p class="phase-description">
+          Enterprise sustainability teams access comprehensive supplier analytics, leaderboards, risk assessments, and collaborative features.
+        </p>
+        
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-icon">🏆</div>
+            <div class="step-title">Live Leaderboard</div>
+            <div class="step-description">
+              Real-time ranking of all suppliers by overall score, carbon performance, data quality, or improvement rate
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">👁️</div>
+            <div class="step-title">Supplier 360° Profiles</div>
+            <div class="step-description">
+              Detailed view of individual supplier: scores, trends, submitted data, documents, questionnaire responses
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">⚠️</div>
+            <div class="step-title">Risk Assessment</div>
+            <div class="step-description">
+              Geographic risk factors, financial stability, supply chain disruption probability, regulatory exposure
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">📊</div>
+            <div class="step-title">Analytics & Insights</div>
+            <div class="step-description">
+              Aggregate emissions by supplier category, trend analysis, scenario modeling, reduction opportunity identification
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">📥</div>
+            <div class="step-title">Data Export</div>
+            <div class="step-description">
+              Export supplier data for Scope 3 calculations, compliance reporting (CSRD, BRSR, CDP), stakeholder communication
+            </div>
+          </div>
+          
+          <div class="step-card">
+            <div class="step-icon">🎓</div>
+            <div class="step-title">Engagement Programs</div>
+            <div class="step-description">
+              Supplier development initiatives, best practice sharing, training enrollment, certification tracking
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Actors -->
+    <div class="flow-container actors-section">
+      <h3 class="actors-title">Key Actors & Responsibilities</h3>
+      <div class="actors-grid">
+        <div class="actor-card">
+          <div class="actor-icon">👔</div>
+          <div class="actor-name">Enterprise Admin</div>
+          <div class="actor-responsibilities">
+            • Configure evaluation criteria<br>
+            • Invite and manage suppliers<br>
+            • Review leaderboards and analytics<br>
+            • Export data for reporting<br>
+            • Manage engagement programs
+          </div>
+        </div>
+        
+        <div class="actor-card">
+          <div class="actor-icon">🏭</div>
+          <div class="actor-name">Supplier User</div>
+          <div class="actor-responsibilities">
+            • Submit emissions data quarterly<br>
+            • Upload supporting documents<br>
+            • Complete ESG questionnaires<br>
+            • Set carbon reduction targets<br>
+            • Monitor own performance score
+          </div>
+        </div>
+        
+        <div class="actor-card">
+          <div class="actor-icon">🤖</div>
+          <div class="actor-name">ML Validation Engine</div>
+          <div class="actor-responsibilities">
+            • Validate data schema and quality<br>
+            • Detect anomalies and duplicates<br>
+            • Suggest emission factors<br>
+            • Generate quality scores<br>
+            • Learn from user corrections
+          </div>
+        </div>
+        
+        <div class="actor-card">
+          <div class="actor-icon">👨‍💼</div>
+          <div class="actor-name">Data Validator</div>
+          <div class="actor-responsibilities">
+            • Review flagged data entries<br>
+            • Approve or reject submissions<br>
+            • Provide feedback to suppliers<br>
+            • Override ML decisions when needed<br>
+            • Ensure data quality standards
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Features -->
+    <div class="flow-container features-section">
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-title">🎯 Core Features</div>
+          <ul class="feature-list">
+            <li>Multi-dimensional supplier scoring algorithm</li>
+            <li>Real-time leaderboard with peer comparison</li>
+            <li>Automated email invitations and reminders</li>
+            <li>Guided data submission forms (Scope 1/2/3)</li>
+            <li>Document upload and management</li>
+            <li>Customizable ESG questionnaires</li>
+            <li>Carbon reduction target tracking</li>
+          </ul>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-title">🤖 AI & Automation</div>
+          <ul class="feature-list">
+            <li>ML-powered schema validation (≥90% confidence)</li>
+            <li>Intelligent emission factor suggestions</li>
+            <li>Anomaly detection and outlier flagging</li>
+            <li>Fuzzy duplicate detection</li>
+            <li>Automated quality scoring (0-100 scale)</li>
+            <li>Learning system improves with feedback</li>
+            <li>Predictive risk assessment</li>
+          </ul>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-title">📊 Analytics & Reporting</div>
+          <ul class="feature-list">
+            <li>Supplier 360° profile dashboards</li>
+            <li>Aggregate Scope 3 emissions calculation</li>
+            <li>Trend analysis and forecasting</li>
+            <li>Industry benchmark comparisons</li>
+            <li>Risk scoring and early warning alerts</li>
+            <li>Export for compliance reporting</li>
+            <li>Stakeholder communication tools</li>
+          </ul>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-title">🔒 Security & Compliance</div>
+          <ul class="feature-list">
+            <li>Role-based access control (RBAC)</li>
+            <li>Data encryption at rest and in transit</li>
+            <li>Audit trail for all submissions</li>
+            <li>SSO integration for enterprises</li>
+            <li>GDPR and data privacy compliance</li>
+            <li>Tenant-level data isolation</li>
+            <li>Secure document storage (S3)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invite Supplier - Hertzwave</title>
+  <style>
+    :root {
+      --hz-light: #A8E6A3;
+      --hz-primary: #4A7C59;
+      --hz-dark: #2F4F3F;
+      --hz-black: #000000;
+      --hz-logo-h-nav: 20px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f5f5f0;
+      color: #333;
+    }
+
+    .header {
+      background-color: white;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hz-logo {
+      height: var(--hz-logo-h-nav);
+      width: auto;
+    }
+
+    .user-menu {
+      background-color: var(--hz-light);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 3rem auto;
+      padding: 0 2rem;
+    }
+
+    .back-link {
+      color: var(--hz-primary);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .card {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 2.5rem;
+    }
+
+    .card-header {
+      margin-bottom: 2rem;
+    }
+
+    .card-title {
+      font-size: 1.875rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .card-subtitle {
+      color: #666;
+      font-size: 1rem;
+    }
+
+    .form-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .section-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--hz-light);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .required {
+      color: #ef4444;
+    }
+
+    input, select, textarea {
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--hz-primary);
+      box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.1);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .checkbox-item label {
+      margin: 0;
+      font-weight: 400;
+      cursor: pointer;
+    }
+
+    .info-box {
+      background-color: #f0f9ff;
+      border-left: 4px solid #3b82f6;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .info-box p {
+      color: #1e40af;
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 1px solid #e5e5e5;
+    }
+
+    .btn {
+      padding: 0.875rem 2rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background-color: var(--hz-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--hz-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .btn-secondary {
+      background-color: white;
+      color: var(--hz-primary);
+      border: 1px solid var(--hz-primary);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--hz-light);
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <svg class="hz-logo" viewBox="0 0 200 40" xmlns="http://www.w3.org/2000/svg">
+      <text x="10" y="28" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#4A7C59">HERTZWAVE</text>
+    </svg>
+    <div class="user-menu">👤 Kamesh | Administrator ▾</div>
+  </div>
+
+  <div class="container">
+    <a href="#" class="back-link" onclick="alert('Return to Supplier Evaluation'); return false;">
+      ← Back to Supplier Evaluation
+    </a>
+
+    <div class="card">
+      <div class="card-header">
+        <h1 class="card-title">Invite New Supplier</h1>
+        <p class="card-subtitle">Onboard a supplier to your carbon accounting program</p>
+      </div>
+
+      <form id="supplierInviteForm">
+        <!-- Company Information -->
+        <div class="form-section">
+          <h2 class="section-title">Company Information</h2>
+          <div class="form-grid">
+            <div class="form-group full-width">
+              <label>Company Name <span class="required">*</span></label>
+              <input type="text" required placeholder="e.g., Green Energy Solutions Pvt Ltd">
+            </div>
+            
+            <div class="form-group">
+              <label>Industry Sector <span class="required">*</span></label>
+              <select required>
+                <option value="">Select industry...</option>
+                <option>Manufacturing</option>
+                <option>Electronics</option>
+                <option>Chemicals</option>
+                <option>Transportation & Logistics</option>
+                <option>Renewable Energy</option>
+                <option>Textiles</option>
+                <option>Food & Beverage</option>
+                <option>Packaging</option>
+                <option>Construction Materials</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Annual Revenue (USD) <span class="required">*</span></label>
+              <select required>
+                <option value="">Select range...</option>
+                <option>< $1 Million</option>
+                <option>$1M - $10M</option>
+                <option>$10M - $50M</option>
+                <option>$50M - $100M</option>
+                <option>> $100M</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Country <span class="required">*</span></label>
+              <select required>
+                <option value="">Select country...</option>
+                <option selected>India</option>
+                <option>United States</option>
+                <option>United Kingdom</option>
+                <option>Germany</option>
+                <option>China</option>
+                <option>Singapore</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>State/Region <span class="required">*</span></label>
+              <input type="text" required placeholder="e.g., Maharashtra">
+            </div>
+          </div>
+        </div>
+
+        <!-- Primary Contact -->
+        <div class="form-section">
+          <h2 class="section-title">Primary Contact</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Contact Name <span class="required">*</span></label>
+              <input type="text" required placeholder="Full name">
+            </div>
+
+            <div class="form-group">
+              <label>Job Title <span class="required">*</span></label>
+              <input type="text" required placeholder="e.g., Sustainability Manager">
+            </div>
+
+            <div class="form-group">
+              <label>Email Address <span class="required">*</span></label>
+              <input type="email" required placeholder="contact@supplier.com">
+            </div>
+
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="tel" placeholder="+91 98765 43210">
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Requirements -->
+        <div class="form-section">
+          <h2 class="section-title">Data Requirements</h2>
+          <div class="form-group full-width">
+            <label>Requested Data Categories <span class="required">*</span></label>
+            <div class="checkbox-group">
+              <div class="checkbox-item">
+                <input type="checkbox" id="scope1" checked>
+                <label for="scope1">Scope 1 - Direct Emissions (fuel combustion, fugitives)</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="scope2" checked>
+                <label for="scope2">Scope 2 - Indirect Emissions (purchased electricity, steam)</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="scope3" checked>
+                <label for="scope3">Scope 3 - Value Chain Emissions (upstream & downstream)</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="product">
+                <label for="product">Product-level Carbon Footprint</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="reduction">
+                <label for="reduction">Carbon Reduction Targets & Plans</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label>Reporting Frequency <span class="required">*</span></label>
+            <select required>
+              <option value="">Select frequency...</option>
+              <option selected>Quarterly</option>
+              <option>Monthly</option>
+              <option>Annually</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width">
+            <label>First Reporting Period <span class="required">*</span></label>
+            <select required>
+              <option value="">Select period...</option>
+              <option>Q1 2025 (Jan-Mar)</option>
+              <option selected>Q2 2025 (Apr-Jun)</option>
+              <option>Q3 2025 (Jul-Sep)</option>
+              <option>Q4 2025 (Oct-Dec)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Invitation Message -->
+        <div class="form-section">
+          <h2 class="section-title">Invitation Message (Optional)</h2>
+          <div class="form-group full-width">
+            <label>Custom Message to Supplier</label>
+            <textarea placeholder="Add a personalized message explaining why you're inviting this supplier and what you hope to achieve together..."></textarea>
+          </div>
+
+          <div class="info-box">
+            <p><strong>📧 Automatic Email Preview:</strong> The supplier will receive a professional invitation email with login credentials, onboarding instructions, and data submission guidelines. Your custom message will be included at the top of the email.</p>
+          </div>
+        </div>
+
+        <!-- Submit Buttons -->
+        <div class="button-group">
+          <button type="button" class="btn btn-secondary" onclick="alert('Invitation cancelled')">Cancel</button>
+          <button type="submit" class="btn btn-primary" onclick="event.preventDefault(); alert('✓ Invitation sent successfully! The supplier will receive an email with login credentials.');">Send Invitation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

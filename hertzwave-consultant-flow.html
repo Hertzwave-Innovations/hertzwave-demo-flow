@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consultant Dashboard - Hertzwave Professional</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+ 
+ <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Outfit', sans-serif; 
+      background: #f5f7fa;
+      color: #2d3748;
+    }
+    
+    .header {
+      background: #4a7c59;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .logo { font-size: 1.5rem; font-weight: 700; }
+    .user-info { display: flex; align-items: center; gap: 1rem; }
+    
+    .container { display: flex; min-height: calc(100vh - 64px); }
+    
+    .sidebar {
+      width: 260px;
+      background: white;
+      padding: 1.5rem 0;
+      box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+    }
+    .nav-section {
+      margin-bottom: 1.5rem;
+    }
+    .nav-section-title {
+      padding: 0.5rem 1.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #a0aec0;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .nav-item {
+      padding: 0.875rem 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+      color: #4a5568;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .nav-item:hover {
+      background: #f7fafc;
+      border-left-color: #4a7c59;
+    }
+    .nav-item.active {
+      background: #e6f4ea;
+      border-left-color: #4a7c59;
+      color: #4a7c59;
+    }
+    .nav-icon {
+      font-size: 1.25rem;
+    }
+    
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+      height: calc(100vh - 64px);
+    }
+    
+    .page-title {
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 0.5rem;
+    }
+    .page-subtitle {
+      color: #718096;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-left: 4px solid #4a7c59;
+    }
+    .stat-label {
+      font-size: 0.875rem;
+      color: #718096;
+      margin-bottom: 0.5rem;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a202c;
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+      font-family: 'Outfit', sans-serif;
+    }
+    .btn-primary {
+      background: #4a7c59;
+      color: white;
+    }
+    .btn-primary:hover { background: #3d6648; }
+    .btn-secondary {
+      background: white;
+      color: #4a7c59;
+      border: 2px solid #4a7c59;
+    }
+    .btn-secondary:hover { background: #f7fafc; }
+    
+    .controls-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .search-box {
+      flex: 1;
+      min-width: 300px;
+      position: relative;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: 'Outfit', sans-serif;
+    }
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #a0aec0;
+    }
+    select {
+      padding: 0.75rem 1rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: 'Outfit', sans-serif;
+      background: white;
+    }
+    
+    .client-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 1.5rem;
+    }
+    .client-card {
+      background: white !important;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: all 0.2s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .client-card.status-critical,
+    .client-card.status-warning,
+    .client-card.status-good {
+      background: white !important;
+    }
+    .client-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: transparent;
+    }
+    .client-card.status-critical::before { background: #e53e3e !important; }
+    .client-card.status-warning::before { background: #ecc94b !important; }
+    .client-card.status-good::before { background: #48bb78 !important; }
+    .client-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+    }
+
+    /* List view styles */
+    .client-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .client-list .client-card {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr 200px;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      gap: 1rem;
+    }
+    .client-list .client-card::before {
+      height: 100%;
+      width: 6px;
+      right: auto;
+    }
+    .client-list .client-header {
+      margin-bottom: 0;
+    }
+    .client-list .client-metrics {
+      display: contents;
+    }
+    .client-list .client-metrics .metric {
+      text-align: center;
+    }
+    .client-list .ai-insight {
+      display: none;
+    }
+    .client-list .status-indicator {
+      display: none;
+    }
+    
+    .view-btn-active {
+      background: #4a7c59 !important;
+      color: white !important;
+    }
+    
+    .client-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 1rem;
+    }
+    .client-name {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #1a202c;
+      margin-bottom: 0.25rem;
+    }
+    .client-industry {
+      font-size: 0.875rem;
+      color: #718096;
+    }
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-top: 0.25rem;
+    }
+    .status-critical { background: #e53e3e; }
+    .status-warning { background: #ecc94b; }
+    .status-good { background: #48bb78; }
+    
+    .client-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .metric {
+      font-size: 0.875rem;
+    }
+    .metric-label {
+      color: #718096;
+    }
+    .metric-value {
+      font-weight: 600;
+      color: #1a202c;
+    }
+    .metric-change {
+      font-size: 0.75rem;
+      margin-left: 0.25rem;
+    }
+    .metric-change.positive { color: #48bb78; }
+    .metric-change.negative { color: #e53e3e; }
+    
+    .ai-insight {
+      background: #f7fafc;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      color: #4a5568;
+      margin-bottom: 1rem;
+      border-left: 3px solid #4a7c59;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+    .badge-blue { background: #e6f4ff; color: #0066cc; }
+    .badge-green { background: #e6f4ea; color: #2d5f3f; }
+    .badge-orange { background: #fff3e0; color: #e65100; }
+    .badge-red { background: #fff5f5; color: #c53030; }
+    
+    .screen { display: none; }
+    .screen.active { display: block; }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+    label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #4a5568;
+    }
+    input[type="text"], input[type="email"], input[type="date"], textarea {
+      padding: 0.75rem 1rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: 'Outfit', sans-serif;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    
+    .upload-area {
+      border: 2px dashed #cbd5e0;
+      border-radius: 12px;
+      padding: 3rem;
+      text-align: center;
+      background: #f7fafc;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .upload-area:hover {
+      border-color: #4a7c59;
+      background: #e6f4ea;
+    }
+    .upload-icon {
+      font-size: 3rem;
+      color: #4a7c59;
+      margin-bottom: 1rem;
+    }
+    
+    .two-column-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    
+    .info-box {
+      background: #f7fafc;
+      border-left: 4px solid #4a7c59;
+      padding: 1rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+    }
+    .info-box.warning {
+      border-left-color: #ecc94b;
+      background: #fffbeb;
+    }
+    .info-box.error {
+      border-left-color: #e53e3e;
+      background: #fff5f5;
+    }
+    
+    .consultant-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .consultant-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    .consultant-name {
+      font-weight: 600;
+      font-size: 1.125rem;
+    }
+    .consultant-meta {
+      font-size: 0.875rem;
+      color: #718096;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      background: #f7fafc;
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #4a5568;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.95rem;
+    }
+    tr:hover {
+      background: #f7fafc;
+    }
+    
+    .matrix-container {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    .matrix-quadrant {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      min-height: 250px;
+    }
+    .quadrant-title {
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .quadrant-item {
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      background: #f7fafc;
+      border-radius: 6px;
+      font-size: 0.875rem;
+    }
+    
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+    }
+    .modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1a202c;
+    }
+    .close-btn {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #a0aec0;
+      cursor: pointer;
+      border: none;
+      background: none;
+    }
+    .close-btn:hover {
+      color: #4a5568;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">HERTZWAVE Professional</div>
+    <div class="user-info">
+      <span>Deloitte Sustainability | Priya Sharma</span>
+      <button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Logout</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="sidebar">
+      <div class="nav-section">
+        <div class="nav-section-title">Dashboard</div>
+        <div class="nav-item active" onclick="showScreen('clients-home')">
+          <span class="nav-icon">📊</span>
+          <span>All Clients</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('add-client')">
+          <span class="nav-icon">➕</span>
+          <span>Add New Client</span>
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Analytics</div>
+        <div class="nav-item" onclick="showScreen('portfolio-analytics')">
+          <span class="nav-icon">📈</span>
+          <span>Portfolio Analytics</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('ai-insights')">
+          <span class="nav-icon">🤖</span>
+          <span>AI Insights Hub</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('benchmarking')">
+          <span class="nav-icon">🎯</span>
+          <span>Benchmarking</span>
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Operations</div>
+        <div class="nav-item" onclick="showScreen('bulk-reports')">
+          <span class="nav-icon">📄</span>
+          <span>Bulk Reports</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('import-export')">
+          <span class="nav-icon">⬆️</span>
+          <span>Import/Export Data</span>
+        </div>
+        <div class="nav-item">
+          <span class="nav-icon">⚙️</span>
+          <span>Settings</span>
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Firm Management</div>
+        <div class="nav-item" onclick="showScreen('manage-consultants')">
+          <span class="nav-icon">👥</span>
+          <span>Manage Consultants</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('client-assignment')">
+          <span class="nav-icon">🔗</span>
+          <span>Client Assignment</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('consultant-performance')">
+          <span class="nav-icon">📊</span>
+          <span>Performance Dashboard</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-content">
+      
+      <!-- Screen 1: All Clients Dashboard -->
+      <div id="clients-home" class="screen active">
+        <h1 class="page-title">Client Portfolio</h1>
+        <p class="page-subtitle">Managing 47 clients across 12 industries</p>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Clients</div>
+            <div class="stat-value">47</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active Projects</div>
+            <div class="stat-value">89</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Emissions Tracked</div>
+            <div class="stat-value">2.4M <span style="font-size: 1rem; color: #718096;">tCO₂e</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Avg Reduction Progress</div>
+            <div class="stat-value">23%</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Net-Zero Ready</div>
+            <div class="stat-value">8</div>
+          </div>
+          <div class="stat-card" style="border-left-color: #e53e3e;">
+            <div class="stat-label">Urgent Alerts</div>
+            <div class="stat-value" style="color: #e53e3e;">12</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="controls-bar">
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Search clients by name, industry, or location..." />
+            </div>
+            <select>
+              <option>Sort: Alphabetical (A-Z)</option>
+              <option>Sort: Performance (Best First)</option>
+              <option>Sort: Emissions (High to Low)</option>
+              <option>Sort: Risk Level (Critical First)</option>
+            </select>
+            <select>
+              <option>All Industries</option>
+              <option>Manufacturing</option>
+              <option>Technology</option>
+              <option>Healthcare</option>
+              <option>Retail</option>
+            </select>
+            <select>
+              <option>All Status</option>
+              <option>Critical Issues</option>
+              <option>Needs Attention</option>
+              <option>On Track</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
+          <button class="btn btn-secondary view-btn-active" id="cardViewBtn" onclick="switchView('card')" style="padding: 0.5rem 1rem;">
+            📇 Card View
+          </button>
+          <button class="btn btn-secondary" id="listViewBtn" onclick="switchView('list')" style="padding: 0.5rem 1rem;">
+            📋 List View
+          </button>
+        </div>
+
+        <div class="client-grid" id="clientContainer">
+          <div class="client-card status-critical" onclick="viewClient('acme')">
+            <div class="client-header">
+              <div>
+                <div class="client-name">Acme Manufacturing Ltd.</div>
+                <div class="client-industry">Manufacturing • 3 Facilities</div>
+              </div>
+              <div class="status-indicator status-critical"></div>
+            </div>
+            
+            <div class="client-metrics">
+              <div class="metric">
+                <div class="metric-label">Emissions</div>
+                <div class="metric-value">45,000 tCO₂e</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Reduction</div>
+                <div class="metric-value">12% <span class="metric-change positive">↓</span></div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Data Quality</div>
+                <div class="metric-value">67%</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Last Update</div>
+                <div class="metric-value">2 days ago</div>
+              </div>
+            </div>
+            
+            <div class="ai-insight">
+              <strong>AI Alert:</strong> Missing Scope 3 data - 23% gap. Supplier engagement needed.
+            </div>
+            
+            <div>
+              <span class="badge badge-red">Data Issues</span>
+              <span class="badge badge-orange">Q4 Due Soon</span>
+            </div>
+          </div>
+
+          <div class="client-card status-good" onclick="viewClient('beta')">
+            <div class="client-header">
+              <div>
+                <div class="client-name">Beta Pharma Inc.</div>
+                <div class="client-industry">Pharmaceuticals • 5 Facilities</div>
+              </div>
+              <div class="status-indicator status-good"></div>
+            </div>
+            
+            <div class="client-metrics">
+              <div class="metric">
+                <div class="metric-label">Emissions</div>
+                <div class="metric-value">89,000 tCO₂e</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Reduction</div>
+                <div class="metric-value">34% <span class="metric-change positive">↓</span></div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Data Quality</div>
+                <div class="metric-value">94%</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Last Update</div>
+                <div class="metric-value">1 day ago</div>
+              </div>
+            </div>
+            
+            <div class="ai-insight">
+              <strong>AI Insight:</strong> Outperforming industry peers by 18%. Showcase candidate.
+            </div>
+            
+            <div>
+              <span class="badge badge-green">On Track</span>
+              <span class="badge badge-blue">SBTi Validated</span>
+            </div>
+          </div>
+
+          <div class="client-card status-warning" onclick="viewClient('gamma')">
+            <div class="client-header">
+              <div>
+                <div class="client-name">Gamma Tech Solutions</div>
+                <div class="client-industry">Technology • 2 Offices</div>
+              </div>
+              <div class="status-indicator status-warning"></div>
+            </div>
+            
+            <div class="client-metrics">
+              <div class="metric">
+                <div class="metric-label">Emissions</div>
+                <div class="metric-value">12,500 tCO₂e</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Reduction</div>
+                <div class="metric-value">8% <span class="metric-change positive">↓</span></div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Data Quality</div>
+                <div class="metric-value">87%</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Last Update</div>
+                <div class="metric-value">5 days ago</div>
+              </div>
+            </div>
+            
+            <div class="ai-insight">
+              <strong>AI Suggestion:</strong> Eligible for 45Q tax credits - $85K potential.
+            </div>
+            
+            <div>
+              <span class="badge badge-orange">Needs Review</span>
+              <span class="badge badge-blue">Cloud First</span>
+            </div>
+          </div>
+
+          <div class="client-card status-good" onclick="viewClient('delta')">
+            <div class="client-header">
+              <div>
+                <div class="client-name">Delta Retail Corp</div>
+                <div class="client-industry">Retail • 120 Stores</div>
+              </div>
+              <div class="status-indicator status-good"></div>
+            </div>
+            
+            <div class="client-metrics">
+              <div class="metric">
+                <div class="metric-label">Emissions</div>
+                <div class="metric-value">156,000 tCO₂e</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Reduction</div>
+                <div class="metric-value">27% <span class="metric-change positive">↓</span></div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Data Quality</div>
+                <div class="metric-value">91%</div>
+              </div>
+              <div class="metric">
+                <div class="metric-label">Last Update</div>
+                <div class="metric-value">Today</div>
+              </div>
+            </div>
+            
+            <div class="ai-insight">
+              <strong>AI Insight:</strong> Store-level energy efficiency program showing strong ROI.
+            </div>
+            
+            <div>
+              <span class="badge badge-green">Excellent Progress</span>
+              <span class="badge badge-blue">Renewable 60%</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+          <button class="btn btn-secondary">Load More Clients (43 remaining)</button>
+        </div>
+      </div>
+
+      <!-- Screen 2: Add Client Wizard -->
+      <div id="add-client" class="screen">
+        <h1 class="page-title">Add New Client</h1>
+        <p class="page-subtitle">Onboard a new client to your portfolio</p>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem;">Client Information</h3>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Company Name*</label>
+              <input type="text" placeholder="e.g., Acme Manufacturing Ltd." required>
+            </div>
+            
+            <div class="form-group">
+              <label>Industry Sector*</label>
+              <select>
+                <option value="">Select industry...</option>
+                <option>Manufacturing</option>
+                <option>Technology</option>
+                <option>Healthcare</option>
+                <option>Retail</option>
+                <option>Financial Services</option>
+                <option>Energy & Utilities</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Country/Region*</label>
+              <select>
+                <option>India</option>
+                <option>United States</option>
+                <option>United Kingdom</option>
+                <option>Germany</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Number of Facilities</label>
+              <input type="text" placeholder="e.g., 5">
+            </div>
+            
+            <div class="form-group">
+              <label>Primary Contact Name*</label>
+              <input type="text" placeholder="John Smith" required>
+            </div>
+            
+            <div class="form-group">
+              <label>Contact Email*</label>
+              <input type="email" placeholder="contact@company.com" required>
+            </div>
+            
+            <div class="form-group full-width">
+              <label>Notes / Special Requirements</label>
+              <textarea placeholder="Any specific requirements or notes about this client..."></textarea>
+            </div>
+          </div>
+          
+          <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+            <button class="btn btn-secondary">Cancel</button>
+            <button class="btn btn-primary">Save Client</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 3: Import/Export Data -->
+      <div id="import-export" class="screen">
+        <h1 class="page-title">Import/Export Data</h1>
+        <p class="page-subtitle">Bulk upload emissions data or export your existing data</p>
+
+        <div class="card">
+          <div style="margin-bottom: 1.5rem;">
+            <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Select Client</label>
+            <div style="display: flex; gap: 1rem;">
+              <select style="flex: 1; max-width: 400px;">
+                <option>Acme Manufacturing Ltd.</option>
+                <option>Beta Pharma Inc.</option>
+                <option>Gamma Tech Solutions</option>
+                <option>Delta Retail Corp</option>
+              </select>
+              <button class="btn btn-secondary">All Clients</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="two-column-layout">
+          <!-- Import Section -->
+          <div class="card">
+            <h3 style="margin-bottom: 1rem;">📥 Import Emissions Data</h3>
+            <p style="color: #718096; font-size: 0.875rem; margin-bottom: 1.5rem;">
+              Upload a CSV, XLSX, JSON, XML file containing your emissions data. Your file must include the required columns.
+            </p>
+
+            <div style="margin-bottom: 1rem;">
+              <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Scope Selection</label>
+              <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                  <input type="checkbox" checked> Scope 1
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                  <input type="checkbox" checked> Scope 2
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                  <input type="checkbox" checked> Scope 3
+                </label>
+              </div>
+            </div>
+
+            <div class="upload-area" onclick="alert('File upload dialog would open here')">
+              <div class="upload-icon">☁️</div>
+              <div style="font-weight: 600; font-size: 1.125rem; margin-bottom: 0.5rem;">Click to upload or drag and drop</div>
+              <div style="color: #718096; font-size: 0.875rem;">CSV, XLSX, JSON, XML files up to 100MB</div>
+            </div>
+
+            <div style="margin-top: 1rem;">
+              <button class="btn btn-secondary" style="width: 100%;">📥 Download Template</button>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+              <details>
+                <summary style="font-weight: 600; cursor: pointer; margin-bottom: 0.5rem;">Required Columns</summary>
+                <ul style="font-size: 0.875rem; color: #4a5568; margin-left: 1.5rem; line-height: 1.8;">
+                  <li><strong>scope_type</strong> - Scope (1, 2, 3.1, etc.)</li>
+                  <li><strong>category</strong> - Category (fuel_combustion, purchased_gas, etc.)</li>
+                  <li><strong>activity_data</strong> - Numeric value</li>
+                  <li><strong>unit</strong> - Unit (m3, kWh, kg, etc.)</li>
+                  <li><strong>reporting_period</strong> - YYYY-MM-DD</li>
+                  <li><strong>emission_date</strong> - YYYY-MM-DD</li>
+                </ul>
+              </details>
+            </div>
+          </div>
+
+          <!-- Export Section -->
+          <div class="card">
+            <h3 style="margin-bottom: 1rem;">📤 Export Emissions Data</h3>
+            <p style="color: #718096; font-size: 0.875rem; margin-bottom: 1.5rem;">
+              Export your current emissions data to CSV format for analysis, reporting, or backup purposes.
+            </p>
+
+            <div style="text-align: center; padding: 3rem 1rem; background: #f7fafc; border-radius: 8px; margin-bottom: 1.5rem;">
+              <div style="font-size: 3rem; color: #4a7c59; margin-bottom: 1rem;">📊</div>
+              <button class="btn btn-primary" onclick="alert('Export would download CSV file')">
+                Click to export emissions data
+              </button>
+            </div>
+
+            <div class="info-box">
+              <strong>Export Includes:</strong>
+              <ul style="margin-top: 0.5rem; margin-left: 1.5rem; font-size: 0.875rem;">
+                <li>All emissions data entries</li>
+                <li>Calculated CO₂e values</li>
+                <li>Timestamps and metadata</li>
+                <li>Scope categorization</li>
+                <li>Facility and location data</li>
+                <li>Regional classifications</li>
+              </ul>
+            </div>
+
+            <details style="margin-top: 1rem;">
+              <summary style="font-weight: 600; cursor: pointer; margin-bottom: 0.5rem;">Export Options</summary>
+              <div style="font-size: 0.875rem; margin-top: 0.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem;">
+                  <input type="checkbox" checked> Complete dataset (all scopes)
+                </label>
+                <label style="display: block; margin-bottom: 0.5rem;">
+                  <input type="checkbox"> Scope-specific exports
+                </label>
+                <label style="display: block; margin-bottom: 0.5rem;">
+                  <input type="checkbox"> Include audit trail
+                </label>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <!-- Recent Uploads -->
+        <div class="card" style="margin-top: 1.5rem;">
+          <h3 style="margin-bottom: 1rem;">Recent Uploads</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>File Name</th>
+                <th>Scope</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Acme Manufacturing</td>
+                <td>scope1_q4_2024.csv</td>
+                <td>Scope 1</td>
+                <td>Oct 5, 2025</td>
+                <td><span class="badge badge-green">Success</span></td>
+                <td><button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">View</button></td>
+              </tr>
+              <tr>
+                <td>Beta Pharma Inc.</td>
+                <td>scope2_electricity.xlsx</td>
+                <td>Scope 2</td>
+                <td>Oct 4, 2025</td>
+                <td><span class="badge badge-orange">Pending</span></td>
+                <td><button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">Review</button></td>
+              </tr>
+              <tr>
+                <td>Gamma Tech</td>
+                <td>scope3_travel.csv</td>
+                <td>Scope 3</td>
+                <td>Oct 3, 2025</td>
+                <td><span class="badge badge-green">Success</span></td>
+                <td><button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Screen 4: Portfolio Analytics -->
+      <div id="portfolio-analytics" class="screen">
+        <h1 class="page-title">Portfolio Analytics</h1>
+        <p class="page-subtitle">Performance matrix across all clients</p>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem;">Client Performance Matrix</h3>
+          <p style="color: #718096; margin-bottom: 2rem;">Quadrant analysis based on emissions volume and reduction progress</p>
+          
+          <div class="matrix-container">
+            <div class="matrix-quadrant" style="border-color: #e53e3e; border-width: 3px;">
+              <div class="quadrant-title">
+                <span style="color: #e53e3e;">🔴</span>
+                <span>High Emissions, Low Progress</span>
+              </div>
+              <div style="font-size: 0.75rem; color: #718096; margin-bottom: 1rem;">Urgent Action Required (12 clients)</div>
+              <div class="quadrant-item">Acme Manufacturing - 45K tCO₂e, 12%↓</div>
+              <div class="quadrant-item">Delta Steel Corp - 78K tCO₂e, 8%↓</div>
+              <div class="quadrant-item">Epsilon Chemicals - 92K tCO₂e, 5%↓</div>
+            </div>
+
+            <div class="matrix-quadrant" style="border-color: #ecc94b; border-width: 3px;">
+              <div class="quadrant-title">
+                <span style="color: #ecc94b;">🟡</span>
+                <span>High Emissions, Good Progress</span>
+              </div>
+              <div style="font-size: 0.75rem; color: #718096; margin-bottom: 1rem;">Monitor & Support (8 clients)</div>
+              <div class="quadrant-item">Beta Pharma - 89K tCO₂e, 34%↓</div>
+              <div class="quadrant-item">Gamma Industries - 67K tCO₂e, 28%↓</div>
+              <div class="quadrant-item">Theta Energy - 145K tCO₂e, 31%↓</div>
+            </div>
+
+            <div class="matrix-quadrant" style="border-color: #ecc94b; border-width: 3px;">
+              <div class="quadrant-title">
+                <span style="color: #ecc94b;">🟡</span>
+                <span>Low Emissions, Needs Support</span>
+              </div>
+              <div style="font-size: 0.75rem; color: #718096; margin-bottom: 1rem;">Guidance Needed (15 clients)</div>
+              <div class="quadrant-item">Gamma Tech - 12.5K tCO₂e, 8%↓</div>
+              <div class="quadrant-item">Lambda Services - 8.9K tCO₂e, 11%↓</div>
+              <div class="quadrant-item">Nu Consulting - 6.2K tCO₂e, 7%↓</div>
+            </div>
+
+            <div class="matrix-quadrant" style="border-color: #48bb78; border-width: 3px;">
+              <div class="quadrant-title">
+                <span style="color: #48bb78;">🟢</span>
+                <span>Low Emissions, Best in Class</span>
+              </div>
+              <div style="font-size: 0.75rem; color: #718096; margin-bottom: 1rem;">Showcase Candidates (12 clients)</div>
+              <div class="quadrant-item">Omega Renewables - 7.1K tCO₂e, 45%↓</div>
+              <div class="quadrant-item">Pi Software - 4.3K tCO₂e, 52%↓</div>
+              <div class="quadrant-item">Rho Advisory - 5.8K tCO₂e, 38%↓</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+            <button class="btn btn-primary">Generate Portfolio Report</button>
+            <button class="btn btn-secondary">Export Matrix Data</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 5: AI Insights Hub -->
+      <div id="ai-insights" class="screen">
+        <h1 class="page-title">AI Insights Hub</h1>
+        <p class="page-subtitle">Smart recommendations and alerts across your portfolio</p>
+
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <div>
+              <h3>Active Insights</h3>
+              <p style="color: #718096; font-size: 0.875rem; margin-top: 0.25rem;">AI-generated recommendations</p>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+              <select style="padding: 0.5rem 1rem;">
+                <option>All Priorities</option>
+                <option>Urgent Only</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: #e53e3e; margin-bottom: 1rem;">🔴 Urgent (3)</h4>
+            
+            <div class="info-box error">
+              <div style="font-weight: 600; margin-bottom: 0.5rem;">Acme Manufacturing: Scope 3 data quality dropped below 70%</div>
+              <div style="font-size: 0.875rem; margin-bottom: 0.75rem;">
+                Missing supplier engagement data from 15 key vendors representing 23% of emissions footprint.
+              </div>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-primary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">View Details</button>
+                <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">Mark as Reviewed</button>
+              </div>
+            </div>
+
+            <div class="info-box error" style="margin-top: 1rem;">
+              <div style="font-weight: 600; margin-bottom: 0.5rem;">Delta Steel: Emissions increased 15% vs. last quarter</div>
+              <div style="font-size: 0.875rem; margin-bottom: 0.75rem;">
+                Likely cause: Production volume up, but intensity worsened. Energy intensity worsened from 2.4 to 2.8 tCO₂e per unit.
+              </div>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-primary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">Investigate</button>
+                <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">Schedule Call</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 1.5rem;">
+            <h4 style="color: #ecc94b; margin-bottom: 1rem;">🟡 Attention Needed (8)</h4>
+            
+            <div class="info-box warning">
+              <div style="font-weight: 600; margin-bottom: 0.5rem;">Beta Pharma: Approaching quarterly reporting deadline</div>
+              <div style="font-size: 0.875rem; margin-bottom: 0.75rem;">
+                Data completeness: 87% (Target: 95%). Need to upload remaining Scope 3 business travel data.
+              </div>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-primary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">Upload Remaining Data</button>
+                <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">Request from Client</button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 style="color: #48bb78; margin-bottom: 1rem;">🟢 Opportunities (5)</h4>
+            
+            <div class="info-box">
+              <div style="font-weight: 600; margin-bottom: 0.5rem;">Gamma Tech: Eligible for 45Q tax credits - $230K potential</div>
+              <div style="font-size: 0.875rem; margin-bottom: 0.75rem;">
+                Analysis shows client qualifies for Section 45Q carbon capture tax credits based on emission reduction projects.
+              </div>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-primary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">Learn More</button>
+                <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">Add to Client Recommendations</button>
+              </div>
+            </div>
+
+            <div class="info-box" style="margin-top: 1rem;">
+              <div style="font-weight: 600; margin-bottom: 0.5rem;">Zeta Renewables: Outperforming industry by 34%</div>
+              <div style="font-size: 0.875rem; margin-bottom: 0.75rem;">
+                Use as case study for other manufacturing clients. Exceptional reduction progress and data quality.
+              </div>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-primary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">Create Case Study</button>
+                <button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">Share Best Practices</button>
+              </div>
+            </div>
+          </div>
+
+          <div style="text-align: center; margin-top: 1.5rem;">
+            <button class="btn btn-secondary">Show All Insights (23 total)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 6: Benchmarking -->
+      <div id="benchmarking" class="screen">
+        <h1 class="page-title">Industry Benchmarking</h1>
+        <p class="page-subtitle">Compare client performance against industry standards</p>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem;">Client vs. Industry Comparison</h3>
+          
+          <div style="margin-bottom: 1.5rem;">
+            <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Select Client to Benchmark</label>
+            <select style="width: 100%; max-width: 400px;">
+              <option>Acme Manufacturing Ltd.</option>
+              <option>Beta Pharma Inc.</option>
+              <option>Gamma Tech Solutions</option>
+              <option>All Manufacturing Clients</option>
+            </select>
+          </div>
+
+          <div style="background: #f7fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+            <h4 style="margin-bottom: 1rem;">Acme Manufacturing Ltd. - Benchmarking Results</h4>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
+              <div>
+                <div style="font-size: 0.875rem; color: #718096; margin-bottom: 0.5rem;">Emissions Intensity</div>
+                <div style="font-size: 1.5rem; font-weight: 700;">2.8 tCO₂e/unit</div>
+                <div style="font-size: 0.875rem; color: #e53e3e;">Industry Avg: 2.1 → 33% worse</div>
+              </div>
+              <div>
+                <div style="font-size: 0.875rem; color: #718096; margin-bottom: 0.5rem;">Reduction Progress</div>
+                <div style="font-size: 1.5rem; font-weight: 700;">12%</div>
+                <div style="font-size: 0.875rem; color: #e53e3e;">Industry Avg: 15% ↑ 3pp behind</div>
+              </div>
+              <div>
+                <div style="font-size: 0.875rem; color: #718096; margin-bottom: 0.5rem;">Data Quality Score</div>
+                <div style="font-size: 1.5rem; font-weight: 700;">67%</div>
+                <div style="font-size: 0.875rem; color: #e53e3e;">Industry Avg: 82% ↑ 15pp below</div>
+              </div>
+            </div>
+
+            <div style="background: white; padding: 1rem; border-radius: 6px; border-left: 4px solid #e53e3e;">
+              <strong>AI Analysis:</strong> Acme is underperforming across all key metrics. Primary issues: incomplete Scope 3 data collection and aging equipment efficiency.
+            </div>
+          </div>
+
+          <div>
+            <h4 style="margin-bottom: 1rem;">Performance Distribution - Manufacturing Sector</h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>Percentile</th>
+                  <th>Emissions Intensity</th>
+                  <th>Reduction Progress</th>
+                  <th>Data Quality</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="background: #e6f4ea;">
+                  <td><strong>Top 10%</strong></td>
+                  <td>1.2 tCO₂e/unit</td>
+                  <td>35%+</td>
+                  <td>95%+</td>
+                </tr>
+                <tr>
+                  <td><strong>Median (50th)</strong></td>
+                  <td>2.1 tCO₂e/unit</td>
+                  <td>18%</td>
+                  <td>82%</td>
+                </tr>
+                <tr style="background: #fff5f5;">
+                  <td><strong>Bottom 10%</strong></td>
+                  <td>3.5+ tCO₂e/unit</td>
+                  <td>&lt;8%</td>
+                  <td>&lt;65%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 7: Bulk Reports -->
+      <div id="bulk-reports" class="screen">
+        <h1 class="page-title">Bulk Report Generation</h1>
+        <p class="page-subtitle">Generate reports for multiple clients simultaneously</p>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem;">Select Clients for Reporting</h3>
+          
+          <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+            <button class="btn btn-secondary">Select All Clients</button>
+            <button class="btn btn-secondary">Select by Industry</button>
+            <button class="btn btn-secondary">Clear Selection</button>
+          </div>
+
+          <div style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem;">
+            <label style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; cursor: pointer;">
+              <input type="checkbox" checked>
+              <div style="flex: 1;">
+                <div style="font-weight: 600;">Acme Manufacturing Ltd.</div>
+                <div style="font-size: 0.875rem; color: #718096;">Manufacturing • 45,000 tCO₂e</div>
+              </div>
+            </label>
+            
+            <label style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; cursor: pointer;">
+              <input type="checkbox" checked>
+              <div style="flex: 1;">
+                <div style="font-weight: 600;">Beta Pharma Inc.</div>
+                <div style="font-size: 0.875rem; color: #718096;">Pharmaceuticals • 89,000 tCO₂e</div>
+              </div>
+            </label>
+          </div>
+
+          <div style="margin-top: 1.5rem; padding: 1rem; background: #f7fafc; border-radius: 8px;">
+            <strong>Selected:</strong> 2 clients • <strong>Total Emissions:</strong> 134,000 tCO₂e
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem;">
+          <h3 style="margin-bottom: 1.5rem;">Report Configuration</h3>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Report Type</label>
+              <select>
+                <option>Quarterly Summary Report</option>
+                <option>Annual Sustainability Report</option>
+                <option>BRSR Disclosure Report</option>
+                <option>Custom Report</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Reporting Period</label>
+              <select>
+                <option>Q4 FY2024 (Jan-Mar 2024)</option>
+                <option>Q3 FY2024 (Oct-Dec 2023)</option>
+                <option>Full Year FY2024</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+            <button class="btn btn-secondary">Save Configuration</button>
+            <button class="btn btn-primary">Generate Reports (Est. 2-4 min)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 8: Manage Consultants (NEW) -->
+      <div id="manage-consultants" class="screen">
+        <h1 class="page-title">Consultant Management</h1>
+        <p class="page-subtitle">Manage consulting team and access controls</p>
+
+        <div class="card">
+          <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+            <button class="btn btn-primary" onclick="openAddConsultantModal()">+ Add Consultant</button>
+          </div>
+
+          <div class="controls-bar">
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input type="text" placeholder="Search consultants..." />
+            </div>
+            <select>
+              <option>All Roles</option>
+              <option>Senior Consultant</option>
+              <option>Consultant</option>
+              <option>Junior Consultant</option>
+            </select>
+          </div>
+
+          <div style="margin-top: 1.5rem;">
+            <h4 style="margin-bottom: 1rem;">Active Consultants (12)</h4>
+            
+            <div class="consultant-card">
+              <div class="consultant-header">
+                <div>
+                  <div class="consultant-name">Priya Sharma</div>
+                  <div class="consultant-meta">Senior Consultant • 8 clients • 95% utilization</div>
+                  <div class="consultant-meta">Joined: Jan 2024 • Last active: Today</div>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">Edit</button>
+                  <button class="btn btn-primary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">View Portfolio</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="consultant-card">
+              <div class="consultant-header">
+                <div>
+                  <div class="consultant-name">Rahul Mehta</div>
+                  <div class="consultant-meta">Consultant • 5 clients • 65% utilization</div>
+                  <div class="consultant-meta">Joined: Mar 2024 • Last active: Yesterday</div>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">Edit</button>
+                  <button class="btn btn-primary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">View Portfolio</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="consultant-card">
+              <div class="consultant-header">
+                <div>
+                  <div class="consultant-name">Anjali Gupta</div>
+                  <div class="consultant-meta">Senior Consultant • 6 clients • 78% utilization</div>
+                  <div class="consultant-meta">Joined: Feb 2024 • Last active: Today</div>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">Edit</button>
+                  <button class="btn btn-primary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">View Portfolio</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 9: Client Assignment (NEW) -->
+      <div id="client-assignment" class="screen">
+        <h1 class="page-title">Client Assignment</h1>
+        <p class="page-subtitle">Assign clients to consultants and manage workload distribution</p>
+
+        <div class="card">
+          <div class="info-box warning">
+            <strong>Unassigned Clients:</strong> 3 clients need to be assigned to consultants
+          </div>
+
+          <div style="margin-top: 1.5rem;">
+            <h4 style="margin-bottom: 1rem;">Consultant Portfolios</h4>
+            
+            <div class="consultant-card" style="border-left: 4px solid #e53e3e;">
+              <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div class="consultant-name">Priya Sharma (8 clients)</div>
+                  <span class="badge badge-red">High Workload</span>
+                </div>
+                <div class="consultant-meta">95% capacity • Consider redistributing clients</div>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+                <span class="badge badge-blue">Acme Manufacturing</span>
+                <span class="badge badge-blue">Beta Pharma Inc.</span>
+                <span class="badge badge-blue">Gamma Tech Solutions</span>
+                <span class="badge badge-blue">+5 more</span>
+              </div>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">View Details</button>
+                <button class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">Reassign Clients</button>
+              </div>
+            </div>
+
+            <div class="consultant-card" style="border-left: 4px solid #48bb78;">
+              <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div class="consultant-name">Rahul Mehta (5 clients)</div>
+                  <span class="badge badge-green">Optimal</span>
+                </div>
+                <div class="consultant-meta">65% capacity • Can take 2-3 more clients</div>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+                <span class="badge badge-blue">Delta Retail Corp</span>
+                <span class="badge badge-blue">Epsilon Energy</span>
+                <span class="badge badge-blue">+3 more</span>
+              </div>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">View Details</button>
+                <button class="btn btn-primary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">Assign More</button>
+              </div>
+            </div>
+
+            <div class="consultant-card" style="border-left: 4px solid #48bb78;">
+              <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div class="consultant-name">Anjali Gupta (6 clients)</div>
+                  <span class="badge badge-green">Good</span>
+                </div>
+                <div class="consultant-meta">78% capacity • Balanced workload</div>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem;">
+                <span class="badge badge-blue">Zeta Manufacturing</span>
+                <span class="badge badge-blue">Theta Logistics</span>
+                <span class="badge badge-blue">+4 more</span>
+              </div>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">View Details</button>
+                <button class="btn btn-primary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">Assign More</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 10: Consultant Performance (NEW) -->
+      <div id="consultant-performance" class="screen">
+        <h1 class="page-title">Consultant Performance Dashboard</h1>
+        <p class="page-subtitle">Monitor consultant productivity and quality metrics</p>
+
+        <div class="card">
+          <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+            <select>
+              <option>Last Quarter</option>
+              <option>Last 6 Months</option>
+              <option>Last Year</option>
+            </select>
+            <select>
+              <option>All Consultants</option>
+              <option>Senior Only</option>
+              <option>Junior Only</option>
+            </select>
+          </div>
+
+          <div style="background: #f7fafc; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+              <div>
+                <div style="font-size: 0.875rem; color: #718096;">Avg Clients per Consultant</div>
+                <div style="font-size: 1.5rem; font-weight: 700;">6.5</div>
+              </div>
+              <div>
+                <div style="font-size: 0.875rem; color: #718096;">Completion Rate</div>
+                <div style="font-size: 1.5rem; font-weight: 700;">87%</div>
+              </div>
+              <div>
+                <div style="font-size: 0.875rem; color: #718096;">Avg Data Quality</div>
+                <div style="font-size: 1.5rem; font-weight: 700;">92%</div>
+              </div>
+              <div>
+                <div style="font-size: 0.875rem; color: #718096;">Client Satisfaction</div>
+                <div style="font-size: 1.5rem; font-weight: 700;">4.2/5</div>
+              </div>
+            </div>
+          </div>
+
+          <h3 style="margin-bottom: 1rem;">Consultant Performance Matrix</h3>
+          
+          <div class="matrix-container">
+            <div class="matrix-quadrant" style="border-color: #48bb78; border-width: 3px;">
+              <div class="quadrant-title">
+                <span style="color: #48bb78;">🟢</span>
+                <span>Top Performers</span>
+              </div>
+              <div style="font-size: 0.75rem; color: #718096; margin-bottom: 1rem;">High Quality, High Volume (3)</div>
+              <div class="quadrant-item">Priya Sharma - 8 clients, 94% quality</div>
+              <div class="quadrant-item">Anjali Gupta - 6 clients, 96% quality</div>
+              <div class="quadrant-item">Vikram Singh - 7 clients, 93% quality</div>
+            </div>
+
+            <div class="matrix-quadrant" style="border-color: #48bb78; border-width: 3px;">
+              <div class="quadrant-title">
+                <span style="color: #48bb78;">🟢</span>
+                <span>Quality Focus</span>
+              </div>
+              <div style="font-size: 0.75rem; color: #718096; margin-bottom: 1rem;">High Quality, Moderate Volume (2)</div>
+              <div class="quadrant-item">Meera Patel - 4 clients, 97% quality</div>
+              <div class="quadrant-item">Arjun Reddy - 5 clients, 95% quality</div>
+            </div>
+
+            <div class="matrix-quadrant" style="border-color: #ecc94b; border-width: 3px;">
+              <div class="quadrant-title">
+                <span style="color: #ecc94b;">🟡</span>
+                <span>Speed Focus</span>
+              </div>
+              <div style="font-size: 0.75rem; color: #718096; margin-bottom: 1rem;">Needs Support (1)</div>
+              <div class="quadrant-item">Rahul Mehta - 5 clients, 82% quality</div>
+            </div>
+
+            <div class="matrix-quadrant" style="border-color: #e53e3e; border-width: 3px;">
+              <div class="quadrant-title">
+                <span style="color: #e53e3e;">🔴</span>
+                <span>Coaching Needed</span>
+              </div>
+              <div style="font-size: 0.75rem; color: #718096; margin-bottom: 1rem;">Development Required (1)</div>
+              <div class="quadrant-item">Neha Sharma - 3 clients, 76% quality</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top: 1.5rem;">
+          <h3 style="margin-bottom: 1rem;">Detailed Metrics</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Consultant</th>
+                <th>Clients</th>
+                <th>Data Quality</th>
+                <th>Completion Rate</th>
+                <th>Client Satisfaction</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Priya Sharma</strong></td>
+                <td>8</td>
+                <td>94%</td>
+                <td>92%</td>
+                <td>4.5/5</td>
+                <td><button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">View Details</button></td>
+              </tr>
+              <tr>
+                <td><strong>Anjali Gupta</strong></td>
+                <td>6</td>
+                <td>96%</td>
+                <td>89%</td>
+                <td>4.6/5</td>
+                <td><button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">View Details</button></td>
+              </tr>
+              <tr>
+                <td><strong>Rahul Mehta</strong></td>
+                <td>5</td>
+                <td>82%</td>
+                <td>85%</td>
+                <td>3.9/5</td>
+                <td><button class="btn btn-secondary" style="font-size: 0.75rem; padding: 0.5rem 1rem;">View Details</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Add Consultant Modal -->
+  <div id="addConsultantModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">Add New Consultant</h2>
+        <button class="close-btn" onclick="closeAddConsultantModal()">&times;</button>
+      </div>
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label>First Name*</label>
+          <input type="text" placeholder="e.g., Priya" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Last Name*</label>
+          <input type="text" placeholder="e.g., Sharma" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Email Address*</label>
+          <input type="email" placeholder="priya.sharma@deloitte.com" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="text" placeholder="+91 98765 43210">
+        </div>
+        
+        <div class="form-group">
+          <label>Role*</label>
+          <select required>
+            <option value="">Select role...</option>
+            <option>Senior Consultant</option>
+            <option>Consultant</option>
+            <option>Junior Consultant</option>
+            <option>Associate</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Start Date*</label>
+          <input type="date" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Department</label>
+          <input type="text" placeholder="Sustainability Advisory">
+        </div>
+        
+        <div class="form-group">
+          <label>Location</label>
+          <select>
+            <option>Mumbai</option>
+            <option>Delhi</option>
+            <option>Bangalore</option>
+            <option>London</option>
+            <option>New York</option>
+          </select>
+        </div>
+        
+        <div class="form-group full-width">
+          <label>Access Permissions</label>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" checked> Client Management
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" checked> Data Upload
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox"> Reporting
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox"> Analytics
+            </label>
+          </div>
+        </div>
+        
+        <div class="form-group full-width">
+          <label>Notes</label>
+          <textarea placeholder="Additional notes about the consultant..."></textarea>
+        </div>
+      </div>
+      
+      <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+        <button class="btn btn-secondary" onclick="closeAddConsultantModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitConsultant()">Add Consultant</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+      });
+      
+      const targetScreen = document.getElementById(screenId);
+      if (targetScreen) {
+        targetScreen.classList.add('active');
+      }
+      
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      event.currentTarget.classList.add('active');
+    }
+    
+    function viewClient(clientId) {
+      alert('Viewing client: ' + clientId + '\n\nThis would navigate to the individual client dashboard.');
+    }
+    
+    function openAddConsultantModal() {
+      document.getElementById('addConsultantModal').classList.add('active');
+    }
+    
+    function closeAddConsultantModal() {
+      document.getElementById('addConsultantModal').classList.remove('active');
+    }
+    
+    function submitConsultant() {
+      alert('Consultant added successfully!\n\nThis would save the consultant details to the database.');
+      closeAddConsultantModal();
+    }
+    
+    function switchView(viewType) {
+      const container = document.getElementById('clientContainer');
+      const cardBtn = document.getElementById('cardViewBtn');
+      const listBtn = document.getElementById('listViewBtn');
+      
+      if (viewType === 'list') {
+        container.classList.remove('client-grid');
+        container.classList.add('client-list');
+        listBtn.classList.add('view-btn-active');
+        cardBtn.classList.remove('view-btn-active');
+      } else {
+        container.classList.remove('client-list');
+        container.classList.add('client-grid');
+        cardBtn.classList.add('view-btn-active');
+        listBtn.classList.remove('view-btn-active');
+      }
+    }
+    
+    // Initialize with card view active on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('cardViewBtn')?.classList.add('view-btn-active');
+    });
+    
+    // Close modal when clicking outside of it
+    window.onclick = function(event) {
+      const modal = document.getElementById('addConsultantModal');
+      if (event.target === modal) {
+        closeAddConsultantModal();
+      }
+    }
+  </script>
+</body>
+</html>

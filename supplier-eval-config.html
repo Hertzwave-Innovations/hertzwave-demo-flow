@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supplier Evaluation Settings - Hertzwave</title>
+  <style>
+    :root {
+      --hz-light: #A8E6A3;
+      --hz-primary: #4A7C59;
+      --hz-dark: #2F4F3F;
+      --hz-black: #000000;
+      --hz-logo-h-nav: 20px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f5f5f0;
+      color: #333;
+    }
+
+    .header {
+      background-color: white;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hz-logo {
+      height: var(--hz-logo-h-nav);
+      width: auto;
+    }
+
+    .user-menu {
+      background-color: var(--hz-light);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+
+    .back-link {
+      color: var(--hz-primary);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .page-header {
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
+      font-size: 1.875rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+      color: #666;
+      font-size: 1rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #e5e5e5;
+    }
+
+    .tab {
+      padding: 1rem 1.5rem;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      font-weight: 600;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: var(--hz-dark);
+    }
+
+    .tab.active {
+      color: var(--hz-primary);
+      border-bottom-color: var(--hz-primary);
+    }
+
+    .card {
+      background: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .card-header {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--hz-light);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .card-description {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .weight-config {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .weight-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .weight-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .weight-label {
+      font-weight: 600;
+      color: var(--hz-dark);
+    }
+
+    .weight-value {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--hz-primary);
+      min-width: 60px;
+      text-align: right;
+    }
+
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .slider {
+      flex: 1;
+      height: 8px;
+      border-radius: 1rem;
+      background: #e5e5e5;
+      outline: none;
+      appearance: none;
+    }
+
+    .slider::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--hz-primary);
+      cursor: pointer;
+    }
+
+    .slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--hz-primary);
+      cursor: pointer;
+      border: none;
+    }
+
+    .info-box {
+      background-color: #f0f9ff;
+      border-left: 4px solid #3b82f6;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .info-box p {
+      color: #1e40af;
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    .warning-box {
+      background-color: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .warning-box p {
+      color: #92400e;
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    .template-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .template-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      background-color: #f9fafb;
+      border-radius: 0.5rem;
+      border: 1px solid #e5e5e5;
+      transition: all 0.2s;
+    }
+
+    .template-item:hover {
+      border-color: var(--hz-primary);
+      background-color: white;
+    }
+
+    .template-info {
+      flex: 1;
+    }
+
+    .template-name {
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .template-meta {
+      font-size: 0.875rem;
+      color: #666;
+    }
+
+    .template-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-size: 0.95rem;
+    }
+
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    .btn-primary {
+      background-color: var(--hz-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--hz-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: white;
+      color: var(--hz-primary);
+      border: 1px solid var(--hz-primary);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--hz-light);
+    }
+
+    .btn-danger {
+      background-color: white;
+      color: #ef4444;
+      border: 1px solid #ef4444;
+    }
+
+    .btn-danger:hover {
+      background-color: #fee2e2;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    input, select, textarea {
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--hz-primary);
+      box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.1);
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .checkbox-item label {
+      margin: 0;
+      font-weight: 400;
+      cursor: pointer;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.3s;
+      border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: var(--hz-primary);
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(26px);
+    }
+
+    .action-bar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      padding-top: 2rem;
+      border-top: 2px solid #e5e5e5;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <svg class="hz-logo" viewBox="0 0 200 40" xmlns="http://www.w3.org/2000/svg">
+      <text x="10" y="28" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#4A7C59">HERTZWAVE</text>
+    </svg>
+    <div class="user-menu">👤 Kamesh | Administrator ▾</div>
+  </div>
+
+  <div class="container">
+    <a href="#" class="back-link" onclick="alert('Return to Supplier Evaluation'); return false;">
+      ← Back to Supplier Evaluation
+    </a>
+
+    <div class="page-header">
+      <h1 class="page-title">Supplier Evaluation Settings</h1>
+      <p class="page-subtitle">Configure scoring criteria, questionnaires, and program parameters</p>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active">Scoring Weights</div>
+      <div class="tab">Questionnaires</div>
+      <div class="tab">Program Settings</div>
+      <div class="tab">Email Templates</div>
+    </div>
+
+    <!-- Scoring Weights Tab -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Evaluation Scoring Weights</h2>
+        <p class="card-description">Configure how different dimensions contribute to the overall supplier evaluation score. Total must equal 100%.</p>
+      </div>
+
+      <div class="weight-config">
+        <div class="weight-item">
+          <div class="weight-header">
+            <span class="weight-label">🌍 Carbon Performance</span>
+            <span class="weight-value" id="carbonWeight">40%</span>
+          </div>
+          <div class="slider-container">
+            <input type="range" class="slider" min="0" max="100" value="40" 
+                   oninput="updateWeight('carbon', this.value)">
+          </div>
+          <p style="font-size: 0.875rem; color: #666; margin-top: 0.5rem;">
+            Emission intensity per dollar spent (tCO₂e/$M), comparison to industry benchmarks
+          </p>
+        </div>
+
+        <div class="weight-item">
+          <div class="weight-header">
+            <span class="weight-label">✓ Data Quality</span>
+            <span class="weight-value" id="qualityWeight">25%</span>
+          </div>
+          <div class="slider-container">
+            <input type="range" class="slider" min="0" max="100" value="25"
+                   oninput="updateWeight('quality', this.value)">
+          </div>
+          <p style="font-size: 0.875rem; color: #666; margin-top: 0.5rem;">
+            Completeness, accuracy, consistency, and supporting documentation quality
+          </p>
+        </div>
+
+        <div class="weight-item">
+          <div class="weight-header">
+            <span class="weight-label">🤝 Engagement</span>
+            <span class="weight-value" id="engagementWeight">20%</span>
+          </div>
+          <div class="slider-container">
+            <input type="range" class="slider" min="0" max="100" value="20"
+                   oninput="updateWeight('engagement', this.value)">
+          </div>
+          <p style="font-size: 0.875rem; color: #666; margin-top: 0.5rem;">
+            Response rate to questionnaires, timely submissions, participation in initiatives
+          </p>
+        </div>
+
+        <div class="weight-item">
+          <div class="weight-header">
+            <span class="weight-label">📈 Improvement</span>
+            <span class="weight-value" id="improvementWeight">15%</span>
+          </div>
+          <div class="slider-container">
+            <input type="range" class="slider" min="0" max="100" value="15"
+                   oninput="updateWeight('improvement', this.value)">
+          </div>
+          <p style="font-size: 0.875rem; color: #666; margin-top: 0.5rem;">
+            Year-over-year emission reduction progress and achievement of stated targets
+          </p>
+        </div>
+      </div>
+
+      <div class="info-box">
+        <p><strong>💡 Total Weight:</strong> <span id="totalWeight" style="font-weight: 700;">100%</span> - Weights must sum to exactly 100%</p>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn btn-secondary" onclick="alert('Reset to default weights')">Reset to Defaults</button>
+        <button class="btn btn-primary" onclick="alert('Scoring weights saved successfully!')">Save Changes</button>
+      </div>
+    </div>
+
+    <!-- Questionnaire Templates -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">ESG Questionnaire Templates</h2>
+        <p class="card-description">Manage questionnaire templates that suppliers are required to complete</p>
+      </div>
+
+      <div class="template-list">
+        <div class="template-item">
+          <div class="template-info">
+            <div class="template-name">Sustainability Practices Assessment</div>
+            <div class="template-meta">25 questions • ESG Framework • Active</div>
+          </div>
+          <div class="template-actions">
+            <label class="toggle-switch">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <button class="btn btn-sm btn-secondary" onclick="alert('Edit questionnaire')">✏️ Edit</button>
+            <button class="btn btn-sm btn-secondary" onclick="alert('Preview questionnaire')">👁️ Preview</button>
+          </div>
+        </div>
+
+        <div class="template-item">
+          <div class="template-info">
+            <div class="template-name">Carbon Reduction Strategy</div>
+            <div class="template-meta">15 questions • CDP Aligned • Active</div>
+          </div>
+          <div class="template-actions">
+            <label class="toggle-switch">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+            <button class="btn btn-sm btn-secondary" onclick="alert('Edit questionnaire')">✏️ Edit</button>
+            <button class="btn btn-sm btn-secondary" onclick="alert('Preview questionnaire')">👁️ Preview</button>
+          </div>
+        </div>
+
+        <div class="template-item">
+          <div class="template-info">
+            <div class="template-name">Supply Chain Transparency</div>
+            <div class="template-meta">20 questions • Custom Template • Inactive</div>
+          </div>
+          <div class="template-actions">
+            <label class="toggle-switch">
+              <input type="checkbox">
+              <span class="toggle-slider"></span>
+            </label>
+            <button class="btn btn-sm btn-secondary" onclick="alert('Edit questionnaire')">✏️ Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="alert('Delete questionnaire')">🗑️ Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 1.5rem;">
+        <button class="btn btn-primary" onclick="alert('Create new questionnaire template')">➕ Create New Questionnaire</button>
+      </div>
+    </div>
+
+    <!-- Program Settings -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Program Configuration</h2>
+        <p class="card-description">Configure global settings for your supplier evaluation program</p>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Default Reporting Frequency</label>
+          <select>
+            <option>Monthly</option>
+            <option selected>Quarterly</option>
+            <option>Annually</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Submission Deadline (Days Before Period End)</label>
+          <input type="number" value="15" min="1" max="90">
+        </div>
+
+        <div class="form-group">
+          <label>Data Quality Threshold (%)</label>
+          <input type="number" value="80" min="0" max="100">
+        </div>
+
+        <div class="form-group">
+          <label>ML Validation Confidence Threshold (%)</label>
+          <input type="number" value="90" min="0" max="100">
+        </div>
+
+        <div class="form-group full-width">
+          <label>Required Data Categories</label>
+          <div class="checkbox-group">
+            <div class="checkbox-item">
+              <input type="checkbox" id="req_scope1" checked>
+              <label for="req_scope1">Scope 1 - Direct Emissions</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="req_scope2" checked>
+              <label for="req_scope2">Scope 2 - Indirect Emissions</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="req_scope3" checked>
+              <label for="req_scope3">Scope 3 - Value Chain Emissions</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="req_targets">
+              <label for="req_targets">Carbon Reduction Targets</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label>Automatic Reminders</label>
+          <div class="checkbox-group">
+            <div class="checkbox-item">
+              <input type="checkbox" id="reminder_14" checked>
+              <label for="reminder_14">Send reminder 14 days before deadline</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="reminder_7" checked>
+              <label for="reminder_7">Send reminder 7 days before deadline</label>
+            </div>
+            <div class="checkbox-item">
+              <input type="checkbox" id="reminder_overdue" checked>
+              <label for="reminder_overdue">Send overdue notification</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="warning-box">
+        <p><strong>⚠️ Note:</strong> Changes to program settings will only affect new supplier invitations. Existing suppliers will retain their original configuration unless manually updated.</p>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn btn-secondary" onclick="alert('Cancel changes')">Cancel</button>
+        <button class="btn btn-primary" onclick="alert('Settings saved successfully!')">Save Configuration</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let weights = {
+      carbon: 40,
+      quality: 25,
+      engagement: 20,
+      improvement: 15
+    };
+
+    function updateWeight(type, value) {
+      weights[type] = parseInt(value);
+      document.getElementById(type + 'Weight').textContent = value + '%';
+      
+      const total = Object.values(weights).reduce((a, b) => a + b, 0);
+      document.getElementById('totalWeight').textContent = total + '%';
+      
+      if (total !== 100) {
+        document.getElementById('totalWeight').style.color = '#ef4444';
+      } else {
+        document.getElementById('totalWeight').style.color = '#10b981';
+      }
+    }
+  </script>
+</body>
+</html>

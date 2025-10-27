@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supplier Portal - Hertzwave</title>
+  <style>
+    :root {
+      --hz-light: #A8E6A3;
+      --hz-primary: #4A7C59;
+      --hz-dark: #2F4F3F;
+      --hz-black: #000000;
+      --hz-logo-h-nav: 20px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f5f5f0;
+      color: #333;
+    }
+
+    .header {
+      background-color: white;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hz-logo {
+      height: var(--hz-logo-h-nav);
+      width: auto;
+    }
+
+    .user-menu {
+      background-color: var(--hz-light);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .welcome-banner {
+      background: linear-gradient(135deg, var(--hz-primary), var(--hz-dark));
+      color: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .welcome-title {
+      font-size: 1.875rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .welcome-subtitle {
+      opacity: 0.9;
+      font-size: 1.125rem;
+    }
+
+    .alert-box {
+      background-color: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .alert-icon {
+      font-size: 1.5rem;
+    }
+
+    .alert-content h3 {
+      font-weight: 600;
+      color: #92400e;
+      margin-bottom: 0.25rem;
+    }
+
+    .alert-content p {
+      color: #78350f;
+      font-size: 0.875rem;
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--hz-light);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+    }
+
+    .card-action {
+      color: var(--hz-primary);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .card-action:hover {
+      text-decoration: underline;
+    }
+
+    .score-display {
+      text-align: center;
+      padding: 2rem 0;
+    }
+
+    .score-circle {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--hz-light), var(--hz-primary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      box-shadow: 0 4px 12px rgba(74, 124, 89, 0.3);
+    }
+
+    .score-value {
+      font-size: 3rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .score-label {
+      color: #666;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .score-rank {
+      color: var(--hz-primary);
+      font-weight: 600;
+      font-size: 1.125rem;
+    }
+
+    .metric-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background-color: #f9fafb;
+      border-radius: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .metric-label {
+      color: #666;
+      font-weight: 600;
+    }
+
+    .metric-value {
+      font-weight: 700;
+      color: var(--hz-dark);
+      font-size: 1.125rem;
+    }
+
+    .metric-trend {
+      font-size: 0.875rem;
+      margin-left: 0.5rem;
+    }
+
+    .metric-trend.up {
+      color: #10b981;
+    }
+
+    .metric-trend.down {
+      color: #ef4444;
+    }
+
+    .task-list {
+      list-style: none;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      border-bottom: 1px solid #e5e5e5;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .task-item:hover {
+      background-color: #f9fafb;
+    }
+
+    .task-item:last-child {
+      border-bottom: none;
+    }
+
+    .task-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      background-color: var(--hz-light);
+      flex-shrink: 0;
+    }
+
+    .task-content {
+      flex: 1;
+    }
+
+    .task-title {
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .task-meta {
+      font-size: 0.875rem;
+      color: #666;
+    }
+
+    .task-status {
+      padding: 0.375rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-pending {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-due {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status-completed {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: var(--hz-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin: 0 auto 1rem;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--hz-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.875rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-size: 0.95rem;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background-color: var(--hz-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--hz-dark);
+      transform: translateY(-2px);
+    }
+
+    .progress-section {
+      margin-top: 1.5rem;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background-color: #e5e5e5;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: var(--hz-primary);
+      border-radius: 1rem;
+      transition: width 0.3s ease;
+    }
+
+    @media (max-width: 1024px) {
+      .grid-2col {
+        grid-template-columns: 1fr;
+      }
+      .grid-3col {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <svg class="hz-logo" viewBox="0 0 200 40" xmlns="http://www.w3.org/2000/svg">
+      <text x="10" y="28" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#4A7C59">HERTZWAVE</text>
+    </svg>
+    <div class="user-menu">👤 Rajesh Kumar | Green Energy Solutions ▾</div>
+  </div>
+
+  <div class="container">
+    <div class="welcome-banner">
+      <h1 class="welcome-title">Welcome back, Rajesh!</h1>
+      <p class="welcome-subtitle">Green Energy Solutions Pvt Ltd • Renewable Energy Sector</p>
+    </div>
+
+    <div class="alert-box">
+      <div class="alert-icon">⏰</div>
+      <div class="alert-content">
+        <h3>Q2 2025 Data Submission Due</h3>
+        <p>Your quarterly emissions data is due in 12 days (June 15, 2025). Complete pending questionnaires to maintain your excellent evaluation score.</p>
+      </div>
+    </div>
+
+    <div class="grid-3col">
+      <div class="stat-card">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-value">95/100</div>
+        <div class="stat-label">Overall Score</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-value">#1</div>
+        <div class="stat-label">Rank Among Peers</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value">98%</div>
+        <div class="stat-label">Data Quality</div>
+      </div>
+    </div>
+
+    <div class="grid-2col">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Performance Metrics</h2>
+          <a href="#" class="card-action" onclick="alert('View detailed analytics'); return false;">View Details →</a>
+        </div>
+
+        <div class="metric-item">
+          <span class="metric-label">Carbon Performance Score</span>
+          <span>
+            <span class="metric-value">96/100</span>
+            <span class="metric-trend up">↑ 8%</span>
+          </span>
+        </div>
+
+        <div class="metric-item">
+          <span class="metric-label">Carbon Intensity</span>
+          <span>
+            <span class="metric-value">45 tCO₂e/$M</span>
+            <span class="metric-trend up">↓ 12%</span>
+          </span>
+        </div>
+
+        <div class="metric-item">
+          <span class="metric-label">Data Quality Score</span>
+          <span>
+            <span class="metric-value">98%</span>
+            <span class="metric-trend up">↑ 2%</span>
+          </span>
+        </div>
+
+        <div class="metric-item">
+          <span class="metric-label">Engagement Score</span>
+          <span>
+            <span class="metric-value">92%</span>
+            <span class="metric-trend up">↑ 5%</span>
+          </span>
+        </div>
+
+        <div class="metric-item">
+          <span class="metric-label">Improvement Score</span>
+          <span>
+            <span class="metric-value">94%</span>
+            <span class="metric-trend up">↑ 6%</span>
+          </span>
+        </div>
+
+        <div class="progress-section">
+          <div class="progress-header">
+            <span style="font-weight: 600; color: var(--hz-dark);">Q2 2025 Data Completeness</span>
+            <span style="font-weight: 600; color: var(--hz-primary);">75%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 75%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Your Evaluation Score</h2>
+        </div>
+
+        <div class="score-display">
+          <div class="score-circle">
+            <span class="score-value">95</span>
+          </div>
+          <div class="score-label">Overall Performance Score</div>
+          <div class="score-rank">Ranked #1 of 127 suppliers</div>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem;">
+          <a href="#" class="btn btn-primary" onclick="alert('View your detailed scorecard'); return false;">View Detailed Scorecard</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Pending Tasks</h2>
+        <span style="background-color: #fee2e2; color: #991b1b; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600;">3 Pending</span>
+      </div>
+
+      <ul class="task-list">
+        <li class="task-item" onclick="alert('Submit Q2 2025 emissions data')">
+          <div class="task-icon">📊</div>
+          <div class="task-content">
+            <div class="task-title">Submit Q2 2025 Emissions Data</div>
+            <div class="task-meta">Due: June 15, 2025 • Scope 1, 2, 3 emissions required</div>
+          </div>
+          <span class="task-status status-due">Due Soon</span>
+        </li>
+
+        <li class="task-item" onclick="alert('Complete ESG questionnaire')">
+          <div class="task-icon">📝</div>
+          <div class="task-content">
+            <div class="task-title">Complete ESG Questionnaire</div>
+            <div class="task-meta">Due: June 20, 2025 • 15 questions remaining</div>
+          </div>
+          <span class="task-status status-pending">Pending</span>
+        </li>
+
+        <li class="task-item" onclick="alert('Update carbon reduction targets')">
+          <div class="task-icon">🎯</div>
+          <div class="task-content">
+            <div class="task-title">Update Carbon Reduction Targets</div>
+            <div class="task-meta">Due: June 30, 2025 • Set targets for 2025-2030</div>
+          </div>
+          <span class="task-status status-pending">Pending</span>
+        </li>
+
+        <li class="task-item" onclick="alert('View completed task')">
+          <div class="task-icon">✓</div>
+          <div class="task-content">
+            <div class="task-title">Q1 2025 Data Verification</div>
+            <div class="task-meta">Completed: April 10, 2025</div>
+          </div>
+          <span class="task-status status-completed">Completed</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

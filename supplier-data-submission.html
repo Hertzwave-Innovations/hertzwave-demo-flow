@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submit Emissions Data - Hertzwave</title>
+  <style>
+    :root {
+      --hz-light: #A8E6A3;
+      --hz-primary: #4A7C59;
+      --hz-dark: #2F4F3F;
+      --hz-black: #000000;
+      --hz-logo-h-nav: 20px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f5f5f0;
+      color: #333;
+    }
+
+    .header {
+      background-color: white;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hz-logo {
+      height: var(--hz-logo-h-nav);
+      width: auto;
+    }
+
+    .user-menu {
+      background-color: var(--hz-light);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+
+    .back-link {
+      color: var(--hz-primary);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      gap: 2rem;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 2rem;
+      height: fit-content;
+    }
+
+    .nav-section {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .nav-title {
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-item {
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      margin-bottom: 0.5rem;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+    }
+
+    .nav-item:hover {
+      background-color: #f9fafb;
+    }
+
+    .nav-item.active {
+      background-color: var(--hz-light);
+      color: var(--hz-dark);
+      font-weight: 600;
+    }
+
+    .nav-item.completed {
+      color: #10b981;
+    }
+
+    .nav-item.completed::before {
+      content: "✓ ";
+    }
+
+    .main-content {
+      background: white;
+      border-radius: 0.75rem;
+      padding: 2.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .page-header {
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid var(--hz-light);
+    }
+
+    .page-title {
+      font-size: 1.875rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+      color: #666;
+      font-size: 1rem;
+    }
+
+    .form-section {
+      margin-bottom: 2.5rem;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 1.5rem;
+    }
+
+    .section-description {
+      color: #666;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .required {
+      color: #ef4444;
+    }
+
+    .help-icon {
+      cursor: help;
+      color: var(--hz-primary);
+      font-size: 1rem;
+    }
+
+    input, select, textarea {
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--hz-primary);
+      box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.1);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .input-group input {
+      flex: 1;
+    }
+
+    .input-addon {
+      padding: 0.75rem;
+      background-color: #f9fafb;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      color: #666;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    .info-box {
+      background-color: #f0f9ff;
+      border-left: 4px solid #3b82f6;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .info-box p {
+      color: #1e40af;
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    .warning-box {
+      background-color: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .warning-box p {
+      color: #92400e;
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    .file-upload {
+      border: 2px dashed #ddd;
+      border-radius: 0.5rem;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .file-upload:hover {
+      border-color: var(--hz-primary);
+      background-color: #f9fafb;
+    }
+
+    .file-upload-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .uploaded-files {
+      margin-top: 1rem;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem;
+      background-color: #f9fafb;
+      border-radius: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .file-name {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .file-remove {
+      color: #ef4444;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .table-input {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    th, td {
+      padding: 0.75rem;
+      text-align: left;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    th {
+      background-color: #f9fafb;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #666;
+    }
+
+    td input {
+      width: 100%;
+      padding: 0.5rem;
+    }
+
+    .add-row-btn {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: var(--hz-light);
+      color: var(--hz-dark);
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .add-row-btn:hover {
+      background-color: var(--hz-primary);
+      color: white;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 2px solid #e5e5e5;
+    }
+
+    .btn {
+      padding: 0.875rem 2rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background-color: var(--hz-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--hz-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: white;
+      color: var(--hz-primary);
+      border: 1px solid var(--hz-primary);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--hz-light);
+    }
+
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: static;
+      }
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <svg class="hz-logo" viewBox="0 0 200 40" xmlns="http://www.w3.org/2000/svg">
+      <text x="10" y="28" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#4A7C59">HERTZWAVE</text>
+    </svg>
+    <div class="user-menu">👤 Rajesh Kumar | Green Energy Solutions ▾</div>
+  </div>
+
+  <div class="container">
+    <a href="#" class="back-link" onclick="alert('Return to dashboard'); return false;">
+      ← Back to Dashboard
+    </a>
+
+    <div class="layout">
+      <div class="sidebar">
+        <div class="nav-section">
+          <div class="nav-title">Form Sections</div>
+          <div class="nav-item completed">Reporting Period</div>
+          <div class="nav-item active">Scope 1 Emissions</div>
+          <div class="nav-item">Scope 2 Emissions</div>
+          <div class="nav-item">Scope 3 Emissions</div>
+          <div class="nav-item">Supporting Documents</div>
+          <div class="nav-item">Review & Submit</div>
+        </div>
+      </div>
+
+      <div class="main-content">
+        <div class="page-header">
+          <h1 class="page-title">Q2 2025 Emissions Data Submission</h1>
+          <p class="page-subtitle">April 1 - June 30, 2025 • Due: June 15, 2025</p>
+        </div>
+
+        <div class="warning-box">
+          <p><strong>⏰ Submission Deadline:</strong> This data is due in 12 days. You can save your progress and return to complete the form later.</p>
+        </div>
+
+        <form id="emissionsForm">
+          <!-- Scope 1 Emissions -->
+          <div class="form-section">
+            <h2 class="section-title">Scope 1: Direct Emissions</h2>
+            <p class="section-description">
+              Report emissions from sources you own or control directly, including fuel combustion, company vehicles, and fugitive emissions.
+            </p>
+
+            <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--hz-dark);">Fuel Combustion</h3>
+            
+            <div class="table-input">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Fuel Type</th>
+                    <th>Quantity</th>
+                    <th>Unit</th>
+                    <th>Purpose</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="fuelTable">
+                  <tr>
+                    <td>
+                      <select>
+                        <option>Diesel</option>
+                        <option>Petrol/Gasoline</option>
+                        <option>Natural Gas</option>
+                        <option>LPG</option>
+                        <option>Coal</option>
+                        <option>Fuel Oil</option>
+                      </select>
+                    </td>
+                    <td><input type="number" placeholder="0.00"></td>
+                    <td>
+                      <select>
+                        <option>Liters</option>
+                        <option>Cubic Meters</option>
+                        <option>Kilograms</option>
+                        <option>Tonnes</option>
+                      </select>
+                    </td>
+                    <td>
+                      <select>
+                        <option>Stationary Combustion</option>
+                        <option>Mobile Combustion</option>
+                        <option>Emergency Generators</option>
+                      </select>
+                    </td>
+                    <td style="text-align: center;">
+                      <span style="color: #ef4444; cursor: pointer;">🗑️</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <button type="button" class="add-row-btn" onclick="alert('Add new fuel entry')">+ Add Fuel Entry</button>
+            </div>
+
+            <div style="margin-top: 2.5rem;">
+              <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; color: var(--hz-dark);">Fugitive Emissions (Refrigerants/Gases)</h3>
+              
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Refrigerant Type <span class="help-icon" title="e.g., R134a, R410A">ℹ️</span></label>
+                  <select>
+                    <option value="">Select type...</option>
+                    <option>R134a</option>
+                    <option>R410A</option>
+                    <option>R22</option>
+                    <option>R404A</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Amount Leaked/Lost <span class="required">*</span></label>
+                  <div class="input-group">
+                    <input type="number" placeholder="0.00">
+                    <div class="input-addon">kg</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-box">
+              <p><strong>💡 Helpful Tip:</strong> If you don't have exact measurements, you can estimate based on industry averages. Our AI validation engine will flag any unusual values and suggest corrections.</p>
+            </div>
+          </div>
+
+          <!-- Scope 2 Emissions (Preview) -->
+          <div class="form-section">
+            <h2 class="section-title">Scope 2: Indirect Emissions (Electricity & Energy)</h2>
+            <p class="section-description">
+              Report emissions from purchased electricity, steam, heating, and cooling consumed by your facilities.
+            </p>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Total Electricity Consumed <span class="required">*</span></label>
+                <div class="input-group">
+                  <input type="number" placeholder="0.00">
+                  <div class="input-addon">kWh</div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Renewable Energy Certificates (RECs)</label>
+                <div class="input-group">
+                  <input type="number" placeholder="0.00">
+                  <div class="input-addon">kWh</div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Grid Region/Utility Provider <span class="required">*</span></label>
+                <select>
+                  <option value="">Select region...</option>
+                  <option>Western Grid (India)</option>
+                  <option>Southern Grid (India)</option>
+                  <option>Northern Grid (India)</option>
+                  <option>Eastern Grid (India)</option>
+                  <option>Other</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Green Tariff/PPA Details</label>
+                <input type="text" placeholder="Optional: Enter details of renewable energy agreements">
+              </div>
+            </div>
+
+            <div class="info-box">
+              <p><strong>💡 Location-Based vs Market-Based:</strong> We automatically calculate both location-based (using grid average) and market-based (using your renewable energy purchases) emissions.</p>
+            </div>
+          </div>
+
+          <!-- Supporting Documents -->
+          <div class="form-section">
+            <h2 class="section-title">Supporting Documents</h2>
+            <p class="section-description">
+              Upload utility bills, fuel receipts, or other documentation to support your data submission. Accepted formats: PDF, Excel, CSV, Images.
+            </p>
+
+            <div class="file-upload" onclick="alert('File upload dialog would open here')">
+              <div class="file-upload-icon">📁</div>
+              <p style="font-weight: 600; margin-bottom: 0.5rem;">Click to upload or drag and drop</p>
+              <p style="color: #666; font-size: 0.875rem;">PDF, XLSX, CSV, JPG, PNG up to 10MB each</p>
+            </div>
+
+            <div class="uploaded-files">
+              <div class="file-item">
+                <span class="file-name">📄 electricity-bill-april-2025.pdf <span style="color: #666; font-size: 0.75rem;">(2.4 MB)</span></span>
+                <span class="file-remove" onclick="alert('Remove file')">Remove</span>
+              </div>
+              <div class="file-item">
+                <span class="file-name">📊 fuel-consumption-Q2.xlsx <span style="color: #666; font-size: 0.75rem;">(156 KB)</span></span>
+                <span class="file-remove" onclick="alert('Remove file')">Remove</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="button-group">
+            <div>
+              <button type="button" class="btn btn-secondary" onclick="alert('Form progress saved as draft')">💾 Save Draft</button>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+              <button type="button" class="btn btn-secondary" onclick="alert('Navigate to previous section')">← Previous</button>
+              <button type="submit" class="btn btn-primary" onclick="event.preventDefault(); alert('Navigate to next section (Scope 3)')">Next: Scope 3 →</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

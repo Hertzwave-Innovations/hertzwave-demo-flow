@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supplier Profile - Hertzwave</title>
+  <style>
+    :root {
+      --hz-light: #A8E6A3;
+      --hz-primary: #4A7C59;
+      --hz-dark: #2F4F3F;
+      --hz-black: #000000;
+      --hz-logo-h-nav: 20px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f5f5f0;
+      color: #333;
+    }
+
+    .header {
+      background-color: white;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hz-logo {
+      height: var(--hz-logo-h-nav);
+      width: auto;
+    }
+
+    .user-menu {
+      background-color: var(--hz-light);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 2rem;
+    }
+
+    .back-link {
+      color: var(--hz-primary);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .profile-header {
+      background: linear-gradient(135deg, var(--hz-primary), var(--hz-dark));
+      color: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .company-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--hz-primary);
+    }
+
+    .company-info h1 {
+      font-size: 1.875rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .company-meta {
+      opacity: 0.9;
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-size: 0.95rem;
+    }
+
+    .btn-white {
+      background-color: white;
+      color: var(--hz-primary);
+    }
+
+    .btn-white:hover {
+      background-color: var(--hz-light);
+    }
+
+    .btn-primary {
+      background-color: var(--hz-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--hz-dark);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #e5e5e5;
+    }
+
+    .tab {
+      padding: 1rem 1.5rem;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      font-weight: 600;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .tab:hover {
+      color: var(--hz-dark);
+    }
+
+    .tab.active {
+      color: var(--hz-primary);
+      border-bottom-color: var(--hz-primary);
+    }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .card {
+      background: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--hz-light);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+    }
+
+    .score-display {
+      text-align: center;
+      padding: 1.5rem 0;
+    }
+
+    .score-circle {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--hz-light), var(--hz-primary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      position: relative;
+    }
+
+    .score-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .score-trend {
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background-color: #10b981;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .score-label {
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .score-rank {
+      color: var(--hz-primary);
+      font-weight: 600;
+      font-size: 1.125rem;
+    }
+
+    .dimension-scores {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .dimension-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .dimension-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dimension-label {
+      font-weight: 600;
+      color: var(--hz-dark);
+    }
+
+    .dimension-value {
+      font-weight: 700;
+      color: var(--hz-primary);
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background-color: #e5e5e5;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: var(--hz-primary);
+      border-radius: 1rem;
+      transition: width 0.3s ease;
+    }
+
+    .stat-card {
+      text-align: center;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: var(--hz-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin: 0 auto 1rem;
+    }
+
+    .stat-value {
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: var(--hz-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.875rem;
+    }
+
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0.5rem;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--hz-primary), var(--hz-light));
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .timeline-item:last-child {
+      border-bottom: none;
+    }
+
+    .timeline-marker {
+      position: absolute;
+      left: -1.5rem;
+      top: 0.25rem;
+      width: 1rem;
+      height: 1rem;
+      border-radius: 50%;
+      background-color: var(--hz-primary);
+      border: 3px solid white;
+      box-shadow: 0 0 0 2px var(--hz-light);
+    }
+
+    .timeline-date {
+      font-size: 0.875rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .timeline-title {
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-description {
+      font-size: 0.875rem;
+      color: #666;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.375rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-submitted {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+
+    .status-pending {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-overdue {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+
+    .document-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .document-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      background-color: #f9fafb;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .document-item:hover {
+      background-color: var(--hz-light);
+      cursor: pointer;
+    }
+
+    .document-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .document-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 0.5rem;
+      background-color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .document-details h4 {
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 0.25rem;
+      font-size: 0.95rem;
+    }
+
+    .document-details p {
+      font-size: 0.75rem;
+      color: #666;
+    }
+
+    .risk-assessment {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .risk-item {
+      padding: 1rem;
+      background-color: #f9fafb;
+      border-radius: 0.5rem;
+      border-left: 4px solid #94a3b8;
+    }
+
+    .risk-item.low {
+      border-left-color: #10b981;
+      background-color: #f0fdf4;
+    }
+
+    .risk-item.medium {
+      border-left-color: #f59e0b;
+      background-color: #fffbeb;
+    }
+
+    .risk-item.high {
+      border-left-color: #ef4444;
+      background-color: #fef2f2;
+    }
+
+    .risk-label {
+      font-size: 0.875rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .risk-value {
+      font-weight: 700;
+      font-size: 1.125rem;
+      color: var(--hz-dark);
+    }
+
+    .target-card {
+      padding: 1.5rem;
+      background: linear-gradient(135deg, #f9fafb, white);
+      border-radius: 0.75rem;
+      border: 1px solid #e5e5e5;
+      margin-bottom: 1rem;
+    }
+
+    .target-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .target-title {
+      font-weight: 600;
+      color: var(--hz-dark);
+    }
+
+    .target-progress {
+      margin-top: 1rem;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    @media (max-width: 1024px) {
+      .grid-2col, .grid-3col {
+        grid-template-columns: 1fr;
+      }
+      .risk-assessment {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <svg class="hz-logo" viewBox="0 0 200 40" xmlns="http://www.w3.org/2000/svg">
+      <text x="10" y="28" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#4A7C59">HERTZWAVE</text>
+    </svg>
+    <div class="user-menu">👤 Kamesh | Administrator ▾</div>
+  </div>
+
+  <div class="container">
+    <a href="#" class="back-link" onclick="alert('Return to Supplier Evaluation'); return false;">
+      ← Back to Supplier Evaluation
+    </a>
+
+    <div class="profile-header">
+      <div class="header-left">
+        <div class="company-avatar">GE</div>
+        <div class="company-info">
+          <h1>Green Energy Solutions Pvt Ltd</h1>
+          <div class="company-meta">
+            <span>Renewable Energy</span>
+            <span>•</span>
+            <span>Mumbai, Maharashtra</span>
+            <span>•</span>
+            <span>$10M - $50M Revenue</span>
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-white" onclick="alert('Send reminder email to supplier')">📧 Send Reminder</button>
+        <button class="btn btn-white" onclick="alert('Request specific data from supplier')">📝 Request Data</button>
+        <button class="btn btn-white" onclick="alert('View communication history')">💬 Messages</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active">Overview</div>
+      <div class="tab">Data Submissions</div>
+      <div class="tab">Documents</div>
+      <div class="tab">Questionnaires</div>
+      <div class="tab">Targets & Plans</div>
+      <div class="tab">Risk Assessment</div>
+    </div>
+
+    <!-- Overview Tab Content -->
+    <div class="grid-3col">
+      <div class="stat-card">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-value">95/100</div>
+        <div class="stat-label">Overall Score</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-value">#1</div>
+        <div class="stat-label">Rank of 127</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">📈</div>
+        <div class="stat-value">+8%</div>
+        <div class="stat-label">QoQ Improvement</div>
+      </div>
+    </div>
+
+    <div class="grid-2col">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Performance Score</h2>
+        </div>
+
+        <div class="score-display">
+          <div class="score-circle">
+            <span class="score-value">95</span>
+            <span class="score-trend">↑ 8%</span>
+          </div>
+          <div class="score-label">Overall Evaluation Score</div>
+          <div class="score-rank">Ranked #1 of 127 suppliers</div>
+        </div>
+
+        <div class="dimension-scores">
+          <div class="dimension-item">
+            <div class="dimension-header">
+              <span class="dimension-label">Carbon Performance (40%)</span>
+              <span class="dimension-value">96/100</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 96%; background-color: #10b981;"></div>
+            </div>
+          </div>
+
+          <div class="dimension-item">
+            <div class="dimension-header">
+              <span class="dimension-label">Data Quality (25%)</span>
+              <span class="dimension-value">98/100</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 98%;"></div>
+            </div>
+          </div>
+
+          <div class="dimension-item">
+            <div class="dimension-header">
+              <span class="dimension-label">Engagement (20%)</span>
+              <span class="dimension-value">92/100</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 92%;"></div>
+            </div>
+          </div>
+
+          <div class="dimension-item">
+            <div class="dimension-header">
+              <span class="dimension-label">Improvement (15%)</span>
+              <span class="dimension-value">94/100</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 94%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Key Metrics</h2>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+          <div style="padding: 1rem; background-color: #f9fafb; border-radius: 0.5rem;">
+            <div style="color: #666; font-size: 0.875rem; margin-bottom: 0.5rem;">Carbon Intensity</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: var(--hz-dark);">45 tCO₂e/$M</div>
+            <div style="color: #10b981; font-size: 0.875rem; font-weight: 600; margin-top: 0.25rem;">↓ 12% from last quarter</div>
+          </div>
+
+          <div style="padding: 1rem; background-color: #f9fafb; border-radius: 0.5rem;">
+            <div style="color: #666; font-size: 0.875rem; margin-bottom: 0.5rem;">Total Emissions (Q1 2025)</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: var(--hz-dark);">1,247 tCO₂e</div>
+            <div style="display: flex; gap: 1rem; margin-top: 0.5rem; font-size: 0.875rem;">
+              <span>Scope 1: 245</span>
+              <span>Scope 2: 402</span>
+              <span>Scope 3: 600</span>
+            </div>
+          </div>
+
+          <div style="padding: 1rem; background-color: #f9fafb; border-radius: 0.5rem;">
+            <div style="color: #666; font-size: 0.875rem; margin-bottom: 0.5rem;">Data Completeness</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: var(--hz-dark);">98%</div>
+            <div class="progress-bar" style="margin-top: 0.75rem;">
+              <div class="progress-fill" style="width: 98%;"></div>
+            </div>
+          </div>
+
+          <div style="padding: 1rem; background-color: #f9fafb; border-radius: 0.5rem;">
+            <div style="color: #666; font-size: 0.875rem; margin-bottom: 0.5rem;">On-Time Submissions</div>
+            <div style="font-size: 1.5rem; font-weight: 700; color: var(--hz-dark);">100%</div>
+            <div style="color: #666; font-size: 0.875rem; margin-top: 0.25rem;">4 of 4 quarters on time</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2col">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Submission History</h2>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-date">April 5, 2025</div>
+            <div class="timeline-title">Q1 2025 Data Submission</div>
+            <div class="timeline-description">
+              All scopes submitted • 98% data quality • 15 documents attached
+              <div style="margin-top: 0.5rem;">
+                <span class="status-badge status-submitted">Approved</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-date">January 8, 2025</div>
+            <div class="timeline-title">Q4 2024 Data Submission</div>
+            <div class="timeline-description">
+              All scopes submitted • 96% data quality • 12 documents attached
+              <div style="margin-top: 0.5rem;">
+                <span class="status-badge status-submitted">Approved</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-date">October 12, 2024</div>
+            <div class="timeline-title">Q3 2024 Data Submission</div>
+            <div class="timeline-description">
+              All scopes submitted • 94% data quality • 14 documents attached
+              <div style="margin-top: 0.5rem;">
+                <span class="status-badge status-submitted">Approved</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-marker"></div>
+            <div class="timeline-date">June 3, 2025</div>
+            <div class="timeline-title">Q2 2025 Data Submission</div>
+            <div class="timeline-description">
+              Due: June 15, 2025 • In progress (75% complete)
+              <div style="margin-top: 0.5rem;">
+                <span class="status-badge status-pending">Pending</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Recent Documents</h2>
+          <a href="#" style="color: var(--hz-primary); font-size: 0.875rem; font-weight: 600; text-decoration: none;" onclick="alert('View all documents'); return false;">View All →</a>
+        </div>
+
+        <div class="document-list">
+          <div class="document-item" onclick="alert('Download document')">
+            <div class="document-info">
+              <div class="document-icon">📄</div>
+              <div class="document-details">
+                <h4>Q1-2025-Electricity-Bills.pdf</h4>
+                <p>Uploaded Apr 5, 2025 • 2.4 MB</p>
+              </div>
+            </div>
+            <span style="color: var(--hz-primary); font-weight: 600;">↓</span>
+          </div>
+
+          <div class="document-item" onclick="alert('Download document')">
+            <div class="document-info">
+              <div class="document-icon">📊</div>
+              <div class="document-details">
+                <h4>Fuel-Consumption-Data.xlsx</h4>
+                <p>Uploaded Apr 5, 2025 • 156 KB</p>
+              </div>
+            </div>
+            <span style="color: var(--hz-primary); font-weight: 600;">↓</span>
+          </div>
+
+          <div class="document-item" onclick="alert('Download document')">
+            <div class="document-info">
+              <div class="document-icon">📄</div>
+              <div class="document-details">
+                <h4>Scope3-Supplier-Data.pdf</h4>
+                <p>Uploaded Apr 5, 2025 • 892 KB</p>
+              </div>
+            </div>
+            <span style="color: var(--hz-primary); font-weight: 600;">↓</span>
+          </div>
+
+          <div class="document-item" onclick="alert('Download document')">
+            <div class="document-info">
+              <div class="document-icon">🖼️</div>
+              <div class="document-details">
+                <h4>Solar-Installation-Certificate.jpg</h4>
+                <p>Uploaded Apr 5, 2025 • 1.2 MB</p>
+              </div>
+            </div>
+            <span style="color: var(--hz-primary); font-weight: 600;">↓</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2col">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Risk Assessment</h2>
+        </div>
+
+        <div class="risk-assessment">
+          <div class="risk-item low">
+            <div class="risk-label">Overall Risk Level</div>
+            <div class="risk-value">Low</div>
+          </div>
+
+          <div class="risk-item low">
+            <div class="risk-label">Financial Stability</div>
+            <div class="risk-value">Stable</div>
+          </div>
+
+          <div class="risk-item low">
+            <div class="risk-label">Geographic Risk</div>
+            <div class="risk-value">Low</div>
+          </div>
+
+          <div class="risk-item low">
+            <div class="risk-label">Regulatory Exposure</div>
+            <div class="risk-value">Low</div>
+          </div>
+
+          <div class="risk-item medium">
+            <div class="risk-label">Supply Chain Disruption</div>
+            <div class="risk-value">Medium</div>
+          </div>
+
+          <div class="risk-item low">
+            <div class="risk-label">Data Quality Risk</div>
+            <div class="risk-value">Very Low</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem; padding: 1rem; background-color: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 0.5rem;">
+          <p style="color: #1e40af; font-size: 0.875rem; line-height: 1.6;">
+            <strong>Risk Summary:</strong> Green Energy Solutions is a low-risk supplier with excellent data quality, stable financial position, and strong sustainability practices. No immediate concerns identified.
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Carbon Reduction Targets</h2>
+        </div>
+
+        <div class="target-card">
+          <div class="target-header">
+            <div class="target-title">30% Reduction by 2030</div>
+            <span class="status-badge status-submitted">On Track</span>
+          </div>
+          <p style="font-size: 0.875rem; color: #666; margin-bottom: 1rem;">
+            Baseline: 2020 emissions (1,850 tCO₂e)
+          </p>
+          <div class="target-progress">
+            <div class="progress-header">
+              <span style="font-weight: 600;">Progress: 32% reduction achieved</span>
+              <span style="color: var(--hz-primary); font-weight: 600;">2025: 1,247 tCO₂e</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 65%; background-color: #10b981;"></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+          <h3 style="font-weight: 600; margin-bottom: 1rem; color: var(--hz-dark);">Key Initiatives</h3>
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem;">
+            <li style="padding: 0.75rem; background-color: #f9fafb; border-radius: 0.5rem; padding-left: 1.5rem; position: relative;">
+              <span style="position: absolute; left: 0.5rem; color: #10b981; font-weight: 700;">✓</span>
+              100% renewable electricity procurement
+            </li>
+            <li style="padding: 0.75rem; background-color: #f9fafb; border-radius: 0.5rem; padding-left: 1.5rem; position: relative;">
+              <span style="position: absolute; left: 0.5rem; color: #10b981; font-weight: 700;">✓</span>
+              Fleet electrification (50% complete)
+            </li>
+            <li style="padding: 0.75rem; background-color: #f9fafb; border-radius: 0.5rem; padding-left: 1.5rem; position: relative;">
+              <span style="position: absolute; left: 0.5rem; color: #f59e0b; font-weight: 700;">⏳</span>
+              Energy efficiency upgrades (in progress)
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

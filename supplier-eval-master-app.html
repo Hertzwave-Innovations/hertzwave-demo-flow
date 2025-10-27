@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hertzwave Supplier Evaluation - Complete Application</title>
+  <style>
+    :root {
+      --hz-light: #A8E6A3;
+      --hz-primary: #4A7C59;
+      --hz-dark: #2F4F3F;
+      --hz-black: #000000;
+      --hz-logo-h-nav: 20px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background-color: #f5f5f0;
+      color: #333;
+    }
+
+    /* Header */
+    .header {
+      background-color: white;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .hz-logo {
+      height: var(--hz-logo-h-nav);
+      width: auto;
+    }
+
+    .header-right {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .view-switcher {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background-color: #f9fafb;
+      border-radius: 0.5rem;
+    }
+
+    .view-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .view-btn:hover {
+      background-color: white;
+      color: var(--hz-dark);
+    }
+
+    .view-btn.active {
+      background-color: var(--hz-primary);
+      color: white;
+    }
+
+    .user-menu {
+      background-color: var(--hz-light);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+    }
+
+    /* Layout */
+    .container {
+      display: flex;
+      height: calc(100vh - 65px);
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background-color: white;
+      border-right: 1px solid #e5e5e5;
+      padding: 1.5rem 0;
+      overflow-y: auto;
+    }
+
+    .menu-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .menu-label {
+      padding: 0.5rem 1.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .menu-item {
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #666;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+    }
+
+    .menu-item:hover {
+      background-color: #f5f5f5;
+      color: var(--hz-dark);
+    }
+
+    .menu-item.active {
+      background-color: var(--hz-light);
+      color: var(--hz-dark);
+      font-weight: 600;
+      border-left: 3px solid var(--hz-primary);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem;
+    }
+
+    .view-container {
+      display: none;
+    }
+
+    .view-container.active {
+      display: block;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+      color: #666;
+    }
+
+    .breadcrumb a {
+      color: var(--hz-primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .breadcrumb a:hover {
+      text-decoration: underline;
+    }
+
+    /* Page Header */
+    .page-header {
+      margin-bottom: 2rem;
+    }
+
+    .page-title {
+      font-size: 1.875rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+      color: #666;
+      font-size: 1rem;
+    }
+
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--hz-light);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--hz-dark);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: var(--hz-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin: 0 auto 1rem;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--hz-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.875rem;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      font-size: 0.95rem;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background-color: var(--hz-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--hz-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: white;
+      color: var(--hz-primary);
+      border: 1px solid var(--hz-primary);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--hz-light);
+    }
+
+    /* Action Bar */
+    .action-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      gap: 1rem;
+    }
+
+    .search-box {
+      flex: 1;
+      max-width: 400px;
+      padding: 0.75rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    thead {
+      background-color: #f9fafb;
+      border-bottom: 2px solid #e5e5e5;
+    }
+
+    th {
+      padding: 1rem 1.5rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    tbody tr:hover {
+      background-color: #f9fafb;
+      cursor: pointer;
+    }
+
+    .rank {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--hz-primary);
+    }
+
+    .score-badge {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .score-excellent {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+
+    .score-good {
+      background-color: #dbeafe;
+      color: #1e40af;
+    }
+
+    /* Welcome Banner */
+    .welcome-banner {
+      background: linear-gradient(135deg, var(--hz-primary), var(--hz-dark));
+      color: white;
+      padding: 2rem;
+      border-radius: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .welcome-title {
+      font-size: 1.875rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .welcome-subtitle {
+      opacity: 0.9;
+      font-size: 1.125rem;
+    }
+
+    /* Info Box */
+    .info-box {
+      background-color: #f0f9ff;
+      border-left: 4px solid #3b82f6;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+    }
+
+    .info-box p {
+      color: #1e40af;
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 1024px) {
+      .sidebar {
+        display: none;
+      }
+      .view-switcher {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <svg class="hz-logo" viewBox="0 0 200 40" xmlns="http://www.w3.org/2000/svg">
+      <text x="10" y="28" font-family="Arial, sans-serif" font-size="24" font-weight="700" fill="#4A7C59">HERTZWAVE</text>
+    </svg>
+    
+    <div class="header-right">
+      <div class="view-switcher">
+        <button class="view-btn" onclick="switchUserRole('admin')">Enterprise Admin</button>
+        <button class="view-btn active" onclick="switchUserRole('supplier')">Supplier Portal</button>
+      </div>
+      <div class="user-menu" id="userDisplay">Kamesh | Administrator</div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+      <!-- Enterprise Admin Menu -->
+      <div id="adminMenu">
+        <div class="menu-section">
+          <div class="menu-label">Main</div>
+          <div class="menu-item" onclick="showView('dashboard')">📊 Dashboard</div>
+          <div class="menu-item" onclick="showView('add-data')">➕ Add Data</div>
+          <div class="menu-item" onclick="showView('reports')">📄 Reports</div>
+        </div>
+        
+        <div class="menu-section">
+          <div class="menu-label">Supplier Management</div>
+          <div class="menu-item active" onclick="showView('supplier-leaderboard')">⭐ Supplier Evaluation</div>
+          <div class="menu-item" onclick="showView('supplier-invite')">📧 Invite Supplier</div>
+          <div class="menu-item" onclick="showView('supplier-settings')">⚙️ Settings</div>
+        </div>
+      </div>
+
+      <!-- Supplier Menu -->
+      <div id="supplierMenu" style="display: none;">
+        <div class="menu-section">
+          <div class="menu-label">My Portal</div>
+          <div class="menu-item active" onclick="showView('supplier-dashboard')">🏠 Dashboard</div>
+          <div class="menu-item" onclick="showView('supplier-submit')">📊 Submit Data</div>
+          <div class="menu-item" onclick="showView('supplier-documents')">📄 My Documents</div>
+          <div class="menu-item" onclick="showView('supplier-score')">⭐ My Score</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+      <!-- Enterprise Admin: Supplier Leaderboard -->
+      <div id="supplier-leaderboard" class="view-container active">
+        <div class="breadcrumb">
+          <a href="#" onclick="showView('dashboard')">Home</a>
+          <span>/</span>
+          <span>Supplier Evaluation</span>
+        </div>
+
+        <div class="page-header">
+          <h1 class="page-title">Supplier Evaluation</h1>
+          <p class="page-subtitle">Live supplier leaderboard scoring CO₂e / US$ + data completeness</p>
+        </div>
+
+        <div class="action-bar">
+          <input type="text" class="search-box" placeholder="Search suppliers...">
+          <button class="btn btn-secondary">📊 Export Report</button>
+          <button class="btn btn-primary" onclick="showView('supplier-invite')">➕ Invite Supplier</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">🏢</div>
+            <div class="stat-value">127</div>
+            <div class="stat-label">Total Suppliers</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">✓</div>
+            <div class="stat-value">98</div>
+            <div class="stat-label">Active Suppliers</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">📉</div>
+            <div class="stat-value">245</div>
+            <div class="stat-label">Avg Carbon Intensity</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value">87%</div>
+            <div class="stat-label">Data Quality Score</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Supplier Performance Leaderboard</h2>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Supplier</th>
+                <th>Overall Score</th>
+                <th>Carbon Intensity</th>
+                <th>Data Quality</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr onclick="showView('supplier-profile')">
+                <td class="rank">#1</td>
+                <td>
+                  <strong>Green Energy Solutions</strong><br>
+                  <span style="color: #666; font-size: 0.875rem;">Renewable Energy • Mumbai</span>
+                </td>
+                <td><span class="score-badge score-excellent">95/100</span></td>
+                <td><strong>45 tCO₂e/$M</strong></td>
+                <td><strong>98%</strong></td>
+                <td>🟢 Active</td>
+              </tr>
+              <tr onclick="showView('supplier-profile')">
+                <td class="rank">#2</td>
+                <td>
+                  <strong>TechIndia Manufacturing</strong><br>
+                  <span style="color: #666; font-size: 0.875rem;">Electronics • Bangalore</span>
+                </td>
+                <td><span class="score-badge score-excellent">92/100</span></td>
+                <td><strong>78 tCO₂e/$M</strong></td>
+                <td><strong>94%</strong></td>
+                <td>🟢 Active</td>
+              </tr>
+              <tr onclick="showView('supplier-profile')">
+                <td class="rank">#3</td>
+                <td>
+                  <strong>SustainMart Logistics</strong><br>
+                  <span style="color: #666; font-size: 0.875rem;">Transportation • Delhi</span>
+                </td>
+                <td><span class="score-badge score-good">85/100</span></td>
+                <td><strong>156 tCO₂e/$M</strong></td>
+                <td><strong>88%</strong></td>
+                <td>🟢 Active</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="info-box">
+          <p><strong>💡 Tip:</strong> Click on any supplier to view their detailed 360° profile, submission history, and risk assessment.</p>
+        </div>
+      </div>
+
+      <!-- Enterprise Admin: Invite Supplier -->
+      <div id="supplier-invite" class="view-container">
+        <div class="breadcrumb">
+          <a href="#" onclick="showView('supplier-leaderboard')">Supplier Evaluation</a>
+          <span>/</span>
+          <span>Invite Supplier</span>
+        </div>
+
+        <div class="page-header">
+          <h1 class="page-title">Invite New Supplier</h1>
+          <p class="page-subtitle">Onboard a supplier to your carbon accounting program</p>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1rem; color: var(--hz-dark);">Company Information</h3>
+          <p style="color: #666; margin-bottom: 1.5rem;">Enter the supplier's basic information to send them an invitation.</p>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+            <div>
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Company Name</label>
+              <input type="text" placeholder="e.g., Green Energy Solutions" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 0.5rem;">
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Industry Sector</label>
+              <select style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 0.5rem;">
+                <option>Renewable Energy</option>
+                <option>Manufacturing</option>
+                <option>Transportation</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Contact Name</label>
+              <input type="text" placeholder="Full name" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 0.5rem;">
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Contact Email</label>
+              <input type="email" placeholder="email@company.com" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 0.5rem;">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <button class="btn btn-secondary" onclick="showView('supplier-leaderboard')">Cancel</button>
+            <button class="btn btn-primary" onclick="alert('✓ Invitation sent successfully!'); showView('supplier-leaderboard')">Send Invitation</button>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <p><strong>📧 What happens next:</strong> The supplier will receive an email with login credentials, onboarding instructions, and data submission guidelines.</p>
+        </div>
+      </div>
+
+      <!-- Enterprise Admin: Supplier Profile -->
+      <div id="supplier-profile" class="view-container">
+        <div class="breadcrumb">
+          <a href="#" onclick="showView('supplier-leaderboard')">Supplier Evaluation</a>
+          <span>/</span>
+          <span>Green Energy Solutions</span>
+        </div>
+
+        <div style="background: linear-gradient(135deg, var(--hz-primary), var(--hz-dark)); color: white; padding: 2rem; border-radius: 1rem; margin-bottom: 2rem;">
+          <h1 style="font-size: 1.875rem; margin-bottom: 0.5rem;">Green Energy Solutions Pvt Ltd</h1>
+          <p style="opacity: 0.9;">Renewable Energy • Mumbai, Maharashtra • $10M-$50M Revenue</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value">95/100</div>
+            <div class="stat-label">Overall Score</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-value">#1</div>
+            <div class="stat-label">Rank of 127</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📈</div>
+            <div class="stat-value">+8%</div>
+            <div class="stat-label">QoQ Improvement</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Performance Breakdown</h2>
+          </div>
+          <div style="display: grid; gap: 1rem;">
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="font-weight: 600;">Carbon Performance (40%)</span>
+                <span style="color: var(--hz-primary); font-weight: 700;">96/100</span>
+              </div>
+              <div style="width: 100%; height: 8px; background: #e5e5e5; border-radius: 1rem;">
+                <div style="width: 96%; height: 100%; background: var(--hz-primary); border-radius: 1rem;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="font-weight: 600;">Data Quality (25%)</span>
+                <span style="color: var(--hz-primary); font-weight: 700;">98/100</span>
+              </div>
+              <div style="width: 100%; height: 8px; background: #e5e5e5; border-radius: 1rem;">
+                <div style="width: 98%; height: 100%; background: var(--hz-primary); border-radius: 1rem;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="font-weight: 600;">Engagement (20%)</span>
+                <span style="color: var(--hz-primary); font-weight: 700;">92/100</span>
+              </div>
+              <div style="width: 100%; height: 8px; background: #e5e5e5; border-radius: 1rem;">
+                <div style="width: 92%; height: 100%; background: var(--hz-primary); border-radius: 1rem;"></div>
+              </div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="font-weight: 600;">Improvement (15%)</span>
+                <span style="color: var(--hz-primary); font-weight: 700;">94/100</span>
+              </div>
+              <div style="width: 100%; height: 8px; background: #e5e5e5; border-radius: 1rem;">
+                <div style="width: 94%; height: 100%; background: var(--hz-primary); border-radius: 1rem;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-secondary" onclick="showView('supplier-leaderboard')">← Back to Leaderboard</button>
+      </div>
+
+      <!-- Enterprise Admin: Settings -->
+      <div id="supplier-settings" class="view-container">
+        <div class="breadcrumb">
+          <a href="#" onclick="showView('supplier-leaderboard')">Supplier Evaluation</a>
+          <span>/</span>
+          <span>Settings</span>
+        </div>
+
+        <div class="page-header">
+          <h1 class="page-title">Supplier Evaluation Settings</h1>
+          <p class="page-subtitle">Configure scoring criteria and program parameters</p>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Evaluation Scoring Weights</h2>
+          </div>
+          <p style="color: #666; margin-bottom: 1.5rem;">Adjust how different dimensions contribute to the overall supplier score.</p>
+          
+          <div style="display: grid; gap: 1.5rem;">
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                <span style="font-weight: 600;">🌍 Carbon Performance</span>
+                <span style="font-weight: 700; color: var(--hz-primary);">40%</span>
+              </div>
+              <input type="range" min="0" max="100" value="40" style="width: 100%;">
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                <span style="font-weight: 600;">✓ Data Quality</span>
+                <span style="font-weight: 700; color: var(--hz-primary);">25%</span>
+              </div>
+              <input type="range" min="0" max="100" value="25" style="width: 100%;">
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                <span style="font-weight: 600;">🤝 Engagement</span>
+                <span style="font-weight: 700; color: var(--hz-primary);">20%</span>
+              </div>
+              <input type="range" min="0" max="100" value="20" style="width: 100%;">
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                <span style="font-weight: 600;">📈 Improvement</span>
+                <span style="font-weight: 700; color: var(--hz-primary);">15%</span>
+              </div>
+              <input type="range" min="0" max="100" value="15" style="width: 100%;">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e5e5e5;">
+            <button class="btn btn-secondary">Reset to Defaults</button>
+            <button class="btn btn-primary" onclick="alert('Settings saved successfully!')">Save Changes</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Supplier Portal: Dashboard -->
+      <div id="supplier-dashboard" class="view-container">
+        <div class="welcome-banner">
+          <h1 class="welcome-title">Welcome back, Rajesh!</h1>
+          <p class="welcome-subtitle">Green Energy Solutions Pvt Ltd • Renewable Energy Sector</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value">95/100</div>
+            <div class="stat-label">Overall Score</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-value">#1</div>
+            <div class="stat-label">Rank Among Peers</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value">98%</div>
+            <div class="stat-label">Data Quality</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Pending Tasks</h2>
+            <span style="background-color: #fee2e2; color: #991b1b; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600;">3 Pending</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="padding: 1rem; background: #f9fafb; border-radius: 0.5rem; cursor: pointer;" onclick="showView('supplier-submit')">
+              <div style="font-weight: 600; margin-bottom: 0.25rem;">📊 Submit Q2 2025 Emissions Data</div>
+              <div style="font-size: 0.875rem; color: #666;">Due: June 15, 2025 • Scope 1, 2, 3 emissions required</div>
+            </div>
+            <div style="padding: 1rem; background: #f9fafb; border-radius: 0.5rem;">
+              <div style="font-weight: 600; margin-bottom: 0.25rem;">📝 Complete ESG Questionnaire</div>
+              <div style="font-size: 0.875rem; color: #666;">Due: June 20, 2025 • 15 questions remaining</div>
+            </div>
+            <div style="padding: 1rem; background: #f9fafb; border-radius: 0.5rem;">
+              <div style="font-weight: 600; margin-bottom: 0.25rem;">🎯 Update Carbon Reduction Targets</div>
+              <div style="font-size: 0.875rem; color: #666;">Due: June 30, 2025 • Set targets for 2025-2030</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Supplier Portal: Submit Data -->
+      <div id="supplier-submit" class="view-container">
+        <div class="breadcrumb">
+          <a href="#" onclick="showView('supplier-dashboard')">Dashboard</a>
+          <span>/</span>
+          <span>Submit Data</span>
+        </div>
+
+        <div class="page-header">
+          <h1 class="page-title">Q2 2025 Emissions Data Submission</h1>
+          <p class="page-subtitle">April 1 - June 30, 2025 • Due: June 15, 2025</p>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1rem; color: var(--hz-dark);">Scope 1: Direct Emissions</h3>
+          <p style="color: #666; margin-bottom: 1.5rem;">Report emissions from sources you own or control directly.</p>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Fuel Type</label>
+              <select style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 0.5rem;">
+                <option>Diesel</option>
+                <option>Natural Gas</option>
+                <option>LPG</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Quantity (Liters)</label>
+              <input type="number" placeholder="0.00" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 0.5rem;">
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e5e5e5;">
+            <button class="btn btn-secondary" onclick="showView('supplier-dashboard')">Cancel</button>
+            <button class="btn btn-primary" onclick="alert('✓ Data submitted successfully! Validation in progress.'); showView('supplier-dashboard')">Submit Data</button>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <p><strong>💡 Helpful Tip:</strong> If you don't have exact measurements, you can estimate based on industry averages. Our AI validation engine will flag any unusual values.</p>
+        </div>
+      </div>
+
+      <!-- Placeholder views -->
+      <div id="dashboard" class="view-container">
+        <h1 class="page-title">Main Dashboard</h1>
+        <p>This would show your main sustainability dashboard with overall emissions data.</p>
+      </div>
+
+      <div id="add-data" class="view-container">
+        <h1 class="page-title">Add Data</h1>
+        <p>Manual data entry or file upload interface.</p>
+      </div>
+
+      <div id="reports" class="view-container">
+        <h1 class="page-title">Reports</h1>
+        <p>Compliance reports (BRSR, CDP, CSRD) and analytics.</p>
+      </div>
+
+      <div id="supplier-documents" class="view-container">
+        <h1 class="page-title">My Documents</h1>
+        <p>View and manage uploaded supporting documents.</p>
+      </div>
+
+      <div id="supplier-score" class="view-container">
+        <h1 class="page-title">My Evaluation Score</h1>
+        <p>Detailed breakdown of your performance score.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentRole = 'admin';
+
+    function showView(viewId) {
+      // Hide all views
+      document.querySelectorAll('.view-container').forEach(view => {
+        view.classList.remove('active');
+      });
+      
+      // Show selected view
+      document.getElementById(viewId).classList.add('active');
+      
+      // Update active menu item
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      // Scroll to top
+      document.querySelector('.main-content').scrollTop = 0;
+    }
+
+    function switchUserRole(role) {
+      currentRole = role;
+      
+      // Update view switcher buttons
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      // Switch menus
+      if (role === 'admin') {
+        document.getElementById('adminMenu').style.display = 'block';
+        document.getElementById('supplierMenu').style.display = 'none';
+        document.getElementById('userDisplay').textContent = 'Kamesh | Administrator';
+        showView('supplier-leaderboard');
+      } else {
+        document.getElementById('adminMenu').style.display = 'none';
+        document.getElementById('supplierMenu').style.display = 'block';
+        document.getElementById('userDisplay').textContent = 'Rajesh Kumar | Green Energy Solutions';
+        showView('supplier-dashboard');
+      }
+    }
+  </script>
+</body>
+</html>
