@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HWCAP - Sustainability Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --hz-primary: #4A7C59;
+            --hz-primary-700: #355b3f;
+            --hz-primary-50: #E9F1EC;
+            --hz-mint: #A8E6A3;
+            --hz-dark: #2F4F3F;
+            --ink: #22302A;
+            --subtle: #5B6E64;
+            --bg: #F6F7F4;
+            --card: #FFFFFF;
+            --stroke: #E5E9E6;
+            --success: #48BB78;
+            --warning: #F6AD55;
+            --danger: #E53E3E;
+            --info: #4299E1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: var(--hz-primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-menu:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--hz-mint);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--hz-dark);
+            font-weight: 700;
+        }
+
+        /* Sidebar */
+        .layout {
+            display: flex;
+            margin-top: 64px;
+            min-height: calc(100vh - 64px);
+        }
+
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid var(--stroke);
+            padding: 1.5rem 0;
+            position: fixed;
+            left: 0;
+            top: 64px;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            padding: 0 1.5rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--subtle);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--ink);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            gap: 12px;
+        }
+
+        .nav-item:hover {
+            background: var(--hz-primary-50);
+            color: var(--hz-primary);
+        }
+
+        .nav-item.active {
+            background: var(--hz-primary-50);
+            color: var(--hz-primary);
+            border-left-color: var(--hz-primary);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            padding: 0.25rem 0.5rem;
+            background: var(--hz-primary);
+            color: white;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .nav-badge.enterprise {
+            background: var(--warning);
+        }
+
+        .nav-badge.professional {
+            background: var(--info);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--subtle);
+            font-size: 1rem;
+        }
+
+        /* Filters */
+        .filters {
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--subtle);
+        }
+
+        .filter-select {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--stroke);
+            border-radius: 8px;
+            background: white;
+            font-family: inherit;
+            font-size: 0.875rem;
+            min-width: 120px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--hz-primary);
+            box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.1);
+        }
+
+        .btn-refresh {
+            background: var(--hz-primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-refresh:hover {
+            background: var(--hz-primary-700);
+            transform: translateY(-1px);
+        }
+
+        .data-period {
+            margin-left: auto;
+            background: var(--hz-primary-50);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: var(--hz-primary);
+        }
+
+        /* Metrics Cards */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            color: var(--subtle);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-unit {
+            font-size: 0.875rem;
+            color: var(--subtle);
+        }
+
+        .metric-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .trend-up {
+            color: var(--danger);
+        }
+
+        .trend-down {
+            color: var(--success);
+        }
+
+        .scope-1 { color: #E53E3E; }
+        .scope-2 { color: #F6AD55; }
+        .scope-3 { color: #4299E1; }
+        .total { color: var(--hz-primary); }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 1rem;
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            background: linear-gradient(135deg, var(--hz-primary-50) 0%, #f8f9fa 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--subtle);
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-placeholder::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 20px,
+                rgba(74, 124, 89, 0.05) 20px,
+                rgba(74, 124, 89, 0.05) 40px
+            );
+        }
+
+        /* Bottom Grid */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .widget-card {
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .widget-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 1rem;
+        }
+
+        .quality-score {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--warning);
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .insight-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            background: var(--hz-primary-50);
+        }
+
+        .insight-icon {
+            width: 20px;
+            height: 20px;
+            background: var(--danger);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .insight-content {
+            flex: 1;
+        }
+
+        .insight-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .insight-desc {
+            font-size: 0.8rem;
+            color: var(--subtle);
+        }
+
+        .supplier-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--stroke);
+        }
+
+        .supplier-item:last-child {
+            border-bottom: none;
+        }
+
+        .supplier-name {
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .supplier-emissions {
+            font-weight: 600;
+            color: var(--hz-primary);
+            font-size: 0.875rem;
+        }
+
+        .nav-item-container {
+            /* Container for dynamic navigation items */
+        }
+
+        /* Chart Styles */
+        .chart-container {
+            padding: 1rem;
+        }
+
+        .chart-line-graph {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-color.total { background-color: var(--hz-primary); }
+        .legend-color.scope1 { background-color: #E53E3E; }
+        .legend-color.scope2 { background-color: #F6AD55; }
+        .legend-color.scope3 { background-color: #4299E1; }
+
+        .chart-graph {
+            display: flex;
+            align-items: stretch;
+            height: 200px;
+        }
+
+        .y-axis {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding-right: 1rem;
+            font-size: 0.75rem;
+            color: var(--subtle);
+        }
+
+        .graph-area {
+            flex: 1;
+            position: relative;
+        }
+
+        .x-axis {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 1rem;
+            font-size: 0.75rem;
+            color: var(--subtle);
+        }
+
+        /* Doughnut Chart */
+        .doughnut-chart {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            justify-content: center;
+        }
+
+        .doughnut-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .doughnut-center {
+            position: absolute;
+            text-align: center;
+        }
+
+        .center-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+        }
+
+        .center-label {
+            font-size: 0.75rem;
+            color: var(--subtle);
+        }
+
+        .doughnut-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        /* Data Quality Chart */
+        .data-quality-chart {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .half-pie-chart {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .score-center {
+            position: absolute;
+            text-align: center;
+            bottom: 10px;
+        }
+
+        .score-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .score-label {
+            font-size: 0.75rem;
+            color: var(--subtle);
+        }
+
+        .quality-breakdown {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .quality-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
+        }
+
+        .quality-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .quality-dot.excellent { background-color: #48BB78; }
+        .quality-dot.good { background-color: #F6AD55; }
+        .quality-dot.needs-improvement { background-color: #E53E3E; }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 700;
+    font-size: 1.25rem;
+    letter-spacing: 0.5px;
+}
+
+.logo-image {
+    height: 20px;
+    width: auto;
+    filter: brightness(0) invert(1);
+}
+
+.logo-text {
+    color: inherit;
+}
+        
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+    <img src="HW-Logo-Dark.png" alt="Hertzwave" class="logo-image">
+    <span class="logo-text">Carbon Accounting Program</span>
+</div>
+        <div class="header-right">
+            <a href="hertzwave-consultant-flow.html" class="consultant-toggle" id="consultantMode" style="display: none;">
+                🎯 Consultant Mode
+            </a>
+            <div class="user-menu" onclick="toggleUserDropdown()">
+                <div class="user-avatar">A</div>
+                <span id="userDisplay">Admin</span>
+                <span>▼</span>
+                <div class="user-dropdown" id="userDropdown">
+                    <a href="organization-profile.html" class="dropdown-item">
+                        <span>🏢</span> Organization Profile
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <span>⚙️</span> Settings
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="login.html" class="dropdown-item">
+                        <span>🚪</span> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="layout">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">Overview</div>
+                <a href="#" class="nav-item active">
+                    <div class="nav-icon">📊</div>
+                    Dashboard
+                </a>
+                <a href="analytics-insights.html" class="nav-item">
+                    <div class="nav-icon">📈</div>
+                    Analytics & Insights
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Emissions Tracking</div>
+                <a href="goals-tracking.html" class="nav-item">
+                    <div class="nav-icon">🎯</div>
+                    Targets & Goals
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Data Management</div>
+                <a href="add-data.html" class="nav-item">
+                    <div class="nav-icon">➕</div>
+                    Add Data
+                </a>
+                <a href="import-export.html" class="nav-item">
+                    <div class="nav-icon">📥</div>
+                    Import/Export
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">✅</div>
+                    Data Quality
+                    <span class="nav-badge">92%</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Advanced Features</div>
+                <a href="Supplier Eval-Index.html" class="nav-item" id="supplierEval">
+                    <div class="nav-icon">🏭</div>
+                    Supplier Evaluation
+                    <span class="nav-badge professional">PRO</span>
+                </a>
+                <div class="nav-item-container" id="carbonCreditsContainer">
+                    <!-- This will be populated based on tier -->
+                </div>
+                <a href="netzero-modeler.html" class="nav-item">
+                    <div class="nav-icon">🚀</div>
+                    NetZero Pathfinder
+                    <span class="nav-badge enterprise">ENT</span>
+                </a>
+                <a href="hwcap_auditor_dashboard.html" class="nav-item">
+                    <div class="nav-icon">🔍</div>
+                    Auditor Pack
+                    <span class="nav-badge enterprise">ENT</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Reports & Compliance</div>
+                <a href="HW-Reports-Application-Flow.html" class="nav-item">
+                    <div class="nav-icon">📄</div>
+                    Reports
+                </a>
+                <a href="compliance-mapper-app.html" class="nav-item">
+                    <div class="nav-icon">📋</div>
+                    Compliance Mapper
+                    <span class="nav-badge professional">PRO</span>
+                </a>
+                <a href="frameworks.html" class="nav-item">
+                    <div class="nav-icon">🏆</div>
+                    Frameworks
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Administration</div>
+                <a href="organization-profile.html" class="nav-item">
+                    <div class="nav-icon">🏢</div>
+                    Organization
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">👥</div>
+                    User Management
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">⚙️</div>
+                    Settings
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Sustainability Dashboard</h1>
+                <p class="page-subtitle">Live emissions data from your organization's ingested data</p>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <div class="filter-group">
+                    <label class="filter-label">Period</label>
+                    <select class="filter-select">
+                        <option>Annually</option>
+                        <option>Quarterly</option>
+                        <option>Monthly</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Scope</label>
+                    <select class="filter-select">
+                        <option>All Scopes</option>
+                        <option>Scope 1</option>
+                        <option>Scope 2</option>
+                        <option>Scope 3</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Region</label>
+                    <select class="filter-select">
+                        <option>All Regions</option>
+                        <option>North India</option>
+                        <option>South India</option>
+                        <option>West India</option>
+                    </select>
+                </div>
+                <button class="btn-refresh">Refresh Data</button>
+                <div class="data-period">
+                    📅 Showing data for: Q2 2023 (2023-04-01 to 2023-06-30)
+                </div>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">TOTAL EMISSIONS</div>
+                    <div class="metric-value total">216,416.8</div>
+                    <div class="metric-unit">tCO₂e</div>
+                    <div class="metric-trend trend-down">
+                        ↓ 5.2% vs previous quarter
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">SCOPE 1 EMISSIONS</div>
+                    <div class="metric-value scope-1">60,098.4</div>
+                    <div class="metric-unit">tCO₂e (28%)</div>
+                    <div class="metric-trend trend-down">
+                        ↓ 3.1% reduction
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">SCOPE 2 EMISSIONS</div>
+                    <div class="metric-value scope-2">153,120.3</div>
+                    <div class="metric-unit">tCO₂e (71%)</div>
+                    <div class="metric-trend trend-down">
+                        ↓ 8.4% reduction
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">SCOPE 3 EMISSIONS</div>
+                    <div class="metric-value scope-3">3,198.1</div>
+                    <div class="metric-unit">tCO₂e (1%)</div>
+                    <div class="metric-trend trend-up">
+                        ↑ 2.3% increase
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3 class="chart-title">Emissions Trend Over Time (5-Year Period)</h3>
+                    <div class="chart-container">
+                        <div class="chart-line-graph">
+                            <div class="chart-legend">
+                                <div class="legend-item"><span class="legend-color total"></span>Total Emissions</div>
+                                <div class="legend-item"><span class="legend-color scope1"></span>Scope 1</div>
+                                <div class="legend-item"><span class="legend-color scope2"></span>Scope 2</div>
+                                <div class="legend-item"><span class="legend-color scope3"></span>Scope 3</div>
+                            </div>
+                            <div class="chart-graph">
+                                <div class="y-axis">
+                                    <span>400K</span>
+                                    <span>300K</span>
+                                    <span>200K</span>
+                                    <span>100K</span>
+                                    <span>0</span>
+                                </div>
+                                <div class="graph-area">
+                                    <svg viewBox="0 0 400 200" style="width: 100%; height: 200px;">
+                                        <!-- Grid lines -->
+                                        <defs>
+                                            <pattern id="grid" width="80" height="40" patternUnits="userSpaceOnUse">
+                                                <path d="M 80 0 L 0 0 0 40" fill="none" stroke="#f0f0f0" stroke-width="1"/>
+                                            </pattern>
+                                        </defs>
+                                        <rect width="100%" height="100%" fill="url(#grid)" />
+                                        
+                                        <!-- Total emissions line -->
+                                        <polyline fill="none" stroke="var(--hz-primary)" stroke-width="3" 
+                                                points="40,160 120,140 200,120 280,100 360,80"/>
+                                        <!-- Scope 1 line -->
+                                        <polyline fill="none" stroke="#E53E3E" stroke-width="2" 
+                                                points="40,180 120,175 200,170 280,165 360,160"/>
+                                        <!-- Scope 2 line -->
+                                        <polyline fill="none" stroke="#F6AD55" stroke-width="2" 
+                                                points="40,170 120,160 200,150 280,140 360,130"/>
+                                        <!-- Scope 3 line -->
+                                        <polyline fill="none" stroke="#4299E1" stroke-width="2" 
+                                                points="40,185 120,183 200,182 280,180 360,178"/>
+                                        
+                                        <!-- Data points -->
+                                        <circle cx="40" cy="160" r="4" fill="var(--hz-primary)"/>
+                                        <circle cx="120" cy="140" r="4" fill="var(--hz-primary)"/>
+                                        <circle cx="200" cy="120" r="4" fill="var(--hz-primary)"/>
+                                        <circle cx="280" cy="100" r="4" fill="var(--hz-primary)"/>
+                                        <circle cx="360" cy="80" r="4" fill="var(--hz-primary)"/>
+                                    </svg>
+                                </div>
+                                <div class="x-axis">
+                                    <span>2019</span>
+                                    <span>2020</span>
+                                    <span>2021</span>
+                                    <span>2022</span>
+                                    <span>2023</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-title">Emissions by Source Distribution</h3>
+                    <div class="chart-container">
+                        <div class="doughnut-chart">
+                            <div class="doughnut-wrapper">
+                                <svg viewBox="0 0 200 200" style="width: 200px; height: 200px;">
+                                    <!-- Electricity 70.8% -->
+                                    <circle cx="100" cy="100" r="70" fill="none" stroke="#4A7C59" stroke-width="25" 
+                                            stroke-dasharray="312 440" stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
+                                    <!-- Fleet & Facilities 27.8% -->
+                                    <circle cx="100" cy="100" r="70" fill="none" stroke="#F6AD55" stroke-width="25" 
+                                            stroke-dasharray="123 440" stroke-dashoffset="-312" transform="rotate(-90 100 100)"/>
+                                    <!-- Purchased Goods 1.5% -->
+                                    <circle cx="100" cy="100" r="70" fill="none" stroke="#4299E1" stroke-width="25" 
+                                            stroke-dasharray="7 440" stroke-dashoffset="-435" transform="rotate(-90 100 100)"/>
+                                </svg>
+                                <div class="doughnut-center">
+                                    <div class="center-value">216.4K</div>
+                                    <div class="center-label">tCO₂e</div>
+                                </div>
+                            </div>
+                            <div class="doughnut-legend">
+                                <div class="legend-item">
+                                    <span class="legend-dot" style="background: #4A7C59;"></span>
+                                    <span>Electricity: 70.8%</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-dot" style="background: #F6AD55;"></span>
+                                    <span>Fleet & Facilities: 27.8%</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-dot" style="background: #4299E1;"></span>
+                                    <span>Purchased Goods: 1.5%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Widgets -->
+            <div class="bottom-grid">
+                <div class="widget-card">
+                    <h3 class="widget-title">Data Quality Score</h3>
+                    <div class="data-quality-chart">
+                        <div class="half-pie-chart">
+                            <svg viewBox="0 0 200 120" style="width: 200px; height: 120px;">
+                                <!-- Excellent (80%) -->
+                                <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#48BB78" stroke-width="20"/>
+                                <!-- Good (15%) -->
+                                <path d="M 20 100 A 80 80 0 0 1 50 40" fill="none" stroke="#F6AD55" stroke-width="20"/>
+                                <!-- Needs Improvement (5%) -->
+                                <path d="M 50 40 A 80 80 0 0 1 70 30" fill="none" stroke="#E53E3E" stroke-width="20"/>
+                            </svg>
+                            <div class="score-center">
+                                <div class="score-value">92%</div>
+                                <div class="score-label">Overall</div>
+                            </div>
+                        </div>
+                        <div class="quality-breakdown">
+                            <div class="quality-item">
+                                <span class="quality-dot excellent"></span>
+                                <span>Excellent: 80%</span>
+                            </div>
+                            <div class="quality-item">
+                                <span class="quality-dot good"></span>
+                                <span>Good: 15%</span>
+                            </div>
+                            <div class="quality-item">
+                                <span class="quality-dot needs-improvement"></span>
+                                <span>Needs Improvement: 5%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget-card">
+                    <h3 class="widget-title">Top Suppliers by Emissions</h3>
+                    <div class="supplier-item">
+                        <span class="supplier-name">Supplier A</span>
+                        <span class="supplier-emissions">1,245 tCO₂e</span>
+                    </div>
+                    <div class="supplier-item">
+                        <span class="supplier-name">Supplier B</span>
+                        <span class="supplier-emissions">987 tCO₂e</span>
+                    </div>
+                    <div class="supplier-item">
+                        <span class="supplier-name">Supplier C</span>
+                        <span class="supplier-emissions">765 tCO₂e</span>
+                    </div>
+                    <div class="supplier-item">
+                        <span class="supplier-name">Supplier D</span>
+                        <span class="supplier-emissions">543 tCO₂e</span>
+                    </div>
+                </div>
+
+                <div class="widget-card">
+                    <h3 class="widget-title">Key Insights</h3>
+                    <div class="insight-item">
+                        <div class="insight-icon">$</div>
+                        <div class="insight-content">
+                            <div class="insight-title">Carbon Cost Risk: $5410K</div>
+                            <div class="insight-desc">Annual carbon cost exposure at $25/tCO₂e pricing.</div>
+                        </div>
+                    </div>
+                    <div class="insight-item">
+                        <div class="insight-icon">⚡</div>
+                        <div class="insight-content">
+                            <div class="insight-title">Energy Efficiency Opportunity</div>
+                            <div class="insight-desc">15% reduction potential identified in HVAC systems.</div>
+                        </div>
+                    </div>
+                    <div class="insight-item">
+                        <div class="insight-icon">🎯</div>
+                        <div class="insight-content">
+                            <div class="insight-title">SBTi Target Progress</div>
+                            <div class="insight-desc">On track for 2030 reduction goals.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .consultant-toggle {
+            background: var(--hz-mint);
+            color: var(--hz-dark);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .consultant-toggle:hover {
+            background: rgba(168, 230, 163, 0.8);
+            transform: translateY(-1px);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            margin-top: 0.5rem;
+            min-width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .user-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            color: var(--ink);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background: var(--hz-primary-50);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--stroke);
+            margin: 0.5rem 0;
+        }
+
+        .user-menu {
+            position: relative;
+        }
+    </style>
+
+    <script>
+        // Initialize page based on user tier
+        document.addEventListener('DOMContentLoaded', function() {
+            const userTier = sessionStorage.getItem('userTier') || 'basic';
+            initializeDashboard(userTier);
+        });
+
+        function initializeDashboard(tier) {
+            const consultantMode = document.getElementById('consultantMode');
+            
+            // Show consultant mode for Professional and Enterprise
+            if (tier === 'professional' || tier === 'enterprise') {
+                consultantMode.style.display = 'block';
+            }
+
+            // Update carbon credits navigation based on tier
+            const carbonCreditsContainer = document.getElementById('carbonCreditsContainer');
+            if (carbonCreditsContainer) {
+                if (tier === 'basic') {
+                    carbonCreditsContainer.innerHTML = `
+                        <div class="nav-item" style="opacity: 0.5; cursor: not-allowed;" onclick="showUpgradeAlert('carbon credits')">
+                            <div class="nav-icon">🌳</div>
+                            Carbon Management
+                            <span class="nav-badge" style="background: #999;">UPGRADE</span>
+                        </div>
+                    `;
+                } else if (tier === 'professional') {
+                    carbonCreditsContainer.innerHTML = `
+                        <a href="carbon-credits-pro.html" class="nav-item">
+                            <div class="nav-icon">🌳</div>
+                            Carbon Deficit Tracking
+                            <span class="nav-badge professional">PRO</span>
+                        </a>
+                    `;
+                } else if (tier === 'enterprise') {
+                    carbonCreditsContainer.innerHTML = `
+                        <a href="carbon-credits-pro.html" class="nav-item">
+                            <div class="nav-icon">📊</div>
+                            Carbon Deficit Tracking
+                            <span class="nav-badge professional">PRO</span>
+                        </a>
+                        <a href="carbon-credits-enterprise.html" class="nav-item">
+                            <div class="nav-icon">🛒</div>
+                            Credits Marketplace
+                            <span class="nav-badge enterprise">ENT</span>
+                        </a>
+                    `;
+                }
+            }
+
+            // Handle compliance mapper access (Pro+ feature)
+            const complianceLinks = document.querySelectorAll('a[href*="compliance"]');
+            complianceLinks.forEach(link => {
+                if (tier === 'basic') {
+                    link.style.pointerEvents = 'none';
+                    link.style.opacity = '0.5';
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        alert('Compliance features are available in Professional and Enterprise tiers. Please upgrade your subscription.');
+                    });
+                }
+            });
+
+            // Handle supplier evaluation access (Pro+ feature)
+            const supplierLinks = document.querySelectorAll('a[href*="Supplier"]');
+            supplierLinks.forEach(link => {
+                if (tier === 'basic') {
+                    link.style.pointerEvents = 'none';
+                    link.style.opacity = '0.5';
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        alert('Supplier Evaluation is available in Professional and Enterprise tiers. Please upgrade your subscription.');
+                    });
+                }
+            });
+
+            // Handle NetZero and Auditor Pack (Enterprise only)
+            const enterpriseLinks = document.querySelectorAll('a[href*="netzero"], a[href*="auditor"]');
+            enterpriseLinks.forEach(link => {
+                if (tier !== 'enterprise') {
+                    link.style.pointerEvents = 'none';
+                    link.style.opacity = '0.5';
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        alert('This feature is available in Enterprise tier only. Please upgrade your subscription.');
+                    });
+                }
+            });
+
+            // Tier-based feature access
+            console.log('User tier:', tier);
+            console.log('Carbon credits navigation updated for tier:', tier);
+        }
+
+        function showUpgradeAlert(feature) {
+            alert(`${feature} management is available in Professional and Enterprise tiers. Please upgrade your subscription to access this feature.`);
+        }
+
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.querySelector('.user-menu');
+            const dropdown = document.getElementById('userDropdown');
+            
+            if (!userMenu.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>
+</html>
