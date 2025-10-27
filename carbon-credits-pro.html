@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carbon Credits - Gap Analysis | HWCAP Professional</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --hz-primary: #4A7C59;
+      --hz-primary-700: #355b3f;
+      --hz-primary-50: #E9F1EC;
+      --hz-mint: #A8E6A3;
+      --hz-dark: #2F4F3F;
+      --ink: #22302A;
+      --subtle: #5B6E64;
+      --bg: #F6F7F4;
+      --card: #FFFFFF;
+      --stroke: #E5E9E6;
+      --success: #48BB78;
+      --warning: #F6AD55;
+      --danger: #E53E3E;
+      --info: #4299E1;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Outfit', sans-serif; 
+      background: var(--bg);
+      color: var(--ink);
+    }
+    
+    .header {
+      background: var(--hz-primary);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .logo { 
+      font-size: 1.5rem; 
+      font-weight: 700; 
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .user-info { display: flex; align-items: center; gap: 0.5rem; }
+    
+    .container {
+      display: flex;
+      min-height: calc(100vh - 64px);
+    }
+    
+    .sidebar {
+      width: 280px;
+      background: white;
+      padding: 1.5rem 0;
+      box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+      border-right: 1px solid var(--stroke);
+    }
+
+    .nav-section {
+      margin-bottom: 2rem;
+    }
+
+    .nav-section-title {
+      padding: 0 1.5rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-item {
+      padding: 0.875rem 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+      color: var(--subtle);
+      font-weight: 500;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .nav-item:hover {
+      background: var(--hz-primary-50);
+      border-left-color: var(--hz-primary);
+      color: var(--hz-primary);
+    }
+    .nav-item.active {
+      background: var(--hz-primary-50);
+      border-left-color: var(--hz-primary);
+      color: var(--hz-primary);
+      font-weight: 600;
+    }
+
+    .nav-item.enterprise {
+      opacity: 0.5;
+      cursor: not-allowed;
+      position: relative;
+    }
+
+    .nav-item.enterprise:hover {
+      background: #f0f0f0;
+      border-left-color: transparent;
+      color: var(--subtle);
+    }
+
+    .upgrade-badge {
+      background: var(--warning);
+      color: white;
+      font-size: 0.6rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 8px;
+      margin-left: auto;
+      font-weight: 600;
+    }
+    
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+      height: calc(100vh - 64px);
+    }
+    
+    .page-header {
+      margin-bottom: 2rem;
+    }
+    .page-title {
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: var(--hz-primary);
+      margin-bottom: 0.5rem;
+    }
+    .page-subtitle {
+      color: var(--subtle);
+      font-size: 1rem;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--stroke);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-left: 4px solid var(--hz-primary);
+      border: 1px solid var(--stroke);
+    }
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--subtle);
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--hz-primary);
+      margin-bottom: 0.5rem;
+    }
+    .stat-unit {
+      font-size: 0.875rem;
+      color: var(--subtle);
+    }
+
+    .gap-analysis {
+      background: linear-gradient(135deg, var(--hz-primary-50), #f0f9f5);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--hz-primary);
+    }
+
+    .gap-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--hz-primary);
+      margin-bottom: 1rem;
+    }
+
+    .gap-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .gap-section {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .gap-section h3 {
+      color: var(--hz-primary);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .gap-metric {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .gap-metric:last-child {
+      border-bottom: none;
+    }
+
+    .gap-label {
+      font-weight: 500;
+      color: var(--ink);
+    }
+
+    .gap-value {
+      font-weight: 700;
+      color: var(--hz-primary);
+    }
+
+    .gap-value.positive {
+      color: var(--success);
+    }
+
+    .gap-value.negative {
+      color: var(--danger);
+    }
+
+    .pro-features {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      border: 1px solid var(--stroke);
+      margin-bottom: 2rem;
+    }
+
+    .pro-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--hz-primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 1.5rem;
+      border: 1px solid #e5e5e5;
+      transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+
+    .feature-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: white;
+      background: var(--hz-primary);
+    }
+
+    .feature-title {
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 0.25rem;
+    }
+
+    .feature-description {
+      color: var(--subtle);
+      font-size: 0.9rem;
+    }
+
+    .feature-status {
+      margin-top: 1rem;
+      padding: 0.5rem;
+      background: var(--hz-primary-50);
+      border-radius: 6px;
+      font-size: 0.875rem;
+      color: var(--hz-primary);
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+      border: none;
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      background: var(--hz-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--hz-primary-700);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--hz-primary);
+      border: 2px solid var(--hz-primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--hz-primary-50);
+    }
+
+    .upgrade-cta {
+      background: linear-gradient(135deg, var(--warning), #ED8936);
+      color: white;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .upgrade-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .upgrade-description {
+      margin-bottom: 1.5rem;
+      opacity: 0.9;
+    }
+
+    .btn-upgrade {
+      background: white;
+      color: var(--warning);
+      font-weight: 700;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-upgrade:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    @media (max-width: 768px) {
+      .gap-content {
+        grid-template-columns: 1fr;
+      }
+      
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🌱</div>
+      HWCAP
+    </div>
+    <div class="user-info">
+      <span>Professional Plan</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="sidebar">
+      <div class="nav-section">
+        <div class="nav-section-title">Carbon Management</div>
+        <div class="nav-item active">
+          <span>📊</span> Deficit Tracking
+        </div>
+        <a href="track-b-credits.html" class="nav-item">
+          <span>🌱</span> Sequestration Projects
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Enterprise Features</div>
+        <div class="nav-item enterprise">
+          <span>🛒</span> Credits Marketplace
+          <span class="upgrade-badge">ENT</span>
+        </div>
+        <div class="nav-item enterprise">
+          <span>💼</span> Portfolio Management
+          <span class="upgrade-badge">ENT</span>
+        </div>
+        <div class="nav-item enterprise">
+          <span>📦</span> Credit Inventory
+          <span class="upgrade-badge">ENT</span>
+        </div>
+        <div class="nav-item enterprise">
+          <span>🎯</span> Credit Retirement
+          <span class="upgrade-badge">ENT</span>
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Navigation</div>
+        <a href="hwcap_dashboard.html" class="nav-item">
+          <span>📊</span> Dashboard
+        </a>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">Carbon Deficit Tracking & Sequestration</h1>
+        <p class="page-subtitle">Track your carbon deficit and manage sequestration programs to achieve net-zero goals</p>
+      </div>
+
+      <!-- Stats Overview -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Carbon Deficit</div>
+          <div class="stat-value">41,119</div>
+          <div class="stat-unit">tCO₂e annually</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Sequestration Target</div>
+          <div class="stat-value">45,000</div>
+          <div class="stat-unit">tCO₂e by 2030</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Active Projects</div>
+          <div class="stat-value">3</div>
+          <div class="stat-unit">sequestration programs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Projected Surplus</div>
+          <div class="stat-value">3,881</div>
+          <div class="stat-unit">tCO₂e buffer</div>
+        </div>
+      </div>
+
+      <!-- Carbon Deficit Analysis -->
+      <div class="gap-analysis">
+        <h2 class="gap-title">📊 Carbon Deficit Analysis & Sequestration Planning</h2>
+        
+        <div class="gap-content">
+          <div class="gap-section">
+            <h3>Current Carbon Position</h3>
+            <div class="gap-metric">
+              <span class="gap-label">Current Emissions (2024)</span>
+              <span class="gap-value">216,417 tCO₂e</span>
+            </div>
+            <div class="gap-metric">
+              <span class="gap-label">Achieved Reductions</span>
+              <span class="gap-value positive">67,098 tCO₂e</span>
+            </div>
+            <div class="gap-metric">
+              <span class="gap-label">Target Emissions (2030)</span>
+              <span class="gap-value">108,209 tCO₂e</span>
+            </div>
+            <div class="gap-metric">
+              <span class="gap-label">Remaining Deficit</span>
+              <span class="gap-value negative">41,119 tCO₂e</span>
+            </div>
+            <div class="gap-metric">
+              <span class="gap-label">Deficit %</span>
+              <span class="gap-value negative">19%</span>
+            </div>
+          </div>
+
+          <div class="gap-section">
+            <h3>Sequestration Portfolio</h3>
+            <div class="gap-metric">
+              <span class="gap-label">Forest Restoration</span>
+              <span class="gap-value positive">25,000 tCO₂e</span>
+            </div>
+            <div class="gap-metric">
+              <span class="gap-label">Agroforestry Program</span>
+              <span class="gap-value positive">12,000 tCO₂e</span>
+            </div>
+            <div class="gap-metric">
+              <span class="gap-label">Mangrove Conservation</span>
+              <span class="gap-value positive">8,000 tCO₂e</span>
+            </div>
+            <div class="gap-metric">
+              <span class="gap-label">Total Sequestration</span>
+              <span class="gap-value positive">45,000 tCO₂e</span>
+            </div>
+            <div class="gap-metric">
+              <span class="gap-label">Net Position</span>
+              <span class="gap-value positive">+3,881 tCO₂e</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align: center;">
+          <a href="track-b-credits.html" class="btn btn-primary">
+            🌱 Manage Sequestration Projects
+          </a>
+          <button class="btn btn-secondary" style="margin-left: 1rem;">
+            📊 Download Deficit Analysis
+          </button>
+        </div>
+      </div>
+
+      <!-- Professional Features -->
+      <div class="pro-features">
+        <h2 class="pro-title">
+          🚀 Professional Deficit Tracking & Sequestration
+        </h2>
+        
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-header">
+              <div class="feature-icon">📊</div>
+              <div>
+                <div class="feature-title">Carbon Deficit Analysis</div>
+                <div class="feature-description">Track your carbon deficit against reduction targets and sequestration capacity</div>
+              </div>
+            </div>
+            <div class="feature-status">✅ Available Now</div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-header">
+              <div class="feature-icon">🌱</div>
+              <div>
+                <div class="feature-title">Sequestration Programs</div>
+                <div class="feature-description">Manage forest, agroforestry, and nature-based sequestration projects</div>
+              </div>
+            </div>
+            <div class="feature-status">✅ Available Now</div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-header">
+              <div class="feature-icon">📈</div>
+              <div>
+                <div class="feature-title">Track-B Credits</div>
+                <div class="feature-description">Monitor and verify your own carbon sequestration projects</div>
+              </div>
+            </div>
+            <div class="feature-status">✅ Available Now</div>
+          </div>
+
+          <div class="feature-card">
+            <div class="feature-header">
+              <div class="feature-icon">🎯</div>
+              <div>
+                <div class="feature-title">Net-Zero Planning</div>
+                <div class="feature-description">Strategic planning for carbon neutrality through sequestration</div>
+              </div>
+            </div>
+            <div class="feature-status">✅ Available Now</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upgrade CTA -->
+      <div class="upgrade-cta">
+        <h3 class="upgrade-title">🛒 Need Carbon Credits Marketplace?</h3>
+        <p class="upgrade-description">
+          Upgrade to Enterprise to access carbon credits marketplace, portfolio management, and credit retirement capabilities.
+        </p>
+        <button class="btn-upgrade">
+          ⭐ Upgrade to Enterprise for Credits Trading
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Handle enterprise feature clicks
+    document.querySelectorAll('.nav-item.enterprise').forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('This feature is available in Enterprise plan. Upgrade to unlock full carbon credits management capabilities!');
+      });
+    });
+
+    // Handle upgrade button
+    document.querySelector('.btn-upgrade').addEventListener('click', function() {
+      alert('Upgrade flow would be implemented here in the full application.');
+    });
+
+    // Handle download report
+    document.addEventListener('DOMContentLoaded', function() {
+      const downloadBtn = document.querySelector('.btn-secondary');
+      if (downloadBtn) {
+        downloadBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          alert('Gap analysis report download would be implemented here.');
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,2033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organization Profile - Hertzwave</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8f5f1 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d5f4f 0%, #3d7f6f 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+            letter-spacing: 0.1em;
+        }
+
+        .user-info {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1.25rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .page-header h1 {
+            color: #2d5f4f;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3d7f6f 0%, #4caf50 100%);
+            transition: width 0.3s ease;
+        }
+
+        .completion-text {
+            text-align: right;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #2d5f4f;
+            font-weight: 600;
+        }
+
+        .tabs-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #e0e0e0;
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            min-width: 160px;
+            padding: 1.25rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            text-align: center;
+            font-weight: 500;
+            color: #666;
+            position: relative;
+        }
+
+        .tab:hover {
+            background: #fff;
+            color: #2d5f4f;
+        }
+
+        .tab.active {
+            background: white;
+            color: #2d5f4f;
+            border-bottom-color: #3d7f6f;
+            font-weight: 600;
+        }
+
+        .tab-icon {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .completion-badge {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: #4caf50;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 2.5rem;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .form-section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e8f5f1;
+        }
+
+        .form-section-header h2 {
+            color: #2d5f4f;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .form-section-header .icon {
+            font-size: 1.8rem;
+        }
+
+        .form-section-desc {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-left: 4px solid #3d7f6f;
+            border-radius: 4px;
+        }
+
+        .help-callout {
+            background: #e8f5f1;
+            border-left: 4px solid #3d7f6f;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        .help-callout-title {
+            font-weight: 600;
+            color: #2d5f4f;
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+        }
+
+        .help-callout-content {
+            color: #555;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .help-callout ul {
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .help-callout li {
+            margin-bottom: 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2d5f4f;
+            font-size: 0.95rem;
+        }
+
+        .form-group label .required {
+            color: #d32f2f;
+            margin-left: 0.25rem;
+        }
+
+        .form-group label .optional {
+            color: #999;
+            font-weight: 400;
+            font-size: 0.85rem;
+            margin-left: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3d7f6f;
+            box-shadow: 0 0 0 4px rgba(61, 127, 111, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group .help-text {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .checkbox-item:hover {
+            background: #f8f9fa;
+            border-color: #3d7f6f;
+        }
+
+        .checkbox-item input[type="checkbox"],
+        .checkbox-item input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            flex: 1;
+            margin: 0;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        .info-box strong {
+            color: #1565c0;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+            color: #155724;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+            color: #856404;
+        }
+
+        .tier-restriction {
+            background: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+            color: #6a1b9a;
+        }
+
+        .tier-restriction strong {
+            font-size: 1rem;
+        }
+
+        .card {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-color: #3d7f6f;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-header h3 {
+            color: #2d5f4f;
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3d7f6f 0%, #2d5f4f 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(61, 127, 111, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #3d7f6f;
+            border: 2px solid #3d7f6f;
+        }
+
+        .btn-secondary:hover {
+            background: #e8f5f1;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .facilities-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .facility-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.25rem;
+            transition: all 0.3s;
+        }
+
+        .facility-card:hover {
+            border-color: #3d7f6f;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .facility-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 0.75rem;
+        }
+
+        .facility-name {
+            font-weight: 600;
+            color: #2d5f4f;
+            font-size: 1.05rem;
+        }
+
+        .facility-type {
+            background: #e8f5f1;
+            color: #2d5f4f;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .facility-details {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-info {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: #3d7f6f;
+            transform: translateY(-2px);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d5f4f;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e0e0e0;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -1.6rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #3d7f6f;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #3d7f6f;
+        }
+
+        .timeline-year {
+            font-weight: 700;
+            color: #2d5f4f;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-content {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid #3d7f6f;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 0.75rem;
+            border-bottom: 2px solid #e0e0e0;
+            background: #f8f9fa;
+            text-align: left;
+            font-weight: 600;
+            color: #2d5f4f;
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #2d5f4f 0%, #3d7f6f 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 2px solid #e0e0e0;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                min-width: auto;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tab-content {
+                padding: 1.5rem;
+            }
+
+            .facilities-list {
+                grid-template-columns: 1fr;
+            }
+
+            .modal {
+                max-width: 100%;
+                margin: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <div class="logo">HERTZWAVE</div>
+                <div class="logo-subtitle">Carbon Accounting Platform</div>
+            </div>
+            <div class="user-info">Administrator | Acme Manufacturing Ltd.</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>🏢 Organization Profile</h1>
+            <p>Central hub for all organizational data used across Hertzwave modules</p>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 75%;"></div>
+            </div>
+            <div class="completion-text">Profile Completion: 75%</div>
+        </div>
+
+        <div class="tabs-container">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('basic')">
+                    <span class="tab-icon">🏢</span>
+                    <span class="completion-badge">✓</span>
+                    Basic Info
+                </div>
+                <div class="tab" onclick="switchTab('structure')">
+                    <span class="tab-icon">🏗️</span>
+                    <span class="completion-badge">✓</span>
+                    Structure
+                </div>
+                <div class="tab" onclick="switchTab('climate')">
+                    <span class="tab-icon">🌍</span>
+                    Climate Goals
+                </div>
+                <div class="tab" onclick="switchTab('compliance')">
+                    <span class="tab-icon">📋</span>
+                    <span class="completion-badge">✓</span>
+                    Compliance
+                </div>
+                <div class="tab" onclick="switchTab('financial')">
+                    <span class="tab-icon">💰</span>
+                    Financial
+                </div>
+                <div class="tab" onclick="switchTab('facilities')">
+                    <span class="tab-icon">🏭</span>
+                    <span class="completion-badge">✓</span>
+                    Facilities
+                </div>
+            </div>
+
+            <!-- Tab 1: Basic Information -->
+            <div id="basic" class="tab-content active">
+                <div class="success-box">
+                    <strong>✓ Complete:</strong> Basic information is fully configured. Review and update as needed.
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <span class="icon">🏢</span>
+                        <h2>Company Details</h2>
+                    </div>
+                    <div class="form-section-desc">
+                        Core information used across reporting, compliance, and analytics modules
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>Legal Entity Name <span class="required">*</span></label>
+                            <input type="text" value="Acme Manufacturing Private Limited" placeholder="Full legal name">
+                            <div class="help-text">As per incorporation certificate</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Country of Incorporation <span class="required">*</span></label>
+                            <select id="country-select" onchange="updateCountryFields()">
+                                <option value="">-- Select Country --</option>
+                                <option value="IN" selected>India</option>
+                                <option value="US">United States</option>
+                                <option value="GB">United Kingdom</option>
+                                <option value="CN">China</option>
+                                <option value="JP">Japan</option>
+                                <option value="DE">Germany</option>
+                                <option value="FR">France</option>
+                                <option value="AU">Australia</option>
+                                <option value="CA">Canada</option>
+                                <option value="SG">Singapore</option>
+                                <option value="AE">United Arab Emirates</option>
+                                <option value="BR">Brazil</option>
+                                <option value="MX">Mexico</option>
+                                <option value="ZA">South Africa</option>
+                            </select>
+                            <div class="help-text">Determines required tax documentation and compliance frameworks</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>State/Province <span class="required">*</span></label>
+                            <select id="state-select">
+                                <option value="KA" selected>Karnataka</option>
+                                <option value="MH">Maharashtra</option>
+                                <option value="TN">Tamil Nadu</option>
+                                <option value="DL">Delhi</option>
+                                <option value="GJ">Gujarat</option>
+                                <option value="TG">Telangana</option>
+                            </select>
+                        </div>
+
+                        <!-- Dynamic Tax Fields based on Country -->
+                        <div id="tax-fields-india" style="display: contents;">
+                            <div class="form-group">
+                                <label>Corporate ID Number (CIN) <span class="required">*</span></label>
+                                <input type="text" value="U12345KA2010PTC098765" placeholder="21-character CIN">
+                                <div class="help-text">Required for Indian companies (MCA registration)</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>GST Number <span class="required">*</span></label>
+                                <input type="text" placeholder="15-character GSTIN">
+                                <div class="help-text">Goods and Services Tax Identification Number</div>
+                            </div>
+                        </div>
+
+                        <div id="tax-fields-us" style="display: none;">
+                            <div class="form-group">
+                                <label>EIN (Employer ID Number) <span class="required">*</span></label>
+                                <input type="text" placeholder="XX-XXXXXXX">
+                                <div class="help-text">Federal Tax Identification Number</div>
+                            </div>
+                        </div>
+
+                        <div id="tax-fields-uk" style="display: none;">
+                            <div class="form-group">
+                                <label>Company Registration Number <span class="required">*</span></label>
+                                <input type="text" placeholder="XXXXXXXX">
+                                <div class="help-text">Companies House registration number</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>VAT Number</label>
+                                <input type="text" placeholder="GB XXX XXXX XX">
+                                <div class="help-text">Value Added Tax registration (if applicable)</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Trade Name / Brand <span class="optional">(optional)</span></label>
+                            <input type="text" value="Acme Manufacturing" placeholder="Brand name">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Industry Sector <span class="required">*</span></label>
+                            <select>
+                                <option value="">-- Select Sector --</option>
+                                <option value="manufacturing" selected>Manufacturing</option>
+                                <option value="it">Information Technology</option>
+                                <option value="pharma">Pharmaceuticals</option>
+                                <option value="fmcg">FMCG</option>
+                                <option value="energy">Energy & Utilities</option>
+                                <option value="transport">Transportation & Logistics</option>
+                                <option value="real_estate">Real Estate & Construction</option>
+                                <option value="financial">Financial Services</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Sub-sector / Specialization</label>
+                            <input type="text" value="Automotive Components" placeholder="e.g., Automotive, Textiles">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Listing Status <span class="required">*</span></label>
+                            <select>
+                                <option value="listed" selected>Listed (Public Company)</option>
+                                <option value="unlisted">Unlisted/Private</option>
+                                <option value="subsidiary">Subsidiary of Listed Entity</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Stock Exchange(s) <span class="optional">(if listed)</span></label>
+                            <select multiple size="3">
+                                <optgroup label="India">
+                                    <option value="BSE" selected>BSE (Bombay Stock Exchange)</option>
+                                    <option value="NSE" selected>NSE (National Stock Exchange)</option>
+                                </optgroup>
+                                <optgroup label="United States">
+                                    <option value="NYSE">NYSE (New York Stock Exchange)</option>
+                                    <option value="NASDAQ">NASDAQ</option>
+                                </optgroup>
+                                <optgroup label="Europe">
+                                    <option value="LSE">LSE (London Stock Exchange)</option>
+                                    <option value="Euronext">Euronext</option>
+                                    <option value="Deutsche">Deutsche Börse</option>
+                                </optgroup>
+                                <optgroup label="Asia-Pacific">
+                                    <option value="HKEX">HKEX (Hong Kong)</option>
+                                    <option value="SSE">SSE (Shanghai)</option>
+                                    <option value="TSE">TSE (Tokyo)</option>
+                                    <option value="SGX">SGX (Singapore)</option>
+                                    <option value="ASX">ASX (Australia)</option>
+                                </optgroup>
+                            </select>
+                            <div class="help-text">Hold Ctrl/Cmd to select multiple exchanges</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Year of Incorporation <span class="required">*</span></label>
+                            <input type="number" value="2010" min="1800" max="2025">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <span class="icon">📍</span>
+                        <h2>Location & Contact</h2>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>Registered Address <span class="required">*</span></label>
+                            <textarea>Plot No. 42, Industrial Area, Phase 3, Peenya, Bengaluru - 560058</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Primary Contact Email <span class="required">*</span></label>
+                            <input type="email" value="sustainability@acme-mfg.com" placeholder="contact@company.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Primary Contact Phone</label>
+                            <input type="tel" value="+91 80 1234 5678" placeholder="+XX XXX XXX XXXX">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Website</label>
+                            <input type="url" value="https://www.acme-manufacturing.com" placeholder="https://www.company.com">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Sustainability Contact Person</label>
+                            <input type="text" value="Priya Mehta" placeholder="Name">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary">Cancel Changes</button>
+                    <button class="btn btn-primary">💾 Save Basic Information</button>
+                </div>
+            </div>
+
+            <!-- Tab 2: Organizational Structure -->
+            <div id="structure" class="tab-content">
+                <div class="info-box">
+                    <strong>Your Tier:</strong> Professional - Supports 1 entity, up to 20 departments, 15 facilities
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <span class="icon">🏗️</span>
+                        <h2>Hierarchy Configuration</h2>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Organizational Boundary <span class="required">*</span></label>
+                            <select>
+                                <option value="operational" selected>Operational Control</option>
+                                <option value="financial">Financial Control</option>
+                                <option value="equity">Equity Share</option>
+                            </select>
+                            <div class="help-text">Used for emissions consolidation per GHG Protocol. This determines which facilities and operations are included in your carbon footprint calculations.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Current Structure Depth</label>
+                            <input type="text" value="3 levels" readonly>
+                            <div class="help-text">Organization → Departments → Sub-departments</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <span class="icon">🏢</span>
+                        <h2>Departments</h2>
+                    </div>
+                    <div class="form-section-desc">
+                        Define functional units for emissions allocation and responsibility tracking. Departments help you understand which business units contribute to your carbon footprint and track reduction initiatives by team.
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="dept-count">12</div>
+                            <div class="stat-label">Active Departments</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="dept-capacity">8/20</div>
+                            <div class="stat-label">Capacity Used</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">35</div>
+                            <div class="stat-label">Total Sub-depts</div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Department List</h3>
+                            <button class="btn btn-primary btn-sm" onclick="openAddDepartmentModal()">+ Add Department</button>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Department Name</th>
+                                        <th>Code</th>
+                                        <th>Head</th>
+                                        <th>Sub-depts</th>
+                                        <th>Facilities</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="department-table-body">
+                                    <tr>
+                                        <td>Manufacturing Operations</td>
+                                        <td>MFG-01</td>
+                                        <td>Rajesh Kumar</td>
+                                        <td><span class="badge badge-info">5</span></td>
+                                        <td>8 facilities</td>
+                                        <td><button class="btn btn-secondary btn-sm">Edit</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Supply Chain & Logistics</td>
+                                        <td>SCM-02</td>
+                                        <td>Anita Desai</td>
+                                        <td><span class="badge badge-info">3</span></td>
+                                        <td>5 facilities</td>
+                                        <td><button class="btn btn-secondary btn-sm">Edit</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Research & Development</td>
+                                        <td>RND-03</td>
+                                        <td>Dr. Sanjay Sharma</td>
+                                        <td><span class="badge badge-info">2</span></td>
+                                        <td>2 facilities</td>
+                                        <td><button class="btn btn-secondary btn-sm">Edit</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary">View Full Org Chart</button>
+                    <button class="btn btn-primary">💾 Save Structure</button>
+                </div>
+            </div>
+
+            <!-- Tab 3: Climate Goals -->
+            <div id="climate" class="tab-content">
+                <div class="warning-box">
+                    <strong>⚠️ Incomplete:</strong> Climate goals need to be configured for sustainability reporting and custom reports
+                </div>
+
+                <div class="tier-restriction">
+                    <strong>🎯 NetZero Modeler:</strong> The interactive NetZero Pathway Modeler (with reduction levers, financial modeling, and scenario analysis) is available in <strong>Enterprise tier only</strong>. However, climate goals configured here are used across all tiers for:
+                    <ul style="margin-top: 0.5rem; margin-left: 1.5rem;">
+                        <li><strong>Sustainability Reporting:</strong> Compare current emissions vs. targets in BRSR, CDP, and other frameworks</li>
+                        <li><strong>Custom Reports:</strong> Track progress toward your climate commitments</li>
+                        <li><strong>Dashboard Analytics:</strong> Visualize gap between actual and target emissions</li>
+                    </ul>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <span class="icon">🎯</span>
+                        <h2>NetZero Commitment</h2>
+                    </div>
+                    <div class="form-section-desc">
+                        Set your organization's climate targets - used for tracking progress in reports and dashboards across all modules
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>NetZero Target Year <span class="required">*</span></label>
+                            <select>
+                                <option value="">-- Select Year --</option>
+                                <option value="2030">2030</option>
+                                <option value="2040">2040</option>
+                                <option value="2045">2045</option>
+                                <option value="2050">2050</option>
+                                <option value="2060">2060</option>
+                                <option value="2070">2070</option>
+                            </select>
+                            <div class="help-text">Year when net emissions will reach zero</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Scope Coverage <span class="required">*</span></label>
+                            <select>
+                                <option value="full" selected>Scope 1, 2, and 3 (Full Value Chain)</option>
+                                <option value="scope12">Scope 1 and 2 Only</option>
+                                <option value="custom">Custom Scope 3 Categories</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Baseline Year <span class="required">*</span></label>
+                            <select>
+                                <option value="2023" selected>2023</option>
+                                <option value="2024">2024</option>
+                            </select>
+                            <div class="help-text">Reference year for measuring reductions</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Baseline Emissions <span class="optional">(auto-calculated)</span></label>
+                            <input type="text" value="53,650 tCO₂e" readonly>
+                            <div class="help-text">From validated emissions data for baseline year</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Alignment Framework <span class="required">*</span></label>
+                            <select>
+                                <option value="sbti_1.5" selected>Science-Based Targets (SBTi) - 1.5°C</option>
+                                <option value="sbti_2">Science-Based Targets (SBTi) - Well Below 2°C</option>
+                                <option value="paris">Paris Agreement Aligned</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>SBTi Submission Status</label>
+                            <select>
+                                <option value="not_submitted" selected>Not Yet Submitted</option>
+                                <option value="committed">Committed (Letter Sent)</option>
+                                <option value="targets_set">Targets Set (Under Review)</option>
+                                <option value="approved">SBTi Approved</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <span class="icon">📊</span>
+                        <h2>Interim Milestones</h2>
+                    </div>
+                    <div class="form-section-desc">
+                        Define checkpoints towards your NetZero goal (recommended: at least one before 2030)
+                    </div>
+
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-year">2030</div>
+                            <div class="timeline-content">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Reduction Target (%)</label>
+                                        <input type="number" placeholder="e.g., 30" min="0" max="100">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Target Emissions (tCO₂e)</label>
+                                        <input type="text" readonly placeholder="Will calculate based on %">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-year">2035</div>
+                            <div class="timeline-content">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Reduction Target (%)</label>
+                                        <input type="number" placeholder="e.g., 50" min="0" max="100">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Target Emissions (tCO₂e)</label>
+                                        <input type="text" readonly placeholder="Will calculate based on %">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-year">2040</div>
+                            <div class="timeline-content">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Reduction Target (%)</label>
+                                        <input type="number" placeholder="e.g., 80" min="0" max="100">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Target Emissions (tCO₂e)</label>
+                                        <input type="text" readonly placeholder="Will calculate based on %">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <span class="icon">♻️</span>
+                        <h2>Carbon Offset Strategy</h2>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label>Offset Philosophy</label>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="radio" name="offset_strategy" id="offset_minimal" value="minimal">
+                                    <label for="offset_minimal">
+                                        <strong>Minimize Offsets</strong> - Focus on absolute reductions, use offsets only for residual emissions
+                                    </label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="radio" name="offset_strategy" id="offset_balanced" value="balanced" checked>
+                                    <label for="offset_balanced">
+                                        <strong>Balanced Approach</strong> - Combine reductions with strategic offset purchases
+                                    </label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="radio" name="offset_strategy" id="offset_neutrality" value="neutrality">
+                                    <label for="offset_neutrality">
+                                        <strong>Carbon Neutrality</strong> - Offset all emissions from baseline year onwards
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Maximum Offset Percentage</label>
+                            <input type="number" placeholder="e.g., 10" min="0" max="100">
+                            <div class="help-text">% of baseline emissions that can be offset (SBTi recommends ≤10%)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary">Reset to Defaults</button>
+                    <button class="btn btn-primary">🎯 Save Climate Goals</button>
+                </div>
+            </div>
+
+            <!-- Tab 4: Compliance & Reporting -->
+            <div id="compliance" class="tab-content">
+                <div class="tier-restriction">
+                    <strong>🔒 Professional & Enterprise Feature:</strong> Advanced compliance framework configuration is available in Professional and Enterprise tiers. Your current tier: <strong>Professional</strong> ✓
+                </div>
+
+                <div class="success-box">
+                    <strong>✓ Complete:</strong> Compliance frameworks configured.
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <span class="icon">📅</span>
+                        <h2>Reporting Calendar</h2>
+                    </div>
+
+                    <div class="help-callout">
+                        <div class="help-callout-title">📌 Why We Need This</div>
+                        <div class="help-callout-content">
+                            Your reporting calendar ensures all emissions data collection, validation, and reporting happen on schedule. This timing is used across all modules to:
+                            <ul>
+                                <li><strong>Automate reminders</strong> for data collection deadlines</li>
+                                <li><strong>Generate reports</strong> aligned with your fiscal year for consistency</li>
+                                <li><strong>Track progress</strong> against your climate goals on the right timeline</li>
+                                <li><strong>Comply with regulations</strong> that have specific reporting windows (like BRSR for listed companies)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Fiscal Year Start <span class="required">*</span></label>
+                            <select>
+                                <option value="apr" selected>April (India FY)</option>
+                                <option value="jan">January</option>
+                                <option value="jul">July</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Current Fiscal Year</label>
+                            <input type="text" value="FY 2024-25" readonly>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Reporting Frequency <span class="required">*</span></label>
+                            <select>
+                                <option value="quarterly" selected>Quarterly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="annually">Annually</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <span class="icon">📋</span>
+                        <h2>Active Frameworks</h2>
+                    </div>
+                    <div class="form-section-desc">
+                        Select all compliance frameworks applicable to your organization. The Reporting module will automatically generate reports in the correct format for each framework.
+                    </div>
+
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="brsr" checked>
+                            <label for="brsr">
+                                <strong>SEBI BRSR & BRSR Core 2024</strong><br>
+                                <small style="color: #666;">Mandatory for listed companies in India</small>
+                            </label>
+                            <span class="badge badge-success">Configured</span>
+                        </div>
+
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="cdp" checked>
+                            <label for="cdp">
+                                <strong>CDP Climate Change Questionnaire 2025</strong><br>
+                                <small style="color: #666;">Voluntary disclosure to investors</small>
+                            </label>
+                            <span class="badge badge-success">Configured</span>
+                        </div>
+
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="tcfd" checked>
+                            <label for="tcfd">
+                                <strong>TCFD Recommendations</strong><br>
+                                <small style="color: #666;">Climate-related financial disclosures</small>
+                            </label>
+                            <span class="badge badge-success">Configured</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="openFrameworkConfigModal()">⚙️ Configure Framework Details</button>
+                    <button class="btn btn-primary">💾 Save Compliance Settings</button>
+                </div>
+            </div>
+
+            <!-- Tab 5: Financial Information -->
+            <div id="financial" class="tab-content">
+                <div class="info-box">
+                    <strong>Privacy Note:</strong> Financial data is used only for intensity calculations. Not shared externally.
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <span class="icon">💰</span>
+                        <h2>Revenue & Financial Metrics</h2>
+                    </div>
+
+                    <div class="help-callout">
+                        <div class="help-callout-title">📊 How This Data is Used</div>
+                        <div class="help-callout-content">
+                            <strong>Revenue and production data help calculate "carbon intensity"</strong> - a key metric that shows how efficiently you operate:
+                            <ul>
+                                <li><strong>Emissions per Revenue:</strong> Shows carbon footprint relative to business size (e.g., 10 tCO₂e per ₹1 Crore revenue). Used in BRSR, CDP, and investor reports.</li>
+                                <li><strong>Emissions per Production Unit:</strong> Shows efficiency of manufacturing (e.g., 0.5 tCO₂e per unit produced). Critical for tracking operational improvements.</li>
+                                <li><strong>Emissions per Employee:</strong> Useful for service sectors to benchmark against peers.</li>
+                            </ul>
+                            <strong>Why this matters:</strong> As your business grows, absolute emissions might increase, but if intensity decreases, you're becoming more carbon-efficient. Investors and regulators look at both metrics.
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Annual Revenue (FY 2023-24) <span class="required">*</span></label>
+                            <input type="number" placeholder="Enter amount in selected currency">
+                            <div class="help-text">Used to calculate emissions intensity (tCO₂e per unit revenue). This appears in sustainability reports and helps benchmark against industry peers.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Revenue Currency <span class="required">*</span></label>
+                            <select id="revenue-currency" onchange="updateCurrencySymbols()">
+                                <option value="INR" data-symbol="₹" selected>INR (Indian Rupee)</option>
+                                <option value="USD" data-symbol="$">USD (US Dollar)</option>
+                                <option value="EUR" data-symbol="€">EUR (Euro)</option>
+                                <option value="GBP" data-symbol="£">GBP (British Pound)</option>
+                                <option value="JPY" data-symbol="¥">JPY (Japanese Yen)</option>
+                                <option value="CNY" data-symbol="¥">CNY (Chinese Yuan)</option>
+                                <option value="AUD" data-symbol="A$">AUD (Australian Dollar)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Total Employees <span class="required">*</span></label>
+                            <input type="number" placeholder="Full-time equivalent count">
+                            <div class="help-text">Used to calculate emissions per employee - especially relevant for service industries and office operations.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Production Output (Annual)</label>
+                            <input type="number" placeholder="Total units produced annually">
+                            <div class="help-text">For manufacturers: total units/products made. Used to calculate emissions per product - key for process efficiency tracking.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Production Unit</label>
+                            <select>
+                                <option value="units" selected>Units</option>
+                                <option value="tonnes">Tonnes</option>
+                                <option value="kwh">kWh (Energy sector)</option>
+                                <option value="sqm">Square Meters (Real estate)</option>
+                                <option value="passengers">Passengers (Transport)</option>
+                                <option value="custom">Custom Unit</option>
+                            </select>
+                            <div class="help-text">Select the unit that best represents your primary output.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <span class="icon">💵</span>
+                        <h2>Carbon Pricing & Budget</h2>
+                    </div>
+
+                    <div class="help-callout">
+                        <div class="help-callout-title">💡 Why Carbon Pricing Matters</div>
+                        <div class="help-callout-content">
+                            <strong>Internal Carbon Price:</strong> This is what your organization assigns as the "cost" of emitting one tonne of CO₂. It's used to:
+                            <ul>
+                                <li><strong>Evaluate investments:</strong> When deciding between projects, carbon price helps quantify climate impact in financial terms</li>
+                                <li><strong>Drive behavior:</strong> Departments with budgets factor in carbon costs, incentivizing lower-emission choices</li>
+                                <li><strong>Future-proof decisions:</strong> Many governments are implementing carbon taxes. Your internal price helps prepare for this</li>
+                            </ul>
+                            <strong>Example:</strong> If your internal carbon price is <span id="carbon-price-example">₹2,000</span>/tCO₂e, a project that avoids 100 tonnes of emissions saves <span id="carbon-savings-example">₹2,00,000</span> in your calculations - making green projects more financially attractive.
+                            <br><br>
+                            <strong>Sustainability Budget:</strong> The annual budget allocated for decarbonization projects (solar installations, efficiency upgrades, EV fleet, etc.). Used by the NetZero Modeler (Enterprise tier) to optimize investment timing and calculate ROI.
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Internal Carbon Price</label>
+                            <input type="number" id="carbon-price-input" placeholder="Amount per tCO₂e">
+                            <div class="help-text">Typical range: <span id="carbon-price-range">₹1,000 - ₹5,000</span> per tCO₂e. Used for internal investment decisions and project evaluation in the NetZero Modeler.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Annual Sustainability Budget</label>
+                            <input type="number" placeholder="Amount in selected currency">
+                            <div class="help-text">Total budget for decarbonization initiatives. The NetZero Modeler uses this to suggest feasible reduction pathways within your financial constraints.</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Carbon Budget (Annual)</label>
+                            <input type="number" placeholder="tCO₂e allowed per year">
+                            <div class="help-text">Optional: Set a maximum emissions limit for the year. The platform will alert you if you're approaching this threshold.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary">Skip for Now</button>
+                    <button class="btn btn-primary">💾 Save Financial Data</button>
+                </div>
+            </div>
+
+            <!-- Tab 6: Facilities -->
+            <div id="facilities" class="tab-content">
+                <div class="info-box">
+                    <strong>Your Tier:</strong> Professional - Supports 1 entity, up to 20 departments, 15 facilities
+                </div>
+
+                <div class="success-box">
+                    <strong>✓ Complete:</strong> <span id="facility-count">12</span> facilities configured.
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <span class="icon">🏭</span>
+                        <h2>Facilities Overview</h2>
+                    </div>
+
+                    <div class="help-callout">
+                        <div class="help-callout-title">🏢 Why Facilities Matter</div>
+                        <div class="help-callout-content">
+                            Each facility (factory, office, warehouse, etc.) is a source of emissions. By tracking them separately, you can:
+                            <ul>
+                                <li><strong>Identify hotspots:</strong> See which locations contribute most to your carbon footprint</li>
+                                <li><strong>Track improvements:</strong> Measure the impact of efficiency upgrades at specific sites</li>
+                                <li><strong>Allocate budgets:</strong> Direct investment to facilities with the highest reduction potential</li>
+                                <li><strong>Report accurately:</strong> Compliance frameworks require facility-level breakdowns</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="total-facilities">12</div>
+                            <div class="stat-label">Active Facilities</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="facilities-capacity">12/15</div>
+                            <div class="stat-label">Capacity Used (Pro)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">45,230</div>
+                            <div class="stat-label">Total Emissions (tCO₂e)</div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" style="margin-top: 1rem;" onclick="openAddFacilityModal()">+ Add New Facility</button>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <span class="icon">📍</span>
+                        <h2>Facility List</h2>
+                    </div>
+
+                    <div class="facilities-list" id="facilities-container">
+                        <div class="facility-card">
+                            <div class="facility-header">
+                                <div>
+                                    <div class="facility-name">Bengaluru Manufacturing Plant</div>
+                                    <div class="facility-details">📍 Peenya, Bengaluru</div>
+                                </div>
+                                <span class="facility-type">Manufacturing</span>
+                            </div>
+                            <div class="facility-details">
+                                <strong>Area:</strong> 50,000 sqm | <strong>Employees:</strong> 450
+                            </div>
+                            <div class="facility-details">
+                                <strong>Emissions:</strong> 8,500 tCO₂e/year
+                            </div>
+                            <div style="margin-top: 0.75rem;">
+                                <button class="btn btn-secondary btn-sm">View Details</button>
+                            </div>
+                        </div>
+
+                        <div class="facility-card">
+                            <div class="facility-header">
+                                <div>
+                                    <div class="facility-name">Mumbai Distribution Center</div>
+                                    <div class="facility-details">📍 Navi Mumbai</div>
+                                </div>
+                                <span class="facility-type">Warehouse</span>
+                            </div>
+                            <div class="facility-details">
+                                <strong>Area:</strong> 25,000 sqm | <strong>Employees:</strong> 120
+                            </div>
+                            <div class="facility-details">
+                                <strong>Emissions:</strong> 2,300 tCO₂e/year
+                            </div>
+                            <div style="margin-top: 0.75rem;">
+                                <button class="btn btn-secondary btn-sm">View Details</button>
+                            </div>
+                        </div>
+
+                        <div class="facility-card">
+                            <div class="facility-header">
+                                <div>
+                                    <div class="facility-name">Pune R&D Center</div>
+                                    <div class="facility-details">📍 Hinjewadi, Pune</div>
+                                </div>
+                                <span class="facility-type" style="background: #e1f5fe; color: #01579b;">R&D</span>
+                            </div>
+                            <div class="facility-details">
+                                <strong>Area:</strong> 15,000 sqm | <strong>Employees:</strong> 200
+                            </div>
+                            <div class="facility-details">
+                                <strong>Emissions:</strong> 1,800 tCO₂e/year
+                            </div>
+                            <div style="margin-top: 0.75rem;">
+                                <button class="btn btn-secondary btn-sm">View Details</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary">Export Facility Data</button>
+                    <button class="btn btn-primary">💾 Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Department Modal -->
+    <div id="add-department-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>➕ Add New Department</h2>
+                <button class="modal-close" onclick="closeAddDepartmentModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Department Name <span class="required">*</span></label>
+                    <input type="text" id="dept-name" placeholder="e.g., Human Resources">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Department Code <span class="required">*</span></label>
+                        <input type="text" id="dept-code" placeholder="e.g., HR-04">
+                    </div>
+                    <div class="form-group">
+                        <label>Department Head</label>
+                        <input type="text" id="dept-head" placeholder="Name of department head">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description <span class="optional">(optional)</span></label>
+                    <textarea id="dept-desc" placeholder="Brief description of department responsibilities"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddDepartmentModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="addDepartment()">Add Department</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Facility Modal -->
+    <div id="add-facility-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>🏭 Add New Facility</h2>
+                <button class="modal-close" onclick="closeAddFacilityModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Facility Name <span class="required">*</span></label>
+                    <input type="text" id="facility-name" placeholder="e.g., Delhi Regional Office">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Facility Type <span class="required">*</span></label>
+                        <select id="facility-type">
+                            <option value="">-- Select Type --</option>
+                            <option value="Manufacturing">Manufacturing</option>
+                            <option value="Office">Office</option>
+                            <option value="Warehouse">Warehouse</option>
+                            <option value="R&D">R&D Center</option>
+                            <option value="Retail">Retail</option>
+                            <option value="Data Center">Data Center</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Location <span class="required">*</span></label>
+                        <input type="text" id="facility-location" placeholder="City, State">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Area (sq meters)</label>
+                        <input type="number" id="facility-area" placeholder="e.g., 10000">
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Employees</label>
+                        <input type="number" id="facility-employees" placeholder="e.g., 150">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Estimated Annual Emissions (tCO₂e)</label>
+                    <input type="number" id="facility-emissions" placeholder="e.g., 1500">
+                    <div class="help-text">Rough estimate - will be refined with actual data collection</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAddFacilityModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="addFacility()">Add Facility</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Framework Config Modal -->
+    <div id="framework-config-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>⚙️ Configure Framework Details</h2>
+                <button class="modal-close" onclick="closeFrameworkConfigModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="info-box">
+                    <strong>Select Your Preferred Framework:</strong> Choose the primary compliance framework for your organization. You can enable multiple frameworks, but select one as your primary reporting standard.
+                </div>
+                
+                <div class="form-group">
+                    <label>Primary Framework <span class="required">*</span></label>
+                    <select id="primary-framework">
+                        <option value="brsr" selected>SEBI BRSR & BRSR Core 2024</option>
+                        <option value="cdp">CDP Climate Change Questionnaire</option>
+                        <option value="tcfd">TCFD Recommendations</option>
+                        <option value="gri">GRI Standards (305: Emissions)</option>
+                        <option value="issb">ISSB S2 Climate Disclosures</option>
+                    </select>
+                </div>
+
+                <div class="form-section-desc">
+                    Based on your selection, the Reporting module will prioritize this framework's structure and automatically map your emissions data to the required disclosures.
+                </div>
+
+                <div class="help-callout">
+                    <div class="help-callout-title">📋 Selected Framework: BRSR</div>
+                    <div class="help-callout-content">
+                        <strong>SEBI BRSR Requirements:</strong>
+                        <ul>
+                            <li>178 total indicators (27 mandatory Core indicators)</li>
+                            <li>Climate data required: Scope 1, 2, and Scope 3 (Categories 1, 3, 6, 7)</li>
+                            <li>Annual reporting deadline: Within 60 days of fiscal year end</li>
+                            <li>Verification: Third-party assurance recommended for Core indicators</li>
+                        </ul>
+                        The platform will automatically validate your data completeness against these requirements.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Additional Active Frameworks</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="enable-cdp" checked>
+                            <label for="enable-cdp">CDP Climate Change Questionnaire</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="enable-tcfd" checked>
+                            <label for="enable-tcfd">TCFD Recommendations</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="enable-gri">
+                            <label for="enable-gri">GRI Standards</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeFrameworkConfigModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveFrameworkConfig()">Save Configuration</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let departmentCount = 12;
+        let facilityCount = 12;
+        let currentCurrencySymbol = '₹';
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Country selection handler
+        function updateCountryFields() {
+            const country = document.getElementById('country-select').value;
+            
+            // Hide all tax field sections
+            document.getElementById('tax-fields-india').style.display = 'none';
+            document.getElementById('tax-fields-us').style.display = 'none';
+            document.getElementById('tax-fields-uk').style.display = 'none';
+            
+            // Show relevant tax fields based on country
+            if (country === 'IN') {
+                document.getElementById('tax-fields-india').style.display = 'contents';
+            } else if (country === 'US') {
+                document.getElementById('tax-fields-us').style.display = 'contents';
+            } else if (country === 'GB') {
+                document.getElementById('tax-fields-uk').style.display = 'contents';
+            }
+            // For other countries, show generic or no special fields
+        }
+
+        // Currency update handler
+        function updateCurrencySymbols() {
+            const currencySelect = document.getElementById('revenue-currency');
+            const selectedOption = currencySelect.options[currencySelect.selectedIndex];
+            currentCurrencySymbol = selectedOption.getAttribute('data-symbol');
+            
+            // Update all currency references
+            document.getElementById('carbon-price-example').textContent = currentCurrencySymbol + '2,000';
+            document.getElementById('carbon-savings-example').textContent = currentCurrencySymbol + '2,00,000';
+            
+            // Update range text
+            const rangeText = currentCurrencySymbol === '₹' 
+                ? '₹1,000 - ₹5,000' 
+                : currentCurrencySymbol + '20 - ' + currentCurrencySymbol + '100';
+            document.getElementById('carbon-price-range').textContent = rangeText;
+            
+            // Update placeholder
+            const carbonPriceInput = document.getElementById('carbon-price-input');
+            if (carbonPriceInput) {
+                carbonPriceInput.placeholder = 'Amount per tCO₂e';
+            }
+        }
+
+        // Department Modal Functions
+        function openAddDepartmentModal() {
+            document.getElementById('add-department-modal').classList.add('active');
+        }
+
+        function closeAddDepartmentModal() {
+            document.getElementById('add-department-modal').classList.remove('active');
+            document.getElementById('dept-name').value = '';
+            document.getElementById('dept-code').value = '';
+            document.getElementById('dept-head').value = '';
+            document.getElementById('dept-desc').value = '';
+        }
+
+        function addDepartment() {
+            const name = document.getElementById('dept-name').value;
+            const code = document.getElementById('dept-code').value;
+            const head = document.getElementById('dept-head').value;
+
+            if (!name || !code) {
+                alert('Please fill in required fields');
+                return;
+            }
+
+            const tableBody = document.getElementById('department-table-body');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${name}</td>
+                <td>${code}</td>
+                <td>${head || 'Not assigned'}</td>
+                <td><span class="badge badge-info">0</span></td>
+                <td>0 facilities</td>
+                <td><button class="btn btn-secondary btn-sm">Edit</button></td>
+            `;
+            newRow.style.animation = 'fadeIn 0.5s';
+            tableBody.appendChild(newRow);
+
+            departmentCount++;
+            document.getElementById('dept-count').textContent = departmentCount;
+            document.getElementById('dept-capacity').textContent = `${departmentCount}/20`;
+
+            closeAddDepartmentModal();
+            
+            const successBox = document.createElement('div');
+            successBox.className = 'success-box';
+            successBox.style.position = 'fixed';
+            successBox.style.top = '100px';
+            successBox.style.right = '20px';
+            successBox.style.zIndex = '2000';
+            successBox.style.animation = 'slideUp 0.3s';
+            successBox.innerHTML = `<strong>✓ Success:</strong> Department "${name}" has been added!`;
+            document.body.appendChild(successBox);
+            setTimeout(() => successBox.remove(), 3000);
+        }
+
+        // Facility Modal Functions
+        function openAddFacilityModal() {
+            document.getElementById('add-facility-modal').classList.add('active');
+        }
+
+        function closeAddFacilityModal() {
+            document.getElementById('add-facility-modal').classList.remove('active');
+            document.getElementById('facility-name').value = '';
+            document.getElementById('facility-type').value = '';
+            document.getElementById('facility-location').value = '';
+            document.getElementById('facility-area').value = '';
+            document.getElementById('facility-employees').value = '';
+            document.getElementById('facility-emissions').value = '';
+        }
+
+        function addFacility() {
+            const name = document.getElementById('facility-name').value;
+            const type = document.getElementById('facility-type').value;
+            const location = document.getElementById('facility-location').value;
+            const area = document.getElementById('facility-area').value;
+            const employees = document.getElementById('facility-employees').value;
+            const emissions = document.getElementById('facility-emissions').value;
+
+            if (!name || !type || !location) {
+                alert('Please fill in required fields');
+                return;
+            }
+
+            const container = document.getElementById('facilities-container');
+            const newCard = document.createElement('div');
+            newCard.className = 'facility-card';
+            newCard.style.animation = 'fadeIn 0.5s';
+            
+            const typeColors = {
+                'Manufacturing': 'background: #e8f5f1; color: #2d5f4f;',
+                'Office': 'background: #fff3e0; color: #e65100;',
+                'Warehouse': 'background: #fce4ec; color: #c2185b;',
+                'R&D': 'background: #e1f5fe; color: #01579b;',
+                'Retail': 'background: #f3e5f5; color: #6a1b9a;',
+                'Data Center': 'background: #e0f2f1; color: #004d40;'
+            };
+
+            newCard.innerHTML = `
+                <div class="facility-header">
+                    <div>
+                        <div class="facility-name">${name}</div>
+                        <div class="facility-details">📍 ${location}</div>
+                    </div>
+                    <span class="facility-type" style="${typeColors[type] || typeColors['Office']}">${type}</span>
+                </div>
+                <div class="facility-details">
+                    <strong>Area:</strong> ${area ? area.toLocaleString() + ' sqm' : 'TBD'} | <strong>Employees:</strong> ${employees || 'TBD'}
+                </div>
+                <div class="facility-details">
+                    <strong>Emissions:</strong> ${emissions ? emissions.toLocaleString() + ' tCO₂e/year' : 'TBD'}
+                </div>
+                <div style="margin-top: 0.75rem;">
+                    <button class="btn btn-secondary btn-sm">View Details</button>
+                </div>
+            `;
+            
+            container.appendChild(newCard);
+
+            facilityCount++;
+            document.getElementById('facility-count').textContent = facilityCount;
+            document.getElementById('total-facilities').textContent = facilityCount;
+            document.getElementById('facilities-capacity').textContent = `${facilityCount}/15`;
+
+            closeAddFacilityModal();
+            
+            const successBox = document.createElement('div');
+            successBox.className = 'success-box';
+            successBox.style.position = 'fixed';
+            successBox.style.top = '100px';
+            successBox.style.right = '20px';
+            successBox.style.zIndex = '2000';
+            successBox.style.animation = 'slideUp 0.3s';
+            successBox.innerHTML = `<strong>✓ Success:</strong> Facility "${name}" has been added!`;
+            document.body.appendChild(successBox);
+            setTimeout(() => successBox.remove(), 3000);
+        }
+
+        // Framework Config Modal Functions
+        function openFrameworkConfigModal() {
+            document.getElementById('framework-config-modal').classList.add('active');
+        }
+
+        function closeFrameworkConfigModal() {
+            document.getElementById('framework-config-modal').classList.remove('active');
+        }
+
+        function saveFrameworkConfig() {
+            const primaryFramework = document.getElementById('primary-framework').value;
+            closeFrameworkConfigModal();
+            
+            const successBox = document.createElement('div');
+            successBox.className = 'success-box';
+            successBox.style.position = 'fixed';
+            successBox.style.top = '100px';
+            successBox.style.right = '20px';
+            successBox.style.zIndex = '2000';
+            successBox.style.animation = 'slideUp 0.3s';
+            successBox.innerHTML = `<strong>✓ Configuration Saved:</strong> Primary framework set to ${primaryFramework.toUpperCase()}`;
+            document.body.appendChild(successBox);
+            setTimeout(() => successBox.remove(), 3000);
+        }
+
+        // Close modals when clicking outside
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', function() {
+            updateCountryFields();
+            updateCurrencySymbols();
+        });
+    </script>
+</body>
+</html>

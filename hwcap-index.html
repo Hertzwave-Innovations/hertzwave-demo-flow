@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HWCAP - Complete Application Flow</title>
+    <style>
+        :root {
+            --hz-primary: #4A7C59;
+            --hz-primary-700: #355b3f;
+            --hz-primary-50: #E9F1EC;
+            --hz-mint: #A8E6A3;
+            --hz-dark: #2F4F3F;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8f5f1 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .demo-notice {
+            background: linear-gradient(135deg, var(--hz-primary), var(--hz-primary-700));
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .flow-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--hz-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .flow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .flow-card {
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .flow-card:hover {
+            border-color: var(--hz-primary);
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .flow-card h3 {
+            color: var(--hz-primary);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .flow-card p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .flow-card a {
+            color: var(--hz-primary);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .flow-card a:hover {
+            text-decoration: underline;
+        }
+
+        .tier-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .tier-card {
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .tier-card.basic {
+            border-color: #3182ce;
+            background: #ebf8ff;
+        }
+
+        .tier-card.professional {
+            border-color: #38a169;
+            background: #f0fff4;
+        }
+
+        .tier-card.enterprise {
+            border-color: #d69e2e;
+            background: #fffdf0;
+        }
+
+        .tier-name {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tier-features {
+            list-style: none;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .tier-features li {
+            margin-bottom: 0.25rem;
+        }
+
+        .quick-start {
+            background: linear-gradient(135deg, var(--hz-mint), var(--hz-primary-50));
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .start-btn {
+            background: var(--hz-primary);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .start-btn:hover {
+            background: var(--hz-primary-700);
+            transform: translateY(-2px);
+        }
+
+        .credentials {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🌱 HWCAP</div>
+            <div class="subtitle">Complete Sustainability Platform - Demo Flow</div>
+            <div class="credentials">
+                <strong>Demo Credentials:</strong> Email: <code>admin@hertzwave.in</code> | Password: <code>admin</code>
+                <br><small>Select any tier to explore tier-specific features</small>
+            </div>
+        </div>
+
+        <div class="demo-notice">
+            <strong>🎯 Demo Instructions:</strong> Start with the login page, select a tier, and explore all features based on your selected subscription level.
+        </div>
+
+        <!-- Main Application Flow -->
+        <div class="flow-section">
+            <div class="section-title">🚀 Main Application Flow</div>
+            <div class="flow-grid">
+                <div class="flow-card">
+                    <h3>1. Login & Tier Selection</h3>
+                    <p>Start here - Choose your subscription tier to unlock different features</p>
+                    <a href="login.html">🔐 Start Demo →</a>
+                </div>
+                <div class="flow-card">
+                    <h3>2. Main Dashboard</h3>
+                    <p>Enhanced dashboard with fancy charts and tier-based navigation</p>
+                    <a href="hwcap_dashboard.html">📊 View Dashboard →</a>
+                </div>
+                <div class="flow-card">
+                    <h3>3. Goals Tracking</h3>
+                    <p>Monitor progress against sustainability targets (replaces scope tracking)</p>
+                    <a href="goals-tracking.html">🎯 Track Goals →</a>
+                </div>
+                <div class="flow-card">
+                    <h3>4. Analytics & Insights</h3>
+                    <p>Deep dive analytics with detailed insights and recommendations</p>
+                    <a href="analytics-insights.html">📈 View Analytics →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Management -->
+        <div class="flow-section">
+            <div class="section-title">📊 Data Management</div>
+            <div class="flow-grid">
+                <div class="flow-card">
+                    <h3>Add Emissions Data</h3>
+                    <p>Manual data entry form for emissions tracking</p>
+                    <a href="add-data.html">➕ Add Data →</a>
+                </div>
+                <div class="flow-card">
+                    <h3>Import/Export Data</h3>
+                    <p>Bulk data operations with templates and validation</p>
+                    <a href="import-export.html">📥 Import/Export →</a>
+                </div>
+                <div class="flow-card">
+                    <h3>Organization Profile</h3>
+                    <p>Set up organization details and sustainability goals</p>
+                    <a href="organization-profile.html">🏢 Organization →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Features -->
+        <div class="flow-section">
+            <div class="section-title">⚡ Advanced Features (Tier-Based)</div>
+            <div class="flow-grid">
+                <div class="flow-card">
+                    <h3>Supplier Evaluation (Pro+)</h3>
+                    <p>Evaluate and rank suppliers based on sustainability metrics</p>
+                    <a href="Supplier Eval-Index.html">🏭 Supplier Portal →</a>
+                </div>
+                <div class="flow-card">
+                    <h3>Carbon Deficit Tracking (Pro)</h3>
+                    <p>Track carbon deficit and manage sequestration programs</p>
+                    <a href="carbon-credits-pro.html">🌳 Pro Deficit Tracking →</a>
+                </div>
+                <div class="flow-card">
+                    <h3>Carbon Credits Marketplace (Enterprise)</h3>
+                    <p>Full marketplace, portfolio management, and credit retirement</p>
+                    <a href="carbon-credits-enterprise.html">🌳 Enterprise Marketplace →</a>
+                </div>
+                <div class="flow-card">
+                    <h3>Sequestration Projects (Pro+)</h3>
+                    <p>Track-B credits and nature-based sequestration projects</p>
+                    <a href="track-b-credits.html">🌱 Track-B Credits →</a>
+                </div>
+                <div class="flow-card">
+                    <h3>NetZero Pathfinder (Enterprise)</h3>
+                    <p>Create roadmaps to achieve net-zero emissions</p>
+                    <a href="netzero-modeler.html">🚀 NetZero Path →</a>
+                </div>
+                <div class="flow-card">
+                    <h3>Auditor Pack (Enterprise)</h3>
+                    <p>Tools for third-party verification and auditing</p>
+                    <a href="hwcap_auditor_dashboard.html">🔍 Auditor Tools →</a>
+                </div>
+                <div class="flow-card">
+                    <h3>Consultant Mode (Pro+)</h3>
+                    <p>Professional consulting interface</p>
+                    <a href="hertzwave-consultant-flow.html">🎯 Consultant Mode →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports & Compliance -->
+        <div class="flow-section">
+            <div class="section-title">📋 Reports & Compliance</div>
+            <div class="flow-grid">
+                <div class="flow-card">
+                    <h3>Reports Generation</h3>
+                    <p>Generate compliance and sustainability reports (All tiers)</p>
+                    <a href="HW-Reports-Application-Flow.html">📄 Reports →</a>
+                </div>
+                <div class="flow-card">
+                    <h3>Compliance Mapper (Pro+)</h3>
+                    <p>Map requirements to various compliance frameworks</p>
+                    <a href="compliance-mapper-app.html">📋 Compliance →</a>
+                </div>
+                <div class="flow-card">
+                    <h3>Supported Frameworks</h3>
+                    <p>Complete list of supported sustainability frameworks (Info)</p>
+                    <a href="frameworks.html">🏆 Frameworks →</a>
+                </div>
+                <div class="flow-card">
+                    <h3>GreenCo Application (Pro+)</h3>
+                    <p>Dedicated flow for CII Green Company Rating</p>
+                    <a href="greenco_app_flows.html">🏭 GreenCo →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tier Information -->
+        <div class="flow-section">
+            <div class="section-title">💎 Subscription Tiers</div>
+            <div class="tier-info">
+                <div class="tier-card basic">
+                    <div class="tier-name" style="color: #3182ce;">Basic (Essentials)</div>
+                    <ul class="tier-features">
+                        <li>✓ Core emissions tracking</li>
+                        <li>✓ Basic reporting</li>
+                        <li>✓ Goals management</li>
+                        <li>✓ Organization profile</li>
+                        <li>✓ Frameworks information</li>
+                        <li>❌ No compliance features</li>
+                        <li>❌ No advanced analytics</li>
+                        <li>❌ No carbon management</li>
+                    </ul>
+                </div>
+                <div class="tier-card professional">
+                    <div class="tier-name" style="color: #38a169;">Professional</div>
+                    <ul class="tier-features">
+                        <li>✓ Everything in Basic</li>
+                        <li>✓ Supplier evaluation</li>
+                        <li>✓ Carbon deficit tracking</li>
+                        <li>✓ Sequestration programs</li>
+                        <li>✓ Compliance mapper</li>
+                        <li>✓ Framework compliance</li>
+                        <li>✓ Advanced analytics</li>
+                        <li>✓ Consultant mode access</li>
+                    </ul>
+                </div>
+                <div class="tier-card enterprise">
+                    <div class="tier-name" style="color: #d69e2e;">Enterprise</div>
+                    <ul class="tier-features">
+                        <li>✓ Everything in Professional</li>
+                        <li>✓ Carbon credits marketplace</li>
+                        <li>✓ Portfolio management</li>
+                        <li>✓ Credit retirement</li>
+                        <li>✓ NetZero pathfinder</li>
+                        <li>✓ Auditor pack</li>
+                        <li>✓ Advanced reporting</li>
+                        <li>✓ Dedicated consulting</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-start">
+            <h2>Ready to Explore?</h2>
+            <p>Start with the login page and experience the complete HWCAP sustainability platform</p>
+            <a href="login.html" class="start-btn">🚀 Start Demo</a>
+        </div>
+    </div>
+</body>
+</html>

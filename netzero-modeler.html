@@ -1,0 +1,2425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NetZero Pathway Modeler - Hertzwave Enterprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Outfit', sans-serif; 
+      background: #f5f7fa;
+      color: #2d3748;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #4a7c59 0%, #3d6648 100%);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .logo { 
+      font-size: 1.5rem; 
+      font-weight: 700; 
+      letter-spacing: 0.5px;
+    }
+    .enterprise-badge {
+      background: rgba(255,255,255,0.2);
+      padding: 0.35rem 1rem;
+      border-radius: 20px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+    
+    .container { 
+      display: flex; 
+      min-height: calc(100vh - 64px); 
+    }
+    
+    .sidebar {
+      width: 260px;
+      background: white;
+      padding: 1.5rem 0;
+      box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+    }
+    .nav-section-title {
+      padding: 0.5rem 1.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #a0aec0;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 1rem;
+    }
+    .nav-item {
+      padding: 0.875rem 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+      color: #4a5568;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .nav-item:hover {
+      background: #f7fafc;
+      border-left-color: #4a7c59;
+    }
+    .nav-item.active {
+      background: #e6f4ea;
+      border-left-color: #4a7c59;
+      color: #4a7c59;
+    }
+    .nav-icon { font-size: 1.25rem; }
+    
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+      height: calc(100vh - 64px);
+    }
+    
+    .page-header {
+      margin-bottom: 2rem;
+    }
+    .page-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 0.5rem;
+    }
+    .page-subtitle {
+      color: #718096;
+      font-size: 1rem;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      border-left: 4px solid #4a7c59;
+      transition: transform 0.2s;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    .stat-label {
+      font-size: 0.875rem;
+      color: #718096;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a202c;
+    }
+    .stat-unit {
+      font-size: 1rem;
+      color: #718096;
+      font-weight: 400;
+    }
+    .stat-change {
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      font-weight: 600;
+    }
+    .positive { color: #48bb78; }
+    .negative { color: #e53e3e; }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+      font-family: 'Outfit', sans-serif;
+    }
+    .btn-primary {
+      background: #4a7c59;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #3d6648;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(74, 124, 89, 0.3);
+    }
+    .btn-secondary {
+      background: white;
+      color: #4a7c59;
+      border: 2px solid #4a7c59;
+    }
+    .btn-secondary:hover {
+      background: #f7fafc;
+    }
+    
+    .screen { display: none; }
+    .screen.active { display: block; }
+    
+    /* Goal Configuration */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+    label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #4a5568;
+    }
+    input, select, textarea {
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: 'Outfit', sans-serif;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #4a7c59;
+      box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.1);
+    }
+    
+    /* Trajectory Chart */
+    .trajectory-container {
+      position: relative;
+      height: 400px;
+      background: linear-gradient(to bottom, #f7fafc, white);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    .trajectory-svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    /* Lever Controls */
+    .lever-section {
+      margin-bottom: 2rem;
+    }
+    .lever-category-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .lever-control {
+      background: #f7fafc;
+      padding: 1.25rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+    .lever-control:hover {
+      background: white;
+      border-color: #e2e8f0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .lever-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .lever-name {
+      font-weight: 600;
+      color: #2d3748;
+      font-size: 1rem;
+    }
+    .lever-impact {
+      font-size: 0.875rem;
+      color: #718096;
+    }
+    .lever-impact.high { color: #48bb78; font-weight: 600; }
+    .lever-impact.medium { color: #ecc94b; font-weight: 600; }
+    .lever-impact.low { color: #a0aec0; font-weight: 600; }
+    
+    .slider-container {
+      position: relative;
+      margin-bottom: 0.75rem;
+    }
+    .slider {
+      width: 100%;
+      height: 8px;
+      border-radius: 4px;
+      background: #e2e8f0;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #4a7c59;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      background: #3d6648;
+    }
+    .slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #4a7c59;
+      cursor: pointer;
+      border: none;
+    }
+    
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #a0aec0;
+      margin-top: 0.25rem;
+    }
+    
+/* ADD THESE STYLES - Insert after the existing slider styles */
+
+/* Vertical Sliders Layout */
+.levers-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 2rem;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.lever-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f7fafc;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.lever-column:hover {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.lever-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.slider-container-vertical {
+  position: relative;
+  height: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.slider-vertical {
+  -webkit-appearance: slider-vertical;
+  width: 8px;
+  height: 250px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  outline: none;
+  writing-mode: bt-lr;
+}
+
+.slider-vertical::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #4a7c59;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.slider-vertical::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #3d6648;
+  box-shadow: 0 0 0 4px rgba(74, 124, 89, 0.2);
+}
+
+.slider-vertical::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #4a7c59;
+  cursor: pointer;
+  border: none;
+}
+
+.slider-labels-vertical {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 250px;
+  position: absolute;
+  left: -45px;
+  top: 0;
+  font-size: 0.7rem;
+  color: #a0aec0;
+}
+
+.current-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #4a7c59;
+  margin: 0.5rem 0;
+}
+
+.lever-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid #e2e8f0;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-item-label {
+  font-size: 0.7rem;
+  color: #718096;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-item-value {
+  font-weight: 700;
+  color: #2d3748;
+  font-size: 0.875rem;
+}
+
+    .lever-details {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #e2e8f0;
+    }
+    .detail-item {
+      font-size: 0.875rem;
+    }
+    .detail-label {
+      color: #718096;
+      margin-bottom: 0.25rem;
+    }
+    .detail-value {
+      font-weight: 600;
+      color: #2d3748;
+    }
+    
+    /* Non-controllable Parameters */
+    .non-controllable-section {
+      background: #fffbeb;
+      border: 2px dashed #fbbf24;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .parameter-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+    }
+    .parameter-name {
+      font-weight: 600;
+      color: #2d3748;
+    }
+    .parameter-value {
+      font-size: 0.875rem;
+      color: #718096;
+    }
+    .scenario-toggle {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .scenario-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      background: white;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .scenario-btn.active {
+      background: #4a7c59;
+      color: white;
+      border-color: #4a7c59;
+    }
+    
+    /* Cost Analysis */
+    .cost-breakdown {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+    .cost-category {
+      background: #f7fafc;
+      padding: 1.25rem;
+      border-radius: 10px;
+      border-left: 4px solid #4a7c59;
+    }
+    .cost-category-title {
+      font-size: 0.875rem;
+      color: #718096;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+    }
+    .cost-amount {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #2d3748;
+    }
+    .cost-items {
+      margin-top: 1rem;
+      font-size: 0.875rem;
+    }
+    .cost-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .cost-item:last-child {
+      border-bottom: none;
+    }
+    
+    /* Timeline Visualization */
+    .timeline-container {
+      position: relative;
+      padding: 2rem 0;
+    }
+    .milestone {
+      display: flex;
+      align-items: center;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+    .milestone::before {
+      content: '';
+      position: absolute;
+      left: 20px;
+      top: 40px;
+      bottom: -40px;
+      width: 2px;
+      background: #e2e8f0;
+    }
+    .milestone:last-child::before {
+      display: none;
+    }
+    .milestone-marker {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #4a7c59;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      flex-shrink: 0;
+      z-index: 1;
+      position: relative;
+    }
+    .milestone-marker.future {
+      background: #e2e8f0;
+      color: #a0aec0;
+    }
+    .milestone-content {
+      margin-left: 1.5rem;
+      flex: 1;
+    }
+    .milestone-year {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 0.25rem;
+    }
+    .milestone-target {
+      color: #718096;
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+    .milestone-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .action-tag {
+      background: #e6f4ea;
+      color: #2d5f3f;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    
+    /* Scenario Comparison */
+    .scenario-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+    .scenario-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 2px solid #e2e8f0;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .scenario-card:hover {
+      border-color: #4a7c59;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .scenario-card.active {
+      border-color: #4a7c59;
+      background: #f7fdf9;
+    }
+    .scenario-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 1rem;
+    }
+    .scenario-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+    .scenario-metric {
+      font-size: 0.875rem;
+    }
+    .scenario-metric-label {
+      color: #718096;
+      margin-bottom: 0.25rem;
+    }
+    .scenario-metric-value {
+      font-weight: 700;
+      color: #2d3748;
+      font-size: 1.125rem;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-green { background: #e6f4ea; color: #2d5f3f; }
+    .badge-blue { background: #e6f4ff; color: #0066cc; }
+    .badge-orange { background: #fff3e0; color: #e65100; }
+    .badge-gray { background: #f7fafc; color: #4a5568; }
+    
+    .info-box {
+      background: #e6f4ff;
+      border-left: 4px solid #4299e1;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+    
+    .warning-box {
+      background: #fffbeb;
+      border-left: 4px solid #fbbf24;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+    
+    .success-box {
+      background: #e6f4ea;
+      border-left: 4px solid #48bb78;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      font-size: 0.875rem;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">HERTZWAVE</div>
+    <div style="display: flex; align-items: center; gap: 1.5rem;">
+      <div class="enterprise-badge">✨ Enterprise Edition</div>
+      <span>Kamesh | Administrator</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="sidebar">
+      <div class="nav-section-title">NetZero Planning</div>
+      <div class="nav-item active" onclick="showScreen('dashboard')">
+        <span class="nav-icon">📊</span>
+        <span>Overview</span>
+      </div>
+      <div class="nav-item" onclick="showScreen('goals')">
+        <span class="nav-icon">🎯</span>
+        <span>Goals & Targets</span>
+      </div>
+      <div class="nav-item" onclick="showScreen('modeler')">
+        <span class="nav-icon">🔧</span>
+        <span>Pathway Modeler</span>
+      </div>
+      <div class="nav-item" onclick="showScreen('financial')">
+        <span class="nav-icon">💰</span>
+        <span>Financial Impact</span>
+      </div>
+      <div class="nav-item" onclick="showScreen('timeline')">
+        <span class="nav-icon">📅</span>
+        <span>Timeline & Milestones</span>
+      </div>
+      <div class="nav-item" onclick="showScreen('scenarios')">
+        <span class="nav-icon">🔀</span>
+        <span>Scenario Comparison</span>
+      </div>
+      
+      <div class="nav-section-title">Resources</div>
+      <div class="nav-item">
+        <span class="nav-icon">📚</span>
+        <span>Best Practices</span>
+      </div>
+      <div class="nav-item">
+        <span class="nav-icon">📄</span>
+        <span>Export Reports</span>
+      </div>
+    </div>
+
+    <div class="main-content">
+      
+      <!-- Screen 1: Dashboard Overview -->
+      <div id="dashboard" class="screen active">
+        <div class="page-header">
+          <h1 class="page-title">NetZero Pathway Dashboard</h1>
+          <p class="page-subtitle">Track your progress toward carbon neutrality and NetZero emissions</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">NetZero Target Year</div>
+            <div class="stat-value">2045</div>
+            <div class="stat-change positive">↓ 20 years ahead of India's target</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Current Emissions (2024)</div>
+            <div class="stat-value">50,000 <span class="stat-unit">tCO₂e</span></div>
+            <div class="stat-change positive">↓ 6.8% vs 2023</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Target Emissions (2045)</div>
+            <div class="stat-value">0 <span class="stat-unit">tCO₂e</span></div>
+            <div class="stat-change">100% reduction required</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Current Trajectory</div>
+            <div class="stat-value">2052</div>
+            <div class="stat-change negative">↑ 7 years behind target</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Estimated Investment</div>
+            <div class="stat-value">₹245 <span class="stat-unit">Cr</span></div>
+            <div class="stat-change">Over 21 years</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Annual Reduction Rate Needed</div>
+            <div class="stat-value">4.8% <span class="stat-unit">/year</span></div>
+            <div class="stat-change negative">Currently: 3.2%/year</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem; font-weight: 600;">Emissions Trajectory vs. Target</h3>
+          <div class="trajectory-container">
+            <svg class="trajectory-svg" viewBox="0 0 800 350" preserveAspectRatio="xMidYMid meet">
+              <!-- Grid lines -->
+              <line x1="50" y1="50" x2="50" y2="300" stroke="#e2e8f0" stroke-width="2"/>
+              <line x1="50" y1="300" x2="750" y2="300" stroke="#e2e8f0" stroke-width="2"/>
+              
+              <!-- Y-axis labels -->
+              <text x="35" y="55" font-size="12" fill="#718096" text-anchor="end">50k</text>
+              <text x="35" y="112" font-size="12" fill="#718096" text-anchor="end">40k</text>
+              <text x="35" y="175" font-size="12" fill="#718096" text-anchor="end">30k</text>
+              <text x="35" y="237" font-size="12" fill="#718096" text-anchor="end">20k</text>
+              <text x="35" y="300" font-size="12" fill="#718096" text-anchor="end">10k</text>
+              <text x="35" y="305" font-size="12" fill="#718096" text-anchor="end">0</text>
+              
+              <!-- X-axis labels -->
+              <text x="80" y="320" font-size="12" fill="#718096">2024</text>
+              <text x="250" y="320" font-size="12" fill="#718096">2030</text>
+              <text x="420" y="320" font-size="12" fill="#718096">2035</text>
+              <text x="590" y="320" font-size="12" fill="#718096">2040</text>
+              <text x="720" y="320" font-size="12" fill="#718096">2045</text>
+              
+              <!-- Target pathway (straight line to zero) -->
+              <line x1="80" y1="50" x2="720" y2="300" stroke="#48bb78" stroke-width="3" stroke-dasharray="8,4" opacity="0.6"/>
+              <text x="680" y="310" font-size="11" fill="#48bb78" font-weight="600">Target Path</text>
+              
+              <!-- Business-as-usual trajectory -->
+              <path d="M 80 50 Q 300 80, 500 120 T 750 180" fill="none" stroke="#e53e3e" stroke-width="3" opacity="0.5"/>
+              <text x="690" y="190" font-size="11" fill="#e53e3e" font-weight="600">BAU (No Action)</text>
+              
+              <!-- Current modeled trajectory -->
+              <path d="M 80 50 L 250 90 L 420 160 L 590 220 L 720 285" fill="none" stroke="#4a7c59" stroke-width="4"/>
+              <circle cx="80" cy="50" r="5" fill="#4a7c59"/>
+              <circle cx="250" cy="90" r="5" fill="#4a7c59"/>
+              <circle cx="420" cy="160" r="5" fill="#4a7c59"/>
+              <circle cx="590" cy="220" r="5" fill="#4a7c59"/>
+              <circle cx="720" cy="285" r="5" fill="#4a7c59"/>
+              <text x="650" y="275" font-size="11" fill="#4a7c59" font-weight="600">Current Model</text>
+              
+              <!-- Annotations -->
+              <text x="400" y="30" font-size="14" fill="#2d3748" font-weight="600" text-anchor="middle">Pathway to NetZero by 2045</text>
+              <text x="90" y="65" font-size="10" fill="#4a7c59" font-weight="600">2024: 50,000 tCO₂e</text>
+            </svg>
+          </div>
+          <div class="info-box">
+            <strong>📊 Analysis:</strong> Current reduction initiatives will achieve NetZero by 2052, 7 years behind target. 
+            Use the Pathway Modeler to adjust reduction levers and close the gap.
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1rem; font-weight: 600;">Quick Actions</h3>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button class="btn btn-primary" onclick="showScreen('modeler')">🔧 Adjust Pathway</button>
+            <button class="btn btn-secondary" onclick="showScreen('goals')">🎯 Update Goals</button>
+            <button class="btn btn-secondary" onclick="showScreen('scenarios')">🔀 Compare Scenarios</button>
+            <button class="btn btn-secondary">📄 Export SBTi Report</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 2: Goals & Targets Configuration -->
+      <div id="goals" class="screen">
+        <div class="page-header">
+          <h1 class="page-title">NetZero Goals & Targets</h1>
+          <p class="page-subtitle">Define your organization's decarbonization ambition and interim milestones</p>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem; font-weight: 600;">Primary NetZero Commitment</h3>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>NetZero Target Year *</label>
+              <select id="target-year" onchange="updateTargetYear()">
+                <option value="2040">2040</option>
+                <option value="2045" selected>2045</option>
+                <option value="2050">2050</option>
+                <option value="2060">2060</option>
+                <option value="custom">Custom Year</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Scope Coverage *</label>
+              <select>
+                <option selected>Scope 1, 2, and 3 (Full Value Chain)</option>
+                <option>Scope 1 and 2 Only</option>
+                <option>Scope 1, 2, and Select Scope 3 Categories</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Baseline Year *</label>
+              <select>
+                <option>2019</option>
+                <option>2020</option>
+                <option selected>2023</option>
+                <option>2024</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Baseline Emissions (tCO₂e)</label>
+              <input type="number" value="53,650" readonly style="background: #f7fafc;">
+            </div>
+            
+            <div class="form-group">
+              <label>Alignment Framework</label>
+              <select>
+                <option selected>Science-Based Targets (SBTi)</option>
+                <option>Paris Agreement 1.5°C</option>
+                <option>Paris Agreement Well Below 2°C</option>
+                <option>Custom Framework</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Organizational Boundary</label>
+              <select>
+                <option selected>Operational Control</option>
+                <option>Financial Control</option>
+                <option>Equity Share</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="success-box">
+            <strong>✅ SBTi Validation:</strong> Your 2045 target for Scope 1+2+3 aligns with a 1.5°C trajectory. 
+            This requires a 4.8% absolute reduction per year from your 2023 baseline.
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem; font-weight: 600;">Interim Milestones</h3>
+          
+          <div style="margin-bottom: 1.5rem;">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>2030 Interim Target (% reduction)</label>
+                <input type="number" value="30" min="0" max="100">
+              </div>
+              
+              <div class="form-group">
+                <label>2030 Target Emissions (tCO₂e)</label>
+                <input type="number" value="37,555" readonly style="background: #f7fafc;">
+              </div>
+              
+              <div class="form-group">
+                <label>2035 Interim Target (% reduction)</label>
+                <input type="number" value="50" min="0" max="100">
+              </div>
+              
+              <div class="form-group">
+                <label>2035 Target Emissions (tCO₂e)</label>
+                <input type="number" value="26,825" readonly style="background: #f7fafc;">
+              </div>
+              
+              <div class="form-group">
+                <label>2040 Interim Target (% reduction)</label>
+                <input type="number" value="80" min="0" max="100">
+              </div>
+              
+              <div class="form-group">
+                <label>2040 Target Emissions (tCO₂e)</label>
+                <input type="number" value="10,730" readonly style="background: #f7fafc;">
+              </div>
+            </div>
+          </div>
+
+          <div class="info-box">
+            <strong>💡 Best Practice:</strong> Setting interim 5-year milestones helps track progress and adjust strategies early. 
+            SBTi recommends at least one interim target before 2030 for long-term commitments.
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+          <button class="btn btn-secondary" onclick="showScreen('dashboard')">Cancel</button>
+          <button class="btn btn-primary" onclick="saveGoals()">💾 Save Goals</button>
+        </div>
+      </div>
+
+      <!-- Screen 3: Interactive Pathway Modeler -->
+     
+	 <div id="modeler" class="screen">
+        <div class="page-header">
+          <h1 class="page-title">NetZero Pathway Modeler</h1>
+          <p class="page-subtitle">Adjust reduction levers to model your optimal pathway to NetZero by 2045</p>
+        </div>
+
+
+
+        <!-- ADD THIS NEW SECTION -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="form-grid" style="grid-template-columns: 1fr 2fr;">
+            <div class="form-group">
+              <label>Country/Region</label>
+              <select id="country-selector" onchange="updateCostAssumptions()">
+                <option value="IN" selected>India</option>
+                <option value="US">United States</option>
+                <option value="EU">European Union</option>
+                <option value="UK">United Kingdom</option>
+                <option value="CN">China</option>
+                <option value="AE">UAE/GCC</option>
+                <option value="AU">Australia</option>
+                <option value="BR">Brazil</option>
+                <option value="SG">Singapore</option>
+                <option value="JP">Japan</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label style="color: #d97706;">💡 Cost Disclaimer</label>
+              <div style="font-size: 0.875rem; color: #718096; padding: 0.5rem; background: #fffbeb; border-radius: 6px; border-left: 3px solid #fbbf24;">
+                Cost estimates are based on industry benchmarks for <strong id="country-name">India</strong> as of October 2025. 
+                Actual costs may vary by location, company size, technology choices, and timing of implementation.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- END OF NEW SECTION -->
+
+        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+
+
+          <div class="stat-card">
+            <div class="stat-label">Projected NetZero Year</div>
+            <div class="stat-value" id="projected-year">2052</div>
+            <div class="stat-change negative" id="gap-years">7 years behind target</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Reduction by 2045</div>
+            <div class="stat-value"><span id="total-reduction">42,500</span> <span class="stat-unit">tCO₂e</span></div>
+            <div class="stat-change" id="reduction-pct">85% of baseline</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Residual Emissions</div>
+            <div class="stat-value"><span id="residual">7,500</span> <span class="stat-unit">tCO₂e</span></div>
+            <div class="stat-change">Requires offsets</div>
+          </div>
+
+<div class="stat-card">
+  <div class="stat-label">Est. Total Investment</div>
+  <div class="stat-value"><span id="invest-currency">₹</span><span id="total-invest">245</span> <span id="invest-unit">Cr</span></div>
+  <div class="stat-change">2024-2045</div>
+</div>
+
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1rem; font-weight: 600;">Live Trajectory Preview</h3>
+          <div class="trajectory-container" style="height: 300px;">
+            <svg class="trajectory-svg" viewBox="0 0 800 280" preserveAspectRatio="xMidYMid meet">
+              <line x1="50" y1="40" x2="50" y2="240" stroke="#e2e8f0" stroke-width="2"/>
+              <line x1="50" y1="240" x2="750" y2="240" stroke="#e2e8f0" stroke-width="2"/>
+              
+              <text x="30" y="45" font-size="11" fill="#718096" text-anchor="end">50k</text>
+              <text x="30" y="140" font-size="11" fill="#718096" text-anchor="end">25k</text>
+              <text x="30" y="240" font-size="11" fill="#718096" text-anchor="end">0</text>
+              
+              <text x="80" y="258" font-size="11" fill="#718096">2024</text>
+              <text x="280" y="258" font-size="11" fill="#718096">2030</text>
+              <text x="480" y="258" font-size="11" fill="#718096">2037</text>
+              <text x="680" y="258" font-size="11" fill="#718096">2045</text>
+              
+              <!-- Target line -->
+              <line x1="80" y1="40" x2="680" y2="240" stroke="#48bb78" stroke-width="2" stroke-dasharray="6,3" opacity="0.6"/>
+              
+              <!-- Modeled pathway (will update dynamically) -->
+              <path id="modeled-path" d="M 80 40 L 280 80 L 480 140 L 680 220" fill="none" stroke="#4a7c59" stroke-width="3"/>
+              <circle cx="80" cy="40" r="4" fill="#4a7c59"/>
+              <circle cx="280" cy="80" r="4" fill="#4a7c59"/>
+              <circle cx="480" cy="140" r="4" fill="#4a7c59"/>
+              <circle cx="680" cy="220" r="4" fill="#4a7c59"/>
+              
+              <text x="400" y="25" font-size="13" fill="#2d3748" font-weight="600" text-anchor="middle">Your Modeled Pathway</text>
+            </svg>
+          </div>
+          <div class="warning-box" id="pathway-warning">
+            <strong>⚠️ Gap Alert:</strong> Current lever settings project NetZero achievement in 2052. 
+            Increase reduction intensity or add more levers to meet the 2045 target.
+          </div>
+        </div>
+
+
+        <!-- Controllable Parameters -->
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem; font-weight: 600; color: #4a7c59;">🎛️ Controllable Reduction Levers</h3>
+          <p style="color: #718096; margin-bottom: 1.5rem; font-size: 0.95rem;">
+            Adjust each lever to model different decarbonization strategies. Impact calculations are based on your current emissions profile.
+          </p>
+
+          <div class="levers-container">
+            <!-- Lever 1: Renewable Energy -->
+            <div class="lever-column">
+              <div class="lever-header">
+                <div class="lever-icon">💡</div>
+                <div class="lever-name">Renewable Energy</div>
+                <div class="lever-impact high">High Impact</div>
+              </div>
+              
+              <div class="slider-container-vertical">
+                <div class="slider-labels-vertical">
+                  <span>100%</span>
+                  <span>50%</span>
+                  <span>15%</span>
+                </div>
+                <input type="range" class="slider-vertical" id="re-slider" 
+                       min="15" max="100" value="80" orient="vertical"
+                       oninput="updateRenewable(this.value)">
+              </div>
+              
+              <div class="current-value"><span id="re-target">80</span></div>
+              
+              <div class="lever-stats">
+                <div class="stat-item">
+                  <div class="stat-item-label">Reduction</div>
+                  <div class="stat-item-value" id="re-reduction">18,500 tCO₂e</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-item-label">Timeline</div>
+                  <div class="stat-item-value">2024-2035</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-item-label">Cost</div>
+                  <div class="stat-item-value" id="re-cost">₹45 Cr</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lever 2: Energy Efficiency -->
+            <div class="lever-column">
+              <div class="lever-header">
+                <div class="lever-icon">⚡</div>
+                <div class="lever-name">Energy Efficiency</div>
+                <div class="lever-impact high">High Impact</div>
+              </div>
+              
+              <div class="slider-container-vertical">
+                <div class="slider-labels-vertical">
+                  <span>35%</span>
+                  <span>22%</span>
+                  <span>10%</span>
+                </div>
+                <input type="range" class="slider-vertical" id="ee-slider" 
+                       min="10" max="35" value="25" orient="vertical"
+                       oninput="updateEfficiency(this.value)">
+              </div>
+              
+              <div class="current-value"><span id="ee-target">25</span></div>
+              
+              <div class="lever-stats">
+                <div class="stat-item">
+                  <div class="stat-item-label">Reduction</div>
+                  <div class="stat-item-value" id="ee-reduction">8,200 tCO₂e</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-item-label">Timeline</div>
+                  <div class="stat-item-value">2024-2030</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-item-label">Cost</div>
+                  <div class="stat-item-value" id="ee-cost">₹32 Cr</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lever 3: Fleet Electrification -->
+            <div class="lever-column">
+              <div class="lever-header">
+                <div class="lever-icon">🚗</div>
+                <div class="lever-name">Fleet Electrification</div>
+                <div class="lever-impact medium">Medium Impact</div>
+              </div>
+              
+              <div class="slider-container-vertical">
+                <div class="slider-labels-vertical">
+                  <span>100%</span>
+                  <span>52%</span>
+                  <span>5%</span>
+                </div>
+                <input type="range" class="slider-vertical" id="ev-slider" 
+                       min="5" max="100" value="60" orient="vertical"
+                       oninput="updateFleet(this.value)">
+              </div>
+              
+              <div class="current-value"><span id="ev-target">60</span></div>
+              
+              <div class="lever-stats">
+                <div class="stat-item">
+                  <div class="stat-item-label">Reduction</div>
+                  <div class="stat-item-value" id="ev-reduction">4,500 tCO₂e</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-item-label">Timeline</div>
+                  <div class="stat-item-value">2025-2040</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-item-label">Cost</div>
+                  <div class="stat-item-value" id="ev-cost">₹58 Cr</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lever 4: Process Electrification -->
+            <div class="lever-column">
+              <div class="lever-header">
+                <div class="lever-icon">🏭</div>
+                <div class="lever-name">Process Electrification</div>
+                <div class="lever-impact high">High Impact</div>
+              </div>
+              
+              <div class="slider-container-vertical">
+                <div class="slider-labels-vertical">
+                  <span>75%</span>
+                  <span>37%</span>
+                  <span>0%</span>
+                </div>
+                <input type="range" class="slider-vertical" id="ps-slider" 
+                       min="0" max="75" value="50" orient="vertical"
+                       oninput="updateProcess(this.value)">
+              </div>
+              
+              <div class="current-value"><span id="ps-target">50</span></div>
+              
+              <div class="lever-stats">
+                <div class="stat-item">
+                  <div class="stat-item-label">Reduction</div>
+                  <div class="stat-item-value" id="ps-reduction">12,800 tCO₂e</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-item-label">Timeline</div>
+                  <div class="stat-item-value">2026-2038</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-item-label">Cost</div>
+                  <div class="stat-item-value" id="ps-cost">₹78 Cr</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lever 5: Circular Economy -->
+            <div class="lever-column">
+              <div class="lever-header">
+                <div class="lever-icon">♻️</div>
+                <div class="lever-name">Circular Economy</div>
+                <div class="lever-impact low">Low Impact</div>
+              </div>
+              
+              <div class="slider-container-vertical">
+                <div class="slider-labels-vertical">
+                  <span>90%</span>
+                  <span>55%</span>
+                  <span>20%</span>
+                </div>
+                <input type="range" class="slider-vertical" id="ce-slider" 
+                       min="20" max="90" value="65" orient="vertical"
+                       oninput="updateCircular(this.value)">
+              </div>
+              
+              <div class="current-value"><span id="ce-target">65</span></div>
+              
+              <div class="lever-stats">
+                <div class="stat-item">
+                  <div class="stat-item-label">Reduction</div>
+                  <div class="stat-item-value" id="ce-reduction">1,800 tCO₂e</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-item-label">Timeline</div>
+                  <div class="stat-item-value">2024-2032</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-item-label">Cost</div>
+                  <div class="stat-item-value" id="ce-cost">₹12 Cr</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lever 6: Supplier Engagement -->
+            <div class="lever-column">
+              <div class="lever-header">
+                <div class="lever-icon">🔗</div>
+                <div class="lever-name">Supplier Engagement</div>
+                <div class="lever-impact medium">Medium Impact</div>
+              </div>
+              
+              <div class="slider-container-vertical">
+                <div class="slider-labels-vertical">
+                  <span>80%</span>
+                  <span>45%</span>
+                  <span>10%</span>
+                </div>
+                <input type="range" class="slider-vertical" id="se-slider" 
+                       min="10" max="80" value="55" orient="vertical"
+                       oninput="updateSuppliers(this.value)">
+              </div>
+              
+              <div class="current-value"><span id="se-target">55</span></div>
+              
+              <div class="lever-stats">
+                <div class="stat-item">
+                  <div class="stat-item-label">Reduction</div>
+                  <div class="stat-item-value" id="se-reduction">6,200 tCO₂e</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-item-label">Timeline</div>
+                  <div class="stat-item-value">2025-2040</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-item-label">Cost</div>
+                  <div class="stat-item-value" id="se-cost">₹18 Cr</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Lever 7: Carbon Offsets -->
+            <div class="lever-column">
+              <div class="lever-header">
+                <div class="lever-icon">🌳</div>
+                <div class="lever-name">Carbon Offsets</div>
+                <div class="lever-impact medium">Neutralization</div>
+              </div>
+              
+              <div class="slider-container-vertical">
+                <div class="slider-labels-vertical">
+                  <span>20k</span>
+                  <span>10k</span>
+                  <span>0</span>
+                </div>
+                <input type="range" class="slider-vertical" id="offset-slider" 
+                       min="0" max="20000" value="7500" step="500" orient="vertical"
+                       oninput="updateOffsets(this.value)">
+              </div>
+              
+              <div class="current-value"><span id="offset-amount">7,500</span></div>
+              
+              <div class="lever-stats">
+                <div class="stat-item">
+                  <div class="stat-item-label">Volume</div>
+                  <div class="stat-item-value" id="offset-volume">7,500 tCO₂e</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-item-label">Strategy</div>
+                  <div class="stat-item-value">Nature+Tech</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-item-label">Cost</div>
+                  <div class="stat-item-value" id="offset-cost">₹9 Cr</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Non-Controllable Parameters -->
+        <div class="card">
+          <h3 style="margin-bottom: 1rem; font-weight: 600; color: #d97706;">📊 External Factors (Non-Controllable)</h3>
+          <p style="color: #718096; margin-bottom: 1.5rem; font-size: 0.95rem;">
+            These parameters are influenced by external market and policy factors. Select scenario assumptions for modeling.
+          </p>
+
+          <div class="non-controllable-section">
+            <div class="parameter-item">
+              <div>
+                <div class="parameter-name">Grid Decarbonization Rate (India)</div>
+                <div class="parameter-value">Reduces Scope 2 emission factors over time</div>
+              </div>
+              <div class="scenario-toggle">
+                <button class="scenario-btn" onclick="setGridScenario('conservative')">Conservative</button>
+                <button class="scenario-btn active" onclick="setGridScenario('moderate')">Moderate</button>
+                <button class="scenario-btn" onclick="setGridScenario('ambitious')">Ambitious</button>
+              </div>
+            </div>
+
+            <div class="parameter-item">
+              <div>
+                <div class="parameter-name">Carbon Price Trajectory</div>
+                <div class="parameter-value">Affects business case for reduction projects</div>
+              </div>
+              <div class="scenario-toggle">
+                <button class="scenario-btn" onclick="setCarbonPrice('low')">Low ($30/tCO₂e)</button>
+                <button class="scenario-btn active" onclick="setCarbonPrice('medium')">Medium ($75/tCO₂e)</button>
+                <button class="scenario-btn" onclick="setCarbonPrice('high')">High ($150/tCO₂e)</button>
+              </div>
+            </div>
+
+            <div class="parameter-item">
+              <div>
+                <div class="parameter-name">Technology Maturity & Availability</div>
+                <div class="parameter-value">Green hydrogen, SAF, CCUS readiness</div>
+              </div>
+              <div class="scenario-toggle">
+                <button class="scenario-btn" onclick="setTechMaturity('delayed')">Delayed</button>
+                <button class="scenario-btn active" onclick="setTechMaturity('ontrack')">On Track</button>
+                <button class="scenario-btn" onclick="setTechMaturity('accelerated')">Accelerated</button>
+              </div>
+            </div>
+
+            <div class="parameter-item">
+              <div>
+                <div class="parameter-name">Supplier Baseline Improvements</div>
+                <div class="parameter-value">Independent supplier decarbonization</div>
+              </div>
+              <div class="scenario-toggle">
+                <button class="scenario-btn active" onclick="setSupplierBase('standard')">Standard (2%/yr)</button>
+                <button class="scenario-btn" onclick="setSupplierBase('enhanced')">Enhanced (4%/yr)</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-box">
+            <strong>💡 Scenario Planning:</strong> External factors significantly impact your pathway feasibility and costs. 
+            Test multiple scenarios to understand risks and develop contingency plans.
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+          <button class="btn btn-secondary" onclick="resetLevers()">🔄 Reset All Levers</button>
+          <button class="btn btn-secondary" onclick="showScreen('scenarios')">💾 Save as Scenario</button>
+          <button class="btn btn-primary" onclick="showScreen('financial')">→ View Financial Impact</button>
+        </div>
+      </div>
+
+      <!-- Screen 4: Financial Impact Analysis -->
+      <div id="financial" class="screen">
+        <div class="page-header">
+          <h1 class="page-title">Financial Impact Analysis</h1>
+          <p class="page-subtitle">Cost breakdown and ROI projections for your NetZero pathway</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Investment (2024-2045)</div>
+            <div class="stat-value">₹245 <span class="stat-unit">Cr</span></div>
+            <div class="stat-change">21-year program</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">CAPEX</div>
+            <div class="stat-value">₹198 <span class="stat-unit">Cr</span></div>
+            <div class="stat-change">81% of total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">OPEX Changes (Net)</div>
+            <div class="stat-value">₹47 <span class="stat-unit">Cr</span></div>
+            <div class="stat-change">19% of total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Average Cost per tCO₂e Avoided</div>
+            <div class="stat-value">₹5,765</div>
+            <div class="stat-change">Lifetime basis</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem; font-weight: 600;">Investment Breakdown by Lever</h3>
+          <div class="cost-breakdown">
+            <div class="cost-category">
+              <div class="cost-category-title">💡 Renewable Energy</div>
+              <div class="cost-amount">₹45 Cr</div>
+              <div class="cost-items">
+                <div class="cost-item">
+                  <span>PPAs & Green Tariffs</span>
+                  <span>₹28 Cr</span>
+                </div>
+                <div class="cost-item">
+                  <span>On-site Solar (Rooftop)</span>
+                  <span>₹17 Cr</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="cost-category">
+              <div class="cost-category-title">⚡ Energy Efficiency</div>
+              <div class="cost-amount">₹32 Cr</div>
+              <div class="cost-items">
+                <div class="cost-item">
+                  <span>Equipment Upgrades</span>
+                  <span>₹22 Cr</span>
+                </div>
+                <div class="cost-item">
+                  <span>Building Improvements</span>
+                  <span>₹10 Cr</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="cost-category">
+              <div class="cost-category-title">🚗 Fleet Electrification</div>
+              <div class="cost-amount">₹58 Cr</div>
+              <div class="cost-items">
+                <div class="cost-item">
+                  <span>EV Purchase Premium</span>
+                  <span>₹42 Cr</span>
+                </div>
+                <div class="cost-item">
+                  <span>Charging Infrastructure</span>
+                  <span>₹16 Cr</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="cost-category">
+              <div class="cost-category-title">🏭 Process Changes</div>
+              <div class="cost-amount">₹78 Cr</div>
+              <div class="cost-items">
+                <div class="cost-item">
+                  <span>Electrification CAPEX</span>
+                  <span>₹58 Cr</span>
+                </div>
+                <div class="cost-item">
+                  <span>R&D & Pilots</span>
+                  <span>₹20 Cr</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="cost-category">
+              <div class="cost-category-title">🔗 Supplier Engagement</div>
+              <div class="cost-amount">₹18 Cr</div>
+              <div class="cost-items">
+                <div class="cost-item">
+                  <span>Program Management</span>
+                  <span>₹8 Cr</span>
+                </div>
+                <div class="cost-item">
+                  <span>Supplier Support</span>
+                  <span>₹10 Cr</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="cost-category">
+              <div class="cost-category-title">♻️ Circular Economy</div>
+              <div class="cost-amount">₹12 Cr</div>
+              <div class="cost-items">
+                <div class="cost-item">
+                  <span>Waste Infrastructure</span>
+                  <span>₹7 Cr</span>
+                </div>
+                <div class="cost-item">
+                  <span>Process Redesign</span>
+                  <span>₹5 Cr</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="cost-category">
+              <div class="cost-category-title">🌳 Carbon Offsets</div>
+              <div class="cost-amount">₹9 Cr</div>
+              <div class="cost-items">
+                <div class="cost-item">
+                  <span>7,500 tCO₂e @ avg ₹1,200/t</span>
+                  <span>₹9 Cr</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="cost-category" style="border-left-color: #e53e3e;">
+              <div class="cost-category-title">📊 Total Program Cost</div>
+              <div class="cost-amount" style="color: #e53e3e;">₹245 Cr</div>
+              <div style="margin-top: 0.75rem; font-size: 0.875rem; color: #718096;">
+                Net Present Value @ 8% discount rate
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem; font-weight: 600;">Annual Investment Profile</h3>
+          <div style="height: 300px; background: #f7fafc; border-radius: 12px; padding: 2rem; display: flex; align-items: flex-end; justify-content: space-around; gap: 0.5rem;">
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;">
+              <div style="font-weight: 700; font-size: 0.875rem; margin-bottom: 0.5rem;">₹8Cr</div>
+              <div style="width: 100%; max-width: 60px; height: 60px; background: #4a7c59; border-radius: 8px 8px 0 0;"></div>
+              <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #718096;">2024-26</div>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;">
+              <div style="font-weight: 700; font-size: 0.875rem; margin-bottom: 0.5rem;">₹22Cr</div>
+              <div style="width: 100%; max-width: 60px; height: 165px; background: #4a7c59; border-radius: 8px 8px 0 0;"></div>
+              <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #718096;">2027-29</div>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;">
+              <div style="font-weight: 700; font-size: 0.875rem; margin-bottom: 0.5rem;">₹35Cr</div>
+              <div style="width: 100%; max-width: 60px; height: 250px; background: #4a7c59; border-radius: 8px 8px 0 0;"></div>
+              <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #718096;">2030-34</div>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;">
+              <div style="font-weight: 700; font-size: 0.875rem; margin-bottom: 0.5rem;">₹28Cr</div>
+              <div style="width: 100%; max-width: 60px; height: 210px; background: #4a7c59; border-radius: 8px 8px 0 0;"></div>
+              <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #718096;">2035-39</div>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end;">
+              <div style="font-weight: 700; font-size: 0.875rem; margin-bottom: 0.5rem;">₹18Cr</div>
+              <div style="width: 100%; max-width: 60px; height: 135px; background: #4a7c59; border-radius: 8px 8px 0 0;"></div>
+              <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #718096;">2040-45</div>
+            </div>
+          </div>
+          <div class="info-box" style="margin-top: 1.5rem;">
+            <strong>📊 Investment Phasing:</strong> Peak investment period is 2030-2034 as major process changes and fleet renewal occur. 
+            Early years focus on efficiency and renewable procurement.
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem; font-weight: 600;">Return on Investment Analysis</h3>
+          <table>
+            <tr>
+              <td style="font-weight: 600;">Total Investment (NPV)</td>
+              <td>₹245 Cr</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 600;">Annual Energy Cost Savings (at maturity)</td>
+              <td>₹12 Cr/year</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 600;">Avoided Carbon Tax @ ₹2,000/tCO₂e (assumed 2030+)</td>
+              <td>₹10 Cr/year</td>
+            </tr>
+            <tr>
+              <td style="font-weight: 600;">Enhanced Brand Value & Market Access</td>
+              <td>Qualitative benefit</td>
+            </tr>
+            <tr style="background: #e6f4ea;">
+              <td style="font-weight: 700;">Simple Payback Period</td>
+              <td style="font-weight: 700; color: #2d5f3f;">11.1 years</td>
+            </tr>
+            <tr style="background: #e6f4ea;">
+              <td style="font-weight: 700;">IRR (Internal Rate of Return)</td>
+              <td style="font-weight: 700; color: #2d5f3f;">9.2%</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+          <button class="btn btn-secondary" onclick="showScreen('modeler')">← Back to Modeler</button>
+          <button class="btn btn-primary" onclick="showScreen('timeline')">→ View Timeline</button>
+        </div>
+      </div>
+
+      <!-- Screen 5: Timeline & Milestones -->
+      <div id="timeline" class="screen">
+        <div class="page-header">
+          <h1 class="page-title">Implementation Timeline</h1>
+          <p class="page-subtitle">Milestone-based roadmap with key actions and decision points</p>
+        </div>
+
+        <div class="card">
+          <div class="timeline-container">
+            <div class="milestone">
+              <div class="milestone-marker">2024</div>
+              <div class="milestone-content">
+                <div class="milestone-year">Baseline & Quick Wins</div>
+                <div class="milestone-target">Target: 50,000 tCO₂e | Achieve: 48,600 tCO₂e (3% reduction)</div>
+                <div class="milestone-actions">
+                  <span class="action-tag">Energy Audits Complete</span>
+                  <span class="action-tag">15% Renewable Energy</span>
+                  <span class="action-tag">LED Lighting Retrofit</span>
+                  <span class="action-tag">Supplier Survey Launch</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="milestone">
+              <div class="milestone-marker">2027</div>
+              <div class="milestone-content">
+                <div class="milestone-year">Early Progress</div>
+                <div class="milestone-target">Target: 44,200 tCO₂e (18% reduction)</div>
+                <div class="milestone-actions">
+                  <span class="action-tag">40% Renewable Energy</span>
+                  <span class="action-tag">HVAC Upgrades Complete</span>
+                  <span class="action-tag">10% Fleet Electrified</span>
+                  <span class="action-tag">Top 10 Suppliers Engaged</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="milestone">
+              <div class="milestone-marker future">2030</div>
+              <div class="milestone-content">
+                <div class="milestone-year">Interim Target (SBTi)</div>
+                <div class="milestone-target">Target: 37,555 tCO₂e (30% reduction from baseline)</div>
+                <div class="milestone-actions">
+                  <span class="action-tag">60% Renewable Energy</span>
+                  <span class="action-tag">25% Fleet EVs</span>
+                  <span class="action-tag">Process Electrification Pilot</span>
+                  <span class="action-tag">50% Supplier Coverage</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="milestone">
+              <div class="milestone-marker future">2035</div>
+              <div class="milestone-content">
+                <div class="milestone-year">Midpoint Checkpoint</div>
+                <div class="milestone-target">Target: 26,825 tCO₂e (50% reduction)</div>
+                <div class="milestone-actions">
+                  <span class="action-tag">80% Renewable Energy</span>
+                  <span class="action-tag">50% Fleet EVs</span>
+                  <span class="action-tag">40% Process Electrification</span>
+                  <span class="action-tag">70% Supplier Engaged</span>
+                  <span class="action-tag">Circular Economy 60%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="milestone">
+              <div class="milestone-marker future">2040</div>
+              <div class="milestone-content">
+                <div class="milestone-year">Deep Decarbonization</div>
+                <div class="milestone-target">Target: 10,730 tCO₂e (80% reduction)</div>
+                <div class="milestone-actions">
+                  <span class="action-tag">95% Renewable Energy</span>
+                  <span class="action-tag">85% Fleet EVs</span>
+                  <span class="action-tag">60% Process Electrification</span>
+                  <span class="action-tag">Green Hydrogen Adoption</span>
+                  <span class="action-tag">Advanced CCUS Pilots</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="milestone">
+              <div class="milestone-marker future">2045</div>
+              <div class="milestone-content">
+                <div class="milestone-year">NetZero Achievement</div>
+                <div class="milestone-target">Target: 0 tCO₂e (100% reduction + offsets)</div>
+                <div class="milestone-actions">
+                  <span class="action-tag">100% Renewable Energy</span>
+                  <span class="action-tag">100% Fleet EVs</span>
+                  <span class="action-tag">75% Process Electrification</span>
+                  <span class="action-tag">7,500 tCO₂e Offsets</span>
+                  <span class="action-tag">NetZero Certified</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1rem; font-weight: 600;">Critical Decision Points</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Decision Point</th>
+                <th>Action Required</th>
+                <th>Estimated Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>2026</strong></td>
+                <td>Process Electrification Technology Selection</td>
+                <td>Evaluate and select heat pump / electric boiler technologies</td>
+                <td>₹2 Cr (CAPEX commitment)</td>
+              </tr>
+              <tr>
+                <td><strong>2028</strong></td>
+                <td>Fleet Replacement Strategy</td>
+                <td>Lock in EV supply contracts for 2030-2035 fleet renewal</td>
+                <td>₹15 Cr (multi-year)</td>
+              </tr>
+              <tr>
+                <td><strong>2030</strong></td>
+                <td>Renewable Energy Long-term Contracts</td>
+                <td>Sign 10-year renewable PPAs to secure price and supply</td>
+                <td>₹18 Cr commitment</td>
+              </tr>
+              <tr>
+                <td><strong>2033</strong></td>
+                <td>Hard-to-Abate Emissions Strategy</td>
+                <td>Decide on CCUS, hydrogen, or alternative fuels for residual</td>
+                <td>₹25 Cr (pilot + scale)</td>
+              </tr>
+              <tr>
+                <td><strong>2040</strong></td>
+                <td>Carbon Removal Portfolio</td>
+                <td>Finalize offset/removal strategy for remaining gap</td>
+                <td>₹9 Cr (offsets)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+          <button class="btn btn-secondary" onclick="showScreen('financial')">← Financial Analysis</button>
+          <button class="btn btn-primary" onclick="showScreen('scenarios')">→ Compare Scenarios</button>
+        </div>
+      </div>
+
+      <!-- Screen 6: Scenario Comparison -->
+      <div id="scenarios" class="screen">
+        <div class="page-header">
+          <h1 class="page-title">Scenario Comparison</h1>
+          <p class="page-subtitle">Compare multiple decarbonization pathways side-by-side</p>
+        </div>
+
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3 style="font-weight: 600;">Saved Scenarios</h3>
+            <button class="btn btn-primary" onclick="alert('Save current modeler state as new scenario')">+ Create New Scenario</button>
+          </div>
+
+          <div class="scenario-cards">
+            <div class="scenario-card active">
+              <div class="scenario-title">Current Model</div>
+              <span class="badge badge-green">Active</span>
+              <div class="scenario-metrics">
+                <div class="scenario-metric">
+                  <div class="scenario-metric-label">NetZero Year</div>
+                  <div class="scenario-metric-value">2052</div>
+                </div>
+                <div class="scenario-metric">
+                  <div class="scenario-metric-label">Total Cost</div>
+                  <div class="scenario-metric-value">₹245 Cr</div>
+                </div>
+                <div class="scenario-metric">
+                  <div class="scenario-metric-label">2045 Emissions</div>
+                  <div class="scenario-metric-value">7,500 tCO₂e</div>
+                </div>
+                <div class="scenario-metric">
+                  <div class="scenario-metric-label">Offsets Needed</div>
+                  <div class="scenario-metric-value">7,500 tCO₂e</div>
+                </div>
+              </div>
+              <div style="margin-top: 1rem;">
+                <button class="btn btn-secondary" style="width: 100%; padding: 0.5rem;">Load Scenario</button>
+              </div>
+            </div>
+
+            <div class="scenario-card">
+              <div class="scenario-title">Conservative Path</div>
+              <span class="badge badge-orange">Saved</span>
+              <div class="scenario-metrics">
+                <div class="scenario-metric">
+                  <div class="scenario-metric-label">NetZero Year</div>
+                  <div class="scenario-metric-value" style="color: #e53e3e;">2058</div>
+                </div>
+                <div class="scenario-metric">
+                  <div class="scenario-metric-label">Total Cost</div>
+                  <div class="scenario-metric-value">₹185 Cr</div>
+                </div>
+                <div class="scenario-metric">
+                  <div class="scenario-metric-label">2045 Emissions</div>
+                  <div class="scenario-metric-value">15,000 tCO₂e</div>
+                </div>
+                <div class="scenario-metric">
+                  <div class="scenario-metric-label">Offsets Needed</div>
+                  <div class="scenario-metric-value">15,000 tCO₂e</div>
+                </div>
+              </div>
+              <div style="margin-top: 1rem;">
+                <button class="btn btn-secondary" style="width: 100%; padding: 0.5rem;">Load Scenario</button>
+              </div>
+            </div>
+
+            <div class="scenario-card">
+              <div class="scenario-title">Aggressive Path</div>
+              <span class="badge badge-blue">Saved</span>
+              <div class="scenario-metrics">
+                <div class="scenario-metric">
+                  <div class="scenario-metric-label">NetZero Year</div>
+                  <div class="scenario-metric-value" style="color: #48bb78;">2045</div>
+                </div>
+                <div class="scenario-metric">
+                  <div class="scenario-metric-label">Total Cost</div>
+                  <div class="scenario-metric-value">₹325 Cr</div>
+                </div>
+                <div class="scenario-metric">
+                  <div class="scenario-metric-label">2045 Emissions</div>
+                  <div class="scenario-metric-value">0 tCO₂e</div>
+                </div>
+                <div class="scenario-metric">
+                  <div class="scenario-metric-label">Offsets Needed</div>
+                  <div class="scenario-metric-value">2,000 tCO₂e</div>
+                </div>
+              </div>
+              <div style="margin-top: 1rem;">
+                <button class="btn btn-secondary" style="width: 100%; padding: 0.5rem;">Load Scenario</button>
+              </div>
+            </div>
+
+            <div class="scenario-card">
+              <div class="scenario-title">SBTi 1.5°C Aligned</div>
+              <span class="badge badge-green">Saved</span>
+              <div class="scenario-metrics">
+                <div class="scenario-metric">
+                  <div class="scenario-metric-label">NetZero Year</div>
+                  <div class="scenario-metric-value" style="color: #48bb78;">2045</div>
+                </div>
+                <div class="scenario-metric">
+                  <div class="scenario-metric-label">Total Cost</div>
+                  <div class="scenario-metric-value">₹290 Cr</div>
+                </div>
+                <div class="scenario-metric">
+                  <div class="scenario-metric-label">2045 Emissions</div>
+                  <div class="scenario-metric-value">0 tCO₂e</div>
+                </div>
+                <div class="scenario-metric">
+                  <div class="scenario-metric-label">Offsets Needed</div>
+                  <div class="scenario-metric-value">5,000 tCO₂e</div>
+                </div>
+              </div>
+              <div style="margin-top: 1rem;">
+                <button class="btn btn-secondary" style="width: 100%; padding: 0.5rem;">Load Scenario</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem; font-weight: 600;">Side-by-Side Comparison</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th>Current Model</th>
+                <th>Conservative</th>
+                <th>Aggressive</th>
+                <th>SBTi Aligned</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>NetZero Year</strong></td>
+                <td style="color: #e53e3e;">2052</td>
+                <td style="color: #e53e3e;">2058</td>
+                <td style="color: #48bb78;">2045</td>
+                <td style="color: #48bb78;">2045</td>
+              </tr>
+              <tr>
+                <td><strong>Total Investment</strong></td>
+                <td>₹245 Cr</td>
+                <td>₹185 Cr</td>
+                <td>₹325 Cr</td>
+                <td>₹290 Cr</td>
+              </tr>
+              <tr>
+                <td><strong>Renewable Energy (2045)</strong></td>
+                <td>80%</td>
+                <td>60%</td>
+                <td>100%</td>
+                <td>95%</td>
+              </tr>
+              <tr>
+                <td><strong>Fleet Electrification (2045)</strong></td>
+                <td>60%</td>
+                <td>40%</td>
+                <td>100%</td>
+                <td>85%</td>
+              </tr>
+              <tr>
+                <td><strong>Process Electrification (2045)</strong></td>
+                <td>50%</td>
+                <td>25%</td>
+                <td>75%</td>
+                <td>65%</td>
+              </tr>
+              <tr>
+                <td><strong>Carbon Offsets Needed</strong></td>
+                <td>7,500 tCO₂e</td>
+                <td>15,000 tCO₂e</td>
+                <td>2,000 tCO₂e</td>
+                <td>5,000 tCO₂e</td>
+              </tr>
+              <tr style="background: #e6f4ea;">
+                <td><strong>Meets 2045 Target?</strong></td>
+                <td style="color: #e53e3e;">No (7 yrs late)</td>
+                <td style="color: #e53e3e;">No (13 yrs late)</td>
+                <td style="color: #48bb78;">Yes ✓</td>
+                <td style="color: #48bb78;">Yes ✓</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="info-box">
+          <strong>💡 Recommendation:</strong> The "Aggressive Path" achieves NetZero by 2045 but requires ₹80 Cr additional investment. 
+          Consider the "SBTi Aligned" scenario as a balanced approach with science-based credibility.
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
+          <button class="btn btn-secondary" onclick="showScreen('timeline')">← Timeline</button>
+          <button class="btn btn-primary" onclick="alert('Export comparison report')">📄 Export Report</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+
+
+    // Country-specific cost multipliers
+    const COUNTRY_MULTIPLIERS = {
+      'IN': {
+        name: 'India',
+        renewable: 1.0,
+        efficiency: 1.0,
+        fleet: 1.0,
+        process: 1.0,
+        circular: 1.0,
+        supplier: 1.0,
+        offset_price: 1200,
+        currency: '₹',
+        unit: 'Cr'
+      },
+      'US': {
+        name: 'United States',
+        renewable: 1.5,
+        efficiency: 2.8,
+        fleet: 1.5,
+        process: 1.7,
+        circular: 2.5,
+        supplier: 2.8,
+        offset_price: 2500,
+        currency: '$',
+        unit: 'M'
+      },
+      'EU': {
+        name: 'European Union',
+        renewable: 1.9,
+        efficiency: 3.2,
+        fleet: 1.8,
+        process: 1.9,
+        circular: 3.0,
+        supplier: 3.2,
+        offset_price: 7000,
+        currency: '€',
+        unit: 'M'
+      },
+      'UK': {
+        name: 'United Kingdom',
+        renewable: 2.1,
+        efficiency: 3.5,
+        fleet: 2.0,
+        process: 2.1,
+        circular: 3.2,
+        supplier: 3.5,
+        offset_price: 7500,
+        currency: '£',
+        unit: 'M'
+      },
+      'CN': {
+        name: 'China',
+        renewable: 1.2,
+        efficiency: 1.5,
+        fleet: 1.1,
+        process: 1.3,
+        circular: 1.4,
+        supplier: 1.6,
+        offset_price: 800,
+        currency: '¥',
+        unit: 'M'
+      },
+      'AE': {
+        name: 'UAE/GCC',
+        renewable: 0.9,
+        efficiency: 1.8,
+        fleet: 1.3,
+        process: 1.5,
+        circular: 1.2,
+        supplier: 2.0,
+        offset_price: 1500,
+        currency: 'AED',
+        unit: 'M'
+      },
+      'AU': {
+        name: 'Australia',
+        renewable: 1.3,
+        efficiency: 2.5,
+        fleet: 1.7,
+        process: 1.8,
+        circular: 2.3,
+        supplier: 2.6,
+        offset_price: 3000,
+        currency: 'A$',
+        unit: 'M'
+      },
+      'BR': {
+        name: 'Brazil',
+        renewable: 1.1,
+        efficiency: 1.6,
+        fleet: 1.2,
+        process: 1.4,
+        circular: 1.5,
+        supplier: 1.7,
+        offset_price: 1400,
+        currency: 'R$',
+        unit: 'M'
+      },
+      'SG': {
+        name: 'Singapore',
+        renewable: 2.5,
+        efficiency: 4.0,
+        fleet: 2.2,
+        process: 2.8,
+        circular: 3.5,
+        supplier: 3.8,
+        offset_price: 5000,
+        currency: 'S$',
+        unit: 'M'
+      },
+      'JP': {
+        name: 'Japan',
+        renewable: 2.8,
+        efficiency: 3.8,
+        fleet: 2.4,
+        process: 2.5,
+        circular: 3.3,
+        supplier: 3.5,
+        offset_price: 6000,
+        currency: '¥',
+        unit: 'M'
+      }
+    };
+
+    // Current country multiplier (starts with India)
+    let currentMultiplier = COUNTRY_MULTIPLIERS['IN'];
+
+    // Update cost assumptions when country changes
+    function updateCostAssumptions() {
+      const country = document.getElementById('country-selector').value;
+      currentMultiplier = COUNTRY_MULTIPLIERS[country];
+      
+      // Update country name in disclaimer
+      document.getElementById('country-name').textContent = currentMultiplier.name;
+      
+      // Recalculate all costs with new multipliers
+      const reValue = parseInt(document.getElementById('re-slider').value);
+      const eeValue = parseInt(document.getElementById('ee-slider').value);
+      const evValue = parseInt(document.getElementById('ev-slider').value);
+      const psValue = parseInt(document.getElementById('ps-slider').value);
+      const ceValue = parseInt(document.getElementById('ce-slider').value);
+      const seValue = parseInt(document.getElementById('se-slider').value);
+      const offsetValue = parseInt(document.getElementById('offset-slider').value);
+      
+      updateRenewable(reValue);
+      updateEfficiency(eeValue);
+      updateFleet(evValue);
+      updateProcess(psValue);
+      updateCircular(ceValue);
+      updateSuppliers(seValue);
+      updateOffsets(offsetValue);
+    }
+
+    // Initialize app
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+      
+      const navItems = document.querySelectorAll('.nav-item');
+      const screenMap = {
+        'dashboard': 0,
+        'goals': 1,
+        'modeler': 2,
+        'financial': 3,
+        'timeline': 4,
+        'scenarios': 5
+      };
+      if (screenMap[screenId] !== undefined) {
+        navItems[screenMap[screenId]].classList.add('active');
+      }
+    }
+
+    // Lever update functions
+   
+	function updateRenewable(value) {
+ 	 document.getElementById('re-target').textContent = value + '%';
+ 	 const reduction = Math.round((value / 100) * 23000);
+ 	 document.getElementById('re-reduction').textContent = reduction.toLocaleString() + ' tCO₂e';
+  
+  	// Apply country multiplier
+ 	 const baseCost = Math.round(value / 100 * 45);
+  	const adjustedCost = Math.round(baseCost * currentMultiplier.renewable);
+ 	 document.getElementById('re-cost').textContent = currentMultiplier.currency + adjustedCost + ' ' + currentMultiplier.unit;
+  
+ 	 updateTotals();
+	}
+
+
+function updateEfficiency(value) {
+  document.getElementById('ee-target').textContent = value + '%';
+  const reduction = Math.round((value / 35) * 8200);
+  document.getElementById('ee-reduction').textContent = reduction.toLocaleString() + ' tCO₂e';
+  
+  const baseCost = Math.round((value / 35) * 32);
+  const adjustedCost = Math.round(baseCost * currentMultiplier.efficiency);
+  document.getElementById('ee-cost').textContent = currentMultiplier.currency + adjustedCost + ' ' + currentMultiplier.unit;
+  
+  updateTotals();
+}
+
+function updateFleet(value) {
+  document.getElementById('ev-target').textContent = value + '%';
+  const reduction = Math.round((value / 100) * 4500);
+  document.getElementById('ev-reduction').textContent = reduction.toLocaleString() + ' tCO₂e';
+  
+  const baseCost = Math.round((value / 100) * 58);
+  const adjustedCost = Math.round(baseCost * currentMultiplier.fleet);
+  document.getElementById('ev-cost').textContent = currentMultiplier.currency + adjustedCost + ' ' + currentMultiplier.unit;
+  
+  updateTotals();
+}
+
+function updateProcess(value) {
+  document.getElementById('ps-target').textContent = value + '%';
+  const reduction = Math.round((value / 75) * 12800);
+  document.getElementById('ps-reduction').textContent = reduction.toLocaleString() + ' tCO₂e';
+  
+  const baseCost = Math.round((value / 75) * 78);
+  const adjustedCost = Math.round(baseCost * currentMultiplier.process);
+  document.getElementById('ps-cost').textContent = currentMultiplier.currency + adjustedCost + ' ' + currentMultiplier.unit;
+  
+  updateTotals();
+}
+
+function updateCircular(value) {
+  document.getElementById('ce-target').textContent = value + '%';
+  const reduction = Math.round(((value - 20) / 70) * 1800);
+  document.getElementById('ce-reduction').textContent = reduction.toLocaleString() + ' tCO₂e';
+  
+  const baseCost = Math.round(((value - 20) / 70) * 12);
+  const adjustedCost = Math.round(baseCost * currentMultiplier.circular);
+  document.getElementById('ce-cost').textContent = currentMultiplier.currency + adjustedCost + ' ' + currentMultiplier.unit;
+  
+  updateTotals();
+}
+
+function updateSuppliers(value) {
+  document.getElementById('se-target').textContent = value + '%';
+  const reduction = Math.round(((value - 10) / 70) * 6200);
+  document.getElementById('se-reduction').textContent = reduction.toLocaleString() + ' tCO₂e';
+  
+  const baseCost = Math.round(((value - 10) / 70) * 18);
+  const adjustedCost = Math.round(baseCost * currentMultiplier.supplier);
+  document.getElementById('se-cost').textContent = currentMultiplier.currency + adjustedCost + ' ' + currentMultiplier.unit;
+  
+  updateTotals();
+}
+
+function updateOffsets(value) {
+  document.getElementById('offset-amount').textContent = value.toLocaleString() + ' tCO₂e';
+  document.getElementById('offset-volume').textContent = value.toLocaleString() + ' tCO₂e';
+  
+  const cost = Math.round((value / 1000) * (currentMultiplier.offset_price / 1000));
+  document.getElementById('offset-cost').textContent = currentMultiplier.currency + cost + ' ' + currentMultiplier.unit;
+  
+  updateTotals();
+}
+
+
+    function updateTotals() {
+      // Calculate total reduction from all levers
+      const reValue = parseInt(document.getElementById('re-slider').value);
+      const eeValue = parseInt(document.getElementById('ee-slider').value);
+      const evValue = parseInt(document.getElementById('ev-slider').value);
+      const psValue = parseInt(document.getElementById('ps-slider').value);
+      const ceValue = parseInt(document.getElementById('ce-slider').value);
+      const seValue = parseInt(document.getElementById('se-slider').value);
+      const offsetValue = parseInt(document.getElementById('offset-slider').value);
+
+      const reReduction = Math.round((reValue / 100) * 23000);
+      const eeReduction = Math.round((eeValue / 35) * 8200);
+      const evReduction = Math.round((evValue / 100) * 4500);
+      const psReduction = Math.round((psValue / 75) * 12800);
+      const ceReduction = Math.round(((ceValue - 20) / 70) * 1800);
+      const seReduction = Math.round(((seValue - 10) / 70) * 6200);
+
+      const totalReduction = reReduction + eeReduction + evReduction + psReduction + ceReduction + seReduction;
+      const residual = Math.max(0, 50000 - totalReduction);
+      const netResidual = Math.max(0, residual - offsetValue);
+
+      // Update stats
+      document.getElementById('total-reduction').textContent = totalReduction.toLocaleString();
+      document.getElementById('residual').textContent = netResidual.toLocaleString();
+      document.getElementById('reduction-pct').textContent = Math.round((totalReduction / 50000) * 100) + '% of baseline';
+
+      // Calculate projected NetZero year
+      const annualReductionRate = totalReduction / 50000 / 21; // 21 years to 2045
+      let projectedYear = 2024;
+      let currentEmissions = 50000;
+      while (currentEmissions > offsetValue && projectedYear < 2070) {
+        currentEmissions -= currentEmissions * annualReductionRate;
+        projectedYear++;
+      }
+
+      document.getElementById('projected-year').textContent = projectedYear;
+      const gap = projectedYear - 2045;
+      if (gap > 0) {
+        document.getElementById('gap-years').textContent = gap + ' years behind target';
+        document.getElementById('gap-years').className = 'stat-change negative';
+        document.getElementById('pathway-warning').style.display = 'block';
+        document.getElementById('pathway-warning').innerHTML = 
+          '<strong>⚠️ Gap Alert:</strong> Current lever settings project NetZero achievement in ' + projectedYear + 
+          '. Increase reduction intensity or add more levers to meet the 2045 target.';
+      } else if (gap === 0) {
+        document.getElementById('gap-years').textContent = 'On target!';
+        document.getElementById('gap-years').className = 'stat-change positive';
+        document.getElementById('pathway-warning').style.display = 'block';
+        document.getElementById('pathway-warning').className = 'success-box';
+        document.getElementById('pathway-warning').innerHTML = 
+          '<strong>✅ Success:</strong> Current pathway achieves NetZero by 2045! Great work aligning your levers.';
+      } else {
+        document.getElementById('gap-years').textContent = Math.abs(gap) + ' years ahead of target';
+        document.getElementById('gap-years').className = 'stat-change positive';
+        document.getElementById('pathway-warning').style.display = 'block';
+        document.getElementById('pathway-warning').className = 'success-box';
+        document.getElementById('pathway-warning').innerHTML = 
+          '<strong>🎯 Excellent:</strong> Current pathway achieves NetZero by ' + projectedYear + 
+          ', ahead of your 2045 target!';
+      }
+
+
+ // Calculate total investment with country multipliers
+const reCost = Math.round((reValue / 100) * 45 * currentMultiplier.renewable);
+const eeCost = Math.round((eeValue / 35) * 32 * currentMultiplier.efficiency);
+const evCost = Math.round((evValue / 100) * 58 * currentMultiplier.fleet);
+const psCost = Math.round((psValue / 75) * 78 * currentMultiplier.process);
+const ceCost = Math.round(((ceValue - 20) / 70) * 12 * currentMultiplier.circular);
+const seCost = Math.round(((seValue - 10) / 70) * 18 * currentMultiplier.supplier);
+const offsetCost = Math.round((offsetValue / 1000) * (currentMultiplier.offset_price / 1000));
+
+const totalInvest = reCost + eeCost + evCost + psCost + ceCost + seCost + offsetCost;
+document.getElementById('total-invest').textContent = totalInvest;
+document.getElementById('invest-currency').textContent = currentMultiplier.currency;
+document.getElementById('invest-unit').textContent = currentMultiplier.unit;
+
+    }
+
+
+    function resetLevers() {
+      if (confirm('Reset all levers to default values?')) {
+        document.getElementById('re-slider').value = 80;
+        document.getElementById('ee-slider').value = 25;
+        document.getElementById('ev-slider').value = 60;
+        document.getElementById('ps-slider').value = 50;
+        document.getElementById('ce-slider').value = 65;
+        document.getElementById('se-slider').value = 55;
+        document.getElementById('offset-slider').value = 7500;
+
+        updateRenewable(80);
+        updateEfficiency(25);
+        updateFleet(60);
+        updateProcess(50);
+        updateCircular(65);
+        updateSuppliers(55);
+        updateOffsets(7500);
+      }
+    }
+
+    function saveGoals() {
+      alert('✅ Goals saved successfully!\n\nYour NetZero commitment has been updated:\n• Target: 2045\n• Scope: 1, 2, and 3\n• Framework: SBTi 1.5°C\n\nNow adjust your pathway in the Modeler to meet these goals.');
+      showScreen('dashboard');
+    }
+
+    function updateTargetYear() {
+      const year = document.getElementById('target-year').value;
+      if (year === 'custom') {
+        const customYear = prompt('Enter custom NetZero target year:', '2050');
+        if (customYear) {
+          alert('Custom target year set to: ' + customYear);
+        }
+      }
+    }
+
+    // Non-controllable parameter functions
+    function setGridScenario(scenario) {
+      document.querySelectorAll('.scenario-toggle button').forEach(b => {
+        if (b.textContent.toLowerCase().includes(scenario)) {
+          b.classList.add('active');
+        } else if (b.parentElement.parentElement.textContent.includes('Grid Decarbonization')) {
+          b.classList.remove('active');
+        }
+      });
+      updateTotals();
+    }
+
+    function setCarbonPrice(level) {
+      document.querySelectorAll('.scenario-toggle button').forEach(b => {
+        if (b.textContent.toLowerCase().includes(level)) {
+          b.classList.add('active');
+        } else if (b.parentElement.parentElement.textContent.includes('Carbon Price')) {
+          b.classList.remove('active');
+        }
+      });
+      updateTotals();
+    }
+
+    function setTechMaturity(scenario) {
+      document.querySelectorAll('.scenario-toggle button').forEach(b => {
+        if (b.textContent.toLowerCase().includes(scenario)) {
+          b.classList.add('active');
+        } else if (b.parentElement.parentElement.textContent.includes('Technology Maturity')) {
+          b.classList.remove('active');
+        }
+      });
+      updateTotals();
+    }
+
+    function setSupplierBase(scenario) {
+      document.querySelectorAll('.scenario-toggle button').forEach(b => {
+        if (b.textContent.toLowerCase().includes(scenario)) {
+          b.classList.add('active');
+        } else if (b.parentElement.parentElement.textContent.includes('Supplier Baseline')) {
+          b.classList.remove('active');
+        }
+      });
+      updateTotals();
+    }
+
+    // Initialize on load
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize all lever displays with % signs
+  updateRenewable(80);
+  updateEfficiency(25);
+  updateFleet(60);
+  updateProcess(50);
+  updateCircular(65);
+  updateSuppliers(55);
+  updateOffsets(7500);
+  
+  // Calculate totals
+  updateTotals();
+});
+  </script>
+</body>
+</html>

@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HWCAP - Supported Frameworks</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --hz-primary: #4A7C59;
+            --hz-primary-700: #355b3f;
+            --hz-primary-50: #E9F1EC;
+            --hz-mint: #A8E6A3;
+            --hz-dark: #2F4F3F;
+            --ink: #22302A;
+            --subtle: #5B6E64;
+            --bg: #F6F7F4;
+            --card: #FFFFFF;
+            --stroke: #E5E9E6;
+            --success: #48BB78;
+            --warning: #F6AD55;
+            --danger: #E53E3E;
+            --info: #4299E1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: var(--hz-primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .nav-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.875rem;
+        }
+
+        .nav-breadcrumb a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+        }
+
+        .nav-breadcrumb a:hover {
+            color: white;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--subtle);
+            font-size: 1rem;
+        }
+
+        /* Filters */
+        .filters {
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--subtle);
+        }
+
+        .filter-select {
+            padding: 0.5rem 0.75rem;
+            border: 2px solid var(--stroke);
+            border-radius: 6px;
+            background: white;
+            font-size: 0.875rem;
+            min-width: 140px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--hz-primary);
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--stroke);
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--hz-primary);
+        }
+
+        /* Frameworks Grid */
+        .frameworks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .framework-card {
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .framework-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .framework-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .framework-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            font-weight: 700;
+        }
+
+        .framework-logo.ghg { background: linear-gradient(135deg, #4A7C59, #355b3f); }
+        .framework-logo.cdp { background: linear-gradient(135deg, #1E40AF, #1E3A8A); }
+        .framework-logo.gri { background: linear-gradient(135deg, #DC2626, #B91C1C); }
+        .framework-logo.sasb { background: linear-gradient(135deg, #7C3AED, #6D28D9); }
+        .framework-logo.tcfd { background: linear-gradient(135deg, #059669, #047857); }
+        .framework-logo.sbt { background: linear-gradient(135deg, #EA580C, #C2410C); }
+        .framework-logo.iso { background: linear-gradient(135deg, #0284C7, #0369A1); }
+        .framework-logo.eu { background: linear-gradient(135deg, #0F172A, #334155); }
+        .framework-logo.sec { background: linear-gradient(135deg, #991B1B, #7F1D1D); }
+        .framework-logo.brsr { background: linear-gradient(135deg, #FF6347, #FF4500); }
+        .framework-logo.brsr-core { background: linear-gradient(135deg, #FF8C00, #FF7F50); }
+        .framework-logo.greenco { background: linear-gradient(135deg, #228B22, #32CD32); }
+
+        .framework-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 0.25rem;
+        }
+
+        .framework-type {
+            font-size: 0.8rem;
+            color: var(--subtle);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .framework-description {
+            color: var(--subtle);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        .framework-details {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: var(--subtle);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .framework-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tag {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag.mandatory {
+            background: #FED7D7;
+            color: #C53030;
+        }
+
+        .tag.voluntary {
+            background: #C6F6D5;
+            color: #22543D;
+        }
+
+        .tag.regional {
+            background: #FEEBC8;
+            color: #C05621;
+        }
+
+        .tag.global {
+            background: #BFE6FF;
+            color: #1E40AF;
+        }
+
+        .framework-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: space-between;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: var(--hz-primary);
+            color: white;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-primary:hover {
+            background: var(--hz-primary-700);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--hz-primary);
+            border: 1px solid var(--hz-primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--hz-primary-50);
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-supported {
+            background: #C6F6D5;
+            color: #22543D;
+        }
+
+        .status-developing {
+            background: #FEEBC8;
+            color: #C05621;
+        }
+
+        .framework-card {
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .frameworks-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .framework-details {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">🌱</div>
+            HWCAP
+        </div>
+        <div class="nav-breadcrumb">
+            <a href="hwcap_dashboard.html">Dashboard</a>
+            <span>→</span>
+            <span>Frameworks</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">🏆 Supported Frameworks</h1>
+            <p class="page-subtitle">Comprehensive list of sustainability and compliance frameworks supported by HWCAP</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-group">
+                <label class="filter-label">Framework Type</label>
+                <select class="filter-select" id="typeFilter">
+                    <option value="">All Types</option>
+                    <option value="reporting">Reporting Standards</option>
+                    <option value="disclosure">Disclosure Frameworks</option>
+                    <option value="certification">Certification Standards</option>
+                    <option value="regulatory">Regulatory Requirements</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Region</label>
+                <select class="filter-select" id="regionFilter">
+                    <option value="">All Regions</option>
+                    <option value="global">Global</option>
+                    <option value="india">India</option>
+                    <option value="eu">European Union</option>
+                    <option value="us">United States</option>
+                    <option value="asia">Asia Pacific</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label class="filter-label">Status</label>
+                <select class="filter-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="supported">Fully Supported</option>
+                    <option value="developing">In Development</option>
+                </select>
+            </div>
+
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="Search frameworks..." id="searchInput">
+            </div>
+        </div>
+
+        <!-- Frameworks Grid -->
+        <div class="frameworks-grid" id="frameworksGrid">
+            <!-- BRSR -->
+            <div class="framework-card" data-type="regulatory" data-region="india" data-status="supported">
+                <div class="status-badge status-supported">Fully Supported</div>
+                <div class="framework-header">
+                    <div class="framework-logo brsr">BRSR</div>
+                    <div>
+                        <h3 class="framework-title">SEBI BRSR</h3>
+                        <div class="framework-type">Regulatory Requirement</div>
+                    </div>
+                </div>
+                <p class="framework-description">
+                    Securities and Exchange Board of India's Business Responsibility and Sustainability Reporting for listed companies in India.
+                </p>
+                <div class="framework-details">
+                    <div class="detail-item">
+                        <div class="detail-value">178</div>
+                        <div class="detail-label">Indicators</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">2022</div>
+                        <div class="detail-label">Effective</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">Listed</div>
+                        <div class="detail-label">Companies</div>
+                    </div>
+                </div>
+                <div class="framework-tags">
+                    <span class="tag mandatory">Mandatory</span>
+                    <span class="tag regional">India</span>
+                </div>
+                <div class="framework-actions">
+                    <button class="btn btn-primary">📊 BRSR Report</button>
+                    <button class="btn btn-outline">📋 Gap Analysis</button>
+                </div>
+            </div>
+
+            <!-- BRSR Core -->
+            <div class="framework-card" data-type="regulatory" data-region="india" data-status="supported">
+                <div class="status-badge status-supported">Fully Supported</div>
+                <div class="framework-header">
+                    <div class="framework-logo brsr-core">CORE</div>
+                    <div>
+                        <h3 class="framework-title">BRSR Core</h3>
+                        <div class="framework-type">Regulatory Requirement</div>
+                    </div>
+                </div>
+                <p class="framework-description">
+                    Mandatory subset of BRSR with 27 core indicators focusing on key sustainability metrics for listed Indian companies.
+                </p>
+                <div class="framework-details">
+                    <div class="detail-item">
+                        <div class="detail-value">27</div>
+                        <div class="detail-label">Core KPIs</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">2024</div>
+                        <div class="detail-label">Effective</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">Assurance</div>
+                        <div class="detail-label">Required</div>
+                    </div>
+                </div>
+                <div class="framework-tags">
+                    <span class="tag mandatory">Mandatory</span>
+                    <span class="tag regional">India</span>
+                </div>
+                <div class="framework-actions">
+                    <button class="btn btn-primary">📊 Core Report</button>
+                    <button class="btn btn-outline">✅ Assurance</button>
+                </div>
+            </div>
+
+            <!-- GreenCo Certification -->
+            <div class="framework-card" data-type="certification" data-region="india" data-status="supported">
+                <div class="status-badge status-supported">Fully Supported</div>
+                <div class="framework-header">
+                    <div class="framework-logo greenco">GRC</div>
+                    <div>
+                        <h3 class="framework-title">GreenCo Certification</h3>
+                        <div class="framework-type">Voluntary Certification</div>
+                    </div>
+                </div>
+                <p class="framework-description">
+                    Confederation of Indian Industry's Green Company Rating for comprehensive environmental performance assessment and certification in India.
+                </p>
+                <div class="framework-details">
+                    <div class="detail-item">
+                        <div class="detail-value">65</div>
+                        <div class="detail-label">Parameters</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">5 Stars</div>
+                        <div class="detail-label">Max Rating</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">3 Years</div>
+                        <div class="detail-label">Validity</div>
+                    </div>
+                </div>
+                <div class="framework-tags">
+                    <span class="tag voluntary">Voluntary</span>
+                    <span class="tag regional">India</span>
+                </div>
+                <div class="framework-actions">
+                    <button class="btn btn-primary">🌿 Start Assessment</button>
+                    <button class="btn btn-outline">📋 Requirements</button>
+                </div>
+            </div>
+
+            <!-- GHG Protocol -->
+            <div class="framework-card" data-type="reporting" data-region="global" data-status="supported">
+                <div class="status-badge status-supported">Fully Supported</div>
+                <div class="framework-header">
+                    <div class="framework-logo ghg">GHG</div>
+                    <div>
+                        <h3 class="framework-title">GHG Protocol</h3>
+                        <div class="framework-type">Reporting Standard</div>
+                    </div>
+                </div>
+                <p class="framework-description">
+                    The most widely used international accounting tool for government and business leaders to understand, quantify, and manage greenhouse gas emissions.
+                </p>
+                <div class="framework-details">
+                    <div class="detail-item">
+                        <div class="detail-value">Global</div>
+                        <div class="detail-label">Coverage</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">2001</div>
+                        <div class="detail-label">Established</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">3 Scopes</div>
+                        <div class="detail-label">Methodology</div>
+                    </div>
+                </div>
+                <div class="framework-tags">
+                    <span class="tag voluntary">Voluntary</span>
+                    <span class="tag global">Global</span>
+                </div>
+                <div class="framework-actions">
+                    <button class="btn btn-primary">📊 Generate Report</button>
+                    <button class="btn btn-outline">📖 Documentation</button>
+                </div>
+            </div>
+
+            <!-- CDP -->
+            <div class="framework-card" data-type="disclosure" data-region="global" data-status="developing">
+                <div class="status-badge status-developing">In Development</div>
+                <div class="framework-header">
+                    <div class="framework-logo cdp">CDP</div>
+                    <div>
+                        <h3 class="framework-title">CDP (Carbon Disclosure Project)</h3>
+                        <div class="framework-type">Disclosure Framework</div>
+                    </div>
+                </div>
+                <p class="framework-description">
+                    Global disclosure system for companies and cities to manage their environmental impacts. Covers climate change, water security, and forests.
+                </p>
+                <div class="framework-details">
+                    <div class="detail-item">
+                        <div class="detail-value">13,000+</div>
+                        <div class="detail-label">Companies</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">A-D</div>
+                        <div class="detail-label">Scoring</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">Annual</div>
+                        <div class="detail-label">Reporting</div>
+                    </div>
+                </div>
+                <div class="framework-tags">
+                    <span class="tag voluntary">Voluntary</span>
+                    <span class="tag global">Global</span>
+                </div>
+                <div class="framework-actions">
+                    <button class="btn btn-primary">📋 CDP Report</button>
+                    <button class="btn btn-outline">🎯 Score Tracker</button>
+                </div>
+            </div>
+
+            <!-- GRI -->
+            <div class="framework-card" data-type="reporting" data-region="global" data-status="developing">
+                <div class="status-badge status-developing">In Development</div>
+                <div class="framework-header">
+                    <div class="framework-logo gri">GRI</div>
+                    <div>
+                        <h3 class="framework-title">GRI Standards</h3>
+                        <div class="framework-type">Reporting Standard</div>
+                    </div>
+                </div>
+                <p class="framework-description">
+                    Global standards for sustainability reporting that enable organizations to understand and communicate their impacts on the economy, environment and people.
+                </p>
+                <div class="framework-details">
+                    <div class="detail-item">
+                        <div class="detail-value">10,000+</div>
+                        <div class="detail-label">Users</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">40+</div>
+                        <div class="detail-label">Standards</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">Global</div>
+                        <div class="detail-label">Reach</div>
+                    </div>
+                </div>
+                <div class="framework-tags">
+                    <span class="tag voluntary">Voluntary</span>
+                    <span class="tag global">Global</span>
+                </div>
+                <div class="framework-actions">
+                    <button class="btn btn-primary">📄 GRI Report</button>
+                    <button class="btn btn-outline">✅ Gap Analysis</button>
+                </div>
+            </div>
+
+            <!-- SASB -->
+            <div class="framework-card" data-type="reporting" data-region="global" data-status="developing">
+                <div class="status-badge status-developing">In Development</div>
+                <div class="framework-header">
+                    <div class="framework-logo sasb">SASB</div>
+                    <div>
+                        <h3 class="framework-title">SASB Standards</h3>
+                        <div class="framework-type">Reporting Standard</div>
+                    </div>
+                </div>
+                <p class="framework-description">
+                    Industry-specific standards that identify the subset of environmental, social, and governance topics most relevant to financial performance.
+                </p>
+                <div class="framework-details">
+                    <div class="detail-item">
+                        <div class="detail-value">77</div>
+                        <div class="detail-label">Industries</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">450+</div>
+                        <div class="detail-label">Metrics</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">Financial</div>
+                        <div class="detail-label">Focus</div>
+                    </div>
+                </div>
+                <div class="framework-tags">
+                    <span class="tag voluntary">Voluntary</span>
+                    <span class="tag global">Global</span>
+                </div>
+                <div class="framework-actions">
+                    <button class="btn btn-primary">🏭 Industry Report</button>
+                    <button class="btn btn-outline">🔍 Metrics Finder</button>
+                </div>
+            </div>
+
+            <!-- TCFD -->
+            <div class="framework-card" data-type="disclosure" data-region="global" data-status="developing">
+                <div class="status-badge status-developing">In Development</div>
+                <div class="framework-header">
+                    <div class="framework-logo tcfd">TCFD</div>
+                    <div>
+                        <h3 class="framework-title">TCFD Recommendations</h3>
+                        <div class="framework-type">Disclosure Framework</div>
+                    </div>
+                </div>
+                <p class="framework-description">
+                    Task Force on Climate-related Financial Disclosures provides recommendations for consistent climate-related financial risk disclosures.
+                </p>
+                <div class="framework-details">
+                    <div class="detail-item">
+                        <div class="detail-value">4</div>
+                        <div class="detail-label">Pillars</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">11</div>
+                        <div class="detail-label">Disclosures</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">Risk</div>
+                        <div class="detail-label">Focus</div>
+                    </div>
+                </div>
+                <div class="framework-tags">
+                    <span class="tag voluntary">Voluntary</span>
+                    <span class="tag global">Global</span>
+                </div>
+                <div class="framework-actions">
+                    <button class="btn btn-primary">⚠️ Risk Report</button>
+                    <button class="btn btn-outline">🌡️ Scenario Analysis</button>
+                </div>
+            </div>
+
+            <!-- SBTi -->
+            <div class="framework-card" data-type="certification" data-region="global" data-status="developing">
+                <div class="status-badge status-developing">In Development</div>
+                <div class="framework-header">
+                    <div class="framework-logo sbt">SBTi</div>
+                    <div>
+                        <h3 class="framework-title">Science Based Targets initiative</h3>
+                        <div class="framework-type">Certification Standard</div>
+                    </div>
+                </div>
+                <p class="framework-description">
+                    Drives ambitious climate action in the private sector by enabling companies to set science-based emissions reduction targets.
+                </p>
+                <div class="framework-details">
+                    <div class="detail-item">
+                        <div class="detail-value">1.5°C</div>
+                        <div class="detail-label">Alignment</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">4,000+</div>
+                        <div class="detail-label">Companies</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">2030</div>
+                        <div class="detail-label">Target Year</div>
+                    </div>
+                </div>
+                <div class="framework-tags">
+                    <span class="tag voluntary">Voluntary</span>
+                    <span class="tag global">Global</span>
+                </div>
+                <div class="framework-actions">
+                    <button class="btn btn-primary">🎯 Target Setting</button>
+                    <button class="btn btn-outline">📈 Progress Tracker</button>
+                </div>
+            </div>
+
+            <!-- ISO 14064 -->
+            <div class="framework-card" data-type="certification" data-region="global" data-status="developing">
+                <div class="status-badge status-developing">In Development</div>
+                <div class="framework-header">
+                    <div class="framework-logo iso">ISO</div>
+                    <div>
+                        <h3 class="framework-title">ISO 14064</h3>
+                        <div class="framework-type">Certification Standard</div>
+                    </div>
+                </div>
+                <p class="framework-description">
+                    International standard for greenhouse gas accounting and verification at the organization level, providing credible measurement and reporting.
+                </p>
+                <div class="framework-details">
+                    <div class="detail-item">
+                        <div class="detail-value">3 Parts</div>
+                        <div class="detail-label">Structure</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">2018</div>
+                        <div class="detail-label">Latest</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">Global</div>
+                        <div class="detail-label">Standard</div>
+                    </div>
+                </div>
+                <div class="framework-tags">
+                    <span class="tag voluntary">Voluntary</span>
+                    <span class="tag global">Global</span>
+                </div>
+                <div class="framework-actions">
+                    <button class="btn btn-primary">🏅 Certification</button>
+                    <button class="btn btn-outline">✅ Verification</button>
+                </div>
+            </div>
+
+            <!-- EU CSRD -->
+            <div class="framework-card" data-type="regulatory" data-region="eu" data-status="developing">
+                <div class="status-badge status-developing">In Development</div>
+                <div class="framework-header">
+                    <div class="framework-logo eu">EU</div>
+                    <div>
+                        <h3 class="framework-title">EU CSRD</h3>
+                        <div class="framework-type">Regulatory Requirement</div>
+                    </div>
+                </div>
+                <p class="framework-description">
+                    Corporate Sustainability Reporting Directive requires large companies and listed SMEs to report on sustainability matters with mandatory assurance.
+                </p>
+                <div class="framework-details">
+                    <div class="detail-item">
+                        <div class="detail-value">2025</div>
+                        <div class="detail-label">Effective</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">50,000+</div>
+                        <div class="detail-label">Companies</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">EU</div>
+                        <div class="detail-label">Region</div>
+                    </div>
+                </div>
+                <div class="framework-tags">
+                    <span class="tag mandatory">Mandatory</span>
+                    <span class="tag regional">EU</span>
+                </div>
+                <div class="framework-actions">
+                    <button class="btn btn-primary">📋 Readiness Check</button>
+                    <button class="btn btn-outline">📅 Timeline</button>
+                </div>
+            </div>
+
+            <!-- SEC Climate Disclosure -->
+            <div class="framework-card" data-type="regulatory" data-region="us" data-status="developing">
+                <div class="status-badge status-developing">In Development</div>
+                <div class="framework-header">
+                    <div class="framework-logo sec">SEC</div>
+                    <div>
+                        <h3 class="framework-title">SEC Climate Disclosure</h3>
+                        <div class="framework-type">Regulatory Requirement</div>
+                    </div>
+                </div>
+                <p class="framework-description">
+                    US Securities and Exchange Commission proposed rules requiring public companies to disclose climate-related risks and greenhouse gas emissions.
+                </p>
+                <div class="framework-details">
+                    <div class="detail-item">
+                        <div class="detail-value">TBD</div>
+                        <div class="detail-label">Effective</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">Public</div>
+                        <div class="detail-label">Companies</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value">US</div>
+                        <div class="detail-label">Region</div>
+                    </div>
+                </div>
+                <div class="framework-tags">
+                    <span class="tag mandatory">Mandatory</span>
+                    <span class="tag regional">US</span>
+                </div>
+                <div class="framework-actions">
+                    <button class="btn btn-primary">📋 Preparation</button>
+                    <button class="btn btn-outline">📰 Updates</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Filter functionality
+        const typeFilter = document.getElementById('typeFilter');
+        const regionFilter = document.getElementById('regionFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const searchInput = document.getElementById('searchInput');
+        const frameworksGrid = document.getElementById('frameworksGrid');
+        const frameworkCards = document.querySelectorAll('.framework-card');
+
+        function filterFrameworks() {
+            const typeValue = typeFilter.value;
+            const regionValue = regionFilter.value;
+            const statusValue = statusFilter.value;
+            const searchValue = searchInput.value.toLowerCase();
+
+            frameworkCards.forEach(card => {
+                const cardType = card.dataset.type;
+                const cardRegion = card.dataset.region;
+                const cardStatus = card.dataset.status;
+                const cardText = card.textContent.toLowerCase();
+
+                const typeMatch = !typeValue || cardType === typeValue;
+                const regionMatch = !regionValue || cardRegion === regionValue;
+                const statusMatch = !statusValue || cardStatus === statusValue;
+                const searchMatch = !searchValue || cardText.includes(searchValue);
+
+                if (typeMatch && regionMatch && statusMatch && searchMatch) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        typeFilter.addEventListener('change', filterFrameworks);
+        regionFilter.addEventListener('change', filterFrameworks);
+        statusFilter.addEventListener('change', filterFrameworks);
+        searchInput.addEventListener('input', filterFrameworks);
+
+        // Button click handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const action = this.textContent.trim();
+                    alert(`"${action}" feature would be implemented in the full application.`);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

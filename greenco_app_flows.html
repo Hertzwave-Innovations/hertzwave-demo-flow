@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenCo Certification - HWCAP</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d5f4f 0%, #3d7f6f 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+        }
+
+        .user-info {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            display: flex;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            padding: 2rem 0;
+            position: fixed;
+            left: 0;
+            top: 70px;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #f5f5f5;
+        }
+
+        .nav-item.active {
+            background: #e8f5f1;
+            border-left-color: #3d7f6f;
+            color: #2d5f4f;
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding-top: 220px;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .progress-section {
+            position: fixed;
+            top: 70px;
+            left: 250px;
+            right: 0;
+            background: white;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 50;
+        }
+
+        .page-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header h1 {
+            color: #2d5f4f;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+            position: relative;
+        }
+
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #e0e0e0;
+            margin: 0 auto 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #999;
+            transition: all 0.3s;
+        }
+
+        .step.active .step-circle {
+            background: #3d7f6f;
+            border-color: #3d7f6f;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .step.completed .step-circle {
+            background: #4caf50;
+            border-color: #4caf50;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .step.active .step-label {
+            color: #2d5f4f;
+            font-weight: 600;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2d5f4f;
+        }
+
+        .form-group select,
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3d7f6f;
+            box-shadow: 0 0 0 3px rgba(61, 127, 111, 0.1);
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+            color: #155724;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+            color: #856404;
+        }
+
+        .greenco-details {
+            background: #f9f9f9;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .detail-value {
+            color: #2d5f4f;
+            font-weight: 500;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-star {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-auto {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-ai {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .badge-manual {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 4px solid #3d7f6f;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d5f4f;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .parameter-item {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .parameter-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .parameter-item.auto-filled {
+            border-color: #4caf50;
+            background: #f1f8f4;
+        }
+
+        .parameter-item.ai-assisted {
+            border-color: #2196f3;
+            background: #f0f7ff;
+        }
+
+        .parameter-item.manual-entry {
+            border-color: #ff9800;
+            background: #fff8f0;
+        }
+
+        .parameter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .parameter-title h3 {
+            color: #2d5f4f;
+            margin-bottom: 0.25rem;
+            font-size: 1.1rem;
+        }
+
+        .parameter-title p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .parameter-score {
+            text-align: right;
+        }
+
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d5f4f;
+        }
+
+        .score-max {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #3d7f6f;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2d5f4f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(61, 127, 111, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #3d7f6f;
+            border: 2px solid #3d7f6f;
+        }
+
+        .btn-secondary:hover {
+            background: #e8f5f1;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+            font-size: 1.1rem;
+            padding: 1rem 2rem;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .data-display {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            border: 1px solid #e0e0e0;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-row:last-child {
+            border-bottom: none;
+        }
+
+        .data-label {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .data-value {
+            font-weight: 600;
+            color: #2d5f4f;
+        }
+
+        .source-badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            background: #f0f0f0;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            color: #666;
+            margin-left: 0.5rem;
+        }
+
+        .ai-suggestion {
+            background: #e3f2fd;
+            border-left: 3px solid #2196f3;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .confidence-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .confidence-bar {
+            flex: 1;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: #4caf50;
+            transition: width 0.3s;
+        }
+
+        .confidence-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .edit-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+        }
+
+        .star-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .star {
+            font-size: 2rem;
+            color: #ddd;
+        }
+
+        .star.filled {
+            color: #ffd700;
+        }
+
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 1rem;
+            align-items: center;
+            padding: 1rem;
+            background: #f9f9f9;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .industry-benchmark {
+            background: #e8f5f1;
+            border-left: 4px solid #28a745;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .upload-zone {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-zone:hover {
+            border-color: #3d7f6f;
+            background: #f9f9f9;
+        }
+
+        .upload-zone.dragover {
+            border-color: #3d7f6f;
+            background: #e8f5f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">HWCAP | GreenCo Certification</div>
+        <div class="user-info">Kamesh | Administrator</div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="nav-item">Dashboard</div>
+            <div class="nav-item">Add Data</div>
+            <div class="nav-item">Import/Export</div>
+            <div class="nav-item active">GreenCo Assessment</div>
+            <div class="nav-item">Reports</div>
+        </div>
+
+        <!-- Fixed Progress Section -->
+        <div class="progress-section">
+            <div class="page-header">
+                <h1 id="step-title">Company Configuration</h1>
+                <p id="step-description">Configure your company profile for GreenCo assessment</p>
+            </div>
+
+            <div class="step-indicator">
+                <div class="step active" onclick="goToStep(1)">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Company Configuration</div>
+                </div>
+                <div class="step" onclick="goToStep(2)">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Parameter Data Collection</div>
+                </div>
+                <div class="step" onclick="goToStep(3)">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Scoring & Validation</div>
+                </div>
+                <div class="step" onclick="goToStep(4)">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Assessment Report</div>
+                </div>
+                <div class="step" onclick="goToStep(5)">
+                    <div class="step-circle">5</div>
+                    <div class="step-label">CII Submission</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scrollable Content Area -->
+        <div class="main-content">
+            
+            <!-- STEP 1: Company Configuration -->
+            <div id="step1" class="content-section active">
+                <div class="info-box">
+                    <strong>CII GreenCo Certification</strong><br>
+                    Configure your company profile and assessment parameters. GreenCo evaluates environmental performance across 10 comprehensive parameters beyond traditional carbon accounting, including water management, air quality, waste management, and green infrastructure.
+                </div>
+
+                <div class="content-card">
+                    <div class="form-group">
+                        <label for="company-sector">Company Sector</label>
+                        <select id="company-sector" onchange="updateSectorDetails()">
+                            <option value="">-- Select your sector --</option>
+                            <option value="manufacturing" selected>Manufacturing</option>
+                            <option value="service">Service</option>
+                            <option value="automotive">Automotive</option>
+                            <option value="chemicals">Chemicals & Petrochemicals</option>
+                            <option value="textiles">Textiles</option>
+                            <option value="food">Food & Beverages</option>
+                            <option value="pharma">Pharmaceuticals</option>
+                            <option value="it">IT & Software</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="assessment-year">Assessment Year</label>
+                        <select id="assessment-year">
+                            <option value="2024-25" selected>FY 2024-25</option>
+                            <option value="2023-24">FY 2023-24</option>
+                            <option value="2022-23">FY 2022-23</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="baseline-year">Baseline Year (for improvement tracking)</label>
+                        <select id="baseline-year">
+                            <option value="2021-22" selected>FY 2021-22</option>
+                            <option value="2020-21">FY 2020-21</option>
+                            <option value="2019-20">FY 2019-20</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="production-unit">Production Unit (for intensity calculations)</label>
+                        <input type="text" id="production-unit" placeholder="e.g., MT, Units, KL, Sq.ft, etc." value="MT">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="annual-production">Annual Production Volume</label>
+                        <input type="number" id="annual-production" placeholder="Enter annual production" value="125000">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="target-stars">Target Star Rating</label>
+                        <select id="target-stars">
+                            <option value="1">1 Star (50-59 points)</option>
+                            <option value="2" selected>2 Star (60-69 points)</option>
+                            <option value="3">3 Star (70-79 points)</option>
+                            <option value="4">4 Star (80+ points)</option>
+                        </select>
+                    </div>
+
+                    <div id="sector-details" class="greenco-details">
+                        <!-- Sector details will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="goToStep(2)">Continue to Data Collection →</button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Parameter Data Collection -->
+            <div id="step2" class="content-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">65%</div>
+                        <div class="stat-label">Auto-Populated</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">7/10</div>
+                        <div class="stat-label">Parameters Complete</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">68</div>
+                        <div class="stat-label">Current Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">⭐⭐</div>
+                        <div class="stat-label">Projected Rating</div>
+                    </div>
+                </div>
+
+                <div class="success-box">
+                    <strong>HWCAP Integration Active:</strong> Environmental data from existing scope tracking has pre-populated energy, emissions, and waste parameters. Review AI-suggested values and upload supporting documents for remaining parameters.
+                </div>
+
+                <!-- Parameter 1: Energy Efficiency -->
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1rem;">Parameter 1: Energy Efficiency (25 points)</h2>
+                    <p style="color: #666; margin-bottom: 1.5rem;">Energy consumption, renewable adoption, and efficiency improvements</p>
+
+                    <div class="parameter-item auto-filled">
+                        <div class="parameter-header">
+                            <div class="parameter-title">
+                                <h3>Energy Consumption Intensity</h3>
+                                <p>Total energy per unit production (kWh/MT)</p>
+                            </div>
+                            <div class="parameter-score">
+                                <div class="score-value">8.5</div>
+                                <div class="score-max">/ 10 points</div>
+                            </div>
+                            <span class="badge badge-auto">✓ Auto-Populated</span>
+                        </div>
+
+                        <div class="data-display">
+                            <div class="data-row">
+                                <span class="data-label">Total Energy Consumption:</span>
+                                <span class="data-value">1,704,600 GJ <span class="source-badge">From Scope 1 & 2</span></span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Annual Production:</span>
+                                <span class="data-value">125,000 MT</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Energy Intensity:</span>
+                                <span class="data-value">3.79 GJ/MT</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Industry Benchmark:</span>
+                                <span class="data-value">4.2 GJ/MT <span class="source-badge">Above Average</span></span>
+                            </div>
+                        </div>
+
+                        <div class="industry-benchmark">
+                            <strong>Benchmark Analysis:</strong> Your energy intensity is 10% better than industry average. Consider implementing ISO 50001 energy management system to achieve 3-star rating benchmark of 3.5 GJ/MT.
+                        </div>
+
+                        <div class="edit-controls">
+                            <button class="btn btn-success btn-sm">✓ Approve Data</button>
+                            <button class="btn btn-secondary btn-sm">Edit Values</button>
+                        </div>
+                    </div>
+
+                    <div class="parameter-item ai-assisted">
+                        <div class="parameter-header">
+                            <div class="parameter-title">
+                                <h3>Renewable Energy Adoption</h3>
+                                <p>Percentage of energy from renewable sources</p>
+                            </div>
+                            <div class="parameter-score">
+                                <div class="score-value">6.0</div>
+                                <div class="score-max">/ 8 points</div>
+                            </div>
+                            <span class="badge badge-ai">🤖 AI-Assisted</span>
+                        </div>
+
+                        <div class="ai-suggestion">
+                            <strong>AI-Generated Analysis:</strong>
+                            <p style="margin-top: 0.5rem; line-height: 1.6;">
+                                Based on your electricity consumption data and renewable energy certificates (RECs), your current renewable energy share is 14.4%. To achieve 3-star rating, consider increasing to 20% through on-site solar installations or additional REC purchases. Estimated additional investment: ₹2.5 crores for rooftop solar.
+                            </p>
+                            
+                            <div class="confidence-indicator">
+                                <span class="confidence-label">AI Confidence:</span>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 89%;"></div>
+                                </div>
+                                <span class="confidence-label">89%</span>
+                            </div>
+                        </div>
+
+                        <div class="data-display">
+                            <div class="data-row">
+                                <span class="data-label">Total Electricity:</span>
+                                <span class="data-value">156,500 MWh</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Renewable Energy:</span>
+                                <span class="data-value">22,500 MWh</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Renewable %:</span>
+                                <span class="data-value">14.4%</span>
+                            </div>
+                        </div>
+
+                        <div class="edit-controls">
+                            <button class="btn btn-success btn-sm">✓ Approve Analysis</button>
+                            <button class="btn btn-secondary btn-sm">Edit Data</button>
+                            <button class="btn btn-secondary btn-sm">🔄 Regenerate</button>
+                        </div>
+                    </div>
+
+                    <div class="parameter-item manual-entry">
+                        <div class="parameter-header">
+                            <div class="parameter-title">
+                                <h3>Energy Management System</h3>
+                                <p>ISO 50001 certification and implementation</p>
+                            </div>
+                            <div class="parameter-score">
+                                <div class="score-value">0</div>
+                                <div class="score-max">/ 4 points</div>
+                            </div>
+                            <span class="badge badge-manual">📝 Manual Entry Required</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>ISO 50001 Certification Status</label>
+                            <select>
+                                <option value="">-- Select status --</option>
+                                <option value="certified">Certified</option>
+                                <option value="in-progress">Certification in progress</option>
+                                <option value="planned">Planned for implementation</option>
+                                <option value="not-applicable">Not applicable</option>
+                            </select>
+                        </div>
+
+                        <div class="upload-zone" onclick="document.getElementById('iso50001-upload').click()">
+                            <p>📄 Upload ISO 50001 Certificate</p>
+                            <p style="font-size: 0.9rem; color: #666;">PDF, JPG, PNG (Max 10MB)</p>
+                            <input type="file" id="iso50001-upload" style="display: none;" accept=".pdf,.jpg,.jpeg,.png">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parameter 2: Water Management -->
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1rem;">Parameter 2: Water Management (15 points)</h2>
+                    <p style="color: #666; margin-bottom: 1.5rem;">Water consumption, recycling, rainwater harvesting, and treatment</p>
+
+                    <div class="parameter-item manual-entry">
+                        <div class="parameter-header">
+                            <div class="parameter-title">
+                                <h3>Water Consumption Intensity</h3>
+                                <p>Total water consumption per unit production (KL/MT)</p>
+                            </div>
+                            <div class="parameter-score">
+                                <div class="score-value">0</div>
+                                <div class="score-max">/ 6 points</div>
+                            </div>
+                            <span class="badge badge-manual">📝 Manual Entry Required</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Annual Water Consumption (KL)</label>
+                            <input type="number" placeholder="Enter total water consumption">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Water Recycling & Reuse (%)</label>
+                            <input type="number" placeholder="Enter recycling percentage" max="100">
+                        </div>
+
+                        <div class="upload-zone">
+                            <p>📄 Upload Water Bills & Treatment Reports</p>
+                            <p style="font-size: 0.9rem; color: #666;">Multiple files accepted</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parameter 3: Waste Management -->
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1rem;">Parameter 3: Waste Management (15 points)</h2>
+                    <p style="color: #666; margin-bottom: 1.5rem;">Waste generation, recycling, hazardous waste, and zero waste initiatives</p>
+
+                    <div class="parameter-item auto-filled">
+                        <div class="parameter-header">
+                            <div class="parameter-title">
+                                <h3>Waste Generation Intensity</h3>
+                                <p>Total waste per unit production (kg/MT)</p>
+                            </div>
+                            <div class="parameter-score">
+                                <div class="score-value">7.0</div>
+                                <div class="score-max">/ 8 points</div>
+                            </div>
+                            <span class="badge badge-auto">✓ Auto-Populated</span>
+                        </div>
+
+                        <div class="data-display">
+                            <div class="data-row">
+                                <span class="data-label">Total Waste Generated:</span>
+                                <span class="data-value">2,850 MT <span class="source-badge">From Scope 3.5</span></span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Recycled Waste:</span>
+                                <span class="data-value">2,280 MT (80%)</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Waste Intensity:</span>
+                                <span class="data-value">22.8 kg/MT</span>
+                            </div>
+                        </div>
+
+                        <div class="edit-controls">
+                            <button class="btn btn-success btn-sm">✓ Approve Data</button>
+                            <button class="btn btn-secondary btn-sm">View Details</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parameter 4: Air Quality & Emissions (Auto-populated) -->
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1rem;">Parameter 4: Air Quality & Emissions (20 points)</h2>
+                    <p style="color: #666; margin-bottom: 1.5rem;">GHG emissions, air pollutants, and emission monitoring</p>
+
+                    <div class="parameter-item auto-filled">
+                        <div class="parameter-header">
+                            <div class="parameter-title">
+                                <h3>GHG Emissions Intensity</h3>
+                                <p>Total emissions per unit production (tCO₂e/MT)</p>
+                            </div>
+                            <div class="parameter-score">
+                                <div class="score-value">15.5</div>
+                                <div class="score-max">/ 20 points</div>
+                            </div>
+                            <span class="badge badge-auto">✓ Auto-Populated</span>
+                        </div>
+
+                        <div class="data-display">
+                            <div class="data-row">
+                                <span class="data-label">Total GHG Emissions:</span>
+                                <span class="data-value">107,410 tCO₂e <span class="source-badge">All Scopes</span></span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Scope 1:</span>
+                                <span class="data-value">45,230 tCO₂e</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Scope 2 (Market-based):</span>
+                                <span class="data-value">62,180 tCO₂e</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Emissions Intensity:</span>
+                                <span class="data-value">0.86 tCO₂e/MT</span>
+                            </div>
+                        </div>
+
+                        <div class="edit-controls">
+                            <button class="btn btn-success btn-sm">✓ Approve Data</button>
+                            <button class="btn btn-secondary btn-sm">View Breakdown</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remaining parameters collapsed for brevity -->
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1rem;">Remaining Parameters (5-10)</h2>
+                    <div class="score-breakdown">
+                        <div><strong>Parameter 5: Material Resource Efficiency</strong></div>
+                        <div>6.5 / 10 points</div>
+                        <div><span class="badge badge-ai">🤖 AI-Assisted</span></div>
+                    </div>
+                    <div class="score-breakdown">
+                        <div><strong>Parameter 6: Green Infrastructure</strong></div>
+                        <div>0 / 8 points</div>
+                        <div><span class="badge badge-manual">📝 Manual Entry</span></div>
+                    </div>
+                    <div class="score-breakdown">
+                        <div><strong>Parameter 7: Innovation in Environmental Management</strong></div>
+                        <div>0 / 3 points</div>
+                        <div><span class="badge badge-manual">📝 Manual Entry</span></div>
+                    </div>
+                    <div class="score-breakdown">
+                        <div><strong>Parameter 8: Environmental Impact Assessment</strong></div>
+                        <div>1.5 / 2 points</div>
+                        <div><span class="badge badge-ai">🤖 AI-Assisted</span></div>
+                    </div>
+                    <div class="score-breakdown">
+                        <div><strong>Parameter 9: Environmental Management System</strong></div>
+                        <div>0 / 1 points</div>
+                        <div><span class="badge badge-manual">📝 Manual Entry</span></div>
+                    </div>
+                    <div class="score-breakdown">
+                        <div><strong>Parameter 10: Corporate Environmental Responsibility</strong></div>
+                        <div>0.5 / 1 points</div>
+                        <div><span class="badge badge-ai">🤖 AI-Assisted</span></div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(1)">← Back</button>
+                    <button class="btn btn-secondary">Complete Remaining (3)</button>
+                    <button class="btn btn-primary" onclick="goToStep(3)">Continue to Scoring →</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Scoring & Validation -->
+            <div id="step3" class="content-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">68.5</div>
+                        <div class="stat-label">Total Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">⭐⭐</div>
+                        <div class="stat-label">Current Rating</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">7/10</div>
+                        <div class="stat-label">Parameters Complete</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">11.5</div>
+                        <div class="stat-label">Points to 3-Star</div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1.5rem;">GreenCo Scoring Analysis</h2>
+                    
+                    <div class="star-rating">
+                        <span class="star filled">★</span>
+                        <span class="star filled">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span style="margin-left: 1rem; font-size: 1.2rem; font-weight: 600; color: #2d5f4f;">2-Star Rating (68.5/100 points)</span>
+                    </div>
+
+                    <div style="margin: 2rem 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span>Current Score</span>
+                            <span><strong>68.5 / 100</strong></span>
+                        </div>
+                        <div style="width: 100%; height: 20px; background: #e0e0e0; border-radius: 10px; overflow: hidden;">
+                            <div style="width: 68.5%; height: 100%; background: linear-gradient(90deg, #ffc107 0%, #28a745 70%, #007bff 100%);"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 0.5rem; color: #666;">
+                            <span>1★ (50)</span>
+                            <span>2★ (60)</span>
+                            <span>3★ (70)</span>
+                            <span>4★ (80)</span>
+                        </div>
+                    </div>
+
+                    <div class="industry-benchmark">
+                        <strong>Industry Benchmark:</strong> Your score of 68.5 is above the manufacturing sector average of 61.2. You're 1.5 points above 2-star minimum and 11.5 points from 3-star rating.
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1.5rem;">Parameter-wise Score Breakdown</h2>
+                    
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: #f9f9f9; border-radius: 6px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <strong style="color: #2d5f4f;">Parameter 1: Energy Efficiency</strong>
+                            <span><strong>22.5/25</strong> <span class="badge badge-success">Excellent</span></span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            Strong performance in energy intensity and renewable adoption
+                        </div>
+                        <div style="margin-top: 0.5rem; font-size: 0.85rem;">
+                            <span class="badge badge-auto">Auto-populated</span>
+                            <span class="badge badge-ai">AI-enhanced</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: #f9f9f9; border-radius: 6px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <strong style="color: #2d5f4f;">Parameter 2: Water Management</strong>
+                            <span><strong>8.0/15</strong> <span class="badge" style="background: #fff3cd; color: #856404;">Good</span></span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            Water recycling percentage is above average, but intensity can be improved
+                        </div>
+                        <div style="margin-top: 0.5rem; font-size: 0.85rem;">
+                            <span class="badge badge-manual">Manual entry</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: #f9f9f9; border-radius: 6px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <strong style="color: #2d5f4f;">Parameter 3: Waste Management</strong>
+                            <span><strong>12.0/15</strong> <span class="badge badge-success">Excellent</span></span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            High recycling rate and low waste intensity
+                        </div>
+                        <div style="margin-top: 0.5rem; font-size: 0.85rem;">
+                            <span class="badge badge-auto">Auto-populated</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: #f9f9f9; border-radius: 6px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <strong style="color: #2d5f4f;">Parameter 4: Air Quality & Emissions</strong>
+                            <span><strong>15.5/20</strong> <span class="badge badge-success">Good</span></span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            GHG emissions intensity below industry benchmark
+                        </div>
+                        <div style="margin-top: 0.5rem; font-size: 0.85rem;">
+                            <span class="badge badge-auto">Auto-populated</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: #fff3cd; border-radius: 6px; border: 2px solid #ffc107;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <strong style="color: #856404;">Parameters 5-10: Remaining Categories</strong>
+                            <span><strong>10.5/25</strong> <span style="padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600; background: #fff3cd; color: #856404;">Needs Improvement</span></span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            3 parameters incomplete. Significant opportunity for improvement.
+                        </div>
+                        <div style="margin-top: 0.75rem; color: #856404; font-size: 0.9rem;">
+                            ⚠️ Complete missing parameters to reach 3-star rating
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1.5rem;">AI Recommendations for 3-Star Rating</h2>
+                    
+                    <div class="ai-suggestion">
+                        <strong>Quick Wins (8.5 additional points possible):</strong>
+                        <ul style="margin-top: 0.5rem; margin-left: 1.5rem; line-height: 1.6;">
+                            <li><strong>Green Infrastructure (5 points):</strong> Obtain IGBC/GRIHA green building certification for main facility</li>
+                            <li><strong>Environmental Management System (1 point):</strong> ISO 14001 certification documentation</li>
+                            <li><strong>Innovation Projects (2.5 points):</strong> Document existing R&D investments in clean technology</li>
+                        </ul>
+                        
+                        <div style="margin-top: 1rem; padding: 1rem; background: #e8f5f1; border-radius: 4px;">
+                            <strong>Investment Required:</strong> ₹15-25 lakhs for green building certification + ISO 14001 implementation
+                            <br><strong>Timeline:</strong> 6-8 months to complete
+                            <br><strong>Projected Score:</strong> 77 points (3-star rating)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Data Quality:</strong> All auto-populated parameters validated. Manual entries require document verification. AI confidence average: 86%.
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(2)">← Back</button>
+                    <button class="btn btn-secondary">Download Gap Analysis</button>
+                    <button class="btn btn-primary" onclick="goToStep(4)">Continue to Report →</button>
+                </div>
+            </div>
+
+            <!-- STEP 4: Assessment Report -->
+            <div id="step4" class="content-section">
+                <div class="content-card" style="min-height: 600px; background: #f9f9f9; border: 2px dashed #ccc;">
+                    <div style="text-align: center; padding: 3rem;">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">📋</div>
+                        <h2 style="color: #2d5f4f; margin-bottom: 1rem;">GreenCo Assessment Report Preview</h2>
+                        <p style="color: #666; margin-bottom: 2rem;">Interactive PDF preview will appear here</p>
+                        
+                        <div style="background: white; padding: 2rem; border-radius: 8px; max-width: 600px; margin: 0 auto; text-align: left;">
+                            <h3 style="color: #2d5f4f; margin-bottom: 1rem;">Report Summary</h3>
+                            <p><strong>Assessment Framework:</strong> CII GreenCo Certification</p>
+                            <p><strong>Assessment Year:</strong> FY 2024-25</p>
+                            <p><strong>Company Sector:</strong> Manufacturing</p>
+                            <p><strong>Total Score:</strong> 68.5 / 100 points</p>
+                            <p><strong>Star Rating:</strong> ⭐⭐ (2-Star)</p>
+                            <p><strong>Industry Ranking:</strong> Above Average</p>
+                            <p><strong>Parameters Completed:</strong> 7/10</p>
+                            <p><strong>Evidence Documents:</strong> 12 uploaded</p>
+                            <p><strong>Total Pages:</strong> 28</p>
+                            <p><strong>Generated:</strong> October 20, 2025</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1rem;">Report Sections</h2>
+                    <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 6px;">
+                        <div class="detail-row">
+                            <span class="detail-label">1. Executive Summary</span>
+                            <span class="detail-value">Company profile, score, and rating</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">2. Parameter-wise Assessment</span>
+                            <span class="detail-value">Detailed analysis of all 10 parameters</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">3. Industry Benchmarking</span>
+                            <span class="detail-value">Peer comparison and ranking</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">4. Improvement Recommendations</span>
+                            <span class="detail-value">AI-powered gap analysis and action plan</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">5. Supporting Evidence</span>
+                            <span class="detail-value">Document index and verification status</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">6. Data Sources & Methodology</span>
+                            <span class="detail-value">Auto-population sources and calculations</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(3)">← Back</button>
+                    <button class="btn btn-secondary">Edit Assessment</button>
+                    <button class="btn btn-primary" onclick="goToStep(5)">Proceed to Submission →</button>
+                </div>
+            </div>
+
+            <!-- STEP 5: CII Submission -->
+            <div id="step5" class="content-section">
+                <div class="success-box">
+                    <strong>Assessment Ready for CII Submission</strong><br>
+                    Your GreenCo assessment has been validated and is ready for submission to CII GreenCo portal. Current score: 68.5 points (2-star rating).
+                </div>
+
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1rem;">Final Assessment Summary</h2>
+                    <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 6px;">
+                        <div class="detail-row">
+                            <span class="detail-label">Assessment Type:</span>
+                            <span class="detail-value">CII GreenCo Certification</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Total Score:</span>
+                            <span class="detail-value">68.5 / 100 points</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Star Rating:</span>
+                            <span class="detail-value">⭐⭐ (2-Star Certified) <span class="badge badge-success">Above Average</span></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Parameters Completed:</span>
+                            <span class="detail-value">7/10 (3 pending for higher rating)</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Evidence Documents:</span>
+                            <span class="detail-value">12 uploaded, all verified</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Data Quality Score:</span>
+                            <span class="detail-value">Grade A (94%)</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Industry Ranking:</span>
+                            <span class="detail-value">Top 25% in Manufacturing Sector</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1.5rem;">CII Portal Submission</h2>
+                    
+                    <div class="form-group">
+                        <label>CII Member ID</label>
+                        <input type="text" value="CII/MFG/2024/KAR/1234" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Authorized Signatory</label>
+                        <select>
+                            <option selected>Kamesh - MD & CEO</option>
+                            <option>Priya Sharma - Sustainability Head</option>
+                            <option>Rajesh Kumar - Plant Manager</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Assessment Declaration</label>
+                        <div style="padding: 1rem; background: #f9f9f9; border-radius: 6px; margin-top: 0.5rem;">
+                            <input type="checkbox" id="declaration" checked> 
+                            <label for="declaration" style="display: inline; font-weight: 400; margin-left: 0.5rem;">
+                                I hereby declare that the information provided in this GreenCo assessment is true and accurate to the best of my knowledge. All supporting documents are authentic and verifiable.
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1.5rem;">Assessment Package</h2>
+                    
+                    <div style="padding: 1rem; background: #f9f9f9; margin-bottom: 1rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="color: #2d5f4f;">GreenCo_Assessment_Report_2024-25.pdf</strong>
+                            <div style="font-size: 0.85rem; color: #666;">28 pages • 3.2 MB</div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm">Preview</button>
+                    </div>
+
+                    <div style="padding: 1rem; background: #f9f9f9; margin-bottom: 1rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="color: #2d5f4f;">Evidence_Documents_Package.zip</strong>
+                            <div style="font-size: 0.85rem; color: #666;">12 files • 15.7 MB</div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm">Download</button>
+                    </div>
+
+                    <div style="padding: 1rem; background: #f9f9f9; margin-bottom: 1rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="color: #2d5f4f;">Data_Validation_Report.xlsx</strong>
+                            <div style="font-size: 0.85rem; color: #666;">3 sheets • 892 KB</div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm">Download</button>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Important:</strong> Once submitted to CII, the assessment cannot be modified. Ensure all data is accurate and all required documents are uploaded. Assessment validity: 3 years from certification date.
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(4)">← Back</button>
+                    <button class="btn btn-secondary">Save Draft</button>
+                    <button class="btn btn-success" onclick="submitToCII()">🚀 Submit to CII Portal</button>
+                </div>
+
+                <!-- Submission Success Section (hidden initially) -->
+                <div id="submission-section" style="display: none; margin-top: 2rem;">
+                    <div class="success-box">
+                        <strong>✓ Successfully Submitted to CII GreenCo Portal!</strong><br>
+                        Your assessment has been submitted for review. Reference ID: <strong>GC/2024/MFG/1234567</strong>
+                    </div>
+                    
+                    <div class="content-card">
+                        <h3 style="color: #2d5f4f; margin-bottom: 1rem;">Next Steps</h3>
+                        <div style="padding: 1rem; background: #f9f9f9; border-radius: 6px;">
+                            <p><strong>1. CII Review Process:</strong> 4-6 weeks</p>
+                            <p><strong>2. Site Verification (if required):</strong> 2-3 weeks</p>
+                            <p><strong>3. Certificate Issuance:</strong> 1-2 weeks</p>
+                            <p><strong>4. Total Timeline:</strong> 7-11 weeks</p>
+                        </div>
+                        
+                        <div style="margin-top: 1rem;">
+                            <button class="btn btn-primary">Track Submission Status</button>
+                            <button class="btn btn-secondary">Download Receipt</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        
+        const sectorData = {
+            'manufacturing': {
+                title: 'Manufacturing Sector',
+                description: 'Comprehensive environmental assessment for manufacturing companies',
+                benchmarks: {
+                    'energy_intensity': '4.2 GJ/MT',
+                    'water_intensity': '8.5 KL/MT',
+                    'waste_intensity': '25 kg/MT',
+                    'emissions_intensity': '1.2 tCO₂e/MT'
+                },
+                focus_areas: [
+                    'Energy efficiency and renewable adoption',
+                    'Water conservation and recycling',
+                    'Waste minimization and circular economy',
+                    'Air quality management and emission control',
+                    'Green infrastructure and sustainable practices'
+                ]
+            },
+            'service': {
+                title: 'Service Sector',
+                description: 'Environmental performance assessment for service companies',
+                benchmarks: {
+                    'energy_intensity': '2.1 GJ/Employee',
+                    'water_intensity': '12 KL/Employee',
+                    'waste_intensity': '150 kg/Employee',
+                    'emissions_intensity': '3.5 tCO₂e/Employee'
+                },
+                focus_areas: [
+                    'Green building certifications',
+                    'Digital transformation for sustainability',
+                    'Employee commute optimization',
+                    'Sustainable procurement practices',
+                    'Environmental awareness programs'
+                ]
+            }
+        };
+
+        function goToStep(step) {
+            if (step > currentStep + 1) return; // Prevent skipping ahead
+            
+            currentStep = step;
+            
+            // Update step indicator
+            document.querySelectorAll('.step').forEach((el, idx) => {
+                el.classList.remove('active', 'completed');
+                if (idx + 1 < step) {
+                    el.classList.add('completed');
+                    el.querySelector('.step-circle').textContent = '✓';
+                } else if (idx + 1 === step) {
+                    el.classList.add('active');
+                    el.querySelector('.step-circle').textContent = idx + 1;
+                } else {
+                    el.querySelector('.step-circle').textContent = idx + 1;
+                }
+            });
+            
+            // Update content sections
+            document.querySelectorAll('.content-section').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById('step' + step).classList.add('active');
+            
+            // Update page title
+            const titles = {
+                1: { title: 'Company Configuration', desc: 'Configure your company profile for GreenCo assessment' },
+                2: { title: 'Parameter Data Collection', desc: 'Review auto-populated data and complete environmental parameters' },
+                3: { title: 'Scoring & Validation', desc: 'Verify scoring and identify improvement opportunities' },
+                4: { title: 'Assessment Report', desc: 'Review comprehensive GreenCo assessment report' },
+                5: { title: 'CII Submission', desc: 'Submit assessment to CII GreenCo portal' }
+            };
+            document.getElementById('step-title').textContent = titles[step].title;
+            document.getElementById('step-description').textContent = titles[step].desc;
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        function updateSectorDetails() {
+            const select = document.getElementById('company-sector');
+            const value = select.value;
+            const details = document.getElementById('sector-details');
+            
+            if (value && sectorData[value]) {
+                const sector = sectorData[value];
+                details.innerHTML = `
+                    <h3 style="color: #2d5f4f; margin-bottom: 1rem;">${sector.title}</h3>
+                    <p style="color: #666; margin-bottom: 1rem;">${sector.description}</p>
+                    
+                    <h4 style="color: #2d5f4f; margin-bottom: 0.75rem;">Industry Benchmarks:</h4>
+                    <div class="detail-row">
+                        <span class="detail-label">Energy Intensity:</span>
+                        <span class="detail-value">${sector.benchmarks.energy_intensity}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Water Intensity:</span>
+                        <span class="detail-value">${sector.benchmarks.water_intensity}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Waste Intensity:</span>
+                        <span class="detail-value">${sector.benchmarks.waste_intensity}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Emissions Intensity:</span>
+                        <span class="detail-value">${sector.benchmarks.emissions_intensity}</span>
+                    </div>
+                    
+                    <h4 style="color: #2d5f4f; margin-bottom: 0.75rem; margin-top: 1.5rem;">Key Focus Areas:</h4>
+                    ${sector.focus_areas.map(area => `<div style="padding: 0.5rem; background: white; border-left: 3px solid #3d7f6f; border-radius: 4px; margin-bottom: 0.5rem;">${area}</div>`).join('')}
+                `;
+            }
+        }
+
+        function submitToCII() {
+            alert('Submitting to CII GreenCo Portal... This will take 2-3 minutes.');
+            setTimeout(() => {
+                document.getElementById('submission-section').style.display = 'block';
+                document.getElementById('submission-section').scrollIntoView({ behavior: 'smooth' });
+            }, 3000);
+        }
+
+        // Initialize with manufacturing sector selected
+        updateSectorDetails();
+
+        // File upload handlers
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadZones = document.querySelectorAll('.upload-zone');
+            
+            uploadZones.forEach(zone => {
+                zone.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('dragover');
+                });
+                
+                zone.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                });
+                
+                zone.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('dragover');
+                    // Handle file upload logic here
+                    const files = e.dataTransfer.files;
+                    console.log('Files dropped:', files);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

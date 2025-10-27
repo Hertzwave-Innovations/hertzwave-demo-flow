@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HWCAP - Data Import & Export</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --hz-primary: #4A7C59;
+            --hz-primary-700: #355b3f;
+            --hz-primary-50: #E9F1EC;
+            --hz-mint: #A8E6A3;
+            --hz-dark: #2F4F3F;
+            --ink: #22302A;
+            --subtle: #5B6E64;
+            --bg: #F6F7F4;
+            --card: #FFFFFF;
+            --stroke: #E5E9E6;
+            --success: #48BB78;
+            --warning: #F6AD55;
+            --danger: #E53E3E;
+            --info: #4299E1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: var(--hz-primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--hz-mint);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--hz-dark);
+            font-weight: 700;
+        }
+
+        /* Layout */
+        .layout {
+            display: flex;
+            margin-top: 64px;
+            min-height: calc(100vh - 64px);
+        }
+
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid var(--stroke);
+            padding: 1.5rem 0;
+            position: fixed;
+            left: 0;
+            top: 64px;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            padding: 0 1.5rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--subtle);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--ink);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            gap: 12px;
+        }
+
+        .nav-item:hover {
+            background: var(--hz-primary-50);
+            color: var(--hz-primary);
+        }
+
+        .nav-item.active {
+            background: var(--hz-primary-50);
+            color: var(--hz-primary);
+            border-left-color: var(--hz-primary);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--subtle);
+            font-size: 1rem;
+        }
+
+        /* Import/Export Grid */
+        .import-export-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .import-section, .export-section {
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--hz-primary-50);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .section-description {
+            color: var(--subtle);
+            margin-bottom: 2rem;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed var(--stroke);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: #fafafa;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: var(--hz-primary);
+            background: var(--hz-primary-50);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--hz-primary);
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-help {
+            font-size: 0.875rem;
+            color: var(--subtle);
+        }
+
+        /* Download Area */
+        .download-area {
+            background: var(--hz-primary-50);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .download-icon {
+            font-size: 3rem;
+            color: var(--hz-primary);
+            margin-bottom: 1rem;
+        }
+
+        .download-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 0.5rem;
+        }
+
+        .download-help {
+            font-size: 0.875rem;
+            color: var(--subtle);
+            margin-bottom: 1rem;
+        }
+
+        .download-status {
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 6px;
+            padding: 1rem;
+            font-size: 0.875rem;
+            color: var(--subtle);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--hz-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--hz-primary-700);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--hz-primary);
+            border: 2px solid var(--hz-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--hz-primary-50);
+        }
+
+        /* Columns Info */
+        .columns-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .column-group {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .column-title {
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 1rem;
+        }
+
+        .column-list {
+            list-style: none;
+        }
+
+        .column-list li {
+            padding: 0.25rem 0;
+            font-size: 0.875rem;
+            color: var(--subtle);
+        }
+
+        .column-list li strong {
+            color: var(--ink);
+        }
+
+        /* Export Options */
+        .export-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .option-group {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .option-title {
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 1rem;
+        }
+
+        .option-list {
+            list-style: none;
+        }
+
+        .option-list li {
+            padding: 0.25rem 0;
+            font-size: 0.875rem;
+            color: var(--subtle);
+        }
+
+        @media (max-width: 1024px) {
+            .import-export-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .columns-info, .export-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                margin-left: 260px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">🌱</div>
+            HWCAP
+        </div>
+        <div class="user-menu">
+            <div class="user-avatar">A</div>
+            <span>Kamesh | Administrator</span>
+        </div>
+    </div>
+
+    <div class="layout">
+        <nav class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">Overview</div>
+                <a href="hwcap_dashboard.html" class="nav-item">
+                    <div class="nav-icon">📊</div>
+                    Dashboard
+                </a>
+                <a href="analytics-insights.html" class="nav-item">
+                    <div class="nav-icon">📈</div>
+                    Analytics & Insights
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Data Management</div>
+                <a href="add-data.html" class="nav-item">
+                    <div class="nav-icon">➕</div>
+                    Add Data
+                </a>
+                <a href="#" class="nav-item active">
+                    <div class="nav-icon">📥</div>
+                    Import/Export
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">✅</div>
+                    Data Quality
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Emissions Tracking</div>
+                <a href="goals-tracking.html" class="nav-item">
+                    <div class="nav-icon">🎯</div>
+                    Targets & Goals
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Reports & Compliance</div>
+                <a href="HW-Reports-Application-Flow.html" class="nav-item">
+                    <div class="nav-icon">📄</div>
+                    Reports
+                </a>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Data Import & Export</h1>
+                <p class="page-subtitle">Bulk upload emissions data or export your existing data</p>
+            </div>
+
+            <div class="import-export-grid">
+                <!-- Import Section -->
+                <div class="import-section">
+                    <div class="section-header">
+                        <div class="section-icon">📤</div>
+                        <h2 class="section-title">Import Emissions Data</h2>
+                    </div>
+                    
+                    <p class="section-description">
+                        Upload a CSV, XLSX, JSON, XML file containing your emissions data. Your file must include the required columns.
+                    </p>
+
+                    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                        <div class="upload-icon">☁️</div>
+                        <div class="upload-text">Click to upload or drag and drop</div>
+                        <div class="upload-help">CSV, XLSX, JSON, XML files up to 100MB</div>
+                        <input type="file" id="fileInput" style="display: none;" accept=".csv,.xlsx,.json,.xml">
+                    </div>
+
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <span style="color: var(--subtle); margin-right: 1rem;">Need the correct format?</span>
+                        <button class="btn btn-secondary">📥 Download Template</button>
+                    </div>
+
+                    <div class="columns-info">
+                        <div class="column-group">
+                            <h4 class="column-title">Required Columns:</h4>
+                            <ul class="column-list">
+                                <li><strong>scope_type</strong> - Scope (1, 2, 3, etc.)</li>
+                                <li><strong>category</strong> - Category (natural_gas, etc.)</li>
+                                <li><strong>value</strong> - Emission value</li>
+                                <li><strong>unit</strong> - Unit (m3, kWh, kg, etc.)</li>
+                                <li><strong>reporting_period</strong> - YYYY-MM-DD</li>
+                                <li><strong>emission_date</strong> - YYYY-MM-DD</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="column-group">
+                            <h4 class="column-title">Optional Columns:</h4>
+                            <ul class="column-list">
+                                <li><strong>region_code</strong> - Region (US, EU, etc.)</li>
+                                <li><strong>source</strong> - Source description</li>
+                                <li><strong>location</strong> - Location name</li>
+                                <li><strong>subcategory</strong> - Detailed category</li>
+                                <li><strong>supplier_id</strong> - Supplier ID</li>
+                                <li><strong>material_code</strong> - Material code</li>
+                                <li><strong>notes</strong> - Additional notes</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Section -->
+                <div class="export-section">
+                    <div class="section-header">
+                        <div class="section-icon">📥</div>
+                        <h2 class="section-title">Export Emissions Data</h2>
+                    </div>
+                    
+                    <p class="section-description">
+                        Export your current emissions data to CSV format for analysis, reporting, or backup purposes.
+                    </p>
+
+                    <div class="download-area">
+                        <div class="download-icon">📊</div>
+                        <div class="download-text">Click to export emissions data</div>
+                        <div class="download-help">Download complete CSV file with all calculated CO₂e values, timestamps, and metadata across all scopes.</div>
+                        <div class="download-status">Complete dataset ready for download</div>
+                    </div>
+
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <button class="btn btn-primary">📥 Export CSV Data</button>
+                    </div>
+
+                    <div class="export-options">
+                        <div class="option-group">
+                            <h4 class="option-title">Export Includes:</h4>
+                            <ul class="option-list">
+                                <li>• All emissions data entries</li>
+                                <li>• Calculated CO₂e values</li>
+                                <li>• Source and location metadata</li>
+                                <li>• Scope categorization</li>
+                                <li>• Facility and location data</li>
+                                <li>• Regional classifications</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="option-group">
+                            <h4 class="option-title">Export Options:</h4>
+                            <ul class="option-list">
+                                <li>• Complete dataset (all scopes)</li>
+                                <li>• Scope-specific exports</li>
+                                <li>• Date range selection</li>
+                                <li>• Custom field selection</li>
+                                <li>• Excel format support</li>
+                                <li>• Audit trail included</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                alert(`File "${file.name}" selected. Upload would start here in a real application.`);
+            }
+        });
+
+        document.querySelector('.btn-primary').addEventListener('click', function() {
+            alert('Export started! CSV file would be generated and downloaded in a real application.');
+        });
+
+        document.querySelector('.btn-secondary').addEventListener('click', function() {
+            alert('Template download would start here in a real application.');
+        });
+    </script>
+</body>
+</html>

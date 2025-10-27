@@ -1,0 +1,1102 @@
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carbon Credits Management - Hertzwave</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Outfit', sans-serif; 
+      background: #f5f7fa;
+      color: #2d3748;
+    }
+    
+    .header {
+      background: #4a7c59;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .logo { font-size: 1.5rem; font-weight: 700; }
+    .user-info { display: flex; align-items: center; gap: 0.5rem; }
+    
+    .container {
+      display: flex;
+      min-height: calc(100vh - 64px);
+    }
+    
+    .sidebar {
+      width: 240px;
+      background: white;
+      padding: 1.5rem 0;
+      box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+    }
+    .nav-item {
+      padding: 0.875rem 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+      color: #4a5568;
+      font-weight: 500;
+    }
+    .nav-item:hover {
+      background: #f7fafc;
+      border-left-color: #4a7c59;
+    }
+    .nav-item.active {
+      background: #e6f4ea;
+      border-left-color: #4a7c59;
+      color: #4a7c59;
+    }
+    
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+      height: calc(100vh - 64px);
+    }
+    
+    .page-header {
+      margin-bottom: 2rem;
+    }
+    .page-title {
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 0.5rem;
+    }
+    .page-subtitle {
+      color: #718096;
+      font-size: 1rem;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-left: 4px solid #4a7c59;
+    }
+    .stat-label {
+      font-size: 0.875rem;
+      color: #718096;
+      margin-bottom: 0.5rem;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a202c;
+    }
+    .stat-unit {
+      font-size: 1rem;
+      color: #718096;
+      font-weight: 400;
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+    }
+    .btn-primary {
+      background: #4a7c59;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #3d6648;
+    }
+    .btn-secondary {
+      background: white;
+      color: #4a7c59;
+      border: 2px solid #4a7c59;
+    }
+    .btn-secondary:hover {
+      background: #f7fafc;
+    }
+    
+    .waterfall-container {
+      position: relative;
+      height: 350px;
+      padding: 2rem 1rem;
+    }
+    .waterfall-chart {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      height: 100%;
+      gap: 0.5rem;
+    }
+    .waterfall-bar {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      position: relative;
+    }
+    .bar {
+      width: 100%;
+      max-width: 80px;
+      border-radius: 8px 8px 0 0;
+      position: relative;
+      transition: all 0.3s;
+    }
+    .bar-value {
+      position: absolute;
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: #1a202c;
+      white-space: nowrap;
+    }
+    .bar-label {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #4a5568;
+      margin-top: 0.75rem;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+    
+    .filters {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .filter-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #4a5568;
+    }
+    select, input {
+      padding: 0.625rem 1rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: 'Outfit', sans-serif;
+    }
+    
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+    .project-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+    .project-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .project-image {
+      width: 100%;
+      height: 180px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+    .project-content {
+      padding: 1.25rem;
+    }
+    .project-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #1a202c;
+    }
+    .project-meta {
+      font-size: 0.875rem;
+      color: #718096;
+      margin-bottom: 0.75rem;
+    }
+    .project-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin: 1rem 0;
+    }
+    .project-stat {
+      font-size: 0.875rem;
+    }
+    .project-stat-label {
+      color: #718096;
+    }
+    .project-stat-value {
+      font-weight: 600;
+      color: #1a202c;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .badge-blue { background: #e6f4ff; color: #0066cc; }
+    .badge-green { background: #e6f4ea; color: #2d5f3f; }
+    .badge-orange { background: #fff3e0; color: #e65100; }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      background: #f7fafc;
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: #4a5568;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.95rem;
+    }
+    tr:hover {
+      background: #f7fafc;
+    }
+    
+    .progress-bar {
+      height: 24px;
+      background: #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4a7c59 0%, #5fa573 100%);
+      transition: width 0.5s ease;
+      display: flex;
+      align-items: center;
+      justify-center;
+      color: white;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+    
+    .screen { display: none; }
+    .screen.active { display: block; }
+    
+    .cart-summary {
+      background: #f7fafc;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-top: 1.5rem;
+    }
+    .cart-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .cart-row:last-child {
+      border-bottom: none;
+      font-weight: 700;
+      font-size: 1.125rem;
+      padding-top: 1rem;
+      border-top: 2px solid #4a7c59;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">HERTZWAVE</div>
+    <div class="user-info">
+      <span>Kamesh | Administrator</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="sidebar">
+      <div class="nav-item active" onclick="showScreen('gap-analysis')">Gap Analysis</div>
+      <div class="nav-item" onclick="showScreen('marketplace')">Marketplace</div>
+      <div class="nav-item" onclick="showScreen('portfolio')">My Portfolio</div>
+      <div class="nav-item" onclick="showScreen('inventory')">Credit Inventory</div>
+      <div class="nav-item" onclick="showScreen('retirement')">Retire Credits</div>
+    </div>
+
+    <div class="main-content">
+      
+      <div id="gap-analysis" class="screen active">
+        <div class="page-header">
+          <h1 class="page-title">Carbon Offset Gap Analysis</h1>
+          <p class="page-subtitle">Understand your offset requirements based on validated emissions and reduction targets</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Gross Emissions (FY 2024)</div>
+            <div class="stat-value">50,000 <span class="stat-unit">tCO₂e</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Residual After Reductions</div>
+            <div class="stat-value">20,000 <span class="stat-unit">tCO₂e</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Credits Generated (Internal)</div>
+            <div class="stat-value">605 <span class="stat-unit">tCO₂e</span></div>
+          </div>
+          <div class="stat-card" style="border-left-color: #e53e3e;">
+            <div class="stat-label">Offset Gap</div>
+            <div class="stat-value" style="color: #e53e3e;">19,395 <span class="stat-unit">tCO₂e</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Emissions Waterfall: Path to Net-Zero</h3>
+          <div class="waterfall-container">
+            <div class="waterfall-chart">
+              <div class="waterfall-bar">
+                <div class="bar" style="height: 250px; background: #cbd5e0;">
+                  <div class="bar-value">50,000</div>
+                </div>
+                <div class="bar-label">Gross<br>Emissions</div>
+              </div>
+              <div class="waterfall-bar">
+                <div class="bar" style="height: 50px; background: #f6ad55;">
+                  <div class="bar-value">-10,000</div>
+                </div>
+                <div class="bar-label">Scope 1<br>Reductions</div>
+              </div>
+              <div class="waterfall-bar">
+                <div class="bar" style="height: 75px; background: #f6ad55;">
+                  <div class="bar-value">-15,000</div>
+                </div>
+                <div class="bar-label">Scope 2<br>Reductions</div>
+              </div>
+              <div class="waterfall-bar">
+                <div class="bar" style="height: 25px; background: #f6ad55;">
+                  <div class="bar-value">-5,000</div>
+                </div>
+                <div class="bar-label">Scope 3<br>Reductions</div>
+              </div>
+              <div class="waterfall-bar">
+                <div class="bar" style="height: 100px; background: #cbd5e0;">
+                  <div class="bar-value">20,000</div>
+                </div>
+                <div class="bar-label">Residual<br>Emissions</div>
+              </div>
+              <div class="waterfall-bar">
+                <div class="bar" style="height: 5px; background: #48bb78;">
+                  <div class="bar-value">-605</div>
+                </div>
+                <div class="bar-label">Generated<br>Credits</div>
+              </div>
+              <div class="waterfall-bar">
+                <div class="bar" style="height: 97px; background: #e53e3e;">
+                  <div class="bar-value">19,395</div>
+                </div>
+                <div class="bar-label">Offset<br>Gap</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1rem;">Current Credit Inventory</h3>
+          <p style="color: #718096; margin-bottom: 1.5rem;">All owned carbon credits available for retirement</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th>Project</th>
+                <th>Type</th>
+                <th>Standard</th>
+                <th>Vintage</th>
+                <th>Volume</th>
+                <th>Valid Until</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge badge-blue">Purchased</span></td>
+                <td>Amazon REDD+</td>
+                <td>Forestry</td>
+                <td>Verra VCS</td>
+                <td>2022</td>
+                <td><strong>10,000 tCO₂e</strong></td>
+                <td>Dec 2027</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td><button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;" onclick="selectForRetirement('Amazon REDD+', 10000)">Retire</button></td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-orange">Generated</span></td>
+                <td>Karnataka Reforestation</td>
+                <td>Forestry</td>
+                <td>Verra VCS</td>
+                <td>2023</td>
+                <td><strong>605 tCO₂e</strong></td>
+                <td>Dec 2028</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td><button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;" onclick="selectForRetirement('Karnataka Reforestation', 605)">Retire</button></td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-blue">Purchased</span></td>
+                <td>India Wind Energy</td>
+                <td>Renewable</td>
+                <td>Gold Standard</td>
+                <td>2023</td>
+                <td><strong>5,000 tCO₂e</strong></td>
+                <td>Dec 2028</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td><button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;" onclick="selectForRetirement('India Wind', 5000)">Retire</button></td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <p style="margin-top: 1rem; font-size: 0.875rem; color: #718096;">
+            ℹ️ Credits typically valid for 5 years from vintage year. Must be retired before expiration to claim carbon neutral status.
+          </p>
+        </div>
+
+        <div class="card">
+  <h3 style="margin-bottom: 1rem;">Estimated Cost to Close Remaining Gap (3,790 tCO₂e)</h3>
+  <p style="color: #718096; margin-bottom: 1.5rem;">Market price scenarios for purchasing additional credits needed (Total need: 19,395 tCO₂e | Already owned: 15,605 tCO₂e)</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Price Scenario</th>
+        <th>Price per tCO₂e</th>
+        <th>Total Cost</th>
+        <th>Typical Project Types</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Low (Nature-based, older vintage)</td>
+        <td>$8</td>
+        <td><strong>$30,320</strong></td>
+        <td style="font-size: 0.875rem; color: #718096;">Forestry REDD+, Cookstoves (2020-2022)</td>
+      </tr>
+      <tr>
+        <td>Medium (Mixed portfolio)</td>
+        <td>$12</td>
+        <td><strong>$45,480</strong></td>
+        <td style="font-size: 0.875rem; color: #718096;">Mix of nature & renewable (2022-2023)</td>
+      </tr>
+      <tr>
+        <td>High (Tech-based, recent)</td>
+        <td>$18</td>
+        <td><strong>$68,220</strong></td>
+        <td style="font-size: 0.875rem; color: #718096;">DAC, Biochar, Enhanced Weathering (2023-2024)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+          <button class="btn btn-primary" onclick="showScreen('marketplace')">Browse Offset Marketplace →</button>
+        </div>
+      </div>
+
+      <div id="marketplace" class="screen">
+        <div class="page-header">
+          <h1 class="page-title">Offset Marketplace</h1>
+          <p class="page-subtitle">Discover and compare verified carbon offset projects</p>
+        </div>
+
+        <div class="card">
+          <div class="filters">
+            <div class="filter-group">
+              <label class="filter-label">Project Type</label>
+              <select>
+                <option>All Types</option>
+                <option>Forestry REDD+</option>
+                <option>Renewable Energy</option>
+                <option>Direct Air Capture</option>
+                <option>Cookstoves</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label">Verification Standard</label>
+              <select>
+                <option>All Standards</option>
+                <option>Verra VCS</option>
+                <option>Gold Standard</option>
+                <option>CDM</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label">Geography</label>
+              <select>
+                <option>All Regions</option>
+                <option>Asia</option>
+                <option>Americas</option>
+                <option>Africa</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label">Max Price ($/tCO₂e)</label>
+              <input type="number" placeholder="20" style="width: 120px;">
+            </div>
+          </div>
+        </div>
+
+        <div class="project-grid">
+          <div class="project-card" onclick="addToCart('Amazon REDD+', 'Forestry', 10000, 13)">
+            <div class="project-image" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">🌳</div>
+            <div class="project-content">
+              <div class="project-title">Amazon Rainforest Protection</div>
+              <div class="project-meta">📍 Brazil | Forestry REDD+</div>
+              <div>
+                <span class="badge badge-green">Verra VCS</span>
+                <span class="badge badge-blue">Vintage 2022</span>
+              </div>
+              <div class="project-stats">
+                <div class="project-stat">
+                  <div class="project-stat-label">Available</div>
+                  <div class="project-stat-value">50,000 tCO₂e</div>
+                </div>
+                <div class="project-stat">
+                  <div class="project-stat-label">Price</div>
+                  <div class="project-stat-value">$13/tCO₂e</div>
+                </div>
+              </div>
+              <div style="margin-top: 0.75rem;">
+                <span class="badge badge-orange">SDG 13</span>
+                <span class="badge badge-orange">SDG 15</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="project-card" onclick="addToCart('India Wind Energy', 'Renewable', 5000, 8)">
+            <div class="project-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">💨</div>
+            <div class="project-content">
+              <div class="project-title">Tamil Nadu Wind Farm</div>
+              <div class="project-meta">📍 India | Renewable Energy</div>
+              <div>
+                <span class="badge badge-green">Gold Standard</span>
+                <span class="badge badge-blue">Vintage 2023</span>
+              </div>
+              <div class="project-stats">
+                <div class="project-stat">
+                  <div class="project-stat-label">Available</div>
+                  <div class="project-stat-value">25,000 tCO₂e</div>
+                </div>
+                <div class="project-stat">
+                  <div class="project-stat-label">Price</div>
+                  <div class="project-stat-value">$8/tCO₂e</div>
+                </div>
+              </div>
+              <div style="margin-top: 0.75rem;">
+                <span class="badge badge-orange">SDG 7</span>
+                <span class="badge badge-orange">SDG 13</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="project-card" onclick="addToCart('Kenya Cookstoves', 'Avoidance', 3000, 10)">
+            <div class="project-image" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">🔥</div>
+            <div class="project-content">
+              <div class="project-title">Clean Cookstoves Distribution</div>
+              <div class="project-meta">📍 Kenya | Emission Avoidance</div>
+              <div>
+                <span class="badge badge-green">Gold Standard</span>
+                <span class="badge badge-blue">Vintage 2023</span>
+              </div>
+              <div class="project-stats">
+                <div class="project-stat">
+                  <div class="project-stat-label">Available</div>
+                  <div class="project-stat-value">15,000 tCO₂e</div>
+                </div>
+                <div class="project-stat">
+                  <div class="project-stat-label">Price</div>
+                  <div class="project-stat-value">$10/tCO₂e</div>
+                </div>
+              </div>
+              <div style="margin-top: 0.75rem;">
+                <span class="badge badge-orange">SDG 3</span>
+                <span class="badge badge-orange">SDG 5</span>
+                <span class="badge badge-orange">SDG 13</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="project-card" onclick="addToCart('Iceland DAC', 'Technology', 2000, 250)">
+            <div class="project-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">⚙️</div>
+            <div class="project-content">
+              <div class="project-title">Direct Air Capture Facility</div>
+              <div class="project-meta">📍 Iceland | Carbon Removal</div>
+              <div>
+                <span class="badge badge-green">CDM</span>
+                <span class="badge badge-blue">Vintage 2024</span>
+              </div>
+              <div class="project-stats">
+                <div class="project-stat">
+                  <div class="project-stat-label">Available</div>
+                  <div class="project-stat-value">5,000 tCO₂e</div>
+                </div>
+                <div class="project-stat">
+                  <div class="project-stat-label">Price</div>
+                  <div class="project-stat-value">$250/tCO₂e</div>
+                </div>
+              </div>
+              <div style="margin-top: 0.75rem;">
+                <span class="badge badge-orange">SDG 13</span>
+                <span class="badge badge-blue">Durable</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+          <button class="btn btn-secondary" onclick="showScreen('gap-analysis')">← Back to Gap Analysis</button>
+          <button class="btn btn-primary" onclick="showScreen('portfolio')" style="margin-left: 1rem;">View My Portfolio →</button>
+        </div>
+      </div>
+
+      <div id="portfolio" class="screen">
+        <div class="page-header">
+          <h1 class="page-title">My Offset Portfolio</h1>
+	   <p class="page-subtitle">Review and manage your selected offset projects (Remaining gap to close: 3,790 tCO₂e)</p>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem;">Selected Projects</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Project Name</th>
+                <th>Type</th>
+                <th>Volume (tCO₂e)</th>
+                <th>Price ($/tCO₂e)</th>
+                <th>Subtotal</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="cart-items">
+              <tr>
+                <td colspan="6" style="text-align: center; color: #a0aec0; padding: 3rem;">
+                  No projects added yet. Browse the marketplace to add projects.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="cart-summary">
+            <div class="cart-row">
+              <span>Total Volume</span>
+              <span id="total-volume">0 tCO₂e</span>
+            </div>
+            <div class="cart-row">
+              <span>Average Price</span>
+              <span id="avg-price">$0/tCO₂e</span>
+            </div>
+            <div class="cart-row">
+              <span>Total Cost</span>
+              <span id="total-cost">$0</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 2rem;">
+            <h4 style="margin-bottom: 1rem;">Gap Coverage</h4>
+            <div class="progress-bar">
+              <div class="progress-fill" id="gap-progress" style="width: 0%;">0%</div>
+            </div>
+            <p style="color: #718096; margin-top: 0.5
+
+rem; font-size: 0.875rem;">
+              <span id="coverage-text">0 tCO₂e of 19,395 tCO₂e needed</span>
+            </p>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+          <button class="btn btn-secondary" onclick="showScreen('marketplace')">← Add More Projects</button>
+          <button class="btn btn-primary" onclick="proceedToCheckout()" style="margin-left: 1rem;">Proceed to Checkout</button>
+        </div>
+      </div>
+
+      <div id="inventory" class="screen">
+        <div class="page-header">
+          <h1 class="page-title">Credit Inventory</h1>
+          <p class="page-subtitle">All owned carbon credits (purchased + generated)</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Inventory</div>
+            <div class="stat-value">15,605 <span class="stat-unit">tCO₂e</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Purchased Credits</div>
+            <div class="stat-value">15,000 <span class="stat-unit">tCO₂e</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Generated Credits</div>
+            <div class="stat-value">605 <span class="stat-unit">tCO₂e</span></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Available for Retirement</div>
+            <div class="stat-value">15,605 <span class="stat-unit">tCO₂e</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h3>All Credits</h3>
+            <div>
+              <button class="btn btn-secondary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">Filter</button>
+            </div>
+          </div>
+          
+          <table>
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th>Project</th>
+                <th>Type</th>
+                <th>Standard</th>
+                <th>Vintage</th>
+                <th>Volume</th>
+                <th>Valid Until</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge badge-blue">Purchased</span></td>
+                <td>Amazon REDD+</td>
+                <td>Forestry</td>
+                <td>Verra VCS</td>
+                <td>2022</td>
+                <td><strong>10,000 tCO₂e</strong></td>
+                <td>Dec 2027</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td><button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;" onclick="showScreen('retirement')">Retire</button></td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-orange">Generated</span></td>
+                <td>Karnataka Reforestation</td>
+                <td>Forestry</td>
+                <td>Verra VCS</td>
+                <td>2023</td>
+                <td><strong>605 tCO₂e</strong></td>
+                <td>Dec 2028</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td><button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;" onclick="showScreen('retirement')">Retire</button></td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-blue">Purchased</span></td>
+                <td>India Wind Energy</td>
+                <td>Renewable</td>
+                <td>Gold Standard</td>
+                <td>2023</td>
+                <td><strong>5,000 tCO₂e</strong></td>
+                <td>Dec 2028</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td><button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;" onclick="showScreen('retirement')">Retire</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+          <button class="btn btn-primary" onclick="showScreen('retirement')">Retire Credits →</button>
+        </div>
+      </div>
+
+      <div id="retirement" class="screen">
+        <div class="page-header">
+          <h1 class="page-title">Retire Carbon Credits</h1>
+          <p class="page-subtitle">Allocate credits to reporting periods and make carbon neutral claims</p>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem;">Step 1: Select Credits to Retire</h3>
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 50px;"><input type="checkbox" id="select-all" onchange="toggleSelectAll()"></th>
+                <th>Project</th>
+                <th>Source</th>
+                <th>Volume Available</th>
+                <th>Vintage</th>
+                <th>Volume to Retire</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox" class="credit-checkbox" data-project="amazon" checked></td>
+                <td>Amazon REDD+</td>
+                <td>Purchased</td>
+                <td>10,000 tCO₂e</td>
+                <td>2022</td>
+                <td><input type="number" id="retire-amazon" max="10000" min="0" value="10000" style="width: 120px;" oninput="updateRetirementTotal()"></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="credit-checkbox" data-project="karnataka" checked></td>
+                <td>Karnataka Reforestation</td>
+                <td>Generated</td>
+                <td>605 tCO₂e</td>
+                <td>2023</td>
+                <td><input type="number" id="retire-karnataka" max="605" min="0" value="605" style="width: 120px;" oninput="updateRetirementTotal()"></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" class="credit-checkbox" data-project="wind" checked></td>
+                <td>India Wind Energy</td>
+                <td>Purchased</td>
+                <td>5,000 tCO₂e</td>
+                <td>2023</td>
+                <td><input type="number" id="retire-wind" max="5000" min="0" value="5000" style="width: 120px;" oninput="updateRetirementTotal()"></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="background: #e6f4ea; padding: 1rem; border-radius: 8px; margin-top: 1.5rem;">
+            <strong>Total Selected for Retirement: <span id="retirement-total">15,605</span> tCO₂e</strong>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem;">Step 2: Allocation & Purpose</h3>
+          
+          <div class="filters">
+            <div class="filter-group">
+              <label class="filter-label">Purpose</label>
+              <select id="retirement-purpose">
+                <option>Neutralize All Scopes</option>
+                <option>Neutralize Scope 1 Only</option>
+                <option>Neutralize Scope 2 Only</option>
+                <option>Neutralize Scope 3 Only</option>
+                <option>Carbon Neutral Claim</option>
+                <option>Net-Zero Commitment</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label">Reporting Period</label>
+              <select>
+                <option>FY 2024</option>
+                <option>FY 2023</option>
+                <option>Q4 2024</option>
+                <option>Q3 2024</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="filter-label">Entity</label>
+              <select>
+                <option>Consolidated (All Entities)</option>
+                <option>Manufacturing - Bangalore</option>
+                <option>Manufacturing - Mumbai</option>
+                <option>Office - Delhi</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem;">Step 3: Claims Statement</h3>
+          
+          <div style="margin-bottom: 1rem;">
+            <input type="checkbox" id="carbon-neutral-claim" checked>
+            <label for="carbon-neutral-claim" style="margin-left: 0.5rem; font-weight: 500;">Make Carbon Neutral Claim</label>
+          </div>
+
+          <textarea style="width: 100%; min-height: 120px; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 8px; font-family: 'Outfit', sans-serif; resize: vertical;" placeholder="Enter your claim statement...">Company X achieved carbon neutrality in FY 2024 by reducing emissions by 60% from baseline and offsetting all residual emissions with high-quality verified carbon credits from forestry conservation and renewable energy projects.</textarea>
+
+          <p style="margin-top: 0.75rem; font-size: 0.875rem; color: #718096;">
+            ⚠️ This statement will appear on retirement certificates and can be used in public disclosures.
+          </p>
+        </div>
+
+        <div class="card" style="background: #f7fafc; border: 2px solid #4a7c59;">
+          <h3 style="margin-bottom: 1rem; color: #4a7c59;">Retirement Summary</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+            <div>
+              <div style="font-size: 0.875rem; color: #718096;">Total Credits to Retire</div>
+              <div style="font-size: 1.5rem; font-weight: 700;">15,605 tCO₂e</div>
+            </div>
+            <div>
+              <div style="font-size: 0.875rem; color: #718096;">Residual Emissions (FY 2024)</div>
+              <div style="font-size: 1.5rem; font-weight: 700;">20,000 tCO₂e</div>
+            </div>
+            <div>
+              <div style="font-size: 0.875rem; color: #718096;">Net Emissions After Retirement</div>
+              <div style="font-size: 1.5rem; font-weight: 700; color: #38a169;">4,395 tCO₂e</div>
+            </div>
+            <div>
+              <div style="font-size: 0.875rem; color: #718096;">Neutralization Coverage</div>
+              <div style="font-size: 1.5rem; font-weight: 700; color: #38a169;">78%</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+          <button class="btn btn-secondary" onclick="showScreen('inventory')">← Back to Inventory</button>
+          <button class="btn btn-primary" onclick="confirmRetirement()" style="margin-left: 1rem;">Confirm Retirement</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      initializeApp();
+    });
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+      
+      const navItems = document.querySelectorAll('.nav-item');
+      if (screenId === 'gap-analysis') navItems[0].classList.add('active');
+      if (screenId === 'marketplace') navItems[1].classList.add('active');
+      if (screenId === 'portfolio') navItems[2].classList.add('active');
+      if (screenId === 'inventory') navItems[3].classList.add('active');
+      if (screenId === 'retirement') navItems[4].classList.add('active');
+    }
+
+    let cart = [];
+    const OFFSET_GAP = 3790;
+
+    function addToCart(name, type, volume, price) {
+      const existing = cart.find(item => item.name === name);
+      if (existing) {
+        alert('This project is already in your portfolio');
+        return;
+      }
+      
+      cart.push({ name, type, volume, price });
+      updateCartDisplay();
+      showScreen('portfolio');
+    }
+
+    function removeFromCart(name) {
+      cart = cart.filter(item => item.name !== name);
+      updateCartDisplay();
+    }
+
+    function updateCartDisplay() {
+      const tbody = document.getElementById('cart-items');
+      
+      if (cart.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; color: #a0aec0; padding: 3rem;">
+              No projects added yet. Browse the marketplace to add projects.
+            </td>
+          </tr>
+        `;
+        document.getElementById('total-volume').textContent = '0 tCO₂e';
+        document.getElementById('avg-price').textContent = '$0/tCO₂e';
+        document.getElementById('total-cost').textContent = '$0';
+        document.getElementById('gap-progress').style.width = '0%';
+        document.getElementById('gap-progress').textContent = '0%';
+        document.getElementById('coverage-text').textContent = `0 tCO₂e of ${OFFSET_GAP.toLocaleString()} tCO₂e needed`;
+        return;
+      }
+
+      tbody.innerHTML = cart.map(item => `
+        <tr>
+          <td>${item.name}</td>
+          <td>${item.type}</td>
+          <td>${item.volume.toLocaleString()}</td>
+          <td>$${item.price}</td>
+          <td><strong>$${(item.volume * item.price).toLocaleString()}</strong></td>
+          <td><button class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.875rem;" onclick="removeFromCart('${item.name}')">Remove</button></td>
+        </tr>
+      `).join('');
+
+      const totalVolume = cart.reduce((sum, item) => sum + item.volume, 0);
+      const totalCost = cart.reduce((sum, item) => sum + (item.volume * item.price), 0);
+      const avgPrice = totalCost / totalVolume;
+      const coverage = (totalVolume / OFFSET_GAP) * 100;
+
+      document.getElementById('total-volume').textContent = `${totalVolume.toLocaleString()} tCO₂e`;
+      document.getElementById('avg-price').textContent = `$${avgPrice.toFixed(2)}/tCO₂e`;
+      document.getElementById('total-cost').textContent = `$${totalCost.toLocaleString()}`;
+      document.getElementById('gap-progress').style.width = `${Math.min(coverage, 100)}%`;
+      document.getElementById('gap-progress').textContent = `${Math.round(coverage)}%`;
+      document.getElementById('coverage-text').textContent = `${totalVolume.toLocaleString()} tCO₂e of ${OFFSET_GAP.toLocaleString()} tCO₂e needed`;
+    }
+
+    function proceedToCheckout() {
+      if (cart.length === 0) {
+        alert('Please add projects to your portfolio first');
+        return;
+      }
+      alert('In a production system, this would redirect to a payment/procurement workflow or generate an RFP document for broker outreach.');
+    }
+
+    function selectForRetirement(project, volume) {
+      showScreen('retirement');
+    }
+
+    function toggleSelectAll() {
+      const selectAll = document.getElementById('select-all');
+      const checkboxes = document.querySelectorAll('.credit-checkbox');
+      checkboxes.forEach(cb => cb.checked = selectAll.checked);
+    }
+
+    function updateRetirementTotal() {
+      const amazon = parseInt(document.getElementById('retire-amazon').value) || 0;
+      const karnataka = parseInt(document.getElementById('retire-karnataka').value) || 0;
+      const wind = parseInt(document.getElementById('retire-wind').value) || 0;
+      const total = amazon + karnataka + wind;
+      document.getElementById('retirement-total').textContent = total.toLocaleString();
+    }
+
+    function confirmRetirement() {
+      const total = document.getElementById('retirement-total').textContent;
+      const purpose = document.getElementById('retirement-purpose').value;
+      
+      if (confirm(`Confirm retirement of ${total} tCO₂e for purpose: ${purpose}?\n\nThis action cannot be undone.`)) {
+        alert(`✓ Successfully retired ${total} tCO₂e\n\nRetirement certificates have been generated and credits updated in inventory.\n\nYou can now use this retirement in your BRSR/CSRD/ISSB reports.`);
+        showScreen('inventory');
+      }
+    }
+
+    function initializeApp() {
+      updateCartDisplay();
+    }
+  </script>
+</body>
+</html>

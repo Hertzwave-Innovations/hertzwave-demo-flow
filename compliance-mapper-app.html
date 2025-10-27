@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporting Studio - Hertzwave</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d5f4f 0%, #3d7f6f 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+        }
+
+        .user-info {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            display: flex;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            padding: 2rem 0;
+            position: fixed;
+            left: 0;
+            top: 70px;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #f5f5f5;
+        }
+
+        .nav-item.active {
+            background: #e8f5f1;
+            border-left-color: #3d7f6f;
+            color: #2d5f4f;
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding-top: 220px;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .progress-section {
+            position: fixed;
+            top: 70px;
+            left: 250px;
+            right: 0;
+            background: white;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 50;
+        }
+
+        .page-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header h1 {
+            color: #2d5f4f;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+            position: relative;
+        }
+
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #e0e0e0;
+            margin: 0 auto 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #999;
+            transition: all 0.3s;
+        }
+
+        .step.active .step-circle {
+            background: #3d7f6f;
+            border-color: #3d7f6f;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .step.completed .step-circle {
+            background: #4caf50;
+            border-color: #4caf50;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .step.active .step-label {
+            color: #2d5f4f;
+            font-weight: 600;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2d5f4f;
+        }
+
+        .form-group select,
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3d7f6f;
+            box-shadow: 0 0 0 3px rgba(61, 127, 111, 0.1);
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+            color: #155724;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+            color: #856404;
+        }
+
+        .framework-details {
+            background: #f9f9f9;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .detail-value {
+            color: #2d5f4f;
+            font-weight: 500;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-mandatory {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-auto {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-ai {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            border-top: 4px solid #3d7f6f;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d5f4f;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .disclosure-item {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .disclosure-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .disclosure-item.auto-filled {
+            border-color: #4caf50;
+            background: #f1f8f4;
+        }
+
+        .disclosure-item.ai-assisted {
+            border-color: #2196f3;
+            background: #f0f7ff;
+        }
+
+        .disclosure-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .disclosure-title h3 {
+            color: #2d5f4f;
+            margin-bottom: 0.25rem;
+            font-size: 1.1rem;
+        }
+
+        .disclosure-title p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #3d7f6f;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2d5f4f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(61, 127, 111, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #3d7f6f;
+            border: 2px solid #3d7f6f;
+        }
+
+        .btn-secondary:hover {
+            background: #e8f5f1;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+            font-size: 1.1rem;
+            padding: 1rem 2rem;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .data-display {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            border: 1px solid #e0e0e0;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .data-row:last-child {
+            border-bottom: none;
+        }
+
+        .data-label {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .data-value {
+            font-weight: 600;
+            color: #2d5f4f;
+        }
+
+        .source-badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            background: #f0f0f0;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            color: #666;
+            margin-left: 0.5rem;
+        }
+
+        .ai-suggestion {
+            background: #e3f2fd;
+            border-left: 3px solid #2196f3;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 4px;
+        }
+
+        .confidence-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .confidence-bar {
+            flex: 1;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: #4caf50;
+            transition: width 0.3s;
+        }
+
+        .confidence-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .edit-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">HERTZWAVE | Hertzwave</div>
+        <div class="user-info">Kamesh | Administrator</div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="nav-item">Dashboard</div>
+            <div class="nav-item">Add Data</div>
+            <div class="nav-item">Import/Export</div>
+            <div class="nav-item active">Reports</div>
+        </div>
+
+        <!-- Fixed Progress Section -->
+        <div class="progress-section">
+            <div class="page-header">
+                <h1 id="step-title">Select Framework</h1>
+                <p id="step-description">Choose your reporting framework to begin</p>
+            </div>
+
+            <div class="step-indicator">
+                <div class="step active" onclick="goToStep(1)">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Select Framework</div>
+                </div>
+                <div class="step" onclick="goToStep(2)">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Configure & Fill Data</div>
+                </div>
+                <div class="step" onclick="goToStep(3)">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Review & Validate</div>
+                </div>
+                <div class="step" onclick="goToStep(4)">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Preview Report</div>
+                </div>
+                <div class="step" onclick="goToStep(5)">
+                    <div class="step-circle">5</div>
+                    <div class="step-label">Export & Download</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scrollable Content Area -->
+        <div class="main-content">
+            
+            <!-- STEP 1: Framework Selection -->
+            <div id="step1" class="content-section active">
+                <div class="info-box">
+                    <strong>Your Registered Frameworks</strong><br>
+                    Select a framework below to generate a compliance report. In production, the framework is pre-selected during organization registration based on your industry sector, listing status, and operational jurisdiction.
+                </div>
+
+                <div class="content-card">
+                    <div class="form-group">
+                        <label for="framework-select">Select Reporting Framework</label>
+                        <select id="framework-select" onchange="updateFrameworkDetails()">
+                            <option value="">-- Choose a framework --</option>
+                            <optgroup label="Essential Core Frameworks">
+                                <option value="BRSR" selected>SEBI BRSR & BRSR Core 2024</option>
+                                <option value="CDP">CDP Climate Change Questionnaire 2025</option>
+                                <option value="ISSB">ISSB S2 Climate-Related Disclosures</option>
+                                <option value="CSRD">EU CSRD/ESRS E1 (Climate)</option>
+                            </optgroup>
+                            <optgroup label="Regional Market Enablers">
+                                <option value="SECR">UK SECR (Streamlined Energy & Carbon Reporting)</option>
+                                <option value="HKEX">Hong Kong HKEX Climate Requirements</option>
+                                <option value="GREENCO">GREENCO (CII Green Company Rating)</option>
+                                <option value="GRESB">GRESB Real Estate/Infrastructure</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div id="framework-details" class="framework-details">
+                        <!-- Framework details will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="goToStep(2)">Continue to Configuration →</button>
+                </div>
+            </div>
+
+            <!-- STEP 2: Configure & Fill Data -->
+            <div id="step2" class="content-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">87%</div>
+                        <div class="stat-label">Auto-Populated</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">155/178</div>
+                        <div class="stat-label">Complete Disclosures</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">18</div>
+                        <div class="stat-label">AI-Assisted</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">Need Input</div>
+                    </div>
+                </div>
+
+                <div class="success-box">
+                    <strong>Automation Active:</strong> HWCAP emissions data and Validation AI have pre-populated most disclosures. Please review AI-suggested content and approve or edit as needed.
+                </div>
+
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1.5rem;">Report Configuration</h2>
+
+                    <div class="form-group">
+                        <label>Reporting Period</label>
+                        <select>
+                            <option selected>FY 2024-25 (Apr 2024 - Mar 2025)</option>
+                            <option>FY 2023-24 (Apr 2023 - Mar 2024)</option>
+                            <option>Custom Period</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Organizational Boundary</label>
+                        <select>
+                            <option selected>Full Organization (All Entities)</option>
+                            <option>Operational Control</option>
+                            <option>Financial Control</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Report Type</label>
+                        <select>
+                            <option selected>BRSR Full (Essential + Leadership)</option>
+                            <option>BRSR Core Only (27 Key Indicators)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Scope Data Example -->
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1rem;">Scope-Related Data (Auto-populated from HWCAP)</h2>
+                    <p style="color: #666; margin-bottom: 1.5rem;">Climate metrics automatically calculated from validated emissions database</p>
+
+                    <div class="disclosure-item auto-filled">
+                        <div class="disclosure-header">
+                            <div class="disclosure-title">
+                                <h3>Essential Indicator P6-E1: Total Energy Consumption</h3>
+                                <p>Energy from renewable and non-renewable sources (in Gigajoules)</p>
+                            </div>
+                            <span class="badge badge-auto">✓ Auto-Populated</span>
+                        </div>
+
+                        <div class="data-display">
+                            <div class="data-row">
+                                <span class="data-label">Non-Renewable Energy:</span>
+                                <span class="data-value">1,458,920 GJ <span class="source-badge">From Scope 1 & 2</span></span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Renewable Energy:</span>
+                                <span class="data-value">245,680 GJ <span class="source-badge">From Scope 2</span></span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Total Energy:</span>
+                                <span class="data-value">1,704,600 GJ</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Energy Intensity:</span>
+                                <span class="data-value">13.64 GJ per ₹ Crore revenue</span>
+                            </div>
+                        </div>
+
+                        <div class="edit-controls">
+                            <button class="btn btn-success btn-sm">✓ Approve Data</button>
+                            <button class="btn btn-secondary btn-sm">Edit Values</button>
+                        </div>
+                    </div>
+
+                    <div class="disclosure-item auto-filled">
+                        <div class="disclosure-header">
+                            <div class="disclosure-title">
+                                <h3>Essential Indicator P6-E2: Total GHG Emissions</h3>
+                                <p>Scope 1 + Scope 2 emissions in metric tonnes CO₂e</p>
+                            </div>
+                            <span class="badge badge-auto">✓ Auto-Populated</span>
+                        </div>
+
+                        <div class="data-display">
+                            <div class="data-row">
+                                <span class="data-label">Scope 1 Emissions:</span>
+                                <span class="data-value">45,230 tCO₂e <span class="source-badge">Scope 1.1-1.4</span></span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Scope 2 (Location-based):</span>
+                                <span class="data-value">78,450 tCO₂e <span class="source-badge">Grid factors</span></span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Scope 2 (Market-based):</span>
+                                <span class="data-value">62,180 tCO₂e <span class="source-badge">After RECs</span></span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Emissions Intensity:</span>
+                                <span class="data-value">0.99 tCO₂e per ₹ Crore revenue</span>
+                            </div>
+                        </div>
+
+                        <div class="edit-controls">
+                            <button class="btn btn-success btn-sm">✓ Approve Data</button>
+                            <button class="btn btn-secondary btn-sm">Edit Values</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Non-Scope Data Example -->
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1rem;">Non-Scope Data (AI-Assisted from Validation AI)</h2>
+                    <p style="color: #666; margin-bottom: 1.5rem;">Narrative and qualitative disclosures with AI assistance</p>
+
+                    <div class="disclosure-item ai-assisted">
+                        <div class="disclosure-header">
+                            <div class="disclosure-title">
+                                <h3>Leadership Indicator P6-L1: Climate Risk Governance</h3>
+                                <p>Board oversight of climate-related risks and opportunities</p>
+                            </div>
+                            <span class="badge badge-ai">🤖 AI-Assisted</span>
+                        </div>
+
+                        <div class="ai-suggestion">
+                            <strong>AI-Generated Response:</strong>
+                            <p style="margin-top: 0.5rem; line-height: 1.6;">
+                                The Board of Directors maintains oversight of climate-related matters through its ESG Committee, which meets quarterly to review climate risks, opportunities, and progress against decarbonization targets. The Committee comprises three independent directors with sustainability expertise. Climate-related risks are integrated into the enterprise risk management framework, with material climate risks reported to the full Board bi-annually. The company has established science-based targets aligned with a 1.5°C pathway.
+                            </p>
+                            
+                            <div class="confidence-indicator">
+                                <span class="confidence-label">AI Confidence:</span>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: 82%;"></div>
+                                </div>
+                                <span class="confidence-label">82%</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 1rem;">
+                            <label>Edit AI Response (if needed):</label>
+                            <textarea rows="5">The Board of Directors maintains oversight of climate-related matters through its ESG Committee, which meets quarterly to review climate risks, opportunities, and progress against decarbonization targets. The Committee comprises three independent directors with sustainability expertise. Climate-related risks are integrated into the enterprise risk management framework, with material climate risks reported to the full Board bi-annually. The company has established science-based targets aligned with a 1.5°C pathway.</textarea>
+                        </div>
+
+                        <div class="edit-controls">
+                            <button class="btn btn-success btn-sm">✓ Approve AI Response</button>
+                            <button class="btn btn-secondary btn-sm">Edit & Save</button>
+                            <button class="btn btn-secondary btn-sm">🔄 Regenerate</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(1)">← Back</button>
+                    <button class="btn btn-secondary">Save Progress</button>
+                    <button class="btn btn-primary" onclick="goToStep(3)">Continue to Review →</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: Review & Validate -->
+            <div id="step3" class="content-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">98%</div>
+                        <div class="stat-label">Overall Completion</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">174/178</div>
+                        <div class="stat-label">Total Complete</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">27/27</div>
+                        <div class="stat-label">Mandatory (BRSR Core)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">4</div>
+                        <div class="stat-label">Need Attention</div>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ 4 Disclosures Need Review:</strong> Please complete or verify voluntary leadership indicators before generating the report. BRSR Core (27 mandatory indicators) is 100% complete.
+                </div>
+
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1.5rem;">Section-wise Completion Status</h2>
+                    
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: #f9f9f9; border-radius: 6px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <strong style="color: #2d5f4f;">Section A: General Disclosures</strong>
+                            <span><strong>22/22</strong> Complete <span class="badge badge-success">100%</span></span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            Corporate identity, products, operations, employees
+                        </div>
+                        <div style="margin-top: 0.5rem; font-size: 0.85rem;">
+                            <span class="badge badge-mandatory">22 Mandatory</span>
+                            <span class="badge" style="background: #e0e0e0; color: #666;">0 Voluntary</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: #f9f9f9; border-radius: 6px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <strong style="color: #2d5f4f;">Section B: Management & Process Disclosures</strong>
+                            <span><strong>18/18</strong> Complete <span class="badge badge-success">100%</span></span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            Policies, governance, stakeholder engagement
+                        </div>
+                        <div style="margin-top: 0.5rem; font-size: 0.85rem;">
+                            <span class="badge badge-mandatory">18 Mandatory</span>
+                            <span class="badge" style="background: #e0e0e0; color: #666;">0 Voluntary</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: #f9f9f9; border-radius: 6px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <strong style="color: #2d5f4f;">Principle 6 - Essential Indicators (Climate)</strong>
+                            <span><strong>38/38</strong> Complete <span class="badge badge-success">100%</span></span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            Energy, emissions, water, waste - quantitative metrics
+                        </div>
+                        <div style="margin-top: 0.5rem; font-size: 0.85rem;">
+                            <span class="badge badge-mandatory">11 Mandatory (BRSR Core)</span>
+                            <span class="badge" style="background: #e0e0e0; color: #666;">27 Voluntary</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: #fff3cd; border-radius: 6px; border: 2px solid #ffc107;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <strong style="color: #856404;">Principle 6 - Leadership Indicators (Climate)</strong>
+                            <span><strong>11/15</strong> Complete <span style="padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600; background: #fff3cd; color: #856404;">73%</span></span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            Advanced climate metrics, transition plans, scenarios
+                        </div>
+                        <div style="margin-top: 0.5rem; font-size: 0.85rem;">
+                            <span class="badge" style="background: #e0e0e0; color: #666;">0 Mandatory</span>
+                            <span class="badge badge-mandatory">15 Voluntary</span>
+                        </div>
+                        <div style="margin-top: 0.75rem; color: #856404; font-size: 0.9rem;">
+                            ⚠️ 4 voluntary indicators need completion
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1rem; padding: 1rem; background: #f9f9f9; border-radius: 6px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <strong style="color: #2d5f4f;">All Other Sections (Principles 1-5, 7-9)</strong>
+                            <span><strong>85/85</strong> Complete <span class="badge badge-success">100%</span></span>
+                        </div>
+                        <div style="font-size: 0.9rem; color: #666;">
+                            Ethics, products, employees, stakeholders, human rights, biodiversity, etc.
+                        </div>
+                        <div style="margin-top: 0.5rem; font-size: 0.85rem;">
+                            <span class="badge badge-mandatory">8 Mandatory (BRSR Core)</span>
+                            <span class="badge" style="background: #e0e0e0; color: #666;">77 Voluntary</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong>Data Quality:</strong> All mandatory disclosures validated. Scope data accuracy: 96%. AI confidence average: 84%.
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(2)">← Back</button>
+                    <button class="btn btn-secondary">Fix Missing Items (4)</button>
+                    <button class="btn btn-primary" onclick="goToStep(4)">Continue to Preview →</button>
+                </div>
+            </div>
+
+            <!-- STEP 4: Preview Report -->
+            <div id="step4" class="content-section">
+                <div class="content-card" style="min-height: 600px; background: #f9f9f9; border: 2px dashed #ccc;">
+                    <div style="text-align: center; padding: 3rem;">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">📄</div>
+                        <h2 style="color: #2d5f4f; margin-bottom: 1rem;">BRSR Report Preview</h2>
+                        <p style="color: #666; margin-bottom: 2rem;">Interactive PDF preview will appear here</p>
+                        
+                        <div style="background: white; padding: 2rem; border-radius: 8px; max-width: 600px; margin: 0 auto; text-align: left;">
+                            <h3 style="color: #2d5f4f; margin-bottom: 1rem;">Report Summary</h3>
+                            <p><strong>Framework:</strong> SEBI BRSR 2024</p>
+                            <p><strong>Reporting Period:</strong> FY 2024-25</p>
+                            <p><strong>Total Disclosures:</strong> 178 indicators</p>
+                            <p><strong>Mandatory Complete:</strong> 27/27 (BRSR Core)</p>
+                            <p><strong>Voluntary Complete:</strong> 147/151</p>
+                            <p><strong>Total Pages:</strong> 42</p>
+                            <p><strong>Completion:</strong> 98%</p>
+                            <p><strong>Generated:</strong> October 7, 2025</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(3)">← Back</button>
+                    <button class="btn btn-secondary">Edit Report</button>
+                    <button class="btn btn-primary" onclick="goToStep(5)">Proceed to Export →</button>
+                </div>
+            </div>
+
+            <!-- STEP 5: Export & Download -->
+            <div id="step5" class="content-section">
+                <div class="success-box">
+                    <strong>Report Ready for Export</strong><br>
+                    Your BRSR 2024 report has been validated and is ready for generation in your selected formats.
+                </div>
+
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1rem;">Final Report Summary</h2>
+                    <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 6px;">
+                        <div class="detail-row">
+                            <span class="detail-label">Framework:</span>
+                            <span class="detail-value">SEBI BRSR & BRSR Core 2024</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Total Indicators:</span>
+                            <span class="detail-value">178 (174 Complete, 4 Incomplete)</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Mandatory Indicators:</span>
+                            <span class="detail-value">27/27 Complete <span class="badge badge-success">100%</span></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Voluntary Indicators:</span>
+                            <span class="detail-value">147/151 Complete (97%)</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Data Quality Score:</span>
+                            <span class="detail-value">Grade A (96%)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1.5rem;">Select Export Formats</h2>
+                    
+                    <div class="form-group">
+                        <div style="margin-bottom: 0.5rem;">
+                            <input type="checkbox" id="pdf" checked> <label for="pdf" style="display: inline; font-weight: 400;">PDF Report (Publication-ready)</label>
+                        </div>
+                        <div style="margin-bottom: 0.5rem;">
+                            <input type="checkbox" id="excel" checked> <label for="excel" style="display: inline; font-weight: 400;">Excel Workbook (Editable data)</label>
+                        </div>
+                        <div style="margin-bottom: 0.5rem;">
+                            <input type="checkbox" id="csv"> <label for="csv" style="display: inline; font-weight: 400;">CSV Data (Raw format)</label>
+                        </div>
+                        <div style="margin-bottom: 0.5rem;">
+                            <input type="checkbox" id="json"> <label for="json" style="display: inline; font-weight: 400;">JSON/API (Machine-readable)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1.5rem;">Delivery Options</h2>
+                    
+                    <div class="form-group">
+                        <label>Email Report To</label>
+                        <input type="email" value="kamesh@acme-corp.com, sustainability@acme-corp.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Cloud Storage Location</label>
+                        <select>
+                            <option selected>Hertzwave Secure Vault</option>
+                            <option>Google Drive</option>
+                            <option>Microsoft SharePoint</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(4)">← Back</button>
+                    <button class="btn btn-success" onclick="generateReport()">🚀 Generate Report</button>
+                </div>
+
+                <!-- Download Section (hidden initially) -->
+                <div id="download-section" style="display: none; margin-top: 2rem;">
+                    <div class="success-box">
+                        <strong>✓ Reports Generated Successfully!</strong><br>
+                        Your reports are ready for download below.
+                    </div>
+                    
+                    <div class="content-card">
+                        <div style="padding: 1rem; background: #f9f9f9; margin-bottom: 1rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: #2d5f4f;">BRSR_2024-25_Full_Report.pdf</strong>
+                                <div style="font-size: 0.85rem; color: #666;">42 pages • 2.4 MB</div>
+                            </div>
+                            <button class="btn btn-primary btn-sm">Download</button>
+                        </div>
+                        <div style="padding: 1rem; background: #f9f9f9; margin-bottom: 1rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: #2d5f4f;">BRSR_2024-25_Data_Workbook.xlsx</strong>
+                                <div style="font-size: 0.85rem; color: #666;">5 sheets • 856 KB</div>
+                            </div>
+                            <button class="btn btn-primary btn-sm">Download</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        
+        const frameworkData = {
+            'BRSR': {
+                title: 'SEBI BRSR & BRSR Core 2024',
+                type: 'Mandatory',
+                jurisdiction: 'India (SEBI Listed Companies)',
+                totalIndicators: 178,
+                mandatoryIndicators: 27,
+                voluntaryIndicators: 151,
+                sections: [
+                    'Section A: General Disclosures (22 indicators)',
+                    'Section B: Management Disclosures (18 indicators)',
+                    'Section C: Principle-wise Performance (138 indicators)'
+                ]
+            },
+            'CDP': {
+                title: 'CDP Climate Change Questionnaire 2025',
+                type: 'Voluntary',
+                jurisdiction: 'Global',
+                totalIndicators: 152,
+                mandatoryIndicators: 0,
+                voluntaryIndicators: 152,
+                sections: [
+                    '12 modules covering governance through to verification',
+                    'Scored from A to D based on disclosure completeness'
+                ]
+            },
+            'ISSB': {
+                title: 'ISSB S2 Climate-Related Disclosures',
+                type: 'Voluntary (Becoming baseline)',
+                jurisdiction: 'Global',
+                totalIndicators: 64,
+                mandatoryIndicators: 0,
+                voluntaryIndicators: 64,
+                sections: [
+                    'Governance, Strategy, Risk Management, Metrics & Targets',
+                    'Industry-specific metrics from SASB standards'
+                ]
+            },
+            'CSRD': {
+                title: 'EU CSRD/ESRS E1 (Climate)',
+                type: 'Regulatory',
+                jurisdiction: 'European Union',
+                totalIndicators: 89,
+                mandatoryIndicators: 42,
+                voluntaryIndicators: 47,
+                sections: [
+                    'Double materiality assessment required',
+                    'Disclosure requirements across 6 sub-topics',
+                    'Digital taxonomy with XBRL tagging'
+                ]
+            },
+            'GREENCO': {
+                title: 'GREENCO (CII Green Company Rating)',
+                type: 'Voluntary Certification',
+                jurisdiction: 'India',
+                totalIndicators: 65,
+                mandatoryIndicators: 35,
+                voluntaryIndicators: 30,
+                sections: [
+                    'Environmental management systems',
+                    'Energy & resource conservation',
+                    'Waste management & circular economy',
+                    'Climate action & carbon footprint'
+                ]
+            }
+        };
+
+        function goToStep(step) {
+            if (step > currentStep + 1) return; // Prevent skipping ahead
+            
+            currentStep = step;
+            
+            // Update step indicator
+            document.querySelectorAll('.step').forEach((el, idx) => {
+                el.classList.remove('active', 'completed');
+                if (idx + 1 < step) {
+                    el.classList.add('completed');
+                    el.querySelector('.step-circle').textContent = '✓';
+                } else if (idx + 1 === step) {
+                    el.classList.add('active');
+                    el.querySelector('.step-circle').textContent = idx + 1;
+                } else {
+                    el.querySelector('.step-circle').textContent = idx + 1;
+                }
+            });
+            
+            // Update content sections
+            document.querySelectorAll('.content-section').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById('step' + step).classList.add('active');
+            
+            // Update page title
+            const titles = {
+                1: { title: 'Select Framework', desc: 'Choose your reporting framework to begin' },
+                2: { title: 'Configure & Fill Data', desc: 'Review auto-populated data and complete disclosures' },
+                3: { title: 'Review & Validate', desc: 'Verify completeness and data quality' },
+                4: { title: 'Preview Report', desc: 'Review formatted report before export' },
+                5: { title: 'Export & Download', desc: 'Generate and download your report' }
+            };
+            document.getElementById('step-title').textContent = titles[step].title;
+            document.getElementById('step-description').textContent = titles[step].desc;
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        function updateFrameworkDetails() {
+            const select = document.getElementById('framework-select');
+            const value = select.value;
+            const details = document.getElementById('framework-details');
+            
+            // Special handling for GREENCO - redirect to dedicated flow
+            if (value === 'GREENCO') {
+                window.location.href = 'greenco_app_flows.html';
+                return;
+            }
+            
+            if (value && frameworkData[value]) {
+                const fw = frameworkData[value];
+                details.innerHTML = `
+                    <h3 style="color: #2d5f4f; margin-bottom: 1rem;">${fw.title}</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">Framework Type:</span>
+                        <span class="detail-value"><span class="badge ${fw.type.includes('Mandatory') ? 'badge-success' : 'badge-mandatory'}">${fw.type}</span></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Jurisdiction:</span>
+                        <span class="detail-value">${fw.jurisdiction}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Total Indicators:</span>
+                        <span class="detail-value">${fw.totalIndicators}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Mandatory Indicators:</span>
+                        <span class="detail-value">${fw.mandatoryIndicators} <span class="badge badge-mandatory">Must Complete</span></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Voluntary Indicators:</span>
+                        <span class="detail-value">${fw.voluntaryIndicators} <span class="badge" style="background: #e0e0e0; color: #666;">Optional</span></span>
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <h4 style="color: #2d5f4f; margin-bottom: 0.75rem;">Key Sections:</h4>
+                        ${fw.sections.map(s => `<div style="padding: 0.5rem; background: white; border-left: 3px solid #3d7f6f; border-radius: 4px; margin-bottom: 0.5rem;">${s}</div>`).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        function generateReport() {
+            alert('Generating reports... This will take 3-5 minutes.');
+            setTimeout(() => {
+                document.getElementById('download-section').style.display = 'block';
+                document.getElementById('download-section').scrollIntoView({ behavior: 'smooth' });
+            }, 2000);
+        }
+
+        // Initialize with BRSR selected
+        updateFrameworkDetails();
+    </script>
+</body>
+</html>

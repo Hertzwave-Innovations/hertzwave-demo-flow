@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HWCAP - Sign In</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #4A7C59 0%, #2F4F3F 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 16px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            background: #4A7C59;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .login-title {
+            text-align: center;
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            text-align: center;
+            color: #718096;
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2d3748;
+            font-size: 0.875rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #4A7C59;
+            box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: #a0aec0;
+        }
+
+        .forgot-password {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .forgot-password a {
+            color: #4A7C59;
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .sign-in-btn {
+            width: 100%;
+            background: #4A7C59;
+            color: white;
+            padding: 0.875rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .sign-in-btn:hover {
+            background: #355b3f;
+            transform: translateY(-1px);
+        }
+
+        .sign-in-btn:active {
+            transform: translateY(0);
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            color: #718096;
+        }
+
+        .signup-link a {
+            color: #4A7C59;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+
+        .back-home {
+            text-align: center;
+        }
+
+        .back-home a {
+            color: #a0aec0;
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+
+        .back-home a:hover {
+            color: #718096;
+        }
+
+        .tier-info {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #4a5568;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-icon">🌱</div>
+        
+        <h1 class="login-title">Sign In</h1>
+        <p class="login-subtitle">Access your Sustainability Platform account</p>
+
+        <div class="error-message" id="errorMessage">
+            Invalid credentials. Please try again.
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    class="form-input" 
+                    placeholder="Enter admin@hertzwave.in"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    class="form-input" 
+                    placeholder="Enter your password"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="tier">Subscription Tier</label>
+                <select id="tier" class="form-select" required>
+                    <option value="">Select your tier</option>
+                    <option value="basic">Basic - Core emissions tracking</option>
+                    <option value="professional">Professional - Advanced analytics</option>
+                    <option value="enterprise">Enterprise - Full suite + consulting</option>
+                </select>
+                <div class="tier-info" id="tierInfo" style="display: none;"></div>
+            </div>
+
+            <div class="forgot-password">
+                <a href="#">Forgot your password? Click here to Reset</a>
+            </div>
+
+            <button type="submit" class="sign-in-btn">
+                🔐 Sign In
+            </button>
+        </form>
+
+        <div class="signup-link">
+            Don't have an account? <a href="#">Create one here</a>
+        </div>
+
+        <div class="back-home">
+            <a href="#">← Back to home</a>
+        </div>
+    </div>
+
+    <script>
+        const tierSelect = document.getElementById('tier');
+        const tierInfo = document.getElementById('tierInfo');
+        const loginForm = document.getElementById('loginForm');
+        const errorMessage = document.getElementById('errorMessage');
+
+        const tierDescriptions = {
+            basic: 'Includes: Basic emissions tracking, simple reporting, and data management tools.',
+            professional: 'Includes: Advanced analytics, supplier evaluation, carbon credits management, and consultant access.',
+            enterprise: 'Includes: Full suite with NetZero pathfinder, auditor pack, advanced reporting, and dedicated consulting services.'
+        };
+
+        tierSelect.addEventListener('change', function() {
+            const selectedTier = this.value;
+            if (selectedTier && tierDescriptions[selectedTier]) {
+                tierInfo.textContent = tierDescriptions[selectedTier];
+                tierInfo.style.display = 'block';
+            } else {
+                tierInfo.style.display = 'none';
+            }
+        });
+
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const tier = document.getElementById('tier').value;
+
+            // Simple validation for demo purposes
+            if ((email === 'admin@hertzwave.in' || email === 'admin@hwcap.com') && password === 'admin' && tier) {
+                // Store tier in sessionStorage for use in dashboard
+                sessionStorage.setItem('userTier', tier);
+                sessionStorage.setItem('userEmail', email);
+                
+                // Redirect to dashboard
+                window.location.href = 'hwcap_dashboard.html';
+            } else {
+                errorMessage.style.display = 'block';
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

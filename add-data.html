@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HWCAP - Emissions Data Entry</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --hz-primary: #4A7C59;
+            --hz-primary-700: #355b3f;
+            --hz-primary-50: #E9F1EC;
+            --hz-mint: #A8E6A3;
+            --hz-dark: #2F4F3F;
+            --ink: #22302A;
+            --subtle: #5B6E64;
+            --bg: #F6F7F4;
+            --card: #FFFFFF;
+            --stroke: #E5E9E6;
+            --success: #48BB78;
+            --warning: #F6AD55;
+            --danger: #E53E3E;
+            --info: #4299E1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: var(--hz-primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-menu:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--hz-mint);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--hz-dark);
+            font-weight: 700;
+        }
+
+        /* Layout */
+        .layout {
+            display: flex;
+            margin-top: 64px;
+            min-height: calc(100vh - 64px);
+        }
+
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid var(--stroke);
+            padding: 1.5rem 0;
+            position: fixed;
+            left: 0;
+            top: 64px;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            padding: 0 1.5rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--subtle);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--ink);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            gap: 12px;
+        }
+
+        .nav-item:hover {
+            background: var(--hz-primary-50);
+            color: var(--hz-primary);
+        }
+
+        .nav-item.active {
+            background: var(--hz-primary-50);
+            color: var(--hz-primary);
+            border-left-color: var(--hz-primary);
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--subtle);
+            font-size: 1rem;
+        }
+
+        /* Form Styles */
+        .form-container {
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--ink);
+            font-size: 0.875rem;
+        }
+
+        .form-label.required::after {
+            content: "*";
+            color: var(--danger);
+            margin-left: 0.25rem;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            padding: 0.75rem;
+            border: 2px solid var(--stroke);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--hz-primary);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-help {
+            font-size: 0.8rem;
+            color: var(--subtle);
+            margin-top: 0.25rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: var(--hz-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--hz-primary-700);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--hz-primary);
+            border: 2px solid var(--hz-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--hz-primary-50);
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 260px;
+            }
+            
+            .main-content {
+                margin-left: 260px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">🌱</div>
+            HWCAP
+        </div>
+        <div class="user-menu">
+            <div class="user-avatar">A</div>
+            <span>Kamesh | Administrator</span>
+        </div>
+    </div>
+
+    <div class="layout">
+        <nav class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">Overview</div>
+                <a href="hwcap_dashboard.html" class="nav-item">
+                    <div class="nav-icon">📊</div>
+                    Dashboard
+                </a>
+                <a href="analytics-insights.html" class="nav-item">
+                    <div class="nav-icon">📈</div>
+                    Analytics & Insights
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Data Management</div>
+                <a href="#" class="nav-item active">
+                    <div class="nav-icon">➕</div>
+                    Add Data
+                </a>
+                <a href="import-export.html" class="nav-item">
+                    <div class="nav-icon">📥</div>
+                    Import/Export
+                </a>
+                <a href="#" class="nav-item">
+                    <div class="nav-icon">✅</div>
+                    Data Quality
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Emissions Tracking</div>
+                <a href="goals-tracking.html" class="nav-item">
+                    <div class="nav-icon">🎯</div>
+                    Targets & Goals
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Reports & Compliance</div>
+                <a href="HW-Reports-Application-Flow.html" class="nav-item">
+                    <div class="nav-icon">📄</div>
+                    Reports
+                </a>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Emissions Data Entry</h1>
+                <p class="page-subtitle">Add new emissions data to track your organization's carbon footprint</p>
+            </div>
+
+            <div class="form-container">
+                <h2 class="form-title">Add New Emissions Data</h2>
+                
+                <form id="emissionsForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">Emissions Scope</label>
+                            <select class="form-select" required>
+                                <option value="">Select emissions scope</option>
+                                <option value="scope1">Scope 1 - Direct emissions</option>
+                                <option value="scope2">Scope 2 - Indirect energy emissions</option>
+                                <option value="scope3">Scope 3 - Other indirect emissions</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label required">Emission Source</label>
+                            <select class="form-select" required>
+                                <option value="">Select emission source</option>
+                                <option value="electricity">Electricity consumption</option>
+                                <option value="natural_gas">Natural gas</option>
+                                <option value="fuel_combustion">Fuel combustion</option>
+                                <option value="fleet_vehicles">Fleet vehicles</option>
+                                <option value="business_travel">Business travel</option>
+                                <option value="purchased_goods">Purchased goods</option>
+                                <option value="waste">Waste disposal</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label required">Reporting Period</label>
+                            <input type="month" class="form-input" required>
+                            <div class="form-help">Month and year for this data</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Region</label>
+                            <select class="form-select">
+                                <option value="asia_pacific">Asia Pacific</option>
+                                <option value="north_america">North America</option>
+                                <option value="europe">Europe</option>
+                                <option value="latin_america">Latin America</option>
+                                <option value="middle_east_africa">Middle East & Africa</option>
+                            </select>
+                            <div class="form-help">Region from tenant profile</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label required">Activity Data</label>
+                            <input type="number" step="0.01" class="form-input" placeholder="0.00" required>
+                            <div class="form-help">Amount of activity (e.g., kWh, liters, km)</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Emission Factor (Optional)</label>
+                            <input type="text" class="form-input" placeholder="Auto-calculate" readonly>
+                            <div class="form-help">kg CO₂e per unit (auto-calculated if empty)</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label required">Facility/Location</label>
+                            <input type="text" class="form-input" placeholder="e.g., Main Office, Factory A" required>
+                            <div class="form-help">Building, site, or facility name</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Supplier ID (Optional)</label>
+                            <input type="text" class="form-input" placeholder="Supplier identifier">
+                            <div class="form-help">For Scope 3 emissions</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Material Code (Optional)</label>
+                            <input type="text" class="form-input" placeholder="Material/product code">
+                            <div class="form-help">Product or material reference</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <label class="form-label">Description (Optional)</label>
+                        <textarea class="form-textarea" placeholder="Additional details about this emissions entry..."></textarea>
+                        <div class="form-help">Additional notes about this emissions data</div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="hwcap_dashboard.html" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">💾 Save Emissions Data</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('emissionsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Emissions data saved successfully! (This is a demo)');
+            // In a real application, this would submit the data to the server
+        });
+    </script>
+</body>
+</html>

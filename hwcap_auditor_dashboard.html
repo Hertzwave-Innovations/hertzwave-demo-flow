@@ -1,0 +1,1947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HWCAP Enterprise Auditor Pack</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d5f4f 0%, #3d7f6f 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .logo-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+        }
+
+        .logo-subtitle {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            margin-top: 0.25rem;
+        }
+
+        .tier-badge {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 0.3rem;
+            align-self: flex-start;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .client-context {
+            text-align: right;
+            margin-right: 1rem;
+            padding-right: 1rem;
+            border-right: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .client-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .client-subtitle {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .user-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .notification-badge {
+            position: relative;
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+        }
+
+        .container {
+            margin-top: 90px;
+            padding: 2rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Mode Selection */
+        .mode-selection {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            border-left: 5px solid #ff6b35;
+        }
+
+        .mode-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .mode-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d5f4f;
+        }
+
+        .mode-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .mode-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #3d7f6f;
+            border-radius: 8px;
+            background: white;
+            color: #3d7f6f;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn.active {
+            background: #3d7f6f;
+            color: white;
+        }
+
+        .mode-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(61, 127, 111, 0.2);
+        }
+
+        .mode-description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* Client Context Panel */
+        .client-context-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        .context-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d5f4f;
+            margin-bottom: 1rem;
+        }
+
+        /* Single Client Mode */
+        .single-client-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .client-detail-card {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #3d7f6f;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: #666;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* Multiple Clients Mode */
+        .client-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .client-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .client-card:hover {
+            border-color: #3d7f6f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(61, 127, 111, 0.15);
+        }
+
+        .client-card.active {
+            border-color: #2d5f4f;
+            background: linear-gradient(135deg, #f0f7f5 0%, #e8f5f1 100%);
+        }
+
+        .client-card.active::before {
+            content: '✓ Active';
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: #2d5f4f;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .client-card-header {
+            margin-bottom: 1rem;
+        }
+
+        .client-card-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d5f4f;
+            margin-bottom: 0.25rem;
+        }
+
+        .client-card-status {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.6rem;
+            background: #e8f5f1;
+            color: #2d5f4f;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .client-card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .client-detail {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .client-detail .detail-label {
+            min-width: 80px;
+        }
+
+        .client-detail .detail-value {
+            text-align: right;
+            flex: 1;
+        }
+
+        /* Audit Workflow Steps */
+        .audit-workflow {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        .workflow-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .workflow-title {
+            color: #2d5f4f;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .workflow-subtitle {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .workflow-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+            margin: 2rem 0;
+            padding: 0 25px;
+        }
+
+        .workflow-steps::before {
+            content: '';
+            position: absolute;
+            top: 25px;
+            left: 50px;
+            right: 50px;
+            height: 3px;
+            background: #e0e0e0;
+            z-index: 1;
+        }
+
+        .workflow-progress {
+            position: absolute;
+            top: 25px;
+            left: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, #2d5f4f, #3d7f6f);
+            z-index: 2;
+            width: 16.66%;
+            transition: width 0.3s ease;
+        }
+
+        .workflow-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 3;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: calc(100% / 7);
+        }
+
+        .step-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+
+        .step-circle.completed {
+            background: #2d5f4f;
+            color: white;
+        }
+
+        .step-circle.active {
+            background: #3d7f6f;
+            color: white;
+            border-color: #2d5f4f;
+            transform: scale(1.1);
+        }
+
+        .step-circle.pending {
+            background: white;
+            color: #999;
+            border-color: #e0e0e0;
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            text-align: center;
+            max-width: 100px;
+            font-weight: 500;
+        }
+
+        .step-label.completed,
+        .step-label.active {
+            color: #2d5f4f;
+            font-weight: 600;
+        }
+
+        .step-label.pending {
+            color: #999;
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            border-left: 5px solid #3d7f6f;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .metric-title {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .metric-icon {
+            font-size: 1.5rem;
+            color: #3d7f6f;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2d5f4f;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-subtitle {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .status-excellent {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-good {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-needs-attention {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Section Styles */
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d5f4f;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2d5f4f, #3d7f6f);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(61, 127, 111, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #3d7f6f;
+            border: 2px solid #3d7f6f;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f7f5;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        /* Projects Table */
+        .projects-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            table-layout: fixed;
+        }
+
+        .projects-table th,
+        .projects-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+            overflow: hidden;
+        }
+
+        .projects-table th:nth-child(1) { width: 20%; }
+        .projects-table th:nth-child(2) { width: 15%; }
+        .projects-table th:nth-child(3) { width: 20%; }
+        .projects-table th:nth-child(4) { width: 15%; }
+        .projects-table th:nth-child(5) { width: 12%; }
+        .projects-table th:nth-child(6) { width: 18%; }
+
+        .projects-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2d5f4f;
+            font-size: 0.9rem;
+        }
+
+        .projects-table td {
+            font-size: 0.85rem;
+            vertical-align: middle;
+        }
+
+        .project-name {
+            font-weight: 600;
+            color: #2d5f4f;
+        }
+
+        .framework-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+
+        .framework-badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            background: #e8f5f1;
+            color: #2d5f4f;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100px;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2d5f4f, #3d7f6f);
+            transition: width 0.3s ease;
+        }
+
+        .project-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .action-card {
+            padding: 1.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .action-card:hover {
+            border-color: #3d7f6f;
+            background: #f0f7f5;
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            font-size: 3rem;
+            margin: 0 auto 1rem;
+            color: #3d7f6f;
+        }
+
+        .action-title {
+            font-weight: 600;
+            color: #2d5f4f;
+            margin-bottom: 0.5rem;
+        }
+
+        .action-description {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .compliance-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .compliance-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .compliance-score {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d5f4f;
+        }
+
+        .compliance-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        /* Hidden elements */
+        .hidden {
+            display: none;
+        }
+
+        /* Screen Views */
+        .screen-view {
+            margin-top: 2rem;
+        }
+
+        /* Evidence Vault Styles */
+        .evidence-categories {
+            margin-top: 1.5rem;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 1rem;
+        }
+
+        .category-tab {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+            color: #666;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .category-tab.active {
+            background: #3d7f6f;
+            color: white;
+            border-color: #3d7f6f;
+        }
+
+        .category-tab:hover {
+            border-color: #3d7f6f;
+            color: #3d7f6f;
+        }
+
+        .evidence-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .evidence-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .evidence-item:hover {
+            border-color: #3d7f6f;
+            box-shadow: 0 2px 8px rgba(61, 127, 111, 0.1);
+        }
+
+        .evidence-icon {
+            font-size: 2rem;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .evidence-info {
+            flex: 1;
+        }
+
+        .evidence-name {
+            font-weight: 600;
+            color: #2d5f4f;
+            margin-bottom: 0.5rem;
+        }
+
+        .evidence-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .evidence-meta span {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .evidence-type {
+            background: #f8f9fa;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .evidence-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .ai-confidence {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .evidence-frameworks {
+            display: flex;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+        }
+
+        .evidence-actions {
+            display: flex;
+            gap: 0.5rem;
+            min-width: 150px;
+        }
+
+        /* Data Lineage Styles */
+        .lineage-container {
+            margin-top: 1.5rem;
+        }
+
+        .lineage-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .lineage-header h3 {
+            color: #2d5f4f;
+            margin-bottom: 0.5rem;
+        }
+
+        .lineage-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .lineage-node {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 1rem;
+            min-width: 200px;
+            max-width: 250px;
+            text-align: center;
+        }
+
+        .lineage-node.source {
+            border-color: #3498db;
+        }
+
+        .lineage-node.calculation {
+            border-color: #f39c12;
+        }
+
+        .lineage-node.result {
+            border-color: #27ae60;
+        }
+
+        .node-header {
+            font-weight: 600;
+            padding: 0.5rem;
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+        }
+
+        .lineage-node.source .node-header {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .lineage-node.calculation .node-header {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .lineage-node.result .node-header {
+            background: #e8f5e8;
+            color: #388e3c;
+        }
+
+        .node-title {
+            font-weight: 600;
+            color: #2d5f4f;
+            margin-bottom: 0.5rem;
+        }
+
+        .node-details {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .node-date {
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .lineage-arrow {
+            font-size: 2rem;
+            color: #3d7f6f;
+            font-weight: bold;
+        }
+
+        .lineage-metadata {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .lineage-metadata h4 {
+            color: #2d5f4f;
+            margin-bottom: 1rem;
+        }
+
+        .audit-entries {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .audit-entry {
+            display: flex;
+            gap: 1rem;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 4px;
+        }
+
+        .audit-date {
+            min-width: 120px;
+            font-weight: 500;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .audit-action {
+            color: #333;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo-section">
+            <div class="logo">HERTZWAVE</div>
+            <div class="logo-subtitle">Carbon Accounting Platform</div>
+            <div class="tier-badge">ENTERPRISE AUDITOR PACK</div>
+        </div>
+        <div class="user-info">
+            <div class="client-context">
+                <div class="client-name" id="current-client-name">Acme Manufacturing Ltd</div>
+                <div class="client-subtitle" id="current-client-subtitle">Enterprise Client Access</div>
+            </div>
+            <div class="notification-badge">
+                🔔
+                <div class="notification-count">3</div>
+            </div>
+            <div class="user-badge">Sarah Mitchell | Lead Auditor | Deloitte</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Mode Selection -->
+        <div class="mode-selection">
+            <div class="mode-header">
+                <div class="mode-title">Enterprise Auditor Pack - Select Mode</div>
+                <div class="mode-buttons">
+                    <button class="mode-btn active" id="independent-mode-btn" onclick="setMode('independent')">Independent Auditor</button>
+                    <button class="mode-btn" id="consultant-mode-btn" onclick="setMode('consultant')">ESG Consultant</button>
+                </div>
+            </div>
+            <div class="mode-description" id="mode-description">
+                <strong>Independent Auditor Mode:</strong> Access and audit data for a single enterprise client. Review complete carbon accounting data, evidence, and controls for assurance purposes.
+            </div>
+        </div>
+
+        <!-- Client Context Panel -->
+        <div class="client-context-panel">
+            <!-- Single Client Mode Content -->
+            <div id="single-client-mode">
+                <div class="context-title">Current Audit Engagement</div>
+                <div class="single-client-info">
+                    <div class="client-detail-card">
+                        <div class="detail-label">Enterprise Client</div>
+                        <div class="detail-value">Acme Manufacturing Ltd</div>
+                    </div>
+                    <div class="client-detail-card">
+                        <div class="detail-label">Audit Period</div>
+                        <div class="detail-value">FY 2024-25</div>
+                    </div>
+                    <div class="client-detail-card">
+                        <div class="detail-label">Frameworks</div>
+                        <div class="detail-value">ISSB S2, CSRD E1, BRSR Core</div>
+                    </div>
+                    <div class="client-detail-card">
+                        <div class="detail-label">Audit Firm</div>
+                        <div class="detail-value">Deloitte Haskins & Sells</div>
+                    </div>
+                    <div class="client-detail-card">
+                        <div class="detail-label">Assurance Level</div>
+                        <div class="detail-value">Limited Assurance</div>
+                    </div>
+                    <div class="client-detail-card">
+                        <div class="detail-label">Entities</div>
+                        <div class="detail-value">3 Legal Entities</div>
+                    </div>
+                    <div class="client-detail-card">
+                        <div class="detail-label">Facilities</div>
+                        <div class="detail-value">12 Manufacturing Sites</div>
+                    </div>
+                    <div class="client-detail-card">
+                        <div class="detail-label">Due Date</div>
+                        <div class="detail-value">March 15, 2025</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multiple Clients Mode Content -->
+            <div id="multiple-clients-mode" class="hidden">
+                <div class="context-title">ESG Consulting Portfolio</div>
+                <div class="client-cards">
+                    <div class="client-card active" onclick="selectClient('acme')">
+                        <div class="client-card-header">
+                            <div class="client-card-name">Acme Manufacturing Ltd</div>
+                            <div class="client-card-status">Active Audit</div>
+                        </div>
+                        <div class="client-card-details">
+                            <div class="client-detail">
+                                <span class="detail-label">Frameworks:</span>
+                                <span class="detail-value">ISSB S2, CSRD E1, BRSR Core</span>
+                            </div>
+                            <div class="client-detail">
+                                <span class="detail-label">Progress:</span>
+                                <span class="detail-value">Evidence Collection (65%)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="client-card" onclick="selectClient('globaltech')">
+                        <div class="client-card-header">
+                            <div class="client-card-name">Global Tech Solutions</div>
+                            <div class="client-card-status">Control Testing</div>
+                        </div>
+                        <div class="client-card-details">
+                            <div class="client-detail">
+                                <span class="detail-label">Frameworks:</span>
+                                <span class="detail-value">CSRD E1, CDP Climate</span>
+                            </div>
+                            <div class="client-detail">
+                                <span class="detail-label">Progress:</span>
+                                <span class="detail-value">Control Testing (80%)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="client-card" onclick="selectClient('sustainable')">
+                        <div class="client-card-header">
+                            <div class="client-card-name">Sustainable Industries Corp</div>
+                            <div class="client-card-status">Planning</div>
+                        </div>
+                        <div class="client-card-details">
+                            <div class="client-detail">
+                                <span class="detail-label">Frameworks:</span>
+                                <span class="detail-value">ISSB S2, BRSR Core</span>
+                            </div>
+                            <div class="client-detail">
+                                <span class="detail-label">Progress:</span>
+                                <span class="detail-value">Project Setup (25%)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Audit Workflow Progress -->
+        <div class="audit-workflow">
+            <div class="workflow-header">
+                <div class="workflow-title" id="workflow-title">Audit Progress: Acme Manufacturing Ltd</div>
+                <div class="workflow-subtitle">Track audit journey from project setup to certification</div>
+            </div>
+            
+            <div class="workflow-steps">
+                <div class="workflow-progress" id="workflow-progress"></div>
+                
+                <div class="workflow-step" onclick="goToStep(1)">
+                    <div class="step-circle completed">✓</div>
+                    <div class="step-label completed">Project Setup</div>
+                </div>
+                
+                <div class="workflow-step" onclick="goToStep(2)">
+                    <div class="step-circle active">2</div>
+                    <div class="step-label active">Evidence Collection</div>
+                </div>
+                
+                <div class="workflow-step" onclick="goToStep(3)">
+                    <div class="step-circle pending">3</div>
+                    <div class="step-label pending">Data Validation</div>
+                </div>
+                
+                <div class="workflow-step" onclick="goToStep(4)">
+                    <div class="step-circle pending">4</div>
+                    <div class="step-label pending">Control Testing</div>
+                </div>
+                
+                <div class="workflow-step" onclick="goToStep(5)">
+                    <div class="step-circle pending">5</div>
+                    <div class="step-label pending">Compliance Review</div>
+                </div>
+                
+                <div class="workflow-step" onclick="goToStep(6)">
+                    <div class="step-circle pending">6</div>
+                    <div class="step-label pending">Report Generation</div>
+                </div>
+                
+                <div class="workflow-step" onclick="goToStep(7)">
+                    <div class="step-circle pending">7</div>
+                    <div class="step-label pending">Certification</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title" id="metric-1-title">Audit Readiness Score</div>
+                    <div class="metric-icon">📊</div>
+                </div>
+                <div class="metric-value" id="metric-1-value">94%</div>
+                <div class="metric-subtitle" id="metric-1-subtitle">
+                    Excellent readiness
+                    <span class="status-badge status-excellent">Ready for Review</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title" id="metric-2-title">Active Audit Projects</div>
+                    <div class="metric-icon">📋</div>
+                </div>
+                <div class="metric-value" id="metric-2-value">1</div>
+                <div class="metric-subtitle" id="metric-2-subtitle">
+                    Multi-framework assurance
+                    <span class="status-badge status-good">On Track</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title" id="metric-3-title">Evidence Completeness</div>
+                    <div class="metric-icon">📄</div>
+                </div>
+                <div class="metric-value" id="metric-3-value">87%</div>
+                <div class="metric-subtitle" id="metric-3-subtitle">
+                    8 evidence gaps identified
+                    <span class="status-badge status-needs-attention">Action Needed</span>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <div class="metric-title" id="metric-4-title">Framework Coverage</div>
+                    <div class="metric-icon">🌍</div>
+                </div>
+                <div class="metric-value" id="metric-4-value">3/8</div>
+                <div class="metric-subtitle" id="metric-4-subtitle">
+                    ISSB S2, CSRD E1, BRSR Core
+                    <span class="status-badge status-excellent">Complete</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Projects -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title" id="projects-title">Current Audit Project</div>
+                <div class="section-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="exportAuditSummary()">Export Audit Summary</button>
+                    <button class="btn btn-primary btn-sm" onclick="openEvidenceVault()">Access Evidence Vault</button>
+                </div>
+            </div>
+
+            <table class="projects-table" id="projects-table">
+                <thead>
+                    <tr>
+                        <th>Project Name</th>
+                        <th id="table-header-2">Entity</th>
+                        <th>Frameworks</th>
+                        <th>Status</th>
+                        <th>Due Date</th>
+                        <th>Progress</th>
+                    </tr>
+                </thead>
+                <tbody id="projects-table-body">
+                    <tr>
+                        <td class="project-name">FY 2024-25 Multi-Framework Assurance</td>
+                        <td><strong>Acme Manufacturing Ltd</strong></td>
+                        <td>
+                            <div class="framework-badges">
+                                <span class="framework-badge">ISSB S2</span>
+                                <span class="framework-badge">CSRD E1</span>
+                                <span class="framework-badge">BRSR Core</span>
+                            </div>
+                        </td>
+                        <td><span class="status-badge status-good">Evidence Review</span></td>
+                        <td>Mar 15, 2025</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 65%"></div>
+                            </div>
+                            <small>65%</small>
+                        </td>
+                    </tr>
+                    <tr class="actions-row">
+                        <td colspan="6">
+                            <div class="project-actions">
+                                <button class="btn btn-primary btn-sm">Enter Workspace</button>
+                                <button class="btn btn-secondary btn-sm">View Evidence</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Global Compliance Overview -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Global Framework Compliance</div>
+                <div class="section-actions">
+                    <button class="btn btn-secondary btn-sm">View Details</button>
+                </div>
+            </div>
+            
+            <div class="compliance-overview">
+                <div class="compliance-item">
+                    <div class="compliance-score">98%</div>
+                    <div class="compliance-label">ISSB S2</div>
+                </div>
+                <div class="compliance-item">
+                    <div class="compliance-score">85%</div>
+                    <div class="compliance-label">CSRD E1</div>
+                </div>
+                <div class="compliance-item">
+                    <div class="compliance-score">100%</div>
+                    <div class="compliance-label">BRSR Core</div>
+                </div>
+                <div class="compliance-item">
+                    <div class="compliance-score">--</div>
+                    <div class="compliance-label">CDP Climate</div>
+                </div>
+                <div class="compliance-item">
+                    <div class="compliance-score">--</div>
+                    <div class="compliance-label">UK SECR</div>
+                </div>
+                <div class="compliance-item">
+                    <div class="compliance-score">--</div>
+                    <div class="compliance-label">HK HKEX</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Quick Actions</div>
+            </div>
+            
+            <div class="quick-actions">
+                <div class="action-card" onclick="navigateToScreen('data-lineage')">
+                    <div class="action-icon">🔍</div>
+                    <div class="action-title">Explore Data Lineage</div>
+                    <div class="action-description">Trace data from source to final reported values</div>
+                </div>
+                
+                <div class="action-card" onclick="navigateToScreen('evidence-vault')">
+                    <div class="action-icon">📁</div>
+                    <div class="action-title">Access Evidence Vault</div>
+                    <div class="action-description">Review and organize supporting documentation</div>
+                </div>
+                
+                <div class="action-card" onclick="navigateToScreen('control-testing')">
+                    <div class="action-icon">✅</div>
+                    <div class="action-title">Run Control Tests</div>
+                    <div class="action-description">Execute automated testing procedures</div>
+                </div>
+                
+                <div class="action-card" onclick="navigateToScreen('compliance-mapping')">
+                    <div class="action-icon">🌍</div>
+                    <div class="action-title">Check Compliance</div>
+                    <div class="action-description">Review global framework requirements</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evidence Vault View (Hidden by default) -->
+        <div id="evidence-vault-view" class="screen-view hidden">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">Evidence Vault - Acme Manufacturing Ltd</div>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="showScreen('dashboard')">← Back to Dashboard</button>
+                        <button class="btn btn-primary btn-sm">Upload Documents</button>
+                    </div>
+                </div>
+
+                <!-- Evidence Categories -->
+                <div class="evidence-categories">
+                    <div class="category-tabs">
+                        <button class="category-tab active" onclick="showEvidenceCategory('all')">All Evidence</button>
+                        <button class="category-tab" onclick="showEvidenceCategory('scope1')">Scope 1</button>
+                        <button class="category-tab" onclick="showEvidenceCategory('scope2')">Scope 2</button>
+                        <button class="category-tab" onclick="showEvidenceCategory('scope3')">Scope 3</button>
+                        <button class="category-tab" onclick="showEvidenceCategory('supporting')">Supporting Docs</button>
+                    </div>
+
+                    <!-- Evidence Grid -->
+                    <div class="evidence-grid">
+                        <div class="evidence-item" data-category="scope2">
+                            <div class="evidence-icon">⚡</div>
+                            <div class="evidence-info">
+                                <div class="evidence-name">BESCOM_Electricity_Bill_Oct24.pdf</div>
+                                <div class="evidence-meta">
+                                    <span class="evidence-type">Utility Bill</span>
+                                    <span class="evidence-size">2.4 MB</span>
+                                    <span class="evidence-date">Oct 16, 2024</span>
+                                </div>
+                                <div class="evidence-status">
+                                    <span class="status-badge status-excellent">✓ Validated</span>
+                                    <span class="ai-confidence">AI Conf: 95%</span>
+                                </div>
+                                <div class="evidence-frameworks">
+                                    <span class="framework-badge">ISSB S2</span>
+                                    <span class="framework-badge">CSRD E1</span>
+                                </div>
+                            </div>
+                            <div class="evidence-actions">
+                                <button class="btn btn-secondary btn-sm">View</button>
+                                <button class="btn btn-primary btn-sm">Audit Notes</button>
+                            </div>
+                        </div>
+
+                        <div class="evidence-item" data-category="scope1">
+                            <div class="evidence-icon">🚗</div>
+                            <div class="evidence-info">
+                                <div class="evidence-name">Fleet_Fuel_Records_Q2_2024.xlsx</div>
+                                <div class="evidence-meta">
+                                    <span class="evidence-type">Fuel Records</span>
+                                    <span class="evidence-size">856 KB</span>
+                                    <span class="evidence-date">Sep 30, 2024</span>
+                                </div>
+                                <div class="evidence-status">
+                                    <span class="status-badge status-good">⚠ Pending Review</span>
+                                    <span class="ai-confidence">AI Conf: 87%</span>
+                                </div>
+                                <div class="evidence-frameworks">
+                                    <span class="framework-badge">ISSB S2</span>
+                                    <span class="framework-badge">BRSR Core</span>
+                                </div>
+                            </div>
+                            <div class="evidence-actions">
+                                <button class="btn btn-secondary btn-sm">View</button>
+                                <button class="btn btn-primary btn-sm">Validate</button>
+                            </div>
+                        </div>
+
+                        <div class="evidence-item" data-category="scope3">
+                            <div class="evidence-icon">✈️</div>
+                            <div class="evidence-info">
+                                <div class="evidence-name">Business_Travel_Emissions_2024.csv</div>
+                                <div class="evidence-meta">
+                                    <span class="evidence-type">Travel Data</span>
+                                    <span class="evidence-size">1.2 MB</span>
+                                    <span class="evidence-date">Nov 02, 2024</span>
+                                </div>
+                                <div class="evidence-status">
+                                    <span class="status-badge status-excellent">✓ Validated</span>
+                                    <span class="ai-confidence">AI Conf: 92%</span>
+                                </div>
+                                <div class="evidence-frameworks">
+                                    <span class="framework-badge">CSRD E1</span>
+                                    <span class="framework-badge">CDP Climate</span>
+                                </div>
+                            </div>
+                            <div class="evidence-actions">
+                                <button class="btn btn-secondary btn-sm">View</button>
+                                <button class="btn btn-primary btn-sm">Audit Notes</button>
+                            </div>
+                        </div>
+
+                        <div class="evidence-item" data-category="supporting">
+                            <div class="evidence-icon">📋</div>
+                            <div class="evidence-info">
+                                <div class="evidence-name">Carbon_Accounting_Policy_v2.1.pdf</div>
+                                <div class="evidence-meta">
+                                    <span class="evidence-type">Policy Document</span>
+                                    <span class="evidence-size">3.8 MB</span>
+                                    <span class="evidence-date">Aug 15, 2024</span>
+                                </div>
+                                <div class="evidence-status">
+                                    <span class="status-badge status-excellent">✓ Validated</span>
+                                    <span class="ai-confidence">Manual Review</span>
+                                </div>
+                                <div class="evidence-frameworks">
+                                    <span class="framework-badge">All Frameworks</span>
+                                </div>
+                            </div>
+                            <div class="evidence-actions">
+                                <button class="btn btn-secondary btn-sm">View</button>
+                                <button class="btn btn-primary btn-sm">Audit Notes</button>
+                            </div>
+                        </div>
+
+                        <div class="evidence-item" data-category="scope2">
+                            <div class="evidence-icon">🏭</div>
+                            <div class="evidence-info">
+                                <div class="evidence-name">Generator_Diesel_Consumption_Nov24.pdf</div>
+                                <div class="evidence-meta">
+                                    <span class="evidence-type">Fuel Bill</span>
+                                    <span class="evidence-size">1.8 MB</span>
+                                    <span class="evidence-date">Nov 10, 2024</span>
+                                </div>
+                                <div class="evidence-status">
+                                    <span class="status-badge status-needs-attention">❌ Flagged</span>
+                                    <span class="ai-confidence">AI Conf: 67%</span>
+                                </div>
+                                <div class="evidence-frameworks">
+                                    <span class="framework-badge">ISSB S2</span>
+                                </div>
+                            </div>
+                            <div class="evidence-actions">
+                                <button class="btn btn-secondary btn-sm">View</button>
+                                <button class="btn btn-primary btn-sm">Review Issue</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Lineage View (Hidden by default) -->
+        <div id="data-lineage-view" class="screen-view hidden">
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">Data Lineage Explorer</div>
+                    <div class="section-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="showScreen('dashboard')">← Back to Dashboard</button>
+                        <button class="btn btn-primary btn-sm">Export Lineage</button>
+                    </div>
+                </div>
+
+                <div class="lineage-container">
+                    <div class="lineage-header">
+                        <h3>Tracing: Scope 2 Electricity Emissions - Oct 2024</h3>
+                        <p>Complete data flow from source to final reported CO₂e value</p>
+                    </div>
+
+                    <div class="lineage-flow">
+                        <div class="lineage-node source">
+                            <div class="node-header">📊 Source Data</div>
+                            <div class="node-content">
+                                <div class="node-title">BESCOM Electricity Bill</div>
+                                <div class="node-details">15,000 kWh consumed</div>
+                                <div class="node-date">Oct 15, 2024</div>
+                            </div>
+                        </div>
+
+                        <div class="lineage-arrow">→</div>
+
+                        <div class="lineage-node calculation">
+                            <div class="node-header">⚙️ Calculation</div>
+                            <div class="node-content">
+                                <div class="node-title">Emission Factor Applied</div>
+                                <div class="node-details">0.82 kg CO₂e/kWh (India Grid)</div>
+                                <div class="node-date">IPCC 2021 Guidelines</div>
+                            </div>
+                        </div>
+
+                        <div class="lineage-arrow">→</div>
+
+                        <div class="lineage-node result">
+                            <div class="node-header">📈 Final Result</div>
+                            <div class="node-content">
+                                <div class="node-title">Total Scope 2 Emissions</div>
+                                <div class="node-details">12.3 tonnes CO₂e</div>
+                                <div class="node-date">Validated & Approved</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lineage-metadata">
+                        <h4>Audit Trail</h4>
+                        <div class="audit-entries">
+                            <div class="audit-entry">
+                                <span class="audit-date">Oct 16, 14:30</span>
+                                <span class="audit-action">Data uploaded by Priya S. (Data Manager)</span>
+                            </div>
+                            <div class="audit-entry">
+                                <span class="audit-date">Oct 16, 15:45</span>
+                                <span class="audit-action">AI validation completed (95% confidence)</span>
+                            </div>
+                            <div class="audit-entry">
+                                <span class="audit-date">Oct 17, 09:15</span>
+                                <span class="audit-action">Manual review by Raj K. (ESG Manager)</span>
+                            </div>
+                            <div class="audit-entry">
+                                <span class="audit-date">Oct 17, 11:30</span>
+                                <span class="audit-action">Approved for reporting</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'independent';
+        let currentClient = 'acme';
+        let currentScreen = 'dashboard';
+        
+        // Client data for different scenarios
+        const clientData = {
+            acme: {
+                name: 'Acme Manufacturing Ltd',
+                step: 2,
+                progress: 65,
+                status: 'Evidence Collection'
+            },
+            globaltech: {
+                name: 'Global Tech Solutions',
+                step: 4,
+                progress: 80,
+                status: 'Control Testing'
+            },
+            sustainable: {
+                name: 'Sustainable Industries Corp',
+                step: 1,
+                progress: 25,
+                status: 'Project Setup'
+            }
+        };
+
+        // Mode data for UI updates
+        const modeData = {
+            independent: {
+                description: '<strong>Independent Auditor Mode:</strong> Access and audit data for a single enterprise client. Review complete carbon accounting data, evidence, and controls for assurance purposes.',
+                metrics: {
+                    metric1: { title: 'Audit Readiness Score', value: '94%', subtitle: 'Excellent readiness<span class="status-badge status-excellent">Ready for Review</span>' },
+                    metric2: { title: 'Active Audit Projects', value: '1', subtitle: 'Multi-framework assurance<span class="status-badge status-good">On Track</span>' },
+                    metric3: { title: 'Evidence Completeness', value: '87%', subtitle: '8 evidence gaps identified<span class="status-badge status-needs-attention">Action Needed</span>' },
+                    metric4: { title: 'Framework Coverage', value: '3/8', subtitle: 'ISSB S2, CSRD E1, BRSR Core<span class="status-badge status-excellent">Complete</span>' }
+                },
+                projectsTitle: 'Current Audit Project',
+                tableHeader: 'Entity'
+            },
+            consultant: {
+                description: '<strong>ESG Consultant Mode:</strong> Manage multiple enterprise client audit projects. Monitor progress across your consulting portfolio and coordinate with various audit teams.',
+                metrics: {
+                    metric1: { title: 'Overall Portfolio Readiness', value: '89%', subtitle: 'Average across 3 active clients<span class="status-badge status-good">Good Progress</span>' },
+                    metric2: { title: 'Active Client Engagements', value: '3', subtitle: '5 total audit projects active<span class="status-badge status-good">On Track</span>' },
+                    metric3: { title: 'Evidence Collection Status', value: '78%', subtitle: '32 evidence gaps across clients<span class="status-badge status-needs-attention">Action Needed</span>' },
+                    metric4: { title: 'Framework Coverage', value: '6/8', subtitle: 'Frameworks being audited<span class="status-badge status-excellent">Comprehensive</span>' }
+                },
+                projectsTitle: 'Active Audit Projects',
+                tableHeader: 'Client'
+            }
+        };
+
+        const consultantProjects = [
+            {
+                name: 'FY 2024-25 Multi-Framework Assurance',
+                client: 'Acme Manufacturing Ltd',
+                frameworks: ['ISSB S2', 'CSRD E1', 'BRSR Core'],
+                status: 'Evidence Review',
+                statusClass: 'status-good',
+                dueDate: 'Mar 15, 2025',
+                progress: 65
+            },
+            {
+                name: 'Scope 3 Value Chain Verification',
+                client: 'Global Tech Solutions',
+                frameworks: ['CSRD E1', 'CDP Climate'],
+                status: 'Control Testing',
+                statusClass: 'status-excellent',
+                dueDate: 'Feb 28, 2025',
+                progress: 80
+            },
+            {
+                name: 'CSRD Double Materiality Assessment',
+                client: 'Global Tech Solutions',
+                frameworks: ['CSRD E1', 'ISSB S2'],
+                status: 'Data Validation',
+                statusClass: 'status-good',
+                dueDate: 'Mar 10, 2025',
+                progress: 45
+            },
+            {
+                name: 'Internal Controls Assessment',
+                client: 'Sustainable Industries Corp',
+                frameworks: ['ISSB S2', 'BRSR Core'],
+                status: 'Planning',
+                statusClass: 'status-needs-attention',
+                dueDate: 'Apr 10, 2025',
+                progress: 25
+            },
+            {
+                name: 'BRSR Core Indicator Verification',
+                client: 'Sustainable Industries Corp',
+                frameworks: ['BRSR Core'],
+                status: 'Not Started',
+                statusClass: 'status-needs-attention',
+                dueDate: 'Apr 25, 2025',
+                progress: 5
+            }
+        ];
+
+        function showScreen(screenId) {
+            // Hide all screens
+            const screens = ['dashboard', 'evidence-vault-view', 'data-lineage-view'];
+            screens.forEach(screen => {
+                const element = document.getElementById(screen);
+                if (element) {
+                    if (screen === 'dashboard') {
+                        // Dashboard elements are not in a container, so hide individual sections
+                        const dashboardSections = document.querySelectorAll('.mode-selection, .client-context-panel, .audit-workflow, .metrics-grid, .section');
+                        dashboardSections.forEach(section => {
+                            if (screenId === 'dashboard') {
+                                section.style.display = '';
+                            } else {
+                                section.style.display = 'none';
+                            }
+                        });
+                    } else {
+                        element.classList.add('hidden');
+                    }
+                }
+            });
+
+            // Show target screen
+            if (screenId === 'dashboard') {
+                // Dashboard elements are already shown above
+                currentScreen = 'dashboard';
+            } else {
+                const targetElement = document.getElementById(screenId);
+                if (targetElement) {
+                    targetElement.classList.remove('hidden');
+                    currentScreen = screenId;
+                }
+            }
+        }
+
+        function showEvidenceCategory(category) {
+            // Update active tab
+            document.querySelectorAll('.category-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Filter evidence items
+            const evidenceItems = document.querySelectorAll('.evidence-item');
+            evidenceItems.forEach(item => {
+                if (category === 'all' || item.dataset.category === category) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            
+            // Update mode buttons
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(mode + '-mode-btn').classList.add('active');
+            
+            // Update mode description
+            document.getElementById('mode-description').innerHTML = modeData[mode].description;
+            
+            // Show/hide appropriate client panels
+            if (mode === 'independent') {
+                document.getElementById('single-client-mode').classList.remove('hidden');
+                document.getElementById('multiple-clients-mode').classList.add('hidden');
+            } else {
+                document.getElementById('single-client-mode').classList.add('hidden');
+                document.getElementById('multiple-clients-mode').classList.remove('hidden');
+            }
+            
+            // Update metrics
+            updateMetrics(mode);
+            
+            // Update projects table
+            updateProjectsTable(mode);
+            
+            // Update workflow for current client
+            updateWorkflow();
+        }
+
+        function updateMetrics(mode) {
+            const metrics = modeData[mode].metrics;
+            
+            document.getElementById('metric-1-title').textContent = metrics.metric1.title;
+            document.getElementById('metric-1-value').textContent = metrics.metric1.value;
+            document.getElementById('metric-1-subtitle').innerHTML = metrics.metric1.subtitle;
+            
+            document.getElementById('metric-2-title').textContent = metrics.metric2.title;
+            document.getElementById('metric-2-value').textContent = metrics.metric2.value;
+            document.getElementById('metric-2-subtitle').innerHTML = metrics.metric2.subtitle;
+            
+            document.getElementById('metric-3-title').textContent = metrics.metric3.title;
+            document.getElementById('metric-3-value').textContent = metrics.metric3.value;
+            document.getElementById('metric-3-subtitle').innerHTML = metrics.metric3.subtitle;
+            
+            document.getElementById('metric-4-title').textContent = metrics.metric4.title;
+            document.getElementById('metric-4-value').textContent = metrics.metric4.value;
+            document.getElementById('metric-4-subtitle').innerHTML = metrics.metric4.subtitle;
+        }
+
+        function updateProjectsTable(mode) {
+            const projectsTitle = document.getElementById('projects-title');
+            const tableHeader = document.getElementById('table-header-2');
+            const tableBody = document.getElementById('projects-table-body');
+            
+            projectsTitle.textContent = modeData[mode].projectsTitle;
+            tableHeader.textContent = modeData[mode].tableHeader;
+            
+            if (mode === 'independent') {
+                // Single project view
+                tableBody.innerHTML = `
+                    <tr>
+                        <td class="project-name">FY 2024-25 Multi-Framework Assurance</td>
+                        <td><strong>Acme Manufacturing Ltd</strong></td>
+                        <td>
+                            <div class="framework-badges">
+                                <span class="framework-badge">ISSB S2</span>
+                                <span class="framework-badge">CSRD E1</span>
+                                <span class="framework-badge">BRSR Core</span>
+                            </div>
+                        </td>
+                        <td><span class="status-badge status-good">Evidence Review</span></td>
+                        <td>Mar 15, 2025</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 65%"></div>
+                            </div>
+                            <small>65%</small>
+                        </td>
+                    </tr>
+                    <tr class="actions-row">
+                        <td colspan="6">
+                            <div class="project-actions">
+                                <button class="btn btn-primary btn-sm">Enter Workspace</button>
+                                <button class="btn btn-secondary btn-sm">View Evidence</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                // Multiple projects view
+                tableBody.innerHTML = consultantProjects.map(project => `
+                    <tr>
+                        <td class="project-name">${project.name}</td>
+                        <td><strong>${project.client}</strong></td>
+                        <td>
+                            <div class="framework-badges">
+                                ${project.frameworks.map(fw => `<span class="framework-badge">${fw}</span>`).join('')}
+                            </div>
+                        </td>
+                        <td><span class="status-badge ${project.statusClass}">${project.status}</span></td>
+                        <td>${project.dueDate}</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${project.progress}%"></div>
+                            </div>
+                            <small>${project.progress}%</small>
+                        </td>
+                    </tr>
+                    <tr class="actions-row">
+                        <td colspan="6">
+                            <div class="project-actions">
+                                <button class="btn btn-primary btn-sm">Continue Work</button>
+                                <button class="btn btn-secondary btn-sm">View Details</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function selectClient(clientId) {
+            if (currentMode !== 'consultant') return;
+            
+            currentClient = clientId;
+            
+            // Update active client card
+            document.querySelectorAll('.client-card').forEach(card => card.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            // Update header client context
+            document.getElementById('current-client-name').textContent = clientData[clientId].name;
+            
+            // Update workflow
+            updateWorkflow();
+        }
+
+        function updateWorkflow() {
+            const client = clientData[currentClient];
+            
+            // Update workflow title
+            const workflowTitle = document.getElementById('workflow-title');
+            if (workflowTitle) {
+                if (currentMode === 'independent') {
+                    workflowTitle.textContent = `Audit Progress: ${client.name}`;
+                } else {
+                    workflowTitle.textContent = `Current Focus: ${client.name}`;
+                }
+            }
+            
+            // Update progress
+            goToStep(client.step, false);
+        }
+
+        function goToStep(stepNumber, updateData = true) {
+            // Update workflow progress
+            const progressBar = document.getElementById('workflow-progress');
+            if (!progressBar) return; // Safety check
+            
+            const steps = document.querySelectorAll('.workflow-step');
+            
+            // Calculate progress percentage
+            const progressPercentage = ((stepNumber - 1) / 6) * 100;
+            progressBar.style.width = progressPercentage + '%';
+            
+            // Update step states
+            steps.forEach((step, index) => {
+                const circle = step.querySelector('.step-circle');
+                const label = step.querySelector('.step-label');
+                
+                if (!circle || !label) return; // Safety check
+                
+                if (index + 1 < stepNumber) {
+                    // Completed steps
+                    circle.className = 'step-circle completed';
+                    circle.innerHTML = '✓';
+                    label.className = 'step-label completed';
+                } else if (index + 1 === stepNumber) {
+                    // Active step
+                    circle.className = 'step-circle active';
+                    circle.innerHTML = stepNumber;
+                    label.className = 'step-label active';
+                } else {
+                    // Pending steps
+                    circle.className = 'step-circle pending';
+                    circle.innerHTML = index + 1;
+                    label.className = 'step-label pending';
+                }
+            });
+            
+            // Update client data if this is a direct step change
+            if (updateData && clientData[currentClient]) {
+                clientData[currentClient].step = stepNumber;
+                
+                // Navigate to appropriate screen based on step
+                const screenMap = {
+                    1: 'project-setup',
+                    2: 'evidence-collection', 
+                    3: 'data-validation',
+                    4: 'control-testing',
+                    5: 'compliance-review',
+                    6: 'report-generation',
+                    7: 'certification'
+                };
+                
+                if (screenMap[stepNumber]) {
+                    navigateToScreen(screenMap[stepNumber]);
+                }
+            }
+        }
+        
+        function navigateToScreen(screenId) {
+            const clientName = clientData[currentClient] ? clientData[currentClient].name : 'Current Client';
+            
+            // Handle special screens
+            if (screenId === 'evidence-vault') {
+                showScreen('evidence-vault-view');
+                return;
+            }
+            
+            if (screenId === 'data-lineage') {
+                showScreen('data-lineage-view');
+                return;
+            }
+            
+            if (screenId === 'control-testing') {
+                alert(`Opening Control Testing Suite for ${clientName}\n\nFeatures available:\n• Pre-configured test procedures\n• Statistical sampling tools\n• Automated control effectiveness evaluation\n• Exception identification\n• Test results dashboard`);
+                return;
+            }
+            
+            if (screenId === 'compliance-mapping') {
+                alert(`Opening Global Compliance Mapping for ${clientName}\n\nFrameworks covered:\n• ISSB S2 Climate-Related Disclosures\n• EU CSRD/ESRS E1\n• India SEBI BRSR Core\n• CDP Climate Change Questionnaire\n• Cross-framework gap analysis`);
+                return;
+            }
+            
+            console.log(`Navigating to: ${screenId} for client: ${clientName}`);
+            alert(`Opening ${screenId} workspace for ${clientName}`);
+        }
+
+        function exportAuditSummary() {
+            alert('Generating comprehensive audit summary...\n\nReport will include:\n• Evidence completeness status\n• Control testing results\n• Framework compliance mapping\n• Risk assessment summary\n• Management letter points');
+        }
+
+        function openEvidenceVault() {
+            navigateToScreen('evidence-vault');
+        }
+        
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            setMode('independent');
+            currentClient = 'acme';
+            showScreen('dashboard');
+        });
+    </script>
+</body>
+</html>
