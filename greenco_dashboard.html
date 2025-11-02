@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenCo Dashboard - Hertzwave</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d5f4f 0%, #3d7f6f 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+        }
+
+        .user-info {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            display: flex;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            padding: 2rem 0;
+            position: fixed;
+            left: 0;
+            top: 70px;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #f5f5f5;
+        }
+
+        .nav-item.active {
+            background: #e8f5f1;
+            border-left-color: #3d7f6f;
+            color: #2d5f4f;
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-header h1 {
+            color: #2d5f4f;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-top: 4px solid #3d7f6f;
+            transition: all 0.3s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        .metric-card.star-rating {
+            border-top-color: #ffd700;
+            background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+        }
+
+        .metric-card.score-card {
+            border-top-color: #28a745;
+            background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);
+        }
+
+        .metric-card.progress-card {
+            border-top-color: #2196f3;
+            background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2d5f4f;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-change {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .metric-change.positive {
+            color: #28a745;
+        }
+
+        .metric-change.negative {
+            color: #dc3545;
+        }
+
+        .star-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .star {
+            font-size: 2.5rem;
+            color: #ddd;
+            transition: all 0.3s;
+        }
+
+        .star.filled {
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffc107 0%, #28a745 50%, #007bff 100%);
+            border-radius: 6px;
+            transition: width 0.8s ease;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d5f4f;
+        }
+
+        .parameter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .parameter-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            border-left: 6px solid #3d7f6f;
+        }
+
+        .parameter-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+        }
+
+        .parameter-card.excellent {
+            border-left-color: #28a745;
+            background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);
+        }
+
+        .parameter-card.good {
+            border-left-color: #ffc107;
+            background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+        }
+
+        .parameter-card.needs-improvement {
+            border-left-color: #dc3545;
+            background: linear-gradient(135deg, #fff0f0 0%, #ffffff 100%);
+        }
+
+        .parameter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .parameter-name {
+            font-weight: 600;
+            color: #2d5f4f;
+            font-size: 1.1rem;
+        }
+
+        .parameter-score {
+            text-align: right;
+        }
+
+        .score-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2d5f4f;
+        }
+
+        .score-max {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .parameter-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .status-excellent {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-good {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-needs-improvement {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .parameter-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .parameter-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+
+        .parameter-fill.excellent {
+            background: #28a745;
+        }
+
+        .parameter-fill.good {
+            background: #ffc107;
+        }
+
+        .parameter-fill.needs-improvement {
+            background: #dc3545;
+        }
+
+        .insights-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .recommendations-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .benchmark-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .recommendation-item {
+            background: #f0f7ff;
+            border-left: 4px solid #2196f3;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .recommendation-item h4 {
+            color: #2d5f4f;
+            margin-bottom: 0.5rem;
+        }
+
+        .recommendation-item p {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 0.5rem;
+        }
+
+        .recommendation-impact {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #2196f3;
+        }
+
+        .benchmark-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .benchmark-item:last-child {
+            border-bottom: none;
+        }
+
+        .benchmark-label {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .benchmark-value {
+            font-weight: 600;
+            color: #2d5f4f;
+        }
+
+        .benchmark-comparison {
+            font-size: 0.85rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .comparison-better {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .comparison-average {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .comparison-below {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .timeline-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-left: 3px solid #e0e0e0;
+            margin-left: 1rem;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e0e0e0;
+        }
+
+        .timeline-item.completed {
+            border-left-color: #28a745;
+        }
+
+        .timeline-item.completed::before {
+            background: #28a745;
+        }
+
+        .timeline-item.current {
+            border-left-color: #2196f3;
+            background: #f0f7ff;
+        }
+
+        .timeline-item.current::before {
+            background: #2196f3;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            color: #2d5f4f;
+        }
+
+        .timeline-date {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #3d7f6f;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2d5f4f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(61, 127, 111, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #3d7f6f;
+            border: 2px solid #3d7f6f;
+        }
+
+        .btn-secondary:hover {
+            background: #e8f5f1;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+            color: #1565c0;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+
+        .intensity-chart {
+            height: 300px;
+            display: flex;
+            align-items: end;
+            justify-content: space-around;
+            gap: 1rem;
+            padding: 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+
+        .intensity-bar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .bar {
+            width: 40px;
+            background: #3d7f6f;
+            border-radius: 4px 4px 0 0;
+            margin-bottom: 0.5rem;
+            position: relative;
+            transition: all 0.6s ease;
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #2d5f4f;
+        }
+
+        .bar-label {
+            font-size: 0.8rem;
+            color: #666;
+            text-align: center;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .insights-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">HERTZWAVE | GreenCo Dashboard</div>
+        <div class="user-info">Kamesh | Administrator</div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="nav-item active">GreenCo Dashboard</div>
+            <div class="nav-item">Assessment Progress</div>
+            <div class="nav-item">Parameter Details</div>
+            <div class="nav-item">Industry Benchmarks</div>
+            <div class="nav-item">Reports & Analytics</div>
+            <div class="nav-item">CII Submission</div>
+        </div>
+
+        <div class="main-content">
+            <div class="dashboard-header">
+                <h1>GreenCo Certification Dashboard</h1>
+                <p>Comprehensive environmental performance tracking for CII GreenCo certification</p>
+            </div>
+
+            <!-- Key Metrics Grid -->
+            <div class="metrics-grid">
+                <div class="metric-card star-rating">
+                    <div class="metric-label" style="margin-bottom: 0.5rem;">Current Star Rating</div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.5rem; color: #ffd700; margin-bottom: 0.25rem;">★★☆☆</div>
+                        <div style="font-size: 0.85rem; font-weight: 600; color: #2d5f4f; margin-bottom: 0.25rem;">2-Star Certified</div>
+                        <div style="font-size: 0.7rem; color: #28a745; font-weight: 500;">+1 from baseline</div>
+                    </div>
+                </div>
+
+                <div class="metric-card score-card">
+                    <div class="metric-value">68.5</div>
+                    <div class="metric-label">Total Score (out of 100)</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 68.5%;"></div>
+                    </div>
+                    <div class="metric-change positive">+8.5 points from last assessment</div>
+                </div>
+
+                <div class="metric-card progress-card">
+                    <div class="metric-value">7/10</div>
+                    <div class="metric-label">Parameters Completed</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 70%;"></div>
+                    </div>
+                    <div class="metric-change positive">3 parameters pending</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-value">11.5</div>
+                    <div class="metric-label">Points to 3-Star Rating</div>
+                    <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
+                        Target: 70 points • Current: 68.5 points
+                    </div>
+                    <div class="metric-change positive">Achievable in 6 months</div>
+                </div>
+            </div>
+
+            <!-- Assessment Status Alert -->
+            <div class="alert alert-info">
+                <strong>Assessment Status:</strong> Your GreenCo assessment is 70% complete with a current score of 68.5 points (2-star rating). Complete 3 remaining parameters to achieve 3-star certification. Next CII submission deadline: March 31, 2025.
+            </div>
+
+            <!-- Parameter Performance Grid -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2 class="chart-title">Parameter-wise Performance</h2>
+                    <div style="font-size: 0.9rem; color: #666;">Score breakdown across 10 environmental parameters</div>
+                </div>
+
+                <div class="parameter-grid">
+                    <div class="parameter-card excellent">
+                        <div class="parameter-header">
+                            <div>
+                                <div class="parameter-name">Energy Efficiency</div>
+                                <div style="font-size: 0.9rem; color: #666;">Consumption, renewable adoption</div>
+                            </div>
+                            <div class="parameter-score">
+                                <div class="score-value">22.5</div>
+                                <div class="score-max">/ 25</div>
+                            </div>
+                        </div>
+                        <div class="parameter-bar">
+                            <div class="parameter-fill excellent" style="width: 90%;"></div>
+                        </div>
+                        <div class="parameter-status status-excellent">Excellent (90%)</div>
+                    </div>
+
+                    <div class="parameter-card good">
+                        <div class="parameter-header">
+                            <div>
+                                <div class="parameter-name">Water Management</div>
+                                <div style="font-size: 0.9rem; color: #666;">Consumption, recycling, treatment</div>
+                            </div>
+                            <div class="parameter-score">
+                                <div class="score-value">8.0</div>
+                                <div class="score-max">/ 15</div>
+                            </div>
+                        </div>
+                        <div class="parameter-bar">
+                            <div class="parameter-fill good" style="width: 53%;"></div>
+                        </div>
+                        <div class="parameter-status status-good">Good (53%)</div>
+                    </div>
+
+                    <div class="parameter-card excellent">
+                        <div class="parameter-header">
+                            <div>
+                                <div class="parameter-name">Waste Management</div>
+                                <div style="font-size: 0.9rem; color: #666;">Generation, recycling, disposal</div>
+                            </div>
+                            <div class="parameter-score">
+                                <div class="score-value">12.0</div>
+                                <div class="score-max">/ 15</div>
+                            </div>
+                        </div>
+                        <div class="parameter-bar">
+                            <div class="parameter-fill excellent" style="width: 80%;"></div>
+                        </div>
+                        <div class="parameter-status status-excellent">Excellent (80%)</div>
+                    </div>
+
+                    <div class="parameter-card good">
+                        <div class="parameter-header">
+                            <div>
+                                <div class="parameter-name">Air Quality & Emissions</div>
+                                <div style="font-size: 0.9rem; color: #666;">GHG, air pollutants, monitoring</div>
+                            </div>
+                            <div class="parameter-score">
+                                <div class="score-value">15.5</div>
+                                <div class="score-max">/ 20</div>
+                            </div>
+                        </div>
+                        <div class="parameter-bar">
+                            <div class="parameter-fill good" style="width: 78%;"></div>
+                        </div>
+                        <div class="parameter-status status-good">Good (78%)</div>
+                    </div>
+
+                    <div class="parameter-card good">
+                        <div class="parameter-header">
+                            <div>
+                                <div class="parameter-name">Material Resource Efficiency</div>
+                                <div style="font-size: 0.9rem; color: #666;">Raw materials, recycled content</div>
+                            </div>
+                            <div class="parameter-score">
+                                <div class="score-value">6.5</div>
+                                <div class="score-max">/ 10</div>
+                            </div>
+                        </div>
+                        <div class="parameter-bar">
+                            <div class="parameter-fill good" style="width: 65%;"></div>
+                        </div>
+                        <div class="parameter-status status-good">Good (65%)</div>
+                    </div>
+
+                    <div class="parameter-card needs-improvement">
+                        <div class="parameter-header">
+                            <div>
+                                <div class="parameter-name">Green Infrastructure</div>
+                                <div style="font-size: 0.9rem; color: #666;">Building certifications, biodiversity</div>
+                            </div>
+                            <div class="parameter-score">
+                                <div class="score-value">2.0</div>
+                                <div class="score-max">/ 8</div>
+                            </div>
+                        </div>
+                        <div class="parameter-bar">
+                            <div class="parameter-fill needs-improvement" style="width: 25%;"></div>
+                        </div>
+                        <div class="parameter-status status-needs-improvement">Needs Improvement (25%)</div>
+                    </div>
+
+                    <div class="parameter-card needs-improvement">
+                        <div class="parameter-header">
+                            <div>
+                                <div class="parameter-name">Innovation in Environmental Mgmt</div>
+                                <div style="font-size: 0.9rem; color: #666;">R&D, green technology, patents</div>
+                            </div>
+                            <div class="parameter-score">
+                                <div class="score-value">1.0</div>
+                                <div class="score-max">/ 3</div>
+                            </div>
+                        </div>
+                        <div class="parameter-bar">
+                            <div class="parameter-fill needs-improvement" style="width: 33%;"></div>
+                        </div>
+                        <div class="parameter-status status-needs-improvement">Needs Improvement (33%)</div>
+                    </div>
+
+                    <div class="parameter-card good">
+                        <div class="parameter-header">
+                            <div>
+                                <div class="parameter-name">Environmental Impact Assessment</div>
+                                <div style="font-size: 0.9rem; color: #666;">EIA compliance, monitoring</div>
+                            </div>
+                            <div class="parameter-score">
+                                <div class="score-value">1.5</div>
+                                <div class="score-max">/ 2</div>
+                            </div>
+                        </div>
+                        <div class="parameter-bar">
+                            <div class="parameter-fill good" style="width: 75%;"></div>
+                        </div>
+                        <div class="parameter-status status-good">Good (75%)</div>
+                    </div>
+
+                    <div class="parameter-card needs-improvement">
+                        <div class="parameter-header">
+                            <div>
+                                <div class="parameter-name">Environmental Management System</div>
+                                <div style="font-size: 0.9rem; color: #666;">ISO 14001, policies, training</div>
+                            </div>
+                            <div class="parameter-score">
+                                <div class="score-value">0</div>
+                                <div class="score-max">/ 1</div>
+                            </div>
+                        </div>
+                        <div class="parameter-bar">
+                            <div class="parameter-fill needs-improvement" style="width: 0%;"></div>
+                        </div>
+                        <div class="parameter-status status-needs-improvement">Not Started (0%)</div>
+                    </div>
+
+                    <div class="parameter-card good">
+                        <div class="parameter-header">
+                            <div>
+                                <div class="parameter-name">Corporate Environmental Responsibility</div>
+                                <div style="font-size: 0.9rem; color: #666;">CSR, community programs</div>
+                            </div>
+                            <div class="parameter-score">
+                                <div class="score-value">0.5</div>
+                                <div class="score-max">/ 1</div>
+                            </div>
+                        </div>
+                        <div class="parameter-bar">
+                            <div class="parameter-fill good" style="width: 50%;"></div>
+                        </div>
+                        <div class="parameter-status status-good">Good (50%)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Insights Section -->
+            <div class="insights-section">
+                <div class="recommendations-card">
+                    <h2 class="chart-title">AI Recommendations for 3-Star Rating</h2>
+                    <p style="color: #666; margin-bottom: 1.5rem;">Targeted actions to achieve 70+ points and 3-star certification</p>
+
+                    <div class="recommendation-item">
+                        <h4>Quick Win: Green Building Certification</h4>
+                        <p>Obtain IGBC/GRIHA certification for your main manufacturing facility. This single action can add 5 points to your Green Infrastructure parameter.</p>
+                        <div class="recommendation-impact">+5 points • 6-8 months • ₹15-20 lakhs investment</div>
+                    </div>
+
+                    <div class="recommendation-item">
+                        <h4>ISO 14001 Environmental Management</h4>
+                        <p>Implement ISO 14001 environmental management system. Documentation of existing practices may qualify for full points.</p>
+                        <div class="recommendation-impact">+1 point • 3-4 months • ₹3-5 lakhs investment</div>
+                    </div>
+
+                    <div class="recommendation-item">
+                        <h4>Innovation Documentation</h4>
+                        <p>Document your existing R&D investments in clean technology and energy efficiency improvements from the past 3 years.</p>
+                        <div class="recommendation-impact">+2 points • 1-2 months • Minimal cost</div>
+                    </div>
+
+                    <div class="recommendation-item">
+                        <h4>Water Management Enhancement</h4>
+                        <p>Increase water recycling rate from 60% to 75% through process optimization and rainwater harvesting expansion.</p>
+                        <div class="recommendation-impact">+3.5 points • 8-12 months • ₹25-30 lakhs investment</div>
+                    </div>
+                </div>
+
+                <div class="benchmark-card">
+                    <h2 class="chart-title">Industry Benchmarks</h2>
+                    <p style="color: #666; margin-bottom: 1.5rem;">Manufacturing sector comparison</p>
+
+                    <div class="benchmark-item">
+                        <div>
+                            <div class="benchmark-label">Energy Intensity</div>
+                            <div style="font-size: 0.8rem; color: #999;">3.79 GJ/MT</div>
+                        </div>
+                        <div>
+                            <div class="benchmark-value">Industry: 4.2 GJ/MT</div>
+                            <div class="benchmark-comparison comparison-better">10% Better</div>
+                        </div>
+                    </div>
+
+                    <div class="benchmark-item">
+                        <div>
+                            <div class="benchmark-label">Water Intensity</div>
+                            <div style="font-size: 0.8rem; color: #999;">6.8 KL/MT</div>
+                        </div>
+                        <div>
+                            <div class="benchmark-value">Industry: 8.5 KL/MT</div>
+                            <div class="benchmark-comparison comparison-better">20% Better</div>
+                        </div>
+                    </div>
+
+                    <div class="benchmark-item">
+                        <div>
+                            <div class="benchmark-label">Waste Intensity</div>
+                            <div style="font-size: 0.8rem; color: #999;">22.8 kg/MT</div>
+                        </div>
+                        <div>
+                            <div class="benchmark-value">Industry: 25 kg/MT</div>
+                            <div class="benchmark-comparison comparison-better">9% Better</div>
+                        </div>
+                    </div>
+
+                    <div class="benchmark-item">
+                        <div>
+                            <div class="benchmark-label">GHG Intensity</div>
+                            <div style="font-size: 0.8rem; color: #999;">0.86 tCO₂e/MT</div>
+                        </div>
+                        <div>
+                            <div class="benchmark-value">Industry: 1.2 tCO₂e/MT</div>
+                            <div class="benchmark-comparison comparison-better">28% Better</div>
+                        </div>
+                    </div>
+
+                    <div class="benchmark-item">
+                        <div>
+                            <div class="benchmark-label">Overall Score</div>
+                            <div style="font-size: 0.8rem; color: #999;">68.5 points</div>
+                        </div>
+                        <div>
+                            <div class="benchmark-value">Industry: 61.2 points</div>
+                            <div class="benchmark-comparison comparison-better">12% Better</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e0e0e0;">
+                        <div style="font-size: 0.9rem; color: #2d5f4f; font-weight: 600;">Industry Ranking: Top 25%</div>
+                        <div style="font-size: 0.8rem; color: #666;">Among 150 manufacturing companies assessed</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Intensity Trends Chart -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <h2 class="chart-title">Environmental Intensity Trends</h2>
+                    <div style="font-size: 0.9rem; color: #666;">Key metrics per unit production over time</div>
+                </div>
+
+                <div class="intensity-chart">
+                    <div class="intensity-bar">
+                        <div class="bar" style="height: 180px;">
+                            <div class="bar-value">4.2</div>
+                        </div>
+                        <div class="bar-label">Energy (GJ/MT)<br>FY 2022-23</div>
+                    </div>
+                    <div class="intensity-bar">
+                        <div class="bar" style="height: 160px;">
+                            <div class="bar-value">4.0</div>
+                        </div>
+                        <div class="bar-label">Energy (GJ/MT)<br>FY 2023-24</div>
+                    </div>
+                    <div class="intensity-bar">
+                        <div class="bar" style="height: 140px; background: #28a745;">
+                            <div class="bar-value">3.79</div>
+                        </div>
+                        <div class="bar-label">Energy (GJ/MT)<br>FY 2024-25</div>
+                    </div>
+                    <div class="intensity-bar">
+                        <div class="bar" style="height: 200px;">
+                            <div class="bar-value">7.2</div>
+                        </div>
+                        <div class="bar-label">Water (KL/MT)<br>FY 2022-23</div>
+                    </div>
+                    <div class="intensity-bar">
+                        <div class="bar" style="height: 185px;">
+                            <div class="bar-value">7.0</div>
+                        </div>
+                        <div class="bar-label">Water (KL/MT)<br>FY 2023-24</div>
+                    </div>
+                    <div class="intensity-bar">
+                        <div class="bar" style="height: 170px; background: #28a745;">
+                            <div class="bar-value">6.8</div>
+                        </div>
+                        <div class="bar-label">Water (KL/MT)<br>FY 2024-25</div>
+                    </div>
+                    <div class="intensity-bar">
+                        <div class="bar" style="height: 120px;">
+                            <div class="bar-value">0.95</div>
+                        </div>
+                        <div class="bar-label">GHG (tCO₂e/MT)<br>FY 2022-23</div>
+                    </div>
+                    <div class="intensity-bar">
+                        <div class="bar" style="height: 110px;">
+                            <div class="bar-value">0.91</div>
+                        </div>
+                        <div class="bar-label">GHG (tCO₂e/MT)<br>FY 2023-24</div>
+                    </div>
+                    <div class="intensity-bar">
+                        <div class="bar" style="height: 100px; background: #28a745;">
+                            <div class="bar-value">0.86</div>
+                        </div>
+                        <div class="bar-label">GHG (tCO₂e/MT)<br>FY 2024-25</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assessment Timeline -->
+            <div class="timeline-card">
+                <h2 class="chart-title">GreenCo Assessment Timeline</h2>
+                <p style="color: #666; margin-bottom: 2rem;">Track your certification journey and upcoming milestones</p>
+
+                <div class="timeline-item completed">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Assessment Started</div>
+                        <div class="timeline-date">September 15, 2024</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item completed">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Data Collection Phase (Parameters 1-4)</div>
+                        <div class="timeline-date">October 10, 2024</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item current">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Documentation & Evidence Upload</div>
+                        <div class="timeline-date">In Progress - Due: November 30, 2024</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Complete Remaining Parameters (5-7)</div>
+                        <div class="timeline-date">Target: December 15, 2024</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-title">Final Assessment Review</div>
+                        <div class="timeline-date">Target: January 15, 2025</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-title">CII Portal Submission</div>
+                        <div class="timeline-date">Target: February 1, 2025</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-title">CII Review & Site Verification</div>
+                        <div class="timeline-date">Expected: February - April 2025</div>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <div class="timeline-title">GreenCo Certificate Issuance</div>
+                        <div class="timeline-date">Expected: May 2025</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="#" class="btn btn-primary">Continue Assessment</a>
+                <a href="#" class="btn btn-secondary">Download Progress Report</a>
+                <a href="#" class="btn btn-secondary">View Parameter Details</a>
+                <a href="#" class="btn btn-secondary">Industry Benchmark Report</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Animate progress bars and counters on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate metric values
+            animateCountUp('68.5', document.querySelector('.score-card .metric-value'));
+            
+            // Animate progress bars
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 500);
+            });
+
+            // Animate parameter bars
+            const parameterBars = document.querySelectorAll('.parameter-fill');
+            parameterBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 800);
+            });
+
+            // Animate intensity chart bars
+            const intensityBars = document.querySelectorAll('.bar');
+            intensityBars.forEach((bar, index) => {
+                const height = bar.style.height;
+                bar.style.height = '0px';
+                setTimeout(() => {
+                    bar.style.height = height;
+                }, 1000 + (index * 200));
+            });
+        });
+
+        function animateCountUp(target, element) {
+            const numTarget = parseFloat(target);
+            const duration = 2000;
+            const steps = 60;
+            const increment = numTarget / steps;
+            let current = 0;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= numTarget) {
+                    element.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    element.textContent = current.toFixed(1);
+                }
+            }, duration / steps);
+        }
+
+        // Add interactive hover effects
+        document.querySelectorAll('.parameter-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Mock function for parameter click
+        document.querySelectorAll('.parameter-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const parameterName = this.querySelector('.parameter-name').textContent;
+                alert(`Opening detailed view for: ${parameterName}`);
+                // In real implementation, this would navigate to parameter detail page
+            });
+        });
+    </script>
+</body>
+</html>
