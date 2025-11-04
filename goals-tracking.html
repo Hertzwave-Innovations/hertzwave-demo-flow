@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HWCAP - Targets & Goals Tracking</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --hz-primary: #4A7C59;
+            --hz-primary-700: #355b3f;
+            --hz-primary-50: #E9F1EC;
+            --hz-mint: #A8E6A3;
+            --hz-dark: #2F4F3F;
+            --ink: #22302A;
+            --subtle: #5B6E64;
+            --bg: #F6F7F4;
+            --card: #FFFFFF;
+            --stroke: #E5E9E6;
+            --success: #48BB78;
+            --warning: #F6AD55;
+            --danger: #E53E3E;
+            --info: #4299E1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: var(--hz-primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .nav-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.875rem;
+        }
+
+        .nav-breadcrumb a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+        }
+
+        .nav-breadcrumb a:hover {
+            color: white;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--subtle);
+            font-size: 1rem;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary {
+            background: var(--hz-primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--hz-primary-700);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--hz-primary);
+            border: 2px solid var(--hz-primary);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--hz-primary-50);
+        }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .summary-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--hz-primary-50);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+        }
+
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-value.on-track {
+            color: var(--success);
+        }
+
+        .summary-value.at-risk {
+            color: var(--warning);
+        }
+
+        .summary-value.off-track {
+            color: var(--danger);
+        }
+
+        .summary-label {
+            font-size: 0.875rem;
+            color: var(--subtle);
+            font-weight: 600;
+        }
+
+        /* Goals Grid */
+        .goals-grid {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .goal-card {
+            background: white;
+            border: 2px solid var(--stroke);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .goal-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: var(--hz-primary);
+        }
+
+        /* Goal Number Badge */
+        .goal-number {
+            position: absolute;
+            top: -12px;
+            left: 2rem;
+            background: var(--hz-primary);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            gap: 1rem;
+        }
+
+        .goal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 0.75rem;
+        }
+
+        .goal-description {
+            color: var(--subtle);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Context Box */
+        .goal-context {
+            background: var(--hz-primary-50);
+            border-left: 4px solid var(--hz-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .context-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .context-text {
+            color: var(--ink);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .goal-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+
+        .goal-status.on-track {
+            background: var(--success);
+            color: white;
+        }
+
+        .goal-status.at-risk {
+            background: var(--warning);
+            color: white;
+        }
+
+        .goal-status.off-track {
+            background: var(--danger);
+            color: white;
+        }
+
+        .goal-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 10px;
+        }
+
+        .metric-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--subtle);
+            font-weight: 600;
+        }
+
+        /* Timeline Visualization */
+        .timeline-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .timeline-label {
+            font-weight: 600;
+            color: var(--ink);
+            font-size: 0.95rem;
+        }
+
+        .timeline-percentage {
+            font-weight: 700;
+            color: var(--hz-primary);
+            font-size: 1.1rem;
+        }
+
+        .timeline-container {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .timeline-bar {
+            height: 12px;
+            background: #E5E9E6;
+            border-radius: 6px;
+            position: relative;
+            overflow: visible;
+            margin: 1.5rem 0;
+        }
+
+        .timeline-progress {
+            height: 100%;
+            border-radius: 6px;
+            position: relative;
+            transition: width 0.3s ease;
+        }
+
+        .timeline-progress.on-track {
+            background: linear-gradient(90deg, var(--success), #66D98C);
+        }
+
+        .timeline-progress.at-risk {
+            background: linear-gradient(90deg, var(--warning), #FFC278);
+        }
+
+        .timeline-progress.off-track {
+            background: linear-gradient(90deg, var(--danger), #F56565);
+        }
+
+        /* Timeline Markers */
+        .timeline-markers {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-top: 0.5rem;
+        }
+
+        .timeline-marker {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            position: relative;
+        }
+
+        .marker-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--subtle);
+            border-radius: 50%;
+            position: absolute;
+            top: -26px;
+        }
+
+        .marker-dot.current {
+            width: 16px;
+            height: 16px;
+            background: var(--hz-primary);
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            top: -30px;
+        }
+
+        .marker-dot.target {
+            width: 12px;
+            height: 12px;
+            background: var(--info);
+            border: 2px solid white;
+            top: -28px;
+        }
+
+        .marker-year {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .marker-label {
+            font-size: 0.75rem;
+            color: var(--subtle);
+        }
+
+        /* Current Position Indicator */
+        .current-position {
+            position: absolute;
+            top: -35px;
+            transform: translateX(-50%);
+            background: var(--hz-primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .current-position::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 4px solid var(--hz-primary);
+        }
+
+        .progress-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-label {
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .progress-percentage {
+            font-weight: 700;
+            color: var(--hz-primary);
+        }
+
+        .progress-bar {
+            height: 10px;
+            background: #E5E9E6;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.on-track {
+            background: var(--success);
+        }
+
+        .progress-fill.at-risk {
+            background: var(--warning);
+        }
+
+        .progress-fill.off-track {
+            background: var(--danger);
+        }
+
+        .goal-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--hz-primary);
+            border: 2px solid var(--hz-primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--hz-primary-50);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--stroke);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .goal-metrics {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .timeline-markers {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">H</div>
+            HWCAP
+        </div>
+        <div class="nav-breadcrumb">
+            <a href="#">Dashboard</a>
+            <span>›</span>
+            <span>Targets & Goals</span>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Sustainability Targets & Goals</h1>
+            <p class="page-subtitle">Track progress toward your environmental commitments and identify areas needing attention</p>
+        </div>
+
+        <div class="action-bar">
+            <button class="btn-primary" onclick="showAddGoalModal()">
+                ➕ Add New Goal
+            </button>
+            <button class="btn-secondary">
+                📊 Export Report
+            </button>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-icon">🎯</div>
+                <div class="summary-value">5</div>
+                <div class="summary-label">Active Goals</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon">✅</div>
+                <div class="summary-value on-track">3</div>
+                <div class="summary-label">On Track</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon">⚠️</div>
+                <div class="summary-value at-risk">1</div>
+                <div class="summary-label">At Risk</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-icon">❌</div>
+                <div class="summary-value off-track">1</div>
+                <div class="summary-label">Off Track</div>
+            </div>
+        </div>
+
+        <!-- Goals Grid -->
+        <div class="goals-grid">
+            <!-- Goal 1: Net Zero Emissions -->
+            <div class="goal-card">
+                <div class="goal-number">1</div>
+                <div class="goal-header">
+                    <div>
+                        <div class="goal-title">Achieve Net Zero Emissions</div>
+                        <div class="goal-description">
+                            Reduce absolute greenhouse gas emissions by 42% from 2019 baseline and neutralize remaining emissions through verified carbon removal.
+                        </div>
+                        <div class="goal-context">
+                            <div class="context-title">Why This Matters</div>
+                            <div class="context-text">
+                                Net zero aligns with the Paris Agreement's 1.5°C goal and Science Based Targets initiative (SBTi). Achieving this demonstrates climate leadership, reduces regulatory risk, and meets growing stakeholder expectations.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="goal-status on-track">On Track</div>
+                </div>
+
+                <div class="goal-metrics">
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--hz-primary);">28.6%</div>
+                        <div class="metric-label">Current Reduction</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--success);">42%</div>
+                        <div class="metric-label">Target Reduction</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--info);">13.4%</div>
+                        <div class="metric-label">Remaining</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--info);">2030</div>
+                        <div class="metric-label">Target Year</div>
+                    </div>
+                </div>
+
+                <div class="timeline-section">
+                    <div class="timeline-header">
+                        <span class="timeline-label">Progress Timeline</span>
+                        <span class="timeline-percentage">68% Complete</span>
+                    </div>
+                    <div class="timeline-container">
+                        <div class="timeline-bar">
+                            <div class="timeline-progress on-track" style="width: 68%;">
+                                <div class="current-position" style="left: 100%;">2024 (68%)</div>
+                            </div>
+                        </div>
+                        <div class="timeline-markers">
+                            <div class="timeline-marker">
+                                <div class="marker-dot"></div>
+                                <div class="marker-year">2019</div>
+                                <div class="marker-label">Baseline</div>
+                            </div>
+                            <div class="timeline-marker" style="position: relative;">
+                                <div class="marker-dot current"></div>
+                                <div class="marker-year">2024</div>
+                                <div class="marker-label">Current</div>
+                            </div>
+                            <div class="timeline-marker">
+                                <div class="marker-dot target"></div>
+                                <div class="marker-year">2030</div>
+                                <div class="marker-label">Target</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="goal-actions">
+                    <a href="#" class="btn-small btn-outline">📊 View Details</a>
+                    <a href="#" class="btn-small btn-outline">📝 Update Progress</a>
+                    <a href="#" class="btn-small btn-outline">📈 Projection Model</a>
+                </div>
+            </div>
+
+            <!-- Goal 2: Renewable Energy -->
+            <div class="goal-card">
+                <div class="goal-number">2</div>
+                <div class="goal-header">
+                    <div>
+                        <div class="goal-title">100% Renewable Energy</div>
+                        <div class="goal-description">
+                            Transition all electricity consumption to renewable sources through PPAs, on-site generation, and renewable energy certificates.
+                        </div>
+                        <div class="goal-context">
+                            <div class="context-title">Why This Matters</div>
+                            <div class="context-text">
+                                Renewable energy dramatically reduces Scope 2 emissions and protects against volatile fossil fuel prices. This is one of the most impactful actions for reducing carbon footprint while potentially lowering energy costs over time.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="goal-status on-track">On Track</div>
+                </div>
+
+                <div class="goal-metrics">
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--hz-primary);">73%</div>
+                        <div class="metric-label">Current Renewable</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--success);">100%</div>
+                        <div class="metric-label">Target</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--info);">27%</div>
+                        <div class="metric-label">Remaining</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--info);">2025</div>
+                        <div class="metric-label">Target Year</div>
+                    </div>
+                </div>
+
+                <div class="timeline-section">
+                    <div class="timeline-header">
+                        <span class="timeline-label">Progress Timeline</span>
+                        <span class="timeline-percentage">73% Complete</span>
+                    </div>
+                    <div class="timeline-container">
+                        <div class="timeline-bar">
+                            <div class="timeline-progress on-track" style="width: 73%;">
+                                <div class="current-position" style="left: 100%;">2024 (73%)</div>
+                            </div>
+                        </div>
+                        <div class="timeline-markers">
+                            <div class="timeline-marker">
+                                <div class="marker-dot"></div>
+                                <div class="marker-year">2020</div>
+                                <div class="marker-label">Start</div>
+                            </div>
+                            <div class="timeline-marker">
+                                <div class="marker-dot current"></div>
+                                <div class="marker-year">2024</div>
+                                <div class="marker-label">Current</div>
+                            </div>
+                            <div class="timeline-marker">
+                                <div class="marker-dot target"></div>
+                                <div class="marker-year">2025</div>
+                                <div class="marker-label">Target</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="goal-actions">
+                    <a href="#" class="btn-small btn-outline">📊 View Details</a>
+                    <a href="#" class="btn-small btn-outline">📝 Update Progress</a>
+                    <a href="#" class="btn-small btn-outline">⚡ Energy Mix</a>
+                </div>
+            </div>
+
+            <!-- Goal 3: Supply Chain Emissions -->
+            <div class="goal-card">
+                <div class="goal-number">3</div>
+                <div class="goal-header">
+                    <div>
+                        <div class="goal-title">Supply Chain Emissions Reduction</div>
+                        <div class="goal-description">
+                            Reduce Scope 3 emissions from suppliers by 30% through engagement programs, sustainability requirements, and supplier development initiatives.
+                        </div>
+                        <div class="goal-context">
+                            <div class="context-title">Why This Matters</div>
+                            <div class="context-text">
+                                Supply chain emissions typically represent 70-80% of total carbon footprint. Engaging suppliers is essential for comprehensive climate action and builds resilience across your value chain while meeting CSRD and other disclosure requirements.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="goal-status at-risk">At Risk</div>
+                </div>
+
+                <div class="goal-metrics">
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--hz-primary);">8.2%</div>
+                        <div class="metric-label">Current Reduction</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--success);">30%</div>
+                        <div class="metric-label">Target Reduction</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--warning);">21.8%</div>
+                        <div class="metric-label">Gap</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--info);">2026</div>
+                        <div class="metric-label">Target Year</div>
+                    </div>
+                </div>
+
+                <div class="timeline-section">
+                    <div class="timeline-header">
+                        <span class="timeline-label">Progress Timeline</span>
+                        <span class="timeline-percentage">27% Complete</span>
+                    </div>
+                    <div class="timeline-container">
+                        <div class="timeline-bar">
+                            <div class="timeline-progress at-risk" style="width: 27%;">
+                                <div class="current-position" style="left: 100%;">2024 (27%)</div>
+                            </div>
+                        </div>
+                        <div class="timeline-markers">
+                            <div class="timeline-marker">
+                                <div class="marker-dot"></div>
+                                <div class="marker-year">2022</div>
+                                <div class="marker-label">Start</div>
+                            </div>
+                            <div class="timeline-marker">
+                                <div class="marker-dot current"></div>
+                                <div class="marker-year">2024</div>
+                                <div class="marker-label">Current</div>
+                            </div>
+                            <div class="timeline-marker">
+                                <div class="marker-dot target"></div>
+                                <div class="marker-year">2026</div>
+                                <div class="marker-label">Target</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="goal-actions">
+                    <a href="Supplier_Eval-Index.html" class="btn-small btn-outline">🏭 Supplier Portal</a>
+                    <a href="#" class="btn-small btn-outline">📝 Update Progress</a>
+                    <a href="#" class="btn-small btn-outline">📋 Engagement Plan</a>
+                </div>
+            </div>
+
+            <!-- Goal 4: Water Efficiency -->
+            <div class="goal-card">
+                <div class="goal-number">4</div>
+                <div class="goal-header">
+                    <div>
+                        <div class="goal-title">Water Efficiency Improvement</div>
+                        <div class="goal-description">
+                            Reduce water consumption intensity by 25% per unit of production through efficiency measures, recycling systems, and smart water management.
+                        </div>
+                        <div class="goal-context">
+                            <div class="context-title">Why This Matters</div>
+                            <div class="context-text">
+                                Water scarcity is an increasing business risk. Improving water efficiency reduces operational costs, ensures business continuity in water-stressed regions, and addresses growing regulatory requirements around water use and discharge.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="goal-status on-track">On Track</div>
+                </div>
+
+                <div class="goal-metrics">
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--hz-primary);">18%</div>
+                        <div class="metric-label">Current Reduction</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--success);">25%</div>
+                        <div class="metric-label">Target Reduction</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--info);">7%</div>
+                        <div class="metric-label">Remaining</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--info);">2025</div>
+                        <div class="metric-label">Target Year</div>
+                    </div>
+                </div>
+
+                <div class="timeline-section">
+                    <div class="timeline-header">
+                        <span class="timeline-label">Progress Timeline</span>
+                        <span class="timeline-percentage">72% Complete</span>
+                    </div>
+                    <div class="timeline-container">
+                        <div class="timeline-bar">
+                            <div class="timeline-progress on-track" style="width: 72%;">
+                                <div class="current-position" style="left: 100%;">2024 (72%)</div>
+                            </div>
+                        </div>
+                        <div class="timeline-markers">
+                            <div class="timeline-marker">
+                                <div class="marker-dot"></div>
+                                <div class="marker-year">2021</div>
+                                <div class="marker-label">Baseline</div>
+                            </div>
+                            <div class="timeline-marker">
+                                <div class="marker-dot current"></div>
+                                <div class="marker-year">2024</div>
+                                <div class="marker-label">Current</div>
+                            </div>
+                            <div class="timeline-marker">
+                                <div class="marker-dot target"></div>
+                                <div class="marker-year">2025</div>
+                                <div class="marker-label">Target</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="goal-actions">
+                    <a href="#" class="btn-small btn-outline">📊 View Details</a>
+                    <a href="#" class="btn-small btn-outline">📝 Update Progress</a>
+                    <a href="#" class="btn-small btn-outline">💧 Water Dashboard</a>
+                </div>
+            </div>
+
+            <!-- Goal 5: Waste Reduction -->
+            <div class="goal-card">
+                <div class="goal-number">5</div>
+                <div class="goal-header">
+                    <div>
+                        <div class="goal-title">Zero Waste to Landfill</div>
+                        <div class="goal-description">
+                            Achieve zero waste to landfill through waste reduction at source, comprehensive reuse and recycling programs, and waste-to-energy recovery across all facilities.
+                        </div>
+                        <div class="goal-context">
+                            <div class="context-title">Why This Matters</div>
+                            <div class="context-text">
+                                Zero waste reduces environmental impact, lowers disposal costs, and demonstrates circular economy principles. Many customers and investors now expect robust waste management as part of comprehensive sustainability programs.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="goal-status off-track">Off Track</div>
+                </div>
+
+                <div class="goal-metrics">
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--hz-primary);">45%</div>
+                        <div class="metric-label">Waste Diverted</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--success);">100%</div>
+                        <div class="metric-label">Target</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--danger);">55%</div>
+                        <div class="metric-label">Gap</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" style="color: var(--info);">2024</div>
+                        <div class="metric-label">Target Year</div>
+                    </div>
+                </div>
+
+                <div class="timeline-section">
+                    <div class="timeline-header">
+                        <span class="timeline-label">Progress Timeline</span>
+                        <span class="timeline-percentage">45% Complete</span>
+                    </div>
+                    <div class="timeline-container">
+                        <div class="timeline-bar">
+                            <div class="timeline-progress off-track" style="width: 45%;">
+                                <div class="current-position" style="left: 100%;">2024 (45%)</div>
+                            </div>
+                        </div>
+                        <div class="timeline-markers">
+                            <div class="timeline-marker">
+                                <div class="marker-dot"></div>
+                                <div class="marker-year">2020</div>
+                                <div class="marker-label">Start</div>
+                            </div>
+                            <div class="timeline-marker">
+                                <div class="marker-dot current"></div>
+                                <div class="marker-year">2024</div>
+                                <div class="marker-label">Current</div>
+                            </div>
+                            <div class="timeline-marker">
+                                <div class="marker-dot target"></div>
+                                <div class="marker-year">2024</div>
+                                <div class="marker-label">Target (Missed)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="goal-actions">
+                    <a href="#" class="btn-small btn-outline">📊 View Details</a>
+                    <a href="#" class="btn-small btn-outline">📝 Update Progress</a>
+                    <a href="#" class="btn-small btn-outline">🔄 Recovery Plan</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Goal Modal -->
+    <div class="modal" id="addGoalModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Sustainability Goal</h2>
+            </div>
+            <form id="addGoalForm">
+                <div class="form-group">
+                    <label class="form-label">Goal Title</label>
+                    <input type="text" class="form-input" placeholder="e.g., Reduce electricity consumption by 20%">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" placeholder="Detailed description of the goal and approach..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Goal Type</label>
+                    <select class="form-select">
+                        <option>Emission Reduction</option>
+                        <option>Energy Efficiency</option>
+                        <option>Renewable Energy</option>
+                        <option>Water Conservation</option>
+                        <option>Waste Reduction</option>
+                        <option>Supply Chain</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Target Year</label>
+                    <input type="number" class="form-input" min="2024" max="2050" value="2030">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Target Value</label>
+                    <input type="text" class="form-input" placeholder="e.g., 20% reduction, 100% renewable">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="hideAddGoalModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Goal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function showAddGoalModal() {
+            document.getElementById('addGoalModal').classList.add('show');
+        }
+
+        function hideAddGoalModal() {
+            document.getElementById('addGoalModal').classList.remove('show');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('addGoalModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideAddGoalModal();
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('addGoalForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Goal added successfully! (This is a demo)');
+            hideAddGoalModal();
+        });
+    </script>
+</body>
+</html>
