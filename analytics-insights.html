@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HWCAP - Analytics & Insights</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --hz-primary: #4A7C59;
+            --hz-primary-700: #355b3f;
+            --hz-primary-50: #E9F1EC;
+            --hz-mint: #A8E6A3;
+            --hz-dark: #2F4F3F;
+            --ink: #22302A;
+            --subtle: #5B6E64;
+            --bg: #F6F7F4;
+            --card: #FFFFFF;
+            --stroke: #E5E9E6;
+            --success: #48BB78;
+            --warning: #F6AD55;
+            --danger: #E53E3E;
+            --info: #4299E1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: var(--hz-primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .nav-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.875rem;
+        }
+
+        .nav-breadcrumb a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+        }
+
+        .nav-breadcrumb a:hover {
+            color: white;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2.5rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--subtle);
+            font-size: 1.1rem;
+            max-width: 700px;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Topic Card */
+        .topic-card {
+            background: white;
+            border: 2px solid var(--stroke);
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .topic-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            border-color: var(--hz-primary);
+        }
+
+        .topic-card.expanded {
+            grid-column: 1 / -1;
+            cursor: default;
+            border-color: var(--hz-primary);
+        }
+
+        .topic-card.expanded:hover {
+            transform: none;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .card-icon.financial { background: linear-gradient(135deg, #E53E3E, #C53030); }
+        .card-icon.energy { background: linear-gradient(135deg, #F6AD55, #ED8936); }
+        .card-icon.targets { background: linear-gradient(135deg, #4299E1, #3182CE); }
+        .card-icon.suppliers { background: linear-gradient(135deg, #9F7AEA, #805AD5); }
+        .card-icon.trends { background: linear-gradient(135deg, #48BB78, #38A169); }
+        .card-icon.risks { background: linear-gradient(135deg, #EC8C69, #E07B39); }
+
+        .card-header-content {
+            flex: 1;
+        }
+
+        .card-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 0.25rem;
+        }
+
+        .card-subtitle {
+            color: var(--subtle);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .expand-indicator {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--hz-primary-50);
+            color: var(--hz-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .topic-card:hover .expand-indicator {
+            background: var(--hz-primary);
+            color: white;
+        }
+
+        .topic-card.expanded .expand-indicator {
+            transform: rotate(45deg);
+            background: var(--danger);
+            color: white;
+        }
+
+        /* What This Means Section */
+        .what-this-means {
+            background: var(--hz-primary-50);
+            border-left: 4px solid var(--hz-primary);
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 1.25rem;
+        }
+
+        .what-this-means-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .what-this-means-text {
+            color: var(--ink);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .quick-stat {
+            text-align: center;
+            padding: 0.75rem;
+            background: var(--bg);
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value.positive { color: var(--success); }
+        .stat-value.negative { color: var(--danger); }
+        .stat-value.warning { color: var(--warning); }
+        .stat-value.neutral { color: var(--info); }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--subtle);
+            font-weight: 500;
+        }
+
+        .why-it-matters {
+            background: #FFF9E6;
+            border-left: 4px solid var(--warning);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.25rem;
+        }
+
+        .why-it-matters-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #8B6914;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .why-it-matters-text {
+            color: var(--ink);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Detailed Content (shown when expanded) */
+        .detailed-content {
+            display: none;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--stroke);
+        }
+
+        .topic-card.expanded .detailed-content {
+            display: block;
+        }
+
+        .detail-section {
+            margin-bottom: 2rem;
+        }
+
+        .detail-section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-card {
+            background: var(--bg);
+            padding: 1.25rem;
+            border-radius: 10px;
+            border: 1px solid var(--stroke);
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            color: var(--subtle);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .detail-text {
+            color: var(--ink);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .detail-list {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-list li {
+            padding: 1rem;
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-item-name {
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .list-item-value {
+            font-weight: 700;
+            color: var(--hz-primary);
+            font-size: 1.05rem;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--hz-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--hz-primary-700);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--hz-primary);
+            border: 2px solid var(--hz-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--hz-primary-50);
+        }
+
+        /* Recommendations */
+        .recommendations {
+            background: white;
+            border: 2px solid var(--hz-primary);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .recommendations-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .recommendation-item {
+            background: var(--bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--hz-primary);
+        }
+
+        .recommendation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            gap: 1rem;
+        }
+
+        .recommendation-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .recommendation-impact {
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .impact-high {
+            background: #E53E3E;
+            color: white;
+        }
+
+        .impact-medium {
+            background: var(--warning);
+            color: white;
+        }
+
+        .impact-low {
+            background: var(--info);
+            color: white;
+        }
+
+        .recommendation-description {
+            color: var(--subtle);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        /* Help Text */
+        .help-banner {
+            background: linear-gradient(135deg, var(--hz-primary), var(--hz-primary-700));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .help-icon {
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .help-text {
+            flex: 1;
+        }
+
+        .help-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .help-description {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Animation for expand/collapse */
+        @keyframes expandCard {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 2000px;
+            }
+        }
+
+        .topic-card.expanded .detailed-content {
+            animation: expandCard 0.4s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">H</div>
+            HWCAP
+        </div>
+        <div class="nav-breadcrumb">
+            <a href="#">Dashboard</a>
+            <span>›</span>
+            <span>Analytics & Insights</span>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Analytics & Insights</h1>
+            <p class="page-subtitle">
+                Understand your environmental impact through clear, actionable insights. Click any card below to explore detailed information.
+            </p>
+        </div>
+
+        <div class="help-banner">
+            <div class="help-icon">💡</div>
+            <div class="help-text">
+                <div class="help-title">New to carbon analytics?</div>
+                <div class="help-description">Each section below explains what the data means and why it matters to your business. Click on any card to dive deeper.</div>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Financial Impact Card -->
+            <div class="topic-card" data-topic="financial">
+                <div class="expand-indicator">+</div>
+                <div class="card-header">
+                    <div class="card-icon financial">💰</div>
+                    <div class="card-header-content">
+                        <h2 class="card-title">Financial Impact</h2>
+                        <p class="card-subtitle">What carbon emissions cost your business</p>
+                    </div>
+                </div>
+
+                <div class="what-this-means">
+                    <div class="what-this-means-title">What This Means</div>
+                    <p class="what-this-means-text">
+                        This shows how much your carbon emissions could cost in real money through carbon taxes, credits, and compliance fees. Think of it as the "price tag" on your environmental impact.
+                    </p>
+                </div>
+
+                <div class="quick-stats">
+                    <div class="quick-stat">
+                        <div class="stat-value negative">$5.41M</div>
+                        <div class="stat-label">Annual Risk</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="stat-value warning">216.4K</div>
+                        <div class="stat-label">tCO₂e Total</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="stat-value positive">$25</div>
+                        <div class="stat-label">Per Ton</div>
+                    </div>
+                </div>
+
+                <div class="why-it-matters">
+                    <div class="why-it-matters-title">Why It Matters</div>
+                    <p class="why-it-matters-text">
+                        Carbon pricing is expanding globally. Understanding your financial exposure helps you budget for future costs and identify where to invest in reductions for the biggest savings.
+                    </p>
+                </div>
+
+                <!-- Detailed Content (Hidden by default) -->
+                <div class="detailed-content">
+                    <div class="detail-section">
+                        <h3 class="detail-section-title">📊 Detailed Breakdown</h3>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-value negative">$5.41M</div>
+                                <div class="metric-label">Total Carbon Cost Exposure</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value warning">216.4K</div>
+                                <div class="metric-label">Total Emissions (tCO₂e)</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value neutral">$25</div>
+                                <div class="metric-label">Current Carbon Price</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value positive">$2.1M</div>
+                                <div class="metric-label">Potential Savings</div>
+                            </div>
+                        </div>
+
+                        <p class="detail-text">
+                            At current carbon pricing of $25/tCO₂e, your organization faces an annual carbon cost exposure of $5.41M. This represents the direct financial risk from emissions across all scopes.
+                        </p>
+
+                        <h4 class="detail-section-title">💡 Cost by Source</h4>
+                        <ul class="detail-list">
+                            <li>
+                                <span class="list-item-name">Energy & Electricity (Scope 1 & 2)</span>
+                                <span class="list-item-value">$3.42M (63%)</span>
+                            </li>
+                            <li>
+                                <span class="list-item-name">Supply Chain (Scope 3)</span>
+                                <span class="list-item-value">$1.56M (29%)</span>
+                            </li>
+                            <li>
+                                <span class="list-item-name">Business Travel & Waste</span>
+                                <span class="list-item-value">$0.43M (8%)</span>
+                            </li>
+                        </ul>
+
+                        <p class="detail-text">
+                            <strong>Opportunity:</strong> Implementing recommended efficiency measures and renewable energy could reduce this exposure by $2.1M annually while improving operational resilience.
+                        </p>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary">📈 View Cost Projections</button>
+                        <button class="btn btn-secondary">💸 Savings Calculator</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Energy Consumption Card -->
+            <div class="topic-card" data-topic="energy">
+                <div class="expand-indicator">+</div>
+                <div class="card-header">
+                    <div class="card-icon energy">⚡</div>
+                    <div class="card-header-content">
+                        <h2 class="card-title">Energy Patterns</h2>
+                        <p class="card-subtitle">Where and how your energy is used</p>
+                    </div>
+                </div>
+
+                <div class="what-this-means">
+                    <div class="what-this-means-title">What This Means</div>
+                    <p class="what-this-means-text">
+                        This breaks down where your business uses energy - from heating and cooling to equipment and lighting. It helps identify which areas consume the most and where you can save.
+                    </p>
+                </div>
+
+                <div class="quick-stats">
+                    <div class="quick-stat">
+                        <div class="stat-value warning">342K</div>
+                        <div class="stat-label">MWh Total</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="stat-value negative">58%</div>
+                        <div class="stat-label">Fossil Fuel</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="stat-value positive">42%</div>
+                        <div class="stat-label">Renewable</div>
+                    </div>
+                </div>
+
+                <div class="why-it-matters">
+                    <div class="why-it-matters-title">Why It Matters</div>
+                    <p class="why-it-matters-text">
+                        Energy is typically the largest source of emissions and costs. Understanding your patterns helps target improvements that cut both carbon and utility bills.
+                    </p>
+                </div>
+
+                <!-- Detailed Content -->
+                <div class="detailed-content">
+                    <div class="detail-section">
+                        <h3 class="detail-section-title">⚡ Energy Overview</h3>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-value warning">342K</div>
+                                <div class="metric-label">Total Consumption (MWh)</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value positive">42%</div>
+                                <div class="metric-label">Renewable Energy</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value negative">58%</div>
+                                <div class="metric-label">Fossil Fuel Based</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value neutral">$0.12</div>
+                                <div class="metric-label">Avg. Cost per kWh</div>
+                            </div>
+                        </div>
+
+                        <p class="detail-text">
+                            Your organization consumed 342,000 MWh of energy in 2024, with 42% from renewable sources. HVAC systems account for 45% of total consumption, representing the largest opportunity for efficiency improvements.
+                        </p>
+
+                        <h4 class="detail-section-title">🏢 Consumption by Category</h4>
+                        <ul class="detail-list">
+                            <li>
+                                <span class="list-item-name">HVAC & Climate Control</span>
+                                <span class="list-item-value">154K MWh (45%)</span>
+                            </li>
+                            <li>
+                                <span class="list-item-name">Manufacturing & Equipment</span>
+                                <span class="list-item-value">137K MWh (40%)</span>
+                            </li>
+                            <li>
+                                <span class="list-item-name">Lighting & Office Systems</span>
+                                <span class="list-item-value">34K MWh (10%)</span>
+                            </li>
+                            <li>
+                                <span class="list-item-name">Other Operations</span>
+                                <span class="list-item-value">17K MWh (5%)</span>
+                            </li>
+                        </ul>
+
+                        <p class="detail-text">
+                            <strong>Peak Usage:</strong> Energy demand peaks during Q4 due to seasonal heating requirements and increased production schedules. Implementing smart controls could reduce peak consumption by 15-20%.
+                        </p>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary">📊 Energy Dashboard</button>
+                        <button class="btn btn-secondary">💡 Efficiency Tips</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emission Reduction Targets Card -->
+            <div class="topic-card" data-topic="targets">
+                <div class="expand-indicator">+</div>
+                <div class="card-header">
+                    <div class="card-icon targets">🎯</div>
+                    <div class="card-header-content">
+                        <h2 class="card-title">Reduction Targets</h2>
+                        <p class="card-subtitle">Your progress toward climate goals</p>
+                    </div>
+                </div>
+
+                <div class="what-this-means">
+                    <div class="what-this-means-title">What This Means</div>
+                    <p class="what-this-means-text">
+                        This tracks your progress toward emission reduction goals, showing if you're on track to meet commitments like net-zero by 2030 or 2050. It's like a progress bar for your climate action.
+                    </p>
+                </div>
+
+                <div class="quick-stats">
+                    <div class="quick-stat">
+                        <div class="stat-value positive">68%</div>
+                        <div class="stat-label">On Track</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="stat-value neutral">2030</div>
+                        <div class="stat-label">Target Year</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="stat-value positive">-42%</div>
+                        <div class="stat-label">Reduction Goal</div>
+                    </div>
+                </div>
+
+                <div class="why-it-matters">
+                    <div class="why-it-matters-title">Why It Matters</div>
+                    <p class="why-it-matters-text">
+                        Meeting targets avoids penalties, improves brand reputation, and keeps you competitive as customers and investors increasingly prioritize sustainability.
+                    </p>
+                </div>
+
+                <!-- Detailed Content -->
+                <div class="detailed-content">
+                    <div class="detail-section">
+                        <h3 class="detail-section-title">🎯 Target Progress</h3>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-value positive">68%</div>
+                                <div class="metric-label">Progress to 2030 Target</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value negative">-42%</div>
+                                <div class="metric-label">Required Reduction</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value neutral">150K</div>
+                                <div class="metric-label">2030 Target (tCO₂e)</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value warning">66K</div>
+                                <div class="metric-label">Remaining Gap (tCO₂e)</div>
+                            </div>
+                        </div>
+
+                        <p class="detail-text">
+                            Your organization has committed to reducing emissions by 42% by 2030, aligned with Science Based Targets initiative (SBTi) guidelines. Current progress shows 68% completion of this journey, with 66,000 tCO₂e remaining to eliminate.
+                        </p>
+
+                        <h4 class="detail-section-title">📈 Progress by Scope</h4>
+                        <ul class="detail-list">
+                            <li>
+                                <span class="list-item-name">Scope 1 (Direct Emissions)</span>
+                                <span class="list-item-value">78% Complete</span>
+                            </li>
+                            <li>
+                                <span class="list-item-name">Scope 2 (Energy Purchased)</span>
+                                <span class="list-item-value">82% Complete</span>
+                            </li>
+                            <li>
+                                <span class="list-item-name">Scope 3 (Supply Chain)</span>
+                                <span class="list-item-value">45% Complete</span>
+                            </li>
+                        </ul>
+
+                        <p class="detail-text">
+                            <strong>Current Trajectory:</strong> You're on track to exceed 2030 targets by 12%. Accelerated renewable energy adoption could achieve net-zero 2 years ahead of schedule.
+                        </p>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary">🗓️ Roadmap View</button>
+                        <button class="btn btn-secondary">📋 Action Plan</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Supplier Carbon Footprint Card -->
+            <div class="topic-card" data-topic="suppliers">
+                <div class="expand-indicator">+</div>
+                <div class="card-header">
+                    <div class="card-icon suppliers">🏭</div>
+                    <div class="card-header-content">
+                        <h2 class="card-title">Supply Chain Impact</h2>
+                        <p class="card-subtitle">Emissions from your business partners</p>
+                    </div>
+                </div>
+
+                <div class="what-this-means">
+                    <div class="what-this-means-title">What This Means</div>
+                    <p class="what-this-means-text">
+                        This shows the carbon footprint of companies you buy from - your suppliers, manufacturers, and logistics partners. Often the largest part of your total impact.
+                    </p>
+                </div>
+
+                <div class="quick-stats">
+                    <div class="quick-stat">
+                        <div class="stat-value neutral">156</div>
+                        <div class="stat-label">Suppliers</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="stat-value warning">68%</div>
+                        <div class="stat-label">High Impact</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="stat-value negative">3.2K</div>
+                        <div class="stat-label">tCO₂e Total</div>
+                    </div>
+                </div>
+
+                <div class="why-it-matters">
+                    <div class="why-it-matters-title">Why It Matters</div>
+                    <p class="why-it-matters-text">
+                        Supply chain emissions (Scope 3) are often 5-10x larger than your direct emissions. Working with suppliers on their carbon footprint is essential for meaningful climate action.
+                    </p>
+                </div>
+
+                <!-- Detailed Content -->
+                <div class="detailed-content">
+                    <div class="detail-section">
+                        <h3 class="detail-section-title">🏭 Supplier Overview</h3>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-value neutral">156</div>
+                                <div class="metric-label">Active Suppliers</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value warning">68%</div>
+                                <div class="metric-label">High Impact Suppliers</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value positive">42</div>
+                                <div class="metric-label">Engaged in Program</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value negative">3,198</div>
+                                <div class="metric-label">Total tCO₂e</div>
+                            </div>
+                        </div>
+
+                        <p class="detail-text">
+                            Your supply chain involves 156 active suppliers contributing 3,198 tCO₂e to your Scope 3 emissions. Remarkably, the top 20 suppliers account for 68% of this total, making them prime targets for engagement.
+                        </p>
+
+                        <h4 class="detail-section-title">📊 Top Emission Sources</h4>
+                        <ul class="detail-list">
+                            <li>
+                                <span class="list-item-name">Manufacturing Partners</span>
+                                <span class="list-item-value">1,245 tCO₂e (39%)</span>
+                            </li>
+                            <li>
+                                <span class="list-item-name">Logistics Providers</span>
+                                <span class="list-item-value">987 tCO₂e (31%)</span>
+                            </li>
+                            <li>
+                                <span class="list-item-name">Raw Material Suppliers</span>
+                                <span class="list-item-value">765 tCO₂e (24%)</span>
+                            </li>
+                            <li>
+                                <span class="list-item-name">Other Services</span>
+                                <span class="list-item-value">201 tCO₂e (6%)</span>
+                            </li>
+                        </ul>
+
+                        <p class="detail-text">
+                            <strong>Strategic Focus:</strong> Targeted engagement with your top 20 suppliers could deliver 45% of required supply chain reductions by 2025, significantly accelerating your overall progress.
+                        </p>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary">📋 Engagement Plan</button>
+                        <button class="btn btn-secondary">🏭 Supplier Portal</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emissions Trend Analysis Card -->
+            <div class="topic-card" data-topic="trends">
+                <div class="expand-indicator">+</div>
+                <div class="card-header">
+                    <div class="card-icon trends">📈</div>
+                    <div class="card-header-content">
+                        <h2 class="card-title">Trend Analysis</h2>
+                        <p class="card-subtitle">Historical patterns and future outlook</p>
+                    </div>
+                </div>
+
+                <div class="what-this-means">
+                    <div class="what-this-means-title">What This Means</div>
+                    <p class="what-this-means-text">
+                        This shows how your emissions have changed over time and projects where you're headed. It's like looking at your company's carbon "weight loss" journey over the years.
+                    </p>
+                </div>
+
+                <div class="quick-stats">
+                    <div class="quick-stat">
+                        <div class="stat-value positive">-5.2%</div>
+                        <div class="stat-label">This Year</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="stat-value positive">-31%</div>
+                        <div class="stat-label">Since 2019</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="stat-value warning">Q4</div>
+                        <div class="stat-label">Peak Season</div>
+                    </div>
+                </div>
+
+                <div class="why-it-matters">
+                    <div class="why-it-matters-title">Why It Matters</div>
+                    <p class="why-it-matters-text">
+                        Understanding trends helps predict future costs, prove progress to stakeholders, and identify seasonal patterns where you can optimize operations.
+                    </p>
+                </div>
+
+                <!-- Detailed Content -->
+                <div class="detailed-content">
+                    <div class="detail-section">
+                        <h3 class="detail-section-title">📈 Trend Overview</h3>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-value positive">-5.2%</div>
+                                <div class="metric-label">Year-over-Year Change</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value positive">-31%</div>
+                                <div class="metric-label">Reduction Since 2019</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value warning">Q4</div>
+                                <div class="metric-label">Peak Season</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value neutral">150K</div>
+                                <div class="metric-label">2030 Target (tCO₂e)</div>
+                            </div>
+                        </div>
+
+                        <p class="detail-text">
+                            Your emissions have followed a consistent downward trend since 2019, achieving a 31% reduction from your baseline. This year shows a 5.2% decrease compared to last year, demonstrating continued progress.
+                        </p>
+
+                        <h4 class="detail-section-title">📊 Seasonal Patterns</h4>
+                        <p class="detail-text">
+                            Analysis reveals clear seasonal patterns with Q4 consistently showing the highest emissions due to increased production schedules and heating requirements in colder months. Q2 typically shows the lowest emissions.
+                        </p>
+
+                        <ul class="detail-list">
+                            <li>
+                                <span class="list-item-name">Q1 Average</span>
+                                <span class="list-item-value">52K tCO₂e</span>
+                            </li>
+                            <li>
+                                <span class="list-item-name">Q2 Average (Lowest)</span>
+                                <span class="list-item-value">48K tCO₂e</span>
+                            </li>
+                            <li>
+                                <span class="list-item-name">Q3 Average</span>
+                                <span class="list-item-value">51K tCO₂e</span>
+                            </li>
+                            <li>
+                                <span class="list-item-name">Q4 Average (Peak)</span>
+                                <span class="list-item-value">65K tCO₂e</span>
+                            </li>
+                        </ul>
+
+                        <p class="detail-text">
+                            <strong>Future Projection:</strong> Current trajectory positions you to exceed 2030 targets by 12%. Accelerated renewable energy adoption could achieve net-zero 2 years ahead of schedule.
+                        </p>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary">🔮 Forecast Model</button>
+                        <button class="btn btn-secondary">📊 Detailed Trends</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Climate Risk Assessment Card -->
+            <div class="topic-card" data-topic="risks">
+                <div class="expand-indicator">+</div>
+                <div class="card-header">
+                    <div class="card-icon risks">⚠️</div>
+                    <div class="card-header-content">
+                        <h2 class="card-title">Risk Assessment</h2>
+                        <p class="card-subtitle">Threats and vulnerabilities to address</p>
+                    </div>
+                </div>
+
+                <div class="what-this-means">
+                    <div class="what-this-means-title">What This Means</div>
+                    <p class="what-this-means-text">
+                        This identifies potential problems your business could face from climate change, new regulations, or market shifts. It's like an early warning system for climate-related business risks.
+                    </p>
+                </div>
+
+                <div class="quick-stats">
+                    <div class="quick-stat">
+                        <div class="stat-value warning">High</div>
+                        <div class="stat-label">Regulatory</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="stat-value neutral">Medium</div>
+                        <div class="stat-label">Physical</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="stat-value negative">High</div>
+                        <div class="stat-label">Transition</div>
+                    </div>
+                </div>
+
+                <div class="why-it-matters">
+                    <div class="why-it-matters-title">Why It Matters</div>
+                    <p class="why-it-matters-text">
+                        Being prepared for climate risks protects your business from disruptions, regulatory penalties, and reputational damage while positioning you ahead of competitors.
+                    </p>
+                </div>
+
+                <!-- Detailed Content -->
+                <div class="detailed-content">
+                    <div class="detail-section">
+                        <h3 class="detail-section-title">⚠️ Risk Overview</h3>
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <div class="metric-value warning">High</div>
+                                <div class="metric-label">Regulatory Risk</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value neutral">Medium</div>
+                                <div class="metric-label">Physical Risk</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value negative">High</div>
+                                <div class="metric-label">Transition Risk</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-value positive">Low</div>
+                                <div class="metric-label">Stranded Assets</div>
+                            </div>
+                        </div>
+
+                        <h4 class="detail-section-title">🔍 Key Risk Areas</h4>
+                        
+                        <p class="detail-text">
+                            <strong>Regulatory Risk (High):</strong> High regulatory risk identified across EU operations due to stricter carbon pricing and Corporate Sustainability Reporting Directive (CSRD) requirements. Compliance costs could increase by 40% over the next 3 years without proactive measures.
+                        </p>
+
+                        <p class="detail-text">
+                            <strong>Physical Risk (Medium):</strong> Supply chain disruption risk elevated in Southeast Asian facilities due to increased frequency of extreme weather events. Three key supplier facilities are in flood-prone zones.
+                        </p>
+
+                        <p class="detail-text">
+                            <strong>Transition Risk (High):</strong> Market shift toward low-carbon products could impact 35% of current product portfolio. Competitors are moving faster on renewable energy adoption and product sustainability.
+                        </p>
+
+                        <h4 class="detail-section-title">🛡️ Immediate Actions Required</h4>
+                        <ul class="detail-list">
+                            <li>
+                                <span class="list-item-name">CSRD Compliance Preparation</span>
+                                <span class="list-item-value">Q1 2025</span>
+                            </li>
+                            <li>
+                                <span class="list-item-name">Carbon Border Adjustment Readiness</span>
+                                <span class="list-item-value">Q2 2025</span>
+                            </li>
+                            <li>
+                                <span class="list-item-name">Supply Chain Resilience Planning</span>
+                                <span class="list-item-value">Q2 2025</span>
+                            </li>
+                            <li>
+                                <span class="list-item-name">Product Portfolio Assessment</span>
+                                <span class="list-item-value">Q3 2025</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-primary">🛡️ Mitigation Plan</button>
+                        <button class="btn btn-secondary">🔍 Risk Register</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendations Section -->
+        <div class="recommendations">
+            <h3 class="recommendations-title">
+                💡 Strategic Recommendations
+            </h3>
+
+            <div class="recommendation-item">
+                <div class="recommendation-header">
+                    <h4 class="recommendation-title">Accelerate Renewable Energy Transition</h4>
+                    <span class="recommendation-impact impact-high">High Impact</span>
+                </div>
+                <p class="recommendation-description">
+                    Fast-track renewable energy procurement to reach 90% by 2024. Focus on PPAs for major facilities and on-site solar for smaller locations. This could reduce Scope 2 emissions by an additional 45% and decrease carbon cost exposure by $2.1M annually.
+                </p>
+            </div>
+
+            <div class="recommendation-item">
+                <div class="recommendation-header">
+                    <h4 class="recommendation-title">Implement Supplier Engagement Program</h4>
+                    <span class="recommendation-impact impact-high">High Impact</span>
+                </div>
+                <p class="recommendation-description">
+                    Launch comprehensive supplier sustainability program targeting top 20 suppliers. Provide training, set science-based targets, and implement performance incentives. Expected 30% reduction in Scope 3 emissions within 18 months.
+                </p>
+            </div>
+
+            <div class="recommendation-item">
+                <div class="recommendation-header">
+                    <h4 class="recommendation-title">Energy Efficiency Optimization</h4>
+                    <span class="recommendation-impact impact-medium">Medium Impact</span>
+                </div>
+                <p class="recommendation-description">
+                    Deploy AI-powered energy management systems across all facilities. Smart controls for HVAC, lighting, and equipment can reduce energy consumption by 15-20% with 18-month payback period.
+                </p>
+            </div>
+
+            <div class="recommendation-item">
+                <div class="recommendation-header">
+                    <h4 class="recommendation-title">Carbon Offset Strategy</h4>
+                    <span class="recommendation-impact impact-low">Low Impact</span>
+                </div>
+                <p class="recommendation-description">
+                    Develop high-quality carbon offset portfolio for remaining emissions. Focus on nature-based solutions and direct air capture to ensure permanence and additionality while supporting net-zero commitments.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Card expand/collapse functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const topicCards = document.querySelectorAll('.topic-card');
+            
+            topicCards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // Don't toggle if clicking on buttons
+                    if (e.target.closest('.btn')) {
+                        e.stopPropagation();
+                        const action = e.target.textContent.trim();
+                        alert(`"${action}" feature would be implemented in the full application.`);
+                        return;
+                    }
+
+                    // Close all other cards
+                    topicCards.forEach(otherCard => {
+                        if (otherCard !== card) {
+                            otherCard.classList.remove('expanded');
+                        }
+                    });
+
+                    // Toggle current card
+                    this.classList.toggle('expanded');
+
+                    // Smooth scroll to card if expanding
+                    if (this.classList.contains('expanded')) {
+                        setTimeout(() => {
+                            this.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 100);
+                    }
+                });
+            });
+
+            // Add interactivity for buttons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const action = this.textContent.trim();
+                    alert(`"${action}" feature would be implemented in the full application.`);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
