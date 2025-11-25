@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sequestration Projects | HWCAP Professional</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --hz-primary: #4A7C59;
+      --hz-primary-700: #355b3f;
+      --hz-primary-50: #E9F1EC;
+      --hz-mint: #A8E6A3;
+      --hz-dark: #2F4F3F;
+      --ink: #22302A;
+      --subtle: #5B6E64;
+      --bg: #F6F7F4;
+      --card: #FFFFFF;
+      --stroke: #E5E9E6;
+      --success: #48BB78;
+      --warning: #F6AD55;
+      --danger: #E53E3E;
+      --info: #4299E1;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Outfit', sans-serif; 
+      background: var(--bg);
+      color: var(--ink);
+    }
+    
+    .header {
+      background: var(--hz-primary);
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .logo { 
+      font-size: 1.5rem; 
+      font-weight: 700; 
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+    .user-info { display: flex; align-items: center; gap: 0.5rem; }
+    
+    .container {
+      display: flex;
+      min-height: calc(100vh - 64px);
+    }
+    
+    .sidebar {
+      width: 280px;
+      background: white;
+      padding: 1.5rem 0;
+      box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+      border-right: 1px solid var(--stroke);
+    }
+
+    .nav-section {
+      margin-bottom: 2rem;
+    }
+
+    .nav-section-title {
+      padding: 0 1.5rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-item {
+      padding: 0.875rem 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+      color: var(--subtle);
+      font-weight: 500;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .nav-item:hover {
+      background: var(--hz-primary-50);
+      border-left-color: var(--hz-primary);
+      color: var(--hz-primary);
+    }
+    .nav-item.active {
+      background: var(--hz-primary-50);
+      border-left-color: var(--hz-primary);
+      color: var(--hz-primary);
+      font-weight: 600;
+    }
+    
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      overflow-y: auto;
+      height: calc(100vh - 64px);
+    }
+    
+    .page-header {
+      margin-bottom: 2rem;
+    }
+    .page-title {
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: var(--hz-primary);
+      margin-bottom: 0.5rem;
+    }
+    .page-subtitle {
+      color: var(--subtle);
+      font-size: 1rem;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-left: 4px solid var(--hz-primary);
+      border: 1px solid var(--stroke);
+      position: relative;
+    }
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--subtle);
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--hz-primary);
+      margin-bottom: 0.5rem;
+    }
+    .stat-unit {
+      font-size: 0.875rem;
+      color: var(--subtle);
+    }
+
+    .tooltip {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+    }
+
+    .info-icon {
+      width: 24px;
+      height: 24px;
+      background: #D4A017;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      cursor: help;
+      font-weight: 700;
+      font-family: Georgia, serif;
+      font-style: italic;
+      transition: all 0.2s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      line-height: 24px;
+    }
+
+    .info-icon:hover {
+      background: #C59213;
+      transform: scale(1.15);
+      box-shadow: 0 3px 8px rgba(212, 160, 23, 0.4);
+    }
+
+    .info-icon span:first-child {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 280px;
+      background-color: #2D3748;
+      color: #fff;
+      text-align: left;
+      border-radius: 10px;
+      padding: 1.25rem;
+      position: absolute;
+      z-index: 1000;
+      top: 0;
+      right: 35px;
+      font-size: 0.875rem;
+      line-height: 1.6;
+      opacity: 0;
+      transition: opacity 0.3s;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      pointer-events: none;
+    }
+
+    .tooltip .tooltiptext::after {
+      content: "";
+      position: absolute;
+      top: 12px;
+      left: 100%;
+      border-width: 8px;
+      border-style: solid;
+      border-color: transparent transparent transparent #2D3748;
+    }
+
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .tooltip .tooltiptext strong {
+      color: #D4A017;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--stroke);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--hz-primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .project-card {
+      background: linear-gradient(135deg, #f8f9fa, #ffffff);
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 2px solid var(--stroke);
+      transition: all 0.3s;
+    }
+
+    .project-card:hover {
+      border-color: var(--hz-primary);
+      box-shadow: 0 4px 12px rgba(74, 124, 89, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px dashed var(--stroke);
+    }
+
+    .project-icon {
+      font-size: 2rem;
+    }
+
+    .project-status {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-active {
+      background: #D4EDDA;
+      color: #155724;
+    }
+
+    .status-monitoring {
+      background: #D1ECF1;
+      color: #0C5460;
+    }
+
+    .status-pending {
+      background: #FFF3CD;
+      color: #856404;
+    }
+
+    .project-name {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+
+    .project-location {
+      font-size: 0.875rem;
+      color: var(--subtle);
+      margin-bottom: 1rem;
+    }
+
+    .project-metrics {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .metric-item {
+      background: white;
+      padding: 0.75rem;
+      border-radius: 6px;
+      border: 1px solid var(--stroke);
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.25rem;
+    }
+
+    .metric-value {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--hz-primary);
+    }
+
+    .project-progress {
+      margin-top: 1rem;
+    }
+
+    .progress-label {
+      font-size: 0.75rem;
+      color: var(--subtle);
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--stroke);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--hz-primary), var(--hz-mint));
+      transition: width 0.3s;
+    }
+
+    .btn {
+      padding: 0.875rem 1.75rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 0.9rem;
+    }
+
+    .btn-primary {
+      background: var(--hz-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--hz-primary-700);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(74, 124, 89, 0.3);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: var(--hz-primary);
+      border: 2px solid var(--hz-primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--hz-primary-50);
+    }
+
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+    }
+
+    .btn-block {
+      width: 100%;
+      text-align: center;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: var(--hz-primary-50);
+    }
+
+    th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--hz-primary);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--stroke);
+      font-size: 0.9rem;
+    }
+
+    tbody tr:hover {
+      background: var(--hz-primary-50);
+    }
+
+    .help-section {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      border: 1px solid var(--stroke);
+      margin-bottom: 2rem;
+    }
+
+    .help-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--hz-primary);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .help-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .help-item {
+      background: #fafafa;
+      border-radius: 8px;
+      padding: 1.25rem;
+      border-left: 3px solid var(--hz-primary);
+    }
+
+    .help-item-title {
+      font-weight: 700;
+      color: var(--hz-primary);
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .help-item-description {
+      color: var(--ink);
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid, .projects-grid, .help-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .tooltip .tooltiptext {
+        width: 200px;
+        right: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">🌱</div>
+      HWCAP
+    </div>
+    <div class="user-info">
+      <span>Professional Plan</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="sidebar">
+      <div class="nav-section">
+        <div class="nav-section-title">Carbon Management</div>
+        <a href="carbon-credits-pro.html" class="nav-item">
+          <span>📊</span> Deficit Tracking & Sequestration
+        </a>
+        <a href="credits-marketplace.html" class="nav-item">
+          <span>🛒</span> Credits Marketplace
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Project Management</div>
+        <div class="nav-item active">
+          <span>🌱</span> Sequestration Projects
+        </div>
+        <a href="portfolio-mgmt.html" class="nav-item">
+          <span>💼</span> Portfolio Management
+        </a>
+        <a href="credit-inventory.html" class="nav-item">
+          <span>📦</span> Credit Inventory
+        </a>
+        <a href="credit-retirement.html" class="nav-item">
+          <span>🎯</span> Credit Retirement
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Navigation</div>
+        <a href="hwcap_dashboard.html" class="nav-item">
+          <span>📊</span> Dashboard
+        </a>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="page-header">
+        <h1 class="page-title">Sequestration Projects (Track-B Credits)</h1>
+        <p class="page-subtitle">Manage your own carbon sequestration initiatives and generate Track-B credits from nature-based solutions</p>
+      </div>
+
+      <!-- Sequestration KPIs -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="tooltip">
+            <div class="info-icon">
+              <span>i</span>
+            </div>
+            <span class="tooltiptext">
+              <strong>Total Sequestration:</strong> Cumulative carbon captured across all your active sequestration projects. This represents your self-generated offsetting capacity through nature-based solutions like forests, mangroves, and agroforestry.
+            </span>
+          </div>
+          <div class="stat-label">Total Sequestration</div>
+          <div class="stat-value">45,000</div>
+          <div class="stat-unit">tCO₂e capacity</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="tooltip">
+            <div class="info-icon">
+              <span>i</span>
+            </div>
+            <span class="tooltiptext">
+              <strong>Active Projects:</strong> Number of ongoing sequestration initiatives currently monitored and managed. Each project contributes verified carbon removal toward your net-zero targets.
+            </span>
+          </div>
+          <div class="stat-label">Active Projects</div>
+          <div class="stat-value">3</div>
+          <div class="stat-unit">initiatives</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="tooltip">
+            <div class="info-icon">
+              <span>i</span>
+            </div>
+            <span class="tooltiptext">
+              <strong>Track-B Credits Generated:</strong> Carbon credits created from your own sequestration projects, verified through monitoring and third-party validation. These can be used for compliance or internal offsetting.
+            </span>
+          </div>
+          <div class="stat-label">Track-B Credits Generated</div>
+          <div class="stat-value">12,450</div>
+          <div class="stat-unit">tCO₂e to date</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="tooltip">
+            <div class="info-icon">
+              <span>i</span>
+            </div>
+            <span class="tooltiptext">
+              <strong>Project Area:</strong> Total land area dedicated to carbon sequestration activities across all projects. Larger areas generally provide greater sequestration potential and biodiversity co-benefits.
+            </span>
+          </div>
+          <div class="stat-label">Total Project Area</div>
+          <div class="stat-value">2,850</div>
+          <div class="stat-unit">hectares</div>
+        </div>
+      </div>
+
+      <!-- Active Projects -->
+      <div class="card">
+        <h2 class="card-title">🌳 Active Sequestration Projects</h2>
+        <div class="projects-grid">
+          <!-- Project 1: Forest Restoration -->
+          <div class="project-card">
+            <div class="project-header">
+              <div class="project-icon">🌲</div>
+              <span class="project-status status-active">Active</span>
+            </div>
+            <div class="project-name">Forest Restoration Program</div>
+            <div class="project-location">📍 Western Ghats, Karnataka</div>
+            
+            <div class="project-metrics">
+              <div class="metric-item">
+                <div class="metric-label">Sequestration</div>
+                <div class="metric-value">25,000 tCO₂e</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Project Area</div>
+                <div class="metric-value">1,200 ha</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Start Date</div>
+                <div class="metric-value">Jan 2022</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Credits Gen.</div>
+                <div class="metric-value">8,200 tCO₂e</div>
+              </div>
+            </div>
+
+            <div class="project-progress">
+              <div class="progress-label">
+                <span>Project Progress</span>
+                <span>68%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 68%"></div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-sm btn-block" style="margin-top: 1rem;">View Project Details</button>
+          </div>
+
+          <!-- Project 2: Agroforestry -->
+          <div class="project-card">
+            <div class="project-header">
+              <div class="project-icon">🌾</div>
+              <span class="project-status status-monitoring">Monitoring</span>
+            </div>
+            <div class="project-name">Agroforestry Integration</div>
+            <div class="project-location">📍 Vidarbha Region, Maharashtra</div>
+            
+            <div class="project-metrics">
+              <div class="metric-item">
+                <div class="metric-label">Sequestration</div>
+                <div class="metric-value">12,000 tCO₂e</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Project Area</div>
+                <div class="metric-value">850 ha</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Start Date</div>
+                <div class="metric-value">Jun 2023</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Credits Gen.</div>
+                <div class="metric-value">2,800 tCO₂e</div>
+              </div>
+            </div>
+
+            <div class="project-progress">
+              <div class="progress-label">
+                <span>Project Progress</span>
+                <span>42%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 42%"></div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-sm btn-block" style="margin-top: 1rem;">View Project Details</button>
+          </div>
+
+          <!-- Project 3: Mangrove Conservation -->
+          <div class="project-card">
+            <div class="project-header">
+              <div class="project-icon">🌊</div>
+              <span class="project-status status-active">Active</span>
+            </div>
+            <div class="project-name">Mangrove Conservation</div>
+            <div class="project-location">📍 Sundarbans, West Bengal</div>
+            
+            <div class="project-metrics">
+              <div class="metric-item">
+                <div class="metric-label">Sequestration</div>
+                <div class="metric-value">8,000 tCO₂e</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Project Area</div>
+                <div class="metric-value">800 ha</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Start Date</div>
+                <div class="metric-value">Mar 2023</div>
+              </div>
+              <div class="metric-item">
+                <div class="metric-label">Credits Gen.</div>
+                <div class="metric-value">1,450 tCO₂e</div>
+              </div>
+            </div>
+
+            <div class="project-progress">
+              <div class="progress-label">
+                <span>Project Progress</span>
+                <span>35%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 35%"></div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary btn-sm btn-block" style="margin-top: 1rem;">View Project Details</button>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem;">
+          <button class="btn btn-primary">➕ Add New Sequestration Project</button>
+          <button class="btn btn-secondary" style="margin-left: 1rem;">📊 View All Projects Analytics</button>
+        </div>
+      </div>
+
+      <!-- Monitoring & Verification -->
+      <div class="card">
+        <h2 class="card-title">📊 Project Monitoring & Verification Status</h2>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Project Name</th>
+                <th>Last Monitoring</th>
+                <th>Next Verification</th>
+                <th>Status</th>
+                <th>Verified Credits</th>
+                <th>Pending Credits</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Forest Restoration Program</td>
+                <td>Nov 10, 2024</td>
+                <td>Dec 15, 2024</td>
+                <td><span class="project-status status-active">On Track</span></td>
+                <td>8,200 tCO₂e</td>
+                <td>1,250 tCO₂e</td>
+                <td><button class="btn btn-secondary btn-sm">View Report</button></td>
+              </tr>
+              <tr>
+                <td>Agroforestry Integration</td>
+                <td>Oct 28, 2024</td>
+                <td>Jan 20, 2025</td>
+                <td><span class="project-status status-monitoring">Monitoring</span></td>
+                <td>2,800 tCO₂e</td>
+                <td>850 tCO₂e</td>
+                <td><button class="btn btn-secondary btn-sm">View Report</button></td>
+              </tr>
+              <tr>
+                <td>Mangrove Conservation</td>
+                <td>Nov 5, 2024</td>
+                <td>Feb 10, 2025</td>
+                <td><span class="project-status status-active">On Track</span></td>
+                <td>1,450 tCO₂e</td>
+                <td>580 tCO₂e</td>
+                <td><button class="btn btn-secondary btn-sm">View Report</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Track-B Credits Summary -->
+      <div class="card">
+        <h2 class="card-title">🎯 Track-B Credits Generation Summary</h2>
+        <p style="color: var(--subtle); margin-bottom: 1.5rem;">
+          Track-B credits are generated from your own sequestration projects and can be used for internal compliance or voluntary commitments. These credits represent verified carbon removals from nature-based solutions you directly manage and monitor.
+        </p>
+        
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Period</th>
+                <th>Project</th>
+                <th>Credits Generated</th>
+                <th>Verification Status</th>
+                <th>Issuance Date</th>
+                <th>Certificate</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Q3 2024</td>
+                <td>Forest Restoration</td>
+                <td>2,100 tCO₂e</td>
+                <td><span class="project-status status-active">Verified</span></td>
+                <td>Oct 15, 2024</td>
+                <td><button class="btn btn-secondary btn-sm">Download</button></td>
+              </tr>
+              <tr>
+                <td>Q2 2024</td>
+                <td>Forest Restoration</td>
+                <td>2,850 tCO₂e</td>
+                <td><span class="project-status status-active">Verified</span></td>
+                <td>Jul 20, 2024</td>
+                <td><button class="btn btn-secondary btn-sm">Download</button></td>
+              </tr>
+              <tr>
+                <td>Q3 2024</td>
+                <td>Agroforestry Integration</td>
+                <td>1,200 tCO₂e</td>
+                <td><span class="project-status status-active">Verified</span></td>
+                <td>Oct 25, 2024</td>
+                <td><button class="btn btn-secondary btn-sm">Download</button></td>
+              </tr>
+              <tr>
+                <td>Q2 2024</td>
+                <td>Mangrove Conservation</td>
+                <td>950 tCO₂e</td>
+                <td><span class="project-status status-active">Verified</span></td>
+                <td>Aug 12, 2024</td>
+                <td><button class="btn btn-secondary btn-sm">Download</button></td>
+              </tr>
+              <tr>
+                <td>Q4 2024</td>
+                <td>Forest Restoration</td>
+                <td>1,250 tCO₂e</td>
+                <td><span class="project-status status-pending">Pending</span></td>
+                <td>Expected Dec 2024</td>
+                <td>-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem;">
+          <button class="btn btn-primary">📥 Export Credits Report</button>
+          <button class="btn btn-secondary" style="margin-left: 1rem;">📋 Request Verification</button>
+        </div>
+      </div>
+
+      <!-- Help Section -->
+      <div class="help-section">
+        <h2 class="help-title">💡 Understanding Sequestration Projects & Track-B Credits</h2>
+        <div class="help-grid">
+          <div class="help-item">
+            <div class="help-item-title">What are Sequestration Projects?</div>
+            <div class="help-item-description">
+              Sequestration projects are nature-based initiatives you own or manage that actively remove CO₂ from the atmosphere. Common types include forest restoration, agroforestry, mangrove conservation, and soil carbon enhancement. These projects generate Track-B credits.
+            </div>
+          </div>
+
+          <div class="help-item">
+            <div class="help-item-title">Track-A vs. Track-B Credits</div>
+            <div class="help-item-description">
+              Track-A credits are purchased from third-party projects in the open market. Track-B credits are self-generated from your own sequestration projects. Track-B credits demonstrate direct investment in climate solutions and stronger ESG commitment.
+            </div>
+          </div>
+
+          <div class="help-item">
+            <div class="help-item-title">Project Monitoring Requirements</div>
+            <div class="help-item-description">
+              Regular monitoring (typically quarterly) tracks carbon sequestration rates, project health, and compliance with methodologies. Monitoring includes field measurements, satellite imagery, biodiversity assessments, and community engagement verification.
+            </div>
+          </div>
+
+          <div class="help-item">
+            <div class="help-item-title">Third-Party Verification</div>
+            <div class="help-item-description">
+              Independent verification (annually or bi-annually) validates monitoring data and confirms carbon sequestration claims. Verified credits can be formally issued and used for compliance or voluntary offsetting with full credibility.
+            </div>
+          </div>
+
+          <div class="help-item">
+            <div class="help-item-title">Carbon Sequestration Rates</div>
+            <div class="help-item-description">
+              Sequestration rates vary by ecosystem: forests capture 2-10 tCO₂e/ha/year, agroforestry 1-5 tCO₂e/ha/year, mangroves 5-15 tCO₂e/ha/year, and grasslands 0.5-3 tCO₂e/ha/year. Rates depend on species, climate, soil quality, and management practices.
+            </div>
+          </div>
+
+          <div class="help-item">
+            <div class="help-item-title">Project Timeline & Permanence</div>
+            <div class="help-item-description">
+              Sequestration projects require long-term commitment (typically 20-40 years minimum) to ensure carbon storage permanence. Projects must include plans for fire prevention, disease management, and legal protections to prevent reversal of carbon gains.
+            </div>
+          </div>
+
+          <div class="help-item">
+            <div class="help-item-title">Co-Benefits Beyond Carbon</div>
+            <div class="help-item-description">
+              Sequestration projects often provide additional benefits: biodiversity enhancement, watershed protection, soil health improvement, community livelihoods, and climate adaptation. These co-benefits strengthen ESG profiles and stakeholder value.
+            </div>
+          </div>
+
+          <div class="help-item">
+            <div class="help-item-title">Additionality & Baseline</div>
+            <div class="help-item-description">
+              To generate Track-B credits, projects must demonstrate additionality—carbon sequestration wouldn't occur without the project. A baseline scenario documents expected carbon levels without intervention, proving the project's incremental climate benefit.
+            </div>
+          </div>
+
+          <div class="help-item">
+            <div class="help-item-title">Leakage Prevention</div>
+            <div class="help-item-description">
+              Leakage occurs when carbon benefits in one area cause increased emissions elsewhere (e.g., protecting one forest shifts deforestation to another). Projects must monitor and account for leakage to ensure net positive climate impact.
+            </div>
+          </div>
+
+          <div class="help-item">
+            <div class="help-item-title">Credit Issuance Process</div>
+            <div class="help-item-description">
+              After verification, credits are issued to your account in approved registries (e.g., Verra, Gold Standard). Issued Track-B credits can be held for future use, transferred to other entities, or retired for compliance/voluntary claims—just like Track-A credits.
+            </div>
+          </div>
+
+          <div class="help-item">
+            <div class="help-item-title">Project Risk Management</div>
+            <div class="help-item-description">
+              Risks include natural disasters (fire, drought, pests), social challenges (land tenure disputes, community opposition), and methodology changes. Risk mitigation includes insurance, buffer pools, diversification across project types, and robust community engagement.
+            </div>
+          </div>
+
+          <div class="help-item">
+            <div class="help-item-title">Compliance Recognition</div>
+            <div class="help-item-description">
+              Track-B credits from properly verified sequestration projects are increasingly recognized in compliance frameworks like CBAM, voluntary standards like SBTi, and corporate net-zero commitments. Ensure your methodology aligns with relevant standards.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Handle button clicks
+    document.addEventListener('DOMContentLoaded', function() {
+      // Project detail buttons
+      document.querySelectorAll('.project-card .btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          alert('Project Details would show:\n• Full project description and methodology\n• Detailed monitoring data and trends\n• Verification history and certificates\n• Biodiversity and co-benefits tracking\n• Community engagement reports\n• Financial performance\n• Photo documentation');
+        });
+      });
+
+      // Add new project button
+      const addProjectBtn = document.querySelector('.btn-primary');
+      if (addProjectBtn && addProjectBtn.textContent.includes('Add New')) {
+        addProjectBtn.addEventListener('click', function() {
+          alert('Add New Sequestration Project:\n\nThis would open a form to:\n• Define project type and location\n• Set sequestration targets\n• Specify monitoring methodology\n• Upload baseline documentation\n• Configure verification schedule\n• Assign project team\n• Set budget and timeline');
+        });
+      }
+
+      // Analytics button
+      const analyticsBtn = document.querySelector('.btn-secondary');
+      if (analyticsBtn && analyticsBtn.textContent.includes('Analytics')) {
+        analyticsBtn.addEventListener('click', function() {
+          alert('Project Analytics Dashboard:\n\n• Sequestration trends over time\n• Credits generation forecasts\n• Cost per tCO₂e analysis\n• Project performance comparison\n• Co-benefits measurement\n• Risk assessment metrics');
+        });
+      }
+
+      // View report buttons
+      document.querySelectorAll('.btn-sm').forEach(btn => {
+        if (btn.textContent.includes('View Report')) {
+          btn.addEventListener('click', function() {
+            alert('Monitoring Report:\n\nWould display:\n• Field measurement data\n• Satellite imagery analysis\n• Biomass growth calculations\n• Carbon sequestration rates\n• Biodiversity indicators\n• Community feedback\n• Photos and documentation');
+          });
+        } else if (btn.textContent.includes('Download')) {
+          btn.addEventListener('click', function() {
+            alert('Downloading Track-B Credit Certificate:\n\n• Credit serial numbers\n• Quantity issued\n• Project details\n• Verification confirmation\n• Methodology documentation\n• Issuance date and validity');
+          });
+        }
+      });
+
+      // Export and verification buttons
+      const exportBtn = document.querySelectorAll('.btn-primary')[1];
+      const verificationBtn = document.querySelectorAll('.btn-secondary')[2];
+      
+      if (exportBtn && exportBtn.textContent.includes('Export')) {
+        exportBtn.addEventListener('click', function() {
+          alert('Credits Report Export:\n\nGenerating comprehensive report with:\n• All issued credits by project\n• Verification documentation\n• Monitoring summaries\n• Sequestration trends\n• Financial analysis');
+        });
+      }
+      
+      if (verificationBtn) {
+        verificationBtn.addEventListener('click', function() {
+          alert('Request Verification:\n\nInitiate third-party verification for:\n• Pending credits from recent monitoring\n• Submit documentation package\n• Schedule auditor site visit\n• Receive verification report\n• Issue verified Track-B credits');
+        });
+      }
+    });
+  </script>
+</body>
+</html>
