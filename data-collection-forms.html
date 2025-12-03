@@ -1,0 +1,2095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HWCAP - Data Collection Forms</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --hz-primary: #4A7C59;
+            --hz-primary-700: #355b3f;
+            --hz-primary-50: #E9F1EC;
+            --hz-mint: #A8E6A3;
+            --hz-dark: #2F4F3F;
+            --ink: #22302A;
+            --subtle: #5B6E64;
+            --bg: #F6F7F4;
+            --card: #FFFFFF;
+            --stroke: #E5E9E6;
+            --success: #48BB78;
+            --warning: #F6AD55;
+            --danger: #E53E3E;
+            --info: #4299E1;
+            --scope-1: #E53E3E;
+            --scope-2: #F6AD55;
+            --scope-3: #4299E1;
+            --water: #00B4D8;
+            --waste: #8E4EC6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: var(--hz-primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .nav-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb-link {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .breadcrumb-link:hover {
+            color: white;
+        }
+
+        .breadcrumb-separator {
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 64px;
+            padding: 2rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: var(--subtle);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Site Selection */
+        .site-selector {
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .site-selector h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 1rem;
+        }
+
+        .site-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--subtle);
+        }
+
+        .form-select, .form-input {
+            padding: 0.75rem;
+            border: 1px solid var(--stroke);
+            border-radius: 8px;
+            background: white;
+            font-family: inherit;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-select:focus, .form-input:focus {
+            outline: none;
+            border-color: var(--hz-primary);
+            box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.1);
+        }
+
+        /* Data Categories */
+        .data-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .category-card {
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .category-header {
+            padding: 1.5rem 1.5rem 1rem 1.5rem;
+            border-bottom: 1px solid var(--stroke);
+            position: relative;
+        }
+
+        .category-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .category-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .scope1 .category-icon {
+            background: rgba(229, 62, 62, 0.1);
+            color: var(--scope-1);
+        }
+
+        .scope2 .category-icon {
+            background: rgba(246, 173, 85, 0.1);
+            color: var(--scope-2);
+        }
+
+        .scope3 .category-icon {
+            background: rgba(66, 153, 225, 0.1);
+            color: var(--scope-3);
+        }
+
+        .water .category-icon {
+            background: rgba(0, 180, 216, 0.1);
+            color: var(--water);
+        }
+
+        .waste .category-icon {
+            background: rgba(142, 78, 198, 0.1);
+            color: var(--waste);
+        }
+
+        .category-description {
+            font-size: 0.875rem;
+            color: var(--subtle);
+            margin-bottom: 1rem;
+        }
+
+        .data-points {
+            font-size: 0.75rem;
+            color: var(--subtle);
+            background: var(--hz-primary-50);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+        }
+
+        .category-form {
+            padding: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-row-full {
+            display: grid;
+            grid-template-columns: 1fr;
+            margin-bottom: 1rem;
+        }
+
+        .input-with-unit {
+            position: relative;
+        }
+
+        .unit-label {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+            color: var(--subtle);
+            background: white;
+            padding: 0 4px;
+        }
+
+        .form-input-with-unit {
+            padding-right: 60px;
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        /* Action Buttons */
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--stroke);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--hz-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--hz-primary-700);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--ink);
+            border: 1px solid var(--stroke);
+        }
+
+        .btn-secondary:hover {
+            background: var(--hz-primary-50);
+            border-color: var(--hz-primary);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--hz-primary);
+            border: 1px solid var(--hz-primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--hz-primary);
+            color: white;
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+        }
+
+        .status-required {
+            background: rgba(229, 62, 62, 0.1);
+            color: var(--danger);
+        }
+
+        .status-optional {
+            background: rgba(91, 110, 100, 0.1);
+            color: var(--subtle);
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 12px;
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+            gap: 0.5rem;
+            justify-content: space-between;
+            flex-wrap: nowrap;
+            overflow: hidden;
+        }
+
+        .tab-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: none;
+            padding: 0.5rem 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 0;
+            height: 70px;
+        }
+
+        .tab-button:hover {
+            background: var(--hz-primary-50);
+        }
+
+        .tab-button.active {
+            background: var(--hz-primary);
+            color: white;
+        }
+
+        .tab-button-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            justify-content: center;
+        }
+
+        .tab-icon {
+            font-size: 1.2rem;
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+
+        .tab-title {
+            font-weight: 600;
+            font-size: 0.8rem;
+            line-height: 1.1;
+            margin-bottom: 0.1rem;
+        }
+
+        .tab-subtitle {
+            font-size: 0.65rem;
+            opacity: 0.8;
+            line-height: 1;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            min-height: 600px;
+        }
+
+        .tab-panel {
+            display: none;
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .category-header {
+            border-bottom: 1px solid var(--stroke);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Parameter Sections */
+        .parameter-section {
+            margin-bottom: 2.5rem;
+            padding: 1.5rem;
+            background: var(--hz-primary-50);
+            border-radius: 12px;
+            border-left: 4px solid var(--hz-primary);
+        }
+
+        .parameter-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .parameter-description {
+            font-size: 0.9rem;
+            color: var(--subtle);
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+
+        .parameter-info {
+            font-size: 0.75rem;
+            color: var(--subtle);
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+
+            .tab-navigation {
+                flex-wrap: nowrap;
+                overflow: hidden;
+                justify-content: space-between;
+                padding: 0.25rem;
+            }
+
+            .tab-button {
+                flex: 1;
+                min-width: 70px;
+                height: 65px;
+                padding: 0.4rem 0.25rem;
+            }
+
+            .tab-title {
+                font-size: 0.7rem;
+            }
+
+            .tab-subtitle {
+                font-size: 0.6rem;
+            }
+
+            .tab-icon {
+                font-size: 1.1rem;
+                margin-bottom: 0.2rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .site-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tab-panel {
+                padding: 1rem;
+            }
+
+            .parameter-section {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tab-navigation {
+                padding: 0.25rem;
+                gap: 0.25rem;
+                flex-wrap: nowrap;
+                overflow: hidden;
+            }
+
+            .tab-button {
+                flex: 1;
+                min-width: 60px;
+                height: 60px;
+                padding: 0.3rem 0.2rem;
+            }
+
+            .tab-icon {
+                font-size: 1rem;
+            }
+
+            .tab-title {
+                font-size: 0.65rem;
+            }
+
+            .tab-subtitle {
+                font-size: 0.55rem;
+            }
+        }
+
+        /* Success Message */
+        .success-message {
+            background: rgba(72, 187, 120, 0.1);
+            border: 1px solid rgba(72, 187, 120, 0.3);
+            color: var(--success);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        /* Required field indicators */
+        .form-label.required::after {
+            content: " *";
+            color: var(--danger);
+            font-weight: 700;
+        }
+
+        .form-input.required {
+            border-left: 3px solid var(--warning);
+        }
+
+        .form-input.required:focus {
+            border-left-color: var(--hz-primary);
+        }
+
+        .form-input.completed {
+            border-left: 3px solid var(--success);
+            background: rgba(72, 187, 120, 0.05);
+        }
+
+        /* Material code and supplier ID specific styling */
+        .material-supplier-section {
+            background: rgba(74, 124, 89, 0.05);
+            border: 1px solid rgba(74, 124, 89, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .material-supplier-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 2fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .material-supplier-row .form-group {
+            margin-bottom: 0;
+        }
+
+        .required-info {
+            font-size: 0.75rem;
+            color: var(--danger);
+            margin-bottom: 1rem;
+            font-weight: 500;
+            padding: 0.5rem;
+            background: rgba(229, 62, 62, 0.05);
+            border-radius: 4px;
+            border-left: 3px solid var(--danger);
+        }
+
+        .subsection-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--hz-primary);
+            margin: 1.5rem 0 1rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(74, 124, 89, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .material-supplier-row {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">H</div>
+            HWCAP
+        </div>
+        <nav class="nav-breadcrumb">
+            <a href="hwcap_dashboard.html" class="breadcrumb-link">Dashboard</a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="#" class="breadcrumb-link">Data Management</a>
+            <span class="breadcrumb-separator">›</span>
+            <span>Data Collection Forms</span>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Data Collection Forms</h1>
+            <p class="page-subtitle">Framework-based environmental data collection with mandatory Material Codes & Supplier IDs for accurate carbon accounting across GHG emissions, water, waste, air quality, and safety metrics.</p>
+        </div>
+
+        <!-- Site Selection -->
+        <div class="site-selector">
+            <h3>Select Site/Location for Data Entry</h3>
+            <div class="site-grid">
+                <div class="form-group">
+                    <label class="form-label" for="facility">Facility/Plant</label>
+                    <select class="form-select" id="facility">
+                        <option value="">Select Facility</option>
+                        <option value="gagillapur-main">Gagillapur Manufacturing Facility (API)</option>
+                        <option value="vizag-unit1">Vizag Unit 1 (Formulations)</option>
+                        <option value="vizag-unit2">Vizag Unit 2 (API Manufacturing)</option>
+                        <option value="vizag-unit3">Vizag Unit 3 (Oncology Products)</option>
+                        <option value="vizag-unit4">Vizag Unit 4 (Hormones)</option>
+                        <option value="gagillapur-research">Gagillapur R&D Center</option>
+                        <option value="hyderabad-corporate">Hyderabad Corporate Office</option>
+                        <option value="virginia-usa">Granules USA - Virginia Facility</option>
+                        <option value="china-facility">Granules Pharmaceuticals (Jiangsu) - China</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="department">Department/Unit</label>
+                    <select class="form-select" id="department">
+                        <option value="">Select Department</option>
+                        <option value="api-manufacturing">API Manufacturing</option>
+                        <option value="formulations">Formulations</option>
+                        <option value="oncology">Oncology Products</option>
+                        <option value="hormones">Hormones & Controlled Substances</option>
+                        <option value="quality-control">Quality Control & QA</option>
+                        <option value="research-development">Research & Development</option>
+                        <option value="utilities-engineering">Utilities & Engineering</option>
+                        <option value="warehouse-logistics">Warehouse & Logistics</option>
+                        <option value="administration">Administration</option>
+                        <option value="environmental-safety">Environmental & Safety</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="reporting-period">Reporting Period</label>
+                    <select class="form-select" id="reporting-period">
+                        <option value="monthly">Monthly</option>
+                        <option value="quarterly">Quarterly</option>
+                        <option value="annually">Annually</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="data-date">Data Date</label>
+                    <input type="date" class="form-input" id="data-date">
+                </div>
+            </div>
+        </div>
+
+        <!-- Framework Selection -->
+        <div style="background: white; border: 1px solid var(--stroke); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+            <h3 style="margin-bottom: 1rem; color: var(--ink);">Select Applicable Frameworks & Categories</h3>
+            <p style="color: var(--subtle); margin-bottom: 1rem; font-size: 0.9rem;">Choose the environmental categories that apply to your organization based on your reporting frameworks (GHG Protocol, GRI, CDP, BRSR, etc.)</p>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" checked style="accent-color: var(--hz-primary);">
+                    <span>GHG Emissions (Required)</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="waterCheckbox" style="accent-color: var(--hz-primary);">
+                    <span>Water Management</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="wasteCheckbox" style="accent-color: var(--hz-primary);">
+                    <span>Waste Management</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="airCheckbox" style="accent-color: var(--hz-primary);">
+                    <span>Air Quality</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="ehsCheckbox" style="accent-color: var(--hz-primary);">
+                    <span>EHS & Safety</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div class="success-message" id="successMessage">
+            ✅ Data saved successfully! Your environmental data has been recorded for the selected facility and period.
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-button active" onclick="showTab('scope1')">
+                <div class="tab-button-content">
+                    <span class="tab-icon">🔥</span>
+                    <div class="tab-title">Scope 1</div>
+                    <div class="tab-subtitle">Direct Emissions</div>
+                </div>
+            </button>
+            <button class="tab-button" onclick="showTab('scope2')">
+                <div class="tab-button-content">
+                    <span class="tab-icon">⚡</span>
+                    <div class="tab-title">Scope 2</div>
+                    <div class="tab-subtitle">Energy Indirect</div>
+                </div>
+            </button>
+            <button class="tab-button" onclick="showTab('scope3')">
+                <div class="tab-button-content">
+                    <span class="tab-icon">🌐</span>
+                    <div class="tab-title">Scope 3</div>
+                    <div class="tab-subtitle">Other Indirect</div>
+                </div>
+            </button>
+            <button class="tab-button" onclick="showTab('water')" id="waterTab" style="display: none;">
+                <div class="tab-button-content">
+                    <span class="tab-icon">💧</span>
+                    <div class="tab-title">Water</div>
+                    <div class="tab-subtitle">Consumption & Discharge</div>
+                </div>
+            </button>
+            <button class="tab-button" onclick="showTab('waste')" id="wasteTab" style="display: none;">
+                <div class="tab-button-content">
+                    <span class="tab-icon">♻️</span>
+                    <div class="tab-title">Waste</div>
+                    <div class="tab-subtitle">Generation & Treatment</div>
+                </div>
+            </button>
+            <button class="tab-button" onclick="showTab('air')" id="airTab" style="display: none;">
+                <div class="tab-button-content">
+                    <span class="tab-icon">🌬️</span>
+                    <div class="tab-title">Air Quality</div>
+                    <div class="tab-subtitle">Emissions & Pollutants</div>
+                </div>
+            </button>
+            <button class="tab-button" onclick="showTab('ehs')" id="ehsTab" style="display: none;">
+                <div class="tab-button-content">
+                    <span class="tab-icon">🛡️</span>
+                    <div class="tab-title">EHS & Safety</div>
+                    <div class="tab-subtitle">Health & Safety</div>
+                </div>
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tab-content">
+            <!-- Scope 1 Tab -->
+            <div id="scope1" class="tab-panel active">
+                <div class="category-header">
+                    <h2 style="color: var(--scope-1); margin-bottom: 1rem; display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.5rem;">🔥</span>
+                        Scope 1: Direct GHG Emissions
+                    </h2>
+                    <p style="color: var(--subtle); margin-bottom: 1.5rem;">Direct greenhouse gas emissions from sources owned or controlled by your organization. Required under most GHG reporting frameworks.</p>
+                </div>
+
+                <form class="category-form" id="scope1Form">
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">1.1 Stationary Combustion</h3>
+                        <p class="parameter-description">Emissions from fuel combustion in stationary equipment (boilers, furnaces, generators)</p>
+                        <div class="required-info">⚠️ Material Codes and Supplier IDs are mandatory for accurate carbon accounting and traceability</div>
+                        
+                        <!-- Natural Gas -->
+                        <div class="subsection-title">Natural Gas</div>
+                        <div class="material-supplier-section">
+                            <div class="material-supplier-row">
+                                <div class="form-group">
+                                    <label class="form-label required">Material Code</label>
+                                    <input type="text" class="form-input required" placeholder="e.g., FUEL-NG-001" pattern="[A-Z0-9\-]+" title="Use format: FUEL-NG-001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label required">Supplier ID</label>
+                                    <input type="text" class="form-input required" placeholder="e.g., SUPP-001" pattern="[A-Z0-9\-]+" title="Use format: SUPP-001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Supplier Name</label>
+                                    <input type="text" class="form-input" placeholder="e.g., Gujarat Gas Limited">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Natural Gas Consumption</label>
+                                    <div class="parameter-info">Fuel consumption for boilers, heating systems, and process equipment</div>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                        <span class="unit-label">m³</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Purchase Cost (INR)</label>
+                                    <div class="parameter-info">Total cost for traceability and spend-based calculations</div>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter cost">
+                                        <span class="unit-label">₹</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Coal -->
+                        <div class="subsection-title">Coal</div>
+                        <div class="material-supplier-section">
+                            <div class="material-supplier-row">
+                                <div class="form-group">
+                                    <label class="form-label required">Material Code</label>
+                                    <input type="text" class="form-input required" placeholder="e.g., FUEL-COAL-001" pattern="[A-Z0-9\-]+" title="Use format: FUEL-COAL-001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label required">Supplier ID</label>
+                                    <input type="text" class="form-input required" placeholder="e.g., SUPP-002" pattern="[A-Z0-9\-]+" title="Use format: SUPP-002">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Supplier Name</label>
+                                    <input type="text" class="form-input" placeholder="e.g., Coal India Limited">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Coal Consumption</label>
+                                    <div class="parameter-info">Coal used in boilers, furnaces, and power generation</div>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                        <span class="unit-label">Tonnes</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Purchase Cost (INR)</label>
+                                    <div class="parameter-info">Total cost for traceability and spend-based calculations</div>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter cost">
+                                        <span class="unit-label">₹</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Diesel and LPG -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Diesel (Stationary)</label>
+                                <div class="parameter-info">Diesel for backup generators and stationary equipment</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">Liters</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">LPG Consumption</label>
+                                <div class="parameter-info">Liquefied petroleum gas for heating and process applications</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">Kg</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">1.2 Mobile Combustion</h3>
+                        <p class="parameter-description">Emissions from fuel combustion in mobile equipment (vehicles, forklifts, mobile generators)</p>
+                        
+                        <!-- Petrol/Gasoline -->
+                        <div class="subsection-title">Petrol/Gasoline (Fleet)</div>
+                        <div class="material-supplier-section">
+                            <div class="material-supplier-row">
+                                <div class="form-group">
+                                    <label class="form-label required">Material Code</label>
+                                    <input type="text" class="form-input required" placeholder="e.g., FUEL-PTL-001" pattern="[A-Z0-9\-]+" title="Use format: FUEL-PTL-001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label required">Supplier ID</label>
+                                    <input type="text" class="form-input required" placeholder="e.g., SUPP-003" pattern="[A-Z0-9\-]+" title="Use format: SUPP-003">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Supplier Name</label>
+                                    <input type="text" class="form-input" placeholder="e.g., Bharat Petroleum">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Petrol/Gasoline (Fleet)</label>
+                                    <div class="parameter-info">Fuel consumption by company-owned vehicles and equipment</div>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                        <span class="unit-label">Liters</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Purchase Cost (INR)</label>
+                                    <div class="parameter-info">Total fuel cost for tracking and verification</div>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter cost">
+                                        <span class="unit-label">₹</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Diesel (Mobile) -->
+                        <div class="subsection-title">Diesel (Mobile)</div>
+                        <div class="material-supplier-section">
+                            <div class="material-supplier-row">
+                                <div class="form-group">
+                                    <label class="form-label required">Material Code</label>
+                                    <input type="text" class="form-input required" placeholder="e.g., FUEL-DSL-M-001" pattern="[A-Z0-9\-]+" title="Use format: FUEL-DSL-M-001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label required">Supplier ID</label>
+                                    <input type="text" class="form-input required" placeholder="e.g., SUPP-004" pattern="[A-Z0-9\-]+" title="Use format: SUPP-004">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Supplier Name</label>
+                                    <input type="text" class="form-input" placeholder="e.g., Hindustan Petroleum">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Diesel (Mobile)</label>
+                                    <div class="parameter-info">Diesel for trucks, construction equipment, and mobile machinery</div>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                        <span class="unit-label">Liters</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Purchase Cost (INR)</label>
+                                    <div class="parameter-info">Total fuel cost for tracking and verification</div>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter cost">
+                                        <span class="unit-label">₹</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">1.4 Process Emissions</h3>
+                        <p class="parameter-description">Direct emissions from industrial processes, chemical reactions, and manufacturing</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Process CO₂ Emissions</label>
+                                <div class="parameter-info">Direct CO₂ from chemical processes (e.g., cement production, pharmaceutical synthesis)</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">tCO₂e</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Fugitive Emissions</label>
+                                <div class="parameter-info">Unintentional emissions from equipment leaks, venting, and flaring</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">tCO₂e</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row-full">
+                        <div class="form-group">
+                            <label class="form-label">Additional Notes & Methodology</label>
+                            <textarea class="form-input form-textarea" placeholder="Describe calculation methodologies, emission factors used, measurement uncertainties, or other relevant information..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Scope 1 Data</button>
+                        <button type="button" class="btn btn-secondary">Save as Draft</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Scope 2 Tab -->
+            <div id="scope2" class="tab-panel">
+                <div class="category-header">
+                    <h2 style="color: var(--scope-2); margin-bottom: 1rem; display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.5rem;">⚡</span>
+                        Scope 2: Energy Indirect GHG Emissions
+                    </h2>
+                    <p style="color: var(--subtle); margin-bottom: 1.5rem;">Indirect GHG emissions from purchased electricity, steam, heat, or cooling consumed by your organization.</p>
+                </div>
+
+                <form class="category-form" id="scope2Form">
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">2.1 Purchased Electricity</h3>
+                        <p class="parameter-description">Emissions from grid electricity consumption and renewable energy purchases</p>
+                        <div class="required-info">⚠️ Energy Codes and Supplier IDs are mandatory for accurate grid emission factor application</div>
+                        
+                        <!-- Grid Electricity -->
+                        <div class="subsection-title">Grid Electricity</div>
+                        <div class="material-supplier-section">
+                            <div class="material-supplier-row">
+                                <div class="form-group">
+                                    <label class="form-label required">Energy Code</label>
+                                    <input type="text" class="form-input required" placeholder="e.g., ELEC-GRID-001" pattern="[A-Z0-9\-]+" title="Use format: ELEC-GRID-001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label required">Supplier ID</label>
+                                    <input type="text" class="form-input required" placeholder="e.g., UTIL-001" pattern="[A-Z0-9\-]+" title="Use format: UTIL-001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Utility Provider</label>
+                                    <input type="text" class="form-input" placeholder="e.g., Telangana State Electricity Board">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Grid Electricity Consumption</label>
+                                    <div class="parameter-info">Total electricity purchased from utility grid (market-based and location-based)</div>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                        <span class="unit-label">kWh</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Electricity Cost (INR)</label>
+                                    <div class="parameter-info">Total cost including all charges and taxes</div>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter cost">
+                                        <span class="unit-label">₹</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Renewable Electricity (RECs) -->
+                        <div class="subsection-title">Renewable Electricity (RECs)</div>
+                        <div class="material-supplier-section">
+                            <div class="material-supplier-row">
+                                <div class="form-group">
+                                    <label class="form-label required">Energy Code</label>
+                                    <input type="text" class="form-input required" placeholder="e.g., ELEC-REC-001" pattern="[A-Z0-9\-]+" title="Use format: ELEC-REC-001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label required">Supplier ID</label>
+                                    <input type="text" class="form-input required" placeholder="e.g., REC-001" pattern="[A-Z0-9\-]+" title="Use format: REC-001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">REC Provider</label>
+                                    <input type="text" class="form-input" placeholder="e.g., Azure Power Solar Ltd">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Renewable Electricity (RECs)</label>
+                                    <div class="parameter-info">Renewable energy certificates and direct renewable purchases</div>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                        <span class="unit-label">kWh</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">REC Cost (INR)</label>
+                                    <div class="parameter-info">Cost of renewable energy certificates purchased</div>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter cost">
+                                        <span class="unit-label">₹</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Solar Energy (On-site)</label>
+                                <div class="parameter-info">Self-generated renewable energy consumed on-site</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">kWh</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Grid Emission Factor</label>
+                                <div class="parameter-info">Regional grid emission factor used for calculations</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.001" class="form-input form-input-with-unit" placeholder="Enter factor">
+                                    <span class="unit-label">tCO₂e/MWh</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">2.2 Purchased Steam, Heat, and Cooling</h3>
+                        <p class="parameter-description">Indirect emissions from purchased thermal energy</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Purchased Steam</label>
+                                <div class="parameter-info">Steam purchased from external suppliers for process or heating</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">Tonnes</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">District Cooling/Heating</label>
+                                <div class="parameter-info">Centralized cooling or heating systems from external providers</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">kWh</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row-full">
+                        <div class="form-group">
+                            <label class="form-label">Electricity Provider & Contract Details</label>
+                            <textarea class="form-input form-textarea" placeholder="Enter electricity provider names, renewable energy certificates, power purchase agreements, contract details, and calculation methodologies..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Scope 2 Data</button>
+                        <button type="button" class="btn btn-secondary">Save as Draft</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Scope 3 Tab -->
+            <div id="scope3" class="tab-panel">
+                <div class="category-header">
+                    <h2 style="color: var(--scope-3); margin-bottom: 1rem; display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.5rem;">🌐</span>
+                        Scope 3: Other Indirect GHG Emissions
+                    </h2>
+                    <p style="color: var(--subtle); margin-bottom: 1.5rem;">All other indirect GHG emissions occurring in your value chain (upstream and downstream activities).</p>
+                </div>
+
+                <form class="category-form" id="scope3Form">
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">3.1 Purchased Goods and Services</h3>
+                        <p class="parameter-description">Emissions from production of purchased goods and services</p>
+                        <div class="required-info">⚠️ Material Codes and Supplier IDs are CRITICAL for accurate Scope 3 calculations and supplier engagement</div>
+                        
+                        <!-- Raw Materials (APIs, Excipients, etc.) -->
+                        <div class="subsection-title">Raw Materials (APIs & Excipients)</div>
+                        <div class="material-supplier-section">
+                            <div class="material-supplier-row">
+                                <div class="form-group">
+                                    <label class="form-label required">Material Code</label>
+                                    <input type="text" class="form-input required" placeholder="e.g., API-PAR-001" pattern="[A-Z0-9\-]+" title="Use format: API-PAR-001 or EXC-MCC-001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label required">Supplier ID</label>
+                                    <input type="text" class="form-input required" placeholder="e.g., SUPP-API-001" pattern="[A-Z0-9\-]+" title="Use format: SUPP-API-001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Supplier Name</label>
+                                    <input type="text" class="form-input" placeholder="e.g., API Supplier Ltd / JRS Pharma">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Raw Materials Purchased</label>
+                                    <div class="parameter-info">Total weight/value of raw materials and intermediate products purchased</div>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                        <span class="unit-label">Tonnes</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Purchase Spend (INR)</label>
+                                    <div class="parameter-info">Total spend for spend-based emission calculations</div>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter spend">
+                                        <span class="unit-label">₹</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Packaging Materials -->
+                        <div class="subsection-title">Packaging Materials</div>
+                        <div class="material-supplier-section">
+                            <div class="material-supplier-row">
+                                <div class="form-group">
+                                    <label class="form-label required">Material Code</label>
+                                    <input type="text" class="form-input required" placeholder="e.g., PKG-BLST-001" pattern="[A-Z0-9\-]+" title="Use format: PKG-BLST-001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label required">Supplier ID</label>
+                                    <input type="text" class="form-input required" placeholder="e.g., SUPP-PKG-001" pattern="[A-Z0-9\-]+" title="Use format: SUPP-PKG-001">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Supplier Name</label>
+                                    <input type="text" class="form-input" placeholder="e.g., Uflex Ltd / Bilcare Ltd">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Packaging Materials</label>
+                                    <div class="parameter-info">Packaging materials purchased for products and operations</div>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                        <span class="unit-label">Tonnes</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Purchase Spend (INR)</label>
+                                    <div class="parameter-info">Total spend for spend-based emission calculations</div>
+                                    <div class="input-with-unit">
+                                        <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter spend">
+                                        <span class="unit-label">₹</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">3.4 Upstream Transportation</h3>
+                        <p class="parameter-description">Transportation of purchased goods from suppliers to your facilities</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Freight Transport (Inbound)</label>
+                                <div class="parameter-info">Transportation of goods from suppliers (weight × distance)</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">tonne-km</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Freight Transport (Outbound)</label>
+                                <div class="parameter-info">Transportation of products to customers (weight × distance)</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">tonne-km</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">3.6 Business Travel</h3>
+                        <p class="parameter-description">Employee business travel in vehicles not owned by your organization</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Air Travel Distance</label>
+                                <div class="parameter-info">Total distance traveled by employees for business purposes</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">km</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Ground Transportation</label>
+                                <div class="parameter-info">Business travel by taxi, rental cars, and public transport</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">km</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">3.7 Employee Commuting</h3>
+                        <p class="parameter-description">Employee commuting between home and workplace</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Average Commute Distance</label>
+                                <div class="parameter-info">Average daily commute distance per employee</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">km/employee</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Total Employees</label>
+                                <div class="parameter-info">Number of employees commuting to the facility</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="1" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">FTE</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Scope 3 Data</button>
+                        <button type="button" class="btn btn-secondary">Save as Draft</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Water Tab -->
+            <div id="water" class="tab-panel">
+                <div class="category-header">
+                    <h2 style="color: var(--water); margin-bottom: 1rem; display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.5rem;">💧</span>
+                        Water Management
+                    </h2>
+                    <p style="color: var(--subtle); margin-bottom: 1.5rem;">Water consumption, treatment, recycling, and discharge data for environmental compliance and sustainability reporting (GRI 303, CDP Water, BRSR).</p>
+                </div>
+
+                <form class="category-form" id="waterForm">
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">Water Withdrawal by Source</h3>
+                        <p class="parameter-description">Total water withdrawn from different sources for operational use</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Municipal/Third-party Supply</label>
+                                <div class="parameter-info">Water purchased from municipal utilities or third-party suppliers</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">m³</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Groundwater Extraction</label>
+                                <div class="parameter-info">Water extracted from borewells and groundwater sources</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">m³</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Surface Water (Rivers/Lakes)</label>
+                                <div class="parameter-info">Water drawn from rivers, lakes, and other surface sources</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">m³</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Rainwater Harvested</label>
+                                <div class="parameter-info">Rainwater collected through harvesting systems</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">m³</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">Water Recycling & Reuse</h3>
+                        <p class="parameter-description">Water conservation through recycling and treatment processes</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Recycled/Reclaimed Water</label>
+                                <div class="parameter-info">Treated wastewater reused within operations</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">m³</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Cooling Tower Blowdown Reuse</label>
+                                <div class="parameter-info">Cooling system water reused for other applications</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">m³</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">Water Discharge</h3>
+                        <p class="parameter-description">Water discharged to environment after treatment</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Treated Effluent Discharge</label>
+                                <div class="parameter-info">Total volume of treated wastewater discharged</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">m³</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Discharge Quality Compliance</label>
+                                <div class="parameter-info">Water quality standard compliance level</div>
+                                <select class="form-select">
+                                    <option value="">Select Compliance Level</option>
+                                    <option value="full">Full Compliance</option>
+                                    <option value="partial">Partial Compliance</option>
+                                    <option value="non-compliant">Non-Compliant</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row-full">
+                        <div class="form-group">
+                            <label class="form-label">Water Conservation Measures & Treatment Details</label>
+                            <textarea class="form-input form-textarea" placeholder="Describe water conservation initiatives, treatment technologies, zero liquid discharge systems, compliance certifications..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Water Data</button>
+                        <button type="button" class="btn btn-secondary">Save as Draft</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Waste Tab -->
+            <div id="waste" class="tab-panel">
+                <div class="category-header">
+                    <h2 style="color: var(--waste); margin-bottom: 1rem; display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.5rem;">♻️</span>
+                        Waste Management
+                    </h2>
+                    <p style="color: var(--subtle); margin-bottom: 1.5rem;">Waste generation, treatment, disposal, and recycling data for environmental compliance and circular economy reporting (GRI 306, BRSR).</p>
+                </div>
+
+                <form class="category-form" id="wasteForm">
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">Hazardous Waste</h3>
+                        <p class="parameter-description">Waste requiring special handling due to dangerous properties</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Chemical Waste Generated</label>
+                                <div class="parameter-info">Hazardous chemicals, solvents, and process waste requiring special disposal</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">Tonnes</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Pharmaceutical Waste</label>
+                                <div class="parameter-info">API waste, expired products, and pharmaceutical manufacturing waste</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">Tonnes</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Hazardous Waste Treatment Method</label>
+                                <div class="parameter-info">Primary method used for hazardous waste disposal</div>
+                                <select class="form-select">
+                                    <option value="">Select Treatment Method</option>
+                                    <option value="incineration">High-Temperature Incineration</option>
+                                    <option value="chemical-treatment">Chemical Treatment</option>
+                                    <option value="secure-landfill">Secure Landfill</option>
+                                    <option value="recovery">Recovery/Recycling</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Hazardous Waste Recycled</label>
+                                <div class="parameter-info">Hazardous waste sent for recovery and recycling</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">Tonnes</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">Non-Hazardous Waste</h3>
+                        <p class="parameter-description">General solid waste not classified as hazardous</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">General Solid Waste</label>
+                                <div class="parameter-info">Office waste, cafeteria waste, and general operational waste</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">Tonnes</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Packaging Waste</label>
+                                <div class="parameter-info">Cardboard, plastic, and other packaging materials waste</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">Tonnes</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Recyclable Materials Diverted</label>
+                                <div class="parameter-info">Paper, plastic, metal, and other materials sent for recycling</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">Tonnes</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Organic/Biodegradable Waste</label>
+                                <div class="parameter-info">Food waste, garden waste, and other biodegradable materials</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">Tonnes</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">Waste Diversion & Disposal</h3>
+                        <p class="parameter-description">Final destination of waste materials</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Waste to Landfill</label>
+                                <div class="parameter-info">Total waste sent to landfill disposal</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">Tonnes</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Waste Diversion Rate</label>
+                                <div class="parameter-info">Percentage of waste diverted from landfill through recycling/recovery</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.1" class="form-input form-input-with-unit" placeholder="Enter percentage">
+                                    <span class="unit-label">%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row-full">
+                        <div class="form-group">
+                            <label class="form-label">Waste Reduction Initiatives & Compliance</label>
+                            <textarea class="form-input form-textarea" placeholder="Describe waste minimization programs, circular economy initiatives, disposal compliance certifications, treatment facility details..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Waste Data</button>
+                        <button type="button" class="btn btn-secondary">Save as Draft</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Air Quality Tab -->
+            <div id="air" class="tab-panel">
+                <div class="category-header">
+                    <h2 style="color: #00B4D8; margin-bottom: 1rem; display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.5rem;">🌬️</span>
+                        Air Quality & Non-GHG Emissions
+                    </h2>
+                    <p style="color: var(--subtle); margin-bottom: 1.5rem;">Air pollutants and emissions monitoring for environmental compliance and health impact assessment (beyond GHG scope).</p>
+                </div>
+
+                <form class="category-form" id="airForm">
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">Criteria Air Pollutants</h3>
+                        <p class="parameter-description">Major air pollutants regulated under environmental standards</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Particulate Matter (PM10)</label>
+                                <div class="parameter-info">Particulate matter with diameter ≤10 micrometers</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">kg</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Particulate Matter (PM2.5)</label>
+                                <div class="parameter-info">Fine particulate matter with diameter ≤2.5 micrometers</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">kg</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Sulfur Dioxide (SO₂)</label>
+                                <div class="parameter-info">Sulfur dioxide emissions from combustion and processes</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">kg</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Nitrogen Oxides (NOₓ)</label>
+                                <div class="parameter-info">Combined NO and NO₂ emissions from combustion sources</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">kg</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">Volatile Organic Compounds</h3>
+                        <p class="parameter-description">Organic chemical emissions that contribute to air pollution</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Total VOC Emissions</label>
+                                <div class="parameter-info">Total volatile organic compounds from solvents, processes, and storage</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">kg</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Solvent Emissions</label>
+                                <div class="parameter-info">Emissions from solvent use in manufacturing and cleaning</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter quantity">
+                                    <span class="unit-label">kg</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save Air Quality Data</button>
+                        <button type="button" class="btn btn-secondary">Save as Draft</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- EHS & Safety Tab -->
+            <div id="ehs" class="tab-panel">
+                <div class="category-header">
+                    <h2 style="color: #8E4EC6; margin-bottom: 1rem; display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.5rem;">🛡️</span>
+                        Environment, Health & Safety (EHS)
+                    </h2>
+                    <p style="color: var(--subtle); margin-bottom: 1.5rem;">Workplace safety metrics, occupational health data, and environmental incidents for comprehensive ESG reporting.</p>
+                </div>
+
+                <form class="category-form" id="ehsForm">
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">Workplace Safety Metrics</h3>
+                        <p class="parameter-description">Key safety performance indicators and incident tracking</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Total Recordable Incident Rate (TRIR)</label>
+                                <div class="parameter-info">Number of recordable incidents per 100 full-time workers</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter rate">
+                                    <span class="unit-label">per 100 FTE</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Lost Time Injury Rate (LTIR)</label>
+                                <div class="parameter-info">Rate of injuries resulting in lost work time</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter rate">
+                                    <span class="unit-label">per 100 FTE</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Near Miss Incidents</label>
+                                <div class="parameter-info">Number of near miss events reported and investigated</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="1" class="form-input form-input-with-unit" placeholder="Enter count">
+                                    <span class="unit-label">incidents</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Safety Training Hours</label>
+                                <div class="parameter-info">Total hours of safety training provided to employees</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="1" class="form-input form-input-with-unit" placeholder="Enter hours">
+                                    <span class="unit-label">hours</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">Occupational Health</h3>
+                        <p class="parameter-description">Employee health and wellness metrics</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Occupational Illness Rate</label>
+                                <div class="parameter-info">Rate of work-related illnesses per 100 workers</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="0.01" class="form-input form-input-with-unit" placeholder="Enter rate">
+                                    <span class="unit-label">per 100 FTE</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Health Surveillance Programs</label>
+                                <div class="parameter-info">Number of employees covered by health monitoring</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="1" class="form-input form-input-with-unit" placeholder="Enter count">
+                                    <span class="unit-label">employees</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="parameter-section">
+                        <h3 class="parameter-title">Environmental Incidents</h3>
+                        <p class="parameter-description">Environmental compliance and incident tracking</p>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Environmental Non-compliance Events</label>
+                                <div class="parameter-info">Number of regulatory non-compliance incidents</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="1" class="form-input form-input-with-unit" placeholder="Enter count">
+                                    <span class="unit-label">incidents</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Spills/Releases to Environment</label>
+                                <div class="parameter-info">Number of uncontrolled releases to air, water, or land</div>
+                                <div class="input-with-unit">
+                                    <input type="number" step="1" class="form-input form-input-with-unit" placeholder="Enter count">
+                                    <span class="unit-label">incidents</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row-full">
+                        <div class="form-group">
+                            <label class="form-label">Safety Initiatives & Programs</label>
+                            <textarea class="form-input form-textarea" placeholder="Describe safety management systems, training programs, health initiatives, incident investigation procedures, and improvement actions..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save EHS Data</button>
+                        <button type="button" class="btn btn-secondary">Save as Draft</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Global Actions -->
+        <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--stroke); text-align: center;">
+            <h3 style="margin-bottom: 1rem; color: var(--ink);">Complete Data Submission</h3>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="submitAllData()">Submit All Data</button>
+                <button class="btn btn-outline" onclick="exportData()">Export as Excel</button>
+                <button class="btn btn-secondary" onclick="saveDraft()">Save All as Draft</button>
+                <a href="hwcap_dashboard.html" class="btn btn-secondary">Return to Dashboard</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Tab functionality
+        function showTab(tabId) {
+            // Hide all tab panels
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show the selected tab panel
+            const targetPanel = document.getElementById(tabId);
+            if (targetPanel) {
+                targetPanel.classList.add('active');
+            }
+            
+            // Add active class to the clicked button
+            if (event && event.target) {
+                const button = event.target.closest('.tab-button');
+                if (button) {
+                    button.classList.add('active');
+                }
+            }
+        }
+
+        // Framework selection functionality
+        function setupFrameworkListeners() {
+            const waterCheckbox = document.getElementById('waterCheckbox');
+            const wasteCheckbox = document.getElementById('wasteCheckbox');
+            const airCheckbox = document.getElementById('airCheckbox');
+            const ehsCheckbox = document.getElementById('ehsCheckbox');
+
+            if (waterCheckbox) {
+                waterCheckbox.addEventListener('change', function() {
+                    const waterTab = document.getElementById('waterTab');
+                    if (waterTab) {
+                        waterTab.style.display = this.checked ? 'flex' : 'none';
+                    }
+                });
+            }
+
+            if (wasteCheckbox) {
+                wasteCheckbox.addEventListener('change', function() {
+                    const wasteTab = document.getElementById('wasteTab');
+                    if (wasteTab) {
+                        wasteTab.style.display = this.checked ? 'flex' : 'none';
+                    }
+                });
+            }
+
+            if (airCheckbox) {
+                airCheckbox.addEventListener('change', function() {
+                    const airTab = document.getElementById('airTab');
+                    if (airTab) {
+                        airTab.style.display = this.checked ? 'flex' : 'none';
+                    }
+                });
+            }
+
+            if (ehsCheckbox) {
+                ehsCheckbox.addEventListener('change', function() {
+                    const ehsTab = document.getElementById('ehsTab');
+                    if (ehsTab) {
+                        ehsTab.style.display = this.checked ? 'flex' : 'none';
+                    }
+                });
+            }
+        }
+
+        // Form submission handlers
+        function setupFormHandlers() {
+            const forms = [
+                { id: 'scope1Form', message: 'Scope 1 emissions data saved successfully! Direct emissions have been recorded and calculated.' },
+                { id: 'scope2Form', message: 'Scope 2 emissions data saved successfully! Energy indirect emissions have been recorded and calculated.' },
+                { id: 'scope3Form', message: 'Scope 3 emissions data saved successfully! Value chain emissions have been recorded and calculated.' },
+                { id: 'waterForm', message: 'Water management data saved successfully! Water consumption and discharge data has been recorded.' },
+                { id: 'wasteForm', message: 'Waste management data saved successfully! Waste generation and treatment data has been recorded.' },
+                { id: 'airForm', message: 'Air quality data saved successfully! Air pollutant emissions have been recorded.' },
+                { id: 'ehsForm', message: 'EHS & Safety data saved successfully! Health and safety metrics have been recorded.' }
+            ];
+
+            forms.forEach(form => {
+                const formElement = document.getElementById(form.id);
+                if (formElement) {
+                    formElement.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        showSuccessMessage(form.message);
+                    });
+                }
+            });
+        }
+
+        function showSuccessMessage(message) {
+            const successDiv = document.getElementById('successMessage');
+            if (successDiv) {
+                successDiv.textContent = '✅ ' + message;
+                successDiv.classList.add('show');
+                
+                // Scroll to top to show message
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Hide message after 5 seconds
+                setTimeout(() => {
+                    successDiv.classList.remove('show');
+                }, 5000);
+            }
+        }
+
+        function submitAllData() {
+            // Get facility and department info
+            const facility = document.getElementById('facility');
+            const department = document.getElementById('department');
+            
+            if (!facility || !department || !facility.value || !department.value) {
+                alert('Please select facility and department before submitting data.');
+                return;
+            }
+            
+            const facilityText = facility.options[facility.selectedIndex].text;
+            const departmentText = department.options[department.selectedIndex].text;
+            
+            showSuccessMessage(`All environmental data submitted successfully for ${facilityText} - ${departmentText}! Data has been processed and integrated into your carbon accounting system. Analytics and reports have been updated.`);
+        }
+
+        function exportData() {
+            const facility = document.getElementById('facility');
+            const period = document.getElementById('reporting-period');
+            
+            if (!facility || !facility.value) {
+                alert('Please select a facility before exporting data.');
+                return;
+            }
+            
+            const facilityText = facility.options[facility.selectedIndex].text;
+            const periodValue = period ? period.value : 'selected period';
+            
+            showSuccessMessage(`Data export initiated for ${facilityText} (${periodValue})! Excel file with all environmental data will be ready for download shortly.`);
+        }
+
+        function saveDraft() {
+            showSuccessMessage('All forms saved as draft! You can return to complete the data entry later. Auto-save is enabled for your convenience.');
+        }
+
+        // Auto-save draft functionality
+        let autoSaveTimer;
+        function setupAutoSave() {
+            document.querySelectorAll('input, select, textarea').forEach(field => {
+                field.addEventListener('input', function() {
+                    clearTimeout(autoSaveTimer);
+                    autoSaveTimer = setTimeout(() => {
+                        // Auto-save draft silently
+                        const tabPanel = field.closest('.tab-panel');
+                        const tabId = tabPanel ? tabPanel.id : 'unknown';
+                        console.log('Auto-saving draft for', tabId, '...');
+                        
+                        // Show a brief auto-save indicator
+                        const indicator = document.createElement('div');
+                        indicator.textContent = 'Auto-saved ✓';
+                        indicator.style.cssText = `
+                            position: fixed;
+                            top: 80px;
+                            right: 20px;
+                            background: var(--success);
+                            color: white;
+                            padding: 0.5rem 1rem;
+                            border-radius: 6px;
+                            font-size: 0.8rem;
+                            z-index: 1000;
+                            opacity: 0.9;
+                        `;
+                        document.body.appendChild(indicator);
+                        
+                        setTimeout(() => {
+                            if (document.body.contains(indicator)) {
+                                document.body.removeChild(indicator);
+                            }
+                        }, 2000);
+                        
+                    }, 30000); // Save after 30 seconds of inactivity
+                });
+            });
+        }
+
+        // Utility function to validate required fields
+        function validateForm(formId) {
+            const form = document.getElementById(formId);
+            if (!form) return false;
+            
+            const requiredFields = form.querySelectorAll('input[required], select[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.style.borderColor = 'var(--danger)';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = 'var(--stroke)';
+                }
+            });
+            
+            return isValid;
+        }
+
+        // Enhanced form validation
+        function setupFormValidation() {
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const formId = this.id;
+                    if (!validateForm(formId)) {
+                        e.preventDefault();
+                        alert('Please fill in all required fields before submitting.');
+                    }
+                });
+            });
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Set today's date as default
+                const dateField = document.getElementById('data-date');
+                if (dateField) {
+                    dateField.valueAsDate = new Date();
+                }
+                
+                // Show first tab by default
+                const firstPanel = document.getElementById('scope1');
+                const firstButton = document.querySelector('.tab-button');
+                
+                if (firstPanel) {
+                    firstPanel.classList.add('active');
+                }
+                if (firstButton) {
+                    firstButton.classList.add('active');
+                }
+
+                // Setup all event listeners
+                setupFrameworkListeners();
+                setupFormHandlers();
+                setupAutoSave();
+                setupFormValidation();
+                
+            } catch (error) {
+                console.error('Error during page initialization:', error);
+            }
+        });
+    </script>
+</body>
+</html>
