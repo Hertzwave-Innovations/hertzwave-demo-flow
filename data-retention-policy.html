@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Retention Policy - HWCAP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --hz-primary: #4A7C59;
+            --hz-primary-700: #355b3f;
+            --hz-primary-50: #E9F1EC;
+            --hz-mint: #A8E6A3;
+            --hz-dark: #2F4F3F;
+            --ink: #22302A;
+            --subtle: #5B6E64;
+            --bg: #F6F7F4;
+            --card: #FFFFFF;
+            --stroke: #E5E9E6;
+            --success: #48BB78;
+            --warning: #F6AD55;
+            --danger: #E53E3E;
+            --info: #4299E1;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: var(--hz-primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .back-to-dashboard {
+            background: rgba(255,255,255,0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            text-decoration: none;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-dashboard:hover {
+            background: rgba(255,255,255,0.25);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 64px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 2rem;
+        }
+
+        .legal-header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            background: linear-gradient(135deg, var(--hz-primary-50) 0%, rgba(168, 230, 163, 0.1) 100%);
+            border-radius: 16px;
+            margin-bottom: 2rem;
+        }
+
+        .legal-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .legal-subtitle {
+            font-size: 1.1rem;
+            color: var(--subtle);
+            margin-bottom: 1rem;
+        }
+
+        .last-updated {
+            background: var(--hz-primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .legal-nav {
+            background: var(--card);
+            border: 1px solid var(--stroke);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            position: sticky;
+            top: 80px;
+            z-index: 10;
+        }
+
+        .nav-title {
+            font-weight: 600;
+            color: var(--hz-primary);
+            margin-bottom: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .nav-link {
+            background: var(--hz-primary-50);
+            color: var(--hz-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: var(--hz-primary);
+            color: white;
+        }
+
+        .legal-content {
+            background: var(--card);
+            border: 1px solid var(--stroke);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--hz-primary);
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--hz-primary);
+            padding-left: 1rem;
+        }
+
+        .subsection {
+            margin-bottom: 2rem;
+        }
+
+        .subsection-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--hz-dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .retention-category {
+            background: var(--hz-primary-50);
+            border: 1px solid var(--hz-primary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .category-title {
+            font-weight: 700;
+            color: var(--hz-primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .retention-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .data-type {
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        .retention-period {
+            background: var(--hz-primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .retention-period.regulatory {
+            background: var(--info);
+        }
+
+        .retention-period.business {
+            background: var(--warning);
+        }
+
+        .retention-period.permanent {
+            background: var(--success);
+        }
+
+        .retention-period.short {
+            background: var(--subtle);
+        }
+
+        .timeline-box {
+            background: linear-gradient(135deg, var(--info) 0%, var(--hz-primary) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+        }
+
+        .timeline-title {
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .process-step {
+            background: var(--card);
+            border: 1px solid var(--stroke);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+        }
+
+        .step-number {
+            background: var(--hz-primary);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+            margin-right: 0.75rem;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: var(--hz-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .security-box {
+            background: var(--hz-dark);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+        }
+
+        .security-title {
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .contact-info {
+            background: var(--hz-mint);
+            color: var(--hz-dark);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1.5rem 0;
+        }
+
+        .footer-section {
+            background: var(--hz-dark);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+            border-radius: 12px;
+        }
+
+        .data-list {
+            list-style: none;
+            margin: 0.5rem 0;
+        }
+
+        .data-list li {
+            padding: 0.25rem 0;
+            position: relative;
+            padding-left: 1.5rem;
+        }
+
+        .data-list li:before {
+            content: "•";
+            color: var(--hz-primary);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .legal-title {
+                font-size: 2rem;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+            }
+            
+            .legal-nav {
+                position: relative;
+                top: auto;
+            }
+
+            .retention-grid {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .retention-period {
+                min-width: auto;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">H</div>
+            HWCAP
+        </div>
+        <a href="hwcap_dashboard.html" class="back-to-dashboard">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="legal-header">
+            <h1 class="legal-title">Data Retention Policy</h1>
+            <p class="legal-subtitle">How long we keep your carbon accounting and business data</p>
+            <span class="last-updated">Last updated: December 5, 2025</span>
+        </div>
+
+        <div class="legal-nav">
+            <div class="nav-title">Quick Navigation</div>
+            <div class="nav-links">
+                <a href="#overview" class="nav-link">Overview</a>
+                <a href="#carbon-data" class="nav-link">Carbon Data</a>
+                <a href="#business-data" class="nav-link">Business Data</a>
+                <a href="#technical-data" class="nav-link">Technical Data</a>
+                <a href="#deletion-process" class="nav-link">Deletion Process</a>
+                <a href="#security" class="nav-link">Security</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </div>
+        </div>
+
+        <div class="legal-content">
+            <section id="overview" class="section">
+                <h2 class="section-title">1. Overview</h2>
+                <p>This Data Retention Policy outlines how long Hertzwave Innovations Pvt Ltd retains different types of data collected through the Hertzwave Carbon Accounting Platform (HWCAP). Our retention practices balance business needs, regulatory requirements, and user privacy rights.</p>
+                
+                <div class="timeline-box">
+                    <div class="timeline-title">🕐 Retention Principles</div>
+                    <p>We retain data only as long as necessary for legitimate business purposes, regulatory compliance, or as permitted by law. Data is securely deleted when retention periods expire, except where legal obligations require longer retention.</p>
+                </div>
+
+                <p><strong>Key Factors Influencing Retention:</strong></p>
+                <ul class="data-list">
+                    <li>Regulatory compliance requirements (BRSR, CBAM, CCTS)</li>
+                    <li>Indian legal obligations (Companies Act 2013)</li>
+                    <li>Business continuity and historical analysis needs</li>
+                    <li>Data subject rights and privacy protection</li>
+                    <li>Security and audit requirements</li>
+                </ul>
+            </section>
+
+            <section id="carbon-data" class="section">
+                <h2 class="section-title">2. Carbon Accounting Data</h2>
+                
+                <div class="retention-category">
+                    <div class="category-title">📊 Emissions and Environmental Data</div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Raw emissions data (Scope 1, 2, 3)</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Calculated carbon footprints</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Energy consumption records</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Verification certificates</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Third-party audit reports</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Supplier carbon footprint data</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                </div>
+
+                <div class="retention-category">
+                    <div class="category-title">🏛️ Regulatory Compliance Data</div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">BRSR submissions and supporting data</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">CBAM certificates and documentation</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">ESG reporting history</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Regulatory correspondence</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Compliance audit trails</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                </div>
+
+                <p><strong>Legal Basis:</strong> These retention periods comply with the Companies Act 2013, environmental regulations, and international ESG reporting standards.</p>
+            </section>
+
+            <section id="business-data" class="section">
+                <h2 class="section-title">3. Business Operational Data</h2>
+                
+                <div class="retention-category">
+                    <div class="category-title">👤 User Account Data</div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">User accounts (active)</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">User profile information</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Access logs and permissions</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Platform usage analytics</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Support tickets and communications</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                </div>
+
+                <div class="retention-category">
+                    <div class="category-title">💼 Company and Financial Data</div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Company profile and organizational data</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Financial data (for carbon intensity calculations)</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Subscription and billing records</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Contract and agreement data</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="technical-data" class="section">
+                <h2 class="section-title">4. Technical and Platform Data</h2>
+                
+                <div class="retention-category">
+                    <div class="category-title">🔧 System and Integration Data</div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">API integration logs</div>
+                        <div class="retention-period short">1 year</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">System performance logs</div>
+                        <div class="retention-period short">1 year</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Security monitoring logs</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Backup data</div>
+                        <div class="retention-period short">30 days rolling</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Analytics and insights (anonymized)</div>
+                        <div class="retention-period business">3 years</div>
+                    </div>
+                    
+                    <div class="retention-grid">
+                        <div class="data-type">Error logs and debugging data</div>
+                        <div class="retention-period short">6 months</div>
+                    </div>
+                </div>
+
+                <p><strong>Data Anonymization:</strong> After initial retention periods, technical data is anonymized to remove personal identifiers while preserving analytical value for platform improvement.</p>
+                
+                <p><strong>AWS Infrastructure Logs:</strong> Technical logs include AWS CloudWatch metrics, CloudTrail API logs, VPC Flow Logs, and RDS performance insights, all retained according to the above schedule and automatically purged per AWS and HWCAP retention policies.</p>
+            </section>
+
+            <section id="deletion-process" class="section">
+                <h2 class="section-title">5. Data Deletion Process</h2>
+                
+                <div class="timeline-box">
+                    <div class="timeline-title">🔄 Automated Deletion Workflows</div>
+                    <p>HWCAP employs automated systems to ensure timely and secure deletion of data when retention periods expire.</p>
+                </div>
+
+                <div class="subsection">
+                    <h3 class="subsection-title">5.1 Standard Deletion Procedure</h3>
+                    
+                    <div class="process-step">
+                        <span class="step-number">1</span>
+                        <div>
+                            <div class="step-title">Automated Identification</div>
+                            <p>System identifies data reaching end of retention period through automated scanning processes.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="process-step">
+                        <span class="step-number">2</span>
+                        <div>
+                            <div class="step-title">Legal Hold Check</div>
+                            <p>Verification that data is not subject to legal holds, regulatory investigations, or pending compliance requirements.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="process-step">
+                        <span class="step-number">3</span>
+                        <div>
+                            <div class="step-title">Pre-deletion Notification</div>
+                            <p>For business-critical data, users receive 30-day advance notification before automated deletion.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="process-step">
+                        <span class="step-number">4</span>
+                        <div>
+                            <div class="step-title">Secure Deletion</div>
+                            <p>Data is securely wiped using AWS-certified deletion methods following NIST 800-88 guidelines. AWS infrastructure ensures complete data destruction across all storage media and backup systems.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="process-step">
+                        <span class="step-number">5</span>
+                        <div>
+                            <div class="step-title">Deletion Certification</div>
+                            <p>Certificate of destruction generated and maintained for audit purposes where required.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="subsection">
+                    <h3 class="subsection-title">5.2 User-Initiated Deletion</h3>
+                    <p>Users can request immediate deletion of their data through:</p>
+                    <ul class="data-list">
+                        <li>Privacy settings in HWCAP dashboard</li>
+                        <li>Formal request to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="93e3e1fae5f2f0ead3fbf6e1e7e9e4f2e5f6bdf0fcfe">[email&#160;protected]</a></li>
+                        <li>Account closure procedures</li>
+                    </ul>
+                    <p><strong>Processing Time:</strong> User deletion requests processed within 30 days, subject to regulatory retention requirements.</p>
+                </div>
+
+                <div class="subsection">
+                    <h3 class="subsection-title">5.3 Regulatory Exception Handling</h3>
+                    <p>Some data cannot be immediately deleted due to:</p>
+                    <ul class="data-list">
+                        <li>Ongoing regulatory investigations</li>
+                        <li>Legal proceedings or disputes</li>
+                        <li>Mandatory compliance retention periods</li>
+                        <li>Tax audit requirements</li>
+                    </ul>
+                    <p>Users are notified when regulatory exceptions prevent immediate deletion.</p>
+                </div>
+            </section>
+
+            <section id="security" class="section">
+                <h2 class="section-title">6. Security During Retention</h2>
+                
+                <div class="security-box">
+                    <div class="security-title">🛡️ Data Security Measures</div>
+                    <p>Throughout the retention period, all data is protected by enterprise-grade security measures to prevent unauthorized access, alteration, or disclosure.</p>
+                </div>
+
+                <ul class="data-list">
+                    <li><strong>Encryption:</strong> AES-256 encryption for data at rest and in transit via AWS KMS</li>
+                    <li><strong>Access Controls:</strong> Role-based access with multi-factor authentication via AWS IAM</li>
+                    <li><strong>Audit Trails:</strong> Comprehensive logging through AWS CloudTrail and application logs</li>
+                    <li><strong>Geographic Controls:</strong> Data stored in AWS Mumbai region (ap-south-1) for Indian data residency compliance</li>
+                    <li><strong>Backup Security:</strong> Automated encrypted backups via AWS RDS with 30-day rolling retention</li>
+                    <li><strong>Infrastructure Security:</strong> AWS SOC 2, ISO 27001, and PCI DSS compliant infrastructure</li>
+                    <li><strong>Cross-Region Redundancy:</strong> Disaster recovery setup across multiple AWS availability zones</li>
+                    <li><strong>Incident Response:</strong> 24/7 monitoring via AWS CloudWatch with immediate breach response procedures</li>
+                </ul>
+
+                <div class="subsection">
+                    <h3 class="subsection-title">AWS Infrastructure Compliance</h3>
+                    <p>HWCAP is hosted on Amazon Web Services (AWS) infrastructure, providing additional security and compliance benefits:</p>
+                    <ul class="data-list">
+                        <li><strong>AWS Compliance Certifications:</strong> SOC 1/2/3, ISO 27001, PCI DSS Level 1, FedRAMP</li>
+                        <li><strong>Data Residency:</strong> All customer data stored in AWS Mumbai (ap-south-1) region</li>
+                        <li><strong>AWS Shared Responsibility Model:</strong> AWS manages infrastructure security, HWCAP manages application-level security</li>
+                        <li><strong>AWS Backup Services:</strong> Automated point-in-time recovery with 30-day retention per AWS policies</li>
+                        <li><strong>Secure Data Deletion:</strong> AWS-certified secure wiping following NIST 800-88 guidelines</li>
+                        <li><strong>Network Security:</strong> AWS VPC with private subnets and security groups</li>
+                    </ul>
+                </div>
+
+                <div class="subsection">
+                    <h3 class="subsection-title">Regular Security Reviews</h3>
+                    <p>Data retention practices undergo quarterly security reviews to ensure:</p>
+                    <ul class="data-list">
+                        <li>Compliance with current security standards</li>
+                        <li>Effectiveness of deletion procedures</li>
+                        <li>Accuracy of retention period calculations</li>
+                        <li>Proper handling of regulatory exceptions</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="contact" class="section">
+                <h2 class="section-title">7. Contact Information</h2>
+                
+                <div class="contact-info">
+                    <p><strong>Data Retention Inquiries:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="86f6f4eff0e7e5ffc6eee3f4f2fcf1e7f0e3a8e5e9eb">[email&#160;protected]</a></p>
+                    <p><strong>Data Deletion Requests:</strong> Use HWCAP privacy settings or email <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="81f1f3e8f7e0e2f8c1e9e4f3f5fbf6e0f7e4afe2eeec">[email&#160;protected]</a></p>
+                    <p><strong>Compliance Questions:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="81e2eeecf1ede8e0efe2e4c1e9e4f3f5fbf6e0f7e4afe2eeec">[email&#160;protected]</a></p>
+                    <p><strong>Technical Support:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e3909693938c9197a38b8691979994829586cd808c8e">[email&#160;protected]</a></p>
+                    <p><strong>Response Time:</strong> Within 30 days for formal requests</p>
+                </div>
+
+                <p>For immediate assistance with data retention questions or deletion requests, contact our privacy team during business hours (9:00 AM - 6:00 PM IST, Monday-Friday).</p>
+            </section>
+        </div>
+
+        <div class="footer-section">
+            <p><strong>Hertzwave Innovations Pvt Ltd</strong> • Responsible Data Stewardship for Carbon Accounting</p>
+            <p>This policy ensures transparent and compliant data retention practices for effective ESG management.</p>
+        </div>
+    </div>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Highlight current section in navigation
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll(
