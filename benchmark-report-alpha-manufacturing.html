@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Benchmark Report - Alpha Manufacturing Ltd. | HWCAP</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body { 
+      font-family: 'Outfit', sans-serif; 
+      background: #f5f7fa;
+      color: #2d3748;
+      line-height: 1.6;
+    }
+
+    .report-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    /* Header */
+    .report-header {
+      background: linear-gradient(135deg, #4a7c59 0%, #3d6648 100%);
+      color: white;
+      padding: 2.5rem 3rem;
+      position: relative;
+    }
+
+    .report-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #D4A017 0%, #ecc94b 100%);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .logo span {
+      color: #D4A017;
+    }
+
+    .report-meta {
+      text-align: right;
+      font-size: 0.875rem;
+      opacity: 0.9;
+    }
+
+    .report-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .report-subtitle {
+      font-size: 1.125rem;
+      opacity: 0.9;
+    }
+
+    .client-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+
+    /* Content */
+    .report-content {
+      padding: 2.5rem 3rem;
+    }
+
+    .section {
+      margin-bottom: 2.5rem;
+    }
+
+    .section-title {
+      font-size: 1.375rem;
+      font-weight: 700;
+      color: #1a202c;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #4a7c59;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-title .icon {
+      font-size: 1.5rem;
+    }
+
+    /* Executive Summary */
+    .exec-summary {
+      background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border-left: 4px solid #4a7c59;
+    }
+
+    .exec-summary p {
+      margin-bottom: 1rem;
+    }
+
+    .exec-summary p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.25rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border-top: 4px solid #4a7c59;
+      text-align: center;
+    }
+
+    .stat-card.warning {
+      border-top-color: #e53e3e;
+    }
+
+    .stat-card.caution {
+      border-top-color: #ecc94b;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: #718096;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #1a202c;
+    }
+
+    .stat-comparison {
+      font-size: 0.75rem;
+      margin-top: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .stat-comparison.negative {
+      background: #fff5f5;
+      color: #e53e3e;
+    }
+
+    .stat-comparison.positive {
+      background: #e6f4ea;
+      color: #22543d;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+
+    th, td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    th {
+      background: #f7fafc;
+      font-weight: 600;
+      color: #4a5568;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
+    }
+
+    tr:hover {
+      background: #f7fafc;
+    }
+
+    /* Percentile Bar */
+    .percentile-row {
+      margin-bottom: 1.5rem;
+    }
+
+    .percentile-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .percentile-bar-container {
+      position: relative;
+      height: 40px;
+      background: linear-gradient(to right, 
+        #48bb78 0%, #48bb78 10%, 
+        #9ae6b4 10%, #9ae6b4 25%, 
+        #fef5e7 25%, #fef5e7 50%, 
+        #fed7d7 50%, #fed7d7 75%, 
+        #fc8181 75%, #fc8181 90%, 
+        #e53e3e 90%, #e53e3e 100%
+      );
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
+
+    .percentile-marker {
+      position: absolute;
+      top: -10px;
+      transform: translateX(-50%);
+    }
+
+    .percentile-marker .arrow {
+      width: 0;
+      height: 0;
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-top: 14px solid #2d3748;
+      margin: 0 auto;
+    }
+
+    .percentile-marker .value {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, 100%);
+      background: #2d3748;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+      margin-top: 20px;
+    }
+
+    .percentile-scale {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #718096;
+    }
+
+    /* Comparison Chart */
+    .comparison-chart {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin: 1.5rem 0;
+    }
+
+    .chart-bar-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .chart-bar-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .chart-bar {
+      height: 24px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+    }
+
+    .chart-bar-fill.client {
+      background: linear-gradient(90deg, #e53e3e, #fc8181);
+    }
+
+    .chart-bar-fill.industry {
+      background: linear-gradient(90deg, #4a7c59, #68d391);
+    }
+
+    .chart-bar-fill.top {
+      background: linear-gradient(90deg, #3182ce, #63b3ed);
+    }
+
+    /* Recommendations */
+    .recommendation-list {
+      list-style: none;
+    }
+
+    .recommendation-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1.25rem;
+      background: #f7fafc;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      border-left: 4px solid #4a7c59;
+    }
+
+    .recommendation-item.high-priority {
+      border-left-color: #e53e3e;
+      background: #fff5f5;
+    }
+
+    .recommendation-item.medium-priority {
+      border-left-color: #ecc94b;
+      background: #fef5e7;
+    }
+
+    .recommendation-number {
+      width: 32px;
+      height: 32px;
+      background: #4a7c59;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .recommendation-item.high-priority .recommendation-number {
+      background: #e53e3e;
+    }
+
+    .recommendation-item.medium-priority .recommendation-number {
+      background: #ecc94b;
+      color: #744210;
+    }
+
+    .recommendation-content h4 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .recommendation-content p {
+      font-size: 0.875rem;
+      color: #4a5568;
+      margin-bottom: 0.5rem;
+    }
+
+    .recommendation-meta {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.75rem;
+      color: #718096;
+    }
+
+    /* Action Plan */
+    .action-timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    .action-timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #e2e8f0;
+    }
+
+    .action-item {
+      position: relative;
+      padding-bottom: 1.5rem;
+    }
+
+    .action-item::before {
+      content: '';
+      position: absolute;
+      left: -2rem;
+      top: 4px;
+      width: 16px;
+      height: 16px;
+      background: #4a7c59;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 0 0 2px #4a7c59;
+    }
+
+    .action-item.urgent::before {
+      background: #e53e3e;
+      box-shadow: 0 0 0 2px #e53e3e;
+    }
+
+    .action-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .action-title {
+      font-weight: 600;
+    }
+
+    .action-timeline-date {
+      font-size: 0.75rem;
+      color: #718096;
+      background: #f7fafc;
+      padding: 0.25rem 0.75rem;
+      border-radius: 4px;
+    }
+
+    .action-description {
+      font-size: 0.875rem;
+      color: #4a5568;
+    }
+
+    /* Quadrant Position */
+    .quadrant-container {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .quadrant-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      max-width: 400px;
+    }
+
+    .quadrant-cell {
+      padding: 1.5rem;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 0.75rem;
+      position: relative;
+    }
+
+    .quadrant-cell.red { background: #fff5f5; border: 2px solid #e53e3e; }
+    .quadrant-cell.green { background: #e6f4ea; border: 2px solid #48bb78; }
+    .quadrant-cell.yellow { background: #fef5e7; border: 2px solid #ecc94b; }
+
+    .quadrant-cell.active {
+      box-shadow: 0 0 0 4px rgba(45, 55, 72, 0.3);
+    }
+
+    .quadrant-cell .marker {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 24px;
+      height: 24px;
+      background: #2d3748;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 0.75rem;
+    }
+
+    .quadrant-legend {
+      font-size: 0.875rem;
+    }
+
+    .quadrant-legend h4 {
+      margin-bottom: 1rem;
+      color: #e53e3e;
+    }
+
+    .quadrant-legend ul {
+      list-style: none;
+    }
+
+    .quadrant-legend li {
+      margin-bottom: 0.75rem;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+
+    .quadrant-legend li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: #4a7c59;
+    }
+
+    /* Footer */
+    .report-footer {
+      background: #f7fafc;
+      padding: 2rem 3rem;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+    }
+
+    .footer-disclaimer {
+      font-size: 0.75rem;
+      color: #718096;
+    }
+
+    .footer-branding {
+      text-align: right;
+    }
+
+    .footer-branding .logo {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-branding p {
+      font-size: 0.75rem;
+      color: #718096;
+    }
+
+    /* Print Styles */
+    @media print {
+      body { background: white; }
+      .report-container { box-shadow: none; }
+      .section { page-break-inside: avoid; }
+    }
+
+    /* Scope Breakdown */
+    .scope-breakdown {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .scope-card {
+      background: #f7fafc;
+      padding: 1.25rem;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .scope-card h4 {
+      font-size: 0.875rem;
+      color: #718096;
+      margin-bottom: 0.5rem;
+    }
+
+    .scope-card .value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1a202c;
+    }
+
+    .scope-card .percentage {
+      font-size: 0.875rem;
+      color: #4a7c59;
+    }
+
+    /* Info Box */
+    .info-box {
+      background: #e6f4ea;
+      border-left: 4px solid #4a7c59;
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1rem 0;
+    }
+
+    .info-box.warning {
+      background: #fff5f5;
+      border-left-color: #e53e3e;
+    }
+
+    .info-box strong {
+      color: #22543d;
+    }
+
+    .info-box.warning strong {
+      color: #742a2a;
+    }
+
+    /* Two Column */
+    .two-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    /* Gap Analysis */
+    .gap-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: #f7fafc;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+    }
+
+    .gap-metric {
+      min-width: 140px;
+      font-weight: 600;
+    }
+
+    .gap-bar {
+      flex: 1;
+      height: 24px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gap-bar .current {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background: #fc8181;
+      border-radius: 4px 0 0 4px;
+    }
+
+    .gap-bar .target {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 3px;
+      background: #2d3748;
+    }
+
+    .gap-bar .target::after {
+      content: 'Target';
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.625rem;
+      color: #718096;
+      white-space: nowrap;
+    }
+
+    .gap-value {
+      min-width: 80px;
+      text-align: right;
+      font-weight: 600;
+      color: #e53e3e;
+    }
+  </style>
+</head>
+<body>
+  <div class="report-container">
+    <!-- Header -->
+    <div class="report-header">
+      <div class="header-top">
+        <div class="logo">Hertz<span>wave</span> HWCAP</div>
+        <div class="report-meta">
+          <div>Report ID: BM-2025-1128-ALPHA</div>
+          <div>Generated: November 28, 2025</div>
+          <div>Period: FY 2024-25 (Apr-Nov)</div>
+        </div>
+      </div>
+      <h1 class="report-title">Industry Benchmark Analysis Report</h1>
+      <p class="report-subtitle">Comprehensive performance assessment against manufacturing sector peers</p>
+      <div class="client-badge">📊 Alpha Manufacturing Ltd. • Heavy Industry • Maharashtra, India</div>
+    </div>
+
+    <!-- Content -->
+    <div class="report-content">
+      
+      <!-- Executive Summary -->
+      <div class="section">
+        <h2 class="section-title"><span class="icon">📋</span> Executive Summary</h2>
+        <div class="exec-summary">
+          <p><strong>Overall Assessment:</strong> Alpha Manufacturing Ltd. is currently positioned in the <strong style="color: #e53e3e;">bottom quartile (75th-90th percentile)</strong> across key sustainability metrics when compared to 847 manufacturing sector peers in the HWCAP benchmark database.</p>
+          <p><strong>Key Finding:</strong> The company's emissions intensity of 2.8 tCO₂e/unit is 33% higher than the industry median of 2.1 tCO₂e/unit. Year-over-year reduction progress of 12% lags the industry average of 18% by 6 percentage points. Data quality score of 72% indicates significant gaps in Scope 3 data collection.</p>
+          <p><strong>Recommended Action:</strong> Immediate focus on three priority areas: (1) Supplier engagement program to close Scope 3 data gaps, (2) Energy audit to identify equipment efficiency improvements, (3) Monthly data quality reviews to improve completeness and accuracy.</p>
+        </div>
+      </div>
+
+      <!-- Key Metrics Overview -->
+      <div class="section">
+        <h2 class="section-title"><span class="icon">📊</span> Key Metrics Overview</h2>
+        <div class="stats-grid">
+          <div class="stat-card warning">
+            <div class="stat-label">Emissions Intensity</div>
+            <div class="stat-value">2.8</div>
+            <div style="font-size: 0.75rem; color: #718096;">tCO₂e/unit</div>
+            <div class="stat-comparison negative">33% above industry avg</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-label">YoY Reduction</div>
+            <div class="stat-value">12%</div>
+            <div style="font-size: 0.75rem; color: #718096;">vs baseline</div>
+            <div class="stat-comparison negative">6pp below industry avg</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-label">Data Quality Score</div>
+            <div class="stat-value">72%</div>
+            <div style="font-size: 0.75rem; color: #718096;">completeness</div>
+            <div class="stat-comparison negative">13pp below industry avg</div>
+          </div>
+          <div class="stat-card caution">
+            <div class="stat-label">Percentile Rank</div>
+            <div class="stat-value">76th</div>
+            <div style="font-size: 0.75rem; color: #718096;">overall position</div>
+            <div class="stat-comparison negative">Bottom quartile</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emissions Profile -->
+      <div class="section">
+        <h2 class="section-title"><span class="icon">🏭</span> Emissions Profile</h2>
+        
+        <div class="two-column">
+          <div>
+            <h4 style="margin-bottom: 1rem; color: #4a5568;">Total Emissions by Scope</h4>
+            <div class="scope-breakdown">
+              <div class="scope-card">
+                <h4>Scope 1</h4>
+                <div class="value">58,000</div>
+                <div class="percentage">40% of total</div>
+              </div>
+              <div class="scope-card">
+                <h4>Scope 2</h4>
+                <div class="value">43,500</div>
+                <div class="percentage">30% of total</div>
+              </div>
+              <div class="scope-card">
+                <h4>Scope 3</h4>
+                <div class="value">43,500</div>
+                <div class="percentage">30% of total</div>
+              </div>
+            </div>
+            <div class="info-box warning">
+              <strong>⚠️ Data Gap Alert:</strong> Scope 3 emissions likely underreported. Industry average shows Scope 3 typically represents 50-65% of total emissions for manufacturing. Current 30% suggests incomplete supply chain data capture.
+            </div>
+          </div>
+          <div>
+            <h4 style="margin-bottom: 1rem; color: #4a5568;">Client Profile</h4>
+            <table style="font-size: 0.875rem;">
+              <tr>
+                <td style="color: #718096;">Industry Sector</td>
+                <td style="font-weight: 600;">Heavy Manufacturing - Steel</td>
+              </tr>
+              <tr>
+                <td style="color: #718096;">Annual Revenue</td>
+                <td style="font-weight: 600;">₹500 Crores</td>
+              </tr>
+              <tr>
+                <td style="color: #718096;">Employees</td>
+                <td style="font-weight: 600;">850</td>
+              </tr>
+              <tr>
+                <td style="color: #718096;">Production Volume</td>
+                <td style="font-weight: 600;">51,786 units/year</td>
+              </tr>
+              <tr>
+                <td style="color: #718096;">Facilities</td>
+                <td style="font-weight: 600;">5 locations</td>
+              </tr>
+              <tr>
+                <td style="color: #718096;">Baseline Year</td>
+                <td style="font-weight: 600;">FY 2022-23</td>
+              </tr>
+              <tr>
+                <td style="color: #718096;">Total Emissions</td>
+                <td style="font-weight: 600;">145,000 tCO₂e</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Percentile Rankings -->
+      <div class="section">
+        <h2 class="section-title"><span class="icon">📈</span> Percentile Rankings vs. Industry</h2>
+        <p style="color: #718096; margin-bottom: 1.5rem;">Comparison against 847 manufacturing sector companies in HWCAP database. Lower percentile = better performance.</p>
+
+        <div class="percentile-row">
+          <div class="percentile-label">
+            <span>Emissions Intensity</span>
+            <span style="color: #e53e3e; font-weight: 600;">2.8 tCO₂e/unit (76th percentile)</span>
+          </div>
+          <div class="percentile-bar-container">
+            <div class="percentile-marker" style="left: 76%;">
+              <div class="arrow"></div>
+              <div class="value">Alpha: 76th</div>
+            </div>
+          </div>
+          <div class="percentile-scale">
+            <span>Top 10% (≤1.2)</span>
+            <span>25th (1.6)</span>
+            <span>Median (2.1)</span>
+            <span>75th (2.7)</span>
+            <span>Bottom 10% (≥3.5)</span>
+          </div>
+        </div>
+
+        <div class="percentile-row">
+          <div class="percentile-label">
+            <span>Reduction Progress</span>
+            <span style="color: #e53e3e; font-weight: 600;">12% YoY (72nd percentile)</span>
+          </div>
+          <div class="percentile-bar-container">
+            <div class="percentile-marker" style="left: 72%;">
+              <div class="arrow"></div>
+              <div class="value">Alpha: 72nd</div>
+            </div>
+          </div>
+          <div class="percentile-scale">
+            <span>Top 10% (≥35%)</span>
+            <span>25th (24%)</span>
+            <span>Median (18%)</span>
+            <span>75th (12%)</span>
+            <span>Bottom 10% (<8%)</span>
+          </div>
+        </div>
+
+        <div class="percentile-row">
+          <div class="percentile-label">
+            <span>Data Quality Score</span>
+            <span style="color: #e53e3e; font-weight: 600;">72% (82nd percentile)</span>
+          </div>
+          <div class="percentile-bar-container">
+            <div class="percentile-marker" style="left: 82%;">
+              <div class="arrow"></div>
+              <div class="value">Alpha: 82nd</div>
+            </div>
+          </div>
+          <div class="percentile-scale">
+            <span>Top 10% (≥95%)</span>
+            <span>25th (88%)</span>
+            <span>Median (85%)</span>
+            <span>75th (78%)</span>
+            <span>Bottom 10% (<70%)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Benchmark Comparison Table -->
+      <div class="section">
+        <h2 class="section-title"><span class="icon">⚖️</span> Detailed Benchmark Comparison</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Alpha Manufacturing</th>
+              <th>Industry Median</th>
+              <th>Top 25%</th>
+              <th>Gap to Median</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Emissions Intensity</strong></td>
+              <td style="color: #e53e3e;">2.8 tCO₂e/unit</td>
+              <td>2.1 tCO₂e/unit</td>
+              <td style="color: #48bb78;">1.6 tCO₂e/unit</td>
+              <td style="color: #e53e3e;">+33% (worse)</td>
+            </tr>
+            <tr>
+              <td><strong>YoY Emission Reduction</strong></td>
+              <td style="color: #e53e3e;">12%</td>
+              <td>18%</td>
+              <td style="color: #48bb78;">24%</td>
+              <td style="color: #e53e3e;">-6pp (behind)</td>
+            </tr>
+            <tr>
+              <td><strong>Data Quality Score</strong></td>
+              <td style="color: #e53e3e;">72%</td>
+              <td>85%</td>
+              <td style="color: #48bb78;">88%</td>
+              <td style="color: #e53e3e;">-13pp (below)</td>
+            </tr>
+            <tr>
+              <td><strong>Scope 3 Coverage</strong></td>
+              <td style="color: #e53e3e;">4 of 15 categories</td>
+              <td>8 of 15 categories</td>
+              <td style="color: #48bb78;">12 of 15 categories</td>
+              <td style="color: #e53e3e;">-4 categories</td>
+            </tr>
+            <tr>
+              <td><strong>Renewable Energy %</strong></td>
+              <td style="color: #ecc94b;">22%</td>
+              <td>28%</td>
+              <td style="color: #48bb78;">45%</td>
+              <td style="color: #ecc94b;">-6pp (below)</td>
+            </tr>
+            <tr>
+              <td><strong>Energy Intensity</strong></td>
+              <td style="color: #e53e3e;">185 kWh/unit</td>
+              <td>142 kWh/unit</td>
+              <td style="color: #48bb78;">98 kWh/unit</td>
+              <td style="color: #e53e3e;">+30% (worse)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Gap Analysis -->
+      <div class="section">
+        <h2 class="section-title"><span class="icon">🎯</span> Gap Analysis to Industry Median</h2>
+        <p style="color: #718096; margin-bottom: 1.5rem;">Visual representation of improvement needed to reach industry median performance.</p>
+
+        <div class="gap-item">
+          <div class="gap-metric">Emissions Intensity</div>
+          <div class="gap-bar">
+            <div class="current" style="width: 80%;"></div>
+            <div class="target" style="left: 60%;"></div>
+          </div>
+          <div class="gap-value">-25% needed</div>
+        </div>
+
+        <div class="gap-item">
+          <div class="gap-metric">Reduction Rate</div>
+          <div class="gap-bar">
+            <div class="current" style="width: 48%;"></div>
+            <div class="target" style="left: 72%;"></div>
+          </div>
+          <div class="gap-value">+6pp needed</div>
+        </div>
+
+        <div class="gap-item">
+          <div class="gap-metric">Data Quality</div>
+          <div class="gap-bar">
+            <div class="current" style="width: 72%;"></div>
+            <div class="target" style="left: 85%;"></div>
+          </div>
+          <div class="gap-value">+13pp needed</div>
+        </div>
+
+        <div class="gap-item">
+          <div class="gap-metric">Renewable Energy</div>
+          <div class="gap-bar">
+            <div class="current" style="width: 49%;"></div>
+            <div class="target" style="left: 62%;"></div>
+          </div>
+          <div class="gap-value">+6pp needed</div>
+        </div>
+      </div>
+
+      <!-- Quadrant Position -->
+      <div class="section">
+        <h2 class="section-title"><span class="icon">🗺️</span> Portfolio Quadrant Position</h2>
+        
+        <div class="quadrant-container">
+          <div>
+            <div class="quadrant-grid">
+              <div class="quadrant-cell red active" style="position: relative;">
+                <div class="marker">A</div>
+                <strong style="color: #e53e3e;">🔴 High Impact,<br>Needs Support</strong>
+                <div style="font-size: 0.7rem; margin-top: 0.5rem;">High Emissions<br>Low Progress</div>
+              </div>
+              <div class="quadrant-cell green">
+                <strong style="color: #48bb78;">🟢 Strategic<br>Performers</strong>
+                <div style="font-size: 0.7rem; margin-top: 0.5rem;">High Emissions<br>Good Progress</div>
+              </div>
+              <div class="quadrant-cell yellow">
+                <strong style="color: #b7791f;">🟡 Development<br>Opportunity</strong>
+                <div style="font-size: 0.7rem; margin-top: 0.5rem;">Low Emissions<br>Low Progress</div>
+              </div>
+              <div class="quadrant-cell green">
+                <strong style="color: #48bb78;">🟢 Best in<br>Class</strong>
+                <div style="font-size: 0.7rem; margin-top: 0.5rem;">Low Emissions<br>Good Progress</div>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 1rem; font-size: 0.75rem; color: #718096;">
+              <span>← Higher Emissions</span>
+              <span>Lower Emissions →</span>
+            </div>
+          </div>
+          
+          <div class="quadrant-legend">
+            <h4>⚠️ Alpha is in "High Impact, Needs Support"</h4>
+            <p style="font-size: 0.875rem; color: #4a5568; margin-bottom: 1rem;">This quadrant indicates high emissions volume with below-target reduction progress. Immediate intervention required.</p>
+            <ul>
+              <li>Total emissions: 145K tCO₂e (above 50K threshold)</li>
+              <li>YoY reduction: 12% (below 20% threshold)</li>
+              <li>Priority for consultant attention</li>
+              <li>High risk for regulatory non-compliance</li>
+            </ul>
+            <div class="info-box" style="margin-top: 1rem;">
+              <strong>Target:</strong> Move to "Strategic Performers" quadrant by achieving ≥20% YoY reduction while maintaining decarbonization momentum.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Recommendations -->
+      <div class="section">
+        <h2 class="section-title"><span class="icon">🤖</span> AI-Powered Recommendations</h2>
+        <p style="color: #718096; margin-bottom: 1.5rem;">Based on analysis of 847 peer companies and 2,500+ successful decarbonization initiatives.</p>
+
+        <ul class="recommendation-list">
+          <li class="recommendation-item high-priority">
+            <div class="recommendation-number">1</div>
+            <div class="recommendation-content">
+              <h4>Implement Supplier Engagement Program</h4>
+              <p>Current Scope 3 coverage (4 of 15 categories) is significantly below industry median (8 categories). Launch structured supplier data collection focusing on Category 1 (Purchased Goods) and Category 4 (Upstream Transportation) which typically represent 60-70% of Scope 3 emissions.</p>
+              <div class="recommendation-meta">
+                <span>⏱️ Timeline: 3-6 months</span>
+                <span>📈 Expected Impact: +15-20pp data quality improvement</span>
+                <span>💰 Investment: ₹15-25 lakhs</span>
+              </div>
+            </div>
+          </li>
+          
+          <li class="recommendation-item high-priority">
+            <div class="recommendation-number">2</div>
+            <div class="recommendation-content">
+              <h4>Energy Efficiency Audit & Equipment Upgrade</h4>
+              <p>Energy intensity of 185 kWh/unit is 30% above industry median. Conduct comprehensive energy audit across all 5 facilities. Peer analysis shows average ROI of 18-24 months for efficiency investments in similar manufacturing setups.</p>
+              <div class="recommendation-meta">
+                <span>⏱️ Timeline: 2-4 months (audit), 6-12 months (implementation)</span>
+                <span>📈 Expected Impact: 15-20% energy reduction</span>
+                <span>💰 Investment: ₹1.5-2 Crores</span>
+              </div>
+            </div>
+          </li>
+          
+          <li class="recommendation-item medium-priority">
+            <div class="recommendation-number">3</div>
+            <div class="recommendation-content">
+              <h4>Renewable Energy Power Purchase Agreement</h4>
+              <p>Current renewable mix of 22% is below industry median of 28%. Explore group captive solar or wind PPA options. Companies in similar geography have achieved 35-45% renewable penetration through PPAs at cost parity or savings.</p>
+              <div class="recommendation-meta">
+                <span>⏱️ Timeline: 6-12 months</span>
+                <span>📈 Expected Impact: +15-20pp renewable share</span>
+                <span>💰 Investment: Neutral to positive (cost savings)</span>
+              </div>
+            </div>
+          </li>
+          
+          <li class="recommendation-item">
+            <div class="recommendation-number">4</div>
+            <div class="recommendation-content">
+              <h4>Monthly Data Quality Review Process</h4>
+              <p>Establish systematic monthly data validation process with designated data stewards at each facility. Implement automated anomaly detection for emissions data. Target: Achieve 85% DQS within 6 months.</p>
+              <div class="recommendation-meta">
+                <span>⏱️ Timeline: Immediate start, 6-month target</span>
+                <span>📈 Expected Impact: +13pp data quality score</span>
+                <span>💰 Investment: ₹5-8 lakhs (process + training)</span>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Action Plan Timeline -->
+      <div class="section">
+        <h2 class="section-title"><span class="icon">📅</span> Recommended Action Plan</h2>
+        
+        <div class="action-timeline">
+          <div class="action-item urgent">
+            <div class="action-header">
+              <span class="action-title">Phase 1: Foundation & Quick Wins</span>
+              <span class="action-timeline-date">Dec 2025 - Feb 2026</span>
+            </div>
+            <div class="action-description">
+              Launch data quality improvement program. Conduct energy audit. Initiate supplier engagement outreach for top 20 suppliers by spend. Set up monthly review cadence with consultant.
+            </div>
+          </div>
+          
+          <div class="action-item">
+            <div class="action-header">
+              <span class="action-title">Phase 2: Implementation</span>
+              <span class="action-timeline-date">Mar 2026 - Aug 2026</span>
+            </div>
+            <div class="action-description">
+              Implement energy efficiency measures from audit. Onboard suppliers to data sharing platform. Evaluate and negotiate renewable PPA options. Target: Reach industry median on data quality (85%).
+            </div>
+          </div>
+          
+          <div class="action-item">
+            <div class="action-header">
+              <span class="action-title">Phase 3: Acceleration</span>
+              <span class="action-timeline-date">Sep 2026 - Mar 2027</span>
+            </div>
+            <div class="action-description">
+              Execute renewable energy PPA. Expand Scope 3 coverage to 10+ categories. Implement advanced monitoring and optimization. Target: Move to "Strategic Performers" quadrant.
+            </div>
+          </div>
+          
+          <div class="action-item">
+            <div class="action-header">
+              <span class="action-title">Phase 4: Leadership Position</span>
+              <span class="action-timeline-date">Apr 2027 onwards</span>
+            </div>
+            <div class="action-description">
+              Achieve top quartile performance on key metrics. Pursue SBTi validation. Implement advanced initiatives (fleet electrification, circular economy). Position as industry sustainability leader.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projected Improvement -->
+      <div class="section">
+        <h2 class="section-title"><span class="icon">🚀</span> Projected Improvement Path</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Current (Nov 2025)</th>
+              <th>Target: 6 Months</th>
+              <th>Target: 12 Months</th>
+              <th>Target: 24 Months</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Emissions Intensity</strong></td>
+              <td style="color: #e53e3e;">2.8 tCO₂e/unit</td>
+              <td>2.5 tCO₂e/unit</td>
+              <td>2.2 tCO₂e/unit</td>
+              <td style="color: #48bb78;">1.8 tCO₂e/unit</td>
+            </tr>
+            <tr>
+              <td><strong>YoY Reduction</strong></td>
+              <td style="color: #e53e3e;">12%</td>
+              <td>15%</td>
+              <td>22%</td>
+              <td style="color: #48bb78;">28%</td>
+            </tr>
+            <tr>
+              <td><strong>Data Quality Score</strong></td>
+              <td style="color: #e53e3e;">72%</td>
+              <td>82%</td>
+              <td>88%</td>
+              <td style="color: #48bb78;">92%</td>
+            </tr>
+            <tr>
+              <td><strong>Percentile Rank</strong></td>
+              <td style="color: #e53e3e;">76th (bottom quartile)</td>
+              <td>60th</td>
+              <td>45th</td>
+              <td style="color: #48bb78;">25th (top quartile)</td>
+            </tr>
+            <tr>
+              <td><strong>Quadrant Position</strong></td>
+              <td style="color: #e53e3e;">High Impact, Needs Support</td>
+              <td>High Impact, Needs Support</td>
+              <td style="color: #48bb78;">Strategic Performers</td>
+              <td style="color: #48bb78;">Strategic Performers</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="report-footer">
+      <div class="footer-grid">
+        <div class="footer-disclaimer">
+          <p><strong>Disclaimer:</strong> This benchmark report is generated based on data available in the HWCAP platform as of the report generation date. Industry benchmarks are derived from anonymized data of 847 manufacturing sector companies. Actual results may vary based on implementation effectiveness and market conditions.</p>
+          <p style="margin-top: 0.75rem;"><strong>Prepared by:</strong> Priya Sharma, Senior Consultant | <strong>Reviewed by:</strong> ESG Analytics Team</p>
+          <p style="margin-top: 0.5rem;"><strong>Next Review:</strong> February 28, 2026 | <strong>Contact:</strong> support@hertzwave.com</p>
+        </div>
+        <div class="footer-branding">
+          <div class="logo">Hertz<span style="color: #D4A017;">wave</span></div>
+          <p>HWCAP - Carbon Accounting Platform</p>
+          <p>© 2025 Hertzwave Innovations Pvt Ltd</p>
+          <p style="margin-top: 0.5rem;">www.hertzwave.com</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
