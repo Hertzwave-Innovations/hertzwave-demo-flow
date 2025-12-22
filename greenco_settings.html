@@ -1,0 +1,2428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenCo Settings - Hertzwave</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d5f4f 0%, #3d7f6f 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+        }
+
+        .back-link {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-title {
+            color: #2d5f4f;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-banner {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            border-radius: 8px;
+        }
+
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .setting-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid #3d7f6f;
+        }
+
+        .setting-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        .setting-card.expanded {
+            grid-column: 1 / -1;
+            cursor: default;
+            transform: none;
+        }
+
+        .setting-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .setting-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d5f4f;
+            margin-bottom: 0.5rem;
+        }
+
+        .setting-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .setting-status {
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .setting-form {
+            display: none;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .setting-card.expanded .setting-form {
+            display: block;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d5f4f;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #2d5f4f;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-label.required::after {
+            content: " *";
+            color: #ff6b6b;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #3d7f6f;
+            box-shadow: 0 0 0 3px rgba(61, 127, 111, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-hint {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 0.5rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3d7f6f 0%, #2d5f4f 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(61, 127, 111, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #3d7f6f;
+            border: 2px solid #3d7f6f;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: #e8f5f1;
+        }
+
+        .collapse-btn {
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #e0e0e0;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .collapse-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #3d7f6f;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload-area:hover {
+            background: #e8f5f1;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2d5f4f;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-edit {
+            background: #2196f3;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Tooltip styles */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 0.5rem;
+        }
+
+        .tooltip .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            background: #2d5f4f;
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: help;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 400px;
+            background-color: #2d5f4f;
+            color: #fff;
+            text-align: left;
+            border-radius: 8px;
+            padding: 1rem;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -200px;
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #2d5f4f transparent transparent transparent;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .tooltip .tooltip-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #a8dadc;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">HERTZWAVE</div>
+        <a href="greenco_dashboard_enhanced.html" class="back-link">← Back to Dashboard</a>
+    </div>
+
+    <div class="container">
+        <h1 class="page-title">⚙️ Settings & Configuration</h1>
+        <p class="page-subtitle">Manage GreenCo-specific settings and preferences</p>
+
+        <div class="info-banner">
+            <strong>Note:</strong> Organization details, facilities, and compliance information are managed in the <strong>Organization Profile</strong> module. This section contains GreenCo-specific settings only.
+        </div>
+
+        <div class="settings-grid">
+            <!-- Setting 1: Target Setting -->
+            <div class="setting-card" onclick="toggleCard(this)">
+                <div class="setting-icon">🎯</div>
+                <div class="setting-title">
+                    Target Setting
+                    <span class="tooltip">
+                        <span class="info-icon">i</span>
+                        <span class="tooltiptext">
+                            <div class="tooltip-title">Target Setting</div>
+                            Set annual targets for overall GreenCo score and individual parameters. Define goals for each financial year and track progress against these targets throughout the year.
+                        </span>
+                    </span>
+                </div>
+                <div class="setting-description">
+                    Define annual targets for each GreenCo parameter and track progress against goals
+                </div>
+                <div class="setting-status">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>FY24-25 Target:</span>
+                        <span style="font-weight: 600; color: #2d5f4f;">720 points (out of 1000)</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Progress:</span>
+                        <span style="font-weight: 600; color: #20bf6b;">95.1%</span>
+                    </div>
+                </div>
+
+                <div class="setting-form">
+                    <div class="form-section">
+                        <h3 class="form-section-title">Overall Target</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label required">Financial Year</label>
+                                <select class="form-select">
+                                    <option value="2024-25" selected>FY 2024-25</option>
+                                    <option value="2025-26">FY 2025-26</option>
+                                    <option value="2026-27">FY 2026-27</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">Overall Target Score</label>
+                                <input type="number" class="form-input" value="720" min="0" max="1000" step="1">
+                                <div class="form-hint">Target GreenCo score out of 1000 points</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Parameter-wise Targets</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Max Points</th>
+                                    <th>Current</th>
+                                    <th>Target</th>
+                                    <th>Gap</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>P1: Energy Efficiency</td>
+                                    <td>150.0</td>
+                                    <td>117.0</td>
+                                    <td><input type="number" class="form-input" value="130.0" min="0" max="150" step="0.1" style="width: 80px;"></td>
+                                    <td style="color: #20bf6b;">+13.0</td>
+                                </tr>
+                                <tr>
+                                    <td>P2: Water Conservation</td>
+                                    <td>100.0</td>
+                                    <td>75.0</td>
+                                    <td><input type="number" class="form-input" value="85.0" min="0" max="100" step="0.1" style="width: 80px;"></td>
+                                    <td style="color: #20bf6b;">+10.0</td>
+                                </tr>
+                                <tr>
+                                    <td>P3: Renewable Energy</td>
+                                    <td>100.0</td>
+                                    <td>62.0</td>
+                                    <td><input type="number" class="form-input" value="75.0" min="0" max="100" step="0.1" style="width: 80px;"></td>
+                                    <td style="color: #20bf6b;">+13.0</td>
+                                </tr>
+                                <tr>
+                                    <td>P4: GHG Emission Reduction</td>
+                                    <td>100.0</td>
+                                    <td>72.0</td>
+                                    <td><input type="number" class="form-input" value="85.0" min="0" max="100" step="0.1" style="width: 80px;"></td>
+                                    <td style="color: #20bf6b;">+13.0</td>
+                                </tr>
+                                <tr>
+                                    <td>P5: Waste Management</td>
+                                    <td>100.0</td>
+                                    <td>82.0</td>
+                                    <td><input type="number" class="form-input" value="90.0" min="0" max="100" step="0.1" style="width: 80px;"></td>
+                                    <td style="color: #20bf6b;">+8.0</td>
+                                </tr>
+                                <tr>
+                                    <td>P6: Material Conservation, Recycling & Recyclability</td>
+                                    <td>100.0</td>
+                                    <td>71.0</td>
+                                    <td><input type="number" class="form-input" value="80.0" min="0" max="100" step="0.1" style="width: 80px;"></td>
+                                    <td style="color: #20bf6b;">+9.0</td>
+                                </tr>
+                                <tr>
+                                    <td>P7: Green Supply Chain</td>
+                                    <td>100.0</td>
+                                    <td>85.0</td>
+                                    <td><input type="number" class="form-input" value="90.0" min="0" max="100" step="0.1" style="width: 80px;"></td>
+                                    <td style="color: #20bf6b;">+5.0</td>
+                                </tr>
+                                <tr>
+                                    <td>P8: Product Stewardship & Life Cycle Aspects</td>
+                                    <td>125.0</td>
+                                    <td>65.0</td>
+                                    <td><input type="number" class="form-input" value="85.0" min="0" max="125" step="0.1" style="width: 80px;"></td>
+                                    <td style="color: #20bf6b;">+20.0</td>
+                                </tr>
+                                <tr>
+                                    <td>P9: Innovation for Environment</td>
+                                    <td>50.0</td>
+                                    <td>24.0</td>
+                                    <td><input type="number" class="form-input" value="35.0" min="0" max="50" step="0.1" style="width: 80px;"></td>
+                                    <td style="color: #20bf6b;">+11.0</td>
+                                </tr>
+                                <tr>
+                                    <td>P10: Green Infrastructure & Ecology</td>
+                                    <td>75.0</td>
+                                    <td>48.0</td>
+                                    <td><input type="number" class="form-input" value="60.0" min="0" max="75" step="0.1" style="width: 80px;"></td>
+                                    <td style="color: #20bf6b;">+12.0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="saveTargets()">Save Targets</button>
+                        <button class="btn-secondary" onclick="resetTargets()">Reset to Defaults</button>
+                        <button class="collapse-btn" onclick="event.stopPropagation(); toggleCard(this.closest('.setting-card'));">Collapse</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Setting 2: Baseline Configuration -->
+            <div class="setting-card" onclick="toggleCard(this)">
+                <div class="setting-icon">📅</div>
+                <div class="setting-title">
+                    Baseline Configuration
+                    <span class="tooltip">
+                        <span class="info-icon">i</span>
+                        <span class="tooltiptext">
+                            <div class="tooltip-title">Baseline Configuration</div>
+                            Define the reference year and baseline values for environmental metrics. These values are used to calculate year-over-year improvements in energy, water, and GHG intensities.
+                        </span>
+                    </span>
+                </div>
+                <div class="setting-description">
+                    Set baseline years and values for intensity calculations and trend analysis
+                </div>
+                <div class="setting-status">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>Baseline Year:</span>
+                        <span style="font-weight: 600; color: #2d5f4f;">FY 2021-22</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Status:</span>
+                        <span style="font-weight: 600; color: #20bf6b;">✓ Configured</span>
+                    </div>
+                </div>
+
+                <div class="setting-form">
+                    <div class="form-section">
+                        <h3 class="form-section-title">Baseline Period</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label required">Baseline Year</label>
+                                <select class="form-select">
+                                    <option value="2020-21">FY 2020-21</option>
+                                    <option value="2021-22" selected>FY 2021-22</option>
+                                    <option value="2022-23">FY 2022-23</option>
+                                </select>
+                                <div class="form-hint">Reference year for calculating improvements</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">Production Baseline (MT)</label>
+                                <input type="number" class="form-input" value="45000" min="0" step="100">
+                                <div class="form-hint">Annual production in baseline year</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Baseline Intensity Values</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Baseline Value</th>
+                                    <th>Current Value</th>
+                                    <th>Improvement</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Energy Intensity (GJ/MT)</td>
+                                    <td><input type="number" class="form-input" value="4.20" step="0.01" style="width: 100px;"></td>
+                                    <td>3.79</td>
+                                    <td style="color: #20bf6b;">↓ 9.8%</td>
+                                </tr>
+                                <tr>
+                                    <td>Water Intensity (KL/MT)</td>
+                                    <td><input type="number" class="form-input" value="7.20" step="0.01" style="width: 100px;"></td>
+                                    <td>6.80</td>
+                                    <td style="color: #20bf6b;">↓ 5.6%</td>
+                                </tr>
+                                <tr>
+                                    <td>GHG Intensity (tCO₂e/MT)</td>
+                                    <td><input type="number" class="form-input" value="0.95" step="0.01" style="width: 100px;"></td>
+                                    <td>0.86</td>
+                                    <td style="color: #20bf6b;">↓ 9.5%</td>
+                                </tr>
+                                <tr>
+                                    <td>Material Intensity (MT/MT)</td>
+                                    <td><input type="number" class="form-input" value="2.15" step="0.01" style="width: 100px;"></td>
+                                    <td>2.06</td>
+                                    <td style="color: #20bf6b;">↓ 4.2%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="saveBaseline()">Save Baseline</button>
+                        <button class="collapse-btn" onclick="event.stopPropagation(); toggleCard(this.closest('.setting-card'));">Collapse</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Setting 3: P8 Product Stewardship & Life Cycle Aspects -->
+            <div class="setting-card" onclick="toggleCard(this)">
+                <div class="setting-icon">📦</div>
+                <div class="setting-title">
+                    P8: Product Stewardship & Life Cycle Aspects Data
+                    <span class="tooltip">
+                        <span class="info-icon">i</span>
+                        <span class="tooltiptext">
+                            <div class="tooltip-title">P8: Product Stewardship & Life Cycle Aspects Data</div>
+                            Upload and manage documentation for Product Stewardship & Life Cycle Aspects (as per GreenCo V3). This includes Life Cycle Assessment (LCA), eco-labeling, and product environmental performance documentation.
+                        </span>
+                    </span>
+                </div>
+                <div class="setting-description">
+                    Configure product life cycle assessment, eco-labeling, and product environmental performance data
+                </div>
+                <div class="setting-status" style="background: #fff3cd; border-left: 3px solid #ffc107;">
+                    <div style="color: #856404; margin-bottom: 0.5rem;"><strong>Required Data:</strong></div>
+                    <div style="color: #856404;">• Life Cycle Assessment reports</div>
+                    <div style="color: #856404;">• Eco-labeling documentation</div>
+                    <div style="color: #856404;">• Product environmental performance data</div>
+                    <div style="color: #856404;">• Cradle-to-gate analysis</div>
+                </div>
+
+                <div class="setting-form">
+                    <div class="form-section">
+                        <h3 class="form-section-title">Life Cycle Assessment (LCA) Data</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label required">Number of Products with LCA</label>
+                                <input type="number" class="form-input" placeholder="Enter number" min="0">
+                                <div class="form-hint">Minimum 3 products required as per ISO 14040/14044</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">LCA Standard Used</label>
+                                <select class="form-select">
+                                    <option value="">Select standard</option>
+                                    <option value="ISO 14040">ISO 14040:2006</option>
+                                    <option value="ISO 14044">ISO 14044:2006</option>
+                                    <option value="Both">Both ISO 14040 & 14044</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Upload LCA Reports</label>
+                            <div class="file-upload-area" onclick="document.getElementById('lca-files').click()">
+                                <input type="file" id="lca-files" multiple accept=".pdf,.docx" style="display: none;">
+                                <div style="font-size: 3rem; margin-bottom: 0.5rem;">📄</div>
+                                <div>Click to upload or drag and drop</div>
+                                <div style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">PDF or DOCX (Max 10MB each)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Eco-Design Initiatives</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product Name</th>
+                                    <th>Eco-Design Features</th>
+                                    <th>Documentation</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ecodesign-table">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: #666;">No eco-design products added yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button class="btn-secondary" onclick="addEcoDesignProduct()">+ Add Product</button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">EPR (Extended Producer Responsibility)</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label required">EPR Authorization Number</label>
+                                <input type="text" class="form-input" placeholder="Enter EPR authorization number">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">Valid Until</label>
+                                <input type="date" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Waste Category Covered</label>
+                                <select class="form-select">
+                                    <option value="">Select category</option>
+                                    <option value="plastic">Plastic Waste</option>
+                                    <option value="ewaste">E-Waste</option>
+                                    <option value="battery">Battery Waste</option>
+                                    <option value="multiple">Multiple Categories</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Upload EPR Certificate</label>
+                            <div class="file-upload-area" onclick="document.getElementById('epr-cert').click()">
+                                <input type="file" id="epr-cert" accept=".pdf" style="display: none;">
+                                <div style="font-size: 3rem; margin-bottom: 0.5rem;">📜</div>
+                                <div>Click to upload EPR certificate</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Sustainable Packaging</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label required">% Recycled Content in Packaging</label>
+                                <input type="number" class="form-input" placeholder="0-100" min="0" max="100">
+                                <div class="form-hint">Current: 18%</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">% Recyclable Packaging</label>
+                                <input type="number" class="form-input" placeholder="0-100" min="0" max="100">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Packaging Reduction Initiative</label>
+                                <textarea class="form-textarea" placeholder="Describe packaging reduction/optimization initiatives"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="saveP8Data()">Save P8: Product Stewardship Data</button>
+                        <button class="btn-secondary">Save as Draft</button>
+                        <button class="collapse-btn" onclick="event.stopPropagation(); toggleCard(this.closest('.setting-card'));">Collapse</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Setting 4: P9 Innovation for Environment -->
+            <div class="setting-card" onclick="toggleCard(this)">
+                <div class="setting-icon">💡</div>
+                <div class="setting-title">
+                    P9: Innovation for Environment Data
+                    <span class="tooltip">
+                        <span class="info-icon">i</span>
+                        <span class="tooltiptext">
+                            <div class="tooltip-title">P9: Innovation for Environment Data</div>
+                            Upload and manage documentation for Innovation for Environment parameter (as per GreenCo V3). This includes R&D investments, green innovation initiatives, and adoption of innovative technologies for environmental improvement.
+                        </span>
+                    </span>
+                </div>
+                <div class="setting-description">
+                    Configure R&D investments, green innovation initiatives, and innovative technologies for environmental improvement
+                </div>
+                <div class="setting-status" style="background: #fff3cd; border-left: 3px solid #ffc107;">
+                    <div style="color: #856404; margin-bottom: 0.5rem;"><strong>Required Data:</strong></div>
+                    <div style="color: #856404;">• R&D investment records</div>
+                    <div style="color: #856404;">• Green innovation project documentation</div>
+                    <div style="color: #856404;">• Innovative technology adoption evidence</div>
+                    <div style="color: #856404;">• Environmental improvement outcomes</div>
+                </div>
+
+                <div class="setting-form">
+                    <div class="form-section">
+                        <h3 class="form-section-title">Innovation Projects</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Project Name</th>
+                                    <th>Category</th>
+                                    <th>Investment (₹)</th>
+                                    <th>Status</th>
+                                    <th>Environmental Benefit</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Green Chemistry R&D</td>
+                                    <td>Process Innovation</td>
+                                    <td>₹50,00,000</td>
+                                    <td><span class="status-badge status-active">Active</span></td>
+                                    <td>25% solvent reduction</td>
+                                    <td class="table-actions">
+                                        <button class="btn-small btn-edit">Edit</button>
+                                        <button class="btn-small">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button class="btn-secondary" onclick="addInnovationProject()">+ Add Innovation Project</button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Technology Adoption</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Technology</th>
+                                    <th>Implementation Date</th>
+                                    <th>Investment (₹)</th>
+                                    <th>Environmental Impact</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>AI-based Energy Optimization</td>
+                                    <td>Jan 2024</td>
+                                    <td>₹75,00,000</td>
+                                    <td>15% energy savings</td>
+                                    <td class="table-actions">
+                                        <button class="btn-small btn-edit">Edit</button>
+                                        <button class="btn-small">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button class="btn-secondary" onclick="addTechnology()">+ Add Technology</button>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="saveP9Data()">Save P9: Innovation Data</button>
+                        <button class="btn-secondary">Save as Draft</button>
+                        <button class="collapse-btn" onclick="event.stopPropagation(); toggleCard(this.closest('.setting-card'));">Collapse</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Setting 5: P10 Green Infrastructure & Ecology -->
+            <div class="setting-card" onclick="toggleCard(this)">
+                <div class="setting-icon">🏗️</div>
+                <div class="setting-title">
+                    P10: Green Infrastructure & Ecology Data
+                    <span class="tooltip">
+                        <span class="info-icon">i</span>
+                        <span class="tooltiptext">
+                            <div class="tooltip-title">P10: Green Infrastructure & Ecology Data</div>
+                            Document Green Infrastructure & Ecology parameter (as per GreenCo V3). This includes green building certifications, site ecology, biodiversity initiatives, employee amenities, and environmental awareness programs.
+                        </span>
+                    </span>
+                </div>
+                <div class="setting-description">
+                    Manage green building practices, site ecology, biodiversity, employee amenities, and environmental awareness programs
+                </div>
+                <div class="setting-status" style="background: #fff3cd; border-left: 3px solid #ffc107;">
+                    <div style="color: #856404; margin-bottom: 0.5rem;"><strong>Required Data:</strong></div>
+                    <div style="color: #856404;">• Green building certifications (LEED, IGBC, etc.)</div>
+                    <div style="color: #856404;">• Site ecology and biodiversity documentation</div>
+                    <div style="color: #856404;">• Employee amenities records</div>
+                    <div style="color: #856404;">• Environmental awareness program details</div>
+                </div>
+
+                <div class="setting-form">
+                    <div class="form-section">
+                        <h3 class="form-section-title">Green Building Certifications</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Building/Facility</th>
+                                    <th>Certification Type</th>
+                                    <th>Rating</th>
+                                    <th>Valid Until</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Main Manufacturing Unit</td>
+                                    <td>IGBC Green Factory</td>
+                                    <td>Gold</td>
+                                    <td>March 2026</td>
+                                    <td class="table-actions">
+                                        <button class="btn-small btn-edit">Edit</button>
+                                        <button class="btn-small">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Admin Building</td>
+                                    <td>LEED Certified</td>
+                                    <td>Silver</td>
+                                    <td>June 2025</td>
+                                    <td class="table-actions">
+                                        <button class="btn-small btn-edit">Edit</button>
+                                        <button class="btn-small">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button class="btn-secondary" onclick="addGreenBuilding()">+ Add Green Building</button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Site Ecology & Biodiversity</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Initiative</th>
+                                    <th>Area (sq.m)</th>
+                                    <th>Status</th>
+                                    <th>Impact</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                <tr>
+                                    <td>Native Tree Plantation</td>
+                                    <td>5,200</td>
+                                    <td><span class="status-badge status-active">Completed</span></td>
+                                    <td>500+ trees planted</td>
+                                    <td class="table-actions">
+                                        <button class="btn-small btn-edit">Edit</button>
+                                        <button class="btn-small">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Butterfly Garden</td>
+                                    <td>800</td>
+                                    <td><span class="status-badge status-active">Active</span></td>
+                                    <td>20+ species observed</td>
+                                    <td class="table-actions">
+                                        <button class="btn-small btn-edit">Edit</button>
+                                        <button class="btn-small">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button class="btn-secondary" onclick="addAward()">+ Add Award</button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Innovation Projects</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label required">Annual Innovation Budget (₹)</label>
+                                <input type="number" class="form-input" value="5000000" min="0">
+                                <div class="form-hint">Current: ₹50 Lakhs/year</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">Number of Active Projects</label>
+                                <input type="number" class="form-input" value="12" min="0">
+                            </div>
+                        </div>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Project Name</th>
+                                    <th>Focus Area</th>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Employee Amenities</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Amenity</th>
+                                    <th>Category</th>
+                                    <th>Capacity/Details</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Cafeteria with Organic Food</td>
+                                    <td>Health & Wellness</td>
+                                    <td>500 persons</td>
+                                    <td><span class="status-badge status-active">Active</span></td>
+                                    <td class="table-actions">
+                                        <button class="btn-small btn-edit">Edit</button>
+                                        <button class="btn-small">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Gym & Fitness Center</td>
+                                    <td>Health & Wellness</td>
+                                    <td>50 persons</td>
+                                    <td><span class="status-badge status-active">Active</span></td>
+                                    <td class="table-actions">
+                                        <button class="btn-small btn-edit">Edit</button>
+                                        <button class="btn-small">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button class="btn-secondary" onclick="addAmenity()">+ Add Amenity</button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Environmental Awareness Programs</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Program Name</th>
+                                    <th>Frequency</th>
+                                    <th>Participants</th>
+                                    <th>Last Conducted</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>World Environment Day Celebration</td>
+                                    <td>Annual</td>
+                                    <td>500+</td>
+                                    <td>June 2024</td>
+                                    <td class="table-actions">
+                                        <button class="btn-small btn-edit">Edit</button>
+                                        <button class="btn-small">View</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Sustainability Training</td>
+                                    <td>Quarterly</td>
+                                    <td>150 per session</td>
+                                    <td>Dec 2024</td>
+                                    <td class="table-actions">
+                                        <button class="btn-small btn-edit">Edit</button>
+                                        <button class="btn-small">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button class="btn-secondary" onclick="addAwarenessProgram()">+ Add Program</button>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="saveP10Data()">Save P10: Green Infrastructure Data</button>
+                        <button class="btn-secondary">Save as Draft</button>
+                        <button class="collapse-btn" onclick="event.stopPropagation(); toggleCard(this.closest('.setting-card'));">Collapse</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Setting 6: Materiality Assessment -->
+            <div class="setting-card" onclick="toggleCard(this)">
+                <div class="setting-icon">🎯</div>
+                <div class="setting-title">
+                    Materiality Assessment
+                    <span class="tooltip">
+                        <span class="info-icon">i</span>
+                        <span class="tooltiptext">
+                            <div class="tooltip-title">Materiality Assessment</div>
+                            Identify and prioritize environmental and social issues that are most significant to your business and stakeholders. Maps material issues to GreenCo parameters for strategic prioritization. Required for BRSR reporting and helps optimize resource allocation across GreenCo improvement initiatives.
+                        </span>
+                    </span>
+                </div>
+                <div class="setting-description">
+                    Identify, prioritize, and map material ESG issues to GreenCo parameters for strategic decision-making
+                </div>
+                <div class="setting-status">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>Material Issues Identified:</span>
+                        <span style="font-weight: 600; color: #2d5f4f;">12</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Last Updated:</span>
+                        <span style="font-weight: 600; color: #666;">Oct 2024</span>
+                    </div>
+                </div>
+
+                <div class="setting-form">
+                    <div class="form-section">
+                        <h3 class="form-section-title">Materiality Matrix Configuration</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+                            Define the axes for your materiality matrix and identify threshold values for high materiality issues.
+                        </p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label required">X-Axis: Importance to Stakeholders</label>
+                                <select class="form-select">
+                                    <option value="stakeholder" selected>Stakeholder Importance (1-5 scale)</option>
+                                    <option value="business">Business Impact (1-5 scale)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">Y-Axis: Impact on Environment/Society</label>
+                                <select class="form-select">
+                                    <option value="impact" selected>Environmental/Social Impact (1-5 scale)</option>
+                                    <option value="risk">Risk Level (1-5 scale)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">High Materiality Threshold (X-axis)</label>
+                                <input type="number" class="form-input" value="3.5" min="1" max="5" step="0.1">
+                                <div class="form-hint">Issues scoring above this are considered "high priority"</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">High Materiality Threshold (Y-axis)</label>
+                                <input type="number" class="form-input" value="3.5" min="1" max="5" step="0.1">
+                                <div class="form-hint">Issues scoring above this are considered "high impact"</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Material Issues & GreenCo Mapping</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+                            Identify and prioritize material ESG issues, then map them to relevant GreenCo parameters.
+                        </p>
+                        <table class="table" id="materiality-issues-table">
+                            <thead>
+                                <tr>
+                                    <th>Material Issue</th>
+                                    <th>Stakeholder Score (1-5)</th>
+                                    <th>Impact Score (1-5)</th>
+                                    <th>Priority</th>
+                                    <th>Mapped GreenCo Parameters</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="material-issues-tbody">
+                                <!-- Dynamically populated by JavaScript -->
+                            </tbody>
+                        </table>
+                        <button class="btn-secondary" onclick="openMaterialIssueModal()">+ Add Material Issue</button>
+                        <button class="btn-secondary" onclick="loadSampleMaterialIssues()" style="margin-left: 0.5rem;">Load Sample Data</button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Stakeholder Engagement</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+                            Track stakeholder consultations conducted for materiality assessment.
+                        </p>
+                        <table class="table" id="stakeholder-engagement-table">
+                            <thead>
+                                <tr>
+                                    <th>Stakeholder Group</th>
+                                    <th>Engagement Method</th>
+                                    <th>Date</th>
+                                    <th>Participants</th>
+                                    <th>Key Issues Raised</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stakeholder-engagement-tbody">
+                                <!-- Dynamically populated by JavaScript -->
+                            </tbody>
+                        </table>
+                        <button class="btn-secondary" onclick="openStakeholderEngagementModal()">+ Add Stakeholder Engagement</button>
+                        <button class="btn-secondary" onclick="loadSampleStakeholderEngagements()" style="margin-left: 0.5rem;">Load Sample Data</button>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Materiality Matrix Visualization</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+                            Visual representation of material issues plotted on materiality matrix (for reference - actual matrix generated in reports).
+                        </p>
+                        <div style="padding: 2rem; background: #f8f9fa; border-radius: 8px; text-align: center;">
+                            <svg viewBox="0 0 500 400" style="width: 100%; max-width: 500px; height: auto;">
+                                <!-- Grid Background -->
+                                <rect x="50" y="50" width="400" height="300" fill="white" stroke="#e0e0e0" stroke-width="2"/>
+                                
+                                <!-- Grid Lines -->
+                                <line x1="250" y1="50" x2="250" y2="350" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="5,5"/>
+                                <line x1="50" y1="200" x2="450" y2="200" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="5,5"/>
+                                
+                                <!-- Quadrant Labels -->
+                                <text x="150" y="120" text-anchor="middle" font-size="12" fill="#999" font-weight="600">Monitor</text>
+                                <text x="350" y="120" text-anchor="middle" font-size="12" fill="#2d5f4f" font-weight="600">Prioritize</text>
+                                <text x="150" y="280" text-anchor="middle" font-size="12" fill="#999">Low Priority</text>
+                                <text x="350" y="280" text-anchor="middle" font-size="12" fill="#666">Engage</text>
+                                
+                                <!-- Axis Labels -->
+                                <text x="250" y="380" text-anchor="middle" font-size="14" fill="#2d5f4f" font-weight="600">Importance to Stakeholders →</text>
+                                <text x="15" y="200" text-anchor="middle" font-size="14" fill="#2d5f4f" font-weight="600" transform="rotate(-90 15 200)">Environmental/Social Impact →</text>
+                                
+                                <!-- Data Points (High Priority Issues in top-right quadrant) -->
+                                <circle cx="380" cy="100" r="8" fill="#ff6b6b" opacity="0.8"/>
+                                <text x="380" y="90" text-anchor="middle" font-size="10" fill="#333">Water</text>
+                                
+                                <circle cx="400" cy="80" r="8" fill="#ff6b6b" opacity="0.8"/>
+                                <text x="400" y="70" text-anchor="middle" font-size="10" fill="#333">Climate</text>
+                                
+                                <circle cx="360" cy="110" r="8" fill="#ff6b6b" opacity="0.8"/>
+                                <text x="360" y="130" text-anchor="middle" font-size="10" fill="#333">Waste</text>
+                                
+                                <circle cx="370" cy="95" r="8" fill="#ffc107" opacity="0.8"/>
+                                <text x="320" y="95" text-anchor="middle" font-size="10" fill="#333">Product LCA</text>
+                                
+                                <!-- Medium Priority -->
+                                <circle cx="320" cy="150" r="7" fill="#4ecdc4" opacity="0.8"/>
+                                <text x="320" y="170" text-anchor="middle" font-size="9" fill="#666">Supply Chain</text>
+                                
+                                <circle cx="290" cy="130" r="7" fill="#4ecdc4" opacity="0.8"/>
+                                <text x="250" y="130" text-anchor="middle" font-size="9" fill="#666">Biodiversity</text>
+                                
+                                <!-- Legend -->
+                                <circle cx="70" cy="30" r="5" fill="#ff6b6b" opacity="0.8"/>
+                                <text x="80" y="35" font-size="11" fill="#333">High Priority</text>
+                                
+                                <circle cx="170" cy="30" r="5" fill="#ffc107" opacity="0.8"/>
+                                <text x="180" y="35" font-size="11" fill="#333">Medium-High</text>
+                                
+                                <circle cx="280" cy="30" r="5" fill="#4ecdc4" opacity="0.8"/>
+                                <text x="290" y="35" font-size="11" fill="#333">Medium</text>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Strategic Prioritization</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+                            Based on materiality assessment, define strategic priorities for GreenCo parameters.
+                        </p>
+                        <div style="padding: 1.5rem; background: #e8f5f1; border-left: 4px solid #20bf6b; border-radius: 8px;">
+                            <div style="font-weight: 600; color: #2d5f4f; margin-bottom: 1rem;">Recommended Priority Focus Areas:</div>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                <div style="padding: 0.75rem; background: white; border-radius: 6px;">
+                                    <div style="font-weight: 600; color: #ff6b6b;">🔴 Priority 1</div>
+                                    <div style="font-size: 0.9rem; margin-top: 0.25rem;">P2: Water Conservation</div>
+                                    <div style="font-size: 0.9rem;">P4: GHG Reduction</div>
+                                </div>
+                                <div style="padding: 0.75rem; background: white; border-radius: 6px;">
+                                    <div style="font-weight: 600; color: #ffc107;">🟡 Priority 2</div>
+                                    <div style="font-size: 0.9rem; margin-top: 0.25rem;">P5: Waste Management</div>
+                                    <div style="font-size: 0.9rem;">P8: Product Stewardship</div>
+                                </div>
+                                <div style="padding: 0.75rem; background: white; border-radius: 6px;">
+                                    <div style="font-weight: 600; color: #4ecdc4;">🟢 Priority 3</div>
+                                    <div style="font-size: 0.9rem; margin-top: 0.25rem;">P7: Green Supply Chain</div>
+                                    <div style="font-size: 0.9rem;">P10: Green Infrastructure</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="saveMaterialityData()">Save Materiality Assessment</button>
+                        <button class="btn-secondary" onclick="generateMaterialityReport()">Generate Materiality Report</button>
+                        <button class="collapse-btn" onclick="event.stopPropagation(); toggleCard(this.closest('.setting-card'));">Collapse</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Setting 7: Notifications -->
+            <div class="setting-card" onclick="toggleCard(this)">
+                <div class="setting-icon">🔔</div>
+                <div class="setting-title">
+                    Notifications
+                    <span class="tooltip">
+                        <span class="info-icon">i</span>
+                        <span class="tooltiptext">
+                            <div class="tooltip-title">Notifications</div>
+                            Set up email alerts and reminders for GreenCo assessment deadlines, data submission requirements, and progress milestones. Configure notification frequency and recipients.
+                        </span>
+                    </span>
+                </div>
+                <div class="setting-description">
+                    Configure email alerts, reminders for GreenCo deadlines, and progress reports
+                </div>
+                <div class="setting-status">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>Email Alerts:</span>
+                        <span style="font-weight: 600; color: #20bf6b;">Enabled</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Weekly Reports:</span>
+                        <span style="font-weight: 600; color: #20bf6b;">Enabled</span>
+                    </div>
+                </div>
+
+                <div class="setting-form">
+                    <div class="form-section">
+                        <h3 class="form-section-title">Email Notifications</h3>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="email-alerts" checked>
+                            <label for="email-alerts">Enable email alerts</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Primary Email</label>
+                            <input type="email" class="form-input" value="admin@acmepharma.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CC Emails (comma-separated)</label>
+                            <input type="text" class="form-input" placeholder="email1@domain.com, email2@domain.com">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Alert Types</h3>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="alert-data-entry" checked>
+                            <label for="alert-data-entry">Data entry deadlines</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="alert-target">
+                            <label for="alert-target">Target achievement milestones</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="alert-compliance" checked>
+                            <label for="alert-compliance">Compliance certificate expiry (30 days before)</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="alert-anomaly" checked>
+                            <label for="alert-anomaly">Data anomalies (sudden spikes/drops)</label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Scheduled Reports</h3>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="daily-summary">
+                            <label for="daily-summary">Daily summary email</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="weekly-report" checked>
+                            <label for="weekly-report">Weekly performance report (every Monday)</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="monthly-report" checked>
+                            <label for="monthly-report">Monthly comprehensive report (1st of month)</label>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="saveNotifications()">Save Notifications</button>
+                        <button class="collapse-btn" onclick="event.stopPropagation(); toggleCard(this.closest('.setting-card'));">Collapse</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Setting 8: Audit Trail -->
+            <div class="setting-card" onclick="toggleCard(this)">
+                <div class="setting-icon">📝</div>
+                <div class="setting-title">
+                    Audit Trail
+                    <span class="tooltip">
+                        <span class="info-icon">i</span>
+                        <span class="tooltiptext">
+                            <div class="tooltip-title">Audit Trail</div>
+                            View complete history of all changes made to GreenCo data, including who made the changes, when they were made, and what was modified. Essential for audit and compliance purposes.
+                        </span>
+                    </span>
+                </div>
+                <div class="setting-description">
+                    View system logs, track changes in GreenCo assessments, and monitor user activities
+                </div>
+                <div class="setting-status">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>Today's Activities:</span>
+                        <span style="font-weight: 600; color: #2d5f4f;">45</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Data Changes:</span>
+                        <span style="font-weight: 600; color: #2d5f4f;">12</span>
+                    </div>
+                </div>
+
+                <div class="setting-form">
+                    <div class="form-section">
+                        <h3 class="form-section-title">Activity Log (Last 30 Days)</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date/Time</th>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                    <th>Module</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Dec 19, 2024 14:23</td>
+                                    <td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bbdadfd6d2d5fbdad8d6decbd3dac9d6da95d8d4d6">[email&#160;protected]</a></td>
+                                    <td>Data Updated</td>
+                                    <td>Energy Consumption</td>
+                                    <td><button class="btn-small">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>Dec 19, 2024 11:45</td>
+                                    <td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1c696f796e5c7d7f71796c747d6e717d327f7371">[email&#160;protected]</a></td>
+                                    <td>Report Generated</td>
+                                    <td>Executive Summary</td>
+                                    <td><button class="btn-small">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>Dec 18, 2024 16:30</td>
+                                    <td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="59383d34303719383a343c2931382b3438773a3634">[email&#160;protected]</a></td>
+                                    <td>Target Modified</td>
+                                    <td>Parameter 8</td>
+                                    <td><button class="btn-small">View</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Export Options</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Date Range</label>
+                                <input type="date" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">To</label>
+                                <input type="date" class="form-input">
+                            </div>
+                        </div>
+                        <button class="btn-secondary">Export Audit Log (CSV)</button>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="collapse-btn" onclick="event.stopPropagation(); toggleCard(this.closest('.setting-card'));">Collapse</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Setting 9: Assessment Period -->
+            <div class="setting-card" onclick="toggleCard(this)">
+                <div class="setting-icon">📆</div>
+                <div class="setting-title">
+                    Assessment Period
+                    <span class="tooltip">
+                        <span class="info-icon">i</span>
+                        <span class="tooltiptext">
+                            <div class="tooltip-title">Assessment Period</div>
+                            Define the assessment period for GreenCo rating, set reporting cycles (quarterly/annual), and configure financial year settings. This determines the timeframe for data collection and evaluation.
+                        </span>
+                    </span>
+                </div>
+                <div class="setting-description">
+                    Configure assessment periods, reporting cycles, and financial year settings
+                </div>
+                <div class="setting-status">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>Current Period:</span>
+                        <span style="font-weight: 600; color: #2d5f4f;">Q3 FY 2024-25</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Next Assessment:</span>
+                        <span style="font-weight: 600; color: #666;">Jan 2025</span>
+                    </div>
+                </div>
+
+                <div class="setting-form">
+                    <div class="form-section">
+                        <h3 class="form-section-title">Financial Year Configuration</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label required">FY Start Month</label>
+                                <select class="form-select">
+                                    <option value="1">January</option>
+                                    <option value="2">February</option>
+                                    <option value="3">March</option>
+                                    <option value="4" selected>April</option>
+                                    <option value="5">May</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">Current FY</label>
+                                <input type="text" class="form-input" value="2024-25" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Assessment Cycles</h3>
+                        <div class="form-group">
+                            <label class="form-label">Reporting Frequency</label>
+                            <select class="form-select">
+                                <option value="monthly">Monthly</option>
+                                <option value="quarterly" selected>Quarterly</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">GreenCo Assessment Frequency</label>
+                            <select class="form-select">
+                                <option value="annually" selected>Annually</option>
+                                <option value="biannually">Bi-annually</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="saveAssessmentPeriod()">Save Settings</button>
+                        <button class="collapse-btn" onclick="event.stopPropagation(); toggleCard(this.closest('.setting-card'));">Collapse</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Setting 10: Data Validation -->
+            <div class="setting-card" onclick="toggleCard(this)">
+                <div class="setting-icon">✔️</div>
+                <div class="setting-title">
+                    Data Validation
+                    <span class="tooltip">
+                        <span class="info-icon">i</span>
+                        <span class="tooltiptext">
+                            <div class="tooltip-title">Data Validation</div>
+                            Configure validation rules and quality checks to ensure accuracy of GreenCo data. Set acceptable ranges, mandatory fields, and automated quality checks before submission.
+                        </span>
+                    </span>
+                </div>
+                <div class="setting-description">
+                    Configure validation rules, acceptable ranges, and quality checks for GreenCo data
+                </div>
+                <div class="setting-status">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>Active Rules:</span>
+                        <span style="font-weight: 600; color: #2d5f4f;">28</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Last Updated:</span>
+                        <span style="font-weight: 600; color: #666;">1 week ago</span>
+                    </div>
+                </div>
+
+                <div class="setting-form">
+                    <div class="form-section">
+                        <h3 class="form-section-title">Validation Rules</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Min Value</th>
+                                    <th>Max Value</th>
+                                    <th>Alert Threshold</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Energy Consumption (GJ)</td>
+                                    <td><input type="number" class="form-input" value="10000" style="width: 90px;"></td>
+                                    <td><input type="number" class="form-input" value="25000" style="width: 90px;"></td>
+                                    <td><input type="number" class="form-input" value="20%" style="width: 70px;">%</td>
+                                    <td><span class="status-badge status-active">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Water Consumption (KL)</td>
+                                    <td><input type="number" class="form-input" value="20000" style="width: 90px;"></td>
+                                    <td><input type="number" class="form-input" value="35000" style="width: 90px;"></td>
+                                    <td><input type="number" class="form-input" value="15%" style="width: 70px;">%</td>
+                                    <td><span class="status-badge status-active">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Waste Generated (MT)</td>
+                                    <td><input type="number" class="form-input" value="150" style="width: 90px;"></td>
+                                    <td><input type="number" class="form-input" value="400" style="width: 90px;"></td>
+                                    <td><input type="number" class="form-input" value="25%" style="width: 70px;">%</td>
+                                    <td><span class="status-badge status-active">Active</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">Quality Checks</h3>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="check-duplicates" checked>
+                            <label for="check-duplicates">Check for duplicate entries</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="check-missing" checked>
+                            <label for="check-missing">Flag missing mandatory data</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="check-outliers" checked>
+                            <label for="check-outliers">Detect statistical outliers</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="check-consistency">
+                            <label for="check-consistency">Cross-parameter consistency checks</label>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="saveValidationRules()">Save Validation Rules</button>
+                        <button class="btn-secondary">Test Rules</button>
+                        <button class="collapse-btn" onclick="event.stopPropagation(); toggleCard(this.closest('.setting-card'));">Collapse</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('Settings script loaded');
+        
+        function toggleCard(card) {
+            console.log('toggleCard called', card);
+            const wasExpanded = card.classList.contains('expanded');
+
+            // Close all other cards first
+            const allCards = document.querySelectorAll('.setting-card');
+            allCards.forEach(c => {
+                if (c !== card && c.classList.contains('expanded')) {
+                    c.classList.remove('expanded');
+                }
+            });
+
+            // Toggle the clicked card
+            if (!wasExpanded) {
+                card.classList.add('expanded');
+                // Scroll to top of card with some offset
+                setTimeout(() => {
+                    const cardTop = card.getBoundingClientRect().top + window.pageYOffset - 20;
+                    window.scrollTo({ top: cardTop, behavior: 'smooth' });
+                }, 100);
+            } else {
+                card.classList.remove('expanded');
+            }
+        }
+
+        // Handle clicks on the document to prevent closing on form interactions
+        document.addEventListener('click', function(e) {
+            // If clicking on form elements inside an expanded card, stop propagation
+            if (e.target.closest('.setting-form')) {
+                const isInteractive = (
+                    e.target.tagName === 'INPUT' || 
+                    e.target.tagName === 'SELECT' || 
+                    e.target.tagName === 'TEXTAREA' || 
+                    e.target.tagName === 'BUTTON' ||
+                    e.target.tagName === 'A' ||
+                    e.target.closest('label')
+                );
+                
+                if (isInteractive) {
+                    e.stopPropagation();
+                }
+            }
+        });
+
+        function saveTargets() {
+            alert('Targets saved successfully!');
+        }
+
+        function resetTargets() {
+            if (confirm('Reset all targets to default values?')) {
+                alert('Targets reset to defaults');
+            }
+        }
+
+        function saveBaseline() {
+            alert('Baseline configuration saved successfully!');
+        }
+
+        function saveP9Data() {
+            alert('Product Stewardship data saved successfully!');
+        }
+
+        function saveP10Data() {
+            alert('Beyond Compliance data saved successfully!');
+        }
+
+        function saveNotifications() {
+            alert('Notification settings saved successfully!');
+        }
+
+        function saveAssessmentPeriod() {
+            alert('Assessment period settings saved successfully!');
+        }
+
+        function saveValidationRules() {
+            alert('Validation rules saved successfully!');
+        }
+
+        function addEcoDesignProduct() {
+            alert('Opening eco-design product form...');
+        }
+
+        function addCertification() {
+            alert('Opening certification form...');
+        }
+
+        function addAward() {
+            alert('Opening award entry form...');
+        }
+
+        function addInnovationProject() {
+            alert('Opening innovation project form...');
+        }
+
+        // Materiality Assessment Functions
+        let materialIssues = [];
+        let stakeholderEngagements = [];
+
+        // Load data from localStorage on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            loadMaterialityDataFromStorage();
+            renderMaterialIssuesTable();
+            renderStakeholderEngagementsTable();
+        });
+
+        function loadMaterialityDataFromStorage() {
+            const storedData = localStorage.getItem('materialityAssessmentData');
+            if (storedData) {
+                try {
+                    const data = JSON.parse(storedData);
+                    materialIssues = data.materialIssues || [];
+                    stakeholderEngagements = data.stakeholderEngagements || [];
+                } catch (e) {
+                    console.error('Error loading materiality data:', e);
+                }
+            }
+        }
+
+        function saveMaterialityDataToStorage() {
+            const data = {
+                materialIssues: materialIssues,
+                stakeholderEngagements: stakeholderEngagements
+            };
+            localStorage.setItem('materialityAssessmentData', JSON.stringify(data));
+        }
+
+        // Material Issue Functions
+        function openMaterialIssueModal(index = null) {
+            const modal = document.getElementById('materialIssueModal');
+            const form = document.getElementById('materialIssueForm');
+            form.reset();
+            
+            if (index !== null) {
+                // Editing existing issue
+                document.getElementById('materialIssueModalTitle').textContent = 'Edit Material Issue';
+                document.getElementById('materialIssueIndex').value = index;
+                
+                const issue = materialIssues[index];
+                document.getElementById('issueName').value = issue.name;
+                document.getElementById('stakeholderScore').value = issue.stakeholder;
+                document.getElementById('stakeholderScoreSlider').value = issue.stakeholder;
+                document.getElementById('impactScore').value = issue.impact;
+                document.getElementById('impactScoreSlider').value = issue.impact;
+                
+                // Try to match GreenCo param to dropdown
+                const paramSelect = document.getElementById('greencoParam');
+                let matched = false;
+                for (let option of paramSelect.options) {
+                    if (option.value === issue.greenco) {
+                        paramSelect.value = option.value;
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) {
+                    document.getElementById('greencoParamCustom').value = issue.greenco;
+                }
+                
+                if (issue.description) {
+                    document.getElementById('issueDescription').value = issue.description;
+                }
+                
+                updatePriorityDisplay();
+            } else {
+                // Adding new issue
+                document.getElementById('materialIssueModalTitle').textContent = 'Add Material Issue';
+                document.getElementById('materialIssueIndex').value = '';
+                updatePriorityDisplay();
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function closeMaterialIssueModal() {
+            document.getElementById('materialIssueModal').style.display = 'none';
+        }
+
+        function updatePriorityDisplay() {
+            const stakeholderScore = parseFloat(document.getElementById('stakeholderScore').value) || 0;
+            const impactScore = parseFloat(document.getElementById('impactScore').value) || 0;
+            
+            let priority = 'Medium';
+            let bgColor = '#e0f7fa';
+            let textColor = '#00695c';
+            
+            if (stakeholderScore >= 3.5 && impactScore >= 3.5) {
+                priority = 'High';
+                bgColor = '#ffebee';
+                textColor = '#c62828';
+            } else if (stakeholderScore >= 4.0 || impactScore >= 4.0) {
+                priority = 'Medium-High';
+                bgColor = '#fff3e0';
+                textColor = '#ef6c00';
+            }
+            
+            const display = document.getElementById('priorityDisplay');
+            display.textContent = priority;
+            display.style.background = bgColor;
+            display.style.color = textColor;
+        }
+
+        // Update priority display when scores change
+        document.addEventListener('DOMContentLoaded', function() {
+            ['stakeholderScore', 'stakeholderScoreSlider', 'impactScore', 'impactScoreSlider'].forEach(id => {
+                const elem = document.getElementById(id);
+                if (elem) {
+                    elem.addEventListener('input', updatePriorityDisplay);
+                }
+            });
+        });
+
+        function saveMaterialIssueForm(event) {
+            event.preventDefault();
+            
+            const index = document.getElementById('materialIssueIndex').value;
+            const name = document.getElementById('issueName').value;
+            const stakeholder = parseFloat(document.getElementById('stakeholderScore').value);
+            const impact = parseFloat(document.getElementById('impactScore').value);
+            
+            let greenco = document.getElementById('greencoParam').value;
+            const greencoCustom = document.getElementById('greencoParamCustom').value.trim();
+            if (greencoCustom) {
+                greenco = greencoCustom;
+            }
+            
+            const description = document.getElementById('issueDescription').value || 
+                                `Material issue: ${name}`;
+            
+            // Calculate priority
+            let priority = 'Medium';
+            if (stakeholder >= 3.5 && impact >= 3.5) {
+                priority = 'High';
+            } else if (stakeholder >= 4.0 || impact >= 4.0) {
+                priority = 'Medium-High';
+            }
+            
+            const issue = {
+                name,
+                stakeholder,
+                impact,
+                priority,
+                greenco,
+                description
+            };
+            
+            if (index === '') {
+                // Add new
+                materialIssues.push(issue);
+            } else {
+                // Update existing
+                materialIssues[parseInt(index)] = issue;
+            }
+            
+            saveMaterialityDataToStorage();
+            renderMaterialIssuesTable();
+            closeMaterialIssueModal();
+        }
+
+        function deleteMaterialIssue(index) {
+            if (confirm('Are you sure you want to delete this material issue?')) {
+                materialIssues.splice(index, 1);
+                saveMaterialityDataToStorage();
+                renderMaterialIssuesTable();
+            }
+        }
+
+        function renderMaterialIssuesTable() {
+            const tbody = document.getElementById('material-issues-tbody');
+            tbody.innerHTML = '';
+            
+            if (materialIssues.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #999;">No material issues added. Click "Add Material Issue" or "Load Sample Data" to get started.</td></tr>';
+                return;
+            }
+            
+            materialIssues.forEach((issue, index) => {
+                const row = tbody.insertRow();
+                
+                let priorityBadge = '';
+                if (issue.priority === 'High') {
+                    priorityBadge = '<span class="status-badge status-active">High</span>';
+                } else if (issue.priority === 'Medium-High') {
+                    priorityBadge = '<span class="status-badge status-pending">Medium-High</span>';
+                } else {
+                    priorityBadge = '<span class="status-badge">Medium</span>';
+                }
+                
+                row.innerHTML = `
+                    <td>${issue.name}</td>
+                    <td style="text-align: center;">${issue.stakeholder.toFixed(1)}</td>
+                    <td style="text-align: center;">${issue.impact.toFixed(1)}</td>
+                    <td>${priorityBadge}</td>
+                    <td>${issue.greenco}</td>
+                    <td class="table-actions">
+                        <button class="btn-small btn-edit" onclick="openMaterialIssueModal(${index})">Edit</button>
+                        <button class="btn-small" onclick="deleteMaterialIssue(${index})" style="background: #ff6b6b; color: white;">Delete</button>
+                    </td>
+                `;
+            });
+        }
+
+        function loadSampleMaterialIssues() {
+            if (materialIssues.length > 0) {
+                if (!confirm('This will replace existing material issues. Continue?')) {
+                    return;
+                }
+            }
+            
+            materialIssues = [
+                { name: "Water Scarcity & Conservation", stakeholder: 4.8, impact: 4.5, priority: "High", greenco: "P2: Water Conservation", description: "Addressing water scarcity through conservation practices, rainwater harvesting, and reduction in specific water consumption." },
+                { name: "Climate Change & GHG Emissions", stakeholder: 4.6, impact: 4.7, priority: "High", greenco: "P1: Energy Efficiency, P3: Renewable Energy, P4: GHG Reduction", description: "Managing GHG emissions through energy efficiency, renewable energy adoption, and carbon reduction initiatives." },
+                { name: "Waste Management & Circular Economy", stakeholder: 4.2, impact: 4.0, priority: "High", greenco: "P5: Waste Management, P6: Material Conservation", description: "Minimizing waste generation, maximizing recycling, and adopting circular economy principles." },
+                { name: "Energy Efficiency", stakeholder: 4.0, impact: 4.3, priority: "High", greenco: "P1: Energy Efficiency", description: "Reducing energy intensity through equipment efficiency, monitoring systems, and continual improvement." },
+                { name: "Product Life Cycle Impact", stakeholder: 3.9, impact: 4.1, priority: "High", greenco: "P8: Product Stewardship & Life Cycle", description: "Conducting Life Cycle Assessments, eco-labeling, and improving product environmental performance." },
+                { name: "Supplier Environmental Performance", stakeholder: 3.8, impact: 3.5, priority: "Medium", greenco: "P7: Green Supply Chain", description: "Assessing and improving environmental performance across the supply chain." },
+                { name: "Renewable Energy Adoption", stakeholder: 3.7, impact: 4.0, priority: "Medium-High", greenco: "P3: Renewable Energy", description: "Increasing use of renewable energy through on-site generation and RE sourcing." },
+                { name: "Biodiversity & Ecosystem Protection", stakeholder: 3.2, impact: 3.8, priority: "Medium", greenco: "P10: Green Infrastructure & Ecology", description: "Protecting and enhancing site ecology, biodiversity, and natural habitats." },
+                { name: "Environmental Innovation", stakeholder: 3.3, impact: 3.4, priority: "Medium", greenco: "P9: Innovation for Environment", description: "Investing in R&D and adopting innovative technologies for environmental improvement." },
+                { name: "Green Buildings & Infrastructure", stakeholder: 3.0, impact: 3.2, priority: "Medium", greenco: "P10: Green Infrastructure & Ecology", description: "Developing green building practices and sustainable infrastructure." }
+            ];
+            
+            saveMaterialityDataToStorage();
+            renderMaterialIssuesTable();
+            alert('Sample material issues loaded successfully!');
+        }
+
+        // Stakeholder Engagement Functions
+        function openStakeholderEngagementModal(index = null) {
+            const modal = document.getElementById('stakeholderModal');
+            const form = document.getElementById('stakeholderForm');
+            form.reset();
+            
+            if (index !== null) {
+                // Editing existing
+                document.getElementById('stakeholderModalTitle').textContent = 'Edit Stakeholder Engagement';
+                document.getElementById('stakeholderIndex').value = index;
+                
+                const engagement = stakeholderEngagements[index];
+                
+                // Try to match stakeholder group to dropdown
+                const groupSelect = document.getElementById('stakeholderGroup');
+                let matched = false;
+                for (let option of groupSelect.options) {
+                    if (option.value === engagement.group) {
+                        groupSelect.value = option.value;
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) {
+                    document.getElementById('stakeholderGroupCustom').value = engagement.group;
+                }
+                
+                document.getElementById('engagementMethod').value = engagement.method;
+                document.getElementById('engagementDate').value = engagement.date;
+                document.getElementById('participants').value = engagement.participants;
+                document.getElementById('keyIssues').value = engagement.issues;
+            } else {
+                // Adding new
+                document.getElementById('stakeholderModalTitle').textContent = 'Add Stakeholder Engagement';
+                document.getElementById('stakeholderIndex').value = '';
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function closeStakeholderModal() {
+            document.getElementById('stakeholderModal').style.display = 'none';
+        }
+
+        function saveStakeholderForm(event) {
+            event.preventDefault();
+            
+            const index = document.getElementById('stakeholderIndex').value;
+            let group = document.getElementById('stakeholderGroup').value;
+            const groupCustom = document.getElementById('stakeholderGroupCustom').value.trim();
+            if (groupCustom) {
+                group = groupCustom;
+            }
+            
+            const method = document.getElementById('engagementMethod').value;
+            const date = document.getElementById('engagementDate').value;
+            const participants = parseInt(document.getElementById('participants').value);
+            const issues = document.getElementById('keyIssues').value;
+            
+            // Format date as "Mon YYYY"
+            const dateObj = new Date(date + '-01');
+            const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            
+            const engagement = {
+                group,
+                method,
+                date: formattedDate,
+                participants,
+                issues
+            };
+            
+            if (index === '') {
+                // Add new
+                stakeholderEngagements.push(engagement);
+            } else {
+                // Update existing
+                stakeholderEngagements[parseInt(index)] = engagement;
+            }
+            
+            saveMaterialityDataToStorage();
+            renderStakeholderEngagementsTable();
+            closeStakeholderModal();
+        }
+
+        function deleteStakeholderEngagement(index) {
+            if (confirm('Are you sure you want to delete this stakeholder engagement?')) {
+                stakeholderEngagements.splice(index, 1);
+                saveMaterialityDataToStorage();
+                renderStakeholderEngagementsTable();
+            }
+        }
+
+        function renderStakeholderEngagementsTable() {
+            const tbody = document.getElementById('stakeholder-engagement-tbody');
+            tbody.innerHTML = '';
+            
+            if (stakeholderEngagements.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #999;">No stakeholder engagements added. Click "Add Stakeholder Engagement" or "Load Sample Data" to get started.</td></tr>';
+                return;
+            }
+            
+            stakeholderEngagements.forEach((engagement, index) => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${engagement.group}</td>
+                    <td>${engagement.method}</td>
+                    <td style="text-align: center;">${engagement.date}</td>
+                    <td style="text-align: center;">${engagement.participants}</td>
+                    <td>${engagement.issues}</td>
+                    <td class="table-actions">
+                        <button class="btn-small btn-edit" onclick="openStakeholderEngagementModal(${index})">Edit</button>
+                        <button class="btn-small" onclick="deleteStakeholderEngagement(${index})" style="background: #ff6b6b; color: white;">Delete</button>
+                    </td>
+                `;
+            });
+        }
+
+        function loadSampleStakeholderEngagements() {
+            if (stakeholderEngagements.length > 0) {
+                if (!confirm('This will replace existing stakeholder engagements. Continue?')) {
+                    return;
+                }
+            }
+            
+            stakeholderEngagements = [
+                { group: "Investors", method: "Survey + Meetings", date: "Sep 2024", participants: 15, issues: "Climate risk, Water usage, ESG transparency" },
+                { group: "Employees", method: "Workshop", date: "Aug 2024", participants: 120, issues: "Waste management, Health & Safety, Working conditions" },
+                { group: "Local Community", method: "Town Hall", date: "Jul 2024", participants: 80, issues: "Water availability, Air quality, Noise pollution" },
+                { group: "Customers", method: "Survey", date: "Oct 2024", participants: 250, issues: "Product sustainability, Sustainable packaging, Eco-labeling" },
+                { group: "Suppliers", method: "Interviews", date: "Sep 2024", participants: 35, issues: "Green procurement, Capacity building, Environmental standards" }
+            ];
+            
+            saveMaterialityDataToStorage();
+            renderStakeholderEngagementsTable();
+            alert('Sample stakeholder engagements loaded successfully!');
+        }
+
+        function saveMaterialityData() {
+            saveMaterialityDataToStorage();
+            alert('Materiality assessment data saved successfully!');
+        }
+
+        function generateMaterialityReport() {
+            // Save current data
+            saveMaterialityDataToStorage();
+            
+            // Prepare data for report
+            const materialityData = {
+                companyName: "Granules India Limited",
+                assessmentPeriod: "FY 2024-25",
+                materialIssues: materialIssues.length > 0 ? materialIssues : getSampleMaterialIssues(),
+                stakeholderEngagements: stakeholderEngagements.length > 0 ? stakeholderEngagements : getSampleStakeholderEngagements()
+            };
+            
+            localStorage.setItem('materialityData', JSON.stringify(materialityData));
+            
+            // Open the materiality report in a new window
+            window.open('materiality_report.html', '_blank');
+        }
+
+        function getSampleMaterialIssues() {
+            return [
+                { name: "Water Scarcity & Conservation", stakeholder: 4.8, impact: 4.5, priority: "High", greenco: "P2: Water Conservation", description: "Addressing water scarcity through conservation practices, rainwater harvesting, and reduction in specific water consumption." },
+                { name: "Climate Change & GHG Emissions", stakeholder: 4.6, impact: 4.7, priority: "High", greenco: "P1: Energy Efficiency, P3: Renewable Energy, P4: GHG Reduction", description: "Managing GHG emissions through energy efficiency, renewable energy adoption, and carbon reduction initiatives." },
+                { name: "Waste Management & Circular Economy", stakeholder: 4.2, impact: 4.0, priority: "High", greenco: "P5: Waste Management, P6: Material Conservation", description: "Minimizing waste generation, maximizing recycling, and adopting circular economy principles." },
+                { name: "Energy Efficiency", stakeholder: 4.0, impact: 4.3, priority: "High", greenco: "P1: Energy Efficiency", description: "Reducing energy intensity through equipment efficiency, monitoring systems, and continual improvement." },
+                { name: "Product Life Cycle Impact", stakeholder: 3.9, impact: 4.1, priority: "High", greenco: "P8: Product Stewardship & Life Cycle", description: "Conducting Life Cycle Assessments, eco-labeling, and improving product environmental performance." },
+                { name: "Supplier Environmental Performance", stakeholder: 3.8, impact: 3.5, priority: "Medium", greenco: "P7: Green Supply Chain", description: "Assessing and improving environmental performance across the supply chain." },
+                { name: "Renewable Energy Adoption", stakeholder: 3.7, impact: 4.0, priority: "Medium-High", greenco: "P3: Renewable Energy", description: "Increasing use of renewable energy through on-site generation and RE sourcing." },
+                { name: "Biodiversity & Ecosystem Protection", stakeholder: 3.2, impact: 3.8, priority: "Medium", greenco: "P10: Green Infrastructure & Ecology", description: "Protecting and enhancing site ecology, biodiversity, and natural habitats." },
+                { name: "Environmental Innovation", stakeholder: 3.3, impact: 3.4, priority: "Medium", greenco: "P9: Innovation for Environment", description: "Investing in R&D and adopting innovative technologies for environmental improvement." },
+                { name: "Green Buildings & Infrastructure", stakeholder: 3.0, impact: 3.2, priority: "Medium", greenco: "P10: Green Infrastructure & Ecology", description: "Developing green building practices and sustainable infrastructure." }
+            ];
+        }
+
+        function getSampleStakeholderEngagements() {
+            return [
+                { group: "Investors", method: "Survey + Meetings", date: "Sep 2024", participants: 15, issues: "Climate risk, Water usage, ESG transparency" },
+                { group: "Employees", method: "Workshop", date: "Aug 2024", participants: 120, issues: "Waste management, Health & Safety, Working conditions" },
+                { group: "Local Community", method: "Town Hall", date: "Jul 2024", participants: 80, issues: "Water availability, Air quality, Noise pollution" },
+                { group: "Customers", method: "Survey", date: "Oct 2024", participants: 250, issues: "Product sustainability, Sustainable packaging, Eco-labeling" },
+                { group: "Suppliers", method: "Interviews", date: "Sep 2024", participants: 35, issues: "Green procurement, Capacity building, Environmental standards" }
+            ];
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const materialModal = document.getElementById('materialIssueModal');
+            const stakeholderModal = document.getElementById('stakeholderModal');
+            if (event.target == materialModal) {
+                closeMaterialIssueModal();
+            } else if (event.target == stakeholderModal) {
+                closeStakeholderModal();
+            }
+        }
+
+        function addMaterialIssue() {
+            openMaterialIssueModal();
+        }
+
+        function addStakeholderEngagement() {
+            openStakeholderEngagementModal();
+        }
+    </script>
+    <!-- Material Issue Modal -->
+    <div id="materialIssueModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 id="materialIssueModalTitle">Add Material Issue</h2>
+                <span class="modal-close" onclick="closeMaterialIssueModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="materialIssueForm" onsubmit="saveMaterialIssueForm(event)">
+                    <input type="hidden" id="materialIssueIndex" value="">
+                    
+                    <div class="form-group">
+                        <label class="form-label required">Material Issue Name</label>
+                        <input type="text" id="issueName" class="form-input" required 
+                               placeholder="e.g., Water Scarcity & Conservation">
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">Stakeholder Score</label>
+                            <input type="number" id="stakeholderScore" class="form-input" 
+                                   min="1" max="5" step="0.1" value="3.0" required>
+                            <input type="range" id="stakeholderScoreSlider" 
+                                   min="1" max="5" step="0.1" value="3.0" 
+                                   oninput="document.getElementById('stakeholderScore').value = this.value"
+                                   style="width: 100%; margin-top: 0.5rem;">
+                            <div class="form-hint">Rate importance to stakeholders (1=Low, 5=High)</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label required">Impact Score</label>
+                            <input type="number" id="impactScore" class="form-input" 
+                                   min="1" max="5" step="0.1" value="3.0" required>
+                            <input type="range" id="impactScoreSlider" 
+                                   min="1" max="5" step="0.1" value="3.0" 
+                                   oninput="document.getElementById('impactScore').value = this.value"
+                                   style="width: 100%; margin-top: 0.5rem;">
+                            <div class="form-hint">Rate environmental/social impact (1=Low, 5=High)</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Priority (Auto-calculated)</label>
+                        <div id="priorityDisplay" style="padding: 0.75rem; background: #e8f5f1; border-radius: 6px; font-weight: 600; color: #2d5f4f;">
+                            Medium
+                        </div>
+                        <div class="form-hint">Priority is High if both scores ≥ 3.5, Medium-High if one score ≥ 4.0, otherwise Medium</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">GreenCo Parameters</label>
+                        <select id="greencoParam" class="form-select" required>
+                            <option value="">Select GreenCo Parameter(s)</option>
+                            <option value="P1: Energy Efficiency">P1: Energy Efficiency</option>
+                            <option value="P2: Water Conservation">P2: Water Conservation</option>
+                            <option value="P3: Renewable Energy">P3: Renewable Energy</option>
+                            <option value="P4: GHG Emission Reduction">P4: GHG Emission Reduction</option>
+                            <option value="P5: Waste Management">P5: Waste Management</option>
+                            <option value="P6: Material Conservation, Recycling & Recyclability">P6: Material Conservation</option>
+                            <option value="P7: Green Supply Chain">P7: Green Supply Chain</option>
+                            <option value="P8: Product Stewardship & Life Cycle Aspects">P8: Product Stewardship</option>
+                            <option value="P9: Innovation for Environment">P9: Innovation for Environment</option>
+                            <option value="P10: Green Infrastructure & Ecology">P10: Green Infrastructure & Ecology</option>
+                            <option value="P1, P3, P4: Energy, RE, GHG">P1, P3, P4: Energy, RE, GHG (Multiple)</option>
+                            <option value="P5, P6: Waste, Materials">P5, P6: Waste, Materials (Multiple)</option>
+                        </select>
+                        <div class="form-hint">Or enter custom mapping</div>
+                        <input type="text" id="greencoParamCustom" class="form-input" 
+                               placeholder="e.g., P1, P3: Energy & RE" style="margin-top: 0.5rem;">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea id="issueDescription" class="form-input" rows="3" 
+                                  placeholder="Brief description of the material issue..."></textarea>
+                    </div>
+
+                    <div class="btn-group" style="margin-top: 1.5rem;">
+                        <button type="submit" class="btn-primary">Save Material Issue</button>
+                        <button type="button" class="btn-secondary" onclick="closeMaterialIssueModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stakeholder Engagement Modal -->
+    <div id="stakeholderModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2 id="stakeholderModalTitle">Add Stakeholder Engagement</h2>
+                <span class="modal-close" onclick="closeStakeholderModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="stakeholderForm" onsubmit="saveStakeholderForm(event)">
+                    <input type="hidden" id="stakeholderIndex" value="">
+                    
+                    <div class="form-group">
+                        <label class="form-label required">Stakeholder Group</label>
+                        <select id="stakeholderGroup" class="form-select" required>
+                            <option value="">Select Stakeholder Group</option>
+                            <option value="Investors">Investors</option>
+                            <option value="Employees">Employees</option>
+                            <option value="Customers">Customers</option>
+                            <option value="Suppliers">Suppliers</option>
+                            <option value="Local Community">Local Community</option>
+                            <option value="Regulators">Regulators</option>
+                            <option value="NGOs">NGOs</option>
+                            <option value="Industry Associations">Industry Associations</option>
+                            <option value="Academic Institutions">Academic Institutions</option>
+                        </select>
+                        <div class="form-hint">Or enter custom group</div>
+                        <input type="text" id="stakeholderGroupCustom" class="form-input" 
+                               placeholder="Custom stakeholder group" style="margin-top: 0.5rem;">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">Engagement Method</label>
+                        <select id="engagementMethod" class="form-select" required>
+                            <option value="">Select Method</option>
+                            <option value="Survey">Survey</option>
+                            <option value="Workshop">Workshop</option>
+                            <option value="Town Hall">Town Hall</option>
+                            <option value="Interviews">Interviews</option>
+                            <option value="Focus Group">Focus Group</option>
+                            <option value="Meetings">Meetings</option>
+                            <option value="Survey + Meetings">Survey + Meetings</option>
+                            <option value="Online Consultation">Online Consultation</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label required">Date Conducted</label>
+                            <input type="month" id="engagementDate" class="form-input" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label required">Number of Participants</label>
+                            <input type="number" id="participants" class="form-input" 
+                                   min="1" required placeholder="e.g., 50">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">Key Issues Raised</label>
+                        <textarea id="keyIssues" class="form-input" rows="3" required
+                                  placeholder="e.g., Climate risk, Water usage, ESG transparency"></textarea>
+                    </div>
+
+                    <div class="btn-group" style="margin-top: 1.5rem;">
+                        <button type="submit" class="btn-primary">Save Stakeholder Engagement</button>
+                        <button type="button" class="btn-secondary" onclick="closeStakeholderModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 3% auto;
+            border-radius: 12px;
+            max-width: 800px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, #2d5f4f 0%, #3d7f6f 100%);
+            color: white;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .modal-close {
+            color: white;
+            font-size: 2rem;
+            font-weight: 300;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #ff6b6b;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: #ddd;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #2d5f4f;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #2d5f4f;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+        }
+    </style>
+
+</body>
+</html>

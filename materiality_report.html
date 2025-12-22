@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materiality Assessment Report - Hertzwave</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d5f4f 0%, #3d7f6f 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #2d5f4f;
+        }
+
+        .btn-primary:hover {
+            background: #e8f5f1;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            background: white;
+            padding: 3rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-radius: 12px;
+        }
+
+        .report-title {
+            text-align: center;
+            color: #2d5f4f;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .report-subtitle {
+            text-align: center;
+            color: #3d7f6f;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .report-meta {
+            text-align: center;
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 3rem;
+            font-style: italic;
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            color: #2d5f4f;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #2d5f4f;
+        }
+
+        .section-subtitle {
+            color: #3d7f6f;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-content {
+            color: #333;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .key-findings {
+            background: #e8f5f1;
+            padding: 1.5rem;
+            border-left: 4px solid #20bf6b;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .key-findings h3 {
+            color: #2d5f4f;
+            margin-bottom: 1rem;
+        }
+
+        .key-findings ul {
+            list-style-position: inside;
+            color: #333;
+        }
+
+        .key-findings li {
+            margin-bottom: 0.5rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: #2d5f4f;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        tr:hover {
+            background: #e8f5f1;
+        }
+
+        .priority-high {
+            background: #ffebee !important;
+            font-weight: 600;
+        }
+
+        .priority-medium-high {
+            background: #fff3e0 !important;
+            font-weight: 600;
+        }
+
+        .priority-medium {
+            background: #e0f7fa !important;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 600px;
+            margin: 2rem 0;
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .chart-caption {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .priority-box {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .priority-card {
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .priority-card h4 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .priority-card ul {
+            list-style-position: inside;
+        }
+
+        .priority-card li {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .priority-1 {
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .priority-1 h4 {
+            color: #ff6b6b;
+        }
+
+        .priority-2 {
+            border-left: 4px solid #ffc107;
+        }
+
+        .priority-2 h4 {
+            color: #ffc107;
+        }
+
+        .priority-3 {
+            border-left: 4px solid #4ecdc4;
+        }
+
+        .priority-3 h4 {
+            color: #4ecdc4;
+        }
+
+        .methodology-box {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .methodology-box h4 {
+            color: #2d5f4f;
+            margin-bottom: 0.75rem;
+        }
+
+        .methodology-box ul {
+            list-style-position: inside;
+        }
+
+        .methodology-box li {
+            margin-bottom: 0.5rem;
+        }
+
+        @media print {
+            .header, .header-actions, .btn {
+                display: none;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 1rem;
+            }
+            
+            .section {
+                page-break-inside: avoid;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .issue-detail {
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #3d7f6f;
+        }
+
+        .issue-detail h4 {
+            color: #2d5f4f;
+            margin-bottom: 0.75rem;
+        }
+
+        .issue-detail .issue-meta {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .issue-detail .issue-meta strong {
+            color: #2d5f4f;
+        }
+
+        .footer {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 3rem;
+            border-top: 2px solid #2d5f4f;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">HERTZWAVE</div>
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="window.print()">🖨️ Print Report</button>
+            <button class="btn btn-primary" onclick="downloadPDF()">📄 Download PDF</button>
+            <a href="greenco_settings.html" class="btn btn-secondary">← Back to Settings</a>
+        </div>
+    </div>
+
+    <div class="container" id="report-content">
+        <!-- Title Page -->
+        <h1 class="report-title">Materiality Assessment Report</h1>
+        <h2 class="report-subtitle">GreenCo Rating System - Version 3</h2>
+        <p class="report-meta">
+            <strong id="company-name">Granules India Limited</strong><br>
+            Assessment Period: <span id="assessment-period">FY 2024-25</span><br>
+            Report Date: <span id="report-date"></span>
+        </p>
+
+        <!-- Executive Summary -->
+        <section class="section">
+            <h2 class="section-title">1. Executive Summary</h2>
+            <p class="section-content">
+                This materiality assessment identifies and prioritizes environmental and social issues that are most significant 
+                to <span id="company-name-2">Granules India Limited</span> and its stakeholders. The assessment aligns with the 
+                CII GreenCo Rating System Version 3 framework and supports strategic decision-making for sustainability initiatives.
+            </p>
+            
+            <div class="key-findings">
+                <h3>Key Findings</h3>
+                <ul id="key-findings-list">
+                    <li><span id="total-issues">10</span> material ESG issues identified through comprehensive stakeholder engagement</li>
+                    <li><span id="total-stakeholders">5</span> stakeholder groups consulted (<span id="total-participants">500+</span> participants total)</li>
+                    <li><span id="high-priority-count">5</span> high-priority issues requiring immediate strategic focus</li>
+                    <li>All material issues mapped to GreenCo V3 parameters for action planning</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Methodology -->
+        <section class="section">
+            <h2 class="section-title">2. Methodology</h2>
+            <p class="section-content">
+                The materiality assessment followed a structured approach combining stakeholder consultation and impact analysis:
+            </p>
+
+            <div class="methodology-box">
+                <h4>2.1 Materiality Matrix Framework</h4>
+                <ul>
+                    <li><strong>X-Axis:</strong> Importance to Stakeholders (1-5 scale)</li>
+                    <li><strong>Y-Axis:</strong> Environmental/Social Impact (1-5 scale)</li>
+                    <li><strong>Threshold:</strong> Issues scoring ≥3.5 on both axes classified as High Priority</li>
+                </ul>
+            </div>
+
+            <div class="methodology-box">
+                <h4>2.2 Stakeholder Engagement Process</h4>
+                <p>
+                    Engagement conducted during July-October 2024 using multiple methods including surveys, workshops, 
+                    town halls, and structured interviews to ensure comprehensive input from all stakeholder groups.
+                </p>
+            </div>
+        </section>
+
+        <!-- Stakeholder Engagement -->
+        <section class="section">
+            <h2 class="section-title">3. Stakeholder Engagement</h2>
+            <p class="section-content">
+                The following table summarizes stakeholder consultations conducted:
+            </p>
+
+            <div class="table-container">
+                <table id="stakeholder-table">
+                    <thead>
+                        <tr>
+                            <th>Stakeholder Group</th>
+                            <th>Engagement Method</th>
+                            <th>Date</th>
+                            <th>Participants</th>
+                            <th>Key Issues Raised</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stakeholder-tbody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Material Issues -->
+        <section class="section">
+            <h2 class="section-title">4. Material Issues Identified</h2>
+            <p class="section-content">
+                The following table lists all material issues identified, along with their scores and GreenCo parameter mapping:
+            </p>
+
+            <div class="table-container">
+                <table id="material-issues-table">
+                    <thead>
+                        <tr>
+                            <th>Material Issue</th>
+                            <th>Stakeholder Score</th>
+                            <th>Impact Score</th>
+                            <th>Priority</th>
+                            <th>GreenCo Parameters</th>
+                        </tr>
+                    </thead>
+                    <tbody id="material-issues-tbody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Materiality Matrix Chart -->
+        <section class="section">
+            <h2 class="section-title">5. Materiality Matrix</h2>
+            <p class="section-content">
+                The following matrix visualizes the prioritization of material issues based on stakeholder importance and environmental/social impact:
+            </p>
+
+            <div class="chart-container">
+                <canvas id="materiality-chart"></canvas>
+            </div>
+            <p class="chart-caption">
+                Figure 1: Materiality Matrix showing distribution of material issues across priority quadrants
+            </p>
+        </section>
+
+        <!-- Strategic Priorities -->
+        <section class="section">
+            <h2 class="section-title">6. Strategic Priorities & Recommendations</h2>
+            <p class="section-content">
+                Based on the materiality assessment, the following strategic priorities are recommended for GreenCo improvement initiatives:
+            </p>
+
+            <div class="priority-box">
+                <div class="priority-card priority-1">
+                    <h4>🔴 Priority 1: Immediate Strategic Focus</h4>
+                    <ul id="priority-1-list">
+                        <!-- Populated by JavaScript -->
+                    </ul>
+                </div>
+
+                <div class="priority-card priority-2">
+                    <h4>🟡 Priority 2: Near-Term Focus</h4>
+                    <ul id="priority-2-list">
+                        <!-- Populated by JavaScript -->
+                    </ul>
+                </div>
+
+                <div class="priority-card priority-3">
+                    <h4>🟢 Priority 3: Ongoing Monitoring</h4>
+                    <ul id="priority-3-list">
+                        <!-- Populated by JavaScript -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Detailed Descriptions -->
+        <section class="section">
+            <h2 class="section-title">7. Material Issues - Detailed Descriptions</h2>
+            <div id="issue-details-container">
+                <!-- Populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Conclusion -->
+        <section class="section">
+            <h2 class="section-title">8. Conclusion</h2>
+            <p class="section-content">
+                This materiality assessment provides a strategic framework for prioritizing GreenCo improvement initiatives 
+                based on stakeholder input and impact analysis. The clear mapping to GreenCo V3 parameters enables focused 
+                action planning and resource allocation.
+            </p>
+            <p class="section-content">
+                <strong>Key recommendations include:</strong>
+            </p>
+            <ul style="margin-left: 2rem; margin-bottom: 1rem;">
+                <li>Focus resources on high-priority issues in the short term</li>
+                <li>Develop comprehensive action plans for prioritized GreenCo parameters</li>
+                <li>Maintain ongoing stakeholder engagement to update materiality annually</li>
+                <li>Integrate materiality findings into BRSR reporting and ESG strategy</li>
+            </ul>
+        </section>
+
+        <div class="footer">
+            <p>End of Report</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+                Generated by Hertzwave Carbon Accounting Platform (HWCAP)
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Data structure - this will be loaded from localStorage or passed from settings page
+        let materialityData = {
+            companyName: "Granules India Limited",
+            assessmentPeriod: "FY 2024-25",
+            materialIssues: [
+                { name: "Water Scarcity & Conservation", stakeholder: 4.8, impact: 4.5, priority: "High", greenco: "P2: Water Conservation", description: "Addressing water scarcity through conservation practices, rainwater harvesting, and reduction in specific water consumption." },
+                { name: "Climate Change & GHG Emissions", stakeholder: 4.6, impact: 4.7, priority: "High", greenco: "P1: Energy Efficiency, P3: Renewable Energy, P4: GHG Reduction", description: "Managing GHG emissions through energy efficiency, renewable energy adoption, and carbon reduction initiatives." },
+                { name: "Waste Management & Circular Economy", stakeholder: 4.2, impact: 4.0, priority: "High", greenco: "P5: Waste Management, P6: Material Conservation", description: "Minimizing waste generation, maximizing recycling, and adopting circular economy principles." },
+                { name: "Energy Efficiency", stakeholder: 4.0, impact: 4.3, priority: "High", greenco: "P1: Energy Efficiency", description: "Reducing energy intensity through equipment efficiency, monitoring systems, and continual improvement." },
+                { name: "Product Life Cycle Impact", stakeholder: 3.9, impact: 4.1, priority: "High", greenco: "P8: Product Stewardship & Life Cycle", description: "Conducting Life Cycle Assessments, eco-labeling, and improving product environmental performance." },
+                { name: "Supplier Environmental Performance", stakeholder: 3.8, impact: 3.5, priority: "Medium", greenco: "P7: Green Supply Chain", description: "Assessing and improving environmental performance across the supply chain." },
+                { name: "Renewable Energy Adoption", stakeholder: 3.7, impact: 4.0, priority: "Medium-High", greenco: "P3: Renewable Energy", description: "Increasing use of renewable energy through on-site generation and RE sourcing." },
+                { name: "Biodiversity & Ecosystem Protection", stakeholder: 3.2, impact: 3.8, priority: "Medium", greenco: "P10: Green Infrastructure & Ecology", description: "Protecting and enhancing site ecology, biodiversity, and natural habitats." },
+                { name: "Environmental Innovation", stakeholder: 3.3, impact: 3.4, priority: "Medium", greenco: "P9: Innovation for Environment", description: "Investing in R&D and adopting innovative technologies for environmental improvement." },
+                { name: "Green Buildings & Infrastructure", stakeholder: 3.0, impact: 3.2, priority: "Medium", greenco: "P10: Green Infrastructure & Ecology", description: "Developing green building practices and sustainable infrastructure." }
+            ],
+            stakeholderEngagements: [
+                { group: "Investors", method: "Survey + Meetings", date: "Sep 2024", participants: 15, issues: "Climate risk, Water usage, ESG transparency" },
+                { group: "Employees", method: "Workshop", date: "Aug 2024", participants: 120, issues: "Waste management, Health & Safety, Working conditions" },
+                { group: "Local Community", method: "Town Hall", date: "Jul 2024", participants: 80, issues: "Water availability, Air quality, Noise pollution" },
+                { group: "Customers", method: "Survey", date: "Oct 2024", participants: 250, issues: "Product sustainability, Sustainable packaging, Eco-labeling" },
+                { group: "Suppliers", method: "Interviews", date: "Sep 2024", participants: 35, issues: "Green procurement, Capacity building, Environmental standards" }
+            ]
+        };
+
+        // Load data from localStorage if available (passed from settings page)
+        function loadMaterialityData() {
+            const storedData = localStorage.getItem('materialityData');
+            if (storedData) {
+                try {
+                    materialityData = JSON.parse(storedData);
+                } catch (e) {
+                    console.error('Error parsing materiality data:', e);
+                }
+            }
+        }
+
+        // Initialize the report
+        function initializeReport() {
+            loadMaterialityData();
+            
+            // Set report date
+            const today = new Date();
+            document.getElementById('report-date').textContent = today.toLocaleDateString('en-US', { 
+                year: 'numeric', month: 'long', day: 'numeric' 
+            });
+
+            // Set company name
+            document.getElementById('company-name').textContent = materialityData.companyName;
+            document.getElementById('company-name-2').textContent = materialityData.companyName;
+            document.getElementById('assessment-period').textContent = materialityData.assessmentPeriod;
+
+            // Calculate statistics
+            const totalIssues = materialityData.materialIssues.length;
+            const highPriorityCount = materialityData.materialIssues.filter(i => i.priority === "High").length;
+            const totalStakeholders = materialityData.stakeholderEngagements.length;
+            const totalParticipants = materialityData.stakeholderEngagements.reduce((sum, se) => sum + se.participants, 0);
+
+            document.getElementById('total-issues').textContent = totalIssues;
+            document.getElementById('high-priority-count').textContent = highPriorityCount;
+            document.getElementById('total-stakeholders').textContent = totalStakeholders;
+            document.getElementById('total-participants').textContent = totalParticipants + '+';
+
+            // Populate tables
+            populateStakeholderTable();
+            populateMaterialIssuesTable();
+            populatePriorityLists();
+            populateIssueDetails();
+
+            // Generate chart
+            generateMaterialityChart();
+        }
+
+        // Populate stakeholder engagement table
+        function populateStakeholderTable() {
+            const tbody = document.getElementById('stakeholder-tbody');
+            tbody.innerHTML = '';
+
+            materialityData.stakeholderEngagements.forEach(se => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${se.group}</td>
+                    <td>${se.method}</td>
+                    <td>${se.date}</td>
+                    <td style="text-align: center;">${se.participants}</td>
+                    <td>${se.issues}</td>
+                `;
+            });
+        }
+
+        // Populate material issues table
+        function populateMaterialIssuesTable() {
+            const tbody = document.getElementById('material-issues-tbody');
+            tbody.innerHTML = '';
+
+            materialityData.materialIssues.forEach(issue => {
+                const row = tbody.insertRow();
+                const priorityClass = issue.priority === "High" ? "priority-high" : 
+                                     issue.priority === "Medium-High" ? "priority-medium-high" : 
+                                     "priority-medium";
+                
+                row.innerHTML = `
+                    <td>${issue.name}</td>
+                    <td style="text-align: center;">${issue.stakeholder.toFixed(1)}</td>
+                    <td style="text-align: center;">${issue.impact.toFixed(1)}</td>
+                    <td class="${priorityClass}" style="text-align: center; font-weight: 600;">${issue.priority}</td>
+                    <td>${issue.greenco}</td>
+                `;
+            });
+        }
+
+        // Populate priority lists
+        function populatePriorityLists() {
+            const priority1 = document.getElementById('priority-1-list');
+            const priority2 = document.getElementById('priority-2-list');
+            const priority3 = document.getElementById('priority-3-list');
+
+            priority1.innerHTML = '';
+            priority2.innerHTML = '';
+            priority3.innerHTML = '';
+
+            materialityData.materialIssues.forEach(issue => {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${issue.name}</strong> → ${issue.greenco}`;
+                
+                if (issue.priority === "High") {
+                    priority1.appendChild(li);
+                } else if (issue.priority === "Medium-High") {
+                    priority2.appendChild(li);
+                } else {
+                    priority3.appendChild(li);
+                }
+            });
+        }
+
+        // Populate detailed issue descriptions
+        function populateIssueDetails() {
+            const container = document.getElementById('issue-details-container');
+            container.innerHTML = '';
+
+            materialityData.materialIssues.forEach(issue => {
+                const div = document.createElement('div');
+                div.className = 'issue-detail';
+                div.innerHTML = `
+                    <h4>${issue.name}</h4>
+                    <div class="issue-meta">
+                        <strong>Priority:</strong> ${issue.priority} | 
+                        <strong>Stakeholder Score:</strong> ${issue.stakeholder.toFixed(1)} | 
+                        <strong>Impact Score:</strong> ${issue.impact.toFixed(1)}
+                    </div>
+                    <div class="issue-meta">
+                        <strong>GreenCo Mapping:</strong> ${issue.greenco}
+                    </div>
+                    <p>${issue.description}</p>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Generate materiality matrix chart using Chart.js
+        function generateMaterialityChart() {
+            const ctx = document.getElementById('materiality-chart').getContext('2d');
+            
+            // Prepare data for scatter plot
+            const datasets = [];
+            
+            // Group by priority
+            const priorities = {
+                'High': { color: 'rgba(255, 107, 107, 0.7)', borderColor: 'rgba(255, 107, 107, 1)', data: [] },
+                'Medium-High': { color: 'rgba(255, 193, 7, 0.7)', borderColor: 'rgba(255, 193, 7, 1)', data: [] },
+                'Medium': { color: 'rgba(78, 205, 196, 0.7)', borderColor: 'rgba(78, 205, 196, 1)', data: [] }
+            };
+
+            materialityData.materialIssues.forEach(issue => {
+                const priority = issue.priority;
+                if (priorities[priority]) {
+                    priorities[priority].data.push({
+                        x: issue.stakeholder,
+                        y: issue.impact,
+                        label: issue.name
+                    });
+                }
+            });
+
+            // Create datasets
+            Object.keys(priorities).forEach(priority => {
+                if (priorities[priority].data.length > 0) {
+                    datasets.push({
+                        label: priority + ' Priority',
+                        data: priorities[priority].data,
+                        backgroundColor: priorities[priority].color,
+                        borderColor: priorities[priority].borderColor,
+                        borderWidth: 2,
+                        pointRadius: 8,
+                        pointHoverRadius: 10
+                    });
+                }
+            });
+
+            // Create the chart
+            new Chart(ctx, {
+                type: 'scatter',
+                data: { datasets: datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Materiality Matrix - ' + materialityData.companyName,
+                            font: { size: 18, weight: 'bold' },
+                            color: '#2d5f4f'
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: { font: { size: 12 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const point = context.raw;
+                                    return [
+                                        point.label,
+                                        'Stakeholder: ' + point.x.toFixed(1),
+                                        'Impact: ' + point.y.toFixed(1)
+                                    ];
+                                }
+                            }
+                        },
+                        annotation: {
+                            annotations: {
+                                thresholdX: {
+                                    type: 'line',
+                                    xMin: 3.5,
+                                    xMax: 3.5,
+                                    borderColor: 'rgba(0, 0, 0, 0.3)',
+                                    borderWidth: 2,
+                                    borderDash: [5, 5],
+                                    label: {
+                                        content: 'Threshold',
+                                        enabled: true,
+                                        position: 'end'
+                                    }
+                                },
+                                thresholdY: {
+                                    type: 'line',
+                                    yMin: 3.5,
+                                    yMax: 3.5,
+                                    borderColor: 'rgba(0, 0, 0, 0.3)',
+                                    borderWidth: 2,
+                                    borderDash: [5, 5]
+                                },
+                                quadrant1: {
+                                    type: 'label',
+                                    xValue: 4.5,
+                                    yValue: 4.8,
+                                    content: ['PRIORITIZE'],
+                                    font: { size: 14, weight: 'bold' },
+                                    color: '#2d5f4f'
+                                },
+                                quadrant2: {
+                                    type: 'label',
+                                    xValue: 1.75,
+                                    yValue: 4.8,
+                                    content: ['Monitor'],
+                                    font: { size: 12 },
+                                    color: '#999999'
+                                },
+                                quadrant3: {
+                                    type: 'label',
+                                    xValue: 1.75,
+                                    yValue: 1.5,
+                                    content: ['Low Priority'],
+                                    font: { size: 12 },
+                                    color: '#999999'
+                                },
+                                quadrant4: {
+                                    type: 'label',
+                                    xValue: 4.5,
+                                    yValue: 1.5,
+                                    content: ['Engage'],
+                                    font: { size: 12 },
+                                    color: '#666666'
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Importance to Stakeholders →',
+                                font: { size: 14, weight: 'bold' },
+                                color: '#2d5f4f'
+                            },
+                            min: 0,
+                            max: 5.2,
+                            ticks: {
+                                stepSize: 0.5,
+                                callback: function(value) {
+                                    if (value === 0) return '0\nLow';
+                                    if (value === 3.5) return '3.5\nThreshold';
+                                    if (value === 5) return '5\nHigh';
+                                    return value;
+                                }
+                            },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Environmental / Social Impact →',
+                                font: { size: 14, weight: 'bold' },
+                                color: '#2d5f4f'
+                            },
+                            min: 0,
+                            max: 5.2,
+                            ticks: {
+                                stepSize: 0.5,
+                                callback: function(value) {
+                                    if (value === 0) return '0 Low';
+                                    if (value === 3.5) return '3.5 Threshold';
+                                    if (value === 5) return '5 High';
+                                    return value;
+                                }
+                            },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Download as PDF
+        function downloadPDF() {
+            const element = document.getElementById('report-content');
+            const opt = {
+                margin: 0.5,
+                filename: 'Materiality_Assessment_Report_' + materialityData.companyName.replace(/\s+/g, '_') + '.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, logging: false },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', initializeReport);
+    </script>
+</body>
+</html>
