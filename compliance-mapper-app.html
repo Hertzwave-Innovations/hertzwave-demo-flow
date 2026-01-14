@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporting Studio - Hertzwave</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d5f4f 0%, #3d7f6f 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+        }
+
+        .user-info {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            display: flex;
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+        }
+
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            padding: 2rem 0;
+            position: fixed;
+            left: 0;
+            top: 70px;
+            bottom: 0;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #f5f5f5;
+        }
+
+        .nav-item.active {
+            background: #e8f5f1;
+            border-left-color: #3d7f6f;
+            color: #2d5f4f;
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding-top: 220px;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .progress-section {
+            position: fixed;
+            top: 70px;
+            left: 250px;
+            right: 0;
+            background: white;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 50;
+        }
+
+        .page-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header h1 {
+            color: #2d5f4f;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+            position: relative;
+        }
+
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #e0e0e0;
+            margin: 0 auto 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #999;
+            transition: all 0.3s;
+        }
+
+        .step.active .step-circle {
+            background: #3d7f6f;
+            border-color: #3d7f6f;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .step.completed .step-circle {
+            background: #4caf50;
+            border-color: #4caf50;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .step.active .step-label {
+            color: #2d5f4f;
+            font-weight: 600;
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2d5f4f;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #3d7f6f;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2d5f4f;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #45a049;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 4px;
+        }
+
+        .framework-details {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .detail-value {
+            color: #333;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .badge-mandatory {
+            background: #ff5722;
+            color: white;
+        }
+
+        .badge-info {
+            background: #2196f3;
+            color: white;
+        }
+
+        .badge-warning {
+            background: #ff9800;
+            color: white;
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3d7f6f;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+
+        .indicator-list {
+            margin-top: 1rem;
+        }
+
+        .indicator-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .indicator-item:hover {
+            border-color: #3d7f6f;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .validation-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+        }
+
+        .validation-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .validation-icon.success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .validation-icon.warning {
+            background: #ff9800;
+            color: white;
+        }
+
+        .preview-section {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 2rem;
+            min-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">HERTZWAVE</div>
+        <div class="user-info">Kamesh Srinivasan | ACME Corp</div>
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="nav-item active">📊 Reporting Studio</div>
+            <div class="nav-item">📋 Framework Details</div>
+            <div class="nav-item">📈 Dashboard</div>
+            <div class="nav-item">⚙️ Settings</div>
+        </div>
+
+        <div class="progress-section">
+            <div class="page-header">
+                <h1 id="step-title">Select Framework</h1>
+                <p id="step-description">Choose your reporting framework to begin</p>
+            </div>
+            <div class="step-indicator">
+                <div class="step active" onclick="goToStep(1)">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">Select Framework</div>
+                </div>
+                <div class="step" onclick="goToStep(2)">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">Configure & Fill</div>
+                </div>
+                <div class="step" onclick="goToStep(3)">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">Review & Validate</div>
+                </div>
+                <div class="step" onclick="goToStep(4)">
+                    <div class="step-circle">4</div>
+                    <div class="step-label">Preview Report</div>
+                </div>
+                <div class="step" onclick="goToStep(5)">
+                    <div class="step-circle">5</div>
+                    <div class="step-label">Export & Download</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Step 1: Select Framework -->
+            <div id="step1" class="content-section active">
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1.5rem;">Choose Reporting Framework</h2>
+                    
+                    <div class="form-group">
+                        <label>Select Reporting Framework</label>
+                        <select id="framework-select" onchange="updateFrameworkDetails()">
+                            <option value="">-- Select Framework --</option>
+                            <optgroup label="✓ Supported Frameworks">
+                                <option value="BRSR">SEBI BRSR & BRSR Core</option>
+                                <option value="GreenCo">GreenCo Rating System</option>
+                            </optgroup>
+                            <optgroup label="🔄 In Progress">
+                                <option value="GRI">GRI Standards</option>
+                                <option value="CBAM">EU CBAM</option>
+                                <option value="ISSB">ISSB S2 Climate</option>
+                                <option value="CSRD">EU CSRD/ESRS E1</option>
+                                <option value="CDP">CDP Climate Change 2025</option>
+                                <option value="UKSECR">UK SECR</option>
+                                <option value="HKEX">Hong Kong HKEX Climate</option>
+                                <option value="GRESB">GRESB Real Estate</option>
+                            </optgroup>
+                            <optgroup label="📋 Optional Frameworks">
+                                <option value="TCFD">TCFD Recommendations</option>
+                                <option value="SBTi">Science Based Targets</option>
+                                <option value="ISO14064">ISO 14064</option>
+                                <option value="SASB">SASB Standards</option>
+                                <option value="SEC">SEC Climate Disclosure</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div id="framework-details" class="framework-details"></div>
+
+                    <div class="form-group" style="margin-top: 2rem;">
+                        <label>Reporting Period</label>
+                        <select>
+                            <option>FY 2024-25</option>
+                            <option>FY 2023-24</option>
+                            <option>Calendar Year 2024</option>
+                            <option>Calendar Year 2023</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="goToStep(2)">Next: Configure Data →</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Configure & Fill Data -->
+            <div id="step2" class="content-section">
+                <div class="info-box">
+                    <strong>💡 Auto-Population Active:</strong> HWCAP has automatically populated data from your existing records. Review and complete remaining fields below.
+                </div>
+
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1rem;">Selected Framework: <span id="selected-framework-name">BRSR</span></h2>
+                    <p style="color: #666; margin-bottom: 1.5rem;">Complete the indicators below. Auto-filled data can be edited if needed.</p>
+                    
+                    <div id="framework-indicators"></div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(1)">← Back</button>
+                    <button class="btn btn-primary" onclick="goToStep(3)">Next: Review & Validate →</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Review & Validate -->
+            <div id="step3" class="content-section">
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1.5rem;">Validation Results</h2>
+                    
+                    <div class="validation-item">
+                        <div class="validation-icon success">✓</div>
+                        <div style="flex: 1;">
+                            <strong>Data Completeness Check</strong>
+                            <div style="font-size: 0.85rem; color: #666;">All mandatory fields completed</div>
+                        </div>
+                    </div>
+
+                    <div class="validation-item">
+                        <div class="validation-icon success">✓</div>
+                        <div style="flex: 1;">
+                            <strong>Emission Factor Validation</strong>
+                            <div style="font-size: 0.85rem; color: #666;">All emission factors within acceptable ranges</div>
+                        </div>
+                    </div>
+
+                    <div class="validation-item">
+                        <div class="validation-icon warning">⚠</div>
+                        <div style="flex: 1;">
+                            <strong>Year-over-Year Variance</strong>
+                            <div style="font-size: 0.85rem; color: #666;">Scope 1 emissions increased 22% - explanation recommended</div>
+                        </div>
+                    </div>
+
+                    <div class="validation-item">
+                        <div class="validation-icon success">✓</div>
+                        <div style="flex: 1;">
+                            <strong>Industry Benchmark Comparison</strong>
+                            <div style="font-size: 0.85rem; color: #666;">Emissions intensity within sector average</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(2)">← Back</button>
+                    <button class="btn btn-primary" onclick="goToStep(4)">Next: Preview Report →</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Preview Report -->
+            <div id="step4" class="content-section">
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1.5rem;">Report Preview</h2>
+                    
+                    <div class="preview-section">
+                        <h3 style="text-align: center; color: #2d5f4f; margin-bottom: 2rem;">
+                            BUSINESS RESPONSIBILITY AND SUSTAINABILITY REPORT<br>
+                            <span style="font-size: 1rem; font-weight: 400;">Financial Year 2024-25</span>
+                        </h3>
+                        
+                        <div style="border: 1px solid #ddd; padding: 2rem; border-radius: 6px; margin-top: 2rem;">
+                            <h4 style="color: #2d5f4f; margin-bottom: 1rem;">Section A: General Disclosures</h4>
+                            <p style="line-height: 1.8; color: #555;">
+                                This section contains the general information about the company including corporate identity, 
+                                details of the business activities, particulars of holding, subsidiary and associate companies 
+                                (including joint ventures), CSR details, transparency and disclosures compliances...
+                            </p>
+                        </div>
+
+                        <div style="border: 1px solid #ddd; padding: 2rem; border-radius: 6px; margin-top: 1rem;">
+                            <h4 style="color: #2d5f4f; margin-bottom: 1rem;">Section C: Principle-wise Performance</h4>
+                            <p style="line-height: 1.8; color: #555;">
+                                <strong>Principle 6: Environment</strong><br>
+                                Total Scope 1 Emissions: 12,450 tCO2e<br>
+                                Total Scope 2 Emissions: 8,760 tCO2e<br>
+                                Carbon Intensity: 2.3 tCO2e per unit revenue...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(3)">← Back</button>
+                    <button class="btn btn-primary" onclick="goToStep(5)">Next: Export Options →</button>
+                </div>
+            </div>
+
+            <!-- Step 5: Export & Download -->
+            <div id="step5" class="content-section">
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1.5rem;">Select Export Formats</h2>
+                    
+                    <div class="form-group">
+                        <div style="margin-bottom: 0.5rem;">
+                            <input type="checkbox" id="pdf" checked> <label for="pdf" style="display: inline; font-weight: 400;">PDF Report (Publication-ready)</label>
+                        </div>
+                        <div style="margin-bottom: 0.5rem;">
+                            <input type="checkbox" id="excel" checked> <label for="excel" style="display: inline; font-weight: 400;">Excel Workbook (Editable data)</label>
+                        </div>
+                        <div style="margin-bottom: 0.5rem;">
+                            <input type="checkbox" id="csv"> <label for="csv" style="display: inline; font-weight: 400;">CSV Data (Raw format)</label>
+                        </div>
+                        <div style="margin-bottom: 0.5rem;">
+                            <input type="checkbox" id="json"> <label for="json" style="display: inline; font-weight: 400;">JSON/API (Machine-readable)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h2 style="color: #2d5f4f; margin-bottom: 1.5rem;">Delivery Options</h2>
+                    
+                    <div class="form-group">
+                        <label>Email Report To</label>
+                        <input type="email" value="kamesh@acme-corp.com, sustainability@acme-corp.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Cloud Storage Location</label>
+                        <select>
+                            <option selected>Hertzwave Secure Vault</option>
+                            <option>Google Drive</option>
+                            <option>Microsoft SharePoint</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="goToStep(4)">← Back</button>
+                    <button class="btn btn-success" onclick="generateReport()">🚀 Generate Report</button>
+                </div>
+
+                <!-- Download Section (hidden initially) -->
+                <div id="download-section" style="display: none; margin-top: 2rem;">
+                    <div class="success-box">
+                        <strong>✓ Reports Generated Successfully!</strong><br>
+                        Your reports are ready for download below.
+                    </div>
+                    
+                    <div class="content-card">
+                        <div style="padding: 1rem; background: #f9f9f9; margin-bottom: 1rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: #2d5f4f;">BRSR_2024-25_Full_Report.pdf</strong>
+                                <div style="font-size: 0.85rem; color: #666;">42 pages • 2.4 MB</div>
+                            </div>
+                            <button class="btn btn-primary btn-sm">Download</button>
+                        </div>
+                        <div style="padding: 1rem; background: #f9f9f9; margin-bottom: 1rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: #2d5f4f;">BRSR_2024-25_Data_Workbook.xlsx</strong>
+                                <div style="font-size: 0.85rem; color: #666;">5 sheets • 856 KB</div>
+                            </div>
+                            <button class="btn btn-primary btn-sm">Download</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let selectedFramework = 'BRSR';
+        
+        const frameworkIndicators = {
+            'BRSR': {
+                stats: { total: 178, autoFilled: 119, remaining: 59 },
+                indicators: [
+                    { code: 'A1', name: 'Corporate Identity', category: 'General Disclosures', status: 'complete', type: 'essential', data: 'ACME Corporation Ltd. | CIN: L12345MH2015PLC123456', editable: true },
+                    { code: 'A2', name: 'Products and Services', category: 'General Disclosures', status: 'complete', type: 'essential', data: 'Manufacturing of automotive components', editable: true },
+                    { code: 'B1', name: 'ESG Policy', category: 'Management', status: 'complete', type: 'leadership', data: 'Board-approved ESG Policy dated March 2024', editable: true },
+                    { code: 'C.P6.1', name: 'Total Scope 1 Emissions (tCO2e)', category: 'Principle 6: Environment', status: 'complete', type: 'essential', data: '12,450 tCO2e', editable: true },
+                    { code: 'C.P6.2', name: 'Total Scope 2 Emissions (tCO2e)', category: 'Principle 6: Environment', status: 'complete', type: 'essential', data: '8,760 tCO2e', editable: true },
+                    { code: 'C.P6.3', name: 'Total Scope 3 Emissions (tCO2e)', category: 'Principle 6: Environment', status: 'pending', type: 'leadership', data: '', editable: true },
+                    { code: 'C.P6.4', name: 'GHG Intensity (tCO2e/₹Cr revenue)', category: 'Principle 6: Environment', status: 'calculated', type: 'essential', data: '2.3 tCO2e/₹Cr', editable: false },
+                    { code: 'C.P6.5', name: 'Water Consumption (KL)', category: 'Principle 6: Environment', status: 'complete', type: 'leadership', data: '145,000 KL', editable: true }
+                ]
+            },
+            'GRI': {
+                stats: { total: 400, autoFilled: 42, remaining: 358 },
+                indicators: [
+                    { code: 'GRI 2-1', name: 'Organizational Details', category: 'General Disclosures', status: 'complete', type: 'required', data: 'ACME Corporation Ltd., Registered in India', editable: true },
+                    { code: 'GRI 2-6', name: 'Activities, Value Chain', category: 'General Disclosures', status: 'complete', type: 'required', data: 'Automotive component manufacturing', editable: true },
+                    { code: 'GRI 305-1', name: 'Direct (Scope 1) GHG Emissions', category: 'Environmental', status: 'complete', type: 'required', data: '12,450 tCO2e', editable: true },
+                    { code: 'GRI 305-2', name: 'Energy Indirect (Scope 2) GHG Emissions', category: 'Environmental', status: 'complete', type: 'required', data: '8,760 tCO2e', editable: true },
+                    { code: 'GRI 305-3', name: 'Other Indirect (Scope 3) GHG Emissions', category: 'Environmental', status: 'pending', type: 'required', data: '', editable: true },
+                    { code: 'GRI 305-4', name: 'GHG Emissions Intensity', category: 'Environmental', status: 'calculated', type: 'required', data: '0.023 tCO2e per unit revenue', editable: false },
+                    { code: 'GRI 303-5', name: 'Water Consumption', category: 'Environmental', status: 'complete', type: 'required', data: '145,000 cubic meters', editable: true },
+                    { code: 'GRI 306-3', name: 'Waste Generated', category: 'Environmental', status: 'pending', type: 'required', data: '', editable: true }
+                ]
+            },
+            'CBAM': {
+                stats: { total: 48, autoFilled: 12, remaining: 36 },
+                indicators: [
+                    { code: 'CBAM-1', name: 'Installation Identification', category: 'Basic Information', status: 'pending', type: 'mandatory', data: '', editable: true },
+                    { code: 'CBAM-2', name: 'Production Process Description', category: 'Basic Information', status: 'pending', type: 'mandatory', data: '', editable: true },
+                    { code: 'CBAM-3', name: 'Direct Emissions - Process', category: 'Scope 1', status: 'pending', type: 'mandatory', data: '', editable: true },
+                    { code: 'CBAM-4', name: 'Direct Emissions - Combustion', category: 'Scope 1', status: 'complete', type: 'mandatory', data: '8,200 tCO2e', editable: true },
+                    { code: 'CBAM-5', name: 'Indirect Emissions - Electricity', category: 'Scope 2', status: 'complete', type: 'mandatory', data: '6,340 tCO2e', editable: true },
+                    { code: 'CBAM-6', name: 'Precursor Materials Emissions', category: 'Input Materials', status: 'pending', type: 'mandatory', data: '', editable: true },
+                    { code: 'CBAM-7', name: 'Product-Specific Emissions (tCO2e/ton)', category: 'Product Level', status: 'calculated', type: 'mandatory', data: '', editable: false },
+                    { code: 'CBAM-8', name: 'Carbon Price Already Paid', category: 'Adjustments', status: 'pending', type: 'optional', data: '', editable: true }
+                ]
+            },
+            'ISSB': {
+                stats: { total: 64, autoFilled: 28, remaining: 36 },
+                indicators: [
+                    { code: 'ISSB-G1', name: 'Climate Governance Structure', category: 'Governance', status: 'complete', type: 'required', data: 'Board ESG Committee established', editable: true },
+                    { code: 'ISSB-G2', name: 'Management Role in Climate Oversight', category: 'Governance', status: 'complete', type: 'required', data: 'CSO reports to CEO quarterly', editable: true },
+                    { code: 'ISSB-S1', name: 'Climate-Related Risks Identified', category: 'Strategy', status: 'pending', type: 'required', data: '', editable: true },
+                    { code: 'ISSB-S2', name: 'Climate-Related Opportunities', category: 'Strategy', status: 'pending', type: 'required', data: '', editable: true },
+                    { code: 'ISSB-M1', name: 'Scope 1 GHG Emissions', category: 'Metrics', status: 'complete', type: 'required', data: '12,450 tCO2e', editable: true },
+                    { code: 'ISSB-M2', name: 'Scope 2 GHG Emissions', category: 'Metrics', status: 'complete', type: 'required', data: '8,760 tCO2e', editable: true },
+                    { code: 'ISSB-M3', name: 'Scope 3 GHG Emissions', category: 'Metrics', status: 'pending', type: 'required', data: '', editable: true },
+                    { code: 'ISSB-T1', name: 'GHG Reduction Targets', category: 'Targets', status: 'pending', type: 'required', data: '', editable: true }
+                ]
+            },
+            'CSRD': {
+                stats: { total: 89, autoFilled: 34, remaining: 55 },
+                indicators: [
+                    { code: 'E1-1', name: 'Transition Plan Description', category: 'Strategy', status: 'pending', type: 'mandatory', data: '', editable: true },
+                    { code: 'E1-5', name: 'Total Energy Consumption (MWh)', category: 'Energy', status: 'complete', type: 'mandatory', data: '124,500 MWh', editable: true },
+                    { code: 'E1-6', name: 'Gross Scope 1 GHG Emissions', category: 'Emissions', status: 'complete', type: 'mandatory', data: '12,450 tCO2e', editable: true },
+                    { code: 'E1-7', name: 'Gross Scope 2 GHG Emissions', category: 'Emissions', status: 'complete', type: 'mandatory', data: '8,760 tCO2e', editable: true },
+                    { code: 'E1-8', name: 'Total Scope 3 GHG Emissions', category: 'Emissions', status: 'pending', type: 'mandatory', data: '', editable: true },
+                    { code: 'E1-9', name: 'GHG Intensity Ratio', category: 'Emissions', status: 'calculated', type: 'mandatory', data: '2.3 tCO2e/€M revenue', editable: false },
+                    { code: 'E1-10', name: 'Carbon Credits Used', category: 'Removals', status: 'pending', type: 'voluntary', data: '', editable: true },
+                    { code: 'E1-11', name: 'Physical Climate Risks', category: 'Risks', status: 'pending', type: 'mandatory', data: '', editable: true }
+                ]
+            },
+            'CDP': {
+                stats: { total: 152, autoFilled: 45, remaining: 107 },
+                indicators: [
+                    { code: 'C0.2', name: 'Reporting Year Dates', category: 'Introduction', status: 'complete', type: 'required', data: '01-Apr-2024 to 31-Mar-2025', editable: true },
+                    { code: 'C2.1', name: 'Climate-Related Risks', category: 'Risks', status: 'pending', type: 'required', data: '', editable: true },
+                    { code: 'C6.1', name: 'Scope 1 Emissions (metric tons CO2e)', category: 'Emissions', status: 'complete', type: 'required', data: '12,450', editable: true },
+                    { code: 'C6.3', name: 'Scope 2 Emissions (metric tons CO2e)', category: 'Emissions', status: 'complete', type: 'required', data: '8,760', editable: true },
+                    { code: 'C6.5', name: 'Scope 3 Emissions (metric tons CO2e)', category: 'Emissions', status: 'pending', type: 'required', data: '', editable: true },
+                    { code: 'C7.9', name: 'Emissions Intensity Metric', category: 'Intensity', status: 'calculated', type: 'required', data: '23 tCO2e per million revenue', editable: false },
+                    { code: 'C8.2', name: 'Energy-Related Activities', category: 'Energy', status: 'complete', type: 'required', data: '124,500 MWh consumed', editable: true },
+                    { code: 'C4.3', name: 'Climate Targets', category: 'Targets', status: 'pending', type: 'required', data: '', editable: true }
+                ]
+            },
+            'UKSECR': {
+                stats: { total: 18, autoFilled: 14, remaining: 4 },
+                indicators: [
+                    { code: 'SECR-1', name: 'UK Energy Consumption (kWh)', category: 'Energy', status: 'complete', type: 'mandatory', data: '45,600,000 kWh', editable: true },
+                    { code: 'SECR-2', name: 'Global Energy Consumption (kWh)', category: 'Energy', status: 'pending', type: 'mandatory', data: '', editable: true },
+                    { code: 'SECR-3', name: 'Scope 1 Emissions (tCO2e)', category: 'Emissions', status: 'complete', type: 'mandatory', data: '12,450 tCO2e', editable: true },
+                    { code: 'SECR-4', name: 'Scope 2 Emissions (tCO2e)', category: 'Emissions', status: 'complete', type: 'mandatory', data: '8,760 tCO2e', editable: true },
+                    { code: 'SECR-5', name: 'Scope 3 Business Travel (tCO2e)', category: 'Emissions', status: 'complete', type: 'mandatory', data: '340 tCO2e', editable: true },
+                    { code: 'SECR-6', name: 'Intensity Metric (tCO2e/£M revenue)', category: 'Intensity', status: 'calculated', type: 'mandatory', data: '18.5 tCO2e/£M', editable: false },
+                    { code: 'SECR-7', name: 'Energy Efficiency Measures', category: 'Actions', status: 'pending', type: 'mandatory', data: '', editable: true },
+                    { code: 'SECR-8', name: 'Prior Year Comparison', category: 'Historical', status: 'complete', type: 'mandatory', data: 'FY2023-24: 22,100 tCO2e', editable: true }
+                ]
+            },
+            'HKEX': {
+                stats: { total: 45, autoFilled: 22, remaining: 23 },
+                indicators: [
+                    { code: 'HKEX-G1', name: 'Board Oversight of Climate', category: 'Governance', status: 'complete', type: 'mandatory', data: 'Board reviews climate risks quarterly', editable: true },
+                    { code: 'HKEX-G2', name: 'Management Climate Responsibility', category: 'Governance', status: 'complete', type: 'mandatory', data: 'CFO leads climate strategy', editable: true },
+                    { code: 'HKEX-S1', name: 'Climate Risks Assessment', category: 'Strategy', status: 'pending', type: 'mandatory', data: '', editable: true },
+                    { code: 'HKEX-S2', name: 'Scenario Analysis Results', category: 'Strategy', status: 'pending', type: 'mandatory', data: '', editable: true },
+                    { code: 'HKEX-M1', name: 'Scope 1 Emissions', category: 'Metrics', status: 'complete', type: 'mandatory', data: '12,450 tCO2e', editable: true },
+                    { code: 'HKEX-M2', name: 'Scope 2 Emissions', category: 'Metrics', status: 'complete', type: 'mandatory', data: '8,760 tCO2e', editable: true },
+                    { code: 'HKEX-M3', name: 'Scope 3 Emissions', category: 'Metrics', status: 'pending', type: 'mandatory', data: '', editable: true },
+                    { code: 'HKEX-T1', name: 'Emissions Reduction Targets', category: 'Targets', status: 'pending', type: 'mandatory', data: '', editable: true }
+                ]
+            },
+            'GRESB': {
+                stats: { total: 85, autoFilled: 15, remaining: 70 },
+                indicators: [
+                    { code: 'GRESB-M1', name: 'ESG Policy Statement', category: 'Management', status: 'pending', type: 'voluntary', data: '', editable: true },
+                    { code: 'GRESB-M2', name: 'Climate Risk Assessment', category: 'Management', status: 'pending', type: 'voluntary', data: '', editable: true },
+                    { code: 'GRESB-P1', name: 'Asset-Level Energy (kWh/m²)', category: 'Performance', status: 'pending', type: 'voluntary', data: '', editable: true },
+                    { code: 'GRESB-P2', name: 'Asset-Level GHG (kgCO2/m²)', category: 'Performance', status: 'calculated', type: 'voluntary', data: '', editable: false },
+                    { code: 'GRESB-P3', name: 'Asset-Level Water (m³/m²)', category: 'Performance', status: 'pending', type: 'voluntary', data: '', editable: true },
+                    { code: 'GRESB-P4', name: 'Asset-Level Waste (kg/m²)', category: 'Performance', status: 'pending', type: 'voluntary', data: '', editable: true },
+                    { code: 'GRESB-P5', name: 'Total Portfolio GHG Emissions', category: 'Performance', status: 'complete', type: 'voluntary', data: '21,210 tCO2e', editable: true },
+                    { code: 'GRESB-P6', name: 'Energy Procurement - Renewable %', category: 'Performance', status: 'pending', type: 'voluntary', data: '', editable: true }
+                ]
+            },
+            'GreenCo': {
+                stats: { total: 58, autoFilled: 38, remaining: 20 },
+                indicators: [
+                    { code: 'GC-E1', name: 'Specific Energy Consumption', category: 'Energy', status: 'complete', type: 'mandatory', data: '1,245 kWh/unit production', editable: true },
+                    { code: 'GC-E2', name: 'Renewable Energy Share (%)', category: 'Energy', status: 'complete', type: 'voluntary', data: '18%', editable: true },
+                    { code: 'GC-ENV1', name: 'GHG Emissions Intensity', category: 'Environment', status: 'calculated', type: 'mandatory', data: '2.3 tCO2e/unit production', editable: false },
+                    { code: 'GC-ENV2', name: 'SOx Emissions (kg/unit)', category: 'Environment', status: 'complete', type: 'mandatory', data: '0.45 kg/unit', editable: true },
+                    { code: 'GC-W1', name: 'Specific Water Consumption (KL/unit)', category: 'Water', status: 'complete', type: 'mandatory', data: '2.8 KL/unit', editable: true },
+                    { code: 'GC-W2', name: 'Water Recycling (%)', category: 'Water', status: 'complete', type: 'voluntary', data: '42%', editable: true },
+                    { code: 'GC-WS1', name: 'Hazardous Waste (tons)', category: 'Waste', status: 'complete', type: 'mandatory', data: '245 tons', editable: true },
+                    { code: 'GC-GSC1', name: 'Green Supplier Assessment', category: 'Supply Chain', status: 'pending', type: 'voluntary', data: '', editable: true }
+                ]
+            }
+        };
+        
+        const frameworkData = {
+            'BRSR': {
+                title: 'SEBI BRSR & BRSR Core 2024',
+                type: 'Disclosure Framework',
+                jurisdiction: 'India (SEBI Listed Companies)',
+                totalIndicators: 178,
+                mandatoryIndicators: 27,
+                voluntaryIndicators: 151,
+                applicability: 'Top 1,000 listed companies by market capitalization on BSE and NSE',
+                sections: [
+                    'Section A: General Disclosures (22 indicators)',
+                    'Section B: Management & Process Disclosures (18 indicators)',
+                    'Section C: Principle-wise Performance (138 indicators covering 9 ESG principles with essential and leadership indicators)'
+                ],
+                keyFeatures: [
+                    'Essential (mandatory) indicators: 27 BRSR Core KPIs requiring reasonable assurance',
+                    'Leadership (voluntary) indicators: 151 additional disclosures for comprehensive ESG reporting',
+                    'Aligned with international frameworks like GRI, SASB, TCFD, and SDGs',
+                    'Mandatory third-party assurance for BRSR Core from FY 2023-24'
+                ],
+                intendedUse: 'Regulatory compliance for SEBI listed companies; investor communication; ESG performance tracking'
+            },
+            'GreenCo': {
+                title: 'GreenCo Rating System',
+                type: 'Voluntary Certification',
+                jurisdiction: 'India (National)',
+                totalIndicators: 58,
+                mandatoryIndicators: 12,
+                voluntaryIndicators: 46,
+                applicability: 'Manufacturing industries, buildings, and townships across India',
+                sections: [
+                    'Energy (15 indicators) - 30% weightage',
+                    'Environment (18 indicators) - 30% weightage',
+                    'Water (10 indicators) - 15% weightage',
+                    'Waste (8 indicators) - 15% weightage',
+                    'Green Supply Chain (7 indicators) - 10% weightage'
+                ],
+                keyFeatures: [
+                    'Five rating levels: Platinum (>80), Gold (70-80), Silver (60-70), Certified (50-60)',
+                    'Developed by CII-ITC Centre of Excellence for Sustainable Development',
+                    'Valid for 3 years with annual surveillance audits'
+                ],
+                intendedUse: 'Green certification for Indian industries; demonstrating environmental leadership; accessing green financing'
+            },
+            'GRI': {
+                title: 'GRI Standards 2021',
+                type: 'Voluntary Reporting',
+                jurisdiction: 'Global',
+                totalIndicators: 400,
+                mandatoryIndicators: 33,
+                voluntaryIndicators: 367,
+                applicability: 'Organizations of all sizes, sectors and countries worldwide',
+                sections: [
+                    'GRI 1: Foundation (explains core concepts and requirements)',
+                    'GRI 2: General Disclosures (33 indicators - organizational profile, activities, workers)',
+                    'GRI 3: Material Topics (process for identifying and managing material topics)',
+                    'Topic-Specific Standards: Hundreds of disclosures across economic, environmental, and social topics'
+                ],
+                keyFeatures: [
+                    'Most widely used sustainability reporting framework globally (adopted by 10,000+ organizations)',
+                    'Modular structure allowing organizations to report on material topics',
+                    'Stakeholder inclusiveness and materiality assessment as core principles',
+                    'Compatible with other frameworks like TCFD, SASB, and UN SDGs'
+                ],
+                intendedUse: 'Comprehensive sustainability reporting; stakeholder communication; ESG disclosure; impact measurement'
+            },
+            'CBAM': {
+                title: 'EU Carbon Border Adjustment Mechanism',
+                type: 'Regulatory Compliance',
+                jurisdiction: 'European Union',
+                totalIndicators: 48,
+                mandatoryIndicators: 48,
+                voluntaryIndicators: 0,
+                applicability: 'Importers of CBAM goods (cement, iron & steel, aluminium, fertilizers, hydrogen, electricity) into EU',
+                sections: [
+                    'Embedded Emissions Calculation (18 requirements)',
+                    'Direct Emissions (Scope 1) - 12 data points',
+                    'Indirect Emissions (Scope 2 - electricity) - 8 data points',
+                    'Precursor Materials and Input Materials - 10 requirements'
+                ],
+                keyFeatures: [
+                    'Transitional phase: Quarterly reporting (Oct 2023 - Dec 2025) without financial obligations',
+                    'Definitive phase: From Jan 2026, CBAM certificates required (€/ton CO2e)',
+                    'Covers direct + indirect emissions; facility-level and product-level calculation methods',
+                    'Exemptions for carbon pricing already paid in country of origin'
+                ],
+                intendedUse: 'Compliance for EU importers; carbon footprint declaration; avoiding carbon leakage; level playing field'
+            },
+            'CDP': {
+                title: 'CDP Climate Change Questionnaire 2025',
+                type: 'Voluntary Disclosure',
+                jurisdiction: 'Global',
+                totalIndicators: 152,
+                mandatoryIndicators: 0,
+                voluntaryIndicators: 152,
+                applicability: 'Companies requested by investors, customers, or voluntarily disclosing',
+                sections: [
+                    'Module 0-1: Introduction & Management (15 questions)',
+                    'Module 2: Risks and Opportunities (20 questions)',
+                    'Module 3-6: Business Strategy & Financial Planning (25 questions)',
+                    'Module 7: Emissions Methodology & Data (35 questions)',
+                    'Module 8-11: Energy, Additional Metrics, Targets (45 questions)',
+                    'Module 12: Engagement & Sign-off (12 questions)'
+                ],
+                keyFeatures: [
+                    'Scoring system from A to D-minus based on disclosure quality',
+                    'Climate Leadership tier (A List) for exemplary performance',
+                    'Used by 680+ investors with $130+ trillion in assets',
+                    'Integration with TCFD recommendations and Science Based Targets'
+                ],
+                intendedUse: 'Investor-grade climate disclosure; supply chain transparency; climate risk management; benchmarking'
+            },
+            'ISSB': {
+                title: 'ISSB S2 Climate-Related Disclosures',
+                type: 'Sustainability Baseline',
+                jurisdiction: 'Global',
+                totalIndicators: 64,
+                mandatoryIndicators: 0,
+                voluntaryIndicators: 64,
+                applicability: 'Companies preparing general purpose financial reports worldwide',
+                sections: [
+                    'Governance (8 disclosure requirements)',
+                    'Strategy (22 disclosure requirements including climate resilience)',
+                    'Risk Management (12 disclosure requirements)',
+                    'Metrics and Targets (22 disclosure requirements including Scope 1, 2, 3)'
+                ],
+                keyFeatures: [
+                    'Builds on TCFD recommendations with enhanced requirements',
+                    'Incorporates SASB industry-specific metrics',
+                    'Requires disclosure of Scope 1, 2, and 3 GHG emissions',
+                    'Scenario analysis for climate resilience assessment',
+                    'Designed for capital market-oriented sustainability reporting'
+                ],
+                intendedUse: 'Integrated sustainability and financial reporting; investor communication; global baseline for climate disclosure'
+            },
+            'CSRD': {
+                title: 'EU Corporate Sustainability Reporting Directive (ESRS E1)',
+                type: 'Mandatory Regulation',
+                jurisdiction: 'European Union',
+                totalIndicators: 89,
+                mandatoryIndicators: 42,
+                voluntaryIndicators: 47,
+                applicability: 'Large EU companies (>250 employees, >€50M turnover or >€25M balance sheet) and listed SMEs',
+                sections: [
+                    'E1-1: Transition Plan for Climate Change Mitigation (12 disclosure requirements)',
+                    'E1-2 to E1-4: Policies, Actions, Targets (18 requirements)',
+                    'E1-5: Energy Consumption & Mix (8 data points)',
+                    'E1-6 to E1-9: GHG Emissions (Scope 1, 2, 3) - 28 requirements',
+                    'E1-10: Removals and Carbon Credits (8 requirements)',
+                    'E1-11 to E1-12: Climate Change Risks & Financial Effects (15 requirements)'
+                ],
+                keyFeatures: [
+                    'Double materiality assessment (financial + impact materiality)',
+                    'Phased implementation: Large companies (2025), Listed SMEs (2026), Non-EU subsidiaries (2028)',
+                    'Mandatory limited assurance (2024-2027), reasonable assurance thereafter',
+                    'Digital taxonomy with XBRL tagging for machine readability',
+                    'Covers full value chain (upstream and downstream)'
+                ],
+                intendedUse: 'EU regulatory compliance; sustainability due diligence; investor disclosure; supply chain requirements'
+            },
+            'TCFD': {
+                title: 'Task Force on Climate-related Financial Disclosures',
+                type: 'Voluntary Framework',
+                jurisdiction: 'Global',
+                totalIndicators: 44,
+                mandatoryIndicators: 11,
+                voluntaryIndicators: 33,
+                applicability: 'All organizations, particularly financial sector and large corporations',
+                sections: [
+                    'Governance (2 recommended disclosures)',
+                    'Strategy (4 recommended disclosures including scenario analysis)',
+                    'Risk Management (3 recommended disclosures)',
+                    'Metrics and Targets (4 recommended disclosures)',
+                    'Supplemental Guidance for Financial Sector (31 additional indicators)'
+                ],
+                keyFeatures: [
+                    'Four core pillars aligned with existing financial reporting',
+                    '11 recommended disclosures applicable to all organizations',
+                    'Sector-specific supplemental guidance for financials, energy, transportation, etc.',
+                    'Focus on climate-related risks (physical & transition) and opportunities',
+                    'Now integrated into ISSB standards as foundational framework'
+                ],
+                intendedUse: 'Climate risk disclosure; financial impact assessment; investor communication; strategic planning'
+            },
+            'SBTi': {
+                title: 'Science Based Targets initiative (SBTi)',
+                type: 'Target-Setting & Validation Regime',
+                jurisdiction: 'Global',
+                totalIndicators: 35,
+                mandatoryIndicators: 18,
+                voluntaryIndicators: 17,
+                applicability: 'Companies committing to align emissions with climate science',
+                sections: [
+                    'Commitment Letter & Company Information (5 requirements)',
+                    'Baseline & Target Year Selection (4 requirements)',
+                    'Scope 1 & 2 Emissions Target (8 requirements)',
+                    'Scope 3 Emissions Target (10 requirements)',
+                    'Near-term (2030) and Long-term (2050) Net-Zero Targets (8 requirements)'
+                ],
+                keyFeatures: [
+                    'Target-setting and validation regime, not a reporting standard',
+                    'Validates corporate emissions reduction targets aligned with 1.5°C pathways',
+                    'Minimum 42% reduction (1.5°C) or 25% (2°C) by 2030 from base year',
+                    'Scope 3 target mandatory if >40% of total emissions',
+                    'Independent validation by SBTi technical team',
+                    '6,000+ companies committed; 4,000+ with validated targets'
+                ],
+                intendedUse: 'Science-aligned climate target setting; climate ambition leadership; investor confidence; supply chain engagement'
+            },
+            'UKSECR': {
+                title: 'UK Streamlined Energy & Carbon Reporting',
+                type: 'UK Regulatory Reporting Regime',
+                jurisdiction: 'United Kingdom',
+                totalIndicators: 18,
+                mandatoryIndicators: 18,
+                voluntaryIndicators: 0,
+                applicability: 'UK quoted companies, large unquoted companies, and large LLPs (>250 employees, >£36M turnover)',
+                sections: [
+                    'Energy Consumption (UK & global operations) - 4 requirements',
+                    'GHG Emissions (Scope 1 & 2, plus business travel Scope 3) - 6 requirements',
+                    'Energy Efficiency Actions & Measures Taken - 4 requirements',
+                    'Intensity Metrics (per employee, turnover, or other metric) - 4 requirements'
+                ],
+                keyFeatures: [
+                    'UK regulatory reporting regime focused on energy consumption and GHG emissions',
+                    'Straightforward and stable regulations since April 2019',
+                    'Requires disclosure in Directors\' Report (part of annual reporting)',
+                    'Must use UK Government GHG Conversion Factors',
+                    'Prior year comparative data required'
+                ],
+                intendedUse: 'UK regulatory compliance; annual report disclosure; energy management; carbon footprint baseline'
+            },
+            'HKEX': {
+                title: 'HKEX Climate-Related Disclosures (ISSB/TCFD-Aligned)',
+                type: 'Mandatory Listing Rule',
+                jurisdiction: 'Hong Kong',
+                totalIndicators: 45,
+                mandatoryIndicators: 45,
+                voluntaryIndicators: 0,
+                applicability: 'All Hong Kong Stock Exchange listed companies (effective from FY2025)',
+                sections: [
+                    'Governance (8 disclosure requirements aligned with ISSB S2 and TCFD)',
+                    'Strategy (12 disclosure requirements including climate resilience)',
+                    'Risk Management (10 disclosure requirements)',
+                    'Metrics and Targets (15 disclosure requirements including Scope 1, 2, 3)'
+                ],
+                keyFeatures: [
+                    'HKEX climate-related disclosures aligned with ISSB/TCFD framework',
+                    'Phased implementation: Climate governance (2025), Full requirements (2026)',
+                    'Scope 1 & 2 mandatory from 2025; Scope 3 from 2026',
+                    'Materiality assessment based on ISSB approach',
+                    'Accepts TCFD-aligned disclosures during transition period'
+                ],
+                intendedUse: 'Hong Kong Stock Exchange compliance; Asian market investor disclosure; ISSB-aligned reporting'
+            },
+            'GRESB': {
+                title: 'GRESB Real Estate & Infrastructure Assessment',
+                type: 'Voluntary Benchmark',
+                jurisdiction: 'Global',
+                totalIndicators: 85,
+                mandatoryIndicators: 0,
+                voluntaryIndicators: 85,
+                applicability: 'Real estate companies, REITs, property funds, infrastructure funds, and asset managers',
+                sections: [
+                    'Management Component (30% weight) - Policies, Disclosure, Risks, Monitoring',
+                    'Performance Component (70% weight) - Energy, GHG, Water, Waste at asset level',
+                    'Asset-level Data (required) - Building/infrastructure level metrics',
+                    'Intensity Metrics - kWh/m², kgCO2/m², water/m² or per asset'
+                ],
+                keyFeatures: [
+                    'Industry-standard ESG benchmark for real estate and infrastructure',
+                    'Scoring from 0-100 with star ratings (1-5 stars)',
+                    'Used by investors managing $7+ trillion in real estate/infrastructure assets',
+                    'Asset-level intensity metrics mandatory for performance scoring',
+                    'Separate assessments for Real Estate and Infrastructure sectors',
+                    'Annual assessment with peer benchmarking by region and property type'
+                ],
+                intendedUse: 'Real estate ESG benchmarking; investor reporting; asset-level performance tracking; attracting ESG-focused capital'
+            },
+            'ISO14064': {
+                title: 'ISO 14064 GHG Accounting & Verification',
+                type: 'International Standard',
+                jurisdiction: 'Global',
+                totalIndicators: 52,
+                mandatoryIndicators: 28,
+                voluntaryIndicators: 24,
+                applicability: 'Organizations seeking credible GHG accounting, reporting and verification',
+                sections: [
+                    'Part 1: Organization-level GHG Inventory (22 requirements)',
+                    'Part 2: Project-level GHG Quantification (15 requirements)',
+                    'Part 3: Validation and Verification Principles (15 requirements)'
+                ],
+                keyFeatures: [
+                    'Aligned with GHG Protocol Corporate Standard',
+                    'Three-part structure: Organizations, Projects, Verification',
+                    'Latest version ISO 14064-1:2018 includes Scope 1-6 emissions',
+                    'Provides basis for third-party verification and certification',
+                    'Supports carbon offset project validation (Part 2)'
+                ],
+                intendedUse: 'GHG inventory development; third-party verification; carbon credit projects; regulatory compliance; assurance requirements'
+            },
+            'TCFD': {
+                title: 'Task Force on Climate-related Financial Disclosures',
+                type: 'Voluntary Framework',
+                jurisdiction: 'Global',
+                totalIndicators: 44,
+                mandatoryIndicators: 11,
+                voluntaryIndicators: 33,
+                applicability: 'All organizations, particularly financial sector and large corporations',
+                sections: [
+                    'Governance (2 recommended disclosures)',
+                    'Strategy (4 recommended disclosures including scenario analysis)',
+                    'Risk Management (3 recommended disclosures)',
+                    'Metrics and Targets (4 recommended disclosures)',
+                    'Supplemental Guidance for Financial Sector (31 additional indicators)'
+                ],
+                keyFeatures: [
+                    'Four core pillars aligned with existing financial reporting',
+                    '11 recommended disclosures applicable to all organizations',
+                    'Sector-specific supplemental guidance for financials, energy, transportation, etc.',
+                    'Focus on climate-related risks (physical & transition) and opportunities',
+                    'Now integrated into ISSB standards as foundational framework'
+                ],
+                intendedUse: 'Climate risk disclosure; financial impact assessment; investor communication; strategic planning'
+            },
+            'SASB': {
+                title: 'SASB Standards (now part of ISSB)',
+                type: 'Voluntary Disclosure',
+                jurisdiction: 'Global',
+                totalIndicators: 400,
+                mandatoryIndicators: 0,
+                voluntaryIndicators: 400,
+                applicability: 'Companies across 77 industries seeking to disclose financially material ESG information',
+                sections: [
+                    '77 Industry-specific Standards',
+                    '26 General ESG Issues Categories',
+                    'Accounting Metrics for each material issue',
+                    'Activity Metrics for industry normalization'
+                ],
+                keyFeatures: [
+                    'Industry-specific approach focused on financial materiality',
+                    'Now integrated into ISSB standards',
+                    'Covers Environment, Social Capital, Human Capital, Business Model, Leadership',
+                    'Quantitative metrics designed for investor decision-making',
+                    'Used by major investors and incorporated into Bloomberg Terminal'
+                ],
+                intendedUse: 'Investor-grade ESG disclosure; industry-specific materiality; financial reporting integration'
+            },
+            'SEC': {
+                title: 'SEC Climate Disclosure Rules (Proposed)',
+                type: 'Regulatory Proposal',
+                jurisdiction: 'United States',
+                totalIndicators: 55,
+                mandatoryIndicators: 0,
+                voluntaryIndicators: 55,
+                applicability: 'US public companies (proposed, implementation timeline uncertain)',
+                sections: [
+                    'Climate-Related Risks - Material impacts on business and financial statements',
+                    'GHG Emissions - Scope 1, Scope 2, and Scope 3 (if material or target set)',
+                    'Climate Targets and Transition Plans',
+                    'Governance and Risk Management',
+                    'Financial Statement Effects - Quantification of climate impacts'
+                ],
+                keyFeatures: [
+                    'Based on TCFD framework with additional requirements',
+                    'Phased implementation by company size (if finalized)',
+                    'Third-party attestation required for emissions data',
+                    'Safe harbor provisions for forward-looking statements',
+                    'Implementation timeline currently uncertain due to legal challenges'
+                ],
+                intendedUse: 'US regulatory compliance (when finalized); SEC filing preparation; investor disclosure'
+            }
+        };
+
+        function goToStep(step) {
+            if (step > currentStep + 1) return; // Prevent skipping ahead
+            
+            currentStep = step;
+            
+            // Update step indicator
+            document.querySelectorAll('.step').forEach((el, idx) => {
+                el.classList.remove('active', 'completed');
+                if (idx + 1 < step) {
+                    el.classList.add('completed');
+                    el.querySelector('.step-circle').textContent = '✓';
+                } else if (idx + 1 === step) {
+                    el.classList.add('active');
+                    el.querySelector('.step-circle').textContent = idx + 1;
+                } else {
+                    el.querySelector('.step-circle').textContent = idx + 1;
+                }
+            });
+            
+            // Update content sections
+            document.querySelectorAll('.content-section').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById('step' + step).classList.add('active');
+            
+            // Update page title
+            const titles = {
+                1: { title: 'Select Framework', desc: 'Choose your reporting framework to begin' },
+                2: { title: 'Configure & Fill Data', desc: 'Review auto-populated data and complete disclosures' },
+                3: { title: 'Review & Validate', desc: 'Verify completeness and data quality' },
+                4: { title: 'Preview Report', desc: 'Review formatted report before export' },
+                5: { title: 'Export & Download', desc: 'Generate and download your report' }
+            };
+            document.getElementById('step-title').textContent = titles[step].title;
+            document.getElementById('step-description').textContent = titles[step].desc;
+            
+            // If going to step 2, populate indicators
+            if (step === 2) {
+                populateIndicators();
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        function populateIndicators() {
+            const frameworkSelect = document.getElementById('framework-select');
+            const selectedValue = frameworkSelect.value || 'BRSR';
+            selectedFramework = selectedValue;
+            
+            const frameworkName = frameworkSelect.options[frameworkSelect.selectedIndex].text;
+            document.getElementById('selected-framework-name').textContent = frameworkName;
+            
+            const indicators = frameworkIndicators[selectedValue];
+            if (!indicators) return;
+            
+            const stats = indicators.stats;
+            const container = document.getElementById('framework-indicators');
+            
+            // Add stats
+            let html = `
+                <div class="progress-stats">
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.total}</div>
+                        <div class="stat-label">Total Indicators</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.autoFilled}</div>
+                        <div class="stat-label">Auto-Filled</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.remaining}</div>
+                        <div class="stat-label">Remaining</div>
+                    </div>
+                </div>
+                <div style="margin-top: 2rem;">
+                    <h3 style="color: #2d5f4f; margin-bottom: 1rem;">Sample Indicators</h3>
+            `;
+            
+            // Add indicators
+            indicators.indicators.forEach((indicator, idx) => {
+                const statusBadge = 
+                    indicator.status === 'complete' ? '<span class="badge badge-success">✓ Complete</span>' :
+                    indicator.status === 'pending' ? '<span class="badge badge-warning">⚠ Pending</span>' :
+                    '<span class="badge badge-info">🔄 Calculated</span>';
+                
+                const typeBadge = 
+                    indicator.type === 'essential' || indicator.type === 'mandatory' || indicator.type === 'required' 
+                    ? '<span class="badge badge-mandatory" style="margin-left: 0.5rem;">Essential</span>' 
+                    : '<span class="badge" style="margin-left: 0.5rem; background: #e0e0e0; color: #666;">Leadership</span>';
+                
+                html += `
+                    <div class="indicator-item" style="display: block; padding: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                            <div>
+                                <strong style="color: #2d5f4f; font-size: 1rem;">${indicator.code}: ${indicator.name}</strong>
+                                <div style="font-size: 0.85rem; color: #666; margin-top: 0.25rem;">${indicator.category}</div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                ${statusBadge}
+                                ${typeBadge}
+                            </div>
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <input type="text" 
+                                       id="indicator-${idx}" 
+                                       value="${indicator.data}" 
+                                       placeholder="${indicator.status === 'pending' ? 'Enter data...' : ''}"
+                                       style="flex: 1; padding: 0.75rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; ${indicator.editable ? '' : 'background: #f5f5f5;'}"
+                                       ${indicator.editable ? '' : 'readonly'}>
+                                ${indicator.editable ? '<button class="btn btn-primary btn-sm" onclick="saveIndicator(' + idx + ')">💾 Save</button>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function saveIndicator(idx) {
+            const input = document.getElementById('indicator-' + idx);
+            const value = input.value;
+            frameworkIndicators[selectedFramework].indicators[idx].data = value;
+            frameworkIndicators[selectedFramework].indicators[idx].status = 'complete';
+            alert('✓ Indicator data saved successfully!');
+            populateIndicators(); // Refresh to show updated status
+        }
+
+        function updateFrameworkDetails() {
+            const select = document.getElementById('framework-select');
+            const value = select.value;
+            const details = document.getElementById('framework-details');
+            
+            if (value && frameworkData[value]) {
+                const fw = frameworkData[value];
+                details.innerHTML = `
+                    <h3 style="color: #2d5f4f; margin-bottom: 1rem;">${fw.title}</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">Framework Type:</span>
+                        <span class="detail-value"><span class="badge ${fw.type.includes('Mandatory') || fw.type.includes('Regulatory') ? 'badge-mandatory' : 'badge-success'}">${fw.type}</span></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Jurisdiction:</span>
+                        <span class="detail-value">${fw.jurisdiction}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Applicability:</span>
+                        <span class="detail-value" style="font-size: 0.9rem;">${fw.applicability}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Total Indicators/Disclosures:</span>
+                        <span class="detail-value">${fw.totalIndicators}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Mandatory Indicators:</span>
+                        <span class="detail-value">${fw.mandatoryIndicators} <span class="badge badge-mandatory">Must Complete</span></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Voluntary/Optional Indicators:</span>
+                        <span class="detail-value">${fw.voluntaryIndicators} <span class="badge" style="background: #e0e0e0; color: #666;">Optional</span></span>
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <h4 style="color: #2d5f4f; margin-bottom: 0.75rem;">Key Sections & Structure:</h4>
+                        ${fw.sections.map(s => `<div style="padding: 0.75rem; background: white; border-left: 3px solid #3d7f6f; border-radius: 4px; margin-bottom: 0.5rem; font-size: 0.9rem;">${s}</div>`).join('')}
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <h4 style="color: #2d5f4f; margin-bottom: 0.75rem;">Key Features:</h4>
+                        ${fw.keyFeatures.map(f => `<div style="padding: 0.75rem; background: #f0f7f4; border-radius: 4px; margin-bottom: 0.5rem; font-size: 0.9rem;">• ${f}</div>`).join('')}
+                    </div>
+                    <div style="margin-top: 1.5rem;">
+                        <h4 style="color: #2d5f4f; margin-bottom: 0.75rem;">Intended Use:</h4>
+                        <div style="padding: 1rem; background: #e8f5f1; border-radius: 6px; font-size: 0.95rem; line-height: 1.6;">
+                            ${fw.intendedUse}
+                        </div>
+                    </div>
+                `;
+            } else {
+                details.innerHTML = '<p style="color: #666; padding: 1rem; text-align: center;">Please select a framework to view details</p>';
+            }
+        }
+
+        function generateReport() {
+            alert('Generating reports... This will take 3-5 minutes.');
+            setTimeout(() => {
+                document.getElementById('download-section').style.display = 'block';
+                document.getElementById('download-section').scrollIntoView({ behavior: 'smooth' });
+            }, 2000);
+        }
+
+        // Initialize with no framework selected
+        updateFrameworkDetails();
+    </script>
+</body>
+</html>
