@@ -3,1945 +3,1637 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HWCAP Enterprise Auditor Pack</title>
+    <title>TerraCAP Enterprise Auditor Pack</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --terra-900: #1a3a2f;
+            --terra-800: #234d3f;
+            --terra-700: #2d6150;
+            --terra-600: #3d7f6f;
+            --terra-500: #4a9585;
+            --terra-400: #6db3a4;
+            --terra-100: #e8f5f1;
+            --terra-50: #f2faf7;
+            --amber-600: #d97706;
+            --amber-500: #f59e0b;
+            --amber-100: #fef3c7;
+            --red-600: #dc2626;
+            --red-100: #fee2e2;
+            --blue-600: #2563eb;
+            --blue-100: #dbeafe;
+            --green-600: #16a34a;
+            --green-100: #dcfce7;
+            --slate-900: #0f172a;
+            --slate-700: #334155;
+            --slate-500: #64748b;
+            --slate-300: #cbd5e1;
+            --slate-200: #e2e8f0;
+            --slate-100: #f1f5f9;
+            --slate-50: #f8fafc;
+            --radius: 10px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,0.1);
         }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f5f7fa;
-            color: #333;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--slate-50);
+            color: var(--slate-900);
             line-height: 1.6;
         }
 
+        /* ===== HEADER ===== */
         .header {
-            background: linear-gradient(135deg, #2d5f4f 0%, #3d7f6f 100%);
+            background: var(--terra-900);
             color: white;
-            padding: 1rem 2rem;
+            padding: 0 2rem;
+            height: 64px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             z-index: 100;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.15);
         }
-
-        .logo-section {
-            display: flex;
-            flex-direction: column;
-        }
-
+        .header-left { display: flex; align-items: center; gap: 1.25rem; }
         .logo {
-            font-size: 1.5rem;
-            font-weight: 300;
-            letter-spacing: 0.3em;
+            font-size: 1.1rem; font-weight: 700;
+            letter-spacing: 0.2em;
+            font-family: 'JetBrains Mono', monospace;
         }
-
-        .logo-subtitle {
-            font-size: 0.85rem;
-            opacity: 0.9;
-            margin-top: 0.25rem;
+        .logo span { color: var(--terra-400); }
+        .header-divider { width: 1px; height: 28px; background: rgba(255,255,255,0.2); }
+        .pack-badge {
+            background: var(--amber-600); color: white;
+            padding: 0.2rem 0.7rem; border-radius: 4px;
+            font-size: 0.65rem; font-weight: 700;
+            letter-spacing: 0.08em; text-transform: uppercase;
         }
-
-        .tier-badge {
-            background: linear-gradient(135deg, #ff6b35, #f7931e);
-            color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            margin-top: 0.3rem;
-            align-self: flex-start;
+        .header-right { display: flex; align-items: center; gap: 1rem; }
+        .engagement-context { text-align: right; padding-right: 1rem; border-right: 1px solid rgba(255,255,255,0.15); }
+        .engagement-context .client-name { font-size: 0.9rem; font-weight: 600; }
+        .engagement-context .engagement-meta { font-size: 0.7rem; opacity: 0.7; }
+        .auditor-badge {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 0.35rem 0.8rem; border-radius: 6px;
+            font-size: 0.8rem;
+            display: flex; align-items: center; gap: 0.5rem;
         }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+        .auditor-badge .status-dot {
+            width: 8px; height: 8px;
+            background: var(--green-600); border-radius: 50%;
         }
-
-        .client-context {
-            text-align: right;
-            margin-right: 1rem;
-            padding-right: 1rem;
-            border-right: 1px solid rgba(255,255,255,0.3);
-        }
-
-        .client-name {
-            font-size: 1rem;
-            font-weight: 600;
-            color: white;
-        }
-
-        .client-subtitle {
-            font-size: 0.75rem;
-            opacity: 0.8;
-            color: rgba(255,255,255,0.9);
-        }
-
-        .user-badge {
-            background: rgba(255,255,255,0.2);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-        }
-
-        .notification-badge {
+        .notif-btn {
             position: relative;
-            background: rgba(255,255,255,0.2);
-            padding: 0.5rem;
-            border-radius: 50%;
-            cursor: pointer;
+            background: rgba(255,255,255,0.1);
+            border: none; color: white;
+            width: 36px; height: 36px; border-radius: 8px;
+            cursor: pointer; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .notif-count {
+            position: absolute; top: -4px; right: -4px;
+            background: var(--red-600); color: white;
+            width: 18px; height: 18px; border-radius: 50%;
+            font-size: 0.65rem; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        .notification-count {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #ff4757;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.75rem;
+        /* ===== LAYOUT ===== */
+        .main { margin-top: 64px; display: flex; min-height: calc(100vh - 64px); }
+        .sidebar {
+            width: 260px; background: white;
+            border-right: 1px solid var(--slate-200);
+            padding: 1.25rem 0;
+            position: fixed; top: 64px; bottom: 0; left: 0;
+            overflow-y: auto; z-index: 50;
         }
-
-        .container {
-            margin-top: 90px;
-            padding: 2rem;
-            max-width: 1400px;
+        .sidebar-section { padding: 0 0.75rem; margin-bottom: 1.5rem; }
+        .sidebar-label {
+            font-size: 0.65rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.1em;
+            color: var(--slate-500); padding: 0 0.75rem; margin-bottom: 0.5rem;
+        }
+        .nav-item {
+            display: flex; align-items: center; gap: 0.65rem;
+            padding: 0.6rem 0.75rem; border-radius: 8px;
+            cursor: pointer; font-size: 0.85rem; font-weight: 500;
+            color: var(--slate-700); transition: all 0.15s ease;
+            position: relative;
+        }
+        .nav-item:hover { background: var(--slate-100); color: var(--terra-700); }
+        .nav-item.active { background: var(--terra-100); color: var(--terra-800); font-weight: 600; }
+        .nav-item.active::before {
+            content: ''; position: absolute; left: 0; top: 50%;
+            transform: translateY(-50%);
+            width: 3px; height: 20px;
+            background: var(--terra-600); border-radius: 0 3px 3px 0;
+        }
+        .nav-icon { font-size: 1.1rem; width: 24px; text-align: center; }
+        .nav-badge {
             margin-left: auto;
-            margin-right: auto;
+            background: var(--red-100); color: var(--red-600);
+            padding: 0.1rem 0.45rem; border-radius: 10px;
+            font-size: 0.7rem; font-weight: 700;
         }
+        .nav-badge.amber { background: var(--amber-100); color: var(--amber-600); }
+        .nav-badge.green { background: var(--green-100); color: var(--green-600); }
+        .content { margin-left: 260px; flex: 1; padding: 1.5rem 2rem; max-width: 1200px; }
 
-        /* Mode Selection */
-        .mode-selection {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-            border-left: 5px solid #ff6b35;
+        /* ===== SCREENS ===== */
+        .screen { display: none; }
+        .screen.active { display: block; animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+        /* Page Header */
+        .page-header { margin-bottom: 1.5rem; }
+        .page-title { font-size: 1.4rem; font-weight: 700; color: var(--slate-900); margin-bottom: 0.25rem; }
+        .page-subtitle { font-size: 0.9rem; color: var(--slate-500); }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: white; border: 1px solid var(--slate-200);
+            border-radius: var(--radius); box-shadow: var(--shadow-sm);
+            margin-bottom: 1.25rem;
         }
-
-        .mode-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
+        .card-header {
+            padding: 1rem 1.25rem; border-bottom: 1px solid var(--slate-100);
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 0.5rem;
         }
+        .card-title { font-size: 0.95rem; font-weight: 700; color: var(--slate-900); }
+        .card-body { padding: 1.25rem; }
 
-        .mode-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #2d5f4f;
-        }
-
-        .mode-buttons {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .mode-btn {
-            padding: 0.75rem 1.5rem;
-            border: 2px solid #3d7f6f;
-            border-radius: 8px;
-            background: white;
-            color: #3d7f6f;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .mode-btn.active {
-            background: #3d7f6f;
-            color: white;
-        }
-
-        .mode-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(61, 127, 111, 0.2);
-        }
-
-        .mode-description {
-            font-size: 0.9rem;
-            color: #666;
-            line-height: 1.5;
-        }
-
-        /* Client Context Panel */
-        .client-context-panel {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-        }
-
-        .context-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #2d5f4f;
-            margin-bottom: 1rem;
-        }
-
-        /* Single Client Mode */
-        .single-client-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        .client-detail-card {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 8px;
-            border-left: 4px solid #3d7f6f;
-        }
-
-        .detail-label {
-            font-size: 0.8rem;
-            color: #666;
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-        }
-
-        .detail-value {
-            font-size: 1rem;
-            color: #333;
-            font-weight: 600;
-        }
-
-        /* Multiple Clients Mode */
-        .client-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1rem;
-        }
-
-        .client-card {
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        /* ===== TOOLTIPS ===== */
+        .has-tip {
             position: relative;
+            cursor: help;
         }
-
-        .client-card:hover {
-            border-color: #3d7f6f;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(61, 127, 111, 0.15);
+        .has-tip .tip-icon {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 18px; height: 18px;
+            border-radius: 50%; background: var(--slate-200);
+            color: var(--slate-500); font-size: 0.65rem; font-weight: 700;
+            margin-left: 0.35rem; cursor: help;
+            vertical-align: middle;
+            transition: all 0.15s ease;
         }
-
-        .client-card.active {
-            border-color: #2d5f4f;
-            background: linear-gradient(135deg, #f0f7f5 0%, #e8f5f1 100%);
-        }
-
-        .client-card.active::before {
-            content: '✓ Active';
+        .has-tip:hover .tip-icon { background: var(--terra-600); color: white; }
+        .has-tip .tip-box {
+            display: none;
             position: absolute;
-            top: 0.75rem;
-            right: 0.75rem;
-            background: #2d5f4f;
-            color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 6px;
-            font-size: 0.7rem;
-            font-weight: 600;
+            bottom: calc(100% + 8px); left: 50%;
+            transform: translateX(-50%);
+            background: var(--slate-900); color: white;
+            padding: 0.75rem 1rem; border-radius: 8px;
+            font-size: 0.78rem; line-height: 1.5;
+            min-width: 280px; max-width: 380px;
+            z-index: 200; box-shadow: var(--shadow-lg);
+            font-weight: 400;
+            pointer-events: none;
         }
-
-        .client-card-header {
-            margin-bottom: 1rem;
+        .has-tip .tip-box::after {
+            content: ''; position: absolute;
+            top: 100%; left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: var(--slate-900);
         }
+        .has-tip:hover .tip-box { display: block; }
+        .tip-box strong { color: var(--terra-400); }
+        .tip-box .tip-row { margin-top: 0.3rem; }
 
-        .client-card-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #2d5f4f;
-            margin-bottom: 0.25rem;
+        /* ===== LIFECYCLE BAR ===== */
+        .lifecycle-bar {
+            background: white; border: 1px solid var(--slate-200);
+            border-radius: var(--radius); padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem; box-shadow: var(--shadow-sm);
         }
-
-        .client-card-status {
-            font-size: 0.8rem;
-            padding: 0.2rem 0.6rem;
-            background: #e8f5f1;
-            color: #2d5f4f;
-            border-radius: 12px;
-            display: inline-block;
+        .lifecycle-label {
+            font-size: 0.75rem; font-weight: 600;
+            color: var(--slate-500); text-transform: uppercase;
+            letter-spacing: 0.06em; margin-bottom: 1rem;
         }
-
-        .client-card-details {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .client-detail {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .client-detail .detail-label {
-            min-width: 80px;
-        }
-
-        .client-detail .detail-value {
-            text-align: right;
-            flex: 1;
-        }
-
-        /* Audit Workflow Steps */
-        .audit-workflow {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-        }
-
-        .workflow-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .workflow-title {
-            color: #2d5f4f;
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .workflow-subtitle {
-            color: #666;
-            font-size: 1rem;
-        }
-
-        .workflow-steps {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            position: relative;
-            margin: 2rem 0;
-            padding: 0 25px;
-        }
-
-        .workflow-steps::before {
-            content: '';
-            position: absolute;
-            top: 25px;
-            left: 50px;
-            right: 50px;
-            height: 3px;
-            background: #e0e0e0;
-            z-index: 1;
-        }
-
-        .workflow-progress {
-            position: absolute;
-            top: 25px;
-            left: 50px;
-            height: 3px;
-            background: linear-gradient(90deg, #2d5f4f, #3d7f6f);
-            z-index: 2;
-            width: 16.66%;
-            transition: width 0.3s ease;
-        }
-
-        .workflow-step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-            z-index: 3;
-            cursor: pointer;
+        .lifecycle-steps { display: flex; gap: 0.25rem; }
+        .lc-step { flex: 1; text-align: center; cursor: pointer; }
+        .lc-step-bar {
+            height: 6px; border-radius: 3px;
+            background: var(--slate-200); margin-bottom: 0.6rem;
             transition: all 0.3s ease;
-            width: calc(100% / 7);
         }
-
-        .step-circle {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-            transition: all 0.3s ease;
-            border: 3px solid transparent;
+        .lc-step.completed .lc-step-bar { background: var(--terra-600); }
+        .lc-step.active .lc-step-bar {
+            background: linear-gradient(90deg, var(--terra-600), var(--terra-400));
+            box-shadow: 0 0 8px rgba(61,127,111,0.3);
         }
+        .lc-step-label { font-size: 0.7rem; font-weight: 500; color: var(--slate-500); }
+        .lc-step.completed .lc-step-label { color: var(--terra-700); font-weight: 600; }
+        .lc-step.active .lc-step-label { color: var(--terra-800); font-weight: 700; }
 
-        .step-circle.completed {
-            background: #2d5f4f;
-            color: white;
+        /* ===== METRICS ===== */
+        .metrics-row {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 1rem; margin-bottom: 1.5rem;
         }
-
-        .step-circle.active {
-            background: #3d7f6f;
-            color: white;
-            border-color: #2d5f4f;
-            transform: scale(1.1);
+        .metric {
+            background: white; border: 1px solid var(--slate-200);
+            border-radius: var(--radius); padding: 1rem 1.25rem;
+            box-shadow: var(--shadow-sm);
         }
-
-        .step-circle.pending {
-            background: white;
-            color: #999;
-            border-color: #e0e0e0;
+        .metric-label {
+            font-size: 0.75rem; font-weight: 600;
+            color: var(--slate-500); margin-bottom: 0.35rem;
+            display: flex; align-items: center;
         }
-
-        .step-label {
-            font-size: 0.85rem;
-            text-align: center;
-            max-width: 100px;
-            font-weight: 500;
-        }
-
-        .step-label.completed,
-        .step-label.active {
-            color: #2d5f4f;
-            font-weight: 600;
-        }
-
-        .step-label.pending {
-            color: #999;
-        }
-
-        /* Metrics Grid */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .metric-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-            border-left: 5px solid #3d7f6f;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .metric-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        }
-
-        .metric-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .metric-title {
-            font-size: 0.9rem;
-            color: #666;
-            font-weight: 500;
-        }
-
-        .metric-icon {
-            font-size: 1.5rem;
-            color: #3d7f6f;
-        }
-
         .metric-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #2d5f4f;
-            margin-bottom: 0.5rem;
+            font-size: 1.6rem; font-weight: 700;
+            color: var(--terra-800); font-family: 'JetBrains Mono', monospace;
         }
-
-        .metric-subtitle {
-            font-size: 0.85rem;
-            color: #666;
+        .metric-sub {
+            font-size: 0.75rem; color: var(--slate-500);
+            margin-top: 0.2rem; display: flex; align-items: center; gap: 0.4rem;
         }
-
-        .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin-left: 0.5rem;
+        .tag {
+            display: inline-block; padding: 0.15rem 0.5rem;
+            border-radius: 4px; font-size: 0.7rem; font-weight: 600;
         }
+        .tag-green { background: var(--green-100); color: var(--green-600); }
+        .tag-amber { background: var(--amber-100); color: var(--amber-600); }
+        .tag-red { background: var(--red-100); color: var(--red-600); }
+        .tag-blue { background: var(--blue-100); color: var(--blue-600); }
 
-        .status-excellent {
-            background: #d4edda;
-            color: #155724;
+        /* ===== BUTTONS ===== */
+        .btn {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.5rem 1rem; border-radius: 7px;
+            font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; border: none;
+            transition: all 0.15s ease; font-family: inherit;
         }
+        .btn-primary { background: var(--terra-700); color: white; }
+        .btn-primary:hover { background: var(--terra-800); box-shadow: var(--shadow-md); }
+        .btn-secondary { background: white; color: var(--terra-700); border: 1.5px solid var(--terra-600); }
+        .btn-secondary:hover { background: var(--terra-50); }
+        .btn-ghost { background: transparent; color: var(--slate-700); border: 1.5px solid var(--slate-300); }
+        .btn-ghost:hover { background: var(--slate-100); }
+        .btn-sm { padding: 0.35rem 0.7rem; font-size: 0.75rem; }
+        .btn-danger { background: var(--red-100); color: var(--red-600); border: 1px solid var(--red-600); }
+        .btn-danger:hover { background: var(--red-600); color: white; }
+        .btn-success { background: var(--green-600); color: white; }
+        .btn-success:hover { background: #15803d; }
+        .btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-        .status-good {
-            background: #fff3cd;
-            color: #856404;
+        /* ===== TABLES ===== */
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th {
+            text-align: left; padding: 0.6rem 0.75rem;
+            font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.05em; color: var(--slate-500);
+            background: var(--slate-50); border-bottom: 2px solid var(--slate-200);
         }
-
-        .status-needs-attention {
-            background: #f8d7da;
-            color: #721c24;
+        .data-table td {
+            padding: 0.75rem; font-size: 0.85rem;
+            border-bottom: 1px solid var(--slate-100); vertical-align: middle;
         }
+        .data-table tr:hover { background: var(--slate-50); }
 
-        /* Section Styles */
-        .section {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #2d5f4f;
-        }
-
-        .section-actions {
-            display: flex;
+        /* ===== ENGAGEMENT ===== */
+        .engagement-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 0.75rem;
         }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+        .eng-detail {
+            padding: 0.75rem; background: var(--slate-50);
+            border-radius: 8px; border-left: 3px solid var(--terra-500);
         }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #2d5f4f, #3d7f6f);
-            color: white;
+        .eng-detail-label {
+            font-size: 0.7rem; font-weight: 600;
+            color: var(--slate-500); text-transform: uppercase;
+            letter-spacing: 0.04em; margin-bottom: 0.15rem;
         }
+        .eng-detail-value { font-size: 0.9rem; font-weight: 600; color: var(--slate-900); }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(61, 127, 111, 0.3);
+        /* ===== INDEPENDENCE ===== */
+        .independence-box {
+            border: 2px solid var(--amber-500); background: var(--amber-100);
+            border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.25rem;
         }
+        .independence-box.confirmed { border-color: var(--green-600); background: var(--green-100); }
+        .independence-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        .independence-text { font-size: 0.85rem; color: var(--slate-700); line-height: 1.7; }
+        .checkbox-row { display: flex; align-items: flex-start; gap: 0.5rem; margin-top: 0.75rem; font-size: 0.85rem; }
+        .checkbox-row input[type="checkbox"] { margin-top: 0.25rem; accent-color: var(--terra-600); width: 16px; height: 16px; }
 
-        .btn-secondary {
-            background: white;
-            color: #3d7f6f;
-            border: 2px solid #3d7f6f;
+        /* ===== EVIDENCE ===== */
+        .evidence-filters { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .filter-chip {
+            padding: 0.35rem 0.75rem;
+            border: 1.5px solid var(--slate-300); border-radius: 20px;
+            font-size: 0.78rem; font-weight: 500;
+            cursor: pointer; background: white; color: var(--slate-700);
+            transition: all 0.15s ease;
         }
-
-        .btn-secondary:hover {
-            background: #f0f7f5;
+        .filter-chip:hover { border-color: var(--terra-500); color: var(--terra-700); }
+        .filter-chip.active { background: var(--terra-700); color: white; border-color: var(--terra-700); }
+        .evidence-row {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 1rem; border: 1px solid var(--slate-200);
+            border-radius: 8px; margin-bottom: 0.65rem;
+            background: white; transition: all 0.15s ease;
         }
-
-        .btn-sm {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.8rem;
+        .evidence-row:hover { border-color: var(--terra-400); box-shadow: var(--shadow-sm); }
+        .ev-icon {
+            width: 44px; height: 44px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem; background: var(--slate-100); flex-shrink: 0;
         }
+        .ev-info { flex: 1; min-width: 0; }
+        .ev-name { font-weight: 600; font-size: 0.9rem; color: var(--slate-900); margin-bottom: 0.2rem; }
+        .ev-meta { display: flex; gap: 0.75rem; font-size: 0.75rem; color: var(--slate-500); flex-wrap: wrap; align-items: center; }
+        .ev-frameworks { display: flex; gap: 0.25rem; margin-top: 0.35rem; }
+        .fw-badge { background: var(--terra-100); color: var(--terra-800); padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.65rem; font-weight: 600; }
+        .ev-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
 
-        /* Projects Table */
-        .projects-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-            table-layout: fixed;
-        }
+        /* ===== FINDINGS ===== */
+        .finding-severity { display: flex; align-items: center; gap: 0.35rem; }
+        .severity-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .severity-dot.critical { background: var(--red-600); }
+        .severity-dot.major { background: var(--amber-600); }
+        .severity-dot.minor { background: var(--blue-600); }
+        .severity-dot.observation { background: var(--slate-500); }
 
-        .projects-table th,
-        .projects-table td {
-            padding: 0.75rem;
-            text-align: left;
-            border-bottom: 1px solid #e0e0e0;
-            overflow: hidden;
-        }
-
-        .projects-table th:nth-child(1) { width: 20%; }
-        .projects-table th:nth-child(2) { width: 15%; }
-        .projects-table th:nth-child(3) { width: 20%; }
-        .projects-table th:nth-child(4) { width: 15%; }
-        .projects-table th:nth-child(5) { width: 12%; }
-        .projects-table th:nth-child(6) { width: 18%; }
-
-        .projects-table th {
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #2d5f4f;
-            font-size: 0.9rem;
-        }
-
-        .projects-table td {
-            font-size: 0.85rem;
-            vertical-align: middle;
-        }
-
-        .project-name {
-            font-weight: 600;
-            color: #2d5f4f;
-        }
-
-        .framework-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.25rem;
-        }
-
-        .framework-badge {
-            display: inline-block;
-            padding: 0.2rem 0.5rem;
-            background: #e8f5f1;
-            color: #2d5f4f;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .progress-bar {
-            width: 100px;
-            height: 8px;
-            background: #e0e0e0;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #2d5f4f, #3d7f6f);
-            transition: width 0.3s ease;
-        }
-
-        .project-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        /* Quick Actions */
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-
-        .action-card {
-            padding: 1.5rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .action-card:hover {
-            border-color: #3d7f6f;
-            background: #f0f7f5;
-            transform: translateY(-2px);
-        }
-
-        .action-icon {
-            font-size: 3rem;
-            margin: 0 auto 1rem;
-            color: #3d7f6f;
-        }
-
-        .action-title {
-            font-weight: 600;
-            color: #2d5f4f;
-            margin-bottom: 0.5rem;
-        }
-
-        .action-description {
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .compliance-overview {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .compliance-item {
-            text-align: center;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        .compliance-score {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #2d5f4f;
-        }
-
-        .compliance-label {
-            font-size: 0.85rem;
-            color: #666;
-            margin-top: 0.25rem;
-        }
-
-        /* Hidden elements */
-        .hidden {
-            display: none;
-        }
-
-        /* Screen Views */
-        .screen-view {
-            margin-top: 2rem;
-        }
-
-        /* Evidence Vault Styles */
-        .evidence-categories {
-            margin-top: 1.5rem;
-        }
-
-        .category-tabs {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid #f0f0f0;
-            padding-bottom: 1rem;
-        }
-
-        .category-tab {
-            padding: 0.5rem 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            background: white;
-            color: #666;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .category-tab.active {
-            background: #3d7f6f;
-            color: white;
-            border-color: #3d7f6f;
-        }
-
-        .category-tab:hover {
-            border-color: #3d7f6f;
-            color: #3d7f6f;
-        }
-
-        .evidence-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-
-        .evidence-item {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            background: white;
-            transition: all 0.3s ease;
-        }
-
-        .evidence-item:hover {
-            border-color: #3d7f6f;
-            box-shadow: 0 2px 8px rgba(61, 127, 111, 0.1);
-        }
-
-        .evidence-icon {
-            font-size: 2rem;
-            min-width: 60px;
-            text-align: center;
-        }
-
-        .evidence-info {
-            flex: 1;
-        }
-
-        .evidence-name {
-            font-weight: 600;
-            color: #2d5f4f;
-            margin-bottom: 0.5rem;
-        }
-
-        .evidence-meta {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .evidence-meta span {
-            font-size: 0.8rem;
-            color: #666;
-        }
-
-        .evidence-type {
-            background: #f8f9fa;
-            padding: 0.2rem 0.5rem;
-            border-radius: 4px;
-            font-weight: 500;
-        }
-
-        .evidence-status {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .ai-confidence {
-            font-size: 0.75rem;
-            color: #666;
-        }
-
-        .evidence-frameworks {
-            display: flex;
-            gap: 0.25rem;
-            flex-wrap: wrap;
-        }
-
-        .evidence-actions {
-            display: flex;
-            gap: 0.5rem;
-            min-width: 150px;
-        }
-
-        /* Data Lineage Styles */
-        .lineage-container {
-            margin-top: 1.5rem;
-        }
-
-        .lineage-header {
-            text-align: center;
-            margin-bottom: 2rem;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        .lineage-header h3 {
-            color: #2d5f4f;
-            margin-bottom: 0.5rem;
-        }
-
+        /* ===== LINEAGE ===== */
         .lineage-flow {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 2rem;
-            margin: 2rem 0;
-            flex-wrap: wrap;
+            display: flex; align-items: center; justify-content: center;
+            gap: 1rem; padding: 1.5rem 0; flex-wrap: wrap;
         }
-
         .lineage-node {
+            background: white; border: 2px solid var(--slate-200);
+            border-radius: var(--radius); padding: 1rem;
+            min-width: 200px; max-width: 240px; text-align: center;
+        }
+        .lineage-node.source { border-color: var(--blue-600); }
+        .lineage-node.calc { border-color: var(--amber-500); }
+        .lineage-node.result { border-color: var(--green-600); }
+        .node-type { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+        .lineage-node.source .node-type { color: var(--blue-600); }
+        .lineage-node.calc .node-type { color: var(--amber-600); }
+        .lineage-node.result .node-type { color: var(--green-600); }
+        .node-val { font-weight: 700; font-size: 1.05rem; color: var(--slate-900); margin-bottom: 0.25rem; }
+        .node-detail { font-size: 0.8rem; color: var(--slate-500); }
+        .lineage-arrow { font-size: 1.5rem; color: var(--slate-400); }
+
+        /* ===== AUDIT TRAIL ===== */
+        .trail-entry {
+            display: flex; gap: 1rem; padding: 0.6rem 0;
+            border-bottom: 1px solid var(--slate-100); font-size: 0.85rem;
+        }
+        .trail-time {
+            min-width: 130px; font-weight: 500; color: var(--slate-500);
+            font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+        }
+        .trail-action { color: var(--slate-700); }
+
+        /* ===== COMPLIANCE ===== */
+        .compliance-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.75rem;
+        }
+        .compliance-item {
+            text-align: center; padding: 1rem;
+            background: var(--slate-50); border-radius: 8px;
+            border: 1px solid var(--slate-200);
+        }
+        .compliance-score {
+            font-size: 1.5rem; font-weight: 700;
+            font-family: 'JetBrains Mono', monospace; color: var(--terra-800);
+        }
+        .compliance-label { font-size: 0.78rem; color: var(--slate-500); margin-top: 0.25rem; font-weight: 500; }
+
+        /* ===== REPORT ===== */
+        .report-card {
+            border: 1px solid var(--slate-200); border-radius: var(--radius);
+            padding: 1.25rem; display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 0.75rem; background: white;
+        }
+        .report-info { display: flex; align-items: center; gap: 1rem; }
+        .report-icon {
+            width: 44px; height: 44px; border-radius: 8px;
+            background: var(--terra-100);
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+        }
+        .report-name { font-weight: 600; font-size: 0.9rem; }
+        .report-desc { font-size: 0.78rem; color: var(--slate-500); }
+
+        /* ===== SIGN-OFF ===== */
+        .signoff-checklist { list-style: none; }
+        .signoff-checklist li {
+            padding: 0.75rem 0; border-bottom: 1px solid var(--slate-100);
+            display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem;
+        }
+        .signoff-checklist li input[type="checkbox"] { accent-color: var(--terra-600); width: 18px; height: 18px; }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none; position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 500;
+            align-items: center; justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: white; border-radius: 12px;
+            width: 90%; max-width: 720px;
+            max-height: 85vh; overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            animation: modalIn 0.2s ease;
+        }
+        @keyframes modalIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform:none; } }
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--slate-200);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-title { font-size: 1.1rem; font-weight: 700; }
+        .modal-close {
+            background: none; border: none; font-size: 1.5rem;
+            cursor: pointer; color: var(--slate-500); line-height: 1;
+        }
+        .modal-close:hover { color: var(--slate-900); }
+        .modal-body { padding: 1.5rem; }
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--slate-200);
+            display: flex; justify-content: flex-end; gap: 0.5rem;
+        }
+
+        /* ===== FORM ===== */
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label {
+            display: block; font-size: 0.8rem; font-weight: 600;
+            color: var(--slate-700); margin-bottom: 0.35rem;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%; padding: 0.6rem 0.8rem;
+            border: 1.5px solid var(--slate-300); border-radius: 7px;
+            font-size: 0.85rem; font-family: inherit;
+            transition: border-color 0.15s ease;
             background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 1rem;
-            min-width: 200px;
-            max-width: 250px;
-            text-align: center;
         }
-
-        .lineage-node.source {
-            border-color: #3498db;
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none; border-color: var(--terra-600);
+            box-shadow: 0 0 0 3px rgba(61,127,111,0.12);
         }
+        .form-textarea { resize: vertical; min-height: 80px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 
-        .lineage-node.calculation {
-            border-color: #f39c12;
+        /* Lineage selector tabs */
+        .lineage-tabs {
+            display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap;
         }
-
-        .lineage-node.result {
-            border-color: #27ae60;
+        .lineage-tab {
+            padding: 0.5rem 1rem; border: 1.5px solid var(--slate-300);
+            border-radius: 8px; background: white; cursor: pointer;
+            font-size: 0.8rem; font-weight: 600; color: var(--slate-700);
+            transition: all 0.15s ease;
         }
+        .lineage-tab:hover { border-color: var(--terra-500); }
+        .lineage-tab.active { background: var(--terra-700); color: white; border-color: var(--terra-700); }
+        .lineage-panel { display: none; }
+        .lineage-panel.active { display: block; }
 
-        .node-header {
-            font-weight: 600;
-            padding: 0.5rem;
-            border-radius: 6px;
-            margin-bottom: 0.75rem;
+        /* Draft viewer */
+        .draft-content {
+            background: var(--slate-50); border: 1px solid var(--slate-200);
+            border-radius: 8px; padding: 1.5rem;
+            font-size: 0.85rem; line-height: 1.8;
+            max-height: 500px; overflow-y: auto;
         }
+        .draft-content h3 { color: var(--terra-800); margin: 1rem 0 0.5rem; font-size: 1rem; }
+        .draft-content p { margin-bottom: 0.75rem; }
+        .draft-content .placeholder { color: var(--amber-600); font-weight: 600; background: var(--amber-100); padding: 0.1rem 0.4rem; border-radius: 3px; }
 
-        .lineage-node.source .node-header {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .lineage-node.calculation .node-header {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .lineage-node.result .node-header {
-            background: #e8f5e8;
-            color: #388e3c;
-        }
-
-        .node-title {
-            font-weight: 600;
-            color: #2d5f4f;
-            margin-bottom: 0.5rem;
-        }
-
-        .node-details {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .node-date {
-            color: #999;
-            font-size: 0.8rem;
-        }
-
-        .lineage-arrow {
-            font-size: 2rem;
-            color: #3d7f6f;
-            font-weight: bold;
-        }
-
-        .lineage-metadata {
-            margin-top: 2rem;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        .lineage-metadata h4 {
-            color: #2d5f4f;
+        /* Read-only banner */
+        .read-only-banner {
+            background: var(--blue-100); color: var(--blue-600);
+            padding: 0.5rem 1rem; border-radius: 6px;
+            font-size: 0.78rem; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 0.4rem;
             margin-bottom: 1rem;
         }
 
-        .audit-entries {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
+        /* ===== UTILITIES ===== */
+        .flex { display: flex; }
+        .gap-sm { gap: 0.5rem; }
+        .gap-md { gap: 1rem; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .mt-1 { margin-top: 0.75rem; }
+        .mt-2 { margin-top: 1.25rem; }
+        .mb-1 { margin-bottom: 0.75rem; }
+        .text-sm { font-size: 0.85rem; }
+        .text-xs { font-size: 0.75rem; }
+        .text-muted { color: var(--slate-500); }
+        .text-mono { font-family: 'JetBrains Mono', monospace; }
+        .fw-600 { font-weight: 600; }
 
-        .audit-entry {
-            display: flex;
-            gap: 1rem;
-            padding: 0.5rem;
-            background: white;
-            border-radius: 4px;
-        }
-
-        .audit-date {
-            min-width: 120px;
-            font-weight: 500;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .audit-action {
-            color: #333;
-            font-size: 0.9rem;
+        @media (max-width: 900px) {
+            .sidebar { display: none; }
+            .content { margin-left: 0; }
+            .metrics-row { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <div class="header">
-        <div class="logo-section">
-            <div class="logo">HERTZWAVE</div>
-            <div class="logo-subtitle">Carbon Accounting Platform</div>
-            <div class="tier-badge">ENTERPRISE AUDITOR PACK</div>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+    <div class="header-left">
+        <div class="logo">TERRA<span>CAP</span></div>
+        <div class="header-divider"></div>
+        <div class="pack-badge">Auditor Pack</div>
+    </div>
+    <div class="header-right">
+        <div class="engagement-context">
+            <div class="client-name">Acme Manufacturing Ltd</div>
+            <div class="engagement-meta">FY 2024-25 · Limited Assurance · BRSR + ISSB S2</div>
         </div>
-        <div class="user-info">
-            <div class="client-context">
-                <div class="client-name" id="current-client-name">Acme Manufacturing Ltd</div>
-                <div class="client-subtitle" id="current-client-subtitle">Enterprise Client Access</div>
+        <button class="notif-btn">🔔<span class="notif-count">4</span></button>
+        <div class="auditor-badge"><span class="status-dot"></span> Sarah Mitchell · Deloitte</div>
+    </div>
+</div>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-label">Audit Lifecycle</div>
+            <div class="nav-item active" data-screen="dashboard" onclick="navigateTo('dashboard')"><span class="nav-icon">📊</span> Dashboard</div>
+            <div class="nav-item" data-screen="engagement" onclick="navigateTo('engagement')"><span class="nav-icon">📋</span> Engagement <span class="nav-badge green">✓</span></div>
+            <div class="nav-item" data-screen="planning" onclick="navigateTo('planning')"><span class="nav-icon">🎯</span> Planning & Risk <span class="nav-badge green">✓</span></div>
+            <div class="nav-item" data-screen="evidence" onclick="navigateTo('evidence')"><span class="nav-icon">📁</span> Evidence Review <span class="nav-badge amber">3</span></div>
+            <div class="nav-item" data-screen="testing" onclick="navigateTo('testing')"><span class="nav-icon">🔬</span> Testing & Validation</div>
+            <div class="nav-item" data-screen="findings" onclick="navigateTo('findings')"><span class="nav-icon">⚠️</span> Findings <span class="nav-badge">5</span></div>
+            <div class="nav-item" data-screen="reporting" onclick="navigateTo('reporting')"><span class="nav-icon">📝</span> Reporting</div>
+            <div class="nav-item" data-screen="signoff" onclick="navigateTo('signoff')"><span class="nav-icon">✅</span> Sign-off</div>
+        </div>
+        <div class="sidebar-section">
+            <div class="sidebar-label">Tools</div>
+            <div class="nav-item" data-screen="lineage" onclick="navigateTo('lineage')"><span class="nav-icon">🔗</span> Data Lineage</div>
+            <div class="nav-item" data-screen="compliance" onclick="navigateTo('compliance')"><span class="nav-icon">🌍</span> Compliance Map</div>
+            <div class="nav-item" data-screen="workpapers" onclick="navigateTo('workpapers')"><span class="nav-icon">📂</span> Working Papers</div>
+        </div>
+        <div class="sidebar-section" style="margin-top:auto; padding-top:1rem; border-top:1px solid var(--slate-200);">
+            <div class="sidebar-label">Access</div>
+            <div style="padding:0.5rem 0.75rem; font-size:0.75rem; color:var(--slate-500); line-height:1.5;">
+                <strong>Read-only</strong> access to client data.<br>
+                Your observations & working papers are private to your audit team.
             </div>
-            <div class="notification-badge">
-                🔔
-                <div class="notification-count">3</div>
-            </div>
-            <div class="user-badge">Sarah Mitchell | Lead Auditor | Deloitte</div>
         </div>
     </div>
 
-    <div class="container">
-        <!-- Mode Selection -->
-        <div class="mode-selection">
-            <div class="mode-header">
-                <div class="mode-title">Enterprise Auditor Pack - Select Mode</div>
-                <div class="mode-buttons">
-                    <button class="mode-btn active" id="independent-mode-btn" onclick="setMode('independent')">Independent Auditor</button>
-                    <button class="mode-btn" id="consultant-mode-btn" onclick="setMode('consultant')">ESG Consultant</button>
-                </div>
-            </div>
-            <div class="mode-description" id="mode-description">
-                <strong>Independent Auditor Mode:</strong> Access and audit data for a single enterprise client. Review complete carbon accounting data, evidence, and controls for assurance purposes.
-            </div>
-        </div>
+    <!-- Content -->
+    <div class="content">
 
-        <!-- Client Context Panel -->
-        <div class="client-context-panel">
-            <!-- Single Client Mode Content -->
-            <div id="single-client-mode">
-                <div class="context-title">Current Audit Engagement</div>
-                <div class="single-client-info">
-                    <div class="client-detail-card">
-                        <div class="detail-label">Enterprise Client</div>
-                        <div class="detail-value">Acme Manufacturing Ltd</div>
-                    </div>
-                    <div class="client-detail-card">
-                        <div class="detail-label">Audit Period</div>
-                        <div class="detail-value">FY 2024-25</div>
-                    </div>
-                    <div class="client-detail-card">
-                        <div class="detail-label">Frameworks</div>
-                        <div class="detail-value">ISSB S2, CSRD E1, BRSR Core</div>
-                    </div>
-                    <div class="client-detail-card">
-                        <div class="detail-label">Audit Firm</div>
-                        <div class="detail-value">Deloitte Haskins & Sells</div>
-                    </div>
-                    <div class="client-detail-card">
-                        <div class="detail-label">Assurance Level</div>
-                        <div class="detail-value">Limited Assurance</div>
-                    </div>
-                    <div class="client-detail-card">
-                        <div class="detail-label">Entities</div>
-                        <div class="detail-value">3 Legal Entities</div>
-                    </div>
-                    <div class="client-detail-card">
-                        <div class="detail-label">Facilities</div>
-                        <div class="detail-value">12 Manufacturing Sites</div>
-                    </div>
-                    <div class="client-detail-card">
-                        <div class="detail-label">Due Date</div>
-                        <div class="detail-value">March 15, 2025</div>
-                    </div>
+        <!-- ==================== DASHBOARD ==================== -->
+        <div class="screen active" id="screen-dashboard">
+            <div class="page-header">
+                <div class="page-title">Audit Dashboard</div>
+                <div class="page-subtitle">Acme Manufacturing Ltd · FY 2024-25 Multi-Framework Assurance</div>
+            </div>
+            <div class="lifecycle-bar">
+                <div class="lifecycle-label">Audit Lifecycle Progress</div>
+                <div class="lifecycle-steps">
+                    <div class="lc-step completed" onclick="navigateTo('engagement')"><div class="lc-step-bar"></div><div class="lc-step-label">Engagement<br>Acceptance</div></div>
+                    <div class="lc-step completed" onclick="navigateTo('planning')"><div class="lc-step-bar"></div><div class="lc-step-label">Planning &<br>Risk Assessment</div></div>
+                    <div class="lc-step active" onclick="navigateTo('evidence')"><div class="lc-step-bar"></div><div class="lc-step-label">Evidence Review<br>& Testing</div></div>
+                    <div class="lc-step" onclick="navigateTo('findings')"><div class="lc-step-bar"></div><div class="lc-step-label">Findings &<br>Observations</div></div>
+                    <div class="lc-step" onclick="navigateTo('reporting')"><div class="lc-step-bar"></div><div class="lc-step-label">Report<br>Drafting</div></div>
+                    <div class="lc-step" onclick="navigateTo('signoff')"><div class="lc-step-bar"></div><div class="lc-step-label">Sign-off &<br>Certification</div></div>
                 </div>
             </div>
 
-            <!-- Multiple Clients Mode Content -->
-            <div id="multiple-clients-mode" class="hidden">
-                <div class="context-title">ESG Consulting Portfolio</div>
-                <div class="client-cards">
-                    <div class="client-card active" onclick="selectClient('acme')">
-                        <div class="client-card-header">
-                            <div class="client-card-name">Acme Manufacturing Ltd</div>
-                            <div class="client-card-status">Active Audit</div>
-                        </div>
-                        <div class="client-card-details">
-                            <div class="client-detail">
-                                <span class="detail-label">Frameworks:</span>
-                                <span class="detail-value">ISSB S2, CSRD E1, BRSR Core</span>
-                            </div>
-                            <div class="client-detail">
-                                <span class="detail-label">Progress:</span>
-                                <span class="detail-value">Evidence Collection (65%)</span>
-                            </div>
-                        </div>
+            <!-- Metrics with Tooltips -->
+            <div class="metrics-row">
+                <div class="metric">
+                    <div class="metric-label has-tip">Evidence Completeness<span class="tip-icon">?</span>
+                        <div class="tip-box"><strong>Evidence Completeness</strong> measures what percentage of the required supporting documents have been uploaded by the client and validated. Gaps mean the client has not yet provided a document that the auditor needs to review.
+                        <div class="tip-row">⬤ Scope 1: 5 of 6 docs received</div>
+                        <div class="tip-row">⬤ Scope 2: 10 of 12 docs received</div>
+                        <div class="tip-row">⬤ Scope 3: 8 of 9 docs received</div>
+                        <div class="tip-row">⬤ Policies: 3 of 3 docs received</div></div>
                     </div>
-                    
-                    <div class="client-card" onclick="selectClient('globaltech')">
-                        <div class="client-card-header">
-                            <div class="client-card-name">Global Tech Solutions</div>
-                            <div class="client-card-status">Control Testing</div>
-                        </div>
-                        <div class="client-card-details">
-                            <div class="client-detail">
-                                <span class="detail-label">Frameworks:</span>
-                                <span class="detail-value">CSRD E1, CDP Climate</span>
-                            </div>
-                            <div class="client-detail">
-                                <span class="detail-label">Progress:</span>
-                                <span class="detail-value">Control Testing (80%)</span>
-                            </div>
-                        </div>
+                    <div class="metric-value">87%</div>
+                    <div class="metric-sub"><span class="tag tag-amber">3 gaps</span> pending from client</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label has-tip">Tests Completed<span class="tip-icon">?</span>
+                        <div class="tip-box"><strong>Tests Completed</strong> tracks audit test procedures designed by the Lead Auditor during the Planning phase and executed by the audit team.
+                        <div class="tip-row"><strong>Designed by:</strong> Lead Auditor (Sarah M.)</div>
+                        <div class="tip-row"><strong>Executed by:</strong> Audit team members</div>
+                        <div class="tip-row"><strong>Reviewed by:</strong> Engagement Manager</div>
+                        <div class="tip-row">Types: Substantive, Analytical, Control, Reperformance</div>
+                        <div class="tip-row">Tests are run inside the Testing & Validation screen using TerraCAP's automated tools + manual procedures.</div></div>
                     </div>
-                    
-                    <div class="client-card" onclick="selectClient('sustainable')">
-                        <div class="client-card-header">
-                            <div class="client-card-name">Sustainable Industries Corp</div>
-                            <div class="client-card-status">Planning</div>
-                        </div>
-                        <div class="client-card-details">
-                            <div class="client-detail">
-                                <span class="detail-label">Frameworks:</span>
-                                <span class="detail-value">ISSB S2, BRSR Core</span>
-                            </div>
-                            <div class="client-detail">
-                                <span class="detail-label">Progress:</span>
-                                <span class="detail-value">Project Setup (25%)</span>
-                            </div>
-                        </div>
+                    <div class="metric-value">12/28</div>
+                    <div class="metric-sub"><span class="tag tag-blue">In Progress</span> 43% done</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label has-tip">Open Findings<span class="tip-icon">?</span>
+                        <div class="tip-box"><strong>Open Findings</strong> are issues discovered during audit testing that require management attention or correction.
+                        <div class="tip-row">Findings are logged by the auditor and sent to the client for a management response.</div>
+                        <div class="tip-row"><strong>Critical:</strong> Material misstatement risk</div>
+                        <div class="tip-row"><strong>Major:</strong> Significant but correctable</div>
+                        <div class="tip-row"><strong>Minor:</strong> Disclosure improvements</div>
+                        <div class="tip-row"><strong>Observation:</strong> Best-practice suggestions</div></div>
+                    </div>
+                    <div class="metric-value">5</div>
+                    <div class="metric-sub"><span class="tag tag-red">1 critical</span> <span class="tag tag-amber">2 major</span></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label has-tip">Days to Deadline<span class="tip-icon">?</span>
+                        <div class="tip-box"><strong>Days to Deadline</strong> counts calendar days until the assurance opinion must be issued. The deadline is set in the Engagement Acceptance terms. All findings must be resolved or disclosed, and all sign-offs obtained, before issuance.</div>
+                    </div>
+                    <div class="metric-value">34</div>
+                    <div class="metric-sub"><span class="tag tag-green">On Track</span> due Mar 15</div>
+                </div>
+            </div>
+
+            <!-- Priority Actions -->
+            <div class="card">
+                <div class="card-header"><div class="card-title">⚡ Priority Actions</div></div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead><tr><th>Action</th><th>Category</th><th>Priority</th><th>Due</th><th></th></tr></thead>
+                        <tbody>
+                            <tr><td class="fw-600">Review Scope 1 diesel consumption anomaly</td><td><span class="tag tag-red">Finding</span></td><td>Critical</td><td>Feb 12</td><td><button class="btn btn-sm btn-primary" onclick="navigateTo('findings')">Review</button></td></tr>
+                            <tr><td class="fw-600">Request missing BESCOM bills (Nov-Dec)</td><td><span class="tag tag-amber">Evidence Gap</span></td><td>High</td><td>Feb 14</td><td><button class="btn btn-sm btn-secondary" onclick="navigateTo('evidence')">View</button></td></tr>
+                            <tr><td class="fw-600">Complete Scope 3 sampling verification</td><td><span class="tag tag-blue">Testing</span></td><td>Medium</td><td>Feb 18</td><td><button class="btn btn-sm btn-secondary" onclick="navigateTo('testing')">Start</button></td></tr>
+                            <tr><td class="fw-600">Validate emission factor selection for refrigerants</td><td><span class="tag tag-blue">Testing</span></td><td>Medium</td><td>Feb 20</td><td><button class="btn btn-sm btn-secondary" onclick="navigateTo('testing')">Start</button></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Engagement Summary -->
+            <div class="card">
+                <div class="card-header"><div class="card-title">Engagement Summary</div><button class="btn btn-sm btn-ghost" onclick="navigateTo('engagement')">View Details →</button></div>
+                <div class="card-body">
+                    <div class="engagement-grid">
+                        <div class="eng-detail"><div class="eng-detail-label">Client</div><div class="eng-detail-value">Acme Manufacturing Ltd</div></div>
+                        <div class="eng-detail"><div class="eng-detail-label">Audit Period</div><div class="eng-detail-value">FY 2024-25</div></div>
+                        <div class="eng-detail"><div class="eng-detail-label">Frameworks</div><div class="eng-detail-value">BRSR Core, ISSB S2, CSRD E1</div></div>
+                        <div class="eng-detail"><div class="eng-detail-label">Assurance Level</div><div class="eng-detail-value">Limited Assurance</div></div>
+                        <div class="eng-detail"><div class="eng-detail-label">Entities</div><div class="eng-detail-value">3 Legal Entities</div></div>
+                        <div class="eng-detail"><div class="eng-detail-label">Facilities</div><div class="eng-detail-value">12 Manufacturing Sites</div></div>
+                        <div class="eng-detail"><div class="eng-detail-label">Independence</div><div class="eng-detail-value" style="color:var(--green-600)">✓ Confirmed</div></div>
+                        <div class="eng-detail"><div class="eng-detail-label">Deadline</div><div class="eng-detail-value">March 15, 2025</div></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Current Audit Workflow Progress -->
-        <div class="audit-workflow">
-            <div class="workflow-header">
-                <div class="workflow-title" id="workflow-title">Audit Progress: Acme Manufacturing Ltd</div>
-                <div class="workflow-subtitle">Track audit journey from project setup to certification</div>
-            </div>
-            
-            <div class="workflow-steps">
-                <div class="workflow-progress" id="workflow-progress"></div>
-                
-                <div class="workflow-step" onclick="goToStep(1)">
-                    <div class="step-circle completed">✓</div>
-                    <div class="step-label completed">Project Setup</div>
-                </div>
-                
-                <div class="workflow-step" onclick="goToStep(2)">
-                    <div class="step-circle active">2</div>
-                    <div class="step-label active">Evidence Collection</div>
-                </div>
-                
-                <div class="workflow-step" onclick="goToStep(3)">
-                    <div class="step-circle pending">3</div>
-                    <div class="step-label pending">Data Validation</div>
-                </div>
-                
-                <div class="workflow-step" onclick="goToStep(4)">
-                    <div class="step-circle pending">4</div>
-                    <div class="step-label pending">Control Testing</div>
-                </div>
-                
-                <div class="workflow-step" onclick="goToStep(5)">
-                    <div class="step-circle pending">5</div>
-                    <div class="step-label pending">Compliance Review</div>
-                </div>
-                
-                <div class="workflow-step" onclick="goToStep(6)">
-                    <div class="step-circle pending">6</div>
-                    <div class="step-label pending">Report Generation</div>
-                </div>
-                
-                <div class="workflow-step" onclick="goToStep(7)">
-                    <div class="step-circle pending">7</div>
-                    <div class="step-label pending">Certification</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Key Metrics -->
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <div class="metric-header">
-                    <div class="metric-title" id="metric-1-title">Audit Readiness Score</div>
-                    <div class="metric-icon">📊</div>
-                </div>
-                <div class="metric-value" id="metric-1-value">94%</div>
-                <div class="metric-subtitle" id="metric-1-subtitle">
-                    Excellent readiness
-                    <span class="status-badge status-excellent">Ready for Review</span>
-                </div>
-            </div>
-
-            <div class="metric-card">
-                <div class="metric-header">
-                    <div class="metric-title" id="metric-2-title">Active Audit Projects</div>
-                    <div class="metric-icon">📋</div>
-                </div>
-                <div class="metric-value" id="metric-2-value">1</div>
-                <div class="metric-subtitle" id="metric-2-subtitle">
-                    Multi-framework assurance
-                    <span class="status-badge status-good">On Track</span>
-                </div>
-            </div>
-
-            <div class="metric-card">
-                <div class="metric-header">
-                    <div class="metric-title" id="metric-3-title">Evidence Completeness</div>
-                    <div class="metric-icon">📄</div>
-                </div>
-                <div class="metric-value" id="metric-3-value">87%</div>
-                <div class="metric-subtitle" id="metric-3-subtitle">
-                    8 evidence gaps identified
-                    <span class="status-badge status-needs-attention">Action Needed</span>
-                </div>
-            </div>
-
-            <div class="metric-card">
-                <div class="metric-header">
-                    <div class="metric-title" id="metric-4-title">Framework Coverage</div>
-                    <div class="metric-icon">🌍</div>
-                </div>
-                <div class="metric-value" id="metric-4-value">3/8</div>
-                <div class="metric-subtitle" id="metric-4-subtitle">
-                    ISSB S2, CSRD E1, BRSR Core
-                    <span class="status-badge status-excellent">Complete</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Active Projects -->
-        <div class="section">
-            <div class="section-header">
-                <div class="section-title" id="projects-title">Current Audit Project</div>
-                <div class="section-actions">
-                    <button class="btn btn-secondary btn-sm" onclick="exportAuditSummary()">Export Audit Summary</button>
-                    <button class="btn btn-primary btn-sm" onclick="openEvidenceVault()">Access Evidence Vault</button>
-                </div>
-            </div>
-
-            <table class="projects-table" id="projects-table">
-                <thead>
-                    <tr>
-                        <th>Project Name</th>
-                        <th id="table-header-2">Entity</th>
-                        <th>Frameworks</th>
-                        <th>Status</th>
-                        <th>Due Date</th>
-                        <th>Progress</th>
-                    </tr>
-                </thead>
-                <tbody id="projects-table-body">
-                    <tr>
-                        <td class="project-name">FY 2024-25 Multi-Framework Assurance</td>
-                        <td><strong>Acme Manufacturing Ltd</strong></td>
-                        <td>
-                            <div class="framework-badges">
-                                <span class="framework-badge">ISSB S2</span>
-                                <span class="framework-badge">CSRD E1</span>
-                                <span class="framework-badge">BRSR Core</span>
-                            </div>
-                        </td>
-                        <td><span class="status-badge status-good">Evidence Review</span></td>
-                        <td>Mar 15, 2025</td>
-                        <td>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 65%"></div>
-                            </div>
-                            <small>65%</small>
-                        </td>
-                    </tr>
-                    <tr class="actions-row">
-                        <td colspan="6">
-                            <div class="project-actions">
-                                <button class="btn btn-primary btn-sm">Enter Workspace</button>
-                                <button class="btn btn-secondary btn-sm">View Evidence</button>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Global Compliance Overview -->
-        <div class="section">
-            <div class="section-header">
-                <div class="section-title">Global Framework Compliance</div>
-                <div class="section-actions">
-                    <button class="btn btn-secondary btn-sm">View Details</button>
-                </div>
-            </div>
-            
-            <div class="compliance-overview">
-                <div class="compliance-item">
-                    <div class="compliance-score">98%</div>
-                    <div class="compliance-label">ISSB S2</div>
-                </div>
-                <div class="compliance-item">
-                    <div class="compliance-score">85%</div>
-                    <div class="compliance-label">CSRD E1</div>
-                </div>
-                <div class="compliance-item">
-                    <div class="compliance-score">100%</div>
-                    <div class="compliance-label">BRSR Core</div>
-                </div>
-                <div class="compliance-item">
-                    <div class="compliance-score">--</div>
-                    <div class="compliance-label">CDP Climate</div>
-                </div>
-                <div class="compliance-item">
-                    <div class="compliance-score">--</div>
-                    <div class="compliance-label">UK SECR</div>
-                </div>
-                <div class="compliance-item">
-                    <div class="compliance-score">--</div>
-                    <div class="compliance-label">HK HKEX</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="section">
-            <div class="section-header">
-                <div class="section-title">Quick Actions</div>
-            </div>
-            
-            <div class="quick-actions">
-                <div class="action-card" onclick="navigateToScreen('data-lineage')">
-                    <div class="action-icon">🔍</div>
-                    <div class="action-title">Explore Data Lineage</div>
-                    <div class="action-description">Trace data from source to final reported values</div>
-                </div>
-                
-                <div class="action-card" onclick="navigateToScreen('evidence-vault')">
-                    <div class="action-icon">📁</div>
-                    <div class="action-title">Access Evidence Vault</div>
-                    <div class="action-description">Review and organize supporting documentation</div>
-                </div>
-                
-                <div class="action-card" onclick="navigateToScreen('control-testing')">
-                    <div class="action-icon">✅</div>
-                    <div class="action-title">Run Control Tests</div>
-                    <div class="action-description">Execute automated testing procedures</div>
-                </div>
-                
-                <div class="action-card" onclick="navigateToScreen('compliance-mapping')">
-                    <div class="action-icon">🌍</div>
-                    <div class="action-title">Check Compliance</div>
-                    <div class="action-description">Review global framework requirements</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Evidence Vault View (Hidden by default) -->
-        <div id="evidence-vault-view" class="screen-view hidden">
-            <div class="section">
-                <div class="section-header">
-                    <div class="section-title">Evidence Vault - Acme Manufacturing Ltd</div>
-                    <div class="section-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="showScreen('dashboard')">← Back to Dashboard</button>
-                        <button class="btn btn-primary btn-sm">Upload Documents</button>
+        <!-- ==================== ENGAGEMENT ==================== -->
+        <div class="screen" id="screen-engagement">
+            <div class="page-header"><div class="page-title">Engagement Acceptance</div><div class="page-subtitle">Review engagement terms, confirm scope, and declare auditor independence</div></div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">Engagement Terms</div><span class="tag tag-green">Accepted Jan 5, 2025</span></div>
+                <div class="card-body">
+                    <div class="engagement-grid">
+                        <div class="eng-detail"><div class="eng-detail-label">Appointing Company</div><div class="eng-detail-value">Acme Manufacturing Ltd</div></div>
+                        <div class="eng-detail"><div class="eng-detail-label">Engagement Type</div><div class="eng-detail-value">External Assurance</div></div>
+                        <div class="eng-detail"><div class="eng-detail-label">Assurance Standard</div><div class="eng-detail-value">ISAE 3410 / ISAE 3000</div></div>
+                        <div class="eng-detail"><div class="eng-detail-label">Assurance Level</div><div class="eng-detail-value">Limited Assurance</div></div>
+                        <div class="eng-detail"><div class="eng-detail-label">Reporting Period</div><div class="eng-detail-value">April 2024 – March 2025</div></div>
+                        <div class="eng-detail"><div class="eng-detail-label">Subject Matter</div><div class="eng-detail-value">GHG Emissions (S1, S2, S3)</div></div>
+                        <div class="eng-detail"><div class="eng-detail-label">Applicable Frameworks</div><div class="eng-detail-value">BRSR Core, ISSB S2, CSRD E1</div></div>
+                        <div class="eng-detail"><div class="eng-detail-label">Engagement Partner</div><div class="eng-detail-value">Rajesh Kumar, Partner</div></div>
                     </div>
                 </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">Scope of Work</div></div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead><tr><th>Entity</th><th>Facilities</th><th>Scopes Covered</th><th>Materiality</th></tr></thead>
+                        <tbody>
+                            <tr><td class="fw-600">Acme Manufacturing Ltd (Parent)</td><td>5 sites</td><td><span class="fw-badge">S1</span> <span class="fw-badge">S2</span> <span class="fw-badge">S3</span></td><td class="text-mono">±5% of total tCO₂e</td></tr>
+                            <tr><td class="fw-600">Acme Chemicals Pvt Ltd</td><td>4 sites</td><td><span class="fw-badge">S1</span> <span class="fw-badge">S2</span></td><td class="text-mono">±5% of total tCO₂e</td></tr>
+                            <tr><td class="fw-600">Acme Logistics Corp</td><td>3 sites</td><td><span class="fw-badge">S1</span> <span class="fw-badge">S3</span></td><td class="text-mono">±5% of total tCO₂e</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="independence-box confirmed">
+                <div class="independence-title">🛡️ Independence Declaration</div>
+                <div class="independence-text">The engagement team confirms that it has evaluated all relationships between the audit firm and the client entity, and has determined that there are no conflicts of interest, financial relationships, or other circumstances that would compromise the independence required under ISAE 3000 and the IESBA Code of Ethics.</div>
+                <div class="checkbox-row"><input type="checkbox" checked disabled><label>No financial interests in the client or its affiliates</label></div>
+                <div class="checkbox-row"><input type="checkbox" checked disabled><label>No advisory or consulting services provided to the client during the audit period</label></div>
+                <div class="checkbox-row"><input type="checkbox" checked disabled><label>No personal relationships that could impair objectivity</label></div>
+                <div class="mt-1 text-sm" style="color:var(--green-600); font-weight:600;">✓ Declared by Sarah Mitchell on Jan 5, 2025 · Reviewed by Rajesh Kumar (Partner)</div>
+            </div>
+        </div>
 
-                <!-- Evidence Categories -->
-                <div class="evidence-categories">
-                    <div class="category-tabs">
-                        <button class="category-tab active" onclick="showEvidenceCategory('all')">All Evidence</button>
-                        <button class="category-tab" onclick="showEvidenceCategory('scope1')">Scope 1</button>
-                        <button class="category-tab" onclick="showEvidenceCategory('scope2')">Scope 2</button>
-                        <button class="category-tab" onclick="showEvidenceCategory('scope3')">Scope 3</button>
-                        <button class="category-tab" onclick="showEvidenceCategory('supporting')">Supporting Docs</button>
-                    </div>
+        <!-- ==================== PLANNING & RISK ==================== -->
+        <div class="screen" id="screen-planning">
+            <div class="page-header"><div class="page-title">Planning & Risk Assessment</div><div class="page-subtitle">Audit plan, materiality, risk assessment, and sampling strategy</div></div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">Risk Assessment Matrix</div><span class="tag tag-green">Completed Jan 12, 2025</span></div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead><tr><th>Risk Area</th><th>Inherent Risk</th><th>Control Risk</th><th>Combined</th><th>Response</th></tr></thead>
+                        <tbody>
+                            <tr><td class="fw-600">Scope 1 – Stationary Combustion</td><td><span class="tag tag-amber">Medium</span></td><td><span class="tag tag-green">Low</span></td><td><span class="tag tag-amber">Medium</span></td><td class="text-sm">Substantive testing of fuel purchase records + 25% sample</td></tr>
+                            <tr><td class="fw-600">Scope 1 – Refrigerant Losses</td><td><span class="tag tag-red">High</span></td><td><span class="tag tag-amber">Medium</span></td><td><span class="tag tag-red">High</span></td><td class="text-sm">100% testing, physical verification of logs, cross-check maintenance</td></tr>
+                            <tr><td class="fw-600">Scope 2 – Grid Electricity</td><td><span class="tag tag-green">Low</span></td><td><span class="tag tag-green">Low</span></td><td><span class="tag tag-green">Low</span></td><td class="text-sm">Analytical procedures + utility bill verification (15% sample)</td></tr>
+                            <tr><td class="fw-600">Scope 3 – Business Travel</td><td><span class="tag tag-amber">Medium</span></td><td><span class="tag tag-amber">Medium</span></td><td><span class="tag tag-amber">Medium</span></td><td class="text-sm">Completeness check against travel system + 20% sample of spend</td></tr>
+                            <tr><td class="fw-600">Scope 3 – Purchased Goods & Services</td><td><span class="tag tag-red">High</span></td><td><span class="tag tag-red">High</span></td><td><span class="tag tag-red">High</span></td><td class="text-sm">Methodology review, spend-based EF validation, top-20 supplier check</td></tr>
+                            <tr><td class="fw-600">Emission Factor Selection</td><td><span class="tag tag-amber">Medium</span></td><td><span class="tag tag-green">Low</span></td><td><span class="tag tag-amber">Medium</span></td><td class="text-sm">Verify EF sources against GHG Protocol / IPCC guidelines</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                    <!-- Evidence Grid -->
-                    <div class="evidence-grid">
-                        <div class="evidence-item" data-category="scope2">
-                            <div class="evidence-icon">⚡</div>
-                            <div class="evidence-info">
-                                <div class="evidence-name">BESCOM_Electricity_Bill_Oct24.pdf</div>
-                                <div class="evidence-meta">
-                                    <span class="evidence-type">Utility Bill</span>
-                                    <span class="evidence-size">2.4 MB</span>
-                                    <span class="evidence-date">Oct 16, 2024</span>
-                                </div>
-                                <div class="evidence-status">
-                                    <span class="status-badge status-excellent">✓ Validated</span>
-                                    <span class="ai-confidence">AI Conf: 95%</span>
-                                </div>
-                                <div class="evidence-frameworks">
-                                    <span class="framework-badge">ISSB S2</span>
-                                    <span class="framework-badge">CSRD E1</span>
-                                </div>
+            <!-- Materiality with Tooltips -->
+            <div class="card">
+                <div class="card-header"><div class="card-title">Materiality Thresholds</div></div>
+                <div class="card-body">
+                    <div class="metrics-row" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="metric">
+                            <div class="metric-label has-tip">Overall Materiality<span class="tip-icon">?</span>
+                                <div class="tip-box"><strong>Overall Materiality</strong> is the maximum tolerable error in the reported GHG emissions before the auditor considers the report materially misstated.
+                                <div class="tip-row">Set at <strong>±5%</strong> of total reported tCO₂e.</div>
+                                <div class="tip-row">For Acme's ~45,000 tCO₂e, this means errors up to ±2,250 tCO₂e are tolerable.</div>
+                                <div class="tip-row">Benchmark: ISAE 3410 suggests 5–10% for limited assurance.</div></div>
                             </div>
-                            <div class="evidence-actions">
-                                <button class="btn btn-secondary btn-sm">View</button>
-                                <button class="btn btn-primary btn-sm">Audit Notes</button>
-                            </div>
+                            <div class="metric-value" style="font-size:1.3rem;">±5%</div>
+                            <div class="metric-sub">of total reported tCO₂e</div>
                         </div>
-
-                        <div class="evidence-item" data-category="scope1">
-                            <div class="evidence-icon">🚗</div>
-                            <div class="evidence-info">
-                                <div class="evidence-name">Fleet_Fuel_Records_Q2_2024.xlsx</div>
-                                <div class="evidence-meta">
-                                    <span class="evidence-type">Fuel Records</span>
-                                    <span class="evidence-size">856 KB</span>
-                                    <span class="evidence-date">Sep 30, 2024</span>
-                                </div>
-                                <div class="evidence-status">
-                                    <span class="status-badge status-good">⚠ Pending Review</span>
-                                    <span class="ai-confidence">AI Conf: 87%</span>
-                                </div>
-                                <div class="evidence-frameworks">
-                                    <span class="framework-badge">ISSB S2</span>
-                                    <span class="framework-badge">BRSR Core</span>
-                                </div>
+                        <div class="metric">
+                            <div class="metric-label has-tip">Performance Materiality<span class="tip-icon">?</span>
+                                <div class="tip-box"><strong>Performance Materiality</strong> is a lower threshold set to reduce the risk that the aggregate of undetected and uncorrected misstatements exceeds overall materiality.
+                                <div class="tip-row">Typically set at <strong>50–75%</strong> of overall materiality.</div>
+                                <div class="tip-row">Here: 75% × 5% = <strong>3.5%</strong> (~1,575 tCO₂e).</div>
+                                <div class="tip-row">This drives sample sizes — tighter PM means more testing.</div></div>
                             </div>
-                            <div class="evidence-actions">
-                                <button class="btn btn-secondary btn-sm">View</button>
-                                <button class="btn btn-primary btn-sm">Validate</button>
-                            </div>
+                            <div class="metric-value" style="font-size:1.3rem;">±3.5%</div>
+                            <div class="metric-sub">75% of overall materiality</div>
                         </div>
-
-                        <div class="evidence-item" data-category="scope3">
-                            <div class="evidence-icon">✈️</div>
-                            <div class="evidence-info">
-                                <div class="evidence-name">Business_Travel_Emissions_2024.csv</div>
-                                <div class="evidence-meta">
-                                    <span class="evidence-type">Travel Data</span>
-                                    <span class="evidence-size">1.2 MB</span>
-                                    <span class="evidence-date">Nov 02, 2024</span>
-                                </div>
-                                <div class="evidence-status">
-                                    <span class="status-badge status-excellent">✓ Validated</span>
-                                    <span class="ai-confidence">AI Conf: 92%</span>
-                                </div>
-                                <div class="evidence-frameworks">
-                                    <span class="framework-badge">CSRD E1</span>
-                                    <span class="framework-badge">CDP Climate</span>
-                                </div>
+                        <div class="metric">
+                            <div class="metric-label has-tip">Trivial Threshold<span class="tip-icon">?</span>
+                                <div class="tip-box"><strong>Trivial Threshold</strong> (also called "clearly trivial") is the level below which individual misstatements do not need to be accumulated for comparison to materiality.
+                                <div class="tip-row">Typically set at <strong>5–10%</strong> of overall materiality.</div>
+                                <div class="tip-row">Here: 10% × 5% = <strong>0.5%</strong> (~225 tCO₂e).</div>
+                                <div class="tip-row">Errors below this are noted but not carried forward.</div></div>
                             </div>
-                            <div class="evidence-actions">
-                                <button class="btn btn-secondary btn-sm">View</button>
-                                <button class="btn btn-primary btn-sm">Audit Notes</button>
-                            </div>
-                        </div>
-
-                        <div class="evidence-item" data-category="supporting">
-                            <div class="evidence-icon">📋</div>
-                            <div class="evidence-info">
-                                <div class="evidence-name">Carbon_Accounting_Policy_v2.1.pdf</div>
-                                <div class="evidence-meta">
-                                    <span class="evidence-type">Policy Document</span>
-                                    <span class="evidence-size">3.8 MB</span>
-                                    <span class="evidence-date">Aug 15, 2024</span>
-                                </div>
-                                <div class="evidence-status">
-                                    <span class="status-badge status-excellent">✓ Validated</span>
-                                    <span class="ai-confidence">Manual Review</span>
-                                </div>
-                                <div class="evidence-frameworks">
-                                    <span class="framework-badge">All Frameworks</span>
-                                </div>
-                            </div>
-                            <div class="evidence-actions">
-                                <button class="btn btn-secondary btn-sm">View</button>
-                                <button class="btn btn-primary btn-sm">Audit Notes</button>
-                            </div>
-                        </div>
-
-                        <div class="evidence-item" data-category="scope2">
-                            <div class="evidence-icon">🏭</div>
-                            <div class="evidence-info">
-                                <div class="evidence-name">Generator_Diesel_Consumption_Nov24.pdf</div>
-                                <div class="evidence-meta">
-                                    <span class="evidence-type">Fuel Bill</span>
-                                    <span class="evidence-size">1.8 MB</span>
-                                    <span class="evidence-date">Nov 10, 2024</span>
-                                </div>
-                                <div class="evidence-status">
-                                    <span class="status-badge status-needs-attention">❌ Flagged</span>
-                                    <span class="ai-confidence">AI Conf: 67%</span>
-                                </div>
-                                <div class="evidence-frameworks">
-                                    <span class="framework-badge">ISSB S2</span>
-                                </div>
-                            </div>
-                            <div class="evidence-actions">
-                                <button class="btn btn-secondary btn-sm">View</button>
-                                <button class="btn btn-primary btn-sm">Review Issue</button>
-                            </div>
+                            <div class="metric-value" style="font-size:1.3rem;">±0.5%</div>
+                            <div class="metric-sub">below which items are clearly trivial</div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div class="card">
+                <div class="card-header"><div class="card-title">Sampling Strategy</div></div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead><tr><th>Data Category</th><th>Population</th><th>Sample</th><th>Method</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td class="fw-600">Electricity Bills (Scope 2)</td><td>144 invoices</td><td>22 invoices</td><td>Stratified random</td><td><span class="tag tag-green">Complete</span></td></tr>
+                            <tr><td class="fw-600">Fuel Purchase Records (Scope 1)</td><td>480 records</td><td>120 records</td><td>Systematic (every 4th)</td><td><span class="tag tag-blue">In Progress</span></td></tr>
+                            <tr><td class="fw-600">Travel Expense Claims (Scope 3)</td><td>1,240 claims</td><td>248 claims</td><td>Monetary unit sampling</td><td><span class="tag tag-amber">Pending</span></td></tr>
+                            <tr><td class="fw-600">Supplier Spend Data (Scope 3)</td><td>380 suppliers</td><td>Top 20 + 30 random</td><td>Value-weighted + random</td><td><span class="tag tag-amber">Pending</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
-        <!-- Data Lineage View (Hidden by default) -->
-        <div id="data-lineage-view" class="screen-view hidden">
-            <div class="section">
-                <div class="section-header">
-                    <div class="section-title">Data Lineage Explorer</div>
-                    <div class="section-actions">
-                        <button class="btn btn-secondary btn-sm" onclick="showScreen('dashboard')">← Back to Dashboard</button>
-                        <button class="btn btn-primary btn-sm">Export Lineage</button>
+        <!-- ==================== EVIDENCE REVIEW ==================== -->
+        <div class="screen" id="screen-evidence">
+            <div class="page-header">
+                <div class="page-title">Evidence Review</div>
+                <div class="page-subtitle">Review supporting documentation submitted by the client</div>
+            </div>
+            <div class="read-only-banner">🔒 Read-only access — Documents uploaded by client. Use <strong>"Raise Query"</strong> on any item to request clarification or additional documents.</div>
+
+            <div class="evidence-filters">
+                <span class="filter-chip active" onclick="filterEvidence(this,'all')">All Evidence</span>
+                <span class="filter-chip" onclick="filterEvidence(this,'scope1')">Scope 1</span>
+                <span class="filter-chip" onclick="filterEvidence(this,'scope2')">Scope 2</span>
+                <span class="filter-chip" onclick="filterEvidence(this,'scope3')">Scope 3</span>
+                <span class="filter-chip" onclick="filterEvidence(this,'policy')">Policies</span>
+                <span class="filter-chip" onclick="filterEvidence(this,'flagged')">⚠ Flagged</span>
+                <span class="filter-chip" onclick="filterEvidence(this,'gap')">❌ Gaps</span>
+            </div>
+
+            <div id="evidence-list">
+                <!-- Scope 2 Validated -->
+                <div class="evidence-row" data-cat="scope2">
+                    <div class="ev-icon" style="background:var(--blue-100)">⚡</div>
+                    <div class="ev-info">
+                        <div class="ev-name">BESCOM_Electricity_Bill_Oct24.pdf</div>
+                        <div class="ev-meta"><span>Utility Bill</span> <span>2.4 MB</span> <span>Uploaded Oct 16, 2024</span> <span class="tag tag-green">✓ AI Validated (95%)</span></div>
+                        <div class="ev-frameworks"><span class="fw-badge">ISSB S2</span><span class="fw-badge">CSRD E1</span><span class="fw-badge">BRSR Core</span></div>
+                    </div>
+                    <div class="ev-actions">
+                        <button class="btn btn-sm btn-ghost">View</button>
+                        <button class="btn btn-sm btn-secondary">Add Note</button>
+                        <button class="btn btn-sm btn-primary">✓ Accept</button>
+                        <button class="btn btn-sm btn-danger" onclick="openQueryModal('BESCOM_Electricity_Bill_Oct24.pdf')">Raise Query</button>
                     </div>
                 </div>
 
-                <div class="lineage-container">
-                    <div class="lineage-header">
-                        <h3>Tracing: Scope 2 Electricity Emissions - Oct 2024</h3>
-                        <p>Complete data flow from source to final reported CO₂e value</p>
+                <!-- Scope 1 Pending -->
+                <div class="evidence-row" data-cat="scope1">
+                    <div class="ev-icon" style="background:var(--amber-100)">🚗</div>
+                    <div class="ev-info">
+                        <div class="ev-name">Fleet_Fuel_Records_Q2_2024.xlsx</div>
+                        <div class="ev-meta"><span>Fuel Records</span> <span>856 KB</span> <span>Uploaded Sep 30, 2024</span> <span class="tag tag-amber">⚠ AI Validated (87%)</span></div>
+                        <div class="ev-frameworks"><span class="fw-badge">ISSB S2</span><span class="fw-badge">BRSR Core</span></div>
                     </div>
+                    <div class="ev-actions">
+                        <button class="btn btn-sm btn-ghost">View</button>
+                        <button class="btn btn-sm btn-secondary">Add Note</button>
+                        <button class="btn btn-sm btn-danger" onclick="openQueryModal('Fleet_Fuel_Records_Q2_2024.xlsx')">Raise Query</button>
+                    </div>
+                </div>
 
+                <!-- Scope 3 Validated -->
+                <div class="evidence-row" data-cat="scope3">
+                    <div class="ev-icon" style="background:var(--green-100)">✈️</div>
+                    <div class="ev-info">
+                        <div class="ev-name">Business_Travel_Emissions_2024.csv</div>
+                        <div class="ev-meta"><span>Travel Data</span> <span>1.2 MB</span> <span>Uploaded Nov 2, 2024</span> <span class="tag tag-green">✓ AI Validated (92%)</span></div>
+                        <div class="ev-frameworks"><span class="fw-badge">CSRD E1</span><span class="fw-badge">CDP Climate</span></div>
+                    </div>
+                    <div class="ev-actions">
+                        <button class="btn btn-sm btn-ghost">View</button>
+                        <button class="btn btn-sm btn-secondary">Add Note</button>
+                        <button class="btn btn-sm btn-primary">✓ Accept</button>
+                        <button class="btn btn-sm btn-danger" onclick="openQueryModal('Business_Travel_Emissions_2024.csv')">Raise Query</button>
+                    </div>
+                </div>
+
+                <!-- Flagged -->
+                <div class="evidence-row" data-cat="scope1 flagged" style="border-color:var(--red-600); background:#fff5f5;">
+                    <div class="ev-icon" style="background:var(--red-100)">🏭</div>
+                    <div class="ev-info">
+                        <div class="ev-name">Generator_Diesel_Consumption_Nov24.pdf</div>
+                        <div class="ev-meta"><span>Fuel Bill</span> <span>1.8 MB</span> <span>Uploaded Nov 10, 2024</span> <span class="tag tag-red">❌ Flagged (AI Conf: 67%)</span></div>
+                        <div class="ev-frameworks"><span class="fw-badge">ISSB S2</span></div>
+                        <div class="text-xs text-muted mt-1">⚠ Anomaly: 340% increase vs prior month. Consumption inconsistent with generator capacity ratings.</div>
+                    </div>
+                    <div class="ev-actions">
+                        <button class="btn btn-sm btn-ghost">View</button>
+                        <button class="btn btn-sm btn-danger" onclick="openQueryModal('Generator_Diesel_Consumption_Nov24.pdf')">Raise Query</button>
+                    </div>
+                </div>
+
+                <!-- Policy -->
+                <div class="evidence-row" data-cat="policy">
+                    <div class="ev-icon" style="background:var(--slate-100)">📋</div>
+                    <div class="ev-info">
+                        <div class="ev-name">Carbon_Accounting_Policy_v2.1.pdf</div>
+                        <div class="ev-meta"><span>Policy Document</span> <span>3.8 MB</span> <span>Uploaded Aug 15, 2024</span> <span class="tag tag-green">✓ Manual Review</span></div>
+                        <div class="ev-frameworks"><span class="fw-badge">All Frameworks</span></div>
+                    </div>
+                    <div class="ev-actions">
+                        <button class="btn btn-sm btn-ghost">View</button>
+                        <button class="btn btn-sm btn-secondary">Add Note</button>
+                        <button class="btn btn-sm btn-primary">✓ Accept</button>
+                    </div>
+                </div>
+
+                <!-- Gap 1 -->
+                <div class="evidence-row" data-cat="scope2 gap" style="border-color:var(--amber-500); border-style:dashed;">
+                    <div class="ev-icon" style="background:var(--amber-100)">❓</div>
+                    <div class="ev-info">
+                        <div class="ev-name" style="color:var(--amber-600);">BESCOM Electricity Bills — Nov & Dec 2024</div>
+                        <div class="ev-meta"><span class="tag tag-amber">Evidence Gap</span><span>Requested Jan 20, 2025</span></div>
+                        <div class="text-xs text-muted mt-1">Query raised to client. Last follow-up: Feb 3, 2025. Client response pending.</div>
+                    </div>
+                    <div class="ev-actions"><button class="btn btn-sm btn-secondary" onclick="openQueryModal('BESCOM Electricity Bills Nov-Dec 2024', true)">Follow Up</button></div>
+                </div>
+
+                <!-- Gap 2 -->
+                <div class="evidence-row" data-cat="scope1 gap" style="border-color:var(--amber-500); border-style:dashed;">
+                    <div class="ev-icon" style="background:var(--amber-100)">❓</div>
+                    <div class="ev-info">
+                        <div class="ev-name" style="color:var(--amber-600);">Refrigerant Maintenance & Top-up Logs — FY 2024-25</div>
+                        <div class="ev-meta"><span class="tag tag-amber">Evidence Gap</span><span>Requested Feb 1, 2025</span></div>
+                        <div class="text-xs text-muted mt-1">Client acknowledged. Expected delivery: Feb 12, 2025.</div>
+                    </div>
+                    <div class="ev-actions"><button class="btn btn-sm btn-secondary" onclick="openQueryModal('Refrigerant Maintenance Logs', true)">Follow Up</button></div>
+                </div>
+
+                <!-- Gap 3 -->
+                <div class="evidence-row" data-cat="scope3 gap" style="border-color:var(--amber-500); border-style:dashed;">
+                    <div class="ev-icon" style="background:var(--amber-100)">❓</div>
+                    <div class="ev-info">
+                        <div class="ev-name" style="color:var(--amber-600);">Rail Travel Expense Records — FY 2024-25</div>
+                        <div class="ev-meta"><span class="tag tag-amber">Evidence Gap</span><span>Requested Feb 5, 2025</span></div>
+                        <div class="text-xs text-muted mt-1">Linked to Finding F-002. Client compiling from SAP.</div>
+                    </div>
+                    <div class="ev-actions"><button class="btn btn-sm btn-secondary" onclick="openQueryModal('Rail Travel Expense Records', true)">Follow Up</button></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TESTING & VALIDATION ==================== -->
+        <div class="screen" id="screen-testing">
+            <div class="page-header"><div class="page-title">Testing & Validation</div><div class="page-subtitle">Data validation procedures, control testing, and analytical reviews</div></div>
+
+            <div class="metrics-row" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="metric">
+                    <div class="metric-label has-tip">Tests Designed<span class="tip-icon">?</span>
+                        <div class="tip-box"><strong>Tests Designed</strong> are created by the Lead Auditor during the Planning phase based on the Risk Assessment. Each test procedure specifies what to test, the sample, and the expected outcome.</div>
+                    </div>
+                    <div class="metric-value">28</div><div class="metric-sub">across all scopes</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label has-tip">Tests Executed<span class="tip-icon">?</span>
+                        <div class="tip-box"><strong>Tests Executed</strong> are run by audit team members using a combination of:
+                        <div class="tip-row">⬤ <strong>TerraCAP Automated:</strong> Recalculations, EF matching, anomaly detection — run directly in the platform</div>
+                        <div class="tip-row">⬤ <strong>Manual Procedures:</strong> Document inspection, vouching to source, physical verification — performed offline and results logged here</div>
+                        <div class="tip-row">Results are reviewed by the Engagement Manager before acceptance.</div></div>
+                    </div>
+                    <div class="metric-value">12</div><div class="metric-sub"><span class="tag tag-blue">43% complete</span></div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label has-tip">Exceptions Found<span class="tip-icon">?</span>
+                        <div class="tip-box"><strong>Exceptions</strong> are test results that deviate from the expected outcome. Each exception is evaluated for materiality and escalated to a Finding if significant.
+                        <div class="tip-row">3 exceptions found → 2 escalated to Findings, 1 under investigation</div></div>
+                    </div>
+                    <div class="metric-value">3</div><div class="metric-sub"><span class="tag tag-amber">Escalated to findings</span></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Test Procedures</div>
+                    <div class="flex gap-sm">
+                        <button class="btn btn-sm btn-ghost">Export Results</button>
+                        <button class="btn btn-sm btn-primary" onclick="openRunTestModal()">▶ Run Test</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead><tr>
+                            <th>Test ID</th>
+                            <th class="has-tip" style="position:relative">Description<span class="tip-icon">?</span><div class="tip-box" style="left:0; transform:none;"><strong>Test types:</strong><div class="tip-row"><strong>Substantive:</strong> Direct verification of data accuracy</div><div class="tip-row"><strong>Analytical:</strong> Trend analysis, ratio review, reasonableness</div><div class="tip-row"><strong>Control:</strong> Testing that internal controls are operating</div><div class="tip-row"><strong>Reperformance:</strong> Auditor independently recalculates</div></div></th>
+                            <th>Scope</th>
+                            <th class="has-tip" style="position:relative">Executed By<span class="tip-icon">?</span><div class="tip-box" style="left:0; transform:none;"><strong>Roles:</strong><div class="tip-row"><strong>Platform:</strong> Automated by TerraCAP engine</div><div class="tip-row"><strong>Auditor:</strong> Manual procedure by audit team</div><div class="tip-row"><strong>Hybrid:</strong> Platform flags, auditor confirms</div></div></th>
+                            <th>Status</th>
+                            <th>Result</th>
+                        </tr></thead>
+                        <tbody>
+                            <tr><td class="text-mono fw-600">T-001</td><td>Electricity bill reconciliation to utility portal</td><td>S2</td><td><span class="tag tag-blue">Platform</span></td><td><span class="tag tag-green">Complete</span></td><td><span class="tag tag-green">Pass</span></td></tr>
+                            <tr><td class="text-mono fw-600">T-002</td><td>Emission factor source verification</td><td>All</td><td><span class="tag tag-blue">Platform</span></td><td><span class="tag tag-green">Complete</span></td><td><span class="tag tag-green">Pass</span></td></tr>
+                            <tr><td class="text-mono fw-600">T-003</td><td>Diesel consumption vs generator capacity check</td><td>S1</td><td><span class="tag tag-amber">Hybrid</span></td><td><span class="tag tag-green">Complete</span></td><td><span class="tag tag-red">Exception</span></td></tr>
+                            <tr><td class="text-mono fw-600">T-004</td><td>Fuel purchase records – sample vouch to invoices</td><td>S1</td><td><span class="tag tag-green">Auditor</span></td><td><span class="tag tag-blue">In Progress</span></td><td>—</td></tr>
+                            <tr><td class="text-mono fw-600">T-005</td><td>Travel expense completeness – system reconciliation</td><td>S3</td><td><span class="tag tag-blue">Platform</span></td><td><span class="tag tag-amber">Pending</span></td><td>—</td></tr>
+                            <tr><td class="text-mono fw-600">T-006</td><td>Scope 3 spend-based EF methodology validation</td><td>S3</td><td><span class="tag tag-green">Auditor</span></td><td><span class="tag tag-amber">Pending</span></td><td>—</td></tr>
+                            <tr><td class="text-mono fw-600">T-007</td><td>Recalculation of Scope 2 market-based emissions</td><td>S2</td><td><span class="tag tag-blue">Platform</span></td><td><span class="tag tag-green">Complete</span></td><td><span class="tag tag-green">Pass</span></td></tr>
+                            <tr><td class="text-mono fw-600">T-008</td><td>YoY analytical review – Scope 1 trend analysis</td><td>S1</td><td><span class="tag tag-amber">Hybrid</span></td><td><span class="tag tag-green">Complete</span></td><td><span class="tag tag-amber">Observation</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== FINDINGS ==================== -->
+        <div class="screen" id="screen-findings">
+            <div class="page-header"><div class="page-title">Findings & Observations</div><div class="page-subtitle">Log, classify, and track audit findings and management responses</div></div>
+            <div class="metrics-row" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="metric"><div class="metric-label">Total Findings</div><div class="metric-value">5</div><div class="metric-sub">this engagement</div></div>
+                <div class="metric"><div class="metric-label">Critical</div><div class="metric-value" style="color:var(--red-600);">1</div><div class="metric-sub"><span class="tag tag-red">Awaiting response</span></div></div>
+                <div class="metric"><div class="metric-label">Major</div><div class="metric-value" style="color:var(--amber-600);">2</div><div class="metric-sub"><span class="tag tag-amber">1 response received</span></div></div>
+                <div class="metric"><div class="metric-label">Minor / Observations</div><div class="metric-value" style="color:var(--blue-600);">2</div><div class="metric-sub"><span class="tag tag-green">Noted</span></div></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">Findings Log</div><button class="btn btn-sm btn-primary" onclick="openNewFindingModal()">+ New Finding</button></div>
+                <div class="card-body">
+                    <table class="data-table" id="findings-table">
+                        <thead><tr><th>ID</th><th>Severity</th><th>Finding</th><th>Scope</th><th>Mgmt Response</th><th>Status</th></tr></thead>
+                        <tbody id="findings-tbody">
+                            <tr><td class="text-mono fw-600">F-001</td><td><div class="finding-severity"><span class="severity-dot critical"></span> Critical</div></td><td><div class="fw-600">Diesel consumption anomaly — 340% spike Nov 2024</div><div class="text-xs text-muted">Generator at Site 3 shows consumption exceeding physical capacity.</div></td><td>S1</td><td><span class="tag tag-red">Pending</span></td><td><span class="tag tag-red">Open</span></td></tr>
+                            <tr><td class="text-mono fw-600">F-002</td><td><div class="finding-severity"><span class="severity-dot major"></span> Major</div></td><td><div class="fw-600">Incomplete Scope 3 Category 6 (Business Travel) data</div><div class="text-xs text-muted">Rail travel emissions not captured. Only air travel and taxi included.</div></td><td>S3</td><td><span class="tag tag-amber">Response received</span><div class="text-xs text-muted mt-1">"Rail travel data being compiled from SAP."</div></td><td><span class="tag tag-amber">In Progress</span></td></tr>
+                            <tr><td class="text-mono fw-600">F-003</td><td><div class="finding-severity"><span class="severity-dot major"></span> Major</div></td><td><div class="fw-600">Emission factor for R-410A not updated</div><div class="text-xs text-muted">Client using AR4 GWP (2,088). Current IPCC AR6 value is 2,256.</div></td><td>S1</td><td><span class="tag tag-red">Pending</span></td><td><span class="tag tag-red">Open</span></td></tr>
+                            <tr><td class="text-mono fw-600">F-004</td><td><div class="finding-severity"><span class="severity-dot minor"></span> Minor</div></td><td><div class="fw-600">BRSR disclosure format inconsistency</div><div class="text-xs text-muted">Intensity metric denominator changed mid-year.</div></td><td>All</td><td><span class="tag tag-green">Acknowledged</span></td><td><span class="tag tag-green">Noted</span></td></tr>
+                            <tr><td class="text-mono fw-600">F-005</td><td><div class="finding-severity"><span class="severity-dot observation"></span> Obs.</div></td><td><div class="fw-600">Scope 1 emissions trending +8% YoY without explanation</div><div class="text-xs text-muted">Recommend client add narrative explaining drivers.</div></td><td>S1</td><td><span class="tag tag-green">Acknowledged</span></td><td><span class="tag tag-green">Noted</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== REPORTING ==================== -->
+        <div class="screen" id="screen-reporting">
+            <div class="page-header"><div class="page-title">Reporting</div><div class="page-subtitle">These are the auditor's deliverables to the appointing company upon completion of the engagement</div></div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title has-tip">Report Documents<span class="tip-icon">?</span>
+                        <div class="tip-box"><strong>Auditor Deliverables</strong> — These documents are prepared by the audit team and delivered to the client upon completion. TerraCAP auto-generates initial drafts by pulling verified data, findings, and compliance status from the engagement. The auditor reviews and edits before finalising.</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="report-card">
+                        <div class="report-info"><div class="report-icon">📄</div><div><div class="report-name">Limited Assurance Statement</div><div class="report-desc">ISAE 3410 compliant assurance opinion on GHG emissions</div></div></div>
+                        <div class="flex gap-sm"><span class="tag tag-amber">Draft</span><button class="btn btn-sm btn-primary" onclick="openDraftModal('assurance')">Edit Draft</button></div>
+                    </div>
+                    <div class="report-card">
+                        <div class="report-info"><div class="report-icon">📋</div><div><div class="report-name">Management Letter</div><div class="report-desc">Findings, recommendations, and improvement opportunities</div></div></div>
+                        <div class="flex gap-sm"><span class="tag tag-amber">Draft</span><button class="btn btn-sm btn-secondary" onclick="openDraftModal('mgmt-letter')">Edit Draft</button></div>
+                    </div>
+                    <div class="report-card">
+                        <div class="report-info"><div class="report-icon">📊</div><div><div class="report-name">BRSR Core Verification Report</div><div class="report-desc">Framework-specific verification against SEBI BRSR Core indicators</div></div></div>
+                        <div class="flex gap-sm"><span class="tag tag-blue">Not Started</span><button class="btn btn-sm btn-ghost" onclick="openDraftModal('brsr')">Generate</button></div>
+                    </div>
+                    <div class="report-card">
+                        <div class="report-info"><div class="report-icon">📈</div><div><div class="report-name">Audit Summary Dashboard (PDF)</div><div class="report-desc">Visual summary of engagement status, findings, and metrics</div></div></div>
+                        <div class="flex gap-sm"><span class="tag tag-green">Auto-generated</span><button class="btn btn-sm btn-ghost">Download</button></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">Management Representation Letter</div></div>
+                <div class="card-body">
+                    <div class="report-card" style="border-color:var(--amber-500);">
+                        <div class="report-info"><div class="report-icon" style="background:var(--amber-100);">✉️</div><div><div class="report-name">Management Representation Letter — Acme Manufacturing Ltd</div><div class="report-desc">Required before issuing assurance opinion. Sent to CFO & Sustainability Head for signature.</div></div></div>
+                        <div class="flex gap-sm"><span class="tag tag-amber">Awaiting Signature</span><button class="btn btn-sm btn-secondary">Send Reminder</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SIGN-OFF ==================== -->
+        <div class="screen" id="screen-signoff">
+            <div class="page-header"><div class="page-title">Sign-off & Certification</div><div class="page-subtitle">Quality review checklist and final sign-off before issuing assurance opinion</div></div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">Pre-Issuance Checklist</div><span class="tag tag-amber" id="checklist-counter">5 of 10 complete</span></div>
+                <div class="card-body">
+                    <ul class="signoff-checklist" id="signoff-checklist">
+                        <li><input type="checkbox" checked onchange="updateChecklistCount()"> All planned test procedures executed and documented</li>
+                        <li><input type="checkbox" checked onchange="updateChecklistCount()"> All critical and major findings resolved or adequately disclosed</li>
+                        <li><input type="checkbox" checked onchange="updateChecklistCount()"> Management representation letter received and signed</li>
+                        <li><input type="checkbox" checked onchange="updateChecklistCount()"> Independence maintained throughout the engagement</li>
+                        <li><input type="checkbox" checked onchange="updateChecklistCount()"> Working papers reviewed by engagement manager</li>
+                        <li><input type="checkbox" onchange="updateChecklistCount()"> EQCR (Engagement Quality Control Review) completed</li>
+                        <li><input type="checkbox" onchange="updateChecklistCount()"> Assurance statement reviewed by engagement partner</li>
+                        <li><input type="checkbox" onchange="updateChecklistCount()"> Management letter reviewed and agreed with client management</li>
+                        <li><input type="checkbox" onchange="updateChecklistCount()"> All framework-specific disclosure requirements verified</li>
+                        <li><input type="checkbox" onchange="updateChecklistCount()"> Final report formatted and ready for issuance</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">Sign-off Authorities</div></div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead><tr><th>Role</th><th>Name</th><th>Status</th><th>Date</th></tr></thead>
+                        <tbody>
+                            <tr><td class="fw-600">Lead Auditor</td><td>Sarah Mitchell</td><td><span class="tag tag-green">Signed</span></td><td class="text-mono">Feb 8, 2025</td></tr>
+                            <tr><td class="fw-600">Engagement Manager</td><td>Vikram Desai</td><td><span class="tag tag-green">Signed</span></td><td class="text-mono">Feb 9, 2025</td></tr>
+                            <tr><td class="fw-600">EQCR Reviewer</td><td>Anita Sharma</td><td><span class="tag tag-amber">Pending</span></td><td>—</td></tr>
+                            <tr><td class="fw-600">Engagement Partner</td><td>Rajesh Kumar</td><td><span class="tag tag-amber">Pending</span></td><td>—</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="flex gap-sm mt-2" style="justify-content:flex-end;">
+                <button class="btn btn-ghost">Save Progress</button>
+                <button class="btn btn-success" id="issue-btn" disabled onclick="issueAssurance()">Issue Assurance Opinion</button>
+            </div>
+        </div>
+
+        <!-- ==================== DATA LINEAGE ==================== -->
+        <div class="screen" id="screen-lineage">
+            <div class="page-header"><div class="page-title">Data Lineage Explorer</div><div class="page-subtitle">Trace data from source document to final reported CO₂e value for every scope element</div></div>
+
+            <div class="lineage-tabs">
+                <span class="lineage-tab active" onclick="showLineage(this,'lin-s1-combustion')">S1: Stationary Combustion</span>
+                <span class="lineage-tab" onclick="showLineage(this,'lin-s1-mobile')">S1: Mobile Combustion</span>
+                <span class="lineage-tab" onclick="showLineage(this,'lin-s1-refrigerant')">S1: Refrigerants</span>
+                <span class="lineage-tab" onclick="showLineage(this,'lin-s2-electricity')">S2: Grid Electricity</span>
+                <span class="lineage-tab" onclick="showLineage(this,'lin-s3-travel')">S3: Business Travel</span>
+                <span class="lineage-tab" onclick="showLineage(this,'lin-s3-purchased')">S3: Purchased Goods</span>
+            </div>
+
+            <!-- S1 Stationary Combustion -->
+            <div class="lineage-panel active" id="lin-s1-combustion">
+                <div class="card"><div class="card-header"><div class="card-title">Scope 1 · Stationary Combustion (DG Sets) · FY 2024-25</div></div>
+                <div class="card-body">
                     <div class="lineage-flow">
-                        <div class="lineage-node source">
-                            <div class="node-header">📊 Source Data</div>
-                            <div class="node-content">
-                                <div class="node-title">BESCOM Electricity Bill</div>
-                                <div class="node-details">15,000 kWh consumed</div>
-                                <div class="node-date">Oct 15, 2024</div>
-                            </div>
-                        </div>
-
+                        <div class="lineage-node source"><div class="node-type">📊 Source</div><div class="node-val">Diesel Purchase Invoices</div><div class="node-detail">42,500 litres total</div><div class="node-detail text-xs text-muted">12 sites · monthly records</div></div>
                         <div class="lineage-arrow">→</div>
-
-                        <div class="lineage-node calculation">
-                            <div class="node-header">⚙️ Calculation</div>
-                            <div class="node-content">
-                                <div class="node-title">Emission Factor Applied</div>
-                                <div class="node-details">0.82 kg CO₂e/kWh (India Grid)</div>
-                                <div class="node-date">IPCC 2021 Guidelines</div>
-                            </div>
-                        </div>
-
+                        <div class="lineage-node calc"><div class="node-type">⚙️ Calculation</div><div class="node-val">NCV × Density × EF</div><div class="node-detail">2.68 kg CO₂/litre diesel</div><div class="node-detail text-xs text-muted">IPCC 2006 Vol 2, Ch 2</div></div>
                         <div class="lineage-arrow">→</div>
-
-                        <div class="lineage-node result">
-                            <div class="node-header">📈 Final Result</div>
-                            <div class="node-content">
-                                <div class="node-title">Total Scope 2 Emissions</div>
-                                <div class="node-details">12.3 tonnes CO₂e</div>
-                                <div class="node-date">Validated & Approved</div>
-                            </div>
-                        </div>
+                        <div class="lineage-node result"><div class="node-type">📈 Result</div><div class="node-val">113.9 tCO₂e</div><div class="node-detail">Scope 1 - Stationary</div><div class="node-detail text-xs text-muted">⚠ Anomaly in Nov (F-001)</div></div>
                     </div>
+                    <div style="margin-top:1rem; padding:0.75rem; background:var(--slate-50); border-radius:8px;">
+                        <div class="fw-600 mb-1 text-sm">Audit Trail</div>
+                        <div class="trail-entry"><span class="trail-time">Sep 30, 10:00</span><span class="trail-action">Monthly fuel records uploaded by Priya S.</span></div>
+                        <div class="trail-entry"><span class="trail-time">Oct 02, 14:30</span><span class="trail-action">AI validation: 87% confidence — Q2 records flagged for review</span></div>
+                        <div class="trail-entry"><span class="trail-time">Nov 12, 09:00</span><span class="trail-action">Nov consumption anomaly auto-flagged (340% spike)</span></div>
+                        <div class="trail-entry" style="border:none;"><span class="trail-time">Feb 08, 11:20</span><span class="trail-action">Auditor Finding F-001 raised — under investigation</span></div>
+                    </div>
+                </div></div>
+            </div>
 
-                    <div class="lineage-metadata">
-                        <h4>Audit Trail</h4>
-                        <div class="audit-entries">
-                            <div class="audit-entry">
-                                <span class="audit-date">Oct 16, 14:30</span>
-                                <span class="audit-action">Data uploaded by Priya S. (Data Manager)</span>
-                            </div>
-                            <div class="audit-entry">
-                                <span class="audit-date">Oct 16, 15:45</span>
-                                <span class="audit-action">AI validation completed (95% confidence)</span>
-                            </div>
-                            <div class="audit-entry">
-                                <span class="audit-date">Oct 17, 09:15</span>
-                                <span class="audit-action">Manual review by Raj K. (ESG Manager)</span>
-                            </div>
-                            <div class="audit-entry">
-                                <span class="audit-date">Oct 17, 11:30</span>
-                                <span class="audit-action">Approved for reporting</span>
-                            </div>
+            <!-- S1 Mobile Combustion -->
+            <div class="lineage-panel" id="lin-s1-mobile">
+                <div class="card"><div class="card-header"><div class="card-title">Scope 1 · Mobile Combustion (Fleet Vehicles) · FY 2024-25</div></div>
+                <div class="card-body">
+                    <div class="lineage-flow">
+                        <div class="lineage-node source"><div class="node-type">📊 Source</div><div class="node-val">Fleet Fuel Cards / GPS Logs</div><div class="node-detail">68,200 litres (petrol + diesel)</div><div class="node-detail text-xs text-muted">85 vehicles across 3 entities</div></div>
+                        <div class="lineage-arrow">→</div>
+                        <div class="lineage-node calc"><div class="node-type">⚙️ Calculation</div><div class="node-val">Fuel Type × EF</div><div class="node-detail">Petrol: 2.31 kg CO₂/L, Diesel: 2.68 kg CO₂/L</div><div class="node-detail text-xs text-muted">IPCC 2006 mobile sources</div></div>
+                        <div class="lineage-arrow">→</div>
+                        <div class="lineage-node result"><div class="node-type">📈 Result</div><div class="node-val">172.4 tCO₂e</div><div class="node-detail">Scope 1 - Mobile</div><div class="node-detail text-xs text-muted">✓ Validated</div></div>
+                    </div>
+                </div></div>
+            </div>
+
+            <!-- S1 Refrigerants -->
+            <div class="lineage-panel" id="lin-s1-refrigerant">
+                <div class="card"><div class="card-header"><div class="card-title">Scope 1 · Fugitive Emissions (Refrigerants) · FY 2024-25</div></div>
+                <div class="card-body">
+                    <div class="lineage-flow">
+                        <div class="lineage-node source"><div class="node-type">📊 Source</div><div class="node-val">HVAC Maintenance Logs</div><div class="node-detail">R-410A: 45 kg topped up</div><div class="node-detail text-xs text-muted">⚠ Logs pending (Evidence Gap)</div></div>
+                        <div class="lineage-arrow">→</div>
+                        <div class="lineage-node calc"><div class="node-type">⚙️ Calculation</div><div class="node-val">Top-up × GWP</div><div class="node-detail">GWP: 2,088 (AR4) — ⚠ Finding F-003</div><div class="node-detail text-xs text-muted">Should be 2,256 (AR6)</div></div>
+                        <div class="lineage-arrow">→</div>
+                        <div class="lineage-node result"><div class="node-type">📈 Result</div><div class="node-val">94.0 tCO₂e</div><div class="node-detail">Scope 1 - Fugitive</div><div class="node-detail text-xs text-muted" style="color:var(--red-600);">⚠ Under-reported by ~7.5 tCO₂e</div></div>
+                    </div>
+                </div></div>
+            </div>
+
+            <!-- S2 Electricity -->
+            <div class="lineage-panel" id="lin-s2-electricity">
+                <div class="card"><div class="card-header"><div class="card-title">Scope 2 · Grid Electricity (Location-based) · Oct 2024 Sample</div></div>
+                <div class="card-body">
+                    <div class="lineage-flow">
+                        <div class="lineage-node source"><div class="node-type">📊 Source</div><div class="node-val">BESCOM Electricity Bill</div><div class="node-detail">15,000 kWh consumed</div><div class="node-detail text-xs text-muted">Oct 15, 2024</div></div>
+                        <div class="lineage-arrow">→</div>
+                        <div class="lineage-node calc"><div class="node-type">⚙️ Calculation</div><div class="node-val">Grid EF Applied</div><div class="node-detail">0.82 kg CO₂e/kWh</div><div class="node-detail text-xs text-muted">CEA India 2023</div></div>
+                        <div class="lineage-arrow">→</div>
+                        <div class="lineage-node result"><div class="node-type">📈 Result</div><div class="node-val">12.3 tCO₂e</div><div class="node-detail">Scope 2 Location-based</div><div class="node-detail text-xs text-muted">✓ Validated & Approved</div></div>
+                    </div>
+                    <div style="margin-top:1rem; padding:0.75rem; background:var(--slate-50); border-radius:8px;">
+                        <div class="fw-600 mb-1 text-sm">Audit Trail</div>
+                        <div class="trail-entry"><span class="trail-time">Oct 16, 14:30</span><span class="trail-action">Data uploaded by Priya S. (Data Manager)</span></div>
+                        <div class="trail-entry"><span class="trail-time">Oct 16, 15:45</span><span class="trail-action">AI validation completed — 95% confidence</span></div>
+                        <div class="trail-entry"><span class="trail-time">Oct 17, 09:15</span><span class="trail-action">Manual review by Raj K. (ESG Manager)</span></div>
+                        <div class="trail-entry"><span class="trail-time">Oct 17, 11:30</span><span class="trail-action">Approved for reporting</span></div>
+                        <div class="trail-entry" style="border:none;"><span class="trail-time">Feb 05, 10:20</span><span class="trail-action">Auditor review — Sarah M. marked "Accepted"</span></div>
+                    </div>
+                </div></div>
+            </div>
+
+            <!-- S3 Business Travel -->
+            <div class="lineage-panel" id="lin-s3-travel">
+                <div class="card"><div class="card-header"><div class="card-title">Scope 3 Cat 6 · Business Travel · FY 2024-25</div></div>
+                <div class="card-body">
+                    <div class="lineage-flow">
+                        <div class="lineage-node source"><div class="node-type">📊 Source</div><div class="node-val">Travel Booking System + Expense Claims</div><div class="node-detail">1,240 claims · ₹8.4 Cr spend</div><div class="node-detail text-xs text-muted">⚠ Rail travel missing (F-002)</div></div>
+                        <div class="lineage-arrow">→</div>
+                        <div class="lineage-node calc"><div class="node-type">⚙️ Calculation</div><div class="node-val">Distance × Mode EF</div><div class="node-detail">Air: 0.255 kgCO₂/km, Taxi: 0.21 kgCO₂/km</div><div class="node-detail text-xs text-muted">DEFRA 2024</div></div>
+                        <div class="lineage-arrow">→</div>
+                        <div class="lineage-node result"><div class="node-type">📈 Result</div><div class="node-val">284.6 tCO₂e</div><div class="node-detail">Scope 3 Cat 6 (Partial)</div><div class="node-detail text-xs text-muted" style="color:var(--amber-600);">⚠ Incomplete — rail excluded</div></div>
+                    </div>
+                </div></div>
+            </div>
+
+            <!-- S3 Purchased Goods -->
+            <div class="lineage-panel" id="lin-s3-purchased">
+                <div class="card"><div class="card-header"><div class="card-title">Scope 3 Cat 1 · Purchased Goods & Services · FY 2024-25</div></div>
+                <div class="card-body">
+                    <div class="lineage-flow">
+                        <div class="lineage-node source"><div class="node-type">📊 Source</div><div class="node-val">Procurement / ERP Spend Data</div><div class="node-detail">380 suppliers · ₹245 Cr spend</div><div class="node-detail text-xs text-muted">SAP MM module extract</div></div>
+                        <div class="lineage-arrow">→</div>
+                        <div class="lineage-node calc"><div class="node-type">⚙️ Calculation</div><div class="node-val">Spend-based Method</div><div class="node-detail">EEIO factors by commodity code</div><div class="node-detail text-xs text-muted">USEEIO v2.0 + India adjustments</div></div>
+                        <div class="lineage-arrow">→</div>
+                        <div class="lineage-node result"><div class="node-type">📈 Result</div><div class="node-val">8,420 tCO₂e</div><div class="node-detail">Scope 3 Cat 1</div><div class="node-detail text-xs text-muted" style="color:var(--amber-600);">⚠ High uncertainty — EF methodology TBD</div></div>
+                    </div>
+                </div></div>
+            </div>
+        </div>
+
+        <!-- ==================== COMPLIANCE MAP ==================== -->
+        <div class="screen" id="screen-compliance">
+            <div class="page-header"><div class="page-title">Framework Compliance Map</div><div class="page-subtitle">Coverage and compliance status across applicable reporting frameworks</div></div>
+            <div class="card">
+                <div class="card-header"><div class="card-title has-tip">Compliance Overview<span class="tip-icon">?</span>
+                    <div class="tip-box"><strong>Compliance %</strong> indicates what proportion of mandatory disclosure requirements for each framework have been met with verified data. It is calculated as: (Verified Disclosures / Total Required Disclosures) × 100. Gaps are detailed in the Disclosure Gap Analysis table below.</div>
+                </div></div>
+                <div class="card-body">
+                    <div class="compliance-grid">
+                        <div class="compliance-item has-tip" style="cursor:help">
+                            <div class="compliance-score">98%</div><div class="compliance-label">BRSR Core</div><div class="mt-1"><span class="tag tag-green">2 minor gaps</span></div>
+                            <div class="tip-box"><strong>BRSR Core</strong> (SEBI mandate for top 1000 listed cos). 49 of 50 indicators verified. 2 minor disclosure format issues identified in F-004.</div>
+                        </div>
+                        <div class="compliance-item has-tip" style="cursor:help">
+                            <div class="compliance-score">92%</div><div class="compliance-label">ISSB S2</div><div class="mt-1"><span class="tag tag-green">On Track</span></div>
+                            <div class="tip-box"><strong>ISSB S2</strong> (IFRS Sustainability — Climate). 23 of 25 disclosures complete. Gaps: physical risk scenario analysis, transition plan detail.</div>
+                        </div>
+                        <div class="compliance-item has-tip" style="cursor:help">
+                            <div class="compliance-score">85%</div><div class="compliance-label">CSRD E1</div><div class="mt-1"><span class="tag tag-amber">5 gaps</span></div>
+                            <div class="tip-box"><strong>CSRD E1</strong> (EU — Climate Change). 17 of 20 disclosure requirements met. Key gaps: transition plan, science-based targets, Scope 3 Cat 1 methodology documentation.</div>
+                        </div>
+                        <div class="compliance-item has-tip" style="opacity:0.5; cursor:help">
+                            <div class="compliance-score">—</div><div class="compliance-label">CDP Climate</div><div class="mt-1"><span class="tag tag-blue">Not in scope</span></div>
+                            <div class="tip-box"><strong>CDP Climate</strong> questionnaire is not included in this engagement scope. Client may choose to report to CDP separately.</div>
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="card">
+                <div class="card-header"><div class="card-title has-tip">Disclosure Gap Analysis<span class="tip-icon">?</span>
+                    <div class="tip-box">Gaps listed here are specific disclosure requirements that are either missing, partially met, or inconsistent. Each gap links to an evidence item, finding, or client query for resolution.</div>
+                </div></div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead><tr><th>Framework</th><th>Requirement</th><th>Status</th><th>Notes</th></tr></thead>
+                        <tbody>
+                            <tr><td><span class="fw-badge">BRSR Core</span></td><td class="fw-600">Energy intensity per unit of turnover</td><td><span class="tag tag-amber">Inconsistent</span></td><td class="text-sm">Denominator changed mid-year (F-004)</td></tr>
+                            <tr><td><span class="fw-badge">ISSB S2</span></td><td class="fw-600">Climate-related physical risk disclosure</td><td><span class="tag tag-amber">Partial</span></td><td class="text-sm">Risk assessment present, scenario analysis missing</td></tr>
+                            <tr><td><span class="fw-badge">CSRD E1</span></td><td class="fw-600">Transition plan & GHG reduction targets</td><td><span class="tag tag-red">Missing</span></td><td class="text-sm">Client to provide science-based targets documentation</td></tr>
+                            <tr><td><span class="fw-badge">CSRD E1</span></td><td class="fw-600">Scope 3 Category 1 methodology</td><td><span class="tag tag-amber">Methodology unclear</span></td><td class="text-sm">Spend-based approach — EF sources need documentation</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
+
+        <!-- ==================== WORKING PAPERS ==================== -->
+        <div class="screen" id="screen-workpapers">
+            <div class="page-header"><div class="page-title">Audit Working Papers</div><div class="page-subtitle">Private to your audit team — organized by audit lifecycle phase</div></div>
+            <div class="read-only-banner" style="background:var(--terra-100); color:var(--terra-800);">🔐 Private workspace — Only visible to your audit team. Client cannot see these documents.</div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title has-tip">Working Paper Index<span class="tip-icon">?</span>
+                        <div class="tip-box"><strong>Working Papers</strong> are the auditor's private documentation of all procedures performed, evidence examined, and conclusions reached. They form the basis of the assurance opinion and must be retained per regulatory requirements (typically 7 years).
+                        <div class="tip-row"><strong>WP-1xx:</strong> Engagement & admin</div>
+                        <div class="tip-row"><strong>WP-2xx:</strong> Planning & risk</div>
+                        <div class="tip-row"><strong>WP-3xx:</strong> Testing & evidence</div>
+                        <div class="tip-row"><strong>WP-4xx:</strong> Findings & conclusions</div>
+                        <div class="tip-row"><strong>WP-5xx:</strong> Reporting & sign-off</div></div>
+                    </div>
+                    <button class="btn btn-sm btn-primary" onclick="openUploadWPModal()">+ Upload Working Paper</button>
+                </div>
+                <div class="card-body">
+                    <table class="data-table" id="wp-table">
+                        <thead><tr>
+                            <th class="has-tip" style="position:relative">Ref<span class="tip-icon">?</span><div class="tip-box" style="left:0; transform:none;">Working paper reference number. Follows a hierarchical numbering: 1xx = Engagement, 2xx = Planning, 3xx = Testing, 4xx = Findings, 5xx = Reporting.</div></th>
+                            <th>Working Paper</th>
+                            <th class="has-tip" style="position:relative">Phase<span class="tip-icon">?</span><div class="tip-box" style="left:0; transform:none;">The audit lifecycle phase this paper relates to. Papers should be created during the relevant phase and reviewed before moving to the next.</div></th>
+                            <th>Author</th>
+                            <th>Modified</th>
+                            <th class="has-tip" style="position:relative">Review<span class="tip-icon">?</span><div class="tip-box" style="left:0; transform:none;"><strong>Review Status:</strong><div class="tip-row"><strong>Reviewed:</strong> Engagement Manager has approved</div><div class="tip-row"><strong>Pending Review:</strong> Submitted, awaiting EM review</div><div class="tip-row"><strong>In Progress:</strong> Author still editing</div><div class="tip-row"><strong>New:</strong> Just uploaded, not yet started</div></div></th>
+                        </tr></thead>
+                        <tbody id="wp-tbody">
+                            <tr><td class="text-mono fw-600">WP-100</td><td class="fw-600">Engagement Letter & Independence Declaration</td><td>Engagement</td><td>Sarah M.</td><td class="text-mono">Jan 5</td><td><span class="tag tag-green">Reviewed</span></td></tr>
+                            <tr><td class="text-mono fw-600">WP-200</td><td class="fw-600">Risk Assessment & Audit Plan</td><td>Planning</td><td>Sarah M.</td><td class="text-mono">Jan 12</td><td><span class="tag tag-green">Reviewed</span></td></tr>
+                            <tr><td class="text-mono fw-600">WP-201</td><td class="fw-600">Materiality Calculation Workbook</td><td>Planning</td><td>Sarah M.</td><td class="text-mono">Jan 12</td><td><span class="tag tag-green">Reviewed</span></td></tr>
+                            <tr><td class="text-mono fw-600">WP-300</td><td class="fw-600">Scope 2 Electricity — Test Results & Evidence Notes</td><td>Testing</td><td>Sarah M.</td><td class="text-mono">Feb 5</td><td><span class="tag tag-green">Reviewed</span></td></tr>
+                            <tr><td class="text-mono fw-600">WP-301</td><td class="fw-600">Scope 1 Diesel Anomaly Investigation</td><td>Testing</td><td>Sarah M.</td><td class="text-mono">Feb 8</td><td><span class="tag tag-amber">Pending Review</span></td></tr>
+                            <tr><td class="text-mono fw-600">WP-400</td><td class="fw-600">Findings Summary & Management Response Tracker</td><td>Findings</td><td>Sarah M.</td><td class="text-mono">Feb 9</td><td><span class="tag tag-blue">In Progress</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- Raise Query Modal -->
+<div class="modal-overlay" id="modal-query">
+    <div class="modal">
+        <div class="modal-header"><div class="modal-title">📨 Raise Query to Client</div><button class="modal-close" onclick="closeModal('modal-query')">&times;</button></div>
+        <div class="modal-body">
+            <div class="form-group"><label class="form-label">Regarding Document</label><input class="form-input" id="query-doc-name" readonly></div>
+            <div class="form-row">
+                <div class="form-group"><label class="form-label">Query Type</label>
+                    <select class="form-select"><option>Request Missing Document</option><option>Clarification Needed</option><option>Data Discrepancy</option><option>Follow-up on Previous Query</option></select>
+                </div>
+                <div class="form-group"><label class="form-label">Priority</label>
+                    <select class="form-select"><option>High</option><option>Medium</option><option>Low</option></select>
+                </div>
+            </div>
+            <div class="form-group"><label class="form-label">Query Description</label><textarea class="form-textarea" placeholder="Describe what is needed and why..." rows="4"></textarea></div>
+            <div class="form-group"><label class="form-label">Send To</label>
+                <select class="form-select"><option>Priya S. (Data Manager)</option><option>Raj K. (ESG Manager)</option><option>CFO Office</option></select>
+            </div>
+            <div class="form-group"><label class="form-label">Response Deadline</label><input class="form-input" type="date"></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-query')">Cancel</button><button class="btn btn-primary" onclick="submitQuery()">Send Query</button></div>
     </div>
+</div>
 
-    <script>
-        let currentMode = 'independent';
-        let currentClient = 'acme';
-        let currentScreen = 'dashboard';
-        
-        // Client data for different scenarios
-        const clientData = {
-            acme: {
-                name: 'Acme Manufacturing Ltd',
-                step: 2,
-                progress: 65,
-                status: 'Evidence Collection'
-            },
-            globaltech: {
-                name: 'Global Tech Solutions',
-                step: 4,
-                progress: 80,
-                status: 'Control Testing'
-            },
-            sustainable: {
-                name: 'Sustainable Industries Corp',
-                step: 1,
-                progress: 25,
-                status: 'Project Setup'
-            }
-        };
+<!-- New Finding Modal -->
+<div class="modal-overlay" id="modal-finding">
+    <div class="modal">
+        <div class="modal-header"><div class="modal-title">⚠️ Log New Audit Finding</div><button class="modal-close" onclick="closeModal('modal-finding')">&times;</button></div>
+        <div class="modal-body">
+            <div class="form-row">
+                <div class="form-group"><label class="form-label">Finding ID</label><input class="form-input text-mono" id="new-finding-id" value="F-006" readonly></div>
+                <div class="form-group"><label class="form-label">Severity</label>
+                    <select class="form-select" id="new-finding-severity"><option value="critical">Critical</option><option value="major" selected>Major</option><option value="minor">Minor</option><option value="observation">Observation</option></select>
+                </div>
+            </div>
+            <div class="form-group"><label class="form-label">Finding Title</label><input class="form-input" id="new-finding-title" placeholder="Short descriptive title"></div>
+            <div class="form-row">
+                <div class="form-group"><label class="form-label">Scope</label>
+                    <select class="form-select" id="new-finding-scope"><option>S1</option><option>S2</option><option>S3</option><option>All</option></select>
+                </div>
+                <div class="form-group"><label class="form-label">Related Test ID</label>
+                    <select class="form-select"><option>—</option><option>T-001</option><option>T-002</option><option>T-003</option><option>T-004</option><option>T-005</option><option>T-006</option><option>T-007</option><option>T-008</option></select>
+                </div>
+            </div>
+            <div class="form-group"><label class="form-label">Detailed Description</label><textarea class="form-textarea" id="new-finding-desc" placeholder="Describe the finding, its impact, and supporting evidence..." rows="4"></textarea></div>
+            <div class="form-group"><label class="form-label">Auditor Recommendation</label><textarea class="form-textarea" placeholder="Recommended corrective action..." rows="3"></textarea></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-finding')">Cancel</button><button class="btn btn-primary" onclick="submitFinding()">Log Finding</button></div>
+    </div>
+</div>
 
-        // Mode data for UI updates
-        const modeData = {
-            independent: {
-                description: '<strong>Independent Auditor Mode:</strong> Access and audit data for a single enterprise client. Review complete carbon accounting data, evidence, and controls for assurance purposes.',
-                metrics: {
-                    metric1: { title: 'Audit Readiness Score', value: '94%', subtitle: 'Excellent readiness<span class="status-badge status-excellent">Ready for Review</span>' },
-                    metric2: { title: 'Active Audit Projects', value: '1', subtitle: 'Multi-framework assurance<span class="status-badge status-good">On Track</span>' },
-                    metric3: { title: 'Evidence Completeness', value: '87%', subtitle: '8 evidence gaps identified<span class="status-badge status-needs-attention">Action Needed</span>' },
-                    metric4: { title: 'Framework Coverage', value: '3/8', subtitle: 'ISSB S2, CSRD E1, BRSR Core<span class="status-badge status-excellent">Complete</span>' }
-                },
-                projectsTitle: 'Current Audit Project',
-                tableHeader: 'Entity'
-            },
-            consultant: {
-                description: '<strong>ESG Consultant Mode:</strong> Manage multiple enterprise client audit projects. Monitor progress across your consulting portfolio and coordinate with various audit teams.',
-                metrics: {
-                    metric1: { title: 'Overall Portfolio Readiness', value: '89%', subtitle: 'Average across 3 active clients<span class="status-badge status-good">Good Progress</span>' },
-                    metric2: { title: 'Active Client Engagements', value: '3', subtitle: '5 total audit projects active<span class="status-badge status-good">On Track</span>' },
-                    metric3: { title: 'Evidence Collection Status', value: '78%', subtitle: '32 evidence gaps across clients<span class="status-badge status-needs-attention">Action Needed</span>' },
-                    metric4: { title: 'Framework Coverage', value: '6/8', subtitle: 'Frameworks being audited<span class="status-badge status-excellent">Comprehensive</span>' }
-                },
-                projectsTitle: 'Active Audit Projects',
-                tableHeader: 'Client'
-            }
-        };
+<!-- Draft Report Modal -->
+<div class="modal-overlay" id="modal-draft">
+    <div class="modal" style="max-width:800px;">
+        <div class="modal-header"><div class="modal-title" id="draft-modal-title">Edit Report Draft</div><button class="modal-close" onclick="closeModal('modal-draft')">&times;</button></div>
+        <div class="modal-body" id="draft-modal-body"></div>
+        <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-draft')">Close</button><button class="btn btn-secondary">Export as DOCX</button><button class="btn btn-primary">Save Draft</button></div>
+    </div>
+</div>
 
-        const consultantProjects = [
-            {
-                name: 'FY 2024-25 Multi-Framework Assurance',
-                client: 'Acme Manufacturing Ltd',
-                frameworks: ['ISSB S2', 'CSRD E1', 'BRSR Core'],
-                status: 'Evidence Review',
-                statusClass: 'status-good',
-                dueDate: 'Mar 15, 2025',
-                progress: 65
-            },
-            {
-                name: 'Scope 3 Value Chain Verification',
-                client: 'Global Tech Solutions',
-                frameworks: ['CSRD E1', 'CDP Climate'],
-                status: 'Control Testing',
-                statusClass: 'status-excellent',
-                dueDate: 'Feb 28, 2025',
-                progress: 80
-            },
-            {
-                name: 'CSRD Double Materiality Assessment',
-                client: 'Global Tech Solutions',
-                frameworks: ['CSRD E1', 'ISSB S2'],
-                status: 'Data Validation',
-                statusClass: 'status-good',
-                dueDate: 'Mar 10, 2025',
-                progress: 45
-            },
-            {
-                name: 'Internal Controls Assessment',
-                client: 'Sustainable Industries Corp',
-                frameworks: ['ISSB S2', 'BRSR Core'],
-                status: 'Planning',
-                statusClass: 'status-needs-attention',
-                dueDate: 'Apr 10, 2025',
-                progress: 25
-            },
-            {
-                name: 'BRSR Core Indicator Verification',
-                client: 'Sustainable Industries Corp',
-                frameworks: ['BRSR Core'],
-                status: 'Not Started',
-                statusClass: 'status-needs-attention',
-                dueDate: 'Apr 25, 2025',
-                progress: 5
-            }
-        ];
+<!-- Run Test Modal -->
+<div class="modal-overlay" id="modal-runtest">
+    <div class="modal">
+        <div class="modal-header"><div class="modal-title">▶ Run Audit Test</div><button class="modal-close" onclick="closeModal('modal-runtest')">&times;</button></div>
+        <div class="modal-body">
+            <div class="form-group"><label class="form-label">Select Test to Run</label>
+                <select class="form-select"><option>T-005: Travel expense completeness – system reconciliation</option><option>T-006: Scope 3 spend-based EF methodology validation</option></select>
+            </div>
+            <div class="form-group"><label class="form-label">Execution Mode</label>
+                <select class="form-select"><option>Platform Automated (TerraCAP runs calculation checks)</option><option>Manual (Log results from offline procedure)</option><option>Hybrid (Platform flags, auditor confirms)</option></select>
+            </div>
+            <div class="form-group"><label class="form-label">Notes / Parameters</label><textarea class="form-textarea" placeholder="Optional: specify sample criteria, date range, or specific parameters..." rows="3"></textarea></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-runtest')">Cancel</button><button class="btn btn-primary" onclick="closeModal('modal-runtest')">▶ Execute Test</button></div>
+    </div>
+</div>
 
-        function showScreen(screenId) {
-            // Hide all screens
-            const screens = ['dashboard', 'evidence-vault-view', 'data-lineage-view'];
-            screens.forEach(screen => {
-                const element = document.getElementById(screen);
-                if (element) {
-                    if (screen === 'dashboard') {
-                        // Dashboard elements are not in a container, so hide individual sections
-                        const dashboardSections = document.querySelectorAll('.mode-selection, .client-context-panel, .audit-workflow, .metrics-grid, .section');
-                        dashboardSections.forEach(section => {
-                            if (screenId === 'dashboard') {
-                                section.style.display = '';
-                            } else {
-                                section.style.display = 'none';
-                            }
-                        });
-                    } else {
-                        element.classList.add('hidden');
-                    }
-                }
-            });
+<!-- Upload Working Paper Modal -->
+<div class="modal-overlay" id="modal-upload-wp">
+    <div class="modal">
+        <div class="modal-header"><div class="modal-title">📂 Upload Working Paper</div><button class="modal-close" onclick="closeModal('modal-upload-wp')">&times;</button></div>
+        <div class="modal-body">
+            <div class="form-row">
+                <div class="form-group"><label class="form-label">Reference Number</label><input class="form-input text-mono" id="wp-ref" placeholder="e.g. WP-302"></div>
+                <div class="form-group"><label class="form-label">Phase</label>
+                    <select class="form-select" id="wp-phase"><option>Engagement</option><option>Planning</option><option>Testing</option><option>Findings</option><option>Reporting</option></select>
+                </div>
+            </div>
+            <div class="form-group"><label class="form-label">Working Paper Title</label><input class="form-input" id="wp-title" placeholder="Descriptive title of the working paper"></div>
+            <div class="form-group"><label class="form-label">File Upload</label>
+                <div style="border:2px dashed var(--slate-300); border-radius:8px; padding:2rem; text-align:center; cursor:pointer; background:var(--slate-50);">
+                    <div style="font-size:2rem; margin-bottom:0.5rem;">📄</div>
+                    <div class="fw-600">Click to upload or drag & drop</div>
+                    <div class="text-xs text-muted">PDF, DOCX, XLSX — Max 25 MB</div>
+                </div>
+            </div>
+            <div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" placeholder="Brief description of contents..." rows="2"></textarea></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-upload-wp')">Cancel</button><button class="btn btn-primary" onclick="submitWorkingPaper()">Upload</button></div>
+    </div>
+</div>
 
-            // Show target screen
-            if (screenId === 'dashboard') {
-                // Dashboard elements are already shown above
-                currentScreen = 'dashboard';
-            } else {
-                const targetElement = document.getElementById(screenId);
-                if (targetElement) {
-                    targetElement.classList.remove('hidden');
-                    currentScreen = screenId;
-                }
-            }
-        }
+<!-- Issue Assurance Modal -->
+<div class="modal-overlay" id="modal-issue">
+    <div class="modal">
+        <div class="modal-header"><div class="modal-title">✅ Issue Assurance Opinion</div><button class="modal-close" onclick="closeModal('modal-issue')">&times;</button></div>
+        <div class="modal-body">
+            <div style="text-align:center; padding:1.5rem 0;">
+                <div style="font-size:3rem; margin-bottom:1rem;">🎉</div>
+                <div style="font-size:1.2rem; font-weight:700; color:var(--terra-800); margin-bottom:0.5rem;">Ready to Issue Assurance Opinion</div>
+                <div class="text-sm text-muted" style="max-width:500px; margin:0 auto;">All checklist items are complete, all sign-off authorities have approved, and the management representation letter has been received. The Limited Assurance Statement for Acme Manufacturing Ltd (FY 2024-25) is ready for issuance.</div>
+            </div>
+            <div style="background:var(--slate-50); padding:1rem; border-radius:8px; margin-top:1rem;">
+                <div class="fw-600 mb-1">Issuance Summary</div>
+                <div class="text-sm" style="line-height:2;">
+                    <strong>Opinion Type:</strong> Unmodified Limited Assurance<br>
+                    <strong>Subject Matter:</strong> GHG Emissions (Scope 1, 2, 3) — FY 2024-25<br>
+                    <strong>Frameworks:</strong> BRSR Core, ISSB S2, CSRD E1<br>
+                    <strong>Engagement Partner:</strong> Rajesh Kumar<br>
+                    <strong>Date of Issue:</strong> <span class="text-mono">February 10, 2025</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-issue')">Cancel</button><button class="btn btn-success" onclick="closeModal('modal-issue')">🏛 Confirm & Issue</button></div>
+    </div>
+</div>
 
-        function showEvidenceCategory(category) {
-            // Update active tab
-            document.querySelectorAll('.category-tab').forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
 
-            // Filter evidence items
-            const evidenceItems = document.querySelectorAll('.evidence-item');
-            evidenceItems.forEach(item => {
-                if (category === 'all' || item.dataset.category === category) {
-                    item.style.display = '';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        }
+<script>
+    // ===== NAVIGATION =====
+    function navigateTo(screen) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const target = document.getElementById('screen-' + screen);
+        if (target) target.classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        const navItem = document.querySelector(`.nav-item[data-screen="${screen}"]`);
+        if (navItem) navItem.classList.add('active');
+        window.scrollTo(0, 0);
+    }
 
-        function setMode(mode) {
-            currentMode = mode;
-            
-            // Update mode buttons
-            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(mode + '-mode-btn').classList.add('active');
-            
-            // Update mode description
-            document.getElementById('mode-description').innerHTML = modeData[mode].description;
-            
-            // Show/hide appropriate client panels
-            if (mode === 'independent') {
-                document.getElementById('single-client-mode').classList.remove('hidden');
-                document.getElementById('multiple-clients-mode').classList.add('hidden');
-            } else {
-                document.getElementById('single-client-mode').classList.add('hidden');
-                document.getElementById('multiple-clients-mode').classList.remove('hidden');
-            }
-            
-            // Update metrics
-            updateMetrics(mode);
-            
-            // Update projects table
-            updateProjectsTable(mode);
-            
-            // Update workflow for current client
-            updateWorkflow();
-        }
-
-        function updateMetrics(mode) {
-            const metrics = modeData[mode].metrics;
-            
-            document.getElementById('metric-1-title').textContent = metrics.metric1.title;
-            document.getElementById('metric-1-value').textContent = metrics.metric1.value;
-            document.getElementById('metric-1-subtitle').innerHTML = metrics.metric1.subtitle;
-            
-            document.getElementById('metric-2-title').textContent = metrics.metric2.title;
-            document.getElementById('metric-2-value').textContent = metrics.metric2.value;
-            document.getElementById('metric-2-subtitle').innerHTML = metrics.metric2.subtitle;
-            
-            document.getElementById('metric-3-title').textContent = metrics.metric3.title;
-            document.getElementById('metric-3-value').textContent = metrics.metric3.value;
-            document.getElementById('metric-3-subtitle').innerHTML = metrics.metric3.subtitle;
-            
-            document.getElementById('metric-4-title').textContent = metrics.metric4.title;
-            document.getElementById('metric-4-value').textContent = metrics.metric4.value;
-            document.getElementById('metric-4-subtitle').innerHTML = metrics.metric4.subtitle;
-        }
-
-        function updateProjectsTable(mode) {
-            const projectsTitle = document.getElementById('projects-title');
-            const tableHeader = document.getElementById('table-header-2');
-            const tableBody = document.getElementById('projects-table-body');
-            
-            projectsTitle.textContent = modeData[mode].projectsTitle;
-            tableHeader.textContent = modeData[mode].tableHeader;
-            
-            if (mode === 'independent') {
-                // Single project view
-                tableBody.innerHTML = `
-                    <tr>
-                        <td class="project-name">FY 2024-25 Multi-Framework Assurance</td>
-                        <td><strong>Acme Manufacturing Ltd</strong></td>
-                        <td>
-                            <div class="framework-badges">
-                                <span class="framework-badge">ISSB S2</span>
-                                <span class="framework-badge">CSRD E1</span>
-                                <span class="framework-badge">BRSR Core</span>
-                            </div>
-                        </td>
-                        <td><span class="status-badge status-good">Evidence Review</span></td>
-                        <td>Mar 15, 2025</td>
-                        <td>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: 65%"></div>
-                            </div>
-                            <small>65%</small>
-                        </td>
-                    </tr>
-                    <tr class="actions-row">
-                        <td colspan="6">
-                            <div class="project-actions">
-                                <button class="btn btn-primary btn-sm">Enter Workspace</button>
-                                <button class="btn btn-secondary btn-sm">View Evidence</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            } else {
-                // Multiple projects view
-                tableBody.innerHTML = consultantProjects.map(project => `
-                    <tr>
-                        <td class="project-name">${project.name}</td>
-                        <td><strong>${project.client}</strong></td>
-                        <td>
-                            <div class="framework-badges">
-                                ${project.frameworks.map(fw => `<span class="framework-badge">${fw}</span>`).join('')}
-                            </div>
-                        </td>
-                        <td><span class="status-badge ${project.statusClass}">${project.status}</span></td>
-                        <td>${project.dueDate}</td>
-                        <td>
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${project.progress}%"></div>
-                            </div>
-                            <small>${project.progress}%</small>
-                        </td>
-                    </tr>
-                    <tr class="actions-row">
-                        <td colspan="6">
-                            <div class="project-actions">
-                                <button class="btn btn-primary btn-sm">Continue Work</button>
-                                <button class="btn btn-secondary btn-sm">View Details</button>
-                            </div>
-                        </td>
-                    </tr>
-                `).join('');
-            }
-        }
-
-        function selectClient(clientId) {
-            if (currentMode !== 'consultant') return;
-            
-            currentClient = clientId;
-            
-            // Update active client card
-            document.querySelectorAll('.client-card').forEach(card => card.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            
-            // Update header client context
-            document.getElementById('current-client-name').textContent = clientData[clientId].name;
-            
-            // Update workflow
-            updateWorkflow();
-        }
-
-        function updateWorkflow() {
-            const client = clientData[currentClient];
-            
-            // Update workflow title
-            const workflowTitle = document.getElementById('workflow-title');
-            if (workflowTitle) {
-                if (currentMode === 'independent') {
-                    workflowTitle.textContent = `Audit Progress: ${client.name}`;
-                } else {
-                    workflowTitle.textContent = `Current Focus: ${client.name}`;
-                }
-            }
-            
-            // Update progress
-            goToStep(client.step, false);
-        }
-
-        function goToStep(stepNumber, updateData = true) {
-            // Update workflow progress
-            const progressBar = document.getElementById('workflow-progress');
-            if (!progressBar) return; // Safety check
-            
-            const steps = document.querySelectorAll('.workflow-step');
-            
-            // Calculate progress percentage
-            const progressPercentage = ((stepNumber - 1) / 6) * 100;
-            progressBar.style.width = progressPercentage + '%';
-            
-            // Update step states
-            steps.forEach((step, index) => {
-                const circle = step.querySelector('.step-circle');
-                const label = step.querySelector('.step-label');
-                
-                if (!circle || !label) return; // Safety check
-                
-                if (index + 1 < stepNumber) {
-                    // Completed steps
-                    circle.className = 'step-circle completed';
-                    circle.innerHTML = '✓';
-                    label.className = 'step-label completed';
-                } else if (index + 1 === stepNumber) {
-                    // Active step
-                    circle.className = 'step-circle active';
-                    circle.innerHTML = stepNumber;
-                    label.className = 'step-label active';
-                } else {
-                    // Pending steps
-                    circle.className = 'step-circle pending';
-                    circle.innerHTML = index + 1;
-                    label.className = 'step-label pending';
-                }
-            });
-            
-            // Update client data if this is a direct step change
-            if (updateData && clientData[currentClient]) {
-                clientData[currentClient].step = stepNumber;
-                
-                // Navigate to appropriate screen based on step
-                const screenMap = {
-                    1: 'project-setup',
-                    2: 'evidence-collection', 
-                    3: 'data-validation',
-                    4: 'control-testing',
-                    5: 'compliance-review',
-                    6: 'report-generation',
-                    7: 'certification'
-                };
-                
-                if (screenMap[stepNumber]) {
-                    navigateToScreen(screenMap[stepNumber]);
-                }
-            }
-        }
-        
-        function navigateToScreen(screenId) {
-            const clientName = clientData[currentClient] ? clientData[currentClient].name : 'Current Client';
-            
-            // Handle special screens
-            if (screenId === 'evidence-vault') {
-                showScreen('evidence-vault-view');
-                return;
-            }
-            
-            if (screenId === 'data-lineage') {
-                showScreen('data-lineage-view');
-                return;
-            }
-            
-            if (screenId === 'control-testing') {
-                alert(`Opening Control Testing Suite for ${clientName}\n\nFeatures available:\n• Pre-configured test procedures\n• Statistical sampling tools\n• Automated control effectiveness evaluation\n• Exception identification\n• Test results dashboard`);
-                return;
-            }
-            
-            if (screenId === 'compliance-mapping') {
-                alert(`Opening Global Compliance Mapping for ${clientName}\n\nFrameworks covered:\n• ISSB S2 Climate-Related Disclosures\n• EU CSRD/ESRS E1\n• India SEBI BRSR Core\n• CDP Climate Change Questionnaire\n• Cross-framework gap analysis`);
-                return;
-            }
-            
-            console.log(`Navigating to: ${screenId} for client: ${clientName}`);
-            alert(`Opening ${screenId} workspace for ${clientName}`);
-        }
-
-        function exportAuditSummary() {
-            alert('Generating comprehensive audit summary...\n\nReport will include:\n• Evidence completeness status\n• Control testing results\n• Framework compliance mapping\n• Risk assessment summary\n• Management letter points');
-        }
-
-        function openEvidenceVault() {
-            navigateToScreen('evidence-vault');
-        }
-        
-        // Initialize the dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            setMode('independent');
-            currentClient = 'acme';
-            showScreen('dashboard');
+    // ===== EVIDENCE FILTERING =====
+    function filterEvidence(chip, category) {
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        document.querySelectorAll('.evidence-row').forEach(row => {
+            const cats = row.getAttribute('data-cat') || '';
+            row.style.display = (category === 'all' || cats.includes(category)) ? '' : 'none';
         });
-    </script>
+    }
+
+    // ===== MODALS =====
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    function openQueryModal(docName, isFollowUp) {
+        document.getElementById('query-doc-name').value = docName;
+        document.getElementById('modal-query').classList.add('open');
+    }
+    function submitQuery() { closeModal('modal-query'); showToast('Query sent to client successfully'); }
+
+    function openNewFindingModal() {
+        const count = document.querySelectorAll('#findings-tbody tr').length;
+        document.getElementById('new-finding-id').value = 'F-' + String(count + 1).padStart(3, '0');
+        document.getElementById('modal-finding').classList.add('open');
+    }
+    function submitFinding() {
+        const id = document.getElementById('new-finding-id').value;
+        const severity = document.getElementById('new-finding-severity').value;
+        const title = document.getElementById('new-finding-title').value || 'Untitled Finding';
+        const scope = document.getElementById('new-finding-scope').value;
+        const desc = document.getElementById('new-finding-desc').value || '';
+        const dotClass = severity;
+        const sevLabel = severity.charAt(0).toUpperCase() + severity.slice(1);
+        const row = document.createElement('tr');
+        row.innerHTML = `<td class="text-mono fw-600">${id}</td><td><div class="finding-severity"><span class="severity-dot ${dotClass}"></span> ${sevLabel}</div></td><td><div class="fw-600">${title}</div><div class="text-xs text-muted">${desc}</div></td><td>${scope}</td><td><span class="tag tag-red">Pending</span></td><td><span class="tag tag-red">Open</span></td>`;
+        document.getElementById('findings-tbody').appendChild(row);
+        closeModal('modal-finding');
+        // Reset form
+        document.getElementById('new-finding-title').value = '';
+        document.getElementById('new-finding-desc').value = '';
+        showToast('Finding ' + id + ' logged successfully');
+    }
+
+    // ===== REPORT DRAFTS =====
+    const draftTemplates = {
+        'assurance': {
+            title: 'Limited Assurance Statement — Draft',
+            html: `<div class="draft-content">
+                <h3>Independent Limited Assurance Report</h3>
+                <p><strong>To the Board of Directors of Acme Manufacturing Ltd</strong></p>
+                <h3>Scope</h3>
+                <p>We have undertaken a limited assurance engagement in respect of the greenhouse gas (GHG) emissions data reported by Acme Manufacturing Ltd (the "Company") for the financial year ended <span class="placeholder">[March 31, 2025]</span>, as presented in the Company's sustainability disclosures prepared in accordance with SEBI BRSR Core, IFRS S2, and CSRD/ESRS E1 requirements.</p>
+                <h3>Criteria</h3>
+                <p>The GHG emissions data has been prepared by the Company in accordance with the GHG Protocol Corporate Standard (Revised), using emission factors sourced from <span class="placeholder">[IPCC AR6, CEA India 2023, DEFRA 2024]</span>. The reporting boundary covers <span class="placeholder">[3 legal entities and 12 manufacturing facilities]</span>.</p>
+                <h3>Responsibilities</h3>
+                <p><strong>Management's Responsibility:</strong> The preparation of the GHG emissions data in accordance with the stated criteria is the responsibility of the Company's management. This includes the design, implementation, and maintenance of internal controls relevant to the preparation of the emissions data.</p>
+                <p><strong>Our Responsibility:</strong> Our responsibility is to express a limited assurance conclusion on the GHG emissions data based on the procedures we have performed and evidence we have obtained. We conducted our engagement in accordance with ISAE 3410 "Assurance Engagements on Greenhouse Gas Statements."</p>
+                <h3>Summary of Work Performed</h3>
+                <p>Our procedures included, among others: inquiries of management and personnel involved in emissions data preparation; analytical procedures; inspection of supporting documentation on a sample basis; recalculation of emissions using reported activity data; and assessment of the appropriateness of emission factors and methodologies applied.</p>
+                <h3>Conclusion</h3>
+                <p>Based on the procedures we have performed and the evidence we have obtained, nothing has come to our attention that causes us to believe that the GHG emissions data of Acme Manufacturing Ltd for FY 2024-25, as set out in the Company's sustainability disclosures, is not prepared, in all material respects, in accordance with the stated criteria.</p>
+                <h3>Emphasis of Matter</h3>
+                <p><span class="placeholder">[To be completed based on final findings — e.g., Scope 3 Category 1 data uses spend-based estimates with inherent limitations, Refrigerant GWP values may require update]</span></p>
+                <p style="margin-top:2rem;"><strong>For Deloitte Haskins & Sells LLP</strong><br>
+                <span class="placeholder">[Rajesh Kumar]</span><br>
+                Partner<br>
+                Bengaluru, <span class="placeholder">[Date]</span></p>
+            </div>`
+        },
+        'mgmt-letter': {
+            title: 'Management Letter — Draft',
+            html: `<div class="draft-content">
+                <h3>Management Letter</h3>
+                <p><strong>To the Management of Acme Manufacturing Ltd</strong></p>
+                <p>Dear Sir/Madam,</p>
+                <p>In connection with our limited assurance engagement on the greenhouse gas emissions data of Acme Manufacturing Ltd for FY 2024-25, we wish to bring to your attention the following matters that arose during our work and our recommendations for improvement.</p>
+                <h3>Critical Findings</h3>
+                <p><strong>1. Diesel Consumption Anomaly (F-001):</strong> Generator diesel consumption at Site 3 showed a 340% spike in November 2024, exceeding the physical capacity rating of the equipment. This suggests either a data entry error, unreported additional equipment, or potential misallocation between sites. <em>Recommendation:</em> Investigate and reconcile immediately. Implement monthly consumption vs. capacity reasonableness checks.</p>
+                <h3>Major Findings</h3>
+                <p><strong>2. Incomplete Scope 3 Category 6 Data (F-002):</strong> Rail travel emissions are excluded from the business travel calculation. <em>Recommendation:</em> Integrate rail travel data from the SAP travel module and update the reporting boundary.</p>
+                <p><strong>3. Outdated Refrigerant GWP (F-003):</strong> R-410A is calculated using AR4 GWP (2,088) rather than the current AR6 value (2,256), resulting in a potential understatement of ~7.5 tCO₂e. <em>Recommendation:</em> Update GWP values to IPCC AR6 and establish a policy for annual EF/GWP review.</p>
+                <h3>Improvement Opportunities</h3>
+                <p><strong>4.</strong> Standardise intensity metric denominators across all quarterly reports (F-004).</p>
+                <p><strong>5.</strong> Add narrative explanations for significant YoY emissions changes in the annual report (F-005).</p>
+                <p>We would be pleased to discuss these matters with you at your convenience.</p>
+                <p style="margin-top:1.5rem;">Yours faithfully,<br><strong>Sarah Mitchell</strong><br>Lead Auditor, Deloitte Haskins & Sells LLP</p>
+            </div>`
+        },
+        'brsr': {
+            title: 'BRSR Core Verification Report — Draft',
+            html: `<div class="draft-content">
+                <h3>BRSR Core Verification Report</h3>
+                <p><strong>Acme Manufacturing Ltd — FY 2024-25</strong></p>
+                <h3>Scope of Verification</h3>
+                <p>This report covers the verification of SEBI BRSR Core indicators as applicable to Acme Manufacturing Ltd, a listed company under the top 1000 by market capitalisation.</p>
+                <h3>Principle 6 — Environment</h3>
+                <p><strong>Essential Indicator 1 — Energy Consumption:</strong></p>
+                <p>Total electricity consumption: <span class="placeholder">[XX,XXX]</span> GJ (from BESCOM bills, verified).<br>
+                Total fuel consumption: <span class="placeholder">[XX,XXX]</span> GJ (from diesel + petrol records).<br>
+                Energy intensity per rupee of turnover: <span class="placeholder">[X.XX]</span> GJ/₹Cr — ⚠ Denominator inconsistency noted (F-004).</p>
+                <p><strong>Essential Indicator 3 — GHG Emissions:</strong></p>
+                <p>Scope 1: <span class="placeholder">[XXX]</span> tCO₂e (Stationary + Mobile + Fugitive)<br>
+                Scope 2: <span class="placeholder">[XXX]</span> tCO₂e (Grid electricity, location-based)<br>
+                Total (S1+S2): <span class="placeholder">[X,XXX]</span> tCO₂e<br>
+                GHG intensity per ₹Cr turnover: <span class="placeholder">[X.XX]</span> tCO₂e/₹Cr</p>
+                <h3>Verification Status</h3>
+                <p><span class="placeholder">[49 of 50 applicable indicators verified. 2 minor disclosure format issues identified — see F-004.]</span></p>
+                <h3>Conclusion</h3>
+                <p><span class="placeholder">[To be completed upon resolution of open findings and receipt of all outstanding evidence.]</span></p>
+            </div>`
+        }
+    };
+
+    function openDraftModal(type) {
+        const tpl = draftTemplates[type];
+        if (!tpl) return;
+        document.getElementById('draft-modal-title').textContent = tpl.title;
+        document.getElementById('draft-modal-body').innerHTML = tpl.html;
+        document.getElementById('modal-draft').classList.add('open');
+    }
+
+    function openRunTestModal() { document.getElementById('modal-runtest').classList.add('open'); }
+
+    // ===== SIGN-OFF =====
+    function updateChecklistCount() {
+        const checks = document.querySelectorAll('#signoff-checklist input[type="checkbox"]');
+        const checked = document.querySelectorAll('#signoff-checklist input[type="checkbox"]:checked').length;
+        const total = checks.length;
+        document.getElementById('checklist-counter').textContent = checked + ' of ' + total + ' complete';
+        document.getElementById('checklist-counter').className = (checked === total) ? 'tag tag-green' : 'tag tag-amber';
+        document.getElementById('issue-btn').disabled = (checked < total);
+    }
+
+    function issueAssurance() {
+        document.getElementById('modal-issue').classList.add('open');
+    }
+
+    // ===== LINEAGE TABS =====
+    function showLineage(tab, panelId) {
+        document.querySelectorAll('.lineage-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.lineage-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(panelId).classList.add('active');
+    }
+
+    // ===== WORKING PAPERS UPLOAD =====
+    function openUploadWPModal() { document.getElementById('modal-upload-wp').classList.add('open'); }
+    function submitWorkingPaper() {
+        const ref = document.getElementById('wp-ref').value || 'WP-NEW';
+        const title = document.getElementById('wp-title').value || 'Untitled Working Paper';
+        const phase = document.getElementById('wp-phase').value;
+        const today = new Date();
+        const dateStr = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const row = document.createElement('tr');
+        row.innerHTML = `<td class="text-mono fw-600">${ref}</td><td class="fw-600">${title}</td><td>${phase}</td><td>Sarah M.</td><td class="text-mono">${dateStr}</td><td><span class="tag tag-blue">New</span></td>`;
+        row.style.animation = 'fadeIn 0.3s ease';
+        document.getElementById('wp-tbody').appendChild(row);
+        closeModal('modal-upload-wp');
+        document.getElementById('wp-ref').value = '';
+        document.getElementById('wp-title').value = '';
+        showToast('Working paper ' + ref + ' uploaded');
+    }
+
+    // ===== TOAST =====
+    function showToast(msg) {
+        const toast = document.createElement('div');
+        toast.textContent = '✓ ' + msg;
+        Object.assign(toast.style, {
+            position: 'fixed', bottom: '2rem', right: '2rem',
+            background: 'var(--terra-800)', color: 'white',
+            padding: '0.75rem 1.25rem', borderRadius: '8px',
+            fontSize: '0.85rem', fontWeight: '600',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+            zIndex: '999', animation: 'fadeIn 0.2s ease',
+            fontFamily: 'DM Sans, sans-serif'
+        });
+        document.body.appendChild(toast);
+        setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
+    }
+</script>
 </body>
 </html>
