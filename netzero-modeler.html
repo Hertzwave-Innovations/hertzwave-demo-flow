@@ -1331,6 +1331,7 @@
               <div class="legend-item"><div class="legend-dot" style="background:#48bb78;"></div><span>Target Path</span></div>
               <div class="legend-item"><div class="legend-dot" style="background:var(--hz-green);"></div><span>Your Model</span></div>
               <div class="legend-item"><div class="legend-dot" style="background:#E53E3E;"></div><span>BAU (No Action)</span></div>
+              <div class="legend-item"><div class="legend-dot" style="background:#E09F3E; height:2px; border-top:1px dashed #E09F3E;"></div><span>Offset Capacity</span></div>
             </div>
           </div>
           <div class="canvas-wrap">
@@ -2167,7 +2168,7 @@
       s3: 12050,
       get total() { return this.s1 + this.s2 + this.s3; }
     };
-    const TARGET_YEAR = 2045;
+    let TARGET_YEAR = parseInt(document.getElementById('targetYear')?.value || 2045);
     const BASE_YEAR = 2024;
 
     // Lever configurations: { sliderId, scope, maxReduction, costPerUnit (₹ Cr per % or per unit), displayId prefix }
@@ -2243,6 +2244,9 @@
     // RECALCULATE ALL LEVERS
     // ──────────────────────────────────────────
     function recalcAll() {
+      // Read target year from dropdown
+      TARGET_YEAR = parseInt(document.getElementById('targetYear')?.value || 2045);
+
       let totalAbatement = 0;
       let totalCost = 0;
       let s1Abated = 0, s2Abated = 0, s3Abated = 0;
@@ -2287,13 +2291,13 @@
       const netResidual = Math.max(0, residual - offVal);
       const totalInvest = totalCost + offCost;
 
-      // Projected year
-      const reductionFraction = totalAbatement / BASELINE.total;
+      // Projected year — use compound rate so decay matches target
+      const reductionFraction = Math.min(totalAbatement / BASELINE.total, 0.999);
       const yearsToTarget = TARGET_YEAR - BASE_YEAR;
-      const annualRate = reductionFraction / yearsToTarget;
+      const annualRate = reductionFraction > 0 ? 1 - Math.pow(1 - reductionFraction, 1 / yearsToTarget) : 0;
       let projYear = BASE_YEAR;
       let cur = BASELINE.total;
-      while (cur > offVal && projYear < 2070) {
+      while (cur > offVal && projYear < TARGET_YEAR + 30) {
         cur -= cur * annualRate;
         projYear++;
       }
@@ -2328,11 +2332,11 @@
       if (gap <= 0) {
         alertEl.className = 'callout callout-success';
         alertEl.innerHTML = gap === 0 
-          ? '<strong>✓ On Target:</strong> Your current lever settings achieve NetZero by 2045.'
+          ? '<strong>✓ On Target:</strong> Your current lever settings achieve NetZero by ' + TARGET_YEAR + '.'
           : '<strong>🎯 Excellent:</strong> Current pathway achieves NetZero by ' + projYear + ', ' + Math.abs(gap) + ' year(s) ahead of your target!';
       } else {
         alertEl.className = 'callout callout-warn';
-        alertEl.innerHTML = '<strong>⚠ Gap Alert:</strong> Current levers project NetZero by ' + projYear + ' — ' + gap + ' year(s) behind your 2045 target. Increase lever intensity or add carbon removal to close the gap.';
+        alertEl.innerHTML = '<strong>⚠ Gap Alert:</strong> Current levers project NetZero by ' + projYear + ' — ' + gap + ' year(s) behind your ' + TARGET_YEAR + ' target. Increase lever intensity or add carbon removal to close the gap.';
       }
 
       // Update financial screen
@@ -2392,7 +2396,7 @@
       }
 
       if (gap <= 0) {
-        insights.push('🎯 Your pathway is on track to meet or beat the 2045 target. Well structured!');
+        insights.push('🎯 Your pathway is on track to meet or beat the ' + TARGET_YEAR + ' target. Well structured!');
       } else if (gap <= 3) {
         insights.push('You\'re close — a 10–15% increase in your weakest lever could close the ' + gap + '-year gap.');
         chips.push('Close to target');
@@ -2430,10 +2434,18 @@
       const cW = W - pad.left - pad.right;
       const cH = H - pad.top - pad.bottom;
 
-      const years = [2024, 2027, 2030, 2033, 2036, 2039, 2042, 2045];
+      // Chart extends to whichever is later: target year or projected year
+      const endYear = Math.max(TARGET_YEAR, projYear, 2040);
+      const yearSpan = endYear - 2024;
+      const yearStep = Math.max(3, Math.round(yearSpan / 7));
+      const years = [];
+      for (let y = 2024; y <= endYear; y += yearStep) { years.push(y); }
+      // Ensure TARGET_YEAR and endYear are always ticked
+      if (!years.includes(TARGET_YEAR)) { years.push(TARGET_YEAR); years.sort((a,b) => a-b); }
+      if (years[years.length - 1] !== endYear) years.push(endYear);
       const maxE = 55000;
 
-      function xPos(yr) { return pad.left + ((yr - 2024) / (2045 - 2024)) * cW; }
+      function xPos(yr) { return pad.left + ((yr - 2024) / (endYear - 2024)) * cW; }
       function yPos(e) { return pad.top + (1 - e / maxE) * cH; }
 
       // Grid
@@ -2450,18 +2462,37 @@
 
       // X labels
       ctx.textAlign = 'center';
-      ctx.fillStyle = '#94A3B8';
       years.forEach(yr => {
+        // Highlight target year label
+        ctx.fillStyle = (yr === TARGET_YEAR) ? '#2D6A4F' : '#94A3B8';
+        ctx.font = (yr === TARGET_YEAR) ? 'bold 12px "JetBrains Mono"' : '11px "JetBrains Mono"';
         ctx.fillText(yr, xPos(yr), H - pad.bottom + 20);
       });
 
-      // Target path (dashed green)
+      // Target year vertical marker (dashed line)
+      if (projYear > TARGET_YEAR) {
+        ctx.setLineDash([4, 3]);
+        ctx.strokeStyle = '#94A3B8';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(xPos(TARGET_YEAR), pad.top);
+        ctx.lineTo(xPos(TARGET_YEAR), pad.top + cH);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // Label
+        ctx.fillStyle = '#64748B';
+        ctx.font = '10px "DM Sans"';
+        ctx.textAlign = 'center';
+        ctx.fillText('Target', xPos(TARGET_YEAR), pad.top - 6);
+      }
+
+      // Target path (dashed green) — baseline to 0 at TARGET_YEAR
       ctx.setLineDash([6, 4]);
       ctx.strokeStyle = '#48BB78';
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(xPos(2024), yPos(BASELINE.total));
-      ctx.lineTo(xPos(2045), yPos(0));
+      ctx.lineTo(xPos(TARGET_YEAR), yPos(0));
       ctx.stroke();
       ctx.setLineDash([]);
 
@@ -2479,12 +2510,12 @@
       ctx.stroke();
       ctx.globalAlpha = 1;
 
-      // Modeled path (thick green)
+      // Modeled path (thick green) — extends to endYear so it shows convergence
       ctx.strokeStyle = '#2D6A4F';
       ctx.lineWidth = 3;
       ctx.beginPath();
-      const fraction = totalAbatement / BASELINE.total;
-      const annRate = fraction / (TARGET_YEAR - BASE_YEAR);
+      const fraction = Math.min(totalAbatement / BASELINE.total, 0.999);
+      const annRate = fraction > 0 ? 1 - Math.pow(1 - fraction, 1 / (TARGET_YEAR - BASE_YEAR)) : 0;
       years.forEach((yr, i) => {
         const elapsed = yr - 2024;
         let modeled = BASELINE.total * Math.pow(1 - annRate, elapsed);
@@ -2504,6 +2535,25 @@
         ctx.arc(xPos(yr), yPos(modeled), 4, 0, Math.PI * 2);
         ctx.fill();
       });
+
+      // Offset threshold line (dotted amber) — shows the level offsets can neutralize
+      if (offsets > 0) {
+        ctx.setLineDash([3, 3]);
+        ctx.strokeStyle = '#E09F3E';
+        ctx.lineWidth = 1.5;
+        ctx.globalAlpha = 0.7;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, yPos(offsets));
+        ctx.lineTo(W - pad.right, yPos(offsets));
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
+        // Label
+        ctx.fillStyle = '#E09F3E';
+        ctx.font = '10px "DM Sans"';
+        ctx.textAlign = 'left';
+        ctx.fillText('Offset capacity: ' + (offsets/1000).toFixed(1) + 'k', pad.left + 4, yPos(offsets) - 6);
+      }
 
       // Y-axis label
       ctx.save();
@@ -2676,6 +2726,11 @@
     // ──────────────────────────────────────────
     window.addEventListener('DOMContentLoaded', () => {
       recalcAll();
+      // Re-sync modeller when target year changes
+      document.getElementById('targetYear')?.addEventListener('change', () => {
+        TARGET_YEAR = parseInt(document.getElementById('targetYear').value);
+        recalcAll();
+      });
     });
 
     window.addEventListener('resize', () => {
