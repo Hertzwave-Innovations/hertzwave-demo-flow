@@ -427,7 +427,7 @@
 
         <div class="settings-grid">
             <!-- Setting 1: Target Setting -->
-            <div class="setting-card" onclick="toggleCard(this)">
+            <div class="setting-card">
                 <div class="setting-icon">🎯</div>
                 <div class="setting-title">
                     Target Setting
@@ -569,7 +569,7 @@
             </div>
 
             <!-- Setting 2: Baseline Configuration -->
-            <div class="setting-card" onclick="toggleCard(this)">
+            <div class="setting-card">
                 <div class="setting-icon">📅</div>
                 <div class="setting-title">
                     Baseline Configuration
@@ -698,7 +698,7 @@
             </div>
 
             <!-- Setting 3: P6 EPR & Material Conservation Compliance -->
-            <div class="setting-card" onclick="toggleCard(this)">
+            <div class="setting-card">
                 <div class="setting-icon">♻️</div>
                 <div class="setting-title">
                     P6: EPR & Material Conservation Compliance
@@ -776,7 +776,7 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="epr-targets-tbody">
                                 <tr>
                                     <td colspan="5" style="text-align: center; color: #666;">No EPR targets configured yet</td>
                                 </tr>
@@ -795,7 +795,7 @@
 
 
             <!-- Setting 3b: P8 Product Stewardship & Life Cycle Aspects -->
-            <div class="setting-card" onclick="toggleCard(this)">
+            <div class="setting-card">
                 <div class="setting-icon">📦</div>
                 <div class="setting-title">
                     P8: Product Stewardship & Life Cycle Aspects Data
@@ -896,7 +896,7 @@
             </div>
 
             <!-- Setting 4: P9 Innovation for Environment -->
-            <div class="setting-card" onclick="toggleCard(this)">
+            <div class="setting-card">
                 <div class="setting-icon">💡</div>
                 <div class="setting-title">
                     P9: Innovation for Environment Data
@@ -933,7 +933,7 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="innovation-projects-tbody">
                                 <tr>
                                     <td>Green Chemistry R&D</td>
                                     <td>Process Innovation</td>
@@ -962,7 +962,7 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="technology-adoption-tbody">
                                 <tr>
                                     <td>AI-based Energy Optimization</td>
                                     <td>Jan 2024</td>
@@ -987,7 +987,7 @@
             </div>
 
             <!-- Setting 5: P10 Green Infrastructure & Ecology -->
-            <div class="setting-card" onclick="toggleCard(this)">
+            <div class="setting-card">
                 <div class="setting-icon">🏗️</div>
                 <div class="setting-title">
                     P10: Green Infrastructure & Ecology Data
@@ -1023,7 +1023,7 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="green-building-tbody">
                                 <tr>
                                     <td>Main Manufacturing Unit</td>
                                     <td>IGBC Green Factory</td>
@@ -1061,7 +1061,7 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="ecology-tbody">
                                 <tr>
                                     <td>Native Tree Plantation</td>
                                     <td>5,200</td>
@@ -1099,7 +1099,7 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="amenities-tbody">
                                 <tr>
                                     <td>Cafeteria with Organic Food</td>
                                     <td>Health & Wellness</td>
@@ -1137,7 +1137,7 @@
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="awareness-tbody">
                                 <tr>
                                     <td>World Environment Day Celebration</td>
                                     <td>Annual</td>
@@ -1172,7 +1172,7 @@
             </div>
 
             <!-- Setting 6: Materiality Assessment -->
-            <div class="setting-card" onclick="toggleCard(this)">
+            <div class="setting-card">
                 <div class="setting-icon">🎯</div>
                 <div class="setting-title">
                     Materiality Assessment
@@ -1375,7 +1375,7 @@
             </div>
 
             <!-- Setting 7: Notifications -->
-            <div class="setting-card" onclick="toggleCard(this)">
+            <div class="setting-card">
                 <div class="setting-icon">🔔</div>
                 <div class="setting-title">
                     Notifications
@@ -1462,7 +1462,7 @@
             </div>
 
             <!-- Setting 8: Audit Trail -->
-            <div class="setting-card" onclick="toggleCard(this)">
+            <div class="setting-card">
                 <div class="setting-icon">📝</div>
                 <div class="setting-title">
                     Audit Trail
@@ -1549,7 +1549,7 @@
             </div>
 
             <!-- Setting 9: Assessment Period -->
-            <div class="setting-card" onclick="toggleCard(this)">
+            <div class="setting-card">
                 <div class="setting-icon">📆</div>
                 <div class="setting-title">
                     Assessment Period
@@ -1623,7 +1623,7 @@
             </div>
 
             <!-- Setting 10: Data Validation -->
-            <div class="setting-card" onclick="toggleCard(this)">
+            <div class="setting-card">
                 <div class="setting-icon">✔️</div>
                 <div class="setting-title">
                     Data Validation
@@ -1720,9 +1720,54 @@
 
     <script>
         console.log('Settings script loaded');
+
+        // Toast notification system (replaces alert() which is blocked in sandboxed iframes)
+        (function() {
+            var container = document.createElement('div');
+            container.id = 'toast-container';
+            container.style.cssText = 'position:fixed;top:80px;right:20px;z-index:99999;display:flex;flex-direction:column;gap:10px;';
+            document.body.appendChild(container);
+        })();
+
+        function showToast(message, type) {
+            type = type || 'success';
+            var toast = document.createElement('div');
+            var colors = {
+                success: { bg: '#d4edda', border: '#28a745', color: '#155724', icon: '✅' },
+                info:    { bg: '#e3f2fd', border: '#2196f3', color: '#0d47a1', icon: 'ℹ️' },
+                warning: { bg: '#fff3cd', border: '#ffc107', color: '#856404', icon: '⚠️' }
+            };
+            var c = colors[type] || colors.info;
+            toast.style.cssText = 'padding:12px 20px;border-radius:8px;font-size:14px;font-weight:500;' +
+                'box-shadow:0 4px 12px rgba(0,0,0,0.15);max-width:400px;opacity:0;transition:opacity 0.3s;' +
+                'background:' + c.bg + ';border-left:4px solid ' + c.border + ';color:' + c.color + ';';
+            toast.textContent = c.icon + '  ' + message;
+            document.getElementById('toast-container').appendChild(toast);
+            requestAnimationFrame(function() { toast.style.opacity = '1'; });
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                setTimeout(function() { toast.remove(); }, 300);
+            }, 3000);
+        }
+
+        function showConfirm(message, onConfirm) {
+            var overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:100000;display:flex;align-items:center;justify-content:center;';
+            var box = document.createElement('div');
+            box.style.cssText = 'background:white;border-radius:12px;padding:2rem;max-width:400px;box-shadow:0 4px 20px rgba(0,0,0,0.3);text-align:center;';
+            box.innerHTML = '<p style="margin-bottom:1.5rem;font-size:1rem;color:#333;">' + message + '</p>' +
+                '<div style="display:flex;gap:1rem;justify-content:center;">' +
+                '<button id="confirm-yes" style="padding:0.5rem 1.5rem;background:linear-gradient(135deg,#3d7f6f,#2d5f4f);color:white;border:none;border-radius:6px;font-weight:600;cursor:pointer;">Yes</button>' +
+                '<button id="confirm-no" style="padding:0.5rem 1.5rem;background:white;color:#333;border:2px solid #ccc;border-radius:6px;font-weight:600;cursor:pointer;">Cancel</button>' +
+                '</div>';
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
+            box.querySelector('#confirm-yes').onclick = function() { overlay.remove(); onConfirm(); };
+            box.querySelector('#confirm-no').onclick = function() { overlay.remove(); };
+            overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+        }
         
         function toggleCard(card) {
-            console.log('toggleCard called', card);
             const wasExpanded = card.classList.contains('expanded');
 
             // Close all other cards first
@@ -1746,37 +1791,31 @@
             }
         }
 
-        // Handle clicks on the document to prevent closing on form interactions
+        // Single event delegation handler — toggles card ONLY when
+        // clicking the summary area (icon, title, description, status).
+        // Clicks inside .setting-form are completely ignored.
         document.addEventListener('click', function(e) {
-            // If clicking on form elements inside an expanded card, stop propagation
-            if (e.target.closest('.setting-form')) {
-                const isInteractive = (
-                    e.target.tagName === 'INPUT' || 
-                    e.target.tagName === 'SELECT' || 
-                    e.target.tagName === 'TEXTAREA' || 
-                    e.target.tagName === 'BUTTON' ||
-                    e.target.tagName === 'A' ||
-                    e.target.closest('label')
-                );
-                
-                if (isInteractive) {
-                    e.stopPropagation();
-                }
-            }
+            var card = e.target.closest('.setting-card');
+            if (!card) return;
+
+            // If the click is inside the expanded form area, do nothing
+            if (e.target.closest('.setting-form')) return;
+
+            toggleCard(card);
         });
 
         function saveTargets() {
-            alert('Targets saved successfully!');
+            showToast('Targets saved successfully!', 'success');
         }
 
         function resetTargets() {
-            if (confirm('Reset all targets to default values?')) {
-                alert('Targets reset to defaults');
-            }
+            showConfirm('Reset all targets to default values?', function() {
+                showToast('Targets reset to defaults', 'info');
+            });
         }
 
         function saveBaseline() {
-            alert('Baseline configuration saved successfully!');
+            showToast('Baseline configuration saved successfully!', 'success');
         }
 
         function toggleProductionFields() {
@@ -1814,55 +1853,185 @@
         }
 
         function saveP8Data() {
-            alert('P8: Product Stewardship & Life Cycle data saved successfully!');
+            showToast('P8: Product Stewardship & Life Cycle data saved!', 'success');
         }
 
         function saveP9Data() {
-            alert('P9: Innovation for Environment data saved successfully!');
+            showToast('P9: Innovation for Environment data saved!', 'success');
         }
 
         function saveP10Data() {
-            alert('P10: Green Infrastructure & Ecology data saved successfully!');
+            showToast('P10: Green Infrastructure & Ecology data saved!', 'success');
         }
 
         function saveP6EPRData() {
-            alert('P6: EPR & Material Conservation compliance data saved successfully!');
-        }
-
-        function addEPRTarget() {
-            alert('Opening EPR target entry form...');
-        }
-
-        function addEcologyInitiative() {
-            alert('Opening ecology initiative form...');
+            showToast('P6: EPR & Material Conservation data saved!', 'success');
         }
 
         function saveNotifications() {
-            alert('Notification settings saved successfully!');
+            showToast('Notification settings saved!', 'success');
         }
 
         function saveAssessmentPeriod() {
-            alert('Assessment period settings saved successfully!');
+            showToast('Assessment period settings saved!', 'success');
         }
 
         function saveValidationRules() {
-            alert('Validation rules saved successfully!');
+            showToast('Validation rules saved!', 'success');
+        }
+
+        // ===== Generic Modal System =====
+        var _genericModalConfig = null;
+
+        function openGenericModal(title, fields, tbodyId) {
+            _genericModalConfig = { fields: fields, tbodyId: tbodyId };
+            document.getElementById('genericModalTitle').textContent = title;
+            var container = document.getElementById('genericFormFields');
+            container.innerHTML = '';
+            fields.forEach(function(f) {
+                var group = document.createElement('div');
+                group.className = 'form-group';
+                group.style.marginBottom = '1rem';
+                var label = document.createElement('label');
+                label.className = 'form-label' + (f.required ? ' required' : '');
+                label.textContent = f.label;
+                group.appendChild(label);
+
+                var input;
+                if (f.type === 'select') {
+                    input = document.createElement('select');
+                    input.className = 'form-select';
+                    f.options.forEach(function(opt) {
+                        var o = document.createElement('option');
+                        o.value = opt; o.textContent = opt;
+                        input.appendChild(o);
+                    });
+                } else if (f.type === 'textarea') {
+                    input = document.createElement('textarea');
+                    input.className = 'form-input';
+                    input.rows = 2;
+                    input.placeholder = f.placeholder || '';
+                } else {
+                    input = document.createElement('input');
+                    input.type = f.type || 'text';
+                    input.className = 'form-input';
+                    input.placeholder = f.placeholder || '';
+                }
+                input.id = 'gf_' + f.key;
+                if (f.required) input.required = true;
+                group.appendChild(input);
+                if (f.hint) {
+                    var hint = document.createElement('div');
+                    hint.className = 'form-hint';
+                    hint.textContent = f.hint;
+                    group.appendChild(hint);
+                }
+                container.appendChild(group);
+            });
+            document.getElementById('genericModal').style.display = 'block';
+        }
+
+        function closeGenericModal() {
+            document.getElementById('genericModal').style.display = 'none';
+            _genericModalConfig = null;
+        }
+
+        function submitGenericForm(event) {
+            event.preventDefault();
+            if (!_genericModalConfig) return;
+            var cfg = _genericModalConfig;
+            var tbody = document.getElementById(cfg.tbodyId);
+            // Clear "no data" placeholder row
+            if (tbody.querySelector('td[colspan]')) tbody.innerHTML = '';
+            var row = tbody.insertRow();
+            cfg.fields.forEach(function(f) {
+                var cell = row.insertCell();
+                var val = document.getElementById('gf_' + f.key).value || '—';
+                if (f.key === 'status') {
+                    cell.innerHTML = '<span class="status-badge status-active">' + val + '</span>';
+                } else {
+                    cell.textContent = val;
+                }
+            });
+            var actionsCell = row.insertCell();
+            actionsCell.className = 'table-actions';
+            actionsCell.innerHTML = '<button class="btn-small btn-edit">Edit</button> <button class="btn-small btn-delete" onclick="this.closest(\'tr\').remove()">Delete</button>';
+            closeGenericModal();
+            showToast('Item added successfully!', 'success');
+        }
+
+        // ===== Specific Add Functions =====
+
+        function addEPRTarget() {
+            openGenericModal('Add EPR Target', [
+                { key: 'category', label: 'Waste Category', type: 'select', required: true, options: ['Plastic Waste', 'E-Waste', 'Battery Waste', 'Tyre Waste', 'Used Oil'] },
+                { key: 'target', label: 'Annual Collection Target (MT)', type: 'number', required: true, placeholder: 'e.g., 500' },
+                { key: 'collected', label: 'Collected YTD (MT)', type: 'number', placeholder: 'e.g., 320' },
+                { key: 'achievement', label: '% Achievement', type: 'number', placeholder: 'Auto-calculated later', hint: 'Will be auto-calculated once saved' }
+            ], 'epr-targets-tbody');
         }
 
         function addEcoDesignProduct() {
-            alert('Opening eco-design product form...');
-        }
-
-        function addCertification() {
-            alert('Opening certification form...');
-        }
-
-        function addAward() {
-            alert('Opening award entry form...');
+            openGenericModal('Add Eco-Design Product', [
+                { key: 'product', label: 'Product Name', type: 'text', required: true, placeholder: 'e.g., Green Solvent Formula X' },
+                { key: 'features', label: 'Eco-Design Features', type: 'textarea', required: true, placeholder: 'e.g., Reduced packaging, recyclable materials' },
+                { key: 'documentation', label: 'Documentation Status', type: 'select', options: ['Uploaded', 'Pending', 'In Progress'] }
+            ], 'ecodesign-table');
         }
 
         function addInnovationProject() {
-            alert('Opening innovation project form...');
+            openGenericModal('Add Innovation Project', [
+                { key: 'name', label: 'Project Name', type: 'text', required: true, placeholder: 'e.g., Solar Thermal Integration' },
+                { key: 'category', label: 'Category', type: 'select', required: true, options: ['Process Innovation', 'Product Innovation', 'Technology Adoption', 'Waste Reduction', 'Energy Efficiency', 'Water Conservation'] },
+                { key: 'investment', label: 'Investment (₹)', type: 'text', required: true, placeholder: 'e.g., ₹25,00,000' },
+                { key: 'status', label: 'Status', type: 'select', options: ['Active', 'Completed', 'Planned', 'On Hold'] },
+                { key: 'benefit', label: 'Environmental Benefit', type: 'text', required: true, placeholder: 'e.g., 30% reduction in water usage' }
+            ], 'innovation-projects-tbody');
+        }
+
+        function addTechnology() {
+            openGenericModal('Add Technology Adoption', [
+                { key: 'technology', label: 'Technology', type: 'text', required: true, placeholder: 'e.g., IoT-based Water Monitoring' },
+                { key: 'date', label: 'Implementation Date', type: 'month', required: true },
+                { key: 'investment', label: 'Investment (₹)', type: 'text', required: true, placeholder: 'e.g., ₹50,00,000' },
+                { key: 'impact', label: 'Environmental Impact', type: 'text', required: true, placeholder: 'e.g., 20% water savings' }
+            ], 'technology-adoption-tbody');
+        }
+
+        function addGreenBuilding() {
+            openGenericModal('Add Green Building Certification', [
+                { key: 'building', label: 'Building/Facility', type: 'text', required: true, placeholder: 'e.g., Warehouse Block B' },
+                { key: 'certification', label: 'Certification Type', type: 'select', required: true, options: ['IGBC Green Factory', 'IGBC Green Building', 'LEED Certified', 'GRIHA', 'EDGE', 'Other'] },
+                { key: 'rating', label: 'Rating', type: 'select', required: true, options: ['Platinum', 'Gold', 'Silver', 'Certified', 'Pre-Certified'] },
+                { key: 'validUntil', label: 'Valid Until', type: 'month', required: true }
+            ], 'green-building-tbody');
+        }
+
+        function addEcologyInitiative() {
+            openGenericModal('Add Ecology Initiative', [
+                { key: 'initiative', label: 'Initiative', type: 'text', required: true, placeholder: 'e.g., Medicinal Herb Garden' },
+                { key: 'area', label: 'Area (sq.m)', type: 'number', required: true, placeholder: 'e.g., 1200' },
+                { key: 'status', label: 'Status', type: 'select', options: ['Active', 'Completed', 'Planned', 'In Progress'] },
+                { key: 'impact', label: 'Impact', type: 'text', required: true, placeholder: 'e.g., 15 species supported' }
+            ], 'ecology-tbody');
+        }
+
+        function addAmenity() {
+            openGenericModal('Add Employee Amenity', [
+                { key: 'amenity', label: 'Amenity', type: 'text', required: true, placeholder: 'e.g., Crèche Facility' },
+                { key: 'category', label: 'Category', type: 'select', required: true, options: ['Health & Wellness', 'Recreation', 'Transportation', 'Food & Beverage', 'Childcare', 'Other'] },
+                { key: 'capacity', label: 'Capacity/Details', type: 'text', required: true, placeholder: 'e.g., 30 children' },
+                { key: 'status', label: 'Status', type: 'select', options: ['Active', 'Under Construction', 'Planned'] }
+            ], 'amenities-tbody');
+        }
+
+        function addAwarenessProgram() {
+            openGenericModal('Add Environmental Awareness Program', [
+                { key: 'program', label: 'Program Name', type: 'text', required: true, placeholder: 'e.g., Zero Waste Week' },
+                { key: 'frequency', label: 'Frequency', type: 'select', required: true, options: ['Weekly', 'Monthly', 'Quarterly', 'Bi-Annual', 'Annual', 'One-time'] },
+                { key: 'participants', label: 'Participants', type: 'text', required: true, placeholder: 'e.g., 200 per session' },
+                { key: 'lastConducted', label: 'Last Conducted', type: 'month', required: true }
+            ], 'awareness-tbody');
         }
 
         // Materiality Assessment Functions
@@ -2030,11 +2199,11 @@
         }
 
         function deleteMaterialIssue(index) {
-            if (confirm('Are you sure you want to delete this material issue?')) {
+            showConfirm('Are you sure you want to delete this material issue?', function() {
                 materialIssues.splice(index, 1);
                 saveMaterialityDataToStorage();
                 renderMaterialIssuesTable();
-            }
+            });
         }
 
         function renderMaterialIssuesTable() {
@@ -2073,28 +2242,29 @@
         }
 
         function loadSampleMaterialIssues() {
-            if (materialIssues.length > 0) {
-                if (!confirm('This will replace existing material issues. Continue?')) {
-                    return;
-                }
+            function doLoad() {
+                materialIssues = [
+                    { name: "Water Scarcity & Conservation", stakeholder: 4.8, impact: 4.5, priority: "High", greenco: "P2: Water Conservation", description: "Addressing water scarcity through conservation practices, rainwater harvesting, and reduction in specific water consumption." },
+                    { name: "Climate Change & GHG Emissions", stakeholder: 4.6, impact: 4.7, priority: "High", greenco: "P1: Energy Efficiency, P3: Renewable Energy, P4: GHG Reduction", description: "Managing GHG emissions through energy efficiency, renewable energy adoption, and carbon reduction initiatives." },
+                    { name: "Waste Management & Circular Economy", stakeholder: 4.2, impact: 4.0, priority: "High", greenco: "P5: Waste Management, P6: Material Conservation", description: "Minimizing waste generation, maximizing recycling, and adopting circular economy principles." },
+                    { name: "Energy Efficiency", stakeholder: 4.0, impact: 4.3, priority: "High", greenco: "P1: Energy Efficiency", description: "Reducing energy intensity through equipment efficiency, monitoring systems, and continual improvement." },
+                    { name: "Product Life Cycle Impact", stakeholder: 3.9, impact: 4.1, priority: "High", greenco: "P8: Product Stewardship & Life Cycle", description: "Conducting Life Cycle Assessments, eco-labeling, and improving product environmental performance." },
+                    { name: "Supplier Environmental Performance", stakeholder: 3.8, impact: 3.5, priority: "Medium", greenco: "P7: Green Supply Chain", description: "Assessing and improving environmental performance across the supply chain." },
+                    { name: "Renewable Energy Adoption", stakeholder: 3.7, impact: 4.0, priority: "Medium-High", greenco: "P3: Renewable Energy", description: "Increasing use of renewable energy through on-site generation and RE sourcing." },
+                    { name: "Biodiversity & Ecosystem Protection", stakeholder: 3.2, impact: 3.8, priority: "Medium", greenco: "P10: Green Infrastructure & Ecology", description: "Protecting and enhancing site ecology, biodiversity, and natural habitats." },
+                    { name: "Environmental Innovation", stakeholder: 3.3, impact: 3.4, priority: "Medium", greenco: "P9: Innovation for Environment", description: "Investing in R&D and adopting innovative technologies for environmental improvement." },
+                    { name: "Green Buildings & Infrastructure", stakeholder: 3.0, impact: 3.2, priority: "Medium", greenco: "P10: Green Infrastructure & Ecology", description: "Developing green building practices and sustainable infrastructure." }
+                ];
+                saveMaterialityDataToStorage();
+                renderMaterialIssuesTable();
+                showToast('Sample material issues loaded!', 'success');
             }
-            
-            materialIssues = [
-                { name: "Water Scarcity & Conservation", stakeholder: 4.8, impact: 4.5, priority: "High", greenco: "P2: Water Conservation", description: "Addressing water scarcity through conservation practices, rainwater harvesting, and reduction in specific water consumption." },
-                { name: "Climate Change & GHG Emissions", stakeholder: 4.6, impact: 4.7, priority: "High", greenco: "P1: Energy Efficiency, P3: Renewable Energy, P4: GHG Reduction", description: "Managing GHG emissions through energy efficiency, renewable energy adoption, and carbon reduction initiatives." },
-                { name: "Waste Management & Circular Economy", stakeholder: 4.2, impact: 4.0, priority: "High", greenco: "P5: Waste Management, P6: Material Conservation", description: "Minimizing waste generation, maximizing recycling, and adopting circular economy principles." },
-                { name: "Energy Efficiency", stakeholder: 4.0, impact: 4.3, priority: "High", greenco: "P1: Energy Efficiency", description: "Reducing energy intensity through equipment efficiency, monitoring systems, and continual improvement." },
-                { name: "Product Life Cycle Impact", stakeholder: 3.9, impact: 4.1, priority: "High", greenco: "P8: Product Stewardship & Life Cycle", description: "Conducting Life Cycle Assessments, eco-labeling, and improving product environmental performance." },
-                { name: "Supplier Environmental Performance", stakeholder: 3.8, impact: 3.5, priority: "Medium", greenco: "P7: Green Supply Chain", description: "Assessing and improving environmental performance across the supply chain." },
-                { name: "Renewable Energy Adoption", stakeholder: 3.7, impact: 4.0, priority: "Medium-High", greenco: "P3: Renewable Energy", description: "Increasing use of renewable energy through on-site generation and RE sourcing." },
-                { name: "Biodiversity & Ecosystem Protection", stakeholder: 3.2, impact: 3.8, priority: "Medium", greenco: "P10: Green Infrastructure & Ecology", description: "Protecting and enhancing site ecology, biodiversity, and natural habitats." },
-                { name: "Environmental Innovation", stakeholder: 3.3, impact: 3.4, priority: "Medium", greenco: "P9: Innovation for Environment", description: "Investing in R&D and adopting innovative technologies for environmental improvement." },
-                { name: "Green Buildings & Infrastructure", stakeholder: 3.0, impact: 3.2, priority: "Medium", greenco: "P10: Green Infrastructure & Ecology", description: "Developing green building practices and sustainable infrastructure." }
-            ];
-            
-            saveMaterialityDataToStorage();
-            renderMaterialIssuesTable();
-            alert('Sample material issues loaded successfully!');
+
+            if (materialIssues.length > 0) {
+                showConfirm('This will replace existing material issues. Continue?', doLoad);
+            } else {
+                doLoad();
+            }
         }
 
         // Stakeholder Engagement Functions
@@ -2182,11 +2352,11 @@
         }
 
         function deleteStakeholderEngagement(index) {
-            if (confirm('Are you sure you want to delete this stakeholder engagement?')) {
+            showConfirm('Are you sure you want to delete this stakeholder engagement?', function() {
                 stakeholderEngagements.splice(index, 1);
                 saveMaterialityDataToStorage();
                 renderStakeholderEngagementsTable();
-            }
+            });
         }
 
         function renderStakeholderEngagementsTable() {
@@ -2215,28 +2385,29 @@
         }
 
         function loadSampleStakeholderEngagements() {
-            if (stakeholderEngagements.length > 0) {
-                if (!confirm('This will replace existing stakeholder engagements. Continue?')) {
-                    return;
-                }
+            function doLoad() {
+                stakeholderEngagements = [
+                    { group: "Investors", method: "Survey + Meetings", date: "Sep 2024", participants: 15, issues: "Climate risk, Water usage, ESG transparency" },
+                    { group: "Employees", method: "Workshop", date: "Aug 2024", participants: 120, issues: "Waste management, Health & Safety, Working conditions" },
+                    { group: "Local Community", method: "Town Hall", date: "Jul 2024", participants: 80, issues: "Water availability, Air quality, Noise pollution" },
+                    { group: "Customers", method: "Survey", date: "Oct 2024", participants: 250, issues: "Product sustainability, Sustainable packaging, Eco-labeling" },
+                    { group: "Suppliers", method: "Interviews", date: "Sep 2024", participants: 35, issues: "Green procurement, Capacity building, Environmental standards" }
+                ];
+                saveMaterialityDataToStorage();
+                renderStakeholderEngagementsTable();
+                showToast('Sample stakeholder engagements loaded!', 'success');
             }
-            
-            stakeholderEngagements = [
-                { group: "Investors", method: "Survey + Meetings", date: "Sep 2024", participants: 15, issues: "Climate risk, Water usage, ESG transparency" },
-                { group: "Employees", method: "Workshop", date: "Aug 2024", participants: 120, issues: "Waste management, Health & Safety, Working conditions" },
-                { group: "Local Community", method: "Town Hall", date: "Jul 2024", participants: 80, issues: "Water availability, Air quality, Noise pollution" },
-                { group: "Customers", method: "Survey", date: "Oct 2024", participants: 250, issues: "Product sustainability, Sustainable packaging, Eco-labeling" },
-                { group: "Suppliers", method: "Interviews", date: "Sep 2024", participants: 35, issues: "Green procurement, Capacity building, Environmental standards" }
-            ];
-            
-            saveMaterialityDataToStorage();
-            renderStakeholderEngagementsTable();
-            alert('Sample stakeholder engagements loaded successfully!');
+
+            if (stakeholderEngagements.length > 0) {
+                showConfirm('This will replace existing stakeholder engagements. Continue?', doLoad);
+            } else {
+                doLoad();
+            }
         }
 
         function saveMaterialityData() {
             saveMaterialityDataToStorage();
-            alert('Materiality assessment data saved successfully!');
+            showToast('Materiality assessment data saved!', 'success');
         }
 
         function generateMaterialityReport() {
@@ -2552,6 +2723,25 @@
             border: none;
         }
     </style>
+
+    <!-- Generic Add-Row Modal -->
+    <div id="genericModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <h2 id="genericModalTitle">Add Item</h2>
+                <span class="modal-close" onclick="closeGenericModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="genericForm" onsubmit="submitGenericForm(event)">
+                    <div id="genericFormFields"></div>
+                    <div class="btn-group" style="margin-top: 1.5rem;">
+                        <button type="submit" class="btn-primary">Save</button>
+                        <button type="button" class="btn-secondary" onclick="closeGenericModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>
