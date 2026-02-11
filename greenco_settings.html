@@ -414,7 +414,7 @@
 <body>
     <div class="header">
         <div class="logo">HERTZWAVE</div>
-        <a href="greenco_dashboard_enhanced.html" class="back-link">← Back to Dashboard</a>
+        <a href="greenco_dashboard.html" class="back-link">← Back to Dashboard</a>
     </div>
 
     <div class="container">
@@ -609,45 +609,79 @@
                                 <div class="form-hint">Reference year for calculating improvements</div>
                             </div>
                             <div class="form-group">
+                                <label class="form-label required">Production Measurement Approach</label>
+                                <select id="productionApproach" class="form-select" onchange="toggleProductionFields()">
+                                    <option value="weight" selected>Weight-based (MT)</option>
+                                    <option value="quantity">Quantity-based (Units / Nos.)</option>
+                                    <option value="revenue">Revenue-based (₹ Cr)</option>
+                                </select>
+                                <div class="form-hint">Choose how production output is measured for intensity calculations</div>
+                            </div>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group" id="weightBaseline">
                                 <label class="form-label required">Production Baseline (MT)</label>
                                 <input type="number" class="form-input" value="45000" min="0" step="100">
-                                <div class="form-hint">Annual production in baseline year</div>
+                                <div class="form-hint">Annual production in baseline year (Metric Tons)</div>
+                            </div>
+                            <div class="form-group" id="quantityBaseline" style="display: none;">
+                                <label class="form-label required">Production Baseline (Units)</label>
+                                <input type="number" class="form-input" placeholder="Enter number of units" min="0" step="1">
+                                <div class="form-hint">Annual production in baseline year (number of units / pieces)</div>
+                            </div>
+                            <div class="form-group" id="revenueBaseline" style="display: none;">
+                                <label class="form-label required">Revenue Baseline (₹ Cr)</label>
+                                <input type="number" class="form-input" placeholder="Enter revenue in Crores" min="0" step="0.01">
+                                <div class="form-hint">Annual revenue in baseline year (₹ Crores)</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Unit Description</label>
+                                <input type="text" id="unitDescription" class="form-input" value="Metric Tons (MT)" placeholder="e.g., Tablets, Bottles, Assemblies">
+                                <div class="form-hint">Describe the unit of measure for your production output</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="form-section">
                         <h3 class="form-section-title">Baseline Intensity Values</h3>
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">
+                            Intensity values are calculated as resource consumed per unit of production output. The denominator unit adapts to the selected production measurement approach above.
+                        </p>
                         <table class="table">
                             <thead>
                                 <tr>
                                     <th>Metric</th>
+                                    <th>Unit</th>
                                     <th>Baseline Value</th>
                                     <th>Current Value</th>
                                     <th>Improvement</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="intensityTableBody">
                                 <tr>
-                                    <td>Energy Intensity (GJ/MT)</td>
+                                    <td>Energy Intensity</td>
+                                    <td class="intensity-unit">GJ/MT</td>
                                     <td><input type="number" class="form-input" value="4.20" step="0.01" style="width: 100px;"></td>
                                     <td>3.79</td>
                                     <td style="color: #20bf6b;">↓ 9.8%</td>
                                 </tr>
                                 <tr>
-                                    <td>Water Intensity (KL/MT)</td>
+                                    <td>Water Intensity</td>
+                                    <td class="intensity-unit">KL/MT</td>
                                     <td><input type="number" class="form-input" value="7.20" step="0.01" style="width: 100px;"></td>
                                     <td>6.80</td>
                                     <td style="color: #20bf6b;">↓ 5.6%</td>
                                 </tr>
                                 <tr>
-                                    <td>GHG Intensity (tCO₂e/MT)</td>
+                                    <td>GHG Intensity</td>
+                                    <td class="intensity-unit">tCO₂e/MT</td>
                                     <td><input type="number" class="form-input" value="0.95" step="0.01" style="width: 100px;"></td>
                                     <td>0.86</td>
                                     <td style="color: #20bf6b;">↓ 9.5%</td>
                                 </tr>
                                 <tr>
-                                    <td>Material Intensity (MT/MT)</td>
+                                    <td>Material Intensity</td>
+                                    <td class="intensity-unit">MT/MT</td>
                                     <td><input type="number" class="form-input" value="2.15" step="0.01" style="width: 100px;"></td>
                                     <td>2.06</td>
                                     <td style="color: #20bf6b;">↓ 4.2%</td>
@@ -663,7 +697,104 @@
                 </div>
             </div>
 
-            <!-- Setting 3: P8 Product Stewardship & Life Cycle Aspects -->
+            <!-- Setting 3: P6 EPR & Material Conservation Compliance -->
+            <div class="setting-card" onclick="toggleCard(this)">
+                <div class="setting-icon">♻️</div>
+                <div class="setting-title">
+                    P6: EPR & Material Conservation Compliance
+                    <span class="tooltip">
+                        <span class="info-icon">i</span>
+                        <span class="tooltiptext">
+                            <div class="tooltip-title">P6: EPR & Material Conservation Compliance</div>
+                            Manage Extended Producer Responsibility (EPR) authorizations and compliance data. EPR maps to GreenCo V3 Parameter 6 — Material Conservation, Recycling & Recyclability, covering waste take-back obligations, recycling targets, and material recovery.
+                        </span>
+                    </span>
+                </div>
+                <div class="setting-description">
+                    Configure EPR authorizations, waste category compliance, and material recovery documentation
+                </div>
+                <div class="setting-status" style="background: #fff3cd; border-left: 3px solid #ffc107;">
+                    <div style="color: #856404; margin-bottom: 0.5rem;"><strong>Required Data:</strong></div>
+                    <div style="color: #856404;">• EPR authorization certificates</div>
+                    <div style="color: #856404;">• Waste category compliance records</div>
+                    <div style="color: #856404;">• Material recovery & recycling targets</div>
+                </div>
+
+                <div class="setting-form">
+                    <div class="form-section">
+                        <h3 class="form-section-title">EPR (Extended Producer Responsibility)</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label required">EPR Authorization Number</label>
+                                <input type="text" class="form-input" placeholder="Enter EPR authorization number">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">Valid Until</label>
+                                <input type="date" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Waste Category Covered</label>
+                                <select class="form-select" multiple size="4">
+                                    <option value="plastic">Plastic Waste</option>
+                                    <option value="ewaste">E-Waste</option>
+                                    <option value="battery">Battery Waste</option>
+                                    <option value="tyre">Tyre Waste</option>
+                                    <option value="oil">Used Oil</option>
+                                </select>
+                                <div class="form-hint">Hold Ctrl/Cmd to select multiple categories</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Compliance Status</label>
+                                <select class="form-select">
+                                    <option value="">Select status</option>
+                                    <option value="compliant">Compliant</option>
+                                    <option value="partial">Partially Compliant</option>
+                                    <option value="pending">Pending Renewal</option>
+                                    <option value="applied">Applied — Awaiting</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Upload EPR Certificate</label>
+                            <div class="file-upload-area" onclick="document.getElementById('epr-cert').click()">
+                                <input type="file" id="epr-cert" accept=".pdf" style="display: none;">
+                                <div style="font-size: 3rem; margin-bottom: 0.5rem;">📜</div>
+                                <div>Click to upload EPR certificate</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="form-section-title">EPR Targets & Performance</h3>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Waste Category</th>
+                                    <th>Annual Collection Target (MT)</th>
+                                    <th>Collected YTD (MT)</th>
+                                    <th>% Achievement</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: #666;">No EPR targets configured yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button class="btn-secondary" onclick="addEPRTarget()">+ Add EPR Target</button>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn-primary" onclick="saveP6EPRData()">Save P6: EPR Compliance Data</button>
+                        <button class="btn-secondary">Save as Draft</button>
+                        <button class="collapse-btn" onclick="event.stopPropagation(); toggleCard(this.closest('.setting-card'));">Collapse</button>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Setting 3b: P8 Product Stewardship & Life Cycle Aspects -->
             <div class="setting-card" onclick="toggleCard(this)">
                 <div class="setting-icon">📦</div>
                 <div class="setting-title">
@@ -735,38 +866,6 @@
                             </tbody>
                         </table>
                         <button class="btn-secondary" onclick="addEcoDesignProduct()">+ Add Product</button>
-                    </div>
-
-                    <div class="form-section">
-                        <h3 class="form-section-title">EPR (Extended Producer Responsibility)</h3>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label required">EPR Authorization Number</label>
-                                <input type="text" class="form-input" placeholder="Enter EPR authorization number">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label required">Valid Until</label>
-                                <input type="date" class="form-input">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Waste Category Covered</label>
-                                <select class="form-select">
-                                    <option value="">Select category</option>
-                                    <option value="plastic">Plastic Waste</option>
-                                    <option value="ewaste">E-Waste</option>
-                                    <option value="battery">Battery Waste</option>
-                                    <option value="multiple">Multiple Categories</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Upload EPR Certificate</label>
-                            <div class="file-upload-area" onclick="document.getElementById('epr-cert').click()">
-                                <input type="file" id="epr-cert" accept=".pdf" style="display: none;">
-                                <div style="font-size: 3rem; margin-bottom: 0.5rem;">📜</div>
-                                <div>Click to upload EPR certificate</div>
-                            </div>
-                        </div>
                     </div>
 
                     <div class="form-section">
@@ -964,7 +1063,6 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                <tr>
                                     <td>Native Tree Plantation</td>
                                     <td>5,200</td>
                                     <td><span class="status-badge status-active">Completed</span></td>
@@ -986,27 +1084,8 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <button class="btn-secondary" onclick="addAward()">+ Add Award</button>
+                        <button class="btn-secondary" onclick="addEcologyInitiative()">+ Add Ecology Initiative</button>
                     </div>
-
-                    <div class="form-section">
-                        <h3 class="form-section-title">Innovation Projects</h3>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label class="form-label required">Annual Innovation Budget (₹)</label>
-                                <input type="number" class="form-input" value="5000000" min="0">
-                                <div class="form-hint">Current: ₹50 Lakhs/year</div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label required">Number of Active Projects</label>
-                                <input type="number" class="form-input" value="12" min="0">
-                            </div>
-                        </div>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Project Name</th>
-                                    <th>Focus Area</th>
 
                     <div class="form-section">
                         <h3 class="form-section-title">Employee Amenities</h3>
@@ -1700,12 +1779,62 @@
             alert('Baseline configuration saved successfully!');
         }
 
+        function toggleProductionFields() {
+            const approach = document.getElementById('productionApproach').value;
+            const weightEl = document.getElementById('weightBaseline');
+            const quantityEl = document.getElementById('quantityBaseline');
+            const revenueEl = document.getElementById('revenueBaseline');
+            const unitDesc = document.getElementById('unitDescription');
+            const intensityUnits = document.querySelectorAll('.intensity-unit');
+
+            weightEl.style.display = 'none';
+            quantityEl.style.display = 'none';
+            revenueEl.style.display = 'none';
+
+            let denominator = 'MT';
+            if (approach === 'weight') {
+                weightEl.style.display = 'block';
+                unitDesc.value = 'Metric Tons (MT)';
+                denominator = 'MT';
+            } else if (approach === 'quantity') {
+                quantityEl.style.display = 'block';
+                unitDesc.value = '';
+                unitDesc.placeholder = 'e.g., Tablets, Bottles, Assemblies';
+                denominator = 'Unit';
+            } else if (approach === 'revenue') {
+                revenueEl.style.display = 'block';
+                unitDesc.value = '₹ Crore';
+                denominator = '₹Cr';
+            }
+
+            const metrics = ['GJ', 'KL', 'tCO₂e', 'MT'];
+            intensityUnits.forEach(function(cell, index) {
+                cell.textContent = metrics[index] + '/' + denominator;
+            });
+        }
+
+        function saveP8Data() {
+            alert('P8: Product Stewardship & Life Cycle data saved successfully!');
+        }
+
         function saveP9Data() {
-            alert('Product Stewardship data saved successfully!');
+            alert('P9: Innovation for Environment data saved successfully!');
         }
 
         function saveP10Data() {
-            alert('Beyond Compliance data saved successfully!');
+            alert('P10: Green Infrastructure & Ecology data saved successfully!');
+        }
+
+        function saveP6EPRData() {
+            alert('P6: EPR & Material Conservation compliance data saved successfully!');
+        }
+
+        function addEPRTarget() {
+            alert('Opening EPR target entry form...');
+        }
+
+        function addEcologyInitiative() {
+            alert('Opening ecology initiative form...');
         }
 
         function saveNotifications() {
