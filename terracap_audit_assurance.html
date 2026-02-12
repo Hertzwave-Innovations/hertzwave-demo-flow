@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TerraCAP — Audit & Assurance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --hz-primary: #4A7C59;
+            --hz-primary-700: #355b3f;
+            --hz-primary-50: #E9F1EC;
+            --hz-mint: #A8E6A3;
+            --hz-dark: #2F4F3F;
+            --ink: #22302A;
+            --subtle: #5B6E64;
+            --bg: #F6F7F4;
+            --card: #FFFFFF;
+            --stroke: #E5E9E6;
+            --success: #48BB78;
+            --warning: #F6AD55;
+            --danger: #E53E3E;
+            --info: #4299E1;
+            --radius: 12px;
+            --audit-accent: #1a3a2f;
+            --audit-teal: #2d6150;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Outfit', system-ui, sans-serif; background:var(--bg); color:var(--ink); line-height:1.6; }
+
+        /* ===== HEADER ===== */
+        .header {
+            background: var(--hz-primary); color: white;
+            padding: 0 1.5rem; height: 56px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: fixed; top:0; left:0; right:0; z-index:100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .header-left { display:flex; align-items:center; gap:12px; }
+        .logo { display:flex; align-items:center; gap:12px; font-weight:700; font-size:1.25rem; letter-spacing:0.5px; }
+        .logo-icon { width:28px; height:28px; background:rgba(255,255,255,0.2); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700; }
+        .back-link { color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.85rem; font-weight:500; display:flex; align-items:center; gap:0.35rem; transition:color 0.2s; }
+        .back-link:hover { color:white; }
+        .header-right { display:flex; align-items:center; gap:12px; }
+        .user-menu { display:flex; align-items:center; gap:10px; background:rgba(255,255,255,0.15); padding:0.4rem 1rem; border-radius:20px; font-size:0.9rem; }
+        .user-avatar { width:30px; height:30px; background:var(--hz-mint); border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--hz-dark); font-weight:700; font-size:0.8rem; }
+
+        /* ===== LAYOUT ===== */
+        .layout { display:flex; margin-top:56px; min-height:calc(100vh - 56px); }
+
+        /* Sidebar — audit-specific nav */
+        .sidebar {
+            width:270px; background:white;
+            border-right:1px solid var(--stroke);
+            padding:1.25rem 0;
+            position:fixed; left:0; top:56px; bottom:0;
+            overflow-y:auto; display:flex; flex-direction:column;
+        }
+        .sidebar-brand {
+            padding:0 1.25rem 1.25rem;
+            border-bottom:1px solid var(--stroke);
+            margin-bottom:1rem;
+        }
+        .sidebar-brand-title {
+            font-size:1.1rem; font-weight:700; color:var(--hz-primary);
+            display:flex; align-items:center; gap:0.5rem;
+        }
+        .sidebar-brand-sub { font-size:0.78rem; color:var(--subtle); margin-top:0.2rem; }
+        .nav-section { margin-bottom:1.5rem; }
+        .nav-section-title { padding:0 1.25rem 0.5rem; font-size:0.7rem; font-weight:700; color:var(--subtle); text-transform:uppercase; letter-spacing:0.6px; }
+        .nav-item {
+            display:flex; align-items:center; padding:0.7rem 1.25rem;
+            color:var(--ink); text-decoration:none; cursor:pointer;
+            border-left:3px solid transparent; gap:10px;
+            font-size:0.9rem; font-weight:500; transition:all 0.2s ease;
+        }
+        .nav-item:hover { background:var(--hz-primary-50); color:var(--hz-primary); }
+        .nav-item.active { background:var(--hz-primary-50); color:var(--hz-primary); border-left-color:var(--hz-primary); font-weight:600; }
+        .nav-icon { width:20px; text-align:center; font-size:1rem; }
+        .nav-badge { margin-left:auto; padding:0.15rem 0.5rem; border-radius:10px; font-size:0.7rem; font-weight:700; }
+        .nav-badge-red { background:#FED7D7; color:#9B2C2C; }
+        .nav-badge-amber { background:#FEFCBF; color:#744210; }
+        .nav-badge-green { background:#C6F6D5; color:#22543D; }
+        .nav-badge-blue { background:#BEE3F8; color:#2A4365; }
+
+        .sidebar-footer {
+            margin-top:auto; padding:1rem 1.25rem;
+            border-top:1px solid var(--stroke);
+        }
+        .terra-audit-link {
+            display:flex; align-items:center; gap:0.75rem;
+            padding:0.85rem 1rem; border-radius:10px;
+            background:linear-gradient(135deg, var(--audit-accent), var(--audit-teal));
+            color:white; text-decoration:none;
+            transition:all 0.2s ease; font-size:0.85rem; font-weight:600;
+        }
+        .terra-audit-link:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(26,58,47,0.3); }
+        .ta-icon { font-size:1.1rem; }
+        .ta-label-sub { font-size:0.7rem; font-weight:400; opacity:0.8; }
+
+        /* Main */
+        .main { flex:1; margin-left:270px; padding:2rem; max-width:1100px; }
+
+        /* ===== SCREENS ===== */
+        .screen { display:none; }
+        .screen.active { display:block; animation:fadeUp 0.2s ease; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+        .page-header { margin-bottom:1.75rem; }
+        .page-title { font-size:1.6rem; font-weight:700; color:var(--hz-primary); margin-bottom:0.25rem; }
+        .page-subtitle { color:var(--subtle); font-size:0.95rem; }
+
+        /* ===== CARDS ===== */
+        .card { background:white; border:1px solid var(--stroke); border-radius:var(--radius); margin-bottom:1.5rem; }
+        .card-header { padding:1.15rem 1.5rem; border-bottom:1px solid var(--stroke); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; }
+        .card-title { font-size:1.05rem; font-weight:600; color:var(--ink); }
+        .card-body { padding:1.5rem; }
+        .card-footer { padding:1rem 1.5rem; border-top:1px solid var(--stroke); display:flex; justify-content:flex-end; gap:0.5rem; }
+
+        /* ===== BUTTONS ===== */
+        .btn { display:inline-flex; align-items:center; gap:0.4rem; padding:0.6rem 1.2rem; border-radius:8px; font-size:0.875rem; font-weight:600; cursor:pointer; border:none; transition:all 0.2s ease; font-family:inherit; }
+        .btn-primary { background:var(--hz-primary); color:white; }
+        .btn-primary:hover { background:var(--hz-primary-700); transform:translateY(-1px); box-shadow:0 4px 12px rgba(74,124,89,0.25); }
+        .btn-secondary { background:white; color:var(--hz-primary); border:2px solid var(--hz-primary); }
+        .btn-secondary:hover { background:var(--hz-primary-50); }
+        .btn-ghost { background:transparent; color:var(--subtle); border:1.5px solid var(--stroke); }
+        .btn-ghost:hover { background:var(--bg); }
+        .btn-sm { padding:0.4rem 0.8rem; font-size:0.8rem; }
+        .btn-danger { background:#FFF5F5; color:var(--danger); border:1.5px solid var(--danger); }
+        .btn-success { background:var(--success); color:white; }
+        .btn-success:hover { background:#38a169; }
+        .btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+        /* ===== TABLES ===== */
+        .data-table { width:100%; border-collapse:collapse; }
+        .data-table th { text-align:left; padding:0.7rem 0.85rem; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:var(--subtle); background:var(--bg); border-bottom:2px solid var(--stroke); }
+        .data-table td { padding:0.85rem; font-size:0.9rem; border-bottom:1px solid var(--stroke); vertical-align:middle; }
+        .data-table tr:hover { background:var(--bg); }
+
+        /* ===== TAGS ===== */
+        .tag { display:inline-block; padding:0.2rem 0.6rem; border-radius:6px; font-size:0.75rem; font-weight:600; }
+        .tag-green { background:#C6F6D5; color:#22543D; }
+        .tag-amber { background:#FEFCBF; color:#744210; }
+        .tag-red { background:#FED7D7; color:#9B2C2C; }
+        .tag-blue { background:#BEE3F8; color:#2A4365; }
+        .tag-gray { background:#EDF2F7; color:#4A5568; }
+        .tag-teal { background:#E8F5F1; color:#1a3a2f; }
+
+        /* ===== METRICS ===== */
+        .metrics-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1.25rem; margin-bottom:1.75rem; }
+        .metric-card { background:white; border:1px solid var(--stroke); border-radius:var(--radius); padding:1.25rem; }
+        .metric-label { font-size:0.78rem; font-weight:600; color:var(--subtle); margin-bottom:0.35rem; text-transform:uppercase; letter-spacing:0.03em; }
+        .metric-value { font-size:1.65rem; font-weight:700; color:var(--hz-primary); font-family:'JetBrains Mono',monospace; }
+        .metric-sub { font-size:0.78rem; color:var(--subtle); margin-top:0.2rem; display:flex; align-items:center; gap:0.4rem; }
+
+        /* ===== FORMS ===== */
+        .form-group { margin-bottom:1.25rem; }
+        .form-label { display:block; font-size:0.82rem; font-weight:600; color:var(--subtle); margin-bottom:0.35rem; }
+        .form-input, .form-select, .form-textarea { width:100%; padding:0.65rem 0.85rem; border:1.5px solid var(--stroke); border-radius:8px; font-size:0.9rem; font-family:inherit; background:white; transition:border-color 0.15s; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline:none; border-color:var(--hz-primary); box-shadow:0 0 0 3px rgba(74,124,89,0.1); }
+        .form-textarea { resize:vertical; min-height:80px; }
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+        .form-hint { font-size:0.75rem; color:var(--subtle); margin-top:0.25rem; }
+        .checkbox-row { display:flex; align-items:center; gap:0.6rem; font-size:0.9rem; margin-bottom:0.5rem; }
+        .checkbox-row input { accent-color:var(--hz-primary); width:16px; height:16px; }
+
+        /* ===== MODAL ===== */
+        .modal-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); z-index:500; align-items:center; justify-content:center; }
+        .modal-overlay.open { display:flex; }
+        .modal { background:white; border-radius:14px; width:90%; max-width:700px; max-height:85vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.15); animation:modalUp 0.2s ease; }
+        @keyframes modalUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+        .modal-header { padding:1.25rem 1.5rem; border-bottom:1px solid var(--stroke); display:flex; justify-content:space-between; align-items:center; }
+        .modal-title { font-size:1.1rem; font-weight:700; }
+        .modal-close { background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--subtle); }
+        .modal-body { padding:1.5rem; }
+        .modal-footer { padding:1rem 1.5rem; border-top:1px solid var(--stroke); display:flex; justify-content:flex-end; gap:0.5rem; }
+
+        /* ===== ENGAGEMENT CARDS ===== */
+        .eng-card { border:1px solid var(--stroke); border-radius:var(--radius); padding:1.5rem; margin-bottom:1rem; background:white; transition:all 0.2s ease; cursor:pointer; }
+        .eng-card:hover { border-color:var(--hz-primary); box-shadow:0 4px 16px rgba(0,0,0,0.06); }
+        .eng-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1rem; }
+        .eng-card-title { font-size:1.05rem; font-weight:700; }
+        .eng-card-meta { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:0.75rem; }
+        .eng-meta-label { font-size:0.7rem; font-weight:600; color:var(--subtle); text-transform:uppercase; letter-spacing:0.03em; }
+        .eng-meta-value { font-size:0.88rem; font-weight:500; }
+        .eng-card-footer { display:flex; justify-content:space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--stroke); }
+        .eng-progress { display:flex; align-items:center; gap:0.75rem; }
+        .eng-progress-bar { width:120px; height:6px; background:var(--stroke); border-radius:3px; overflow:hidden; }
+        .eng-progress-fill { height:100%; border-radius:3px; background:var(--hz-primary); }
+        .eng-progress-text { font-size:0.8rem; font-weight:600; color:var(--subtle); }
+
+        /* ===== WIZARD STEPS ===== */
+        .wizard-steps { display:flex; gap:0.25rem; margin-bottom:2rem; }
+        .wiz-step { flex:1; text-align:center; cursor:pointer; }
+        .wiz-step-bar { height:5px; border-radius:3px; background:var(--stroke); margin-bottom:0.5rem; transition:all 0.3s; }
+        .wiz-step.completed .wiz-step-bar { background:var(--hz-primary); }
+        .wiz-step.active .wiz-step-bar { background:linear-gradient(90deg, var(--hz-primary), var(--hz-mint)); box-shadow:0 0 8px rgba(74,124,89,0.3); }
+        .wiz-step-label { font-size:0.72rem; font-weight:500; color:var(--subtle); }
+        .wiz-step.active .wiz-step-label { color:var(--hz-primary); font-weight:700; }
+        .wiz-step.completed .wiz-step-label { color:var(--hz-primary-700); font-weight:600; }
+
+        /* ===== QUERY ITEMS ===== */
+        .query-item { border:1px solid var(--stroke); border-radius:10px; padding:1.15rem; margin-bottom:0.75rem; background:white; transition:all 0.2s; }
+        .query-item:hover { border-color:var(--hz-primary); }
+        .query-item.urgent { border-left:4px solid var(--danger); }
+        .query-item.high { border-left:4px solid var(--warning); }
+        .query-item.resolved { border-left:4px solid var(--success); opacity:0.65; }
+        .query-title { font-weight:600; font-size:0.92rem; margin-bottom:0.3rem; }
+        .query-body { font-size:0.82rem; color:var(--subtle); line-height:1.5; margin-bottom:0.6rem; }
+        .query-meta { display:flex; gap:0.75rem; font-size:0.75rem; color:var(--subtle); align-items:center; flex-wrap:wrap; }
+
+        /* ===== RBAC SECTION ===== */
+        .rbac-role-card { display:flex; align-items:center; gap:1rem; padding:1rem 1.25rem; border:1.5px solid var(--stroke); border-radius:10px; margin-bottom:0.75rem; background:white; }
+        .rbac-role-card.auditor-role { border-color:var(--audit-teal); background:#f7fcfa; }
+        .rbac-role-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; flex-shrink:0; }
+        .rbac-role-info { flex:1; }
+        .rbac-role-name { font-weight:700; font-size:0.95rem; }
+        .rbac-role-desc { font-size:0.8rem; color:var(--subtle); }
+        .rbac-role-perms { display:flex; gap:0.35rem; margin-top:0.35rem; flex-wrap:wrap; }
+        .perm-badge { padding:0.1rem 0.45rem; border-radius:4px; font-size:0.65rem; font-weight:600; background:var(--bg); color:var(--subtle); border:1px solid var(--stroke); }
+        .perm-badge.granted { background:#C6F6D5; color:#22543D; border-color:#9AE6B4; }
+        .perm-badge.denied { background:#FED7D7; color:#9B2C2C; border-color:#FEB2B2; }
+
+        /* Info box */
+        .info-box { background:var(--hz-primary-50); border:1px solid #c8dece; border-radius:10px; padding:1.15rem; margin-bottom:1.25rem; }
+        .info-box-title { font-weight:700; font-size:0.92rem; color:var(--hz-primary); margin-bottom:0.35rem; display:flex; align-items:center; gap:0.5rem; }
+        .info-box-text { font-size:0.82rem; color:var(--subtle); line-height:1.6; }
+
+        /* ESG Category Grid */
+        .esg-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.5rem; }
+        .esg-col-title { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--subtle); margin-bottom:0.75rem; padding-bottom:0.4rem; border-bottom:2px solid var(--stroke); }
+        .esg-col-title.env { color:#22543D; border-bottom-color:#48BB78; }
+        .esg-col-title.soc { color:#2A4365; border-bottom-color:#4299E1; }
+        .esg-col-title.gov { color:#744210; border-bottom-color:#F6AD55; }
+        .esg-item { display:flex; align-items:center; gap:0.5rem; font-size:0.88rem; margin-bottom:0.5rem; }
+        .esg-item input { accent-color:var(--hz-primary); width:16px; height:16px; }
+        .esg-item.required { font-weight:600; }
+        .esg-item .req-tag { font-size:0.65rem; background:#C6F6D5; color:#22543D; padding:0.1rem 0.35rem; border-radius:4px; font-weight:600; }
+
+        /* Timeline */
+        .timeline-item { display:flex; gap:1rem; padding:0.6rem 0; border-bottom:1px solid var(--stroke); font-size:0.85rem; }
+        .timeline-time { min-width:120px; font-family:'JetBrains Mono',monospace; font-size:0.75rem; color:var(--subtle); padding-top:0.1rem; }
+        .timeline-text { flex:1; }
+
+        /* Stepper indicator */
+        .step-indicator { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; font-size:0.8rem; font-weight:700; margin-right:0.5rem; }
+        .step-indicator.active { background:var(--hz-primary); color:white; }
+        .step-indicator.done { background:var(--success); color:white; }
+        .step-indicator.pending { background:var(--stroke); color:var(--subtle); }
+
+        @media(max-width:900px) {
+            .sidebar { display:none; }
+            .main { margin-left:0; }
+            .metrics-row { grid-template-columns:repeat(2,1fr); }
+            .form-row { grid-template-columns:1fr; }
+            .esg-grid { grid-template-columns:1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+    <div class="header-left" style="display:flex; align-items:center; gap:1.5rem;">
+        <div class="logo"><div class="logo-icon">TC</div><span>TerraCAP</span></div>
+        <a href="hwcap_dashboard.html" class="back-link">← Back to Dashboard</a>
+    </div>
+    <div class="header-right">
+        <div class="user-menu"><div class="user-avatar">R</div> Raj K. · ESG Manager</div>
+    </div>
+</header>
+
+<div class="layout">
+    <!-- ===== SIDEBAR — Audit-specific workflow nav ===== -->
+    <nav class="sidebar">
+        <div class="sidebar-brand">
+            <div class="sidebar-brand-title">🛡️ Audit & Assurance</div>
+            <div class="sidebar-brand-sub">Manage external audit engagements</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Engagement</div>
+            <div class="nav-item active" data-screen="overview" onclick="go('overview')"><div class="nav-icon">📊</div> Overview</div>
+            <div class="nav-item" data-screen="create" onclick="go('create')"><div class="nav-icon">➕</div> New Engagement</div>
+            <div class="nav-item" data-screen="firm" onclick="go('firm')"><div class="nav-icon">🏛️</div> Audit Firm Registry</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Audit Scope</div>
+            <div class="nav-item" data-screen="access" onclick="go('access')"><div class="nav-icon">📂</div> Data Access Scope</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Active Audit</div>
+            <div class="nav-item" data-screen="queries" onclick="go('queries')"><div class="nav-icon">💬</div> Auditor Queries<span class="nav-badge nav-badge-red">3</span></div>
+            <div class="nav-item" data-screen="findings" onclick="go('findings')"><div class="nav-icon">⚠️</div> Findings & Responses<span class="nav-badge nav-badge-amber">2</span></div>
+            <div class="nav-item" data-screen="timeline" onclick="go('timeline')"><div class="nav-icon">📅</div> Activity Timeline</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Deliverables</div>
+            <div class="nav-item" data-screen="deliverables" onclick="go('deliverables')"><div class="nav-icon">📄</div> Reports & Sign-off</div>
+        </div>
+
+    </nav>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main">
+
+        <!-- ==================== OVERVIEW ==================== -->
+        <div class="screen active" id="screen-overview">
+            <div class="page-header">
+                <div class="page-title">Audit & Assurance Overview</div>
+                <div class="page-subtitle">Track engagement status, respond to auditor requests, and manage the assurance lifecycle</div>
+            </div>
+
+            <div class="metrics-row">
+                <div class="metric-card"><div class="metric-label">Active Engagements</div><div class="metric-value">1</div><div class="metric-sub"><span class="tag tag-blue">FY 2024-25</span></div></div>
+                <div class="metric-card"><div class="metric-label">Open Queries</div><div class="metric-value" style="color:var(--warning);">3</div><div class="metric-sub"><span class="tag tag-red">1 urgent</span> awaiting response</div></div>
+                <div class="metric-card"><div class="metric-label">Findings Received</div><div class="metric-value" style="color:var(--danger);">5</div><div class="metric-sub"><span class="tag tag-amber">2 need response</span></div></div>
+                <div class="metric-card"><div class="metric-label">Audit Progress</div><div class="metric-value">43%</div><div class="metric-sub">Evidence Review phase</div></div>
+            </div>
+
+            <!-- Active Engagement Card -->
+            <div class="card">
+                <div class="card-header"><div class="card-title">Active Engagement</div><button class="btn btn-sm btn-primary" onclick="go('create')">+ New Engagement</button></div>
+                <div class="card-body">
+                    <div class="eng-card" onclick="go('access')">
+                        <div class="eng-card-header">
+                            <div><div class="eng-card-title">AUD-2025-001 · FY 2024-25 Multi-Framework GHG Assurance</div><div style="font-size:0.78rem; color:var(--subtle); margin-top:0.15rem;">Created Jan 2, 2025 · Limited Assurance · ISAE 3410</div></div>
+                            <span class="tag tag-blue">Evidence Review Phase</span>
+                        </div>
+                        <div class="eng-card-meta">
+                            <div><div class="eng-meta-label">Audit Firm</div><div class="eng-meta-value">Deloitte Haskins & Sells LLP</div></div>
+                            <div><div class="eng-meta-label">Lead Auditor</div><div class="eng-meta-value">Sarah Mitchell</div></div>
+                            <div><div class="eng-meta-label">Frameworks</div><div class="eng-meta-value">BRSR Core, ISSB S2, CSRD E1</div></div>
+                            <div><div class="eng-meta-label">Entities / Sites</div><div class="eng-meta-value">3 Entities · 12 Sites</div></div>
+                            <div><div class="eng-meta-label">Auditor Access</div><div class="eng-meta-value" style="color:var(--success);">✓ 3 credentials active</div></div>
+                            <div><div class="eng-meta-label">Deadline</div><div class="eng-meta-value">March 15, 2025</div></div>
+                        </div>
+                        <div class="eng-card-footer">
+                            <div class="eng-progress"><div class="eng-progress-bar"><div class="eng-progress-fill" style="width:43%;"></div></div><span class="eng-progress-text">43% complete</span></div>
+                            <div style="display:flex; gap:0.5rem;">
+                                <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation(); go('queries')">3 Queries</button>
+                                <button class="btn btn-sm btn-ghost" onclick="event.stopPropagation(); go('findings')">5 Findings</button>
+                                <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation(); go('access')">Manage →</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Urgent Items -->
+            <div class="card">
+                <div class="card-header"><div class="card-title">⚡ Needs Your Attention</div></div>
+                <div class="card-body">
+                    <div class="query-item urgent">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div><div class="query-title">🔴 F-001 (Critical): Diesel consumption anomaly — Site 3, Nov 2024</div><div class="query-body">Management response required. Generator consumption of 8,500L exceeds DG capacity.</div></div>
+                            <span class="tag tag-red">Urgent</span>
+                        </div>
+                        <div class="query-meta"><span>From: Sarah Mitchell</span><span>·</span><span style="color:var(--danger); font-weight:600;">Due: Feb 12</span></div>
+                        <div style="margin-top:0.6rem;"><button class="btn btn-sm btn-primary" onclick="openModal('modal-respond')">Respond</button></div>
+                    </div>
+                    <div class="query-item high">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div><div class="query-title">📂 Missing BESCOM electricity bills — Nov & Dec 2024</div><div class="query-body">Auditor requires bills for all 5 facilities to complete Scope 2 verification.</div></div>
+                            <span class="tag tag-amber">High</span>
+                        </div>
+                        <div class="query-meta"><span>From: Sarah Mitchell</span><span>·</span><span>Follow-up: Feb 3</span></div>
+                        <div style="margin-top:0.6rem;"><button class="btn btn-sm btn-primary">Upload Bills</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ==================== CREATE ENGAGEMENT ==================== -->
+        <div class="screen" id="screen-create">
+            <div class="page-header"><div class="page-title">Create New Engagement</div><div class="page-subtitle">Define the audit scope, select the audit firm, and set up access</div></div>
+
+            <div class="wizard-steps">
+                <div class="wiz-step active" id="ws-1"><div class="wiz-step-bar"></div><div class="wiz-step-label">1. Engagement Details</div></div>
+                <div class="wiz-step" id="ws-2"><div class="wiz-step-bar"></div><div class="wiz-step-label">2. Select Audit Firm</div></div>
+                <div class="wiz-step" id="ws-3"><div class="wiz-step-bar"></div><div class="wiz-step-label">3. Define Scope & Access</div></div>
+                <div class="wiz-step" id="ws-4"><div class="wiz-step-bar"></div><div class="wiz-step-label">4. Review & Confirm</div></div>
+            </div>
+
+            <!-- Step 1 -->
+            <div class="wizard-panel active" id="wp-1">
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><span class="step-indicator active">1</span>Engagement Details</div></div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-group"><label class="form-label">Engagement Title</label><input class="form-input" placeholder="e.g. FY 2025-26 Annual GHG Assurance"></div>
+                            <div class="form-group"><label class="form-label">Engagement ID</label><input class="form-input" value="AUD-2025-002" style="font-family:'JetBrains Mono'; background:var(--bg);" readonly></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label class="form-label">Reporting Period</label><select class="form-select"><option>FY 2024-25 (Apr 2024 – Mar 2025)</option><option>FY 2025-26 (Apr 2025 – Mar 2026)</option><option>CY 2025 (Jan – Dec 2025)</option></select></div>
+                            <div class="form-group"><label class="form-label">Deadline for Opinion Issuance</label><input class="form-input" type="date"></div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group"><label class="form-label">Assurance Level</label><select class="form-select"><option>Limited Assurance (ISAE 3410)</option><option>Reasonable Assurance (ISAE 3000)</option></select></div>
+                            <div class="form-group"><label class="form-label">Subject Matter</label><select class="form-select"><option>GHG Emissions (Scope 1, 2, 3)</option><option>GHG Emissions (Scope 1, 2 only)</option><option>Full ESG Report</option></select></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Applicable Frameworks</label>
+                            <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+                                <label class="checkbox-row"><input type="checkbox" checked> SEBI BRSR Core</label>
+                                <label class="checkbox-row"><input type="checkbox" checked> ISSB S2 (IFRS)</label>
+                                <label class="checkbox-row"><input type="checkbox"> CSRD / ESRS E1</label>
+                                <label class="checkbox-row"><input type="checkbox"> CDP Climate</label>
+                                <label class="checkbox-row"><input type="checkbox"> GRI 305</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer"><button class="btn btn-primary" onclick="wizardNext(1)">Next: Select Audit Firm →</button></div>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="wizard-panel" id="wp-2" style="display:none;">
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><span class="step-indicator active">2</span>Select Audit Firm</div></div>
+                    <div class="card-body">
+                        <div class="info-box">
+                            <div class="info-box-title">🏛️ Audit Firm Registry</div>
+                            <div class="info-box-text">Choose from firms already registered in TerraCAP or add a new firm. Once the engagement is confirmed, the audit team details are forwarded to the Platform Admin for credential provisioning.</div>
+                        </div>
+
+                        <div class="form-group"><label class="form-label">Select from Registry or Add New</label>
+                            <select class="form-select" id="firm-selector" onchange="toggleNewFirm(this)">
+                                <option value="deloitte">Deloitte Haskins & Sells LLP</option>
+                                <option value="kpmg">KPMG Assurance & Consulting Services LLP</option>
+                                <option value="pwc">PricewaterhouseCoopers Pvt Ltd</option>
+                                <option value="ey">Ernst & Young Associates LLP</option>
+                                <option value="new">+ Add New Audit Firm</option>
+                            </select>
+                        </div>
+
+                        <div id="new-firm-fields" style="display:none;">
+                            <div class="form-row">
+                                <div class="form-group"><label class="form-label">Firm Name</label><input class="form-input" placeholder="Full legal name of the audit firm"></div>
+                                <div class="form-group"><label class="form-label">Firm Registration Number</label><input class="form-input" placeholder="e.g. ICAI FRN 117366W/W-100018"></div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><label class="form-label">Primary Contact Email</label><input class="form-input" type="email" placeholder="admin@auditfirm.com"></div>
+                                <div class="form-group"><label class="form-label">Contact Phone</label><input class="form-input" type="tel" placeholder="+91..."></div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:0.5rem; padding-top:1rem; border-top:1px solid var(--stroke);">
+                            <div class="form-group" style="margin-bottom:0.75rem;"><label class="form-label" style="font-size:0.95rem; color:var(--ink);">Auditor Team Members</label></div>
+                            <div class="form-hint" style="margin-bottom:1rem;">Add the audit team members who will need access to TerraAudit. The Platform Admin will provision their credentials separately.</div>
+                            <table class="data-table" id="team-table">
+                                <thead><tr><th>Name</th><th>Email</th><th>Role on Engagement</th><th></th></tr></thead>
+                                <tbody id="team-tbody">
+                                    <tr><td><input class="form-input" value="Sarah Mitchell" style="padding:0.4rem 0.6rem;"></td><td><input class="form-input" value="sarah.m@deloitte.com" style="padding:0.4rem 0.6rem;"></td><td><select class="form-select" style="padding:0.4rem 0.6rem;"><option>Lead Auditor</option><option>Engagement Partner</option><option>Audit Team Member</option><option>EQCR Reviewer</option></select></td><td></td></tr>
+                                    <tr><td><input class="form-input" value="Vikram Desai" style="padding:0.4rem 0.6rem;"></td><td><input class="form-input" value="vikram.d@deloitte.com" style="padding:0.4rem 0.6rem;"></td><td><select class="form-select" style="padding:0.4rem 0.6rem;"><option>Audit Team Member</option><option>Lead Auditor</option><option>Engagement Partner</option><option>EQCR Reviewer</option></select></td><td></td></tr>
+                                    <tr><td><input class="form-input" value="Rajesh Kumar" style="padding:0.4rem 0.6rem;"></td><td><input class="form-input" value="rajesh.k@deloitte.com" style="padding:0.4rem 0.6rem;"></td><td><select class="form-select" style="padding:0.4rem 0.6rem;"><option>Engagement Partner</option><option>Lead Auditor</option><option>Audit Team Member</option><option>EQCR Reviewer</option></select></td><td></td></tr>
+                                </tbody>
+                            </table>
+                            <button class="btn btn-sm btn-ghost" style="margin-top:0.75rem;" onclick="addTeamRow()">+ Add Team Member</button>
+                        </div>
+                    </div>
+                    <div class="card-footer"><button class="btn btn-ghost" onclick="wizardBack(2)">← Back</button><button class="btn btn-primary" onclick="wizardNext(2)">Next: Define Scope →</button></div>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="wizard-panel" id="wp-3" style="display:none;">
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><span class="step-indicator active">3</span>Define Scope & Data Access</div></div>
+                    <div class="card-body">
+                        <div class="info-box">
+                            <div class="info-box-title">🔒 Data Access Control</div>
+                            <div class="info-box-text">Select which entities, ESG categories, and data types the audit team can access in TerraAudit. Access is <strong>read-only</strong> — auditors can view data, documents, and lineage but cannot modify anything. Their working papers and findings are private to their audit team.</div>
+                        </div>
+
+                        <div class="form-group"><label class="form-label">Entities in Scope</label>
+                            <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                                <label class="checkbox-row"><input type="checkbox" checked> Acme Manufacturing Ltd (Parent) — 5 facilities</label>
+                                <label class="checkbox-row"><input type="checkbox" checked> Acme Chemicals Pvt Ltd — 4 facilities</label>
+                                <label class="checkbox-row"><input type="checkbox" checked> Acme Logistics Corp — 3 facilities</label>
+                            </div>
+                        </div>
+
+                        <!-- ESG Categories -->
+                        <div class="form-group">
+                            <label class="form-label">ESG Categories & Subsections in Scope</label>
+                            <div class="form-hint" style="margin-bottom:1rem;">Choose the ESG categories the auditor can access. Environmental categories are always visible; Social and Governance categories can be toggled based on audit scope.</div>
+                            <div class="esg-grid">
+                                <div>
+                                    <div class="esg-col-title env">Environmental (E)</div>
+                                    <div class="esg-item required"><input type="checkbox" checked disabled> GHG Emissions <span class="req-tag">Required</span></div>
+                                    <div class="esg-item"><input type="checkbox" checked> Water Management</div>
+                                    <div class="esg-item"><input type="checkbox" checked> Waste Management</div>
+                                    <div class="esg-item"><input type="checkbox"> Air Quality</div>
+                                    <div class="esg-item"><input type="checkbox"> Biodiversity & Land Use</div>
+                                    <div class="esg-item"><input type="checkbox"> Climate Resilience</div>
+                                </div>
+                                <div>
+                                    <div class="esg-col-title soc">Social (S)</div>
+                                    <div class="esg-item"><input type="checkbox"> Health & Safety</div>
+                                    <div class="esg-item"><input type="checkbox"> Diversity, Equity & Inclusion</div>
+                                    <div class="esg-item"><input type="checkbox"> Community Engagement</div>
+                                </div>
+                                <div>
+                                    <div class="esg-col-title gov">Governance (G)</div>
+                                    <div class="esg-item"><input type="checkbox"> Ethics & Compliance</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group"><label class="form-label">Emission Scopes (within GHG Emissions)</label>
+                            <div style="display:flex; gap:1rem;">
+                                <label class="checkbox-row"><input type="checkbox" checked> Scope 1 (Direct)</label>
+                                <label class="checkbox-row"><input type="checkbox" checked> Scope 2 (Purchased Energy)</label>
+                                <label class="checkbox-row"><input type="checkbox" checked> Scope 3 (Value Chain)</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group"><label class="form-label">Data Types Accessible</label>
+                            <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                                <label class="checkbox-row"><input type="checkbox" checked> Activity data (kWh, litres, km, spend, kL, MT)</label>
+                                <label class="checkbox-row"><input type="checkbox" checked> Emission factors & calculation methodology</label>
+                                <label class="checkbox-row"><input type="checkbox" checked> Evidence documents (bills, invoices, logs)</label>
+                                <label class="checkbox-row"><input type="checkbox" checked> Data lineage & audit trail</label>
+                                <label class="checkbox-row"><input type="checkbox" checked> Policies & procedures</label>
+                                <label class="checkbox-row"><input type="checkbox"> Internal management reports</label>
+                                <label class="checkbox-row"><input type="checkbox"> Budget & financial data</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer"><button class="btn btn-ghost" onclick="wizardBack(3)">← Back</button><button class="btn btn-primary" onclick="wizardNext(3)">Next: Review & Confirm →</button></div>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="wizard-panel" id="wp-4" style="display:none;">
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><span class="step-indicator active">4</span>Review & Confirm Engagement</div></div>
+                    <div class="card-body">
+                        <div class="info-box">
+                            <div class="info-box-title">📋 Engagement Summary</div>
+                            <div class="info-box-text">Review the engagement details below. Once confirmed, the engagement will be created and the audit team details will be forwarded to the <strong>Platform Admin</strong> for RBAC credential provisioning. Auditors will access TerraAudit using their provisioned credentials.</div>
+                        </div>
+
+                        <table class="data-table" style="margin-bottom:1.25rem;">
+                            <tbody>
+                                <tr><td style="font-weight:600; width:200px; color:var(--subtle);">Engagement ID</td><td style="font-family:'JetBrains Mono';">AUD-2025-002</td></tr>
+                                <tr><td style="font-weight:600; color:var(--subtle);">Assurance Level</td><td>Limited Assurance (ISAE 3410)</td></tr>
+                                <tr><td style="font-weight:600; color:var(--subtle);">Frameworks</td><td>SEBI BRSR Core, ISSB S2</td></tr>
+                                <tr><td style="font-weight:600; color:var(--subtle);">Entities in Scope</td><td>3 legal entities · 12 facilities</td></tr>
+                                <tr><td style="font-weight:600; color:var(--subtle);">ESG Categories</td><td>GHG Emissions, Water Management, Waste Management</td></tr>
+                                <tr><td style="font-weight:600; color:var(--subtle);">Emission Scopes</td><td>Scope 1, 2, 3</td></tr>
+                                <tr><td style="font-weight:600; color:var(--subtle);">Audit Firm</td><td>Deloitte Haskins & Sells LLP</td></tr>
+                                <tr><td style="font-weight:600; color:var(--subtle);">Audit Team</td><td>Sarah Mitchell (Lead), Vikram Desai (Team), Rajesh Kumar (Partner)</td></tr>
+                            </tbody>
+                        </table>
+
+                        <div style="padding:1rem; background:#FFFBEB; border:1px solid #F6E05E; border-radius:8px;">
+                            <div style="font-weight:600; font-size:0.88rem; color:#744210; margin-bottom:0.3rem;">🔐 Next Step: Credential Provisioning</div>
+                            <div style="font-size:0.82rem; color:#744210;">After you confirm, the Platform Admin will be notified to create <strong>Auditor role</strong> credentials for each team member via the Administration → User Management module. Auditor accounts will only have access to the <strong>TerraAudit</strong> workspace — all other platform modules remain inaccessible.</div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-ghost" onclick="wizardBack(4)">← Back</button>
+                        <button class="btn btn-success" onclick="provisionCredentials()">✓ Confirm & Create Engagement</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ==================== AUDIT FIRM REGISTRY ==================== -->
+        <div class="screen" id="screen-firm">
+            <div class="page-header"><div class="page-title">Audit Firm Registry</div><div class="page-subtitle">Manage registered audit firms and their engagement history</div></div>
+            <div class="card">
+                <div class="card-header"><div class="card-title">Registered Firms</div><button class="btn btn-sm btn-primary" onclick="openModal('modal-add-firm')">+ Add Firm</button></div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead><tr><th>Firm Name</th><th>Registration</th><th>Primary Contact</th><th>Engagements</th><th>Last Active</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Deloitte Haskins & Sells LLP</strong></td><td style="font-family:'JetBrains Mono'; font-size:0.8rem;">ICAI 117366W</td><td>admin@deloitte.com</td><td>1 active</td><td style="font-family:'JetBrains Mono'; font-size:0.82rem;">Feb 10, 2025</td><td><span class="tag tag-green">Active</span></td></tr>
+                            <tr><td><strong>KPMG Assurance & Consulting</strong></td><td style="font-family:'JetBrains Mono'; font-size:0.8rem;">ICAI 101248W</td><td>esg@kpmg.com</td><td>0</td><td>—</td><td><span class="tag tag-gray">Registered</span></td></tr>
+                            <tr><td><strong>PwC Pvt Ltd</strong></td><td style="font-family:'JetBrains Mono'; font-size:0.8rem;">ICAI 012754N</td><td>sustainability@pwc.com</td><td>0</td><td>—</td><td><span class="tag tag-gray">Registered</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- ==================== DATA ACCESS SCOPE ==================== -->
+        <div class="screen" id="screen-access">
+            <div class="page-header"><div class="page-title">Data Access Scope — AUD-2025-001</div><div class="page-subtitle">Control exactly what the auditor can see in TerraAudit</div></div>
+            <div class="info-box">
+                <div class="info-box-title">🔒 Read-Only Access</div>
+                <div class="info-box-text">The auditor has <strong>read-only</strong> access to the data below. They can view evidence, calculations, and lineage — but cannot modify any data. Their own findings and working papers are private to the audit team.</div>
+            </div>
+
+            <!-- ESG Categories Currently Shared -->
+            <div class="card">
+                <div class="card-header"><div class="card-title">ESG Categories Shared with Auditor</div><button class="btn btn-sm btn-secondary" onclick="openModal('modal-modify-access')">Modify Access</button></div>
+                <div class="card-body">
+                    <div class="esg-grid">
+                        <div>
+                            <div class="esg-col-title env">Environmental (E)</div>
+                            <div class="esg-item"><span class="tag tag-green" style="font-size:0.72rem;">✓ Shared</span> GHG Emissions</div>
+                            <div class="esg-item"><span class="tag tag-green" style="font-size:0.72rem;">✓ Shared</span> Water Management</div>
+                            <div class="esg-item"><span class="tag tag-green" style="font-size:0.72rem;">✓ Shared</span> Waste Management</div>
+                            <div class="esg-item" style="opacity:0.45;"><span class="tag tag-gray" style="font-size:0.72rem;">Not shared</span> Air Quality</div>
+                            <div class="esg-item" style="opacity:0.45;"><span class="tag tag-gray" style="font-size:0.72rem;">Not shared</span> Biodiversity & Land Use</div>
+                            <div class="esg-item" style="opacity:0.45;"><span class="tag tag-gray" style="font-size:0.72rem;">Not shared</span> Climate Resilience</div>
+                        </div>
+                        <div>
+                            <div class="esg-col-title soc">Social (S)</div>
+                            <div class="esg-item" style="opacity:0.45;"><span class="tag tag-gray" style="font-size:0.72rem;">Not shared</span> Health & Safety</div>
+                            <div class="esg-item" style="opacity:0.45;"><span class="tag tag-gray" style="font-size:0.72rem;">Not shared</span> Diversity, Equity & Inclusion</div>
+                            <div class="esg-item" style="opacity:0.45;"><span class="tag tag-gray" style="font-size:0.72rem;">Not shared</span> Community Engagement</div>
+                        </div>
+                        <div>
+                            <div class="esg-col-title gov">Governance (G)</div>
+                            <div class="esg-item" style="opacity:0.45;"><span class="tag tag-gray" style="font-size:0.72rem;">Not shared</span> Ethics & Compliance</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Entities & Data Table -->
+            <div class="card">
+                <div class="card-header"><div class="card-title">Entities & Data Shared</div></div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead><tr><th>Entity</th><th>Facilities</th><th>Scopes</th><th>Data Types</th><th>Documents</th><th>Access</th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Acme Manufacturing Ltd</strong></td><td>5 sites</td><td>S1, S2, S3</td><td>Activity data, EFs, Lineage</td><td>Bills, fuel records, travel, policies</td><td><span class="tag tag-green">✓ Active</span></td></tr>
+                            <tr><td><strong>Acme Chemicals Pvt Ltd</strong></td><td>4 sites</td><td>S1, S2</td><td>Activity data, EFs, Lineage</td><td>Bills, fuel records, process data</td><td><span class="tag tag-green">✓ Active</span></td></tr>
+                            <tr><td><strong>Acme Logistics Corp</strong></td><td>3 sites</td><td>S1, S3</td><td>Activity data, EFs, Lineage</td><td>Fleet cards, GPS, supplier spend</td><td><span class="tag tag-green">✓ Active</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ==================== QUERIES ==================== -->
+        <div class="screen" id="screen-queries">
+            <div class="page-header"><div class="page-title">Auditor Queries</div><div class="page-subtitle">Respond to information requests from the audit team</div></div>
+            <div class="query-item urgent"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><div class="query-title">Q-003: Generator diesel consumption anomaly — Site 3</div><div class="query-body">Consumption of 8,500L in November exceeds DG set capacity of 2,500L/month. Please clarify.</div></div><span class="tag tag-red">Urgent</span></div><div class="query-meta"><span>Sarah Mitchell</span><span>·</span><span>Feb 8</span><span>·</span><span style="color:var(--danger); font-weight:600;">Due: Feb 12</span></div><div style="margin-top:0.6rem;"><button class="btn btn-sm btn-primary" onclick="openModal('modal-respond')">Respond</button><button class="btn btn-sm btn-ghost" style="margin-left:0.5rem;">Upload Document</button></div></div>
+            <div class="query-item high"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><div class="query-title">Q-002: Missing BESCOM electricity bills — Nov & Dec 2024</div><div class="query-body">BESCOM bills needed for all 5 facilities to complete Scope 2 verification.</div></div><span class="tag tag-amber">High</span></div><div class="query-meta"><span>Sarah Mitchell</span><span>·</span><span>Jan 20</span><span>·</span><span>Follow-up: Feb 3</span></div><div style="margin-top:0.6rem;"><button class="btn btn-sm btn-primary">Upload Bills</button></div></div>
+            <div class="query-item high"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><div class="query-title">Q-001: Refrigerant maintenance & top-up logs</div><div class="query-body">Complete HVAC maintenance and R-410A top-up logs for FY 2024-25.</div></div><span class="tag tag-amber">High</span></div><div class="query-meta"><span>Sarah Mitchell</span><span>·</span><span>Feb 1</span><span>·</span><span>Expected: Feb 12</span></div><div style="margin-top:0.6rem;"><button class="btn btn-sm btn-primary">Upload Logs</button></div></div>
+            <div class="query-item resolved"><div style="display:flex; justify-content:space-between; align-items:flex-start;"><div><div class="query-title">Q-000: Carbon accounting policy document</div><div class="query-body">Current version of the organizational carbon accounting policy.</div></div><span class="tag tag-green">Resolved</span></div><div class="query-meta"><span>Sarah Mitchell</span><span>·</span><span>Jan 8</span><span>·</span><span style="color:var(--success);">Resolved Jan 10</span></div></div>
+        </div>
+
+
+        <!-- ==================== FINDINGS ==================== -->
+        <div class="screen" id="screen-findings">
+            <div class="page-header"><div class="page-title">Audit Findings</div><div class="page-subtitle">Review findings and provide management responses</div></div>
+            <div class="card"><div class="card-body">
+                <table class="data-table">
+                    <thead><tr><th>ID</th><th>Severity</th><th>Finding</th><th>Scope</th><th>Your Response</th><th>Status</th><th></th></tr></thead>
+                    <tbody>
+                        <tr><td style="font-family:'JetBrains Mono'; font-weight:600;">F-001</td><td><span class="tag tag-red">Critical</span></td><td><strong>Diesel consumption anomaly — 340% spike</strong><br><span style="font-size:0.78rem; color:var(--subtle);">Site 3, Nov 2024</span></td><td>S1</td><td><span class="tag tag-red">Pending</span></td><td><span class="tag tag-red">Open</span></td><td><button class="btn btn-sm btn-primary" onclick="openModal('modal-respond')">Respond</button></td></tr>
+                        <tr><td style="font-family:'JetBrains Mono'; font-weight:600;">F-002</td><td><span class="tag tag-amber">Major</span></td><td><strong>Incomplete Scope 3 Cat 6 — Rail travel missing</strong></td><td>S3</td><td><span class="tag tag-green">Submitted</span><br><span style="font-size:0.75rem; color:var(--subtle);">"Rail data being compiled from SAP."</span></td><td><span class="tag tag-amber">In Progress</span></td><td><button class="btn btn-sm btn-ghost">Update</button></td></tr>
+                        <tr><td style="font-family:'JetBrains Mono'; font-weight:600;">F-003</td><td><span class="tag tag-amber">Major</span></td><td><strong>R-410A GWP not updated to AR6</strong></td><td>S1</td><td><span class="tag tag-red">Pending</span></td><td><span class="tag tag-red">Open</span></td><td><button class="btn btn-sm btn-primary" onclick="openModal('modal-respond')">Respond</button></td></tr>
+                        <tr><td style="font-family:'JetBrains Mono'; font-weight:600;">F-004</td><td><span class="tag tag-blue">Minor</span></td><td><strong>BRSR intensity denominator inconsistency</strong></td><td>All</td><td><span class="tag tag-green">Acknowledged</span></td><td><span class="tag tag-green">Noted</span></td><td></td></tr>
+                        <tr><td style="font-family:'JetBrains Mono'; font-weight:600;">F-005</td><td><span class="tag tag-gray">Obs.</span></td><td><strong>Scope 1 trending +8% YoY without narrative</strong></td><td>S1</td><td><span class="tag tag-green">Acknowledged</span></td><td><span class="tag tag-green">Noted</span></td><td></td></tr>
+                    </tbody>
+                </table>
+            </div></div>
+        </div>
+
+
+        <!-- ==================== TIMELINE ==================== -->
+        <div class="screen" id="screen-timeline">
+            <div class="page-header"><div class="page-title">Activity Timeline</div><div class="page-subtitle">Full chronological history of audit engagement activities</div></div>
+            <div class="card"><div class="card-body">
+                <div class="timeline-item"><span class="timeline-time">Feb 10, 10:30</span><span class="timeline-text">Sarah Mitchell raised <strong>Finding F-003</strong> (Refrigerant GWP)</span></div>
+                <div class="timeline-item"><span class="timeline-time">Feb 08, 14:20</span><span class="timeline-text">Sarah Mitchell raised <strong>Finding F-001</strong> (Diesel anomaly) — <span style="color:var(--danger); font-weight:600;">Critical</span></span></div>
+                <div class="timeline-item"><span class="timeline-time">Feb 05, 10:20</span><span class="timeline-text">Sarah Mitchell <strong>accepted</strong> 3 evidence items (Scope 2 electricity bills)</span></div>
+                <div class="timeline-item"><span class="timeline-time">Feb 03, 09:00</span><span class="timeline-text">Sarah Mitchell sent <strong>follow-up</strong> on missing BESCOM bills</span></div>
+                <div class="timeline-item"><span class="timeline-time">Feb 01, 11:00</span><span class="timeline-text">Sarah Mitchell raised <strong>Query Q-001</strong>: Refrigerant maintenance logs</span></div>
+                <div class="timeline-item"><span class="timeline-time">Jan 20, 11:45</span><span class="timeline-text">Sarah Mitchell raised <strong>Query Q-002</strong>: Missing BESCOM bills</span></div>
+                <div class="timeline-item"><span class="timeline-time">Jan 12, 16:00</span><span class="timeline-text">Audit team completed <strong>Planning & Risk Assessment</strong> phase</span></div>
+                <div class="timeline-item"><span class="timeline-time">Jan 10, 09:30</span><span class="timeline-text">Your team uploaded <strong>Carbon Accounting Policy v2.1</strong> (resolved Q-000)</span></div>
+                <div class="timeline-item"><span class="timeline-time">Jan 08, 10:00</span><span class="timeline-text">Sarah Mitchell raised <strong>Query Q-000</strong>: Carbon accounting policy request</span></div>
+                <div class="timeline-item"><span class="timeline-time">Jan 05, 15:00</span><span class="timeline-text">Sarah Mitchell <strong>accepted engagement</strong> and completed independence declaration</span></div>
+                <div class="timeline-item"><span class="timeline-time">Jan 05, 14:30</span><span class="timeline-text">Auditor credentials activated — 3 users logged in</span></div>
+                <div class="timeline-item"><span class="timeline-time">Jan 03, 11:00</span><span class="timeline-text">Credentials provisioned for Sarah Mitchell, Vikram Desai, Rajesh Kumar</span></div>
+                <div class="timeline-item" style="border:none;"><span class="timeline-time">Jan 02, 09:00</span><span class="timeline-text"><strong>Engagement AUD-2025-001 created</strong> by Raj K. (ESG Manager)</span></div>
+            </div></div>
+        </div>
+
+
+        <!-- ==================== DELIVERABLES ==================== -->
+        <div class="screen" id="screen-deliverables">
+            <div class="page-header"><div class="page-title">Reports & Sign-off</div><div class="page-subtitle">Deliverables from the auditor and management sign-off requirements</div></div>
+
+            <!-- Management Rep Letter -->
+            <div class="card">
+                <div class="card-header"><div class="card-title">📝 Management Representation Letter</div><span class="tag tag-amber">Awaiting Signature</span></div>
+                <div class="card-body">
+                    <div style="display:flex; align-items:center; gap:1rem; padding:1rem; border:1.5px solid var(--warning); border-radius:10px; background:#FFFBEB;">
+                        <div style="font-size:1.5rem;">✉️</div>
+                        <div style="flex:1;"><div style="font-weight:600;">The auditor requires a signed Management Representation Letter before issuing the assurance opinion.</div><div style="font-size:0.82rem; color:var(--subtle);">This letter confirms that management has provided complete and accurate data. Required signatories: CFO and Sustainability Head.</div></div>
+                        <div style="display:flex; gap:0.5rem;">
+                            <button class="btn btn-sm btn-secondary" onclick="openModal('modal-rep-letter')">Preview Letter</button>
+                            <button class="btn btn-sm btn-primary">Review & Sign</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audit Reports -->
+            <div class="card">
+                <div class="card-header"><div class="card-title">Audit Reports (from Auditor)</div></div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead><tr><th>Report</th><th>Description</th><th>Status</th><th></th></tr></thead>
+                        <tbody>
+                            <tr><td><strong>Limited Assurance Statement</strong></td><td>ISAE 3410 compliant assurance opinion on GHG emissions</td><td><span class="tag tag-amber">Draft</span></td><td><button class="btn btn-sm btn-secondary" onclick="openModal('modal-rpt-assurance')">Preview Draft</button></td></tr>
+                            <tr><td><strong>Management Letter</strong></td><td>Findings, recommendations, and improvement opportunities</td><td><span class="tag tag-amber">Draft</span></td><td><button class="btn btn-sm btn-secondary" onclick="openModal('modal-rpt-mgmt')">Preview Draft</button></td></tr>
+                            <tr><td><strong>BRSR Core Verification Report</strong></td><td>Framework-specific indicator verification for SEBI BRSR</td><td><span class="tag tag-amber">Draft</span></td><td><button class="btn btn-sm btn-secondary" onclick="openModal('modal-rpt-brsr')">Preview Draft</button></td></tr>
+                            <tr><td><strong>Audit Summary Dashboard (PDF)</strong></td><td>Visual summary of engagement metrics and KPIs</td><td><span class="tag tag-green">Auto-generated</span></td><td><button class="btn btn-sm btn-ghost">Download</button></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ===== MODALS ===== -->
+<div class="modal-overlay" id="modal-respond">
+    <div class="modal">
+        <div class="modal-header"><div class="modal-title">📝 Submit Management Response</div><button class="modal-close" onclick="closeModal('modal-respond')">&times;</button></div>
+        <div class="modal-body">
+            <div class="form-group"><label class="form-label">Your Response</label><textarea class="form-textarea" rows="5" placeholder="Provide your management response, explanation, or corrective action plan..."></textarea></div>
+            <div class="form-group"><label class="form-label">Attach Supporting Document (Optional)</label>
+                <div style="border:2px dashed var(--stroke); border-radius:8px; padding:1.5rem; text-align:center; cursor:pointer; background:var(--bg);">
+                    <div style="font-size:1.5rem;">📄</div><div style="font-weight:600; font-size:0.88rem;">Click to upload or drag & drop</div><div style="font-size:0.75rem; color:var(--subtle);">PDF, DOCX, XLSX — Max 25 MB</div>
+                </div>
+            </div>
+            <div class="form-group"><label class="form-label">Target Resolution Date</label><input class="form-input" type="date"></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-respond')">Cancel</button><button class="btn btn-primary" onclick="closeModal('modal-respond'); toast('Response submitted to auditor')">Submit Response</button></div>
+    </div>
+</div>
+
+<!-- Modify Access Modal -->
+<div class="modal-overlay" id="modal-modify-access">
+    <div class="modal" style="max-width:720px;">
+        <div class="modal-header"><div class="modal-title">📂 Modify Auditor Data Access — AUD-2025-001</div><button class="modal-close" onclick="closeModal('modal-modify-access')">&times;</button></div>
+        <div class="modal-body">
+            <div class="info-box" style="margin-bottom:1.25rem;">
+                <div class="info-box-title">🔒 Changes take effect immediately</div>
+                <div class="info-box-text">Adding or removing access will immediately update what the audit team can see in TerraAudit. The auditor will be notified of scope changes via in-platform alert.</div>
+            </div>
+
+            <div class="form-group"><label class="form-label">Entities in Scope</label>
+                <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                    <label class="checkbox-row"><input type="checkbox" checked> Acme Manufacturing Ltd (Parent) — 5 facilities</label>
+                    <label class="checkbox-row"><input type="checkbox" checked> Acme Chemicals Pvt Ltd — 4 facilities</label>
+                    <label class="checkbox-row"><input type="checkbox" checked> Acme Logistics Corp — 3 facilities</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">ESG Categories Accessible</label>
+                <div class="esg-grid">
+                    <div>
+                        <div class="esg-col-title env">Environmental (E)</div>
+                        <div class="esg-item required"><input type="checkbox" checked disabled> GHG Emissions <span class="req-tag">Required</span></div>
+                        <div class="esg-item"><input type="checkbox" checked> Water Management</div>
+                        <div class="esg-item"><input type="checkbox" checked> Waste Management</div>
+                        <div class="esg-item"><input type="checkbox"> Air Quality</div>
+                        <div class="esg-item"><input type="checkbox"> Biodiversity & Land Use</div>
+                        <div class="esg-item"><input type="checkbox"> Climate Resilience</div>
+                    </div>
+                    <div>
+                        <div class="esg-col-title soc">Social (S)</div>
+                        <div class="esg-item"><input type="checkbox"> Health & Safety</div>
+                        <div class="esg-item"><input type="checkbox"> Diversity, Equity & Inclusion</div>
+                        <div class="esg-item"><input type="checkbox"> Community Engagement</div>
+                    </div>
+                    <div>
+                        <div class="esg-col-title gov">Governance (G)</div>
+                        <div class="esg-item"><input type="checkbox"> Ethics & Compliance</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group"><label class="form-label">Emission Scopes</label>
+                <div style="display:flex; gap:1rem;">
+                    <label class="checkbox-row"><input type="checkbox" checked> Scope 1 (Direct)</label>
+                    <label class="checkbox-row"><input type="checkbox" checked> Scope 2 (Purchased Energy)</label>
+                    <label class="checkbox-row"><input type="checkbox" checked> Scope 3 (Value Chain)</label>
+                </div>
+            </div>
+
+            <div class="form-group"><label class="form-label">Data Types Accessible</label>
+                <div style="display:flex; flex-direction:column; gap:0.5rem;">
+                    <label class="checkbox-row"><input type="checkbox" checked> Activity data (kWh, litres, km, spend, kL, MT)</label>
+                    <label class="checkbox-row"><input type="checkbox" checked> Emission factors & calculation methodology</label>
+                    <label class="checkbox-row"><input type="checkbox" checked> Evidence documents (bills, invoices, logs)</label>
+                    <label class="checkbox-row"><input type="checkbox" checked> Data lineage & audit trail</label>
+                    <label class="checkbox-row"><input type="checkbox" checked> Policies & procedures</label>
+                    <label class="checkbox-row"><input type="checkbox"> Internal management reports</label>
+                    <label class="checkbox-row"><input type="checkbox"> Budget & financial data</label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-modify-access')">Cancel</button><button class="btn btn-primary" onclick="closeModal('modal-modify-access'); toast('Access scope updated — auditor notified')">Save Changes</button></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-add-firm">
+    <div class="modal">
+        <div class="modal-header"><div class="modal-title">🏛️ Register New Audit Firm</div><button class="modal-close" onclick="closeModal('modal-add-firm')">&times;</button></div>
+        <div class="modal-body">
+            <div class="form-row"><div class="form-group"><label class="form-label">Firm Name</label><input class="form-input" placeholder="Full legal name"></div><div class="form-group"><label class="form-label">Registration Number</label><input class="form-input" placeholder="e.g. ICAI FRN 117366W"></div></div>
+            <div class="form-row"><div class="form-group"><label class="form-label">Primary Contact Email</label><input class="form-input" type="email"></div><div class="form-group"><label class="form-label">Phone</label><input class="form-input" type="tel"></div></div>
+            <div class="form-group"><label class="form-label">Address</label><textarea class="form-textarea" rows="2"></textarea></div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-add-firm')">Cancel</button><button class="btn btn-primary" onclick="closeModal('modal-add-firm'); toast('Audit firm registered')">Register Firm</button></div>
+    </div>
+</div>
+
+<!-- Management Representation Letter Preview -->
+<div class="modal-overlay" id="modal-rep-letter">
+    <div class="modal" style="max-width:740px;">
+        <div class="modal-header"><div class="modal-title">📝 Management Representation Letter — Preview</div><button class="modal-close" onclick="closeModal('modal-rep-letter')">&times;</button></div>
+        <div class="modal-body" style="font-size:0.88rem; line-height:1.8; color:var(--ink);">
+            <div style="text-align:center; margin-bottom:1.5rem;">
+                <div style="font-weight:700; font-size:1.05rem;">MANAGEMENT REPRESENTATION LETTER</div>
+                <div style="color:var(--subtle); font-size:0.82rem;">Engagement AUD-2025-001 · FY 2024-25</div>
+            </div>
+            <p style="margin-bottom:1rem;"><strong>Date:</strong> <span style="background:#FEF3C7; padding:0.1rem 0.4rem; border-radius:4px;">[Date of signing]</span></p>
+            <p style="margin-bottom:1rem;"><strong>To:</strong> Deloitte Haskins & Sells LLP<br>Attn: Ms. Sarah Mitchell, Lead Auditor</p>
+            <p style="margin-bottom:1rem;">Dear Ms. Mitchell,</p>
+            <p style="margin-bottom:1rem;">This representation letter is provided in connection with your limited assurance engagement on the Greenhouse Gas (GHG) Emissions Statement of <strong>Acme Manufacturing Ltd and its subsidiaries</strong> ("the Group") for the year ended March 31, 2025, in accordance with <strong>ISAE 3410 — Assurance Engagements on Greenhouse Gas Statements</strong>.</p>
+            <p style="margin-bottom:0.5rem;"><strong>We confirm, to the best of our knowledge and belief, the following:</strong></p>
+            <p style="margin-bottom:0.5rem; padding-left:1rem;"><strong>1. Completeness of Information:</strong> We have provided you with access to all data, documentation, and information relevant to the preparation of the GHG Statement, including activity data for Scope 1, 2, and 3 emissions across all 12 facilities within the 3 legal entities in scope.</p>
+            <p style="margin-bottom:0.5rem; padding-left:1rem;"><strong>2. Accuracy of Data:</strong> The activity data recorded in TerraCAP accurately reflects fuel consumption, electricity usage, refrigerant top-ups, travel records, and purchased goods data for the reporting period.</p>
+            <p style="margin-bottom:0.5rem; padding-left:1rem;"><strong>3. Emission Factors:</strong> The emission factors applied are sourced from the India GHG Program, IPCC (AR6), CEA CO₂ Database (v19), and are appropriate for the activities and geographies reported.</p>
+            <p style="margin-bottom:0.5rem; padding-left:1rem;"><strong>4. Organizational Boundary:</strong> The organizational boundary has been defined using the operational control approach and includes all entities and facilities listed in the engagement scope.</p>
+            <p style="margin-bottom:0.5rem; padding-left:1rem;"><strong>5. Known Issues:</strong> We have disclosed all known issues, anomalies, and limitations affecting the completeness and accuracy of the reported emissions, including the diesel consumption anomaly at Site 3 (Finding F-001) and the pending rail travel data (Finding F-002).</p>
+            <p style="margin-bottom:0.5rem; padding-left:1rem;"><strong>6. Internal Controls:</strong> We are responsible for the design and implementation of internal controls relevant to the preparation of the GHG Statement that is free from material misstatement.</p>
+            <p style="margin-bottom:0.5rem; padding-left:1rem;"><strong>7. No Fraud or Non-Compliance:</strong> We are not aware of any fraud or suspected fraud involving management or employees that could affect the GHG Statement.</p>
+            <p style="margin-top:1.5rem; margin-bottom:0.5rem;">Yours faithfully,</p>
+            <div style="display:flex; gap:3rem; margin-top:1rem;">
+                <div><div style="border-top:1.5px solid var(--ink); width:180px; margin-bottom:0.3rem; margin-top:2rem;"></div><div style="font-weight:600;"><span style="background:#FEF3C7; padding:0.1rem 0.4rem; border-radius:4px;">[CFO Name]</span></div><div style="font-size:0.78rem; color:var(--subtle);">Chief Financial Officer</div></div>
+                <div><div style="border-top:1.5px solid var(--ink); width:180px; margin-bottom:0.3rem; margin-top:2rem;"></div><div style="font-weight:600;"><span style="background:#FEF3C7; padding:0.1rem 0.4rem; border-radius:4px;">[Sustainability Head]</span></div><div style="font-size:0.78rem; color:var(--subtle);">Head of Sustainability</div></div>
+            </div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-rep-letter')">Close</button><button class="btn btn-ghost">Export DOCX</button><button class="btn btn-primary">Review & Sign</button></div>
+    </div>
+</div>
+
+<!-- Limited Assurance Statement Preview -->
+<div class="modal-overlay" id="modal-rpt-assurance">
+    <div class="modal" style="max-width:740px;">
+        <div class="modal-header"><div class="modal-title">🛡️ Limited Assurance Statement — Draft Preview</div><button class="modal-close" onclick="closeModal('modal-rpt-assurance')">&times;</button></div>
+        <div class="modal-body" style="font-size:0.88rem; line-height:1.8; color:var(--ink);">
+            <div style="text-align:center; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:2px solid var(--stroke);">
+                <div style="font-weight:700; font-size:1.1rem; color:var(--hz-primary);">INDEPENDENT LIMITED ASSURANCE REPORT</div>
+                <div style="font-weight:600;">on the Greenhouse Gas Emissions Statement</div>
+                <div style="color:var(--subtle); font-size:0.82rem;">Acme Manufacturing Ltd and Subsidiaries · FY 2024-25</div>
+                <div style="margin-top:0.5rem;"><span class="tag tag-amber">DRAFT — Subject to Partner Review</span></div>
+            </div>
+            <p style="margin-bottom:1rem;"><strong>To the Board of Directors of Acme Manufacturing Ltd</strong></p>
+            <p style="font-weight:700; margin-bottom:0.35rem;">Scope</p>
+            <p style="margin-bottom:1rem;">We have undertaken a limited assurance engagement on the GHG Emissions Statement ("the Statement") of Acme Manufacturing Ltd and its subsidiaries (collectively, "the Group") for the year ended March 31, 2025. The Statement comprises Scope 1 direct emissions (380.3 tCO₂e), Scope 2 location-based indirect emissions (12.3 tCO₂e), and selected Scope 3 value chain emissions (8,704.6 tCO₂e) as prepared in accordance with the GHG Protocol Corporate Standard (Revised).</p>
+            <p style="font-weight:700; margin-bottom:0.35rem;">Criteria</p>
+            <p style="margin-bottom:1rem;">The criteria against which the Statement has been assessed are: the GHG Protocol Corporate Accounting and Reporting Standard (Revised Edition), the India GHG Program Guidelines, IPCC Guidelines for National GHG Inventories (2006, as updated in 2019), and the applicable reporting requirements of SEBI BRSR Core, ISSB S2, and CSRD/ESRS E1.</p>
+            <p style="font-weight:700; margin-bottom:0.35rem;">Management's Responsibility</p>
+            <p style="margin-bottom:1rem;">Management is responsible for the preparation of the Statement in accordance with the above criteria, including the design, implementation, and maintenance of internal controls relevant to the preparation of a GHG Statement that is free from material misstatement.</p>
+            <p style="font-weight:700; margin-bottom:0.35rem;">Our Responsibility</p>
+            <p style="margin-bottom:1rem;">Our responsibility is to express a limited assurance conclusion on the Statement based on the procedures we have performed and evidence obtained. We conducted our limited assurance engagement in accordance with <strong>ISAE 3410 — Assurance Engagements on Greenhouse Gas Statements</strong>, issued by the IAASB. This standard requires that we plan and perform our procedures to obtain limited assurance about whether the Statement is free from material misstatement.</p>
+            <p style="font-weight:700; margin-bottom:0.35rem;">Summary of Work Performed</p>
+            <p style="margin-bottom:1rem;">Our procedures included: inquiries of management and personnel; analytical procedures on reported emissions data and trends; inspection of supporting evidence including utility invoices, fuel purchase records, and travel data; evaluation of the appropriateness of quantification methodologies and emission factors; reconciliation of reported data to underlying records via TerraCAP data lineage; and assessment of the Group's data quality controls.</p>
+            <p style="font-weight:700; margin-bottom:0.35rem; color:var(--hz-primary);">Conclusion</p>
+            <p style="margin-bottom:1rem; padding:0.75rem; background:var(--hz-primary-50); border-radius:8px;">Based on the procedures we have performed and the evidence we have obtained, <strong>nothing has come to our attention that causes us to believe that the GHG Emissions Statement of the Group for the year ended March 31, 2025 is not prepared, in all material respects, in accordance with the applicable criteria.</strong></p>
+            <p style="font-weight:700; margin-bottom:0.35rem;">Emphasis of Matter</p>
+            <p style="margin-bottom:1rem;">Without qualifying our conclusion, we draw attention to: (a) a diesel consumption anomaly at Site 3 in November 2024 (Finding F-001) for which management has provided an explanation, and (b) the use of AR4 GWP values for R-410A refrigerant (Finding F-003) which management has committed to updating in the next reporting cycle.</p>
+            <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--stroke);">
+                <p><strong>For Deloitte Haskins & Sells LLP</strong></p>
+                <div style="margin-top:1.5rem; border-top:1.5px solid var(--ink); width:200px; padding-top:0.3rem;">
+                    <div style="font-weight:600;"><span style="background:#FEF3C7; padding:0.1rem 0.4rem; border-radius:4px;">[Engagement Partner]</span></div>
+                    <div style="font-size:0.78rem; color:var(--subtle);">Partner · ICAI Membership No. <span style="background:#FEF3C7; padding:0.1rem 0.3rem; border-radius:4px;">[XXXXX]</span></div>
+                    <div style="font-size:0.78rem; color:var(--subtle);">Place: Bengaluru · Date: <span style="background:#FEF3C7; padding:0.1rem 0.3rem; border-radius:4px;">[Date]</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-rpt-assurance')">Close</button><button class="btn btn-ghost">Export DOCX</button></div>
+    </div>
+</div>
+
+<!-- Management Letter Preview -->
+<div class="modal-overlay" id="modal-rpt-mgmt">
+    <div class="modal" style="max-width:740px;">
+        <div class="modal-header"><div class="modal-title">📋 Management Letter — Draft Preview</div><button class="modal-close" onclick="closeModal('modal-rpt-mgmt')">&times;</button></div>
+        <div class="modal-body" style="font-size:0.88rem; line-height:1.8; color:var(--ink);">
+            <div style="text-align:center; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:2px solid var(--stroke);">
+                <div style="font-weight:700; font-size:1.1rem;">MANAGEMENT LETTER</div>
+                <div style="color:var(--subtle); font-size:0.82rem;">Engagement AUD-2025-001 · FY 2024-25</div>
+                <div style="margin-top:0.5rem;"><span class="tag tag-amber">DRAFT</span></div>
+            </div>
+            <p style="margin-bottom:1rem;">Dear Management,</p>
+            <p style="margin-bottom:1rem;">In connection with our limited assurance engagement on the GHG Emissions Statement, we wish to bring the following matters to your attention. These findings and recommendations are intended to assist management in strengthening its carbon accounting and reporting processes.</p>
+
+            <div style="border:1.5px solid var(--danger); border-radius:8px; padding:1rem; margin-bottom:1rem;">
+                <div style="font-weight:700; color:var(--danger); margin-bottom:0.3rem;">Finding F-001 — Critical: Diesel Consumption Anomaly</div>
+                <p style="margin-bottom:0.5rem;">Generator diesel consumption at Site 3 in November 2024 (8,500 litres) exceeded the DG set rated capacity (2,500 litres/month) by 340%. This resulted in an unexplained spike in Scope 1 emissions.</p>
+                <p><strong>Recommendation:</strong> Implement automated consumption threshold alerts in TerraCAP, require supervisor approval for entries exceeding ±30% of the rolling 3-month average, and conduct a root cause analysis for the November anomaly.</p>
+            </div>
+
+            <div style="border:1.5px solid var(--warning); border-radius:8px; padding:1rem; margin-bottom:1rem;">
+                <div style="font-weight:700; color:#B7791F; margin-bottom:0.3rem;">Finding F-002 — Major: Incomplete Scope 3 Category 6</div>
+                <p style="margin-bottom:0.5rem;">Rail travel emissions are excluded from the Scope 3 business travel category, leading to an estimated understatement of 12–18 tCO₂e.</p>
+                <p><strong>Recommendation:</strong> Integrate SAP travel module data with TerraCAP to automatically capture all travel modes. Establish quarterly completeness checks for all Scope 3 categories.</p>
+            </div>
+
+            <div style="border:1.5px solid var(--warning); border-radius:8px; padding:1rem; margin-bottom:1rem;">
+                <div style="font-weight:700; color:#B7791F; margin-bottom:0.3rem;">Finding F-003 — Major: Outdated GWP Values for Refrigerants</div>
+                <p style="margin-bottom:0.5rem;">R-410A GWP is calculated using AR4 value (2,088) rather than the current AR6 value (2,256), resulting in an understatement of approximately 7.5 tCO₂e.</p>
+                <p><strong>Recommendation:</strong> Update TerraCAP emission factor library to AR6 GWP values. Implement an annual review process for emission factor currency.</p>
+            </div>
+
+            <div style="border:1.5px solid var(--info); border-radius:8px; padding:1rem; margin-bottom:1rem;">
+                <div style="font-weight:700; color:#2B6CB0; margin-bottom:0.3rem;">Finding F-004 — Minor: BRSR Intensity Denominator</div>
+                <p>Emission intensity is reported using revenue in some sections and production output in others. Standardize to a single primary denominator with supplementary metrics.</p>
+            </div>
+
+            <div style="border:1.5px solid var(--stroke); border-radius:8px; padding:1rem; margin-bottom:1rem;">
+                <div style="font-weight:700; color:var(--subtle); margin-bottom:0.3rem;">Finding F-005 — Observation: Scope 1 Trend Narrative</div>
+                <p>Scope 1 emissions show an 8% year-on-year increase without an accompanying narrative explanation. We recommend including variance analysis narratives for all significant year-on-year changes (>5%).</p>
+            </div>
+
+            <p style="margin-top:1rem; font-weight:700;">Improvement Opportunities</p>
+            <p style="margin-bottom:0.5rem;">Beyond the formal findings above, we note the following opportunities for the Group to strengthen its sustainability reporting maturity:</p>
+            <p style="padding-left:1rem; margin-bottom:0.35rem;">• Implement real-time IoT-based monitoring for fuel consumption at all DG sets to replace manual log entry.</p>
+            <p style="padding-left:1rem; margin-bottom:0.35rem;">• Establish a formal uncertainty assessment methodology for Scope 3 purchased goods estimates.</p>
+            <p style="padding-left:1rem; margin-bottom:1rem;">• Consider transitioning to market-based Scope 2 reporting alongside the current location-based approach.</p>
+            <p>We would be pleased to discuss any of the above matters at your convenience.</p>
+        </div>
+        <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-rpt-mgmt')">Close</button><button class="btn btn-ghost">Export DOCX</button></div>
+    </div>
+</div>
+
+<!-- BRSR Core Verification Report Preview -->
+<div class="modal-overlay" id="modal-rpt-brsr">
+    <div class="modal" style="max-width:740px;">
+        <div class="modal-header"><div class="modal-title">🏆 BRSR Core Verification Report — Draft Preview</div><button class="modal-close" onclick="closeModal('modal-rpt-brsr')">&times;</button></div>
+        <div class="modal-body" style="font-size:0.88rem; line-height:1.8; color:var(--ink);">
+            <div style="text-align:center; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:2px solid var(--stroke);">
+                <div style="font-weight:700; font-size:1.1rem; color:var(--hz-primary);">BRSR CORE — INDEPENDENT VERIFICATION REPORT</div>
+                <div style="font-size:0.85rem;">Principle 6: Environment — Energy & GHG Indicators</div>
+                <div style="color:var(--subtle); font-size:0.82rem;">Acme Manufacturing Ltd · FY 2024-25</div>
+                <div style="margin-top:0.5rem;"><span class="tag tag-amber">DRAFT</span></div>
+            </div>
+
+            <p style="font-weight:700; margin-bottom:0.5rem;">Scope of Verification</p>
+            <p style="margin-bottom:1rem;">This report covers the verification of BRSR Core indicators related to Energy Consumption and GHG Emissions under Principle 6 (Environment) for Acme Manufacturing Ltd (standalone) for the financial year 2024-25, as required by SEBI Circular SEBI/HO/CFD/CFD-SEC-2/P/CIR/2023/122.</p>
+
+            <table class="data-table" style="margin-bottom:1.25rem;">
+                <thead><tr><th>BRSR Indicator</th><th>Reported Value</th><th>Unit</th><th>Verification Status</th></tr></thead>
+                <tbody>
+                    <tr><td>Total energy consumed</td><td>45,280</td><td>GJ</td><td><span class="tag tag-green">✓ Verified</span></td></tr>
+                    <tr><td>Energy from renewable sources</td><td>6,120</td><td>GJ</td><td><span class="tag tag-green">✓ Verified</span></td></tr>
+                    <tr><td>Energy intensity (per ₹ Cr revenue)</td><td>18.4</td><td>GJ/₹Cr</td><td><span class="tag tag-amber">⚠ F-004</span></td></tr>
+                    <tr><td>Scope 1 emissions</td><td>380.3</td><td>tCO₂e</td><td><span class="tag tag-amber">⚠ F-001, F-003</span></td></tr>
+                    <tr><td>Scope 2 emissions</td><td>12.3</td><td>tCO₂e</td><td><span class="tag tag-green">✓ Verified</span></td></tr>
+                    <tr><td>Scope 3 emissions (reported categories)</td><td>8,704.6</td><td>tCO₂e</td><td><span class="tag tag-amber">⚠ F-002</span></td></tr>
+                    <tr><td>GHG intensity (per ₹ Cr revenue)</td><td>3.7</td><td>tCO₂e/₹Cr</td><td><span class="tag tag-amber">⚠ F-004</span></td></tr>
+                </tbody>
+            </table>
+
+            <p style="font-weight:700; margin-bottom:0.5rem;">Verification Findings Summary</p>
+            <p style="margin-bottom:0.5rem;">Of the 50 BRSR Core indicators assessed, <strong>48 indicators were verified without qualification</strong>. Two indicators required qualifications:</p>
+            <p style="padding-left:1rem; margin-bottom:0.35rem;"><strong>Energy intensity & GHG intensity:</strong> Denominator inconsistency (Finding F-004) — revenue-based and production-based denominators used interchangeably. Minor impact on reported values.</p>
+            <p style="padding-left:1rem; margin-bottom:1rem;"><strong>Scope 1:</strong> Diesel anomaly (F-001) and GWP currency (F-003) affect the accuracy of the reported Scope 1 figure by an estimated ±15 tCO₂e.</p>
+
+            <p style="font-weight:700; margin-bottom:0.35rem; color:var(--hz-primary);">Verification Conclusion</p>
+            <p style="padding:0.75rem; background:var(--hz-primary-50); border-radius:8px; margin-bottom:1rem;">Based on our procedures, the BRSR Core disclosures related to Energy and GHG Emissions are, <strong>in all material respects, fairly stated</strong> in accordance with the GHG Protocol and applicable SEBI guidelines, subject to the qualifications noted above.</p>
+
+            <p style="font-size:0.82rem; color:var(--subtle);">This report has been prepared for the Board of Directors of Acme Manufacturing Ltd for the purpose of SEBI BRSR Core compliance and should not be used for any other purpose.</p>
+        </div>
+        <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-rpt-brsr')">Close</button><button class="btn btn-ghost">Export DOCX</button></div>
+    </div>
+</div>
+
+<script>
+    // Navigation
+    function go(screen) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const t = document.getElementById('screen-' + screen);
+        if(t) t.classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        const nav = document.querySelector(`.nav-item[data-screen="${screen}"]`);
+        if(nav) nav.classList.add('active');
+        window.scrollTo(0,0);
+    }
+
+    // Wizard
+    function wizardNext(step) {
+        document.getElementById('wp-'+step).style.display = 'none';
+        document.getElementById('wp-'+(step+1)).style.display = 'block';
+        document.getElementById('ws-'+step).classList.remove('active');
+        document.getElementById('ws-'+step).classList.add('completed');
+        document.getElementById('ws-'+(step+1)).classList.add('active');
+        window.scrollTo(0,0);
+    }
+    function wizardBack(step) {
+        document.getElementById('wp-'+step).style.display = 'none';
+        document.getElementById('wp-'+(step-1)).style.display = 'block';
+        document.getElementById('ws-'+step).classList.remove('active');
+        document.getElementById('ws-'+(step-1)).classList.remove('completed');
+        document.getElementById('ws-'+(step-1)).classList.add('active');
+        window.scrollTo(0,0);
+    }
+
+    function provisionCredentials() {
+        toast('Engagement created successfully! Audit team details sent to Platform Admin for credential provisioning.');
+        setTimeout(() => go('overview'), 1500);
+    }
+
+    // Firm selector
+    function toggleNewFirm(sel) {
+        document.getElementById('new-firm-fields').style.display = sel.value === 'new' ? 'block' : 'none';
+    }
+
+    // Add team row
+    function addTeamRow() {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td><input class="form-input" placeholder="Full name" style="padding:0.4rem 0.6rem;"></td><td><input class="form-input" type="email" placeholder="email@firm.com" style="padding:0.4rem 0.6rem;"></td><td><select class="form-select" style="padding:0.4rem 0.6rem;"><option>Audit Team Member</option><option>Lead Auditor</option><option>Engagement Partner</option><option>EQCR Reviewer</option></select></td><td><button class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">✕</button></td>`;
+        document.getElementById('team-tbody').appendChild(row);
+    }
+
+    // Modals
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    // Toast
+    function toast(msg) {
+        const t = document.createElement('div');
+        t.style.cssText = 'position:fixed;bottom:2rem;right:2rem;background:#2F4F3F;color:white;padding:0.85rem 1.5rem;border-radius:10px;font-size:0.9rem;font-weight:600;box-shadow:0 6px 24px rgba(0,0,0,0.2);z-index:999;font-family:Outfit,sans-serif;animation:fadeUp 0.25s ease;';
+        t.textContent = '✓ ' + msg;
+        document.body.appendChild(t);
+        setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 3500);
+    }
+</script>
+</body>
+</html>
