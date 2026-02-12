@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carbon Credits | TerraCAP</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --hz-primary: #2E6B4A;
+      --hz-primary-light: #3A8A5E;
+      --hz-primary-50: #E8F5EE;
+      --hz-primary-100: #C6E7D4;
+      --hz-dark: #1A3D2C;
+      --hz-accent: #D4A017;
+      --hz-accent-light: #F5DFA0;
+      --ink: #1E293B;
+      --ink-secondary: #475569;
+      --ink-muted: #94A3B8;
+      --bg: #F8FAFB;
+      --bg-alt: #F1F5F3;
+      --card: #FFFFFF;
+      --stroke: #E2E8F0;
+      --stroke-light: #F1F5F9;
+      --success: #16A34A;
+      --success-bg: #DCFCE7;
+      --warning: #EA580C;
+      --warning-bg: #FFF7ED;
+      --danger: #DC2626;
+      --danger-bg: #FEF2F2;
+      --info: #2563EB;
+      --info-bg: #EFF6FF;
+      --purple: #7C3AED;
+      --purple-bg: #F5F3FF;
+      --mono: 'JetBrains Mono', monospace;
+      --radius: 10px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+      --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+    .header { background: var(--hz-dark); color: white; padding: 0 2rem; height: 56px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .logo { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 0.6rem; letter-spacing: -0.02em; }
+    .logo-mark { width: 28px; height: 28px; background: var(--hz-primary); border-radius: 7px; display: grid; place-items: center; font-size: 0.85rem; }
+    .header-right { display: flex; align-items: center; gap: 1.5rem; font-size: 0.85rem; color: rgba(255,255,255,0.7); }
+    .header-right strong { color: white; }
+    .layout { display: flex; min-height: calc(100vh - 56px); }
+    .sidebar { width: 260px; background: white; border-right: 1px solid var(--stroke); padding: 1.25rem 0; flex-shrink: 0; position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto; }
+    .sidebar-label { padding: 0.5rem 1.25rem 0.6rem; font-size: 0.65rem; font-weight: 700; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .sidebar-item { display: flex; align-items: center; gap: 0.7rem; padding: 0.7rem 1.25rem; font-size: 0.875rem; font-weight: 500; color: var(--ink-secondary); cursor: pointer; transition: var(--transition); border-left: 3px solid transparent; }
+    .sidebar-item:hover { background: var(--hz-primary-50); color: var(--hz-primary); }
+    .sidebar-item.active { background: var(--hz-primary-50); color: var(--hz-primary); font-weight: 600; border-left-color: var(--hz-primary); }
+    .sidebar-item .icon { width: 20px; text-align: center; font-size: 1rem; flex-shrink: 0; }
+    .sidebar-badge { margin-left: auto; background: var(--danger); color: white; font-size: 0.65rem; padding: 0.15rem 0.45rem; border-radius: 6px; font-weight: 700; font-family: var(--mono); }
+    .sidebar-divider { height: 1px; background: var(--stroke); margin: 0.75rem 1.25rem; }
+    .main { flex: 1; padding: 2rem 2.5rem; overflow-y: auto; height: calc(100vh - 56px); }
+    .page-header { margin-bottom: 1.75rem; }
+    .page-header h1 { font-size: 1.6rem; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; margin-bottom: 0.3rem; }
+    .page-header p { font-size: 0.9rem; color: var(--ink-secondary); }
+    .screen { display: none; }
+    .screen.active { display: block; animation: fadeUp 0.3s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .hierarchy-banner { background: white; border: 1px solid var(--stroke); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.75rem; display: flex; align-items: center; }
+    .hierarchy-step { flex: 1; display: flex; align-items: center; gap: 0.6rem; position: relative; }
+    .hierarchy-step::after { content: '→'; position: absolute; right: -4px; color: var(--ink-muted); font-size: 1.1rem; }
+    .hierarchy-step:last-child::after { display: none; }
+    .hierarchy-num { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+    .hierarchy-step.completed .hierarchy-num { background: var(--success-bg); color: var(--success); }
+    .hierarchy-step.current .hierarchy-num { background: var(--hz-primary); color: white; }
+    .hierarchy-step.pending .hierarchy-num { background: var(--stroke-light); color: var(--ink-muted); }
+    .hierarchy-text { font-size: 0.8rem; font-weight: 600; line-height: 1.3; }
+    .hierarchy-step.pending .hierarchy-text { color: var(--ink-muted); }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.75rem; }
+    .stat-card { background: white; border: 1px solid var(--stroke); border-radius: var(--radius); padding: 1.25rem; position: relative; transition: var(--transition); overflow: visible; }
+    .stat-card:hover { box-shadow: var(--shadow-md); border-color: var(--hz-primary-100); z-index: 50; }
+    .stat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.6rem; }
+    .stat-label { font-size: 0.78rem; font-weight: 600; color: var(--ink-secondary); text-transform: uppercase; letter-spacing: 0.03em; }
+    .stat-value { font-family: var(--mono); font-size: 1.65rem; font-weight: 700; color: var(--ink); letter-spacing: -0.03em; }
+    .stat-value.danger { color: var(--danger); }
+    .stat-value.success { color: var(--success); }
+    .stat-value.warning { color: var(--warning); }
+    .stat-unit { font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; color: var(--ink-muted); margin-top: 0.2rem; }
+    .stat-indicator { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 4px; margin-top: 0.5rem; }
+    .stat-indicator.up { background: var(--danger-bg); color: var(--danger); }
+
+    /* TOOLTIP: default opens BELOW the trigger */
+    .tip-trigger { width: 18px; height: 18px; background: var(--hz-accent); color: white; border-radius: 50%; display: inline-grid; place-items: center; font-size: 0.65rem; font-weight: 700; font-style: italic; font-family: Georgia, serif; cursor: help; transition: var(--transition); flex-shrink: 0; position: relative; }
+    .tip-trigger:hover { transform: scale(1.15); box-shadow: 0 0 0 3px var(--hz-accent-light); }
+    .tip-content { visibility: hidden; opacity: 0; position: absolute; z-index: 200; top: calc(100% + 10px); left: 50%; transform: translateX(-50%); width: 300px; background: var(--hz-dark); color: white; border-radius: 10px; padding: 1rem 1.15rem; font-size: 0.82rem; line-height: 1.55; font-style: normal; font-family: 'DM Sans', sans-serif; font-weight: 400; box-shadow: var(--shadow-lg); transition: opacity 0.2s, visibility 0.2s; pointer-events: none; }
+    .tip-content::after { content: ''; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); border: 7px solid transparent; border-bottom-color: var(--hz-dark); }
+    .tip-trigger:hover .tip-content { visibility: visible; opacity: 1; }
+    .tip-content strong { display: block; color: var(--hz-accent); font-size: 0.78rem; margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .tip-content .tip-example { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.15); font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+    .tip-trigger.tip-right .tip-content { left: auto; right: 0; transform: none; }
+    .tip-trigger.tip-right .tip-content::after { left: auto; right: 12px; transform: none; }
+    .tip-trigger.tip-left .tip-content { left: 0; transform: none; }
+    .tip-trigger.tip-left .tip-content::after { left: 12px; transform: none; }
+    .tip-trigger.tip-above .tip-content { top: auto; bottom: calc(100% + 10px); }
+    .tip-trigger.tip-above .tip-content::after { bottom: auto; top: 100%; border: 7px solid transparent; border-top-color: var(--hz-dark); border-bottom-color: transparent; }
+
+    .card { background: white; border: 1px solid var(--stroke); border-radius: var(--radius); margin-bottom: 1.5rem; overflow: visible; }
+    .card-header { padding: 1.15rem 1.5rem; border-bottom: 1px solid var(--stroke-light); display: flex; justify-content: space-between; align-items: center; }
+    .card-header h3 { font-size: 1rem; font-weight: 700; color: var(--ink); }
+    .card-body { padding: 1.5rem; }
+
+    /* WATERFALL: +/- around X-axis */
+    .waterfall-container { position: relative; height: 320px; padding: 1rem 0.5rem; }
+    .wf-axis { position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: var(--ink-muted); z-index: 1; }
+    .wf-axis-label { position: absolute; font-size: 0.65rem; font-family: var(--mono); color: var(--ink-muted); }
+    .wf-axis-label.above-label { left: 4px; top: 8px; }
+    .wf-axis-label.below-label { left: 4px; bottom: 8px; }
+    .waterfall { display: flex; align-items: stretch; gap: 6px; height: 100%; position: relative; z-index: 2; }
+    .wf-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+    .wf-value { font-family: var(--mono); font-size: 0.7rem; font-weight: 600; white-space: nowrap; position: absolute; }
+    .wf-bar { width: 100%; max-width: 72px; border-radius: 5px; min-height: 4px; transition: var(--transition); position: absolute; }
+    .wf-bar:hover { filter: brightness(1.1); }
+    .wf-bar.pos { bottom: 50%; border-radius: 5px 5px 0 0; }
+    .wf-bar.neg { top: 50%; border-radius: 0 0 5px 5px; }
+    .wf-label { font-size: 0.68rem; color: var(--ink-secondary); text-align: center; position: absolute; bottom: 4px; line-height: 1.3; font-weight: 500; }
+
+    .strategy-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .strategy-card { border: 1px solid var(--stroke); border-radius: var(--radius); padding: 1.25rem; position: relative; transition: var(--transition); overflow: visible; }
+    .strategy-card:hover { box-shadow: var(--shadow-md); z-index: 50; }
+    .strategy-card.recommended { border-color: var(--hz-primary); box-shadow: 0 0 0 1px var(--hz-primary); }
+    .strategy-card.recommended::before { content: 'RECOMMENDED'; position: absolute; top: -9px; left: 1rem; background: var(--hz-primary); color: white; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.08em; padding: 0.15rem 0.5rem; border-radius: 3px; }
+    .strategy-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.4rem; }
+    .strategy-name { font-weight: 700; font-size: 0.95rem; }
+    .strategy-desc { font-size: 0.8rem; color: var(--ink-secondary); margin-bottom: 1rem; line-height: 1.5; }
+    .strategy-metric { display: flex; justify-content: space-between; padding: 0.4rem 0; font-size: 0.82rem; border-bottom: 1px solid var(--stroke-light); }
+    .strategy-metric:last-child { border-bottom: none; }
+    .strategy-metric span:first-child { color: var(--ink-secondary); }
+    .strategy-metric span:last-child { font-weight: 600; font-family: var(--mono); font-size: 0.8rem; }
+
+    .marketplace-explainer { background: var(--bg-alt); border: 1px solid var(--stroke); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+    .marketplace-explainer h4 { font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--ink); }
+    .marketplace-explainer p { font-size: 0.82rem; color: var(--ink-secondary); line-height: 1.55; margin-bottom: 0.5rem; }
+    .marketplace-logos { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.75rem; }
+    .mkt-logo { display: flex; align-items: center; gap: 0.4rem; background: white; border: 1px solid var(--stroke); border-radius: 6px; padding: 0.35rem 0.7rem; font-size: 0.75rem; font-weight: 600; color: var(--ink-secondary); }
+    .mkt-logo .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .filters-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+    .filter-select { padding: 0.55rem 0.85rem; border: 1px solid var(--stroke); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--ink); background: white; cursor: pointer; transition: var(--transition); }
+    .filter-select:focus { outline: none; border-color: var(--hz-primary); box-shadow: 0 0 0 3px var(--hz-primary-50); }
+    .project-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 1.15rem; }
+    .project-card { background: white; border: 1px solid var(--stroke); border-radius: var(--radius); overflow: hidden; transition: var(--transition); cursor: pointer; }
+    .project-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--hz-primary-100); }
+    .project-banner { height: 100px; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; position: relative; }
+    .project-quality { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); color: white; padding: 0.2rem 0.5rem; border-radius: 5px; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; gap: 0.3rem; }
+    .quality-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .quality-high { background: #22C55E; }
+    .quality-med { background: #F59E0B; }
+    .project-body { padding: 1rem 1.15rem; }
+    .project-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.25rem; }
+    .project-meta { font-size: 0.78rem; color: var(--ink-muted); margin-bottom: 0.6rem; }
+    .project-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.75rem; }
+    .tag { font-size: 0.68rem; font-weight: 600; padding: 0.2rem 0.5rem; border-radius: 4px; white-space: nowrap; }
+    .tag-green { background: var(--success-bg); color: var(--success); }
+    .tag-blue { background: var(--info-bg); color: var(--info); }
+    .tag-purple { background: var(--purple-bg); color: var(--purple); }
+    .tag-orange { background: var(--warning-bg); color: var(--warning); }
+    .project-stats-row { display: flex; justify-content: space-between; padding-top: 0.6rem; border-top: 1px solid var(--stroke-light); }
+    .project-stat-item { text-align: center; }
+    .project-stat-item .val { font-family: var(--mono); font-size: 0.9rem; font-weight: 700; }
+    .project-stat-item .lbl { font-size: 0.68rem; color: var(--ink-muted); }
+    .add-btn { display: block; width: 100%; padding: 0.6rem; margin-top: 0.75rem; background: var(--hz-primary); color: white; border: none; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: var(--transition); }
+    .add-btn:hover { background: var(--hz-primary-light); }
+
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table thead th { text-align: left; padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 700; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 2px solid var(--stroke); background: var(--bg); }
+    .data-table tbody td { padding: 0.85rem 1rem; font-size: 0.875rem; border-bottom: 1px solid var(--stroke-light); vertical-align: middle; }
+    .data-table tbody tr:hover { background: var(--bg); }
+    .data-table .mono { font-family: var(--mono); font-size: 0.82rem; }
+
+    .badge { display: inline-flex; align-items: center; padding: 0.2rem 0.55rem; border-radius: 5px; font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
+    .badge-green { background: var(--success-bg); color: var(--success); }
+    .badge-blue { background: var(--info-bg); color: var(--info); }
+    .badge-orange { background: var(--warning-bg); color: var(--warning); }
+    .badge-red { background: var(--danger-bg); color: var(--danger); }
+    .badge-purple { background: var(--purple-bg); color: var(--purple); }
+
+    .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.15rem; border-radius: 7px; border: none; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: var(--transition); text-decoration: none; }
+    .btn-primary { background: var(--hz-primary); color: white; }
+    .btn-primary:hover { background: var(--hz-primary-light); transform: translateY(-1px); }
+    .btn-outline { background: transparent; color: var(--hz-primary); border: 1.5px solid var(--hz-primary); }
+    .btn-outline:hover { background: var(--hz-primary-50); }
+    .btn-sm { padding: 0.4rem 0.75rem; font-size: 0.78rem; }
+    .btn-danger { background: var(--danger-bg); color: var(--danger); }
+    .btn-danger:hover { background: #FECACA; }
+
+    .progress-track { height: 10px; background: var(--stroke-light); border-radius: 5px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
+
+    .wizard-steps { display: flex; gap: 0; margin-bottom: 2rem; position: relative; }
+    .wizard-steps::before { content: ''; position: absolute; top: 15px; left: 15%; right: 15%; height: 2px; background: var(--stroke); z-index: 0; }
+    .wizard-step { flex: 1; text-align: center; position: relative; z-index: 1; cursor: pointer; }
+    .wizard-dot { width: 32px; height: 32px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 0.8rem; font-weight: 700; margin-bottom: 0.4rem; transition: var(--transition); }
+    .wizard-step.done .wizard-dot { background: var(--success); color: white; }
+    .wizard-step.active .wizard-dot { background: var(--hz-primary); color: white; box-shadow: 0 0 0 4px var(--hz-primary-50); }
+    .wizard-step.pending .wizard-dot { background: var(--stroke); color: var(--ink-muted); }
+    .wizard-label { font-size: 0.72rem; font-weight: 600; }
+    .wizard-step.pending .wizard-label { color: var(--ink-muted); }
+    .wizard-step.done .wizard-label { color: var(--success); }
+
+    .summary-box { background: var(--bg-alt); border: 1px solid var(--stroke); border-radius: var(--radius); padding: 1.25rem; }
+    .summary-row { display: flex; justify-content: space-between; padding: 0.55rem 0; font-size: 0.875rem; }
+    .summary-row + .summary-row { border-top: 1px solid var(--stroke-light); }
+    .summary-row.total { border-top: 2px solid var(--hz-primary); margin-top: 0.35rem; padding-top: 0.75rem; font-weight: 700; font-size: 1rem; }
+    .summary-row .label { color: var(--ink-secondary); }
+    .summary-row .val { font-family: var(--mono); font-weight: 600; }
+
+    .alert { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.85rem 1.15rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1.25rem; line-height: 1.45; }
+    .alert-info { background: var(--info-bg); color: var(--info); border: 1px solid #BFDBFE; }
+    .alert-warn { background: var(--warning-bg); color: #9A3412; border: 1px solid #FED7AA; }
+    .alert-success { background: var(--success-bg); color: #166534; border: 1px solid #BBF7D0; }
+    .alert-icon { flex-shrink: 0; font-size: 1rem; }
+
+    .form-group { margin-bottom: 1.15rem; }
+    .form-label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--ink-secondary); margin-bottom: 0.35rem; }
+    .form-select, .form-input, .form-textarea { width: 100%; padding: 0.6rem 0.85rem; border: 1px solid var(--stroke); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.875rem; color: var(--ink); background: white; transition: var(--transition); }
+    .form-select:focus, .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--hz-primary); box-shadow: 0 0 0 3px var(--hz-primary-50); }
+    .form-textarea { resize: vertical; min-height: 100px; }
+
+    .action-bar { display: flex; justify-content: center; gap: 0.75rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--stroke-light); }
+
+    /* Overlay */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 500; place-items: center; }
+    .overlay.active { display: grid; }
+    .overlay-card { background: white; border-radius: 16px; padding: 2.5rem; max-width: 480px; width: 90%; text-align: center; box-shadow: var(--shadow-lg); animation: overlayIn 0.3s ease; }
+    @keyframes overlayIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    .overlay-icon { width: 64px; height: 64px; background: var(--success-bg); border-radius: 50%; display: grid; place-items: center; font-size: 2rem; margin: 0 auto 1.25rem; }
+    .overlay-card h2 { font-size: 1.35rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--ink); }
+    .overlay-card p { font-size: 0.9rem; color: var(--ink-secondary); line-height: 1.55; margin-bottom: 0.5rem; }
+    .overlay-details { background: var(--bg-alt); border-radius: 8px; padding: 1rem; margin: 1.25rem 0; text-align: left; }
+    .overlay-details .od-row { display: flex; justify-content: space-between; padding: 0.35rem 0; font-size: 0.85rem; }
+    .overlay-details .od-row span:first-child { color: var(--ink-secondary); }
+    .overlay-details .od-row span:last-child { font-weight: 700; font-family: var(--mono); font-size: 0.82rem; }
+
+    .seq-project-card { background: white; border: 1px solid var(--stroke); border-radius: var(--radius); padding: 1.25rem; transition: var(--transition); }
+    .seq-project-card:hover { box-shadow: var(--shadow-md); }
+    .seq-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
+    .seq-title { font-weight: 700; font-size: 1rem; }
+    .seq-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin: 1rem 0; background: var(--bg-alt); border-radius: 8px; padding: 1rem; }
+    .seq-metric-item .seq-val { font-family: var(--mono); font-weight: 700; font-size: 1rem; }
+    .seq-metric-item .seq-lbl { font-size: 0.72rem; color: var(--ink-muted); }
+
+    @media (max-width: 1024px) { .strategy-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) { .sidebar { display: none; } .main { padding: 1.25rem; } .hierarchy-banner { flex-direction: column; gap: 0.75rem; } .hierarchy-step::after { display: none; } }
+  </style>
+</head>
+<body>
+
+<!-- OVERLAY -->
+<div class="overlay" id="retirement-overlay">
+  <div class="overlay-card">
+    <div class="overlay-icon">✅</div>
+    <h2>Retirement Confirmed</h2>
+    <p>Your carbon credits have been permanently retired and removed from active inventory.</p>
+    <div class="overlay-details">
+      <div class="od-row"><span>Credits Retired</span><span id="ov-volume">15,605 tCO₂e</span></div>
+      <div class="od-row"><span>Purpose</span><span id="ov-purpose">Neutralize All Scopes</span></div>
+      <div class="od-row"><span>Reporting Period</span><span>FY 2025</span></div>
+      <div class="od-row"><span>Framework</span><span>SEBI BRSR</span></div>
+      <div class="od-row"><span>Neutralization Coverage</span><span id="ov-pct" style="color:var(--hz-primary);">78%</span></div>
+      <div class="od-row"><span>Certificate ID</span><span id="ov-cert">RET-2025-00147</span></div>
+    </div>
+    <p style="font-size:0.82rem;">📄 Retirement certificate generated and available in<br><strong>Documents → Retirement Certificates</strong></p>
+    <p style="font-size:0.82rem;">📊 Your BRSR report has been automatically updated.</p>
+    <div style="margin-top:1.5rem; display:flex; gap:0.75rem; justify-content:center;">
+      <button class="btn btn-outline" onclick="closeOverlay()">Back to Position</button>
+      <button class="btn btn-primary" onclick="closeOverlay()">View Certificate</button>
+    </div>
+  </div>
+</div>
+
+<div class="header">
+  <div class="logo"><div class="logo-mark">🌱</div> TerraCAP</div>
+  <div class="header-right"><span>FY 2025 Active</span><span>|</span><span><strong>GreenTech Manufacturing Pvt Ltd</strong></span></div>
+</div>
+
+<div class="layout">
+<div class="sidebar">
+  <div class="sidebar-label">Carbon Credits</div>
+  <div class="sidebar-item active" onclick="showScreen('position')"><span class="icon">📊</span> Carbon Position</div>
+  <div class="sidebar-item" onclick="showScreen('strategy')"><span class="icon">🎯</span> Credit Strategy</div>
+  <div class="sidebar-item" onclick="showScreen('sequestration')"><span class="icon">🌱</span> Sequestration Projects</div>
+  <div class="sidebar-item" onclick="showScreen('marketplace')"><span class="icon">🏪</span> Marketplace <span class="sidebar-badge">NEW</span></div>
+  <div class="sidebar-item" onclick="showScreen('portfolio')"><span class="icon">💼</span> My Credits</div>
+  <div class="sidebar-item" onclick="showScreen('retirement')"><span class="icon">✅</span> Retire & Claim</div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-label">Platform</div>
+  <div class="sidebar-item"><span class="icon">📈</span> NetZero Modeller</div>
+  <div class="sidebar-item"><span class="icon">🏠</span> Dashboard</div>
+</div>
+
+<div class="main">
+
+<!-- ══════ SCREEN 1: CARBON POSITION ══════ -->
+<div id="position" class="screen active">
+  <div class="page-header"><h1>Carbon Position Overview</h1><p>Your current emissions gap and credit coverage — powered by your platform emissions data</p></div>
+
+  <div class="hierarchy-banner">
+    <div class="hierarchy-step completed"><div class="hierarchy-num">✓</div><div class="hierarchy-text">Measure<br><span style="font-weight:400;font-size:0.72rem;color:var(--ink-muted)">Platform data</span></div></div>
+    <div class="hierarchy-step completed"><div class="hierarchy-num">✓</div><div class="hierarchy-text">Reduce<br><span style="font-weight:400;font-size:0.72rem;color:var(--ink-muted)">30,000 tCO₂e</span></div></div>
+    <div class="hierarchy-step current"><div class="hierarchy-num">3</div><div class="hierarchy-text">Remove<br><span style="font-weight:400;font-size:0.72rem;color:var(--ink-muted)">Internal projects</span></div></div>
+    <div class="hierarchy-step pending"><div class="hierarchy-num">4</div><div class="hierarchy-text">Offset<br><span style="font-weight:400;font-size:0.72rem;color:var(--ink-muted)">Marketplace</span></div></div>
+    <div class="hierarchy-step pending"><div class="hierarchy-num">5</div><div class="hierarchy-text">Retire<br><span style="font-weight:400;font-size:0.72rem;color:var(--ink-muted)">Claim neutrality</span></div></div>
+  </div>
+
+  <!-- FIX #1: Tooltips open BELOW, with tip-left on first card so they don't clip -->
+  <div class="stats-grid" style="grid-template-columns: repeat(5, 1fr);">
+    <div class="stat-card"><div class="stat-header"><div class="stat-label">Gross Emissions</div><div class="tip-trigger tip-left">i<div class="tip-content"><strong>Gross Emissions</strong>Total GHG output across Scope 1 (direct), Scope 2 (energy), and material Scope 3 (value chain) for the current reporting year, from your TerraCAP emissions inventory.<div class="tip-example">50,000 tCO₂e = 12,500 (S1) + 18,500 (S2) + 19,000 (S3)</div></div></div></div><div class="stat-value">50,000</div><div class="stat-unit">tCO₂e · FY 2025</div></div>
+    <div class="stat-card"><div class="stat-header"><div class="stat-label">Achieved Reductions</div><div class="tip-trigger">i<div class="tip-content"><strong>Achieved Reductions</strong>Verified emission cuts from operational changes — energy efficiency, renewable energy, process optimization, fleet electrification. Permanent reductions already reflected in your inventory.<div class="tip-example">Reductions reduce your gross figure before any credit strategy kicks in.</div></div></div></div><div class="stat-value success">−30,000</div><div class="stat-unit">tCO₂e reduced (60%)</div></div>
+    <div class="stat-card"><div class="stat-header"><div class="stat-label">Residual Emissions</div><div class="tip-trigger">i<div class="tip-content"><strong>Residual Emissions</strong>What remains after all reduction measures — emissions you cannot yet eliminate operationally. This needs to be addressed through carbon credits for neutrality claims.<div class="tip-example">Residual = Gross − Reductions = 50,000 − 30,000 = 20,000 tCO₂e</div></div></div></div><div class="stat-value">20,000</div><div class="stat-unit">tCO₂e remaining</div></div>
+    <div class="stat-card"><div class="stat-header"><div class="stat-label">Credits Held</div><div class="tip-trigger">i<div class="tip-content"><strong>Credits Held</strong>Total carbon credits in your inventory — both self-generated (sequestration projects) and marketplace-purchased. Only active, non-retired credits counted.<div class="tip-example">605 generated + 15,000 purchased = 15,605 tCO₂e available</div></div></div></div><div class="stat-value">15,605</div><div class="stat-unit">tCO₂e available</div></div>
+    <div class="stat-card" style="border-color:var(--danger);"><div class="stat-header"><div class="stat-label">Uncovered Gap</div><div class="tip-trigger tip-right">i<div class="tip-content"><strong>Uncovered Gap</strong>Residual emissions not yet matched by credits. Acquire this volume to achieve full neutrality. Gap = Residual − Credits Held.<div class="tip-example">20,000 − 15,605 = 4,395 tCO₂e still uncovered</div></div></div></div><div class="stat-value danger">4,395</div><div class="stat-unit">tCO₂e to close</div><div class="stat-indicator up">↑ Action needed</div></div>
+  </div>
+
+  <!-- FIX #2: Waterfall with +/- around X axis -->
+  <div class="card">
+    <div class="card-header"><h3>Emissions Waterfall · Path to Net-Zero</h3><div class="tip-trigger tip-right tip-above">i<div class="tip-content"><strong>Waterfall Chart</strong>Positive bars (above axis) = emissions. Negative bars (below) = reductions/credits. The goal: bring net bar to zero.</div></div></div>
+    <div class="card-body">
+      <div class="waterfall-container">
+        <div class="wf-axis"></div>
+        <div class="wf-axis-label above-label">+ Emissions (tCO₂e)</div>
+        <div class="wf-axis-label below-label">− Reductions / Credits</div>
+        <div class="waterfall">
+          <div class="wf-bar-wrap"><div class="wf-value" style="bottom:calc(50% + 126px);">50,000</div><div class="wf-bar pos" style="height:120px; background:#94A3B8;"></div><div class="wf-label">Gross<br>Emissions</div></div>
+          <div class="wf-bar-wrap"><div class="wf-value" style="top:calc(50% + 30px); color:var(--warning);">−10,000</div><div class="wf-bar neg" style="height:24px; background:var(--warning); opacity:0.85;"></div><div class="wf-label">Scope 1<br>Reductions</div></div>
+          <div class="wf-bar-wrap"><div class="wf-value" style="top:calc(50% + 42px); color:var(--warning);">−15,000</div><div class="wf-bar neg" style="height:36px; background:var(--warning); opacity:0.85;"></div><div class="wf-label">Scope 2<br>Reductions</div></div>
+          <div class="wf-bar-wrap"><div class="wf-value" style="top:calc(50% + 18px); color:var(--warning);">−5,000</div><div class="wf-bar neg" style="height:12px; background:var(--warning); opacity:0.85;"></div><div class="wf-label">Scope 3<br>Reductions</div></div>
+          <div class="wf-bar-wrap"><div class="wf-value" style="bottom:calc(50% + 54px);">20,000</div><div class="wf-bar pos" style="height:48px; background:#94A3B8;"></div><div class="wf-label">Residual<br>Emissions</div></div>
+          <div class="wf-bar-wrap"><div class="wf-value" style="top:calc(50% + 10px); color:var(--success);">−605</div><div class="wf-bar neg" style="height:4px; background:var(--success);"></div><div class="wf-label">Generated<br>Credits</div></div>
+          <div class="wf-bar-wrap"><div class="wf-value" style="top:calc(50% + 42px); color:var(--success);">−15,000</div><div class="wf-bar neg" style="height:36px; background:var(--success); opacity:0.85;"></div><div class="wf-label">Purchased<br>Credits</div></div>
+          <div class="wf-bar-wrap"><div class="wf-value" style="bottom:calc(50% + 18px); color:var(--danger);">4,395</div><div class="wf-bar pos" style="height:12px; background:var(--danger);"></div><div class="wf-label">Uncovered<br>Gap</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>Neutrality Coverage</h3><span class="badge badge-orange">78% Covered</span></div>
+    <div class="card-body">
+      <div class="progress-track" style="height:14px; margin-bottom:1rem;"><div class="progress-fill" style="width:78%; background: linear-gradient(90deg, var(--hz-primary), var(--success));"></div></div>
+      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:1rem;">
+        <div><div style="font-size:0.78rem;color:var(--ink-muted);margin-bottom:0.25rem;">Self-Generated</div><div style="font-family:var(--mono);font-weight:700;font-size:1.1rem;">605 <span style="font-size:0.78rem;color:var(--ink-muted);">tCO₂e (3%)</span></div><div style="font-size:0.72rem;color:var(--ink-muted);">1 internal sequestration project</div></div>
+        <div><div style="font-size:0.78rem;color:var(--ink-muted);margin-bottom:0.25rem;">Purchased Credits</div><div style="font-family:var(--mono);font-weight:700;font-size:1.1rem;">15,000 <span style="font-size:0.78rem;color:var(--ink-muted);">tCO₂e (75%)</span></div><div style="font-size:0.72rem;color:var(--ink-muted);">2 marketplace projects</div></div>
+        <div><div style="font-size:0.78rem;color:var(--ink-muted);margin-bottom:0.25rem;">Remaining Gap</div><div style="font-family:var(--mono);font-weight:700;font-size:1.1rem;color:var(--danger);">4,395 <span style="font-size:0.78rem;">tCO₂e (22%)</span></div><div style="font-size:0.72rem;color:var(--ink-muted);">Needs additional credits</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="action-bar"><button class="btn btn-primary" onclick="showScreen('strategy')">View Credit Strategy →</button><button class="btn btn-outline" onclick="showScreen('marketplace')">Browse Marketplace</button></div>
+</div>
+
+<!-- ══════ SCREEN 2: CREDIT STRATEGY ══════ -->
+<div id="strategy" class="screen">
+  <div class="page-header"><h1>Credit Strategy</h1><p>AI-recommended portfolio to close your 4,395 tCO₂e gap — balancing cost, quality, and compliance</p></div>
+  <div class="alert alert-info"><span class="alert-icon">💡</span><div><strong>Mitigation hierarchy applied:</strong> TerraCAP recommends credits only for residual emissions that cannot be further reduced operationally. Your 60% reduction rate exceeds SBTi minimum thresholds.</div></div>
+
+  <!-- FIX #3: Permanence tooltip + strategy card tooltips -->
+  <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;position:relative;z-index:50;">
+    <h3 style="font-size:1rem;">Strategy Options</h3>
+    <div class="tip-trigger">i<div class="tip-content" style="width:340px;"><strong>What is Credit Permanence?</strong>Permanence = how long carbon stays removed. Nature-based (forests, mangroves): 10–40 yrs, reversible by fire/disease/land-use change. Tech-based (biochar, enhanced weathering, DAC): 100–10,000+ yrs, geologically locked. Higher permanence = stronger claim but higher cost. SBTi and ICVCM increasingly require permanence disclosure.</div></div>
+  </div>
+
+  <div class="strategy-grid" style="margin-bottom:1.75rem;">
+    <div class="strategy-card">
+      <div class="strategy-header"><div><div style="font-size:1.2rem;margin-bottom:0.3rem;">🌿</div><div class="strategy-name">Conservative</div></div><div class="tip-trigger tip-right">i<div class="tip-content"><strong>Conservative Strategy</strong>100% nature-based avoidance/removal credits (REDD+, reforestation, cookstoves). Lowest cost but carries reversal risk. Meets current BRSR but may not satisfy tightening CSRD/ISSB rules.<div class="tip-example">Best for: Budget-constrained orgs focused on near-term compliance.</div></div></div></div>
+      <div class="strategy-desc">Low cost, nature-based credits. Meets basic compliance but limited permanence.</div>
+      <div class="strategy-metric"><span>Credit Type</span><span>Nature-based only</span></div><div class="strategy-metric"><span>Avg. Price</span><span>$8/tCO₂e</span></div><div class="strategy-metric"><span>Total Cost</span><span>$35,160</span></div><div class="strategy-metric"><span>Quality Score</span><span>⭐⭐⭐</span></div><div class="strategy-metric"><span>Permanence</span><span>10–25 yrs</span></div><div class="strategy-metric"><span>BRSR Ready</span><span style="color:var(--success)">Yes</span></div>
+    </div>
+    <div class="strategy-card recommended">
+      <div class="strategy-header"><div><div style="font-size:1.2rem;margin-bottom:0.3rem;">⚖️</div><div class="strategy-name">Balanced Portfolio</div></div><div class="tip-trigger tip-right">i<div class="tip-content"><strong>Balanced Strategy</strong>Mixes nature-based (~57%) for co-benefits, tech-removal (~20%) for permanence, plus avoidance (~23%) for SDG alignment. Satisfies current BRSR and anticipated CSRD requirements at reasonable cost.<div class="tip-example">Best for: Strong compliance positioning with manageable cost.</div></div></div></div>
+      <div class="strategy-desc">Optimal mix of nature-based and tech removal credits. Strong compliance positioning.</div>
+      <div class="strategy-metric"><span>Credit Type</span><span>Mixed portfolio</span></div><div class="strategy-metric"><span>Avg. Price</span><span>$14/tCO₂e</span></div><div class="strategy-metric"><span>Total Cost</span><span>$61,530</span></div><div class="strategy-metric"><span>Quality Score</span><span>⭐⭐⭐⭐</span></div><div class="strategy-metric"><span>Permanence</span><span>25–100 yrs</span></div><div class="strategy-metric"><span>BRSR Ready</span><span style="color:var(--success)">Yes</span></div>
+    </div>
+    <div class="strategy-card">
+      <div class="strategy-header"><div><div style="font-size:1.2rem;margin-bottom:0.3rem;">🔬</div><div class="strategy-name">Premium Removal</div></div><div class="tip-trigger tip-right">i<div class="tip-content"><strong>Premium Removal Strategy</strong>100% tech-based removal — DAC, enhanced weathering, biochar. 1,000–10,000+ yr permanence. Most expensive but positions you ahead of regulatory trends. EU taxonomy and SBTi net-zero standard differentiate durable removal.<div class="tip-example">Best for: Climate leaders with net-zero targets or EU/global obligations.</div></div></div></div>
+      <div class="strategy-desc">High-durability engineered removal. Future-proofs against tightening standards.</div>
+      <div class="strategy-metric"><span>Credit Type</span><span>Tech removal</span></div><div class="strategy-metric"><span>Avg. Price</span><span>$120/tCO₂e</span></div><div class="strategy-metric"><span>Total Cost</span><span>$527,400</span></div><div class="strategy-metric"><span>Quality Score</span><span>⭐⭐⭐⭐⭐</span></div><div class="strategy-metric"><span>Permanence</span><span>1000+ yrs</span></div><div class="strategy-metric"><span>BRSR Ready</span><span style="color:var(--success)">Yes</span></div>
+    </div>
+  </div>
+
+  <div class="card"><div class="card-header"><h3>Recommended Portfolio Breakdown</h3><span class="badge badge-green">Balanced Strategy</span></div><div class="card-body">
+    <table class="data-table"><thead><tr><th>Category</th><th>Volume</th><th>%</th><th>Avg Price</th><th>Est. Cost</th><th>Why</th></tr></thead><tbody>
+      <tr><td><span class="badge badge-green">Nature-Based Removal</span></td><td class="mono">2,500 tCO₂e</td><td class="mono">57%</td><td class="mono">$10</td><td class="mono">$25,000</td><td style="font-size:0.8rem;color:var(--ink-secondary);">High co-benefits, accepted by BRSR</td></tr>
+      <tr><td><span class="badge badge-blue">Avoidance</span></td><td class="mono">1,000 tCO₂e</td><td class="mono">23%</td><td class="mono">$8</td><td class="mono">$8,000</td><td style="font-size:0.8rem;color:var(--ink-secondary);">Cost-effective, strong SDG alignment</td></tr>
+      <tr><td><span class="badge badge-purple">Tech Removal</span></td><td class="mono">895 tCO₂e</td><td class="mono">20%</td><td class="mono">$32</td><td class="mono">$28,640</td><td style="font-size:0.8rem;color:var(--ink-secondary);">High permanence, future-proofs for CSRD/ISSB</td></tr>
+    </tbody></table>
+    <div class="summary-box" style="margin-top:1.25rem;"><div class="summary-row"><span class="label">Total Volume</span><span class="val">4,395 tCO₂e</span></div><div class="summary-row"><span class="label">Weighted Avg Price</span><span class="val">$14.02/tCO₂e</span></div><div class="summary-row total"><span class="label">Estimated Total Cost</span><span class="val" style="color:var(--hz-primary);">$61,640</span></div></div>
+  </div></div>
+  <div class="action-bar"><button class="btn btn-outline" onclick="showScreen('position')">← Back to Position</button><button class="btn btn-primary" onclick="showScreen('sequestration')">Sequestration Projects →</button></div>
+</div>
+
+<!-- ══════ SCREEN 3: SEQUESTRATION PROJECTS (#5) ══════ -->
+<div id="sequestration" class="screen">
+  <div class="page-header"><h1>Sequestration Projects</h1><p>Manage your internal carbon removal projects — self-generated credits feed directly into your credit inventory</p></div>
+  <div class="alert alert-info"><span class="alert-icon">🌱</span><div><strong>Self-generated credits carry higher credibility</strong> in BRSR and CSRD reporting as they demonstrate direct climate action. Credits verified through Verra VCS or Gold Standard are automatically added to your inventory upon issuance.</div></div>
+
+  <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+    <div class="stat-card"><div class="stat-header"><div class="stat-label">Active Projects</div><div class="tip-trigger">i<div class="tip-content"><strong>Active Projects</strong>Sequestration initiatives you own that are currently generating or have potential to generate verified carbon credits.</div></div></div><div class="stat-value">3</div><div class="stat-unit">sequestration programs</div></div>
+    <div class="stat-card"><div class="stat-header"><div class="stat-label">Total Capacity</div><div class="tip-trigger">i<div class="tip-content"><strong>Total Capacity</strong>Projected lifetime carbon capture across all projects if they reach full maturity and verification targets.</div></div></div><div class="stat-value">45,000</div><div class="stat-unit">tCO₂e projected lifetime</div></div>
+    <div class="stat-card"><div class="stat-header"><div class="stat-label">Credits Issued</div><div class="tip-trigger">i<div class="tip-content"><strong>Credits Issued</strong>Verified credits formally issued by the certification body, now in your active inventory and available for retirement.</div></div></div><div class="stat-value success">605</div><div class="stat-unit">tCO₂e verified & issued</div></div>
+    <div class="stat-card"><div class="stat-header"><div class="stat-label">Pipeline</div><div class="tip-trigger">i<div class="tip-content"><strong>Pipeline Credits</strong>Credits in the monitoring/verification process. Added to inventory once third-party verification completes.</div></div></div><div class="stat-value warning">2,400</div><div class="stat-unit">tCO₂e awaiting verification</div></div>
+  </div>
+
+  <div class="seq-project-card" style="margin-bottom:1rem;"><div class="seq-header"><div><div class="seq-title">🌳 Karnataka Reforestation Corridor</div><div style="font-size:0.82rem;color:var(--ink-secondary);">Western Ghats, Karnataka · Verra VCS · Started Jan 2022</div></div><span class="badge badge-green">Active · Issuing</span></div><div class="seq-metrics"><div class="seq-metric-item"><div class="seq-val">25,000</div><div class="seq-lbl">tCO₂e capacity</div></div><div class="seq-metric-item"><div class="seq-val" style="color:var(--success)">605</div><div class="seq-lbl">tCO₂e issued</div></div><div class="seq-metric-item"><div class="seq-val" style="color:var(--warning)">1,200</div><div class="seq-lbl">tCO₂e in pipeline</div></div><div class="seq-metric-item"><div class="seq-val">30 yr</div><div class="seq-lbl">crediting period</div></div></div><div style="margin-top:0.75rem;"><div style="font-family:var(--mono);font-weight:700;font-size:0.85rem;color:var(--success);margin-bottom:0.35rem;">7.2% of lifetime capacity issued</div><div class="progress-track"><div class="progress-fill" style="width:7.2%;background:var(--success);"></div></div></div></div>
+
+  <!-- Add Project Button + Form -->
+  <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
+    <button class="btn btn-primary" onclick="toggleSeqForm()" id="seq-form-toggle">+ Add New Sequestration Project</button>
+  </div>
+  <div class="card" id="seq-add-form" style="display:none;border-color:var(--hz-primary);margin-bottom:1rem;">
+    <div class="card-header" style="background:var(--hz-primary-50);"><h3 style="color:var(--hz-primary);">Register New Sequestration Project</h3><button class="btn btn-sm btn-outline" onclick="toggleSeqForm()">✕ Close</button></div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;">
+        <div class="form-group"><label class="form-label">Project Name *</label><input type="text" class="form-input" id="seq-name" placeholder="e.g. Nilgiri Hills Afforestation"></div>
+        <div class="form-group"><label class="form-label">Project Type *</label><select class="form-select" id="seq-type"><option value="">Select type...</option><option>Reforestation / Afforestation</option><option>Agroforestry</option><option>Mangrove / Blue Carbon</option><option>Soil Carbon Sequestration</option><option>Biochar Production</option><option>Enhanced Weathering</option><option>Direct Air Capture (DAC)</option><option>Wetland Restoration</option></select></div>
+        <div class="form-group"><label class="form-label">Location *</label><input type="text" class="form-input" id="seq-location" placeholder="e.g. Western Ghats, Karnataka"></div>
+        <div class="form-group"><label class="form-label">Verification Standard *</label><select class="form-select" id="seq-standard"><option value="">Select standard...</option><option>Verra VCS</option><option>Gold Standard</option><option>ICVCM CCP</option><option>Puro.earth</option><option>CDM / UNFCCC</option><option>Pending Registration</option></select></div>
+        <div class="form-group"><label class="form-label">Estimated Lifetime Capacity (tCO₂e) *</label><input type="number" class="form-input" id="seq-capacity" placeholder="e.g. 15000"></div>
+        <div class="form-group"><label class="form-label">Crediting Period (years) *</label><select class="form-select" id="seq-period"><option value="">Select...</option><option>10 years</option><option>15 years</option><option>20 years</option><option>25 years</option><option>30 years</option><option>40 years</option><option>50+ years</option></select></div>
+        <div class="form-group"><label class="form-label">Project Start Date *</label><input type="date" class="form-input" id="seq-start"></div>
+        <div class="form-group"><label class="form-label">Current Stage *</label><select class="form-select" id="seq-stage"><option value="">Select stage...</option><option>Planning / Feasibility</option><option>Design & Documentation</option><option>Validation (Third-Party Audit)</option><option>Registered / Active</option><option>First Monitoring Period</option><option>Issuing Credits</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Project Description</label><textarea class="form-textarea" id="seq-desc" placeholder="Describe the project's carbon removal methodology, area coverage, species planted (if applicable), and expected co-benefits..." style="min-height:80px;"></textarea></div>
+      <div class="form-group"><label class="form-label">Supporting Documents</label>
+        <div style="border:2px dashed var(--stroke);border-radius:8px;padding:1.5rem;text-align:center;color:var(--ink-muted);font-size:0.85rem;">
+          📎 Drag & drop PDD, validation reports, or land ownership documents here<br>
+          <span style="font-size:0.78rem;">Supported: PDF, DOCX, XLSX (max 25MB each)</span>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:0.75rem;margin-top:0.5rem;">
+        <button class="btn btn-outline" onclick="toggleSeqForm()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitSeqProject()">Register Project</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="seq-project-card" style="margin-bottom:1rem;"><div class="seq-header"><div><div class="seq-title">🌾 Agroforestry Program – Deccan Plateau</div><div style="font-size:0.82rem;color:var(--ink-secondary);">Maharashtra & Telangana · Gold Standard · Started Mar 2023</div></div><span class="badge badge-orange">Active · Monitoring</span></div><div class="seq-metrics"><div class="seq-metric-item"><div class="seq-val">12,000</div><div class="seq-lbl">tCO₂e capacity</div></div><div class="seq-metric-item"><div class="seq-val" style="color:var(--ink-muted)">0</div><div class="seq-lbl">tCO₂e issued</div></div><div class="seq-metric-item"><div class="seq-val" style="color:var(--warning)">800</div><div class="seq-lbl">tCO₂e in pipeline</div></div><div class="seq-metric-item"><div class="seq-val">25 yr</div><div class="seq-lbl">crediting period</div></div></div><div style="margin-top:0.75rem;"><div style="font-family:var(--mono);font-weight:700;font-size:0.85rem;color:var(--warning);margin-bottom:0.35rem;">First issuance expected Q3 2025</div><div class="progress-track"><div class="progress-fill" style="width:3%;background:var(--warning);"></div></div></div></div>
+
+  <div class="seq-project-card" style="margin-bottom:1rem;"><div class="seq-header"><div><div class="seq-title">🌊 Sundarbans Mangrove Conservation</div><div style="font-size:0.82rem;color:var(--ink-secondary);">West Bengal · Verra VCS · Validation Phase · Started Sep 2023</div></div><span class="badge badge-blue">Validation</span></div><div class="seq-metrics"><div class="seq-metric-item"><div class="seq-val">8,000</div><div class="seq-lbl">tCO₂e capacity</div></div><div class="seq-metric-item"><div class="seq-val" style="color:var(--ink-muted)">0</div><div class="seq-lbl">tCO₂e issued</div></div><div class="seq-metric-item"><div class="seq-val" style="color:var(--warning)">400</div><div class="seq-lbl">tCO₂e in pipeline</div></div><div class="seq-metric-item"><div class="seq-val">40 yr</div><div class="seq-lbl">crediting period</div></div></div><div style="margin-top:0.75rem;"><div style="font-family:var(--mono);font-weight:700;font-size:0.85rem;color:var(--info);margin-bottom:0.35rem;">Undergoing third-party validation audit</div><div class="progress-track"><div class="progress-fill" style="width:1%;background:var(--info);"></div></div></div></div>
+
+  <div class="alert alert-success" style="margin-top:1.25rem;"><span class="alert-icon">📊</span><div><strong>Credit flow:</strong> When credits are issued by the verification body, they automatically appear in <em>My Credits → Self-Generated</em> inventory and become available for retirement.</div></div>
+  <div class="action-bar"><button class="btn btn-outline" onclick="showScreen('strategy')">← Credit Strategy</button><button class="btn btn-primary" onclick="showScreen('marketplace')">Browse Marketplace →</button></div>
+</div>
+
+<!-- ══════ SCREEN 4: MARKETPLACE ══════ -->
+<div id="marketplace" class="screen">
+  <div class="page-header"><h1>Credits Marketplace</h1><p>Browse verified carbon credit projects — each rated for quality, permanence, and co-benefits</p></div>
+  <div class="alert alert-warn"><span class="alert-icon">🎯</span><div><strong>Gap to close: 4,395 tCO₂e</strong> — Select projects below to build your portfolio. Credits are reserved until checkout.</div></div>
+
+  <!-- FIX #4: Marketplace explainer with registries -->
+  <div class="marketplace-explainer">
+    <h4>About This Marketplace</h4>
+    <p>TerraCAP aggregates verified carbon credit projects from the world's leading registries and exchanges. Every listed project has been validated and verified by an independent third-party auditor and registered on a recognized standard. Quality ratings (A+ to C) are based on additionality, permanence, co-benefits, verification rigour, and vintage recency. CCTS-eligible projects comply with India's Carbon Credit Trading Scheme.</p>
+    <div class="marketplace-logos">
+      <div class="mkt-logo"><div class="dot" style="background:#2E6B4A;"></div> Verra VCS Registry</div>
+      <div class="mkt-logo"><div class="dot" style="background:#D4A017;"></div> Gold Standard</div>
+      <div class="mkt-logo"><div class="dot" style="background:#2563EB;"></div> ICVCM CCP</div>
+      <div class="mkt-logo"><div class="dot" style="background:#7C3AED;"></div> Puro.earth</div>
+      <div class="mkt-logo"><div class="dot" style="background:#94A3B8;"></div> CDM / UNFCCC</div>
+      <div class="mkt-logo"><div class="dot" style="background:#0EA5E9;"></div> ISOMETRIC</div>
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <select class="filter-select" id="filter-type" onchange="filterProjects()"><option value="">All Credit Types</option><option value="nature">Nature-Based Removal</option><option value="avoidance">Avoidance / Reduction</option><option value="tech">Tech-Based Removal</option></select>
+    <select class="filter-select" id="filter-standard" onchange="filterProjects()"><option value="">All Standards</option><option value="verra">Verra VCS</option><option value="gold">Gold Standard</option><option value="icvcm">ICVCM CCP</option><option value="puro">Puro.earth</option><option value="cdm">CDM</option></select>
+    <select class="filter-select" id="filter-region" onchange="filterProjects()"><option value="">All Regions</option><option value="india">India</option><option value="sea">Southeast Asia</option><option value="africa">Africa</option><option value="latam">Latin America</option></select>
+    <select class="filter-select" id="filter-vintage" onchange="filterProjects()"><option value="">All Vintages</option><option value="2024">2024</option><option value="2023">2023</option><option value="2022">2022</option></select>
+    <select class="filter-select" id="filter-sort" onchange="filterProjects()"><option value="">Sort: Recommended</option><option value="price-asc">Price: Low → High</option><option value="price-desc">Price: High → Low</option><option value="quality">Quality Score</option></select>
+  </div>
+
+  <div class="project-grid" id="project-grid">
+    <div class="project-card" data-type="nature" data-standard="verra" data-region="india" data-vintage="2024" data-price="10" data-quality="5"><div class="project-banner" style="background:linear-gradient(135deg,#059669,#34D399);">🌳<div class="project-quality"><div class="quality-dot quality-high"></div> A+</div></div><div class="project-body"><div class="project-title">Karnataka Reforestation Corridor</div><div class="project-meta">📍 Western Ghats, India · Verra VCS · Vintage 2024</div><div class="project-tags"><span class="tag tag-green">Nature Removal</span><span class="tag tag-blue">SDG 13 · 15</span><span class="tag tag-purple">CCTS Eligible</span></div><div class="project-stats-row"><div class="project-stat-item"><div class="val">2,500</div><div class="lbl">tCO₂e avail.</div></div><div class="project-stat-item"><div class="val">$10</div><div class="lbl">/tCO₂e</div></div><div class="project-stat-item"><div class="val">30yr</div><div class="lbl">permanence</div></div></div><button class="add-btn" onclick="addToCart('Karnataka Reforestation','Nature Removal',2500,10,'A+')">Add to Portfolio</button></div></div>
+    <div class="project-card" data-type="avoidance" data-standard="gold" data-region="india" data-vintage="2023" data-price="8" data-quality="4"><div class="project-banner" style="background:linear-gradient(135deg,#0EA5E9,#38BDF8);">💨<div class="project-quality"><div class="quality-dot quality-high"></div> A</div></div><div class="project-body"><div class="project-title">Tamil Nadu Wind Farm Cluster</div><div class="project-meta">📍 Tamil Nadu, India · Gold Standard · Vintage 2023</div><div class="project-tags"><span class="tag tag-blue">Avoidance</span><span class="tag tag-blue">SDG 7 · 13</span><span class="tag tag-purple">CCTS Eligible</span></div><div class="project-stats-row"><div class="project-stat-item"><div class="val">10,000</div><div class="lbl">tCO₂e avail.</div></div><div class="project-stat-item"><div class="val">$8</div><div class="lbl">/tCO₂e</div></div><div class="project-stat-item"><div class="val">21yr</div><div class="lbl">crediting</div></div></div><button class="add-btn" onclick="addToCart('Tamil Nadu Wind','Avoidance',1000,8,'A')">Add to Portfolio</button></div></div>
+    <div class="project-card" data-type="tech" data-standard="puro" data-region="india" data-vintage="2024" data-price="32" data-quality="5"><div class="project-banner" style="background:linear-gradient(135deg,#D946EF,#A855F7);">🔬<div class="project-quality"><div class="quality-dot quality-high"></div> A+</div></div><div class="project-body"><div class="project-title">Biochar Carbon Removal</div><div class="project-meta">📍 Andhra Pradesh, India · Puro.earth · Vintage 2024</div><div class="project-tags"><span class="tag tag-purple">Tech Removal</span><span class="tag tag-blue">SDG 2 · 13</span><span class="tag tag-orange">Durable 100yr+</span></div><div class="project-stats-row"><div class="project-stat-item"><div class="val">1,200</div><div class="lbl">tCO₂e avail.</div></div><div class="project-stat-item"><div class="val">$32</div><div class="lbl">/tCO₂e</div></div><div class="project-stat-item"><div class="val">100yr+</div><div class="lbl">permanence</div></div></div><button class="add-btn" onclick="addToCart('Biochar Removal','Tech Removal',895,32,'A+')">Add to Portfolio</button></div></div>
+    <div class="project-card" data-type="avoidance" data-standard="gold" data-region="india" data-vintage="2023" data-price="6" data-quality="3"><div class="project-banner" style="background:linear-gradient(135deg,#F59E0B,#FBBF24);">🔥<div class="project-quality"><div class="quality-dot quality-med"></div> B+</div></div><div class="project-body"><div class="project-title">Clean Cookstoves – Rajasthan</div><div class="project-meta">📍 Rajasthan, India · Gold Standard · Vintage 2023</div><div class="project-tags"><span class="tag tag-blue">Avoidance</span><span class="tag tag-blue">SDG 3 · 5 · 13</span><span class="tag tag-green">High Co-benefit</span></div><div class="project-stats-row"><div class="project-stat-item"><div class="val">8,000</div><div class="lbl">tCO₂e avail.</div></div><div class="project-stat-item"><div class="val">$6</div><div class="lbl">/tCO₂e</div></div><div class="project-stat-item"><div class="val">7yr</div><div class="lbl">crediting</div></div></div><button class="add-btn" onclick="addToCart('Clean Cookstoves','Avoidance',3000,6,'B+')">Add to Portfolio</button></div></div>
+    <div class="project-card" data-type="nature" data-standard="verra" data-region="india" data-vintage="2024" data-price="14" data-quality="4"><div class="project-banner" style="background:linear-gradient(135deg,#065F46,#10B981);">🌊<div class="project-quality"><div class="quality-dot quality-high"></div> A</div></div><div class="project-body"><div class="project-title">Sundarbans Mangrove Restoration</div><div class="project-meta">📍 West Bengal, India · Verra VCS · Vintage 2024</div><div class="project-tags"><span class="tag tag-green">Nature Removal</span><span class="tag tag-blue">SDG 14 · 15</span><span class="tag tag-purple">Blue Carbon</span></div><div class="project-stats-row"><div class="project-stat-item"><div class="val">3,000</div><div class="lbl">tCO₂e avail.</div></div><div class="project-stat-item"><div class="val">$14</div><div class="lbl">/tCO₂e</div></div><div class="project-stat-item"><div class="val">40yr</div><div class="lbl">permanence</div></div></div><button class="add-btn" onclick="addToCart('Sundarbans Mangrove','Nature Removal',1500,14,'A')">Add to Portfolio</button></div></div>
+    <div class="project-card" data-type="tech" data-standard="isometric" data-region="india" data-vintage="2024" data-price="85" data-quality="5"><div class="project-banner" style="background:linear-gradient(135deg,#6366F1,#818CF8);">⚙️<div class="project-quality"><div class="quality-dot quality-high"></div> A+</div></div><div class="project-body"><div class="project-title">Enhanced Weathering – Deccan</div><div class="project-meta">📍 Maharashtra, India · ISOMETRIC · Vintage 2024</div><div class="project-tags"><span class="tag tag-purple">Tech Removal</span><span class="tag tag-blue">SDG 2 · 13</span><span class="tag tag-orange">Durable 10,000yr+</span></div><div class="project-stats-row"><div class="project-stat-item"><div class="val">500</div><div class="lbl">tCO₂e avail.</div></div><div class="project-stat-item"><div class="val">$85</div><div class="lbl">/tCO₂e</div></div><div class="project-stat-item"><div class="val">10Kyr+</div><div class="lbl">permanence</div></div></div><button class="add-btn" onclick="addToCart('Enhanced Weathering','Tech Removal',500,85,'A+')">Add to Portfolio</button></div></div>
+    <div id="no-results" style="display:none;grid-column:1/-1;text-align:center;padding:3rem;color:var(--ink-muted);"><div style="font-size:2rem;margin-bottom:0.5rem;">🔍</div><div style="font-weight:600;margin-bottom:0.25rem;">No projects match your filters</div><div style="font-size:0.85rem;">Try adjusting your filter criteria to see more results.</div></div>
+  </div>
+  <div class="action-bar"><button class="btn btn-outline" onclick="showScreen('strategy')">← Strategy</button><button class="btn btn-primary" onclick="showScreen('portfolio')">View My Credits →</button></div>
+</div>
+
+<!-- ══════ SCREEN 5: MY CREDITS ══════ -->
+<div id="portfolio" class="screen">
+  <div class="page-header"><h1>My Credits</h1><p>Unified view of all carbon credits — self-generated and marketplace-acquired</p></div>
+
+  <!-- FIX #6: Standards explainer -->
+  <div class="card" style="border-color:var(--info);margin-bottom:1.5rem;">
+    <div class="card-header" style="background:var(--info-bg);"><h3 style="color:var(--info);">Understanding Verification Standards</h3><div class="tip-trigger">i<div class="tip-content" style="width:340px;"><strong>Why Standards Matter</strong>Verification standards ensure credits represent real, additional, and permanent emission reductions. Without third-party verification, credits have no regulatory or market credibility. SEBI BRSR, CSRD, and CDP all require credits from recognized standards.</div></div></div>
+    <div class="card-body" style="padding:1rem 1.5rem;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+        <div style="padding:0.75rem;background:var(--bg-alt);border-radius:8px;"><div style="font-weight:700;font-size:0.88rem;margin-bottom:0.35rem;color:var(--hz-primary);">Verra VCS</div><div style="font-size:0.78rem;color:var(--ink-secondary);line-height:1.5;">The Verified Carbon Standard — world's most widely used voluntary credit standard. Covers forestry (REDD+), renewable energy, agriculture, and blue carbon. Credits traded on Verra's registry, accepted by BRSR and CDP.</div></div>
+        <div style="padding:0.75rem;background:var(--bg-alt);border-radius:8px;"><div style="font-weight:700;font-size:0.88rem;margin-bottom:0.35rem;color:var(--hz-accent);">Gold Standard</div><div style="font-size:0.78rem;color:var(--ink-secondary);line-height:1.5;">Founded by WWF. Certifies projects delivering verified carbon reductions AND measurable SDG co-benefits. Known for rigorous stakeholder consultation. Strong for renewable energy, cookstove, and water projects.</div></div>
+        <div style="padding:0.75rem;background:var(--bg-alt);border-radius:8px;"><div style="font-weight:700;font-size:0.88rem;margin-bottom:0.35rem;color:var(--purple);">ICVCM CCP</div><div style="font-size:0.78rem;color:var(--ink-secondary);line-height:1.5;">Integrity Council's Core Carbon Principles — highest integrity threshold for additionality, permanence, and quantification. CCP-labelled credits command a premium and are increasingly required by institutional buyers.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+    <div class="stat-card"><div class="stat-header"><div class="stat-label">Total Inventory</div><div class="tip-trigger">i<div class="tip-content"><strong>Total Inventory</strong>Sum of all active, non-retired credits from internal generation and marketplace purchases.</div></div></div><div class="stat-value" id="inv-total">15,605</div><div class="stat-unit">tCO₂e active credits</div></div>
+    <div class="stat-card"><div class="stat-header"><div class="stat-label">Self-Generated</div><div class="tip-trigger">i<div class="tip-content"><strong>Self-Generated Credits</strong>Credits from your sequestration projects. Higher credibility in BRSR. Fed from the Sequestration Projects page.</div></div></div><div class="stat-value">605</div><div class="stat-unit">tCO₂e from 1 project</div></div>
+    <div class="stat-card"><div class="stat-header"><div class="stat-label">Purchased</div><div class="tip-trigger">i<div class="tip-content"><strong>Purchased Credits</strong>Credits from the TerraCAP marketplace — Verra VCS, Gold Standard, and other registries. Accepted for neutrality claims when properly retired.</div></div></div><div class="stat-value" id="inv-purchased">15,000</div><div class="stat-unit">tCO₂e from marketplace</div></div>
+    <div class="stat-card"><div class="stat-header"><div class="stat-label">Gap Coverage</div><div class="tip-trigger">i<div class="tip-content"><strong>Gap Coverage</strong>% of residual emissions matched by credits. 100% = full neutrality claim eligible.</div></div></div><div class="stat-value" id="inv-coverage">78%</div><div class="stat-unit" id="inv-coverage-text">15,605 of 20,000 tCO₂e</div></div>
+  </div>
+
+  <div class="card" id="cart-section" style="display:none;"><div class="card-header"><h3>🛒 New Purchases (Pending Checkout)</h3></div><div class="card-body">
+    <table class="data-table"><thead><tr><th>Project</th><th>Type</th><th>Quality</th><th>Volume</th><th>Price</th><th>Subtotal</th><th></th></tr></thead><tbody id="cart-items"></tbody></table>
+    <div class="summary-box" style="margin-top:1rem;"><div class="summary-row"><span class="label">Cart Volume</span><span class="val" id="cart-volume">0 tCO₂e</span></div><div class="summary-row"><span class="label">Weighted Avg Price</span><span class="val" id="cart-avg">$0/tCO₂e</span></div><div class="summary-row total"><span class="label">Cart Total</span><span class="val" id="cart-total">$0</span></div></div>
+    <div style="text-align:right;margin-top:1rem;"><button class="btn btn-primary" onclick="checkout()">Complete Purchase</button></div>
+  </div></div>
+
+  <div class="card"><div class="card-header"><h3>Credit Inventory</h3></div><div class="card-body" style="padding:0;">
+    <table class="data-table"><thead><tr><th>Source</th><th>Project</th><th>Type</th><th>Standard</th><th>Vintage</th><th>Volume</th><th>Valid Until</th><th>Status</th></tr></thead><tbody>
+      <tr><td><span class="badge badge-orange">Generated</span></td><td style="font-weight:600;">Karnataka Reforestation</td><td>Nature Removal</td><td>Verra VCS</td><td class="mono">2023</td><td class="mono" style="font-weight:700;">605 tCO₂e</td><td class="mono">Dec 2028</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><span class="badge badge-blue">Purchased</span></td><td style="font-weight:600;">Amazon REDD+</td><td>Forestry</td><td>Verra VCS</td><td class="mono">2022</td><td class="mono" style="font-weight:700;">10,000 tCO₂e</td><td class="mono">Dec 2027</td><td><span class="badge badge-green">Active</span></td></tr>
+      <tr><td><span class="badge badge-blue">Purchased</span></td><td style="font-weight:600;">India Wind Energy</td><td>Renewable</td><td>Gold Standard</td><td class="mono">2023</td><td class="mono" style="font-weight:700;">5,000 tCO₂e</td><td class="mono">Dec 2028</td><td><span class="badge badge-green">Active</span></td></tr>
+    </tbody></table>
+  </div></div>
+  <div class="action-bar"><button class="btn btn-outline" onclick="showScreen('marketplace')">← Add More Credits</button><button class="btn btn-primary" onclick="showScreen('retirement')">Retire Credits →</button></div>
+</div>
+
+<!-- ══════ SCREEN 6: RETIRE & CLAIM ══════ -->
+<div id="retirement" class="screen">
+  <div class="page-header"><h1>Retire & Claim</h1><p>Permanently retire credits against a reporting period to make verified carbon neutrality claims</p></div>
+
+  <!-- FIX #8: Wizard with step progression -->
+  <div class="wizard-steps" id="wizard-bar">
+    <div class="wizard-step active" data-step="1"><div class="wizard-dot">1</div><div class="wizard-label">Select Credits</div></div>
+    <div class="wizard-step pending" data-step="2"><div class="wizard-dot">2</div><div class="wizard-label">Allocation</div></div>
+    <div class="wizard-step pending" data-step="3"><div class="wizard-dot">3</div><div class="wizard-label">Claim Statement</div></div>
+    <div class="wizard-step pending" data-step="4"><div class="wizard-dot">4</div><div class="wizard-label">Confirm</div></div>
+  </div>
+
+  <!-- FIX #7: Improved retirement definition with timing -->
+  <div class="alert alert-info"><span class="alert-icon">ℹ️</span><div>
+    <strong>What is credit retirement?</strong> Retiring a carbon credit permanently removes it from circulation and links it to your emissions for a specific period. Once retired, credits cannot be traded, transferred, or reused — they are marked as "retired" on the issuing registry with a unique serial number. <strong>When does it happen?</strong> Retirement is executed immediately upon confirmation in Step 4. The registry is updated in real-time, a certificate is generated, and credits are removed from your active inventory. This is irreversible and required to make legitimate neutrality claims under BRSR, CSRD, and ISSB frameworks.
+  </div></div>
+
+  <!-- Step 1 with tooltip and confirm button -->
+  <div class="card" id="retire-step-1"><div class="card-header"><h3>Step 1 — Select Credits to Retire</h3><div style="display:flex;align-items:center;gap:0.5rem;">
+    <div class="tip-trigger tip-right">i<div class="tip-content" style="width:320px;"><strong>Selecting Credits</strong>Choose which credits to retire and volume from each. Best practice: retire older vintages first (FIFO) to avoid expiry. Mix types (removal + avoidance) for a more defensible claim. Partial retirement is supported.<div class="tip-example">Tip: Include some removal credits alongside avoidance for stronger claims.</div></div></div>
+    <button class="btn btn-sm btn-primary" onclick="completeWizardStep(1)">Confirm Selection ✓</button>
+  </div></div><div class="card-body" style="padding:0;">
+    <table class="data-table"><thead><tr><th style="width:40px;"><input type="checkbox" id="select-all" onchange="toggleSelectAll()" checked></th><th>Project</th><th>Source</th><th>Available</th><th>Vintage</th><th style="width:140px;">Volume to Retire</th></tr></thead><tbody>
+      <tr><td><input type="checkbox" class="retire-cb" data-id="amazon" checked></td><td style="font-weight:600;">Amazon REDD+</td><td><span class="badge badge-blue">Purchased</span></td><td class="mono">10,000 tCO₂e</td><td class="mono">2022</td><td><input type="number" class="form-input" id="retire-amazon" value="10000" max="10000" min="0" oninput="updateRetireTotal()" style="width:120px;text-align:right;font-family:var(--mono);"></td></tr>
+      <tr><td><input type="checkbox" class="retire-cb" data-id="karnataka" checked></td><td style="font-weight:600;">Karnataka Reforestation</td><td><span class="badge badge-orange">Generated</span></td><td class="mono">605 tCO₂e</td><td class="mono">2023</td><td><input type="number" class="form-input" id="retire-karnataka" value="605" max="605" min="0" oninput="updateRetireTotal()" style="width:120px;text-align:right;font-family:var(--mono);"></td></tr>
+      <tr><td><input type="checkbox" class="retire-cb" data-id="wind" checked></td><td style="font-weight:600;">India Wind Energy</td><td><span class="badge badge-blue">Purchased</span></td><td class="mono">5,000 tCO₂e</td><td class="mono">2023</td><td><input type="number" class="form-input" id="retire-wind" value="5000" max="5000" min="0" oninput="updateRetireTotal()" style="width:120px;text-align:right;font-family:var(--mono);"></td></tr>
+    </tbody></table>
+  </div></div>
+
+  <!-- Step 2 with tooltip and confirm -->
+  <div class="card" id="retire-step-2"><div class="card-header"><h3>Step 2 — Allocation & Purpose</h3><div style="display:flex;align-items:center;gap:0.5rem;">
+    <div class="tip-trigger tip-right">i<div class="tip-content" style="width:320px;"><strong>Allocation & Purpose</strong>Maps retired credits to a claim type, reporting period, and entity. Determines how retirement appears in disclosures. "Neutralize All Scopes" requires credits ≥ residual emissions. "Net-Zero Aligned" allows partial coverage.<div class="tip-example">"Carbon Neutral Product Claim" allows product-level neutrality without full org coverage.</div></div></div>
+    <button class="btn btn-sm btn-primary" onclick="completeWizardStep(2)">Confirm Allocation ✓</button>
+  </div></div><div class="card-body">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+      <div class="form-group"><label class="form-label">Purpose</label><select class="form-select" id="retire-purpose"><option>Neutralize All Scopes</option><option>Neutralize Scope 1 Only</option><option>Neutralize Scope 2 Only</option><option>Neutralize Scope 3 Only</option><option>Carbon Neutral Product Claim</option><option>Net-Zero Aligned Commitment</option></select></div>
+      <div class="form-group"><label class="form-label">Reporting Period</label><select class="form-select" id="retire-period"><option>FY 2025 (Apr 2024 – Mar 2025)</option><option>FY 2024 (Apr 2023 – Mar 2024)</option><option>CY 2024 (Jan – Dec 2024)</option></select></div>
+      <div class="form-group"><label class="form-label">Entity</label><select class="form-select"><option>Consolidated (All Facilities)</option><option>Manufacturing – Bengaluru</option><option>Manufacturing – Mumbai</option><option>Office – Delhi</option></select></div>
+    </div>
+    <div class="form-group" style="margin-bottom:0;"><label class="form-label">Reporting Framework</label><div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+      <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.85rem;cursor:pointer;"><input type="checkbox" checked> SEBI BRSR</label>
+      <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.85rem;cursor:pointer;"><input type="checkbox"> CSRD / ESRS</label>
+      <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.85rem;cursor:pointer;"><input type="checkbox"> ISSB / IFRS S2</label>
+      <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.85rem;cursor:pointer;"><input type="checkbox"> CDP</label>
+      <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.85rem;cursor:pointer;"><input type="checkbox"> GRI 305</label>
+    </div></div>
+  </div></div>
+
+  <!-- Step 3 with tooltip and confirm -->
+  <div class="card" id="retire-step-3"><div class="card-header"><h3>Step 3 — Claim Statement</h3><div style="display:flex;align-items:center;gap:0.5rem;">
+    <div class="tip-trigger tip-right">i<div class="tip-content" style="width:320px;"><strong>Claim Statement</strong>Appears on your retirement certificate and ESG disclosures. Ensure it accurately reflects credit volume and frameworks. "Carbon neutral" requires 100% coverage; "net-zero aligned" allows partial. Misleading claims risk regulatory action.<div class="tip-example">Auto-generated from Steps 1–2 but can be customized.</div></div></div>
+    <button class="btn btn-sm btn-primary" onclick="completeWizardStep(3)">Confirm Statement ✓</button>
+  </div></div><div class="card-body">
+    <textarea class="form-textarea" id="claim-text" style="min-height:100px;">GreenTech Manufacturing Pvt Ltd has retired 15,605 tCO₂e of verified carbon credits for FY 2025, covering 78% of residual emissions. Credits sourced from Verra VCS and Gold Standard certified forestry and renewable energy projects, supporting SDG 7, 13, and 15. This retirement supports our net-zero aligned commitment under SEBI BRSR reporting.</textarea>
+    <div class="alert alert-warn" style="margin-top:1rem;margin-bottom:0;"><span class="alert-icon">⚠️</span><div><strong>Coverage gap:</strong> Credits cover 78% of residual emissions (15,605 of 20,000 tCO₂e). Use "net-zero aligned" language — full "carbon neutrality" requires 100% coverage.</div></div>
+  </div></div>
+
+  <!-- Step 4: Summary -->
+  <div class="card" id="retire-step-4" style="border-color:var(--hz-primary);"><div class="card-header" style="background:var(--hz-primary-50);"><h3>Step 4 — Retirement Summary</h3></div><div class="card-body">
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem;margin-bottom:1.25rem;">
+      <div><div style="font-size:0.78rem;color:var(--ink-muted);margin-bottom:0.25rem;">Total to Retire</div><div style="font-family:var(--mono);font-size:1.4rem;font-weight:700;" id="retire-total-display">15,605 tCO₂e</div></div>
+      <div><div style="font-size:0.78rem;color:var(--ink-muted);margin-bottom:0.25rem;">Residual Emissions</div><div style="font-family:var(--mono);font-size:1.4rem;font-weight:700;">20,000 tCO₂e</div></div>
+      <div><div style="font-size:0.78rem;color:var(--ink-muted);margin-bottom:0.25rem;">Net After Retirement</div><div style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--warning);" id="retire-net-display">4,395 tCO₂e</div></div>
+      <div><div style="font-size:0.78rem;color:var(--ink-muted);margin-bottom:0.25rem;">Neutralization Coverage</div><div style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--hz-primary);" id="retire-pct-display">78%</div></div>
+    </div>
+    <div class="progress-track" style="margin-bottom:0.5rem;"><div class="progress-fill" id="retire-progress" style="width:78%;background:linear-gradient(90deg,var(--hz-primary),var(--success));"></div></div>
+    <div style="font-size:0.78rem;color:var(--ink-muted);text-align:center;">Neutralization coverage</div>
+  </div></div>
+
+  <div class="action-bar"><button class="btn btn-outline" onclick="showScreen('portfolio')">← Back to Credits</button><button class="btn btn-primary" onclick="confirmRetirement()" style="background:var(--success);">✅ Confirm Retirement</button></div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /layout -->
+
+<script>
+let cart = [];
+const RESIDUAL = 20000;
+const EXISTING_CREDITS = 15605;
+let wizardCompleted = { 1: false, 2: false, 3: false };
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(n => n.classList.remove('active'));
+  const screen = document.getElementById(id);
+  if (screen) screen.classList.add('active');
+  const map = { position:0, strategy:1, sequestration:2, marketplace:3, portfolio:4, retirement:5 };
+  const items = document.querySelectorAll('.sidebar-item');
+  if (map[id] !== undefined && items[map[id]]) items[map[id]].classList.add('active');
+  document.querySelector('.main').scrollTop = 0;
+  if (id === 'retirement') { wizardCompleted = { 1:false, 2:false, 3:false }; updateWizardUI(); }
+}
+
+function completeWizardStep(step) {
+  wizardCompleted[step] = true;
+  updateWizardUI();
+  const nextEl = document.getElementById('retire-step-' + (step + 1));
+  if (nextEl) nextEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function updateWizardUI() {
+  const steps = document.querySelectorAll('.wizard-step');
+  steps.forEach((el, idx) => {
+    const n = idx + 1;
+    el.classList.remove('done','active','pending');
+    if (n <= 3 && wizardCompleted[n]) { el.classList.add('done'); el.querySelector('.wizard-dot').textContent = '✓'; }
+    else if (n === 4 && wizardCompleted[1] && wizardCompleted[2] && wizardCompleted[3]) { el.classList.add('active'); el.querySelector('.wizard-dot').textContent = '4'; }
+    else {
+      let first = 4;
+      for (let i = 1; i <= 3; i++) { if (!wizardCompleted[i]) { first = i; break; } }
+      el.classList.add(n === first ? 'active' : 'pending');
+      el.querySelector('.wizard-dot').textContent = n;
+    }
+  });
+}
+
+function addToCart(name, type, volume, price, quality) {
+  if (cart.find(i => i.name === name)) { alert('Already in portfolio.'); return; }
+  cart.push({ name, type, volume, price, quality });
+  updateCart(); showScreen('portfolio');
+}
+function removeFromCart(name) { cart = cart.filter(i => i.name !== name); updateCart(); }
+function updateCart() {
+  const section = document.getElementById('cart-section');
+  const tbody = document.getElementById('cart-items');
+  if (cart.length === 0) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  tbody.innerHTML = cart.map(item => '<tr><td style="font-weight:600;">'+item.name+'</td><td><span class="badge badge-'+(item.type==='Tech Removal'?'purple':item.type==='Nature Removal'?'green':'blue')+'">'+item.type+'</span></td><td>'+item.quality+'</td><td class="mono">'+item.volume.toLocaleString()+' tCO₂e</td><td class="mono">$'+item.price+'/t</td><td class="mono" style="font-weight:700;">$'+(item.volume*item.price).toLocaleString()+'</td><td><button class="btn btn-danger btn-sm" onclick="removeFromCart(\''+item.name+'\')">Remove</button></td></tr>').join('');
+  const tv = cart.reduce((s,i) => s+i.volume, 0);
+  const tc = cart.reduce((s,i) => s+i.volume*i.price, 0);
+  document.getElementById('cart-volume').textContent = tv.toLocaleString()+' tCO₂e';
+  document.getElementById('cart-avg').textContent = '$'+(tc/tv).toFixed(2)+'/tCO₂e';
+  document.getElementById('cart-total').textContent = '$'+tc.toLocaleString();
+  const tot = EXISTING_CREDITS + tv;
+  const cov = Math.min((tot/RESIDUAL)*100, 100);
+  document.getElementById('inv-total').textContent = tot.toLocaleString();
+  document.getElementById('inv-purchased').textContent = (15000+tv).toLocaleString();
+  document.getElementById('inv-coverage').textContent = Math.round(cov)+'%';
+  document.getElementById('inv-coverage-text').textContent = tot.toLocaleString()+' of '+RESIDUAL.toLocaleString()+' tCO₂e';
+}
+function checkout() {
+  if (cart.length===0) return;
+  const tv = cart.reduce((s,i)=>s+i.volume,0);
+  const tc = cart.reduce((s,i)=>s+i.volume*i.price,0);
+  if (confirm('Confirm purchase of '+tv.toLocaleString()+' tCO₂e for $'+tc.toLocaleString()+'?')) { alert('✓ Purchase complete! '+tv.toLocaleString()+' tCO₂e added to inventory.'); cart=[]; updateCart(); }
+}
+
+function toggleSelectAll() {
+  const c = document.getElementById('select-all').checked;
+  document.querySelectorAll('.retire-cb').forEach(cb => cb.checked = c);
+  updateRetireTotal();
+}
+function updateRetireTotal() {
+  const a = document.querySelector('.retire-cb[data-id="amazon"]').checked ? (parseInt(document.getElementById('retire-amazon').value)||0) : 0;
+  const k = document.querySelector('.retire-cb[data-id="karnataka"]').checked ? (parseInt(document.getElementById('retire-karnataka').value)||0) : 0;
+  const w = document.querySelector('.retire-cb[data-id="wind"]').checked ? (parseInt(document.getElementById('retire-wind').value)||0) : 0;
+  const t = a+k+w, n = RESIDUAL-t, p = Math.min(Math.round((t/RESIDUAL)*100),100);
+  document.getElementById('retire-total-display').textContent = t.toLocaleString()+' tCO₂e';
+  document.getElementById('retire-net-display').textContent = Math.max(n,0).toLocaleString()+' tCO₂e';
+  document.getElementById('retire-net-display').style.color = n<=0?'var(--success)':'var(--warning)';
+  document.getElementById('retire-pct-display').textContent = p+'%';
+  document.getElementById('retire-progress').style.width = p+'%';
+}
+
+function confirmRetirement() {
+  const totalText = document.getElementById('retire-total-display').textContent;
+  const purpose = document.getElementById('retire-purpose').value;
+  const pctText = document.getElementById('retire-pct-display').textContent;
+  if (!confirm('⚠️ PERMANENT ACTION\n\nRetire '+totalText+' for: '+purpose+'\n\nRetired credits cannot be traded or reused. Proceed?')) return;
+  document.getElementById('ov-volume').textContent = totalText;
+  document.getElementById('ov-purpose').textContent = purpose;
+  document.getElementById('ov-pct').textContent = pctText;
+  document.getElementById('ov-cert').textContent = 'RET-2025-'+String(Math.floor(Math.random()*90000)+10000);
+  document.getElementById('retirement-overlay').classList.add('active');
+  wizardCompleted = {1:true,2:true,3:true};
+  document.querySelectorAll('.wizard-step').forEach(el => { el.classList.remove('done','active','pending'); el.classList.add('done'); el.querySelector('.wizard-dot').textContent='✓'; });
+}
+function closeOverlay() { document.getElementById('retirement-overlay').classList.remove('active'); showScreen('position'); }
+
+// Fix #4: Marketplace filtering
+function filterProjects() {
+  const type = document.getElementById('filter-type').value;
+  const standard = document.getElementById('filter-standard').value;
+  const region = document.getElementById('filter-region').value;
+  const vintage = document.getElementById('filter-vintage').value;
+  const sort = document.getElementById('filter-sort').value;
+  const cards = document.querySelectorAll('#project-grid .project-card');
+  let visible = [];
+  cards.forEach(card => {
+    let show = true;
+    if (type && card.dataset.type !== type) show = false;
+    if (standard && card.dataset.standard !== standard) show = false;
+    if (region && card.dataset.region !== region) show = false;
+    if (vintage && card.dataset.vintage !== vintage) show = false;
+    card.style.display = show ? '' : 'none';
+    if (show) visible.push(card);
+  });
+  document.getElementById('no-results').style.display = visible.length === 0 ? 'block' : 'none';
+  // Sorting
+  if (sort && visible.length > 1) {
+    const grid = document.getElementById('project-grid');
+    const allCards = Array.from(grid.querySelectorAll('.project-card'));
+    allCards.sort((a, b) => {
+      if (sort === 'price-asc') return parseFloat(a.dataset.price) - parseFloat(b.dataset.price);
+      if (sort === 'price-desc') return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+      if (sort === 'quality') return parseFloat(b.dataset.quality) - parseFloat(a.dataset.quality);
+      return 0;
+    });
+    allCards.forEach(c => grid.appendChild(c));
+    const noR = document.getElementById('no-results');
+    grid.appendChild(noR);
+  }
+}
+
+// Fix #3: Sequestration form
+function toggleSeqForm() {
+  const form = document.getElementById('seq-add-form');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  if (form.style.display === 'block') form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function submitSeqProject() {
+  const name = document.getElementById('seq-name').value.trim();
+  const type = document.getElementById('seq-type').value;
+  const location = document.getElementById('seq-location').value.trim();
+  const standard = document.getElementById('seq-standard').value;
+  const capacity = document.getElementById('seq-capacity').value;
+  const stage = document.getElementById('seq-stage').value;
+  if (!name || !type || !location || !standard || !capacity || !stage) {
+    alert('Please fill in all required fields (marked with *).');
+    return;
+  }
+  const icons = {'Reforestation / Afforestation':'🌳','Agroforestry':'🌾','Mangrove / Blue Carbon':'🌊','Soil Carbon Sequestration':'🌿','Biochar Production':'🔬','Enhanced Weathering':'⚙️','Direct Air Capture (DAC)':'🏭','Wetland Restoration':'🌊'};
+  const icon = icons[type] || '🌱';
+  // Create new project card
+  const container = document.getElementById('seq-add-form');
+  const newCard = document.createElement('div');
+  newCard.className = 'seq-project-card';
+  newCard.style.marginBottom = '1rem';
+  newCard.innerHTML = '<div class="seq-header"><div><div class="seq-title">'+icon+' '+name+'</div><div style="font-size:0.82rem;color:var(--ink-secondary);">'+location+' · '+standard+' · '+stage+'</div></div><span class="badge badge-blue">'+stage+'</span></div><div class="seq-metrics"><div class="seq-metric-item"><div class="seq-val">'+parseInt(capacity).toLocaleString()+'</div><div class="seq-lbl">tCO₂e capacity</div></div><div class="seq-metric-item"><div class="seq-val" style="color:var(--ink-muted)">0</div><div class="seq-lbl">tCO₂e issued</div></div><div class="seq-metric-item"><div class="seq-val" style="color:var(--ink-muted)">0</div><div class="seq-lbl">tCO₂e in pipeline</div></div><div class="seq-metric-item"><div class="seq-val">—</div><div class="seq-lbl">crediting period</div></div></div><div style="margin-top:0.75rem;"><div style="font-family:var(--mono);font-weight:700;font-size:0.85rem;color:var(--info);margin-bottom:0.35rem;">Project registered — pending validation</div><div class="progress-track"><div class="progress-fill" style="width:0%;background:var(--info);"></div></div></div>';
+  container.parentNode.insertBefore(newCard, container);
+  // Reset form
+  document.getElementById('seq-name').value = '';
+  document.getElementById('seq-type').value = '';
+  document.getElementById('seq-location').value = '';
+  document.getElementById('seq-standard').value = '';
+  document.getElementById('seq-capacity').value = '';
+  document.getElementById('seq-stage').value = '';
+  document.getElementById('seq-start').value = '';
+  document.getElementById('seq-desc').value = '';
+  toggleSeqForm();
+  // Update stat
+  const statEl = document.querySelector('#sequestration .stat-value');
+  if (statEl) statEl.textContent = parseInt(statEl.textContent) + 1;
+  alert('✓ Project "'+name+'" registered successfully! It will appear in your project list and credits will flow to your inventory once verification is complete.');
+}
+
+document.addEventListener('DOMContentLoaded', () => { updateRetireTotal(); updateWizardUI(); });
+</script>
+</body>
+</html>
