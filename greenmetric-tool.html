@@ -1,0 +1,1894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TerraCAP — UI GreenMetric Readiness Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   CSS VARIABLES & RESET
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+  --bg: #F5F6F8;
+  --surface: #FFFFFF;
+  --surface-alt: #F9FAFB;
+  --border: #E2E5EA;
+  --border-light: #EEF0F3;
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --text-muted: #9CA3AF;
+  --green-900: #14412A;
+  --green-800: #1B5E3B;
+  --green-700: #22734A;
+  --green-600: #2D8A5E;
+  --green-500: #34D399;
+  --green-100: #D1FAE5;
+  --green-50: #ECFDF5;
+  --accent: #2D6A4F;
+  --accent-light: #40916C;
+  --orange: #F97316;
+  --orange-bg: #FFF7ED;
+  --red: #EF4444;
+  --red-bg: #FEF2F2;
+  --blue: #3B82F6;
+  --blue-bg: #EFF6FF;
+  --yellow: #EAB308;
+  --yellow-bg: #FEFCE8;
+  --purple: #8B5CF6;
+  --teal: #0D9488;
+  --cat-si: #2D6A4F;
+  --cat-ec: #DC6843;
+  --cat-ws: #7C3AED;
+  --cat-wr: #0891B2;
+  --cat-tr: #D97706;
+  --cat-ed: #1E3A5F;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.08);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --font: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   LAYOUT
+   ═══════════════════════════════════════════════════════════════════ */
+.app-header {
+  background: linear-gradient(135deg, #0F2B1D 0%, #14412A 40%, #1A3345 100%);
+  position: sticky; top: 0; z-index: 100;
+  border-bottom: 2px solid #2D6A4F;
+}
+.header-inner {
+  max-width: 1200px; margin: 0 auto;
+  padding: 16px 28px 0;
+}
+.header-top {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-mark {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: linear-gradient(135deg, #2D6A4F, #52B788);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; color: #fff; font-size: 16px;
+  letter-spacing: -1px;
+}
+.logo-text { font-size: 15px; font-weight: 700; color: #fff; letter-spacing: .3px; }
+.logo-sub { font-size: 9px; color: #6EAA8A; font-weight: 600; letter-spacing: 1.8px; text-transform: uppercase; }
+.tool-badge {
+  background: rgba(45,106,79,0.2); border: 1px solid rgba(45,106,79,0.35);
+  border-radius: var(--radius-sm); padding: 4px 12px;
+  font-size: 10px; color: #6EAA8A; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+}
+.header-title { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+.header-desc { font-size: 12px; color: #6EAA8A; margin-bottom: 12px; line-height: 1.6; }
+
+/* NAVIGATION TABS */
+.nav-tabs {
+  display: flex; gap: 2px;
+  max-width: 1200px; margin: 0 auto; padding: 0 28px;
+}
+.nav-tab {
+  padding: 10px 22px; font-size: 13px; font-weight: 600;
+  color: #6EAA8A; background: transparent; border: none;
+  cursor: pointer; border-bottom: 2px solid transparent;
+  border-radius: 8px 8px 0 0; transition: all .2s;
+  font-family: var(--font);
+}
+.nav-tab:hover { color: #fff; background: rgba(45,106,79,0.15); }
+.nav-tab.active { color: #fff; background: rgba(45,106,79,0.3); border-bottom-color: #52B788; }
+.nav-tab .tab-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(255,255,255,0.1); font-size: 10px; margin-right: 6px;
+  font-weight: 700; font-family: var(--mono);
+}
+.nav-tab.active .tab-num { background: #52B788; color: #0F2B1D; }
+.nav-tab.completed .tab-num { background: #52B788; color: #0F2B1D; }
+.nav-tab.completed .tab-num::after { content: '✓'; }
+
+.main { max-width: 1200px; margin: 0 auto; padding: 24px 28px 60px; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   CARDS
+   ═══════════════════════════════════════════════════════════════════ */
+.card {
+  background: var(--surface); border-radius: var(--radius-lg);
+  border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+  overflow: hidden; margin-bottom: 20px;
+  animation: fadeUp .4s ease both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.card-header {
+  padding: 14px 20px; border-bottom: 1px solid var(--border-light);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+.card-body { padding: 20px; }
+
+/* STEP TAGS */
+.step-tag {
+  display: inline-block; padding: 3px 10px; border-radius: 4px;
+  font-size: 10px; font-weight: 700; letter-spacing: .8px;
+}
+.step-tag.green { background: var(--green-100); color: var(--green-800); }
+.step-tag.orange { background: var(--orange-bg); color: var(--orange); }
+.step-tag.blue { background: var(--blue-bg); color: var(--blue); }
+.step-tag.red { background: var(--red-bg); color: var(--red); }
+.step-tag.purple { background: #F3E8FF; color: var(--purple); }
+.step-tag.yellow { background: var(--yellow-bg); color: #A16207; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   WORKFLOW STEPPER
+   ═══════════════════════════════════════════════════════════════════ */
+.workflow-bar {
+  display: flex; gap: 0; background: var(--surface);
+  border-radius: var(--radius-lg); border: 1px solid var(--border);
+  padding: 6px; margin-bottom: 24px; box-shadow: var(--shadow-sm);
+}
+.wf-step {
+  flex: 1; display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; border-radius: var(--radius-md);
+  cursor: default; position: relative;
+}
+.wf-step.active { background: var(--green-50); }
+.wf-step.done { background: transparent; }
+.wf-num {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; font-family: var(--mono);
+  background: var(--border); color: var(--text-muted); flex-shrink: 0;
+}
+.wf-step.active .wf-num { background: var(--accent); color: #fff; }
+.wf-step.done .wf-num { background: var(--green-500); color: #fff; }
+.wf-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.wf-step.active .wf-label { color: var(--accent); font-weight: 700; }
+.wf-sublabel { font-size: 10px; color: var(--text-muted); }
+.wf-arrow {
+  color: var(--text-muted); font-size: 14px; padding: 0 4px;
+  display: flex; align-items: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FORMS
+   ═══════════════════════════════════════════════════════════════════ */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-group { }
+.form-label {
+  display: block; font-size: 11px; font-weight: 600; color: var(--text-secondary);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;
+}
+.form-input {
+  width: 100%; padding: 9px 12px; font-size: 14px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  background: var(--surface); font-family: var(--font);
+  transition: border-color .2s, box-shadow .2s; outline: none;
+}
+.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45,106,79,0.1); }
+.form-hint { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   CATEGORY CARDS (OVERVIEW)
+   ═══════════════════════════════════════════════════════════════════ */
+.cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.cat-card {
+  padding: 16px; border-radius: var(--radius-md);
+  border: 1px solid var(--border); background: var(--surface-alt);
+  cursor: pointer; transition: all .2s; position: relative; overflow: hidden;
+}
+.cat-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.cat-card .cat-icon { font-size: 22px; margin-bottom: 4px; }
+.cat-card .cat-name { font-size: 13px; font-weight: 700; margin-bottom: 1px; }
+.cat-card .cat-weight { font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
+.cat-card .cat-bar { height: 5px; border-radius: 3px; background: var(--border-light); overflow: hidden; margin-bottom: 6px; }
+.cat-card .cat-fill { height: 100%; border-radius: 3px; transition: width .8s ease; }
+.cat-card .cat-score { display: flex; justify-content: space-between; align-items: baseline; }
+.cat-card .score-val { font-size: 22px; font-weight: 800; }
+.cat-card .score-max { font-size: 11px; color: var(--text-muted); }
+
+/* ═══════════════════════════════════════════════════════════════════
+   HERO SCORE CARD
+   ═══════════════════════════════════════════════════════════════════ */
+.hero-score {
+  background: linear-gradient(135deg, #0F2B1D, #1A3345);
+  border-radius: var(--radius-lg); padding: 28px 32px;
+  color: #fff; margin-bottom: 20px; border: none;
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; align-items: center;
+}
+.hero-score .big-num { font-size: 48px; font-weight: 800; letter-spacing: -2px; line-height: 1; }
+.hero-score .big-pct { font-size: 44px; font-weight: 800; line-height: 1; }
+.hero-score .label-sm { font-size: 10px; font-weight: 700; color: #6EAA8A; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+.hero-score .score-suffix { font-size: 15px; color: #6EAA8A; margin-left: 4px; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   ASSESSMENT LAYOUT
+   ═══════════════════════════════════════════════════════════════════ */
+.assess-layout { display: grid; grid-template-columns: 230px 1fr; gap: 20px; align-items: start; }
+.side-nav { position: sticky; top: 100px; }
+.side-nav-list { display: flex; flex-direction: column; gap: 3px; padding: 8px; }
+.side-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px; border-radius: var(--radius-sm); border: none;
+  cursor: pointer; font-size: 12px; font-weight: 500; font-family: var(--font);
+  color: var(--text-secondary); background: transparent; text-align: left;
+  border-left: 3px solid transparent; transition: all .15s;
+}
+.side-btn:hover { background: var(--surface-alt); }
+.side-btn.active { font-weight: 700; background: var(--green-50); border-left-color: var(--accent); }
+.side-btn .side-icon { font-size: 15px; }
+.side-btn .side-pct { font-size: 10px; color: var(--text-muted); font-family: var(--mono); font-weight: 600; }
+.side-progress { padding: 12px 12px; border-top: 1px solid var(--border-light); }
+
+/* INDICATOR ROW */
+.ind-row {
+  padding: 14px 16px; background: var(--surface-alt);
+  border-radius: var(--radius-md); border: 1px solid var(--border-light);
+  margin-bottom: 12px; transition: border-color .2s;
+}
+.ind-row:hover { border-color: var(--border); }
+.ind-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 3px;
+}
+.ind-id {
+  font-size: 10px; font-weight: 700; font-family: var(--mono);
+  padding: 2px 6px; border-radius: 3px;
+}
+.ind-label { font-size: 13px; font-weight: 600; flex: 1; }
+.ind-pct-tag {
+  font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px;
+}
+.ind-hint {
+  font-size: 11px; color: var(--text-muted); margin-bottom: 10px;
+  padding-left: 2px;
+}
+.ind-controls { display: flex; align-items: center; gap: 12px; }
+.ind-slider {
+  flex: 1; accent-color: var(--accent); height: 4px;
+  cursor: pointer;
+}
+.ind-input {
+  width: 72px; text-align: center; padding: 6px 8px; font-size: 13px;
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-family: var(--mono); font-weight: 600; outline: none;
+  background: var(--surface);
+}
+.ind-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45,106,79,0.1); }
+.ind-max { font-size: 11px; color: var(--text-muted); font-family: var(--mono); white-space: nowrap; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   TOOLTIP
+   ═══════════════════════════════════════════════════════════════════ */
+.tooltip-wrap { position: relative; display: inline-flex; align-items: center; }
+.tooltip-icon {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--border); color: var(--text-muted);
+  font-size: 10px; font-weight: 700; display: inline-flex;
+  align-items: center; justify-content: center; cursor: help;
+  margin-left: 4px; transition: all .15s;
+}
+.tooltip-icon:hover { background: var(--accent); color: #fff; }
+.tooltip-content {
+  display: none; position: absolute; bottom: calc(100% + 8px); left: 50%;
+  transform: translateX(-50%); width: 260px;
+  background: var(--text-primary); color: #fff; padding: 10px 14px;
+  border-radius: var(--radius-sm); font-size: 11px; line-height: 1.5;
+  box-shadow: var(--shadow-lg); z-index: 999;
+}
+.tooltip-content::after {
+  content: ''; position: absolute; top: 100%; left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: var(--text-primary);
+}
+.tooltip-wrap:hover .tooltip-content { display: block; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESULTS / GAP ANALYSIS
+   ═══════════════════════════════════════════════════════════════════ */
+.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.chart-wrap { position: relative; height: 300px; }
+.gap-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; border-radius: var(--radius-md);
+  border: 1px solid var(--border-light); background: var(--surface-alt);
+  margin-bottom: 8px;
+}
+.gap-cat { display: flex; align-items: center; gap: 10px; flex: 1; }
+.gap-cat .gap-icon { font-size: 18px; }
+.gap-cat .gap-name { font-size: 13px; font-weight: 600; }
+.gap-cat .gap-wt { font-size: 10px; color: var(--text-muted); }
+.gap-val { text-align: center; width: 72px; }
+.gap-val .val { font-size: 16px; font-weight: 700; }
+.gap-val .val-label { font-size: 10px; color: var(--text-muted); }
+.gap-delta { text-align: center; width: 90px; }
+.gap-delta .delta-tag { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 4px; display: inline-block; }
+
+/* RECOMMENDATION CARDS */
+.rec-card {
+  padding: 14px 16px; border-radius: var(--radius-md);
+  border: 1px solid var(--border-light); background: var(--surface-alt);
+  margin-bottom: 10px;
+}
+.rec-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+.rec-rank { font-size: 14px; font-weight: 800; color: var(--border); font-family: var(--mono); }
+.rec-gain { font-size: 12px; font-weight: 700; color: var(--accent); margin-left: auto; }
+.rec-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.rec-bar { height: 4px; border-radius: 2px; background: var(--border-light); overflow: hidden; }
+.rec-bar-fill { height: 100%; border-radius: 2px; }
+.rec-meta { display: flex; justify-content: space-between; margin-top: 4px; }
+.rec-meta span { font-size: 10px; color: var(--text-muted); }
+
+/* RANK TABLE */
+.rank-table { width: 100%; border-collapse: collapse; }
+.rank-table th {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-muted); padding: 8px 12px; text-align: left;
+  border-bottom: 2px solid var(--border);
+}
+.rank-table td {
+  padding: 10px 12px; font-size: 13px; border-bottom: 1px solid var(--border-light);
+}
+.rank-table tr:hover { background: var(--surface-alt); }
+.rank-table .rank-num { font-family: var(--mono); font-weight: 700; }
+.rank-table .highlight { background: var(--green-50); font-weight: 700; }
+
+/* BENCHMARK BUTTONS */
+.bm-group { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.bm-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.bm-btn {
+  padding: 5px 14px; border-radius: var(--radius-sm); font-size: 12px;
+  font-weight: 600; border: 1px solid var(--border); background: var(--surface);
+  cursor: pointer; font-family: var(--font); transition: all .15s;
+}
+.bm-btn:hover { border-color: var(--accent); }
+.bm-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 22px; font-size: 13px; font-weight: 700; font-family: var(--font);
+  border: none; border-radius: var(--radius-md); cursor: pointer; transition: all .2s;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--green-800); transform: translateY(-1px); }
+.btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.btn-outline:hover { background: var(--green-50); }
+.btn-ghost { background: #F3F4F6; color: var(--text-secondary); }
+.btn-ghost:hover { background: var(--border); }
+.btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 16px; }
+
+/* TIMELINE */
+.timeline { position: relative; padding-left: 32px; }
+.timeline::before {
+  content: ''; position: absolute; left: 12px; top: 0; bottom: 0;
+  width: 2px; background: var(--border-light);
+}
+.tl-item { position: relative; margin-bottom: 20px; }
+.tl-dot {
+  position: absolute; left: -26px; top: 4px;
+  width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--accent);
+  background: var(--surface);
+}
+.tl-item.done .tl-dot { background: var(--accent); }
+.tl-month { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+.tl-desc { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+/* HIDDEN SECTIONS */
+.section { display: none; }
+.section.active { display: block; }
+
+/* PERSISTENT WORKFLOW BAR */
+.workflow-bar { position: relative; }
+.wf-step { position: relative; }
+.wf-tooltip {
+  display: none; position: absolute; bottom: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%); width: 240px; padding: 10px 14px;
+  background: var(--text-primary); color: #fff; border-radius: var(--radius-sm);
+  font-size: 11px; line-height: 1.5; box-shadow: var(--shadow-lg); z-index: 999;
+  pointer-events: none;
+}
+.wf-tooltip::after {
+  content: ''; position: absolute; top: 100%; left: 50%;
+  transform: translateX(-50%); border: 6px solid transparent;
+  border-top-color: var(--text-primary);
+}
+.wf-step:hover .wf-tooltip { display: block; }
+.wf-step.clickable { cursor: pointer; border-radius: var(--radius-md); transition: background .15s; }
+.wf-step.clickable:hover { background: rgba(45,106,79,0.06); }
+
+/* EVIDENCE UPLOAD */
+.upload-zone {
+  border: 2px dashed var(--border); border-radius: var(--radius-md);
+  padding: 32px; text-align: center; cursor: pointer; transition: all .2s;
+  background: var(--surface-alt);
+}
+.upload-zone:hover { border-color: var(--accent); background: var(--green-50); }
+.upload-icon { font-size: 36px; margin-bottom: 8px; }
+.upload-text { font-size: 13px; color: var(--text-secondary); }
+.upload-hint { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+.file-table { width: 100%; border-collapse: collapse; }
+.file-table th {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-muted); padding: 8px 12px; text-align: left;
+  border-bottom: 2px solid var(--border); background: var(--surface-alt);
+}
+.file-table td { padding: 10px 12px; font-size: 12px; border-bottom: 1px solid var(--border-light); }
+.file-table tr:hover { background: var(--surface-alt); }
+.file-icon { font-size: 16px; margin-right: 6px; vertical-align: middle; }
+.file-name { font-weight: 600; color: var(--text-primary); }
+.file-tag {
+  display: inline-block; padding: 2px 8px; border-radius: 3px;
+  font-size: 10px; font-weight: 700; letter-spacing: .3px;
+}
+.file-action {
+  padding: 4px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--surface); font-size: 11px; cursor: pointer; font-family: var(--font);
+  font-weight: 600; transition: all .15s;
+}
+.file-action:hover { border-color: var(--accent); color: var(--accent); }
+
+/* SUBMIT SECTION */
+.check-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border-radius: var(--radius-md);
+  border: 1px solid var(--border-light); margin-bottom: 8px;
+  background: var(--surface-alt); transition: all .2s;
+}
+.check-item.pass { background: var(--green-50); border-color: #D1FAE5; }
+.check-item.warn { background: var(--yellow-bg); border-color: #FEF08A; }
+.check-item.fail { background: var(--red-bg); border-color: #FECACA; }
+.check-icon { font-size: 18px; flex-shrink: 0; }
+.check-text { flex: 1; }
+.check-label { font-size: 13px; font-weight: 600; }
+.check-desc { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+
+.export-card {
+  padding: 20px; border-radius: var(--radius-md);
+  border: 1px solid var(--border); background: var(--surface-alt);
+  text-align: center; cursor: pointer; transition: all .2s;
+}
+.export-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.export-icon { font-size: 32px; margin-bottom: 8px; }
+.export-title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.export-desc { font-size: 11px; color: var(--text-muted); }
+
+/* ═══════════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .cat-grid { grid-template-columns: 1fr 1fr; }
+  .assess-layout { grid-template-columns: 1fr; }
+  .side-nav { position: static; }
+  .result-grid { grid-template-columns: 1fr; }
+  .hero-score { grid-template-columns: 1fr; text-align: center; }
+  .rank-table { font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════════════════════════════ -->
+<header class="app-header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="logo">
+        <div class="logo-mark">T</div>
+        <div>
+          <div class="logo-text">TerraCAP</div>
+          <div class="logo-sub">Carbon Accounting Platform</div>
+        </div>
+      </div>
+      <span class="tool-badge">🛠️ Assessment Tool · UI GreenMetric</span>
+    </div>
+    <div class="header-title">UI GreenMetric Readiness Assessment</div>
+    <div class="header-desc">
+      Evaluate across 6 categories & 39 indicators · Benchmark against global peers · Prioritized improvement roadmap · Submission-ready data
+    </div>
+  </div>
+  <div class="nav-tabs" id="navTabs">
+    <button class="nav-tab active" onclick="showSection('overview')">
+      <span class="tab-num">1</span> Dashboard
+    </button>
+    <button class="nav-tab" onclick="showSection('assess')">
+      <span class="tab-num">2</span> Assessment
+    </button>
+    <button class="nav-tab" onclick="showSection('results')">
+      <span class="tab-num">3</span> Gap Analysis
+    </button>
+    <button class="nav-tab" onclick="showSection('evidence')">
+      <span class="tab-num">4</span> Evidence Upload
+    </button>
+    <button class="nav-tab" onclick="showSection('submit')">
+      <span class="tab-num">5</span> Submit & Export
+    </button>
+    <button class="nav-tab" onclick="showSection('rankings')">
+      <span class="tab-num">⊞</span> Benchmarks
+    </button>
+    <button class="nav-tab" onclick="showSection('timeline')">
+      <span class="tab-num">⊞</span> Timeline
+    </button>
+  </div>
+</header>
+
+<div class="main">
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     PERSISTENT WORKFLOW STEPPER (visible across all tabs)
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="workflow-bar" id="workflowBar">
+  <div class="wf-step done clickable" onclick="showSection('overview')" id="wf-1">
+    <div class="wf-num">✓</div>
+    <div><div class="wf-label">Profile Setup</div><div class="wf-sublabel">Institution details</div></div>
+    <div class="wf-tooltip"><strong>Step 1 — Profile Setup</strong><br>Enter your institution's basic information: name, campus area, population, and location type. This data is used to normalize per-capita indicators across the assessment.</div>
+  </div>
+  <div class="wf-arrow">›</div>
+  <div class="wf-step active clickable" onclick="showSection('assess')" id="wf-2">
+    <div class="wf-num">2</div>
+    <div><div class="wf-label">Data Collection</div><div class="wf-sublabel">39 indicators · 6 categories</div></div>
+    <div class="wf-tooltip"><strong>Step 2 — Data Collection</strong><br>Score each of the 39 indicators across 6 categories: Setting & Infrastructure (15%), Energy & Climate (21%), Waste (18%), Water (10%), Transportation (18%), Education & Research (18%). Data is collected from facilities, transport, academic affairs, and finance departments.</div>
+  </div>
+  <div class="wf-arrow">›</div>
+  <div class="wf-step clickable" onclick="showSection('results')" id="wf-3">
+    <div class="wf-num">3</div>
+    <div><div class="wf-label">Gap Analysis</div><div class="wf-sublabel">Benchmark & prioritize</div></div>
+    <div class="wf-tooltip"><strong>Step 3 — Gap Analysis</strong><br>Compare your scores against global benchmarks (Top 10, Top 100, Top 500). Identify weak categories and get prioritized improvement recommendations ranked by weighted impact on your total score.</div>
+  </div>
+  <div class="wf-arrow">›</div>
+  <div class="wf-step clickable" onclick="showSection('evidence')" id="wf-4">
+    <div class="wf-num">4</div>
+    <div><div class="wf-label">Evidence Upload</div><div class="wf-sublabel">Supporting documents</div></div>
+    <div class="wf-tooltip"><strong>Step 4 — Evidence Upload</strong><br>Upload supporting documents for each indicator: photos, policy documents, audit reports, certificates, utility bills. Since 2023, UI GreenMetric requires evidence for most indicators. Files are tagged to specific indicators for easy retrieval.</div>
+  </div>
+  <div class="wf-arrow">›</div>
+  <div class="wf-step clickable" onclick="showSection('submit')" id="wf-5">
+    <div class="wf-num">5</div>
+    <div><div class="wf-label">Submit</div><div class="wf-sublabel">Export & submit to UI</div></div>
+    <div class="wf-tooltip"><strong>Step 5 — Submit & Export</strong><br>Review submission readiness checklist, export your data as a GreenMetric-compatible package (CSV + evidence ZIP), and submit through the official UI GreenMetric questionnaire portal. Deadline: October 31 each year.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 1 — DASHBOARD / OVERVIEW
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="section active" id="sec-overview">
+
+  <!-- Institution Profile -->
+  <div class="card" style="animation-delay:.05s">
+    <div class="card-header">
+      <span class="card-title">Institution Profile</span>
+      <span class="step-tag green">STEP 1 — PROFILE</span>
+    </div>
+    <div class="card-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Institution Name</label>
+          <input class="form-input" id="instName" value="Manipal Academy of Higher Education (MAHE)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Campus Area (m²)</label>
+          <input class="form-input" type="number" id="campusArea" value="2428000">
+          <div class="form-hint">MAHE Manipal campus: ~600 acres ≈ 2,428,000 m²</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Campus Population</label>
+          <input class="form-input" type="number" id="campusPop" value="31500">
+          <div class="form-hint">Students + faculty + staff (28,000 students + 2,500 faculty + 1,000 staff)</div>
+        </div>
+      </div>
+      <div class="form-grid" style="margin-top:14px">
+        <div class="form-group">
+          <label class="form-label">Location Type</label>
+          <select class="form-input" id="locType">
+            <option value="urban">Urban</option>
+            <option value="suburban" selected>Suburban</option>
+            <option value="rural">Rural</option>
+          </select>
+          <div class="form-hint">Manipal is classified as suburban in GreenMetric</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Country</label>
+          <input class="form-input" value="India">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Previous GreenMetric Rank (if any)</label>
+          <input class="form-input" id="prevRank" value="120" placeholder="e.g. 120">
+          <div class="form-hint">MAHE: #1 India, #120 Global (2025)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Score -->
+  <div class="hero-score" id="heroScore" style="animation-delay:.1s">
+    <div>
+      <div class="label-sm">Estimated GreenMetric Score</div>
+      <div><span class="big-num" id="totalScoreDisplay">8,400</span><span class="score-suffix">/ 10,000</span></div>
+      <div style="margin-top:8px">
+        <span class="step-tag green" id="totalGradeTag">EXCELLENT</span>
+        <span style="font-size:11px;color:#6EAA8A;margin-left:8px" id="completionText">39/39 indicators (100%)</span>
+      </div>
+    </div>
+    <div style="text-align:center">
+      <div class="label-sm">Overall Performance</div>
+      <div class="big-pct" id="totalPctDisplay" style="color:#52B788">84%</div>
+    </div>
+    <div style="text-align:right">
+      <div class="label-sm">Estimated Global Tier</div>
+      <div style="font-size:28px;font-weight:800" id="tierDisplay">Top 150</div>
+      <div style="font-size:11px;color:#6EAA8A;margin-top:3px">Based on 2025 score distribution</div>
+    </div>
+  </div>
+
+  <!-- Category Cards -->
+  <div class="card" style="animation-delay:.15s">
+    <div class="card-header">
+      <span class="card-title">Category Performance Overview</span>
+      <button class="btn btn-primary" onclick="showSection('assess')">📝 Start Assessment →</button>
+    </div>
+    <div class="card-body">
+      <div class="cat-grid" id="catGrid"></div>
+    </div>
+  </div>
+
+  <!-- Quick Charts Row -->
+  <div class="result-grid" style="animation-delay:.2s">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Score Distribution by Category</span></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="overviewBar"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Year-over-Year Trend (MAHE)</span></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="trendLine"></canvas></div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 2 — ASSESSMENT
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-assess">
+  <div class="assess-layout">
+    <!-- Side Nav -->
+    <div class="card side-nav">
+      <div style="padding:14px 12px 6px;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px">Categories</div>
+      <div class="side-nav-list" id="sideNavList"></div>
+      <div class="side-progress">
+        <div style="font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Overall Progress</div>
+        <div style="height:5px;border-radius:3px;background:var(--border-light);overflow:hidden;margin-bottom:4px">
+          <div id="sideProgressBar" style="height:100%;border-radius:3px;background:var(--accent);width:100%;transition:width .6s"></div>
+        </div>
+        <div id="sideProgressText" style="font-size:11px;color:var(--text-secondary)">39/39 complete</div>
+      </div>
+    </div>
+    <!-- Main Content -->
+    <div id="assessContent"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 3 — GAP ANALYSIS
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-results">
+  <!-- Hero Score (duplicate for this view) -->
+  <div class="hero-score" id="gapHero">
+    <div>
+      <div class="label-sm" id="gapInstName">Manipal Academy of Higher Education (MAHE)</div>
+      <div><span class="big-num" id="gapTotalScore">8,325</span><span class="score-suffix">pts</span></div>
+      <span class="step-tag green" id="gapGrade">EXCELLENT</span>
+    </div>
+    <div style="text-align:center">
+      <div class="label-sm">Performance</div>
+      <div class="big-pct" id="gapPct" style="color:#52B788">83%</div>
+    </div>
+    <div style="text-align:right">
+      <div class="label-sm">Estimated Tier</div>
+      <div style="font-size:28px;font-weight:800" id="gapTier">Top 150</div>
+      <div style="font-size:11px;color:#6EAA8A;margin-top:3px">Based on 2025 distribution</div>
+    </div>
+  </div>
+
+  <!-- Benchmark Selector -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div class="bm-group">
+      <span class="bm-label">Compare against:</span>
+      <button class="bm-btn" onclick="setBenchmark('top10',this)">Top 10</button>
+      <button class="bm-btn active" onclick="setBenchmark('top100',this)">Top 100</button>
+      <button class="bm-btn" onclick="setBenchmark('top500',this)">Top 500</button>
+      <button class="bm-btn" onclick="setBenchmark('average',this)">Global Avg</button>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="result-grid">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Performance Radar</span></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="radarChart"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Your Score vs Benchmark</span></div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="gapBarChart"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- Gap Table -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Gap Analysis by Category</span>
+      <span class="step-tag orange">IDENTIFY GAPS</span>
+    </div>
+    <div class="card-body" id="gapTableBody"></div>
+  </div>
+
+  <!-- Prioritized Recommendations -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Prioritized Improvement Actions</span>
+      <span style="font-size:11px;color:var(--text-muted)">Ranked by weighted impact on overall score</span>
+    </div>
+    <div class="card-body" id="recsBody"></div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-ghost" onclick="showSection('assess')">← Back to Assessment</button>
+    <button class="btn btn-primary" onclick="showSection('evidence')">Continue to Evidence Upload →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 4 — EVIDENCE UPLOAD
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-evidence">
+  <div class="result-grid">
+    <!-- Upload Zone -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Upload Evidence Documents</span>
+        <span class="step-tag purple">STEP 4</span>
+      </div>
+      <div class="card-body">
+        <div class="upload-zone" id="uploadZone">
+          <div class="upload-icon">📁</div>
+          <div class="upload-text"><strong>Drag & drop files here</strong> or click to browse</div>
+          <div class="upload-hint">Accepted: PDF, JPG, PNG, DOCX, XLSX · Max 25 MB per file</div>
+        </div>
+        <div style="margin-top:16px">
+          <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:8px">Tag to Indicator</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <select class="form-input" style="width:auto;font-size:12px" id="evidenceCatSelect">
+              <option value="">Select Category...</option>
+              <option value="SI">🏛️ Setting & Infrastructure</option>
+              <option value="EC">⚡ Energy & Climate Change</option>
+              <option value="WS">♻️ Waste Management</option>
+              <option value="WR">💧 Water Management</option>
+              <option value="TR">🚌 Transportation</option>
+              <option value="ED">📚 Education & Research</option>
+            </select>
+            <select class="form-input" style="width:auto;font-size:12px" id="evidenceIndSelect">
+              <option value="">Select Indicator...</option>
+            </select>
+            <button class="btn btn-primary" style="padding:8px 16px;font-size:12px" onclick="alert('In production, this triggers the file picker and uploads to your TerraCAP evidence vault.')">Upload & Tag</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Evidence Requirements Summary -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Evidence Coverage</span>
+        <span class="tooltip-wrap">
+          <span class="tooltip-icon">?</span>
+          <span class="tooltip-content">UI GreenMetric requires evidence for most indicators since 2023. Indicators without evidence may receive reduced scores during review.</span>
+        </span>
+      </div>
+      <div class="card-body" id="evidenceCoverage"></div>
+    </div>
+  </div>
+
+  <!-- Uploaded Files Table -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Evidence Document Library</span>
+      <div style="display:flex;gap:8px">
+        <select class="form-input" style="width:auto;font-size:11px;padding:5px 10px" id="fileFilter">
+          <option value="all">All Categories</option>
+          <option value="SI">🏛️ SI</option><option value="EC">⚡ EC</option>
+          <option value="WS">♻️ WS</option><option value="WR">💧 WR</option>
+          <option value="TR">🚌 TR</option><option value="ED">📚 ED</option>
+        </select>
+        <button class="btn btn-ghost" style="padding:5px 12px;font-size:11px">↓ Download All</button>
+      </div>
+    </div>
+    <div class="card-body" style="padding:0;overflow-x:auto">
+      <table class="file-table">
+        <thead>
+          <tr><th>File</th><th>Category</th><th>Indicator</th><th>Type</th><th>Size</th><th>Uploaded</th><th>Actions</th></tr>
+        </thead>
+        <tbody id="fileTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Sample Evidence Templates -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Evidence Templates & Samples</span>
+      <span class="tooltip-wrap">
+        <span class="tooltip-icon">?</span>
+        <span class="tooltip-content">Download these templates to standardize your evidence collection. Each template is mapped to GreenMetric indicator requirements.</span>
+      </span>
+    </div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px" id="templateGrid"></div>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-ghost" onclick="showSection('results')">← Back to Gap Analysis</button>
+    <button class="btn btn-primary" onclick="showSection('submit')">Continue to Submit →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 5 — SUBMIT & EXPORT
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-submit">
+  <!-- Submission Readiness -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Submission Readiness Checklist</span>
+      <span class="step-tag blue">STEP 5 — FINAL REVIEW</span>
+    </div>
+    <div class="card-body" id="readinessChecklist"></div>
+  </div>
+
+  <div class="result-grid">
+    <!-- Export Options -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Export Data Package</span></div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="export-card" onclick="alert('Exports all 39 indicator scores as CSV matching the official GreenMetric questionnaire field order.')">
+            <div class="export-icon">📊</div>
+            <div class="export-title">GreenMetric CSV</div>
+            <div class="export-desc">Questionnaire-compatible data export with all 39 indicators in official field order</div>
+          </div>
+          <div class="export-card" onclick="alert('Exports a comprehensive PDF report with scores, gap analysis, charts, and recommendations.')">
+            <div class="export-icon">📄</div>
+            <div class="export-title">Assessment Report (PDF)</div>
+            <div class="export-desc">Full report with scores, benchmarks, gap analysis, charts, and improvement plan</div>
+          </div>
+          <div class="export-card" onclick="alert('Creates a ZIP archive of all evidence documents organized by category and indicator.')">
+            <div class="export-icon">📦</div>
+            <div class="export-title">Evidence Package (ZIP)</div>
+            <div class="export-desc">All uploaded evidence files organized by category/indicator with manifest</div>
+          </div>
+          <div class="export-card" onclick="alert('Exports a summary Excel workbook with score trends, category breakdowns, and peer comparisons.')">
+            <div class="export-icon">📈</div>
+            <div class="export-title">Analytics Workbook (XLSX)</div>
+            <div class="export-desc">Score trends, category breakdowns, peer comparison data, and year-over-year deltas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Submission Portal -->
+    <div class="card">
+      <div class="card-header"><span class="card-title">Submit to UI GreenMetric</span></div>
+      <div class="card-body">
+        <div style="background:var(--blue-bg);border:1px solid #BFDBFE;border-radius:var(--radius-md);padding:16px;margin-bottom:16px">
+          <div style="font-size:13px;font-weight:700;color:#1E40AF;margin-bottom:6px">📋 Official Questionnaire Portal</div>
+          <div style="font-size:12px;color:#3B82F6;line-height:1.6">
+            The official submission is done through UI GreenMetric's online questionnaire portal. TerraCAP prepares your data package; you then enter the values in their portal and upload evidence.<br><br>
+            <a href="https://questionnaire.greenmetric.ui.ac.id" target="_blank" style="color:#1E40AF;font-weight:700;text-decoration:underline">Open GreenMetric Questionnaire Portal →</a>
+          </div>
+        </div>
+
+        <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--text-primary)">Submission Steps</div>
+        <div style="padding-left:4px">
+          <div style="display:flex;gap:10px;margin-bottom:12px;align-items:flex-start">
+            <div style="width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</div>
+            <div><div style="font-size:13px;font-weight:600">Export CSV from TerraCAP</div><div style="font-size:11px;color:var(--text-muted)">Download your scored data in GreenMetric questionnaire format</div></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:12px;align-items:flex-start">
+            <div style="width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</div>
+            <div><div style="font-size:13px;font-weight:600">Log into GreenMetric Portal</div><div style="font-size:11px;color:var(--text-muted)">Use your institution's registered credentials at questionnaire.greenmetric.ui.ac.id</div></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:12px;align-items:flex-start">
+            <div style="width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</div>
+            <div><div style="font-size:13px;font-weight:600">Enter Data & Upload Evidence</div><div style="font-size:11px;color:var(--text-muted)">Transfer values from TerraCAP CSV into each indicator field; upload evidence files</div></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:12px;align-items:flex-start">
+            <div style="width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">4</div>
+            <div><div style="font-size:13px;font-weight:600">Review & Final Submit</div><div style="font-size:11px;color:var(--text-muted)">Cross-verify all entries against TerraCAP assessment, then submit before October 31 deadline</div></div>
+          </div>
+        </div>
+
+        <div style="background:var(--orange-bg);border:1px solid #FED7AA;border-radius:var(--radius-md);padding:12px 16px;margin-top:12px">
+          <div style="font-size:12px;font-weight:700;color:var(--orange)">⚠️ Submission Deadline: October 31, 2026</div>
+          <div style="font-size:11px;color:#9A3412;margin-top:2px">Late submissions are not accepted. We recommend submitting by mid-October to allow time for corrections.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-ghost" onclick="showSection('evidence')">← Back to Evidence Upload</button>
+    <button class="btn btn-primary" onclick="alert('In production, this triggers the full export pipeline: CSV + PDF report + Evidence ZIP')">📦 Export Full Package</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 6 — RANKINGS & BENCHMARKS
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-rankings">
+  <div class="result-grid">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Top Indian Universities — GreenMetric 2024</span></div>
+      <div class="card-body" style="padding:0">
+        <table class="rank-table">
+          <thead><tr><th>Rank</th><th>Institution</th><th>Score</th><th>SI</th><th>EC</th><th>WS</th><th>WR</th><th>TR</th><th>ED</th></tr></thead>
+          <tbody id="indiaRankTable"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Global Top 15 — GreenMetric 2024</span></div>
+      <div class="card-body" style="padding:0">
+        <table class="rank-table">
+          <thead><tr><th>Rank</th><th>Institution</th><th>Country</th><th>Score</th></tr></thead>
+          <tbody id="globalRankTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAHE Historical -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">MAHE — GreenMetric Historical Performance</span></div>
+    <div class="card-body">
+      <div class="result-grid">
+        <div class="chart-wrap" style="height:280px"><canvas id="maheHistoryChart"></canvas></div>
+        <div class="chart-wrap" style="height:280px"><canvas id="maheCategoryTrend"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Peer Comparison Radar -->
+  <div class="card">
+    <div class="card-header"><span class="card-title">Peer Comparison — Indian Universities</span></div>
+    <div class="card-body">
+      <div class="chart-wrap" style="height:320px"><canvas id="peerRadar"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     SECTION 5 — SUBMISSION WORKFLOW
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="section" id="sec-timeline">
+  <div class="result-grid">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Annual Submission Timeline</span>
+        <span class="step-tag blue">2026 CYCLE</span>
+      </div>
+      <div class="card-body">
+        <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:var(--radius-md);padding:14px 16px;margin-bottom:20px">
+          <div style="font-size:13px;font-weight:700;color:#1E40AF;margin-bottom:4px">📢 UI GreenMetric 2026 Info Session — South Asia</div>
+          <div style="font-size:12px;color:#3B82F6;line-height:1.6">
+            <strong>Date:</strong> 27 February 2026 · <strong>Time:</strong> 12:30 – 14:00 IST<br>
+            <strong>Theme:</strong> "Advancing Sustainable Campuses through Governance, Digitalization, and Integrated Performance"<br>
+            <strong>New for 2026:</strong> Updated Governance and Digitalization criteria · 1,745 universities from 105 countries participated in 2025<br>
+            <a href="https://uigreenmetric.com/register/info-session-2026" target="_blank" style="color:#1E40AF;font-weight:700;text-decoration:underline">Register for Info Session →</a>
+          </div>
+        </div>
+        <div class="timeline">
+          <div class="tl-item done"><div class="tl-dot"></div><div class="tl-month">January – April</div><div class="tl-desc"><strong>Internal Data Collection</strong> — Gather data from Facilities, Transport, Academic Affairs, Finance, and Sustainability departments. Use TerraCAP data collection forms for each of the 6 categories.</div></div>
+          <div class="tl-item done"><div class="tl-dot"></div><div class="tl-month">May</div><div class="tl-desc"><strong>GreenMetric Questionnaire Opens</strong> — UI GreenMetric opens the online questionnaire portal. Begin entering data from your TerraCAP assessment.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-month">May – August</div><div class="tl-desc"><strong>Data Entry & Evidence Upload</strong> — Enter all 39 indicators into the GreenMetric questionnaire. Upload evidence documents (photos, reports, policies) tagged to each indicator in TerraCAP.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-month">September</div><div class="tl-desc"><strong>Internal Review & QA</strong> — Cross-verify data across departments. Run TerraCAP gap analysis to identify last-minute improvements. Review evidence completeness.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-month">October 31</div><div class="tl-desc"><strong>Submission Deadline</strong> — Final submission of questionnaire and evidence to UI GreenMetric. Export submission-ready data package from TerraCAP.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-month">November</div><div class="tl-desc"><strong>Review Period</strong> — UI GreenMetric reviewers evaluate submissions. May request clarifications or additional evidence.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-month">December</div><div class="tl-desc"><strong>Results Published</strong> — Rankings announced globally. Compare your results with TerraCAP predictions and plan next year's improvement strategy.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Data Collection Checklist</span></div>
+        <div class="card-body">
+          <div id="checklistBody"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Evidence Requirements</span>
+          <span class="tooltip-wrap">
+            <span class="tooltip-icon">?</span>
+            <span class="tooltip-content">UI GreenMetric requires evidence documents for most indicators since 2023. Evidence can include photos, policy documents, reports, certificates, and audit records.</span>
+          </span>
+        </div>
+        <div class="card-body">
+          <div style="font-size:13px;color:var(--text-secondary);line-height:1.7">
+            <p style="margin-bottom:12px">Each indicator requires supporting evidence. Common evidence types include:</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div style="padding:10px;background:var(--surface-alt);border-radius:var(--radius-sm);border:1px solid var(--border-light)">
+                <strong style="font-size:11px;color:var(--cat-si)">📐 Setting & Infrastructure</strong>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Campus maps, satellite images, zoning plans, budget allocation documents</div>
+              </div>
+              <div style="padding:10px;background:var(--surface-alt);border-radius:var(--radius-sm);border:1px solid var(--border-light)">
+                <strong style="font-size:11px;color:var(--cat-ec)">⚡ Energy & Climate</strong>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Electricity bills, solar installation records, energy audit reports, GHG inventory</div>
+              </div>
+              <div style="padding:10px;background:var(--surface-alt);border-radius:var(--radius-sm);border:1px solid var(--border-light)">
+                <strong style="font-size:11px;color:var(--cat-ws)">♻️ Waste</strong>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Waste audit reports, recycling MoUs, compost facility photos, hazardous waste manifests</div>
+              </div>
+              <div style="padding:10px;background:var(--surface-alt);border-radius:var(--radius-sm);border:1px solid var(--border-light)">
+                <strong style="font-size:11px;color:var(--cat-wr)">💧 Water</strong>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Water bills, rainwater harvesting data, STP reports, water quality test results</div>
+              </div>
+              <div style="padding:10px;background:var(--surface-alt);border-radius:var(--radius-sm);border:1px solid var(--border-light)">
+                <strong style="font-size:11px;color:var(--cat-tr)">🚌 Transportation</strong>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Vehicle registry, shuttle timetables, parking data, EV charging station records, bike-share logs</div>
+              </div>
+              <div style="padding:10px;background:var(--surface-alt);border-radius:var(--radius-sm);border:1px solid var(--border-light)">
+                <strong style="font-size:11px;color:var(--cat-ed)">📚 Education & Research</strong>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Course catalogs, research grant records, publication lists, event photos, sustainability website URLs</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /.main -->
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+     ═══════════════════════════════════════════════════════════════════ -->
+<script>
+// ─── DATA MODEL ──────────────────────────────────────────────────────
+const CATEGORIES = [
+  {
+    id:'SI', name:'Setting & Infrastructure', weight:15, maxScore:1500, icon:'🏛️', color:'#2D6A4F',
+    indicators: [
+      {id:'SI1',label:'Ratio of open space area to total area',max:300,unit:'%',hint:'Total open space ÷ total campus area × 100. MAHE has extensive green coverage across its 600-acre campus.',tip:'Higher ratios score better. Top universities achieve >70% open space.'},
+      {id:'SI2',label:'Area on campus covered in forest',max:200,unit:'m²',hint:'Natural forest area. MAHE sits on the edge of Western Ghats biodiversity zone.',tip:'Measured via satellite imagery. Evidence: geo-tagged photos + campus maps.'},
+      {id:'SI3',label:'Area on campus covered in planted vegetation',max:300,unit:'m²',hint:'Gardens, lawns, planted trees, landscaped areas.',tip:'Include botanical gardens, medicinal plant gardens, and nurseries.'},
+      {id:'SI4',label:'Area on campus for water absorbance',max:200,unit:'m²',hint:'Permeable surfaces, rain gardens, bioswales, ponds.',tip:'Critical for tropical campuses. Include STP outlet areas and recharge pits.'},
+      {id:'SI5',label:'Total open space ÷ campus population',max:300,unit:'m²/person',hint:'Per-capita open space. Higher = better quality campus environment.',tip:'Population includes all students, faculty, staff, and regular visitors.'},
+      {id:'SI6',label:'University budget for sustainable effort',max:200,unit:'% of total',hint:'Dedicated sustainability budget as percentage of total institutional budget.',tip:'Include green building investments, renewable energy capex, and sustainability office budget.'}
+    ]
+  },
+  {
+    id:'EC', name:'Energy & Climate Change', weight:21, maxScore:2100, icon:'⚡', color:'#DC6843',
+    indicators: [
+      {id:'EC1',label:'Energy efficient appliance replacement rate',max:300,unit:'%',hint:'% of conventional appliances replaced with energy-efficient (LED, BEE 5-star, etc.)',tip:'MAHE has progressively replaced lighting with LED. Document before/after with procurement records.'},
+      {id:'EC2',label:'Smart building implementation',max:300,unit:'count',hint:'Buildings with BMS, automated HVAC, occupancy sensors, smart metering.',tip:'MAHE\'s newer buildings include smart systems. Each building counts separately.'},
+      {id:'EC3',label:'Renewable energy sources on campus',max:300,unit:'count',hint:'Solar PV installations, solar water heaters, biogas plants, etc.',tip:'MAHE has rooftop solar across multiple buildings. Count each distinct installation.'},
+      {id:'EC4',label:'Electricity usage per capita (kWh/person)',max:200,unit:'kWh/person',hint:'Total annual electricity ÷ campus population. Lower = better.',tip:'MAHE: ~79.4M kWh for ~31,500 people ≈ 2,521 kWh/person. Includes hospital consumption.'},
+      {id:'EC5',label:'Renewable energy ratio',max:300,unit:'%',hint:'On-site renewable generation ÷ total electricity consumption × 100.',tip:'Include both on-site solar and any offsite renewable PPAs or green energy certificates.'},
+      {id:'EC6',label:'Green building policy implementation',max:200,unit:'scale 1-5',hint:'1=No policy, 3=Partial, 5=Comprehensive green building mandate for all new construction.',tip:'Document green building certifications (IGBC, GRIHA, EDGE) if any.'},
+      {id:'EC7',label:'GHG emission reduction program',max:200,unit:'scale 1-5',hint:'1=None, 3=Basic tracking, 5=Comprehensive with SBTi-aligned targets.',tip:'MAHE tracks Scope 1 (5,921 tCO₂e) and Scope 2 (65,141 tCO₂e). Total: 71,062 tCO₂e.'},
+      {id:'EC8',label:'Carbon footprint per capita',max:300,unit:'tCO₂e/person',hint:'Total GHG emissions ÷ campus population. Lower = better.',tip:'MAHE net emissions: 23,715 tCO₂e after 47,347 tCO₂e offsets. Per capita net: ~0.75 tCO₂e.'}
+    ]
+  },
+  {
+    id:'WS', name:'Waste Management', weight:18, maxScore:1800, icon:'♻️', color:'#7C3AED',
+    indicators: [
+      {id:'WS1',label:'Recycling program for university waste',max:300,unit:'scale 1-5',hint:'1=None, 3=Basic segregation, 5=Comprehensive with tracking & reporting.',tip:'MAHE has waste segregation at source with color-coded bins across campus.'},
+      {id:'WS2',label:'Program to reduce paper and plastic use',max:300,unit:'scale 1-5',hint:'1=None, 3=Partial ban, 5=Institution-wide ban with alternatives.',tip:'MAHE uses e-pads for exams (saved 10,240 metric tons CDE). Document policies.'},
+      {id:'WS3',label:'Organic waste treatment',max:300,unit:'scale 1-5',hint:'1=None, 3=Partial composting, 5=Full composting/biogas with monitoring.',tip:'MAHE has vermi-composting and organic waste converters on campus.'},
+      {id:'WS4',label:'Inorganic waste treatment',max:300,unit:'scale 1-5',hint:'1=None, 3=Basic sorting, 5=Full recycling partnerships with tracking.',tip:'Include e-waste, construction debris, and general recyclables programs.'},
+      {id:'WS5',label:'Toxic waste handling',max:300,unit:'scale 1-5',hint:'1=No process, 3=Basic disposal, 5=Certified with full audit trail.',tip:'Critical for MAHE given hospital/medical waste. Requires biomedical waste management certification.'},
+      {id:'WS6',label:'Sewerage disposal',max:300,unit:'scale 1-5',hint:'1=No treatment, 3=Primary treatment, 5=Advanced STP with reuse.',tip:'MAHE has sewage treatment plants. Treated water is reused for gardens. Get STP reports.'}
+    ]
+  },
+  {
+    id:'WR', name:'Water Management', weight:10, maxScore:1000, icon:'💧', color:'#0891B2',
+    indicators: [
+      {id:'WR1',label:'Water conservation program',max:300,unit:'scale 1-5',hint:'1=None, 3=Basic awareness, 5=Comprehensive with targets, monitoring & reporting.',tip:'Include rainwater harvesting, groundwater recharge, and water audit findings.'},
+      {id:'WR2',label:'Water recycling program',max:300,unit:'scale 1-5',hint:'1=None, 3=Some greywater reuse, 5=Full greywater + rainwater harvesting active.',tip:'MAHE recycles STP output for gardens. Quantify volume recycled monthly.'},
+      {id:'WR3',label:'Water efficient appliances coverage',max:200,unit:'% coverage',hint:'% of campus water fixtures replaced with low-flow taps, dual-flush toilets, etc.',tip:'Audit all buildings. Newer MAHE buildings likely have efficient fixtures.'},
+      {id:'WR4',label:'Treated water consumed',max:200,unit:'% of total',hint:'% of campus water consumption that comes from treated/recycled sources.',tip:'Calculate: treated water volume ÷ total water consumption × 100.'}
+    ]
+  },
+  {
+    id:'TR', name:'Transportation', weight:18, maxScore:1800, icon:'🚌', color:'#D97706',
+    indicators: [
+      {id:'TR1',label:'Vehicle-to-population ratio',max:200,unit:'ratio',hint:'(Cars + motorcycles on campus) ÷ campus population. Lower = better.',tip:'MAHE is a self-contained campus town — many walk. Count registered vehicles only.'},
+      {id:'TR2',label:'Shuttle service availability',max:250,unit:'scale 1-5',hint:'1=None, 3=Limited routes, 5=Comprehensive EV shuttle covering all campus zones.',tip:'Include frequency, route coverage, and vehicle type (electric preferred).'},
+      {id:'TR3',label:'Zero Emission Vehicle (ZEV) policy',max:350,unit:'scale 1-5',hint:'1=None, 3=Encouraged, 5=Active ZEV-only zones + purchase incentives.',tip:'Document any EV charging stations, e-rickshaw services, or ZEV mandates.'},
+      {id:'TR4',label:'ZEV ratio to campus population',max:200,unit:'ratio',hint:'Number of zero-emission vehicles ÷ campus population.',tip:'Include institutional EVs, e-rickshaws, e-bikes, and bicycles.'},
+      {id:'TR5',label:'Parking area ratio',max:200,unit:'%',hint:'Total parking area ÷ total campus area × 100. Lower = better.',tip:'Measured from campus maps. Parking reduction shows sustainability commitment.'},
+      {id:'TR6',label:'Parking reduction initiatives (3 years)',max:200,unit:'scale 1-5',hint:'1=None, 3=Some measures, 5=Documented year-over-year reduction.',tip:'Compare parking area across 3 years. Show policy documents.'},
+      {id:'TR7',label:'Initiatives to decrease private vehicles',max:200,unit:'count',hint:'Active programs: carpool app, bike-share, subsidized transit, car-free days, etc.',tip:'Count distinct, active programs. Each should have documentation.'},
+      {id:'TR8',label:'Pedestrian path policy',max:200,unit:'scale 1-5',hint:'1=None, 3=Some paths, 5=Extensive pedestrian-priority campus design.',tip:'MAHE campus is walkable. Document designated pedestrian zones and covered walkways.'}
+    ]
+  },
+  {
+    id:'ED', name:'Education & Research', weight:18, maxScore:1800, icon:'📚', color:'#1E3A5F',
+    indicators: [
+      {id:'ED1',label:'Sustainability courses ÷ total courses',max:300,unit:'%',hint:'Courses with substantial sustainability content as % of total catalog.',tip:'Include environmental science, sustainable engineering, public health, climate courses.'},
+      {id:'ED2',label:'Sustainability research funding ratio',max:300,unit:'%',hint:'Research grants for sustainability ÷ total research funding.',tip:'MAHE is strong in research. Identify all grants tagged to sustainability topics.'},
+      {id:'ED3',label:'Scholarly publications on sustainability',max:350,unit:'count',hint:'Peer-reviewed papers published in the assessment year.',tip:'Search Scopus/Web of Science for MAHE publications with sustainability keywords.'},
+      {id:'ED4',label:'Scholarly events on sustainability',max:250,unit:'count',hint:'Conferences, workshops, seminars organized or hosted.',tip:'Include both internal workshops and international conferences hosted by MAHE.'},
+      {id:'ED5',label:'Student organizations for sustainability',max:200,unit:'count',hint:'Active student clubs/bodies focused on environment and sustainability.',tip:'Include eco-clubs, NSS green programs, student-led initiatives.'},
+      {id:'ED6',label:'University sustainability website',max:200,unit:'yes/no',hint:'Dedicated public-facing website for sustainability efforts.',tip:'MAHE has "Green Manipal" page. Score: Yes=full marks.'},
+      {id:'ED7',label:'Published sustainability report',max:200,unit:'yes/no',hint:'Annual sustainability report publicly available.',tip:'MAHE published 2023-2024 sustainability report. Score: Yes=full marks.'}
+    ]
+  }
+];
+
+// ─── SYNTHETIC MAHE DATA (based on real rankings & public data) ──────
+// Actual MAHE GreenMetric 2025 scores: Total=8400, SI=1075, EC=1525, WS=1425, WR=950, TR=1700, ED=1725
+// Indicator-level values are calibrated to sum exactly to published category totals
+const MAHE_SCORES = {
+  SI1:210, SI2:140, SI3:220, SI4:130, SI5:200, SI6:175,          // sum=1075 ✓
+  EC1:230, EC2:180, EC3:210, EC4:140, EC5:185, EC6:170, EC7:160, EC8:250,  // sum=1525 ✓
+  WS1:250, WS2:250, WS3:240, WS4:220, WS5:240, WS6:225,          // sum=1425 ✓
+  WR1:300, WR2:280, WR3:190, WR4:180,                              // sum=950 ✓
+  TR1:200, TR2:250, TR3:300, TR4:200, TR5:200, TR6:150, TR7:200, TR8:200,  // sum=1700 ✓  (MAHE walkable campus, strong ZEV policy)
+  ED1:300, ED2:300, ED3:325, ED4:200, ED5:200, ED6:200, ED7:200   // sum=1725 ✓  (MAHE has sustainability website + report = full marks)
+};
+
+// Historical data: 2018-2022 synthetic but realistic, 2022 & 2025 actual from published data
+const MAHE_HISTORY = {
+  years: [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+  globalRank: [187, 155, 142, 137, 121, 118, 120, 120],
+  totalScore: [6750, 7200, 7500, 7800, 8050, 8200, 8350, 8400],
+  categories: {
+    SI: [800, 880, 920, 960, 1025, 1050, 1060, 1075],
+    EC: [1100, 1200, 1300, 1400, 1525, 1500, 1510, 1525],
+    WS: [1200, 1300, 1350, 1400, 1500, 1420, 1410, 1425],
+    WR: [650, 700, 750, 800, 900, 920, 940, 950],
+    TR: [1200, 1320, 1380, 1440, 1625, 1650, 1680, 1700],
+    ED: [800, 800, 800, 800, 1475, 1660, 1700, 1725]
+  }
+};
+
+// Peer benchmarks
+const BENCHMARKS = {
+  top10:   {SI:92, EC:88, WS:90, WR:88, TR:85, ED:92},
+  top100:  {SI:78, EC:74, WS:76, WR:72, TR:70, ED:80},
+  top500:  {SI:58, EC:52, WS:56, WR:50, TR:48, ED:60},
+  average: {SI:42, EC:38, WS:40, WR:35, TR:32, ED:45}
+};
+
+// Indian university rankings (MAHE actual 2025, others estimated from published data)
+const INDIA_RANKINGS = [
+  {rank:1, name:'Manipal Academy of Higher Education', score:8400, si:1075,ec:1525,ws:1425,wr:950,tr:1700,ed:1725, highlight:true},
+  {rank:2, name:'Mangalore University', score:8050, si:1050,ec:1380,ws:1420,wr:780,tr:1380,ed:1040},
+  {rank:3, name:'SRM Institute of Science & Technology', score:7850, si:990,ec:1300,ws:1390,wr:740,tr:1320,ed:1110},
+  {rank:4, name:'Amrita Vishwa Vidyapeetham', score:7720, si:970,ec:1260,ws:1360,wr:720,tr:1300,ed:1110},
+  {rank:5, name:'IIT Madras', score:7550, si:930,ec:1320,ws:1260,wr:700,tr:1220,ed:1120},
+  {rank:6, name:'JSS Academy of Higher Education', score:7450, si:910,ec:1220,ws:1310,wr:690,tr:1260,ed:1060},
+  {rank:7, name:'KIIT University', score:7300, si:890,ec:1200,ws:1260,wr:660,tr:1220,ed:1070},
+  {rank:8, name:'VIT Vellore', score:7180, si:860,ec:1170,ws:1210,wr:650,tr:1200,ed:1090},
+  {rank:9, name:'Anna University', score:7020, si:830,ec:1120,ws:1190,wr:630,tr:1190,ed:1060},
+  {rank:10, name:'University of Hyderabad', score:6880, si:810,ec:1100,ws:1160,wr:610,tr:1140,ed:1060}
+];
+
+// Global top 15 — actual 2025 data from UI GreenMetric
+const GLOBAL_RANKINGS = [
+  {rank:1, name:'Wageningen University & Research', country:'Netherlands', score:9600},
+  {rank:2, name:'University College Cork', country:'Ireland', score:9563},
+  {rank:3, name:'Nottingham Trent University', country:'United Kingdom', score:9563},
+  {rank:4, name:'Umwelt-Campus Birkenfeld (Trier UAS)', country:'Germany', score:9525},
+  {rank:5, name:'Leiden University', country:'Netherlands', score:9450},
+  {rank:6, name:'University of Groningen', country:'Netherlands', score:9400},
+  {rank:7, name:'University of Nottingham', country:'United Kingdom', score:9375},
+  {rank:8, name:'Universität Hamburg', country:'Germany', score:9350},
+  {rank:9, name:'University of Connecticut', country:'USA', score:9300},
+  {rank:10, name:'University of São Paulo', country:'Brazil', score:9250},
+  {rank:11, name:'University of Bradford', country:'United Kingdom', score:9200},
+  {rank:12, name:'Bangor University', country:'United Kingdom', score:9175},
+  {rank:13, name:'National Taiwan University', country:'Taiwan', score:9150},
+  {rank:14, name:'Université de Bordeaux', country:'France', score:9125},
+  {rank:15, name:'University of Alberta', country:'Canada', score:9100}
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────
+let scores = {...MAHE_SCORES};
+let activeCat = 0;
+let currentBenchmark = 'top100';
+let charts = {};
+
+// ─── UTILITIES ───────────────────────────────────────────────────────
+function getCatScore(cat) {
+  return cat.indicators.reduce((s,ind) => s + Math.min(scores[ind.id]||0, ind.max), 0);
+}
+function getCatPct(cat) { return Math.round(getCatScore(cat) / cat.maxScore * 100); }
+function getTotalScore() { return CATEGORIES.reduce((s,c) => s + getCatScore(c), 0); }
+function getTotalPct() { return Math.round(getTotalScore()/10000*100); }
+function getFilledCount() { return Object.keys(scores).filter(k => scores[k]>0).length; }
+function getTotalIndicators() { return CATEGORIES.reduce((s,c) => s + c.indicators.length, 0); }
+
+function getGrade(pct) {
+  if(pct>=85) return {label:'EXCELLENT',cls:'green'};
+  if(pct>=70) return {label:'GOOD',cls:'green'};
+  if(pct>=50) return {label:'MODERATE',cls:'yellow'};
+  if(pct>=30) return {label:'NEEDS WORK',cls:'orange'};
+  return {label:'CRITICAL',cls:'red'};
+}
+function getTier(pct) {
+  if(pct>=90) return 'Top 50';
+  if(pct>=80) return 'Top 150';
+  if(pct>=70) return 'Top 300';
+  if(pct>=55) return 'Top 500';
+  if(pct>=40) return 'Mid-Tier';
+  return 'Emerging';
+}
+function getPriorityColor(pct) {
+  if(pct<20) return {label:'HIGH',cls:'red'};
+  if(pct<40) return {label:'MEDIUM',cls:'orange'};
+  return {label:'LOW',cls:'green'};
+}
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────
+const SECTION_ORDER = ['overview','assess','results','evidence','submit','rankings','timeline'];
+const WORKFLOW_STEPS = ['overview','assess','results','evidence','submit'];
+let highestStepReached = 1;
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach((t,i) => {
+    t.classList.toggle('active', SECTION_ORDER[i]===id);
+  });
+  updateWorkflowBar(id);
+  if(id==='results') renderGapAnalysis();
+  if(id==='rankings') renderRankings();
+  if(id==='evidence') renderEvidence();
+  if(id==='submit') renderSubmitSection();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function updateWorkflowBar(activeId) {
+  var stepIndex = WORKFLOW_STEPS.indexOf(activeId);
+  var currentStep = stepIndex >= 0 ? stepIndex + 1 : highestStepReached;
+  if(currentStep > highestStepReached) highestStepReached = currentStep;
+  for(var i = 1; i <= 5; i++) {
+    var el = document.getElementById('wf-'+i);
+    if(!el) continue;
+    var numEl = el.querySelector('.wf-num');
+    el.classList.remove('done','active');
+    if(i < currentStep) { el.classList.add('done'); numEl.textContent = '\u2713'; }
+    else if(i === currentStep) { el.classList.add('active'); numEl.textContent = i; }
+    else { numEl.textContent = i; }
+  }
+}
+
+// ---- EVIDENCE SECTION ----
+var SAMPLE_FILES = [
+  {name:'MAHE_Campus_Master_Plan_2024.pdf', cat:'SI', ind:'SI1', type:'PDF', size:'4.2 MB', date:'2025-06-15', icon:'\uD83D\uDCC4'},
+  {name:'Satellite_Imagery_Green_Cover.jpg', cat:'SI', ind:'SI2', type:'Image', size:'8.7 MB', date:'2025-06-18', icon:'\uD83D\uDDBC'},
+  {name:'Vegetation_Survey_Report.pdf', cat:'SI', ind:'SI3', type:'PDF', size:'2.1 MB', date:'2025-07-02', icon:'\uD83D\uDCC4'},
+  {name:'Rainwater_Harvesting_Layout.pdf', cat:'SI', ind:'SI4', type:'PDF', size:'1.8 MB', date:'2025-07-05', icon:'\uD83D\uDCC4'},
+  {name:'Sustainability_Budget_FY2024.xlsx', cat:'SI', ind:'SI6', type:'Excel', size:'340 KB', date:'2025-07-10', icon:'\uD83D\uDCCA'},
+  {name:'LED_Retrofit_Phase3_Report.pdf', cat:'EC', ind:'EC1', type:'PDF', size:'3.5 MB', date:'2025-06-20', icon:'\uD83D\uDCC4'},
+  {name:'Smart_Building_BMS_Screenshots.pdf', cat:'EC', ind:'EC2', type:'PDF', size:'6.2 MB', date:'2025-07-01', icon:'\uD83D\uDCC4'},
+  {name:'Solar_PV_Installation_Certificates.pdf', cat:'EC', ind:'EC3', type:'PDF', size:'2.8 MB', date:'2025-06-25', icon:'\uD83D\uDCC4'},
+  {name:'Annual_Electricity_Bills.xlsx', cat:'EC', ind:'EC4', type:'Excel', size:'1.2 MB', date:'2025-07-08', icon:'\uD83D\uDCCA'},
+  {name:'GHG_Inventory_2023-24.pdf', cat:'EC', ind:'EC7', type:'PDF', size:'5.4 MB', date:'2025-07-12', icon:'\uD83D\uDCC4'},
+  {name:'Carbon_Footprint_Analysis.pdf', cat:'EC', ind:'EC8', type:'PDF', size:'3.9 MB', date:'2025-07-14', icon:'\uD83D\uDCC4'},
+  {name:'Waste_Segregation_SOP.pdf', cat:'WS', ind:'WS1', type:'PDF', size:'1.5 MB', date:'2025-06-22', icon:'\uD83D\uDCC4'},
+  {name:'EPad_Paper_Reduction_Stats.xlsx', cat:'WS', ind:'WS2', type:'Excel', size:'420 KB', date:'2025-07-03', icon:'\uD83D\uDCCA'},
+  {name:'Vermicompost_Facility_Photos.zip', cat:'WS', ind:'WS3', type:'Archive', size:'12.6 MB', date:'2025-07-06', icon:'\uD83D\uDCE6'},
+  {name:'Biomedical_Waste_CPCB_Cert.pdf', cat:'WS', ind:'WS5', type:'PDF', size:'890 KB', date:'2025-07-09', icon:'\uD83D\uDCC4'},
+  {name:'STP_Performance_Report_Q4.pdf', cat:'WS', ind:'WS6', type:'PDF', size:'2.3 MB', date:'2025-07-15', icon:'\uD83D\uDCC4'},
+  {name:'Water_Conservation_Policy_2024.pdf', cat:'WR', ind:'WR1', type:'PDF', size:'1.1 MB', date:'2025-06-28', icon:'\uD83D\uDCC4'},
+  {name:'STP_Recycling_Volume_Log.xlsx', cat:'WR', ind:'WR2', type:'Excel', size:'560 KB', date:'2025-07-11', icon:'\uD83D\uDCCA'},
+  {name:'Vehicle_Campus_Database.xlsx', cat:'TR', ind:'TR1', type:'Excel', size:'780 KB', date:'2025-07-04', icon:'\uD83D\uDCCA'},
+  {name:'EV_Shuttle_Timetable_Routes.pdf', cat:'TR', ind:'TR2', type:'PDF', size:'1.4 MB', date:'2025-07-07', icon:'\uD83D\uDCC4'},
+  {name:'ZEV_Policy_Notification.pdf', cat:'TR', ind:'TR3', type:'PDF', size:'650 KB', date:'2025-07-10', icon:'\uD83D\uDCC4'},
+  {name:'EV_Charging_Station_Map.jpg', cat:'TR', ind:'TR3', type:'Image', size:'2.1 MB', date:'2025-07-13', icon:'\uD83D\uDDBC'},
+  {name:'Pedestrian_Pathway_Map.pdf', cat:'TR', ind:'TR8', type:'PDF', size:'3.2 MB', date:'2025-07-16', icon:'\uD83D\uDCC4'},
+  {name:'Sustainability_Course_Catalog.pdf', cat:'ED', ind:'ED1', type:'PDF', size:'1.9 MB', date:'2025-06-30', icon:'\uD83D\uDCC4'},
+  {name:'Research_Grants_Sustainability.xlsx', cat:'ED', ind:'ED2', type:'Excel', size:'320 KB', date:'2025-07-02', icon:'\uD83D\uDCCA'},
+  {name:'Scopus_Publications_List.pdf', cat:'ED', ind:'ED3', type:'PDF', size:'2.7 MB', date:'2025-07-05', icon:'\uD83D\uDCC4'},
+  {name:'Green_Manipal_Website_Screens.pdf', cat:'ED', ind:'ED6', type:'PDF', size:'4.8 MB', date:'2025-07-08', icon:'\uD83D\uDCC4'},
+  {name:'MAHE_Sustainability_Report_23-24.pdf', cat:'ED', ind:'ED7', type:'PDF', size:'18.2 MB', date:'2025-07-12', icon:'\uD83D\uDCC4'}
+];
+
+var EVIDENCE_TEMPLATES = [
+  {icon:'📐', title:'Campus Area & Green Cover', desc:'GIS template for SI1-SI5: open space, forest, vegetation, water absorbance', cat:'SI', color:'#2D6A4F'},
+  {icon:'💰', title:'Sustainability Budget Sheet', desc:'Financial allocation template for SI6: budget by sustainability initiative', cat:'SI', color:'#2D6A4F'},
+  {icon:'⚡', title:'Energy Audit Workbook', desc:'Template for EC1-EC5: appliance inventory, smart buildings, renewables, electricity', cat:'EC', color:'#DC6843'},
+  {icon:'🏭', title:'GHG Inventory Template', desc:'Scope 1 & 2 emissions for EC7-EC8: fuel, electricity, refrigerants, medical gases', cat:'EC', color:'#DC6843'},
+  {icon:'♻️', title:'Waste Management Tracker', desc:'Template for WS1-WS6: waste volumes, recycling rates, treatment records', cat:'WS', color:'#7C3AED'},
+  {icon:'💧', title:'Water Management Log', desc:'Template for WR1-WR4: sources, consumption, recycling volumes, fixture audit', cat:'WR', color:'#0891B2'},
+  {icon:'🚗', title:'Transport Survey & Vehicle Census', desc:'Template for TR1-TR8: vehicle counts, shuttle data, EV inventory, parking area', cat:'TR', color:'#D97706'},
+  {icon:'📚', title:'Education & Research Inventory', desc:'Template for ED1-ED7: courses, grants, publications, events log', cat:'ED', color:'#1E3A5F'},
+  {icon:'📋', title:'Evidence Checklist (Master)', desc:'All 39 indicators: evidence type, responsible department, status tracker', cat:'ALL', color:'#2D6A4F'}
+];
+
+function renderEvidence() {
+  renderEvidenceCoverage();
+  renderFileTable('all');
+  renderTemplateGrid();
+  setupIndicatorDropdown();
+}
+
+function setupIndicatorDropdown() {
+  var catSel = document.getElementById('evidenceCatSelect');
+  var indSel = document.getElementById('evidenceIndSelect');
+  catSel.onchange = function() {
+    var cat = CATEGORIES.find(function(c){return c.id === catSel.value;});
+    if(!cat) { indSel.innerHTML = '<option value="">Select Indicator...</option>'; return; }
+    indSel.innerHTML = '<option value="">Select Indicator...</option>' +
+      cat.indicators.map(function(ind){return '<option value="'+ind.id+'">'+ind.id+': '+ind.label+'</option>';}).join('');
+  };
+}
+
+function renderEvidenceCoverage() {
+  var body = document.getElementById('evidenceCoverage');
+  var missing = getMissingEvidence();
+  body.innerHTML = CATEGORIES.map(function(cat){
+    var totalInd = cat.indicators.length;
+    var coveredSet = {};
+    SAMPLE_FILES.forEach(function(f){ if(f.cat===cat.id) coveredSet[f.ind]=true; });
+    var covered = Object.keys(coveredSet).length;
+    var pct = Math.round(covered / totalInd * 100);
+    var allDone = pct === 100;
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:6px;margin-bottom:6px;background:'+(allDone?'var(--green-50)':'var(--surface-alt)')+';border:1px solid '+(allDone?'#D1FAE5':'var(--border-light)')+'">'+
+      '<span style="font-size:16px">'+cat.icon+'</span>'+
+      '<div style="flex:1"><div style="font-size:12px;font-weight:600">'+cat.name+'</div><div style="font-size:10px;color:var(--text-muted)">'+covered+'/'+totalInd+' indicators have evidence</div></div>'+
+      '<div style="width:80px;height:4px;border-radius:2px;background:var(--border-light);overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+(allDone?'var(--accent)':cat.color)+';border-radius:2px"></div></div>'+
+      '<span style="font-size:11px;font-weight:700;font-family:var(--mono);color:'+(pct===100?'var(--accent)':'var(--text-muted)')+'">'+pct+'%</span></div>';
+  }).join('') +
+  '<div style="margin-top:12px;padding:10px 14px;background:var(--yellow-bg);border:1px solid #FEF08A;border-radius:6px">'+
+    '<div style="font-size:11px;font-weight:700;color:#A16207">⚠️ Missing Evidence for:</div>'+
+    '<div style="font-size:11px;color:#92400E;margin-top:3px">'+
+    missing.map(function(e){return '<span style="display:inline-block;padding:1px 6px;margin:2px;border-radius:3px;background:#FEF3C7;font-weight:600;font-size:10px">'+e+'</span>';}).join('')+
+    '</div></div>';
+}
+
+function getMissingEvidence() {
+  var covered = {};
+  SAMPLE_FILES.forEach(function(f){ covered[f.ind]=true; });
+  var missing = [];
+  CATEGORIES.forEach(function(cat){
+    cat.indicators.forEach(function(ind){
+      if(!covered[ind.id]) missing.push(ind.id);
+    });
+  });
+  return missing;
+}
+
+function renderFileTable(filter) {
+  var tbody = document.getElementById('fileTableBody');
+  var files = filter === 'all' ? SAMPLE_FILES : SAMPLE_FILES.filter(function(f){return f.cat===filter;});
+  var catMap = {};
+  CATEGORIES.forEach(function(c){catMap[c.id]=c;});
+  tbody.innerHTML = files.map(function(f){
+    var cat = catMap[f.cat];
+    return '<tr><td><span style="font-size:16px;margin-right:6px;vertical-align:middle">'+f.icon+'</span><span style="font-weight:600">'+f.name+'</span></td>'+
+      '<td><span class="file-tag" style="background:'+cat.color+'15;color:'+cat.color+'">'+cat.icon+' '+f.cat+'</span></td>'+
+      '<td style="font-family:var(--mono);font-size:11px;font-weight:600">'+f.ind+'</td>'+
+      '<td style="color:var(--text-muted)">'+f.type+'</td>'+
+      '<td style="color:var(--text-muted);font-family:var(--mono);font-size:11px">'+f.size+'</td>'+
+      '<td style="color:var(--text-muted);font-size:11px">'+f.date+'</td>'+
+      '<td><button class="file-action" onclick="alert(\'Preview: '+f.name+'\')">👁</button> <button class="file-action" onclick="alert(\'Download: '+f.name+'\')">↓</button></td></tr>';
+  }).join('');
+  document.getElementById('fileFilter').onchange = function(){ renderFileTable(this.value); };
+}
+
+function renderTemplateGrid() {
+  document.getElementById('templateGrid').innerHTML = EVIDENCE_TEMPLATES.map(function(t){
+    return '<div style="padding:14px;border-radius:10px;border:1px solid var(--border-light);background:var(--surface-alt);cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor=\''+t.color+'\'" onmouseout="this.style.borderColor=\'var(--border-light)\'" onclick="alert(\'Download: '+t.title+'\')">'+
+      '<div style="font-size:24px;margin-bottom:6px">'+t.icon+'</div>'+
+      '<div style="font-size:12px;font-weight:700;margin-bottom:2px">'+t.title+'</div>'+
+      '<div style="font-size:10px;color:var(--text-muted);line-height:1.4">'+t.desc+'</div>'+
+      '<div style="margin-top:8px"><span class="file-tag" style="background:'+t.color+'15;color:'+t.color+'">'+t.cat+'</span></div></div>';
+  }).join('');
+}
+
+// ---- SUBMIT SECTION ----
+function renderSubmitSection() {
+  var body = document.getElementById('readinessChecklist');
+  var filled = getFilledCount();
+  var totalInd = getTotalIndicators();
+  var coveredSet = {};
+  SAMPLE_FILES.forEach(function(f){ coveredSet[f.ind]=true; });
+  var evidenceCovered = Object.keys(coveredSet).length;
+  var totalPct = getTotalPct();
+  var instName = document.getElementById('instName').value;
+  var critCats = getCriticalCategories();
+
+  var checks = [
+    { label:'Institution Profile Complete', desc: instName?'"'+instName+'" — campus area, population, and location configured':'Name, campus area, population required', pass:!!(instName && document.getElementById('campusArea').value && document.getElementById('campusPop').value), icon:'🏛️' },
+    { label:'Assessment Data: '+filled+'/'+totalInd+' indicators scored', desc: filled===totalInd?'All 39 indicators scored across 6 categories':(totalInd-filled)+' indicators still need data entry', pass:filled===totalInd, warn:filled>=totalInd*0.7&&filled<totalInd, icon:'📝' },
+    { label:'Overall Score: '+getTotalScore().toLocaleString()+' / 10,000 ('+totalPct+'%)', desc: totalPct>=80?'Excellent — competitive for Top 150 globally':totalPct>=60?'Good — on track for Top 500':'Consider improving key areas before submission', pass:totalPct>=70, warn:totalPct>=50&&totalPct<70, icon:'📊' },
+    { label:'Evidence Coverage: '+evidenceCovered+'/'+totalInd+' indicators have documents', desc: evidenceCovered===totalInd?'All indicators have supporting evidence uploaded':(totalInd-evidenceCovered)+' indicators missing evidence — may receive reduced scores', pass:evidenceCovered===totalInd, warn:evidenceCovered>=totalInd*0.6, icon:'📁' },
+    { label:'No categories below 50% score', desc: critCats.length===0?'All categories above 50% threshold':'Weak categories: '+critCats.join(', ')+' — address before submission', pass:critCats.length===0, warn:critCats.length<=1, icon:'⚠️' },
+    { label:'Sustainability website active (ED6)', desc:(scores.ED6||0)>=200?'Green Manipal website confirmed active':'Ensure sustainability webpage is live', pass:(scores.ED6||0)>=200, icon:'🌐' },
+    { label:'Published sustainability report (ED7)', desc:(scores.ED7||0)>=200?'Annual sustainability report available online':'Publish sustainability report before deadline', pass:(scores.ED7||0)>=200, icon:'📗' }
+  ];
+
+  var passCount = checks.filter(function(c){return c.pass;}).length;
+  body.innerHTML = checks.map(function(c){
+    var cls = c.pass ? 'pass' : (c.warn ? 'warn' : 'fail');
+    var ico = c.pass ? '✅' : (c.warn ? '⚠️' : '❌');
+    return '<div class="check-item '+cls+'"><span class="check-icon">'+ico+'</span><div class="check-text"><div class="check-label">'+c.label+'</div><div class="check-desc">'+c.desc+'</div></div><span style="font-size:18px">'+c.icon+'</span></div>';
+  }).join('') +
+  '<div style="margin-top:16px;padding:16px;background:linear-gradient(135deg,#0F2B1D,#1A3345);border-radius:10px;text-align:center">'+
+    '<div style="font-size:10px;font-weight:700;color:#6EAA8A;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px">Submission Readiness</div>'+
+    '<div style="font-size:36px;font-weight:800;color:#fff">'+Math.round(passCount/checks.length*100)+'%</div>'+
+    '<div style="font-size:11px;color:#6EAA8A;margin-top:4px">'+passCount+'/'+checks.length+' checks passed</div></div>';
+}
+
+function getCriticalCategories() {
+  return CATEGORIES.filter(function(c){return getCatPct(c)<50;}).map(function(c){return c.id;});
+}
+
+// ─── RENDER: OVERVIEW ────────────────────────────────────────────────
+function renderOverview() {
+  updateHeroScore();
+  renderCatGrid();
+  renderOverviewCharts();
+}
+
+function updateHeroScore() {
+  const total = getTotalScore();
+  const pct = getTotalPct();
+  const grade = getGrade(pct);
+  const filled = getFilledCount();
+  const allInd = getTotalIndicators();
+
+  document.getElementById('totalScoreDisplay').textContent = total.toLocaleString();
+  document.getElementById('totalPctDisplay').textContent = pct + '%';
+  document.getElementById('totalPctDisplay').style.color = pct>=60?'#52B788':'#F4A261';
+  document.getElementById('totalGradeTag').textContent = grade.label;
+  document.getElementById('totalGradeTag').className = 'step-tag ' + grade.cls;
+  document.getElementById('completionText').textContent = filled+'/'+allInd+' indicators ('+ Math.round(filled/allInd*100)+'%)';
+  document.getElementById('tierDisplay').textContent = getTier(pct);
+
+  // Gap analysis hero
+  const inst = document.getElementById('instName');
+  if(inst) {
+    document.getElementById('gapInstName').textContent = inst.value || 'Your Institution';
+  }
+  document.getElementById('gapTotalScore').textContent = total.toLocaleString();
+  document.getElementById('gapPct').textContent = pct+'%';
+  document.getElementById('gapPct').style.color = pct>=60?'#52B788':'#F4A261';
+  document.getElementById('gapGrade').textContent = grade.label;
+  document.getElementById('gapGrade').className = 'step-tag ' + grade.cls;
+  document.getElementById('gapTier').textContent = getTier(pct);
+}
+
+function renderCatGrid() {
+  const grid = document.getElementById('catGrid');
+  grid.innerHTML = CATEGORIES.map((cat,i) => {
+    const pct = getCatPct(cat);
+    const score = getCatScore(cat);
+    const grade = getGrade(pct);
+    return `<div class="cat-card" onclick="activeCat=${i};showSection('assess');renderAssessment()">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div class="cat-icon">${cat.icon}</div>
+          <div class="cat-name">${cat.name}</div>
+          <div class="cat-weight">Weight: ${cat.weight}% · ${cat.indicators.length} indicators</div>
+        </div>
+        <span class="step-tag ${grade.cls}">${grade.label}</span>
+      </div>
+      <div class="cat-bar"><div class="cat-fill" style="width:${pct}%;background:${cat.color}"></div></div>
+      <div class="cat-score">
+        <span class="score-val" style="color:${cat.color}">${score}</span>
+        <span class="score-max">/ ${cat.maxScore}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderOverviewCharts() {
+  // Bar Chart
+  const barCtx = document.getElementById('overviewBar');
+  if(charts.overviewBar) charts.overviewBar.destroy();
+  charts.overviewBar = new Chart(barCtx, {
+    type:'bar',
+    data:{
+      labels: CATEGORIES.map(c=>c.id),
+      datasets:[
+        {label:'Your Score %', data:CATEGORIES.map(c=>getCatPct(c)), backgroundColor:CATEGORIES.map(c=>c.color), borderRadius:6, barPercentage:.6},
+        {label:'Top 100 Benchmark', data:CATEGORIES.map(c=>BENCHMARKS.top100[c.id]), backgroundColor:'#E2E5EA', borderRadius:6, barPercentage:.6}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%',font:{size:11}},grid:{color:'#F0F1F3'}},x:{ticks:{font:{size:11,weight:600}},grid:{display:false}}},
+      plugins:{legend:{position:'bottom',labels:{font:{size:11},usePointStyle:true,padding:16}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw+'%'}}}
+    }
+  });
+
+  // Trend Line
+  const lineCtx = document.getElementById('trendLine');
+  if(charts.trendLine) charts.trendLine.destroy();
+  charts.trendLine = new Chart(lineCtx, {
+    type:'line',
+    data:{
+      labels: MAHE_HISTORY.years,
+      datasets:[
+        {label:'Total Score', data:MAHE_HISTORY.totalScore, borderColor:'#2D6A4F', backgroundColor:'rgba(45,106,79,0.08)', fill:true, tension:.4, pointRadius:5, pointBackgroundColor:'#2D6A4F', borderWidth:2.5},
+        {label:'Global Rank (inverted)', data:MAHE_HISTORY.globalRank.map(r=>10000-r*40), borderColor:'#DC6843', borderDash:[5,5], tension:.4, pointRadius:4, pointBackgroundColor:'#DC6843', borderWidth:2, yAxisID:'y1'}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      scales:{
+        y:{beginAtZero:false,min:5000,max:10000,ticks:{callback:v=>v.toLocaleString(),font:{size:10}},grid:{color:'#F0F1F3'},title:{display:true,text:'Score',font:{size:11}}},
+        y1:{position:'right',beginAtZero:false,ticks:{callback:v=>'#'+Math.round((10000-v)/40),font:{size:10}},grid:{display:false},title:{display:true,text:'Global Rank',font:{size:11}}},
+        x:{ticks:{font:{size:11}},grid:{display:false}}
+      },
+      plugins:{legend:{position:'bottom',labels:{font:{size:11},usePointStyle:true,padding:16}}}
+    }
+  });
+}
+
+// ─── RENDER: ASSESSMENT ──────────────────────────────────────────────
+function renderAssessment() {
+  renderSideNav();
+  renderAssessContent();
+}
+
+function renderSideNav() {
+  const list = document.getElementById('sideNavList');
+  list.innerHTML = CATEGORIES.map((c,i) => `
+    <button class="side-btn ${i===activeCat?'active':''}" onclick="activeCat=${i};renderAssessment()" style="${i===activeCat?'color:'+c.color:''}">
+      <span class="side-icon">${c.icon}</span>
+      <div style="flex:1"><div style="font-size:12px;line-height:1.3">${c.name}</div><div class="side-pct" style="${getCatPct(c)>=70?'color:var(--accent)':''}">${getCatPct(c)}%</div></div>
+    </button>
+  `).join('');
+
+  const filled = getFilledCount(), total = getTotalIndicators();
+  document.getElementById('sideProgressBar').style.width = Math.round(filled/total*100)+'%';
+  document.getElementById('sideProgressText').textContent = filled+'/'+total+' complete';
+}
+
+function renderAssessContent() {
+  const cat = CATEGORIES[activeCat];
+  const content = document.getElementById('assessContent');
+
+  let html = `<div class="card">
+    <div class="card-header" style="background:${cat.color}08">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:24px">${cat.icon}</span>
+        <div>
+          <div class="card-title" style="color:${cat.color}">${cat.name}</div>
+          <div style="font-size:11px;color:var(--text-muted)">Weight: ${cat.weight}% · Max: ${cat.maxScore} pts · ${cat.indicators.length} indicators</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:24px;font-weight:800;color:${cat.color}">${getCatScore(cat)}</div>
+        <div style="font-size:11px;color:var(--text-muted)">/ ${cat.maxScore}</div>
+      </div>
+    </div>
+    <div class="card-body">`;
+
+  cat.indicators.forEach(ind => {
+    const val = scores[ind.id] || 0;
+    const pct = Math.round(val/ind.max*100);
+    const grade = getGrade(pct);
+    html += `<div class="ind-row">
+      <div class="ind-header">
+        <span class="ind-id" style="background:${cat.color}15;color:${cat.color}">${ind.id}</span>
+        <span class="ind-label">${ind.label}</span>
+        <span class="tooltip-wrap">
+          <span class="tooltip-icon">?</span>
+          <span class="tooltip-content">${ind.tip}</span>
+        </span>
+        <span class="ind-pct-tag step-tag ${grade.cls}">${pct}%</span>
+      </div>
+      <div class="ind-hint">${ind.hint} · Unit: ${ind.unit} · Max: ${ind.max} pts</div>
+      <div class="ind-controls">
+        <input type="range" class="ind-slider" min="0" max="${ind.max}" step="${ind.max<=300?10:50}" value="${val}"
+          oninput="updateIndicator('${ind.id}',this.value)" style="accent-color:${cat.color}">
+        <input type="number" class="ind-input" min="0" max="${ind.max}" value="${val||''}" placeholder="0"
+          onchange="updateIndicator('${ind.id}',Math.min(this.value,${ind.max}))">
+        <span class="ind-max">/ ${ind.max}</span>
+      </div>
+    </div>`;
+  });
+
+  html += `</div></div>`;
+
+  // Navigation
+  html += `<div style="display:flex;justify-content:space-between;margin-top:12px">
+    <button class="btn btn-outline" onclick="${activeCat>0?'activeCat--;renderAssessment()':'void(0)'}" ${activeCat===0?'disabled style="opacity:.4"':''}>← Previous</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost" onclick="showSection('overview')">Back to Dashboard</button>
+      ${activeCat<CATEGORIES.length-1
+        ? '<button class="btn btn-primary" onclick="activeCat++;renderAssessment()">Next Category →</button>'
+        : '<button class="btn btn-primary" onclick="showSection(\'results\')">View Gap Analysis →</button>'}
+    </div>
+  </div>`;
+
+  content.innerHTML = html;
+}
+
+function updateIndicator(id, val) {
+  val = parseFloat(val) || 0;
+  scores[id] = val;
+  renderAssessContent();
+  renderSideNav();
+  updateHeroScore();
+}
+
+// ─── RENDER: GAP ANALYSIS ────────────────────────────────────────────
+function renderGapAnalysis() {
+  updateHeroScore();
+  renderGapCharts();
+  renderGapTable();
+  renderRecommendations();
+}
+
+function setBenchmark(key, btn) {
+  currentBenchmark = key;
+  document.querySelectorAll('.bm-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderGapAnalysis();
+}
+
+function renderGapCharts() {
+  const bm = BENCHMARKS[currentBenchmark];
+
+  // Radar
+  const radarCtx = document.getElementById('radarChart');
+  if(charts.radar) charts.radar.destroy();
+  charts.radar = new Chart(radarCtx, {
+    type:'radar',
+    data:{
+      labels: CATEGORIES.map(c=>c.id+' ('+c.weight+'%)'),
+      datasets:[
+        {label:'Your Score', data:CATEGORIES.map(c=>getCatPct(c)), borderColor:'#2D6A4F', backgroundColor:'rgba(45,106,79,0.15)', borderWidth:2.5, pointRadius:5, pointBackgroundColor:'#2D6A4F'},
+        {label:'Benchmark', data:CATEGORIES.map(c=>bm[c.id]), borderColor:'#DC6843', backgroundColor:'rgba(220,104,67,0.08)', borderWidth:2, borderDash:[5,5], pointRadius:4, pointBackgroundColor:'#DC6843'}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      scales:{r:{beginAtZero:true,max:100,ticks:{stepSize:20,font:{size:9}},grid:{color:'#E2E5EA'},pointLabels:{font:{size:11,weight:600}}}},
+      plugins:{legend:{position:'bottom',labels:{font:{size:11},usePointStyle:true,padding:16}}}
+    }
+  });
+
+  // Bar
+  const barCtx = document.getElementById('gapBarChart');
+  if(charts.gapBar) charts.gapBar.destroy();
+  charts.gapBar = new Chart(barCtx, {
+    type:'bar',
+    data:{
+      labels: CATEGORIES.map(c=>c.id),
+      datasets:[
+        {label:'Your Score %', data:CATEGORIES.map(c=>getCatPct(c)), backgroundColor:CATEGORIES.map(c=>c.color), borderRadius:6, barPercentage:.5},
+        {label:'Benchmark %', data:CATEGORIES.map(c=>bm[c.id]), backgroundColor:'#E2E5EA', borderRadius:6, barPercentage:.5}
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%',font:{size:11}},grid:{color:'#F0F1F3'}},x:{ticks:{font:{size:11,weight:600}},grid:{display:false}}},
+      plugins:{legend:{position:'bottom',labels:{font:{size:11},usePointStyle:true,padding:16}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+ctx.raw+'%'}}}
+    }
+  });
+}
+
+function renderGapTable() {
+  const bm = BENCHMARKS[currentBenchmark];
+  const body = document.getElementById('gapTableBody');
+  body.innerHTML = CATEGORIES.map(cat => {
+    const pct = getCatPct(cat);
+    const bmPct = bm[cat.id];
+    const gap = bmPct - pct;
+    const ahead = gap <= 0;
+    return `<div class="gap-row">
+      <div class="gap-cat">
+        <span class="gap-icon">${cat.icon}</span>
+        <div><div class="gap-name">${cat.name}</div><div class="gap-wt">Weight: ${cat.weight}%</div></div>
+      </div>
+      <div class="gap-val"><div class="val" style="color:${cat.color}">${pct}%</div><div class="val-label">Your Score</div></div>
+      <div class="gap-val"><div class="val" style="color:var(--text-secondary)">${bmPct}%</div><div class="val-label">Benchmark</div></div>
+      <div class="gap-delta"><span class="delta-tag" style="background:${ahead?'var(--green-100)':(gap>=20?'var(--red-bg)':'var(--yellow-bg)')};color:${ahead?'var(--green-800)':(gap>=20?'var(--red)':'#A16207')}">${ahead?'+'+Math.abs(gap)+'% ✓':'-'+gap+'%'}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderRecommendations() {
+  const recs = [];
+  CATEGORIES.forEach(cat => {
+    cat.indicators.forEach(ind => {
+      const val = scores[ind.id] || 0;
+      const indPct = Math.round(val/ind.max*100);
+      if(indPct < 60) {
+        recs.push({
+          category:cat.name, catId:cat.id, color:cat.color,
+          indicator:ind.label, currentPct:indPct,
+          potentialGain: ind.max - val,
+          weightedImpact: ((ind.max-val)/10000)*100*cat.weight,
+          hint: ind.tip
+        });
+      }
+    });
+  });
+  recs.sort((a,b) => b.weightedImpact - a.weightedImpact);
+
+  const body = document.getElementById('recsBody');
+  if(recs.length===0) {
+    body.innerHTML = '<div style="text-align:center;padding:32px;color:var(--text-muted)">All indicators above 60% — excellent performance! Focus on maintaining current levels.</div>';
+    return;
+  }
+
+  body.innerHTML = recs.slice(0,10).map((rec,i) => {
+    const p = getPriorityColor(rec.currentPct);
+    return `<div class="rec-card">
+      <div class="rec-header">
+        <span class="rec-rank">#${i+1}</span>
+        <span class="step-tag ${p.cls}">${p.label} PRIORITY</span>
+        <span class="step-tag" style="background:${rec.color}12;color:${rec.color}">${rec.catId}</span>
+        <span class="rec-gain">+${rec.potentialGain} pts potential</span>
+      </div>
+      <div class="rec-title">${rec.indicator}</div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-style:italic">${rec.hint}</div>
+      <div class="rec-bar"><div class="rec-bar-fill" style="width:${rec.currentPct}%;background:${rec.color}"></div></div>
+      <div class="rec-meta"><span>Currently at ${rec.currentPct}%</span><span>Weighted impact: ${rec.weightedImpact.toFixed(1)}</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ─── RENDER: RANKINGS ────────────────────────────────────────────────
+function renderRankings() {
+  // India table
+  document.getElementById('indiaRankTable').innerHTML = INDIA_RANKINGS.map(r =>
+    `<tr class="${r.highlight?'highlight':''}">
+      <td class="rank-num">${r.rank}</td><td>${r.name}</td><td><strong>${r.score.toLocaleString()}</strong></td>
+      <td>${r.si}</td><td>${r.ec}</td><td>${r.ws}</td><td>${r.wr}</td><td>${r.tr}</td><td>${r.ed}</td>
+    </tr>`
+  ).join('');
+
+  // Global table
+  document.getElementById('globalRankTable').innerHTML = GLOBAL_RANKINGS.map(r =>
+    `<tr><td class="rank-num">${r.rank}</td><td>${r.name}</td><td>${r.country}</td><td><strong>${r.score.toLocaleString()}</strong></td></tr>`
+  ).join('');
+
+  // MAHE History Chart
+  const histCtx = document.getElementById('maheHistoryChart');
+  if(charts.maheHistory) charts.maheHistory.destroy();
+  charts.maheHistory = new Chart(histCtx, {
+    type:'bar',
+    data:{
+      labels: MAHE_HISTORY.years,
+      datasets:[{
+        label:'Total Score', data:MAHE_HISTORY.totalScore,
+        backgroundColor:'rgba(45,106,79,0.7)', borderRadius:6, barPercentage:.55
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      scales:{y:{beginAtZero:false,min:5000,max:10000,ticks:{font:{size:10}},grid:{color:'#F0F1F3'}},x:{ticks:{font:{size:11}},grid:{display:false}}},
+      plugins:{legend:{display:false},title:{display:true,text:'MAHE Total Score Trend',font:{size:13,weight:700},padding:{bottom:16}}}
+    }
+  });
+
+  // Category trend
+  const catCtx = document.getElementById('maheCategoryTrend');
+  if(charts.maheCatTrend) charts.maheCatTrend.destroy();
+  const catColors = {SI:'#2D6A4F',EC:'#DC6843',WS:'#7C3AED',WR:'#0891B2',TR:'#D97706',ED:'#1E3A5F'};
+  charts.maheCatTrend = new Chart(catCtx, {
+    type:'line',
+    data:{
+      labels: MAHE_HISTORY.years,
+      datasets: Object.keys(MAHE_HISTORY.categories).map(k => ({
+        label:k, data:MAHE_HISTORY.categories[k],
+        borderColor:catColors[k], backgroundColor:'transparent',
+        borderWidth:2, tension:.4, pointRadius:3, pointBackgroundColor:catColors[k]
+      }))
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      scales:{y:{beginAtZero:false,min:400,ticks:{font:{size:10}},grid:{color:'#F0F1F3'}},x:{ticks:{font:{size:11}},grid:{display:false}}},
+      plugins:{legend:{position:'bottom',labels:{font:{size:10},usePointStyle:true,padding:10}},title:{display:true,text:'Category Score Trends',font:{size:13,weight:700},padding:{bottom:16}}}
+    }
+  });
+
+  // Peer Radar
+  const peerCtx = document.getElementById('peerRadar');
+  if(charts.peerRadar) charts.peerRadar.destroy();
+  const peers = INDIA_RANKINGS.slice(0,4);
+  const peerColors = ['#2D6A4F','#DC6843','#7C3AED','#0891B2'];
+  charts.peerRadar = new Chart(peerCtx, {
+    type:'radar',
+    data:{
+      labels: ['SI','EC','WS','WR','TR','ED'],
+      datasets: peers.map((p,i) => ({
+        label: p.name.split(' ').slice(0,2).join(' '),
+        data: [p.si/15, p.ec/21, p.ws/18, p.wr/10, p.tr/18, p.ed/18],
+        borderColor: peerColors[i], backgroundColor:'transparent',
+        borderWidth: i===0?2.5:1.5, borderDash: i===0?[]:[4,4],
+        pointRadius: i===0?5:3, pointBackgroundColor:peerColors[i]
+      }))
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      scales:{r:{beginAtZero:true,max:100,ticks:{stepSize:25,font:{size:9}},grid:{color:'#E2E5EA'},pointLabels:{font:{size:12,weight:600}}}},
+      plugins:{legend:{position:'bottom',labels:{font:{size:10},usePointStyle:true,padding:12}}}
+    }
+  });
+}
+
+// ─── RENDER: CHECKLIST ───────────────────────────────────────────────
+function renderChecklist() {
+  const body = document.getElementById('checklistBody');
+  body.innerHTML = CATEGORIES.map(cat => {
+    const filled = cat.indicators.filter(ind => (scores[ind.id]||0) > 0).length;
+    const total = cat.indicators.length;
+    const done = filled === total;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);margin-bottom:6px;background:${done?'var(--green-50)':'var(--surface-alt)'};border:1px solid ${done?'#D1FAE5':'var(--border-light)'}">
+      <span style="font-size:16px">${done?'✅':cat.icon}</span>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600">${cat.name}</div>
+        <div style="font-size:11px;color:var(--text-muted)">${filled}/${total} indicators completed</div>
+      </div>
+      <div style="width:80px;height:4px;border-radius:2px;background:var(--border-light);overflow:hidden">
+        <div style="height:100%;width:${Math.round(filled/total*100)}%;background:${done?'var(--accent)':cat.color};border-radius:2px;transition:width .4s"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── INITIALIZE ──────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  renderOverview();
+  renderAssessment();
+  renderChecklist();
+  updateWorkflowBar('overview');
+});
+</script>
+</body>
+</html>
