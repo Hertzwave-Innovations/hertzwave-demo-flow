@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TerraCAP - Life Cycle Assessment Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg-sidebar: #0f1a12;
+    --bg-sidebar-hover: #1a2e1f;
+    --bg-sidebar-active: #1e3a25;
+    --bg-main: #f4f6f3;
+    --bg-card: #ffffff;
+    --bg-card-alt: #f8faf7;
+    --accent: #2e7d32;
+    --accent-light: #4caf50;
+    --accent-glow: rgba(46,125,50,0.12);
+    --accent-subtle: #e8f5e9;
+    --text-primary: #1a2e1f;
+    --text-secondary: #5a6e5f;
+    --text-muted: #8a9a8e;
+    --text-on-dark: #c8d8cc;
+    --text-on-dark-bright: #e8f0ea;
+    --border: #dce5dd;
+    --border-light: #eaf0eb;
+    --warning: #f57c00;
+    --warning-bg: #fff3e0;
+    --danger: #d32f2f;
+    --danger-bg: #ffebee;
+    --info: #1565c0;
+    --info-bg: #e3f2fd;
+    --shadow-sm: 0 1px 3px rgba(15,26,18,0.06);
+    --shadow-md: 0 4px 12px rgba(15,26,18,0.08);
+    --shadow-lg: 0 8px 30px rgba(15,26,18,0.12);
+    --shadow-glow: 0 0 20px rgba(46,125,50,0.15);
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'DM Sans',sans-serif; background:var(--bg-main); color:var(--text-primary); display:flex; min-height:100vh; }
+
+/* ═══ WORKFLOW SIDEBAR ═══ */
+.sidebar {
+    width: 250px; min-height: 100vh; background: var(--bg-sidebar);
+    position: fixed; left: 0; top: 0; bottom: 0; z-index: 100;
+    display: flex; flex-direction: column;
+    border-right: 1px solid rgba(46,125,50,0.15);
+}
+.sidebar-back {
+    display: flex; align-items: center; gap: 10px;
+    padding: 16px 18px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    color: var(--text-on-dark); font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: var(--transition); text-decoration: none;
+}
+.sidebar-back:hover { background: var(--bg-sidebar-hover); color: var(--text-on-dark-bright); }
+.sidebar-back .arrow { font-size: 16px; }
+
+.sidebar-brand {
+    padding: 20px 18px 16px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; gap: 12px;
+}
+.brand-icon {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-size: 15px; box-shadow: 0 2px 8px rgba(46,125,50,0.3);
+}
+.brand-text { color: var(--text-on-dark-bright); font-size: 15px; font-weight: 600; line-height: 1.2; }
+.brand-text span { display: block; font-size: 10px; color: var(--text-on-dark); font-weight: 400; opacity: 0.6; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 2px; }
+
+.sidebar-section-label {
+    font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px;
+    color: rgba(200,216,204,0.35); padding: 16px 18px 8px;
+}
+.sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 18px; cursor: pointer;
+    color: var(--text-on-dark); font-size: 12.5px; font-weight: 400;
+    transition: var(--transition); position: relative; border-left: 3px solid transparent;
+    opacity: 0.55;
+}
+.sidebar-item:hover { background: var(--bg-sidebar-hover); opacity: 0.85; }
+.sidebar-item.active {
+    background: var(--bg-sidebar-active); color: #4caf50; font-weight: 600;
+    border-left-color: var(--accent-light); opacity: 1;
+}
+.sidebar-item.completed { opacity: 0.85; }
+.sidebar-item.completed .step-num { background: var(--accent); color: white; border-color: var(--accent); }
+.sidebar-item.locked { opacity: 0.3; cursor: default; }
+.sidebar-item.locked:hover { background: transparent; }
+
+.step-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1.5px solid rgba(200,216,204,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; flex-shrink: 0;
+    color: rgba(200,216,204,0.5); transition: var(--transition);
+}
+.sidebar-item.active .step-num {
+    border-color: var(--accent-light); color: var(--accent-light);
+    box-shadow: 0 0 0 3px rgba(76,175,80,0.15);
+}
+.step-text { line-height: 1.3; }
+.step-text .step-sub { display: block; font-size: 10px; color: rgba(200,216,204,0.4); font-weight: 400; margin-top: 1px; }
+.sidebar-item.active .step-text .step-sub { color: rgba(76,175,80,0.6); }
+
+.sidebar-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 6px 0; }
+
+.sidebar-footer {
+    margin-top: auto; padding: 16px 18px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 10px; color: rgba(200,216,204,0.3); line-height: 1.5;
+}
+
+/* ═══ MAIN ═══ */
+.main-content { margin-left: 250px; flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+
+.topbar {
+    background: var(--bg-card); border-bottom: 1px solid var(--border-light);
+    padding: 12px 28px; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 50; box-shadow: var(--shadow-sm);
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-title { font-size: 15px; font-weight: 600; }
+.topbar-subtitle { font-size: 11px; color: var(--text-muted); }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.topbar-btn {
+    padding: 6px 12px; border-radius: var(--radius-sm);
+    font-size: 11px; font-weight: 500; cursor: pointer;
+    border: 1px solid var(--border); background: var(--bg-card);
+    color: var(--text-secondary); transition: var(--transition);
+    display: flex; align-items: center; gap: 5px; font-family: inherit;
+}
+.topbar-btn:hover { border-color: var(--accent); color: var(--accent); }
+.topbar-btn.primary { background: var(--accent); color: white; border-color: var(--accent); }
+.topbar-btn.primary:hover { background: #256b29; }
+
+.content-area { padding: 24px 28px; flex: 1; }
+
+/* ═══ TOOLTIP ═══ */
+.tt-wrap { position: relative; cursor: help; display: inline-flex; }
+.tt-wrap .tt {
+    position: absolute; bottom: calc(100% + 8px); left: 50%;
+    transform: translateX(-50%) translateY(4px); opacity: 0;
+    pointer-events: none; transition: 0.2s ease;
+    background: var(--bg-sidebar); color: var(--text-on-dark-bright);
+    padding: 10px 14px; border-radius: var(--radius-sm);
+    font-size: 12px; line-height: 1.55; width: max-content;
+    max-width: 320px; box-shadow: var(--shadow-lg); z-index: 200; font-weight: 400;
+}
+.tt-wrap .tt::after {
+    content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%);
+    border:6px solid transparent; border-top-color:var(--bg-sidebar);
+}
+.tt-wrap:hover .tt { opacity:1; transform:translateX(-50%) translateY(0); pointer-events:auto; }
+.help-dot {
+    width:15px; height:15px; border-radius:50%; background:var(--border-light);
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:9px; color:var(--text-muted); font-weight:700; cursor:help; flex-shrink:0;
+}
+
+/* ═══ CARDS ═══ */
+.card {
+    background:var(--bg-card); border-radius:var(--radius-lg);
+    border:1px solid var(--border-light); box-shadow:var(--shadow-sm);
+}
+.card-header {
+    padding:16px 22px; border-bottom:1px solid var(--border-light);
+    display:flex; align-items:center; justify-content:space-between;
+}
+.card-header h3 { font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px; }
+.card-body { padding:22px; }
+
+.info-banner {
+    display:flex; align-items:flex-start; gap:12px;
+    padding:14px 18px; border-radius:var(--radius-md);
+    font-size:12.5px; line-height:1.6; margin-bottom:18px;
+}
+.info-banner.info { background:var(--info-bg); color:#0d47a1; border-left:3px solid var(--info); }
+.info-banner.warning { background:var(--warning-bg); color:#e65100; border-left:3px solid var(--warning); }
+.info-banner.success { background:var(--accent-subtle); color:#1b5e20; border-left:3px solid var(--accent); }
+.info-banner .bi { font-size:16px; margin-top:1px; flex-shrink:0; }
+
+/* ═══ FORMS ═══ */
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.form-group { display:flex; flex-direction:column; gap:5px; }
+.form-group.full { grid-column:1/-1; }
+.form-label { font-size:11.5px; font-weight:600; color:var(--text-secondary); display:flex; align-items:center; gap:6px; }
+.form-label .req { color:var(--danger); }
+.form-input,.form-select,.form-textarea {
+    padding:8px 11px; border:1px solid var(--border); border-radius:var(--radius-sm);
+    font-size:12.5px; font-family:inherit; background:var(--bg-card);
+    color:var(--text-primary); transition:var(--transition); outline:none;
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-glow); }
+.form-textarea { resize:vertical; min-height:70px; }
+.form-select { cursor:pointer; }
+
+/* ═══ METHODOLOGY CARDS ═══ */
+.method-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.method-card {
+    border:2px solid var(--border-light); border-radius:var(--radius-md);
+    padding:18px; cursor:pointer; transition:var(--transition); position:relative;
+}
+.method-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:transparent; transition:var(--transition); }
+.method-card:hover { border-color:var(--accent); box-shadow:var(--shadow-md); }
+.method-card:hover::before { background:var(--accent); }
+.method-card.selected { border-color:var(--accent); background:var(--accent-subtle); box-shadow:var(--shadow-glow); }
+.method-card.selected::before { background:var(--accent); }
+.method-card .chk {
+    position:absolute; top:10px; right:10px; width:20px; height:20px;
+    border-radius:50%; border:2px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; color:transparent; transition:var(--transition);
+}
+.method-card.selected .chk { background:var(--accent); border-color:var(--accent); color:white; }
+.method-name { font-size:14px; font-weight:600; margin-bottom:3px; padding-right:28px; }
+.method-std { font-size:10.5px; color:var(--accent); font-weight:500; margin-bottom:7px; font-family:'JetBrains Mono',monospace; }
+.method-desc { font-size:11.5px; color:var(--text-secondary); line-height:1.6; }
+.method-tags { display:flex; flex-wrap:wrap; gap:4px; margin-top:9px; }
+.method-tag { font-size:9.5px; padding:2px 7px; border-radius:3px; background:rgba(46,125,50,0.08); color:var(--accent); font-weight:500; }
+
+/* ═══ BOUNDARY ═══ */
+.boundary-flow { display:flex; align-items:center; justify-content:center; gap:0; padding:20px 0; flex-wrap:wrap; }
+.boundary-box {
+    width:120px; padding:14px 10px; border-radius:var(--radius-md);
+    border:2px solid var(--border); text-align:center;
+    transition:var(--transition); cursor:pointer; background:var(--bg-card); position:relative;
+}
+.boundary-box:hover { border-color:var(--accent); }
+.boundary-box.included { border-color:var(--accent); background:var(--accent-subtle); }
+.boundary-box.excluded { opacity:0.4; }
+.boundary-box .si { font-size:20px; margin-bottom:5px; }
+.boundary-box .sn { font-size:10.5px; font-weight:600; line-height:1.3; }
+.boundary-toggle {
+    position:absolute; top:-7px; right:-7px; width:18px; height:18px;
+    border-radius:50%; border:none; font-size:9px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+}
+.boundary-box.included .boundary-toggle { background:var(--accent); color:white; }
+.boundary-box.excluded .boundary-toggle { background:var(--border); color:var(--text-muted); }
+.b-arrow { color:var(--border); font-size:16px; padding:0 6px; margin-top:-20px; flex-shrink:0; }
+
+/* ═══ LCI TABLE ═══ */
+.lci-section { margin-bottom:20px; }
+.lci-sh {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 14px; background:var(--bg-card-alt);
+    border-radius:var(--radius-sm) var(--radius-sm) 0 0;
+    border:1px solid var(--border-light); border-bottom:none;
+}
+.lci-sh h4 { font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:7px; }
+.badge { font-size:9px; padding:2px 7px; border-radius:3px; font-weight:600; text-transform:uppercase; letter-spacing:0.4px; }
+.b-auto { background:var(--accent-subtle); color:var(--accent); }
+.b-manual { background:var(--warning-bg); color:var(--warning); }
+.b-gap { background:var(--danger-bg); color:var(--danger); }
+.b-est { background:var(--info-bg); color:var(--info); }
+.b-new { background:rgba(76,175,80,0.15); color:#4caf50; }
+.b-pro { background:rgba(255,143,0,0.15); color:#ff8f00; }
+.b-step { background:rgba(33,150,243,0.1); color:var(--info); }
+
+.lci-table {
+    width:100%; border-collapse:collapse;
+    border:1px solid var(--border-light); border-top:none;
+    border-radius:0 0 var(--radius-sm) var(--radius-sm); overflow:hidden;
+}
+.lci-table th {
+    padding:8px 12px; font-size:10px; font-weight:600;
+    text-transform:uppercase; letter-spacing:0.5px;
+    color:var(--text-muted); background:var(--bg-card-alt);
+    text-align:left; border-bottom:1px solid var(--border-light);
+}
+.lci-table td {
+    padding:9px 12px; font-size:12.5px; border-bottom:1px solid var(--border-light); vertical-align:middle;
+}
+.lci-table tr:last-child td { border-bottom:none; }
+.lci-table tr:hover { background:rgba(46,125,50,0.02); }
+.v { font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:500; }
+.v-a { color:var(--accent); }
+.v-m { color:var(--warning); }
+
+.cell-input {
+    padding:4px 7px; border:1px dashed var(--warning); border-radius:4px;
+    font-size:11.5px; width:90px; font-family:'JetBrains Mono',monospace;
+    background:var(--warning-bg); outline:none;
+}
+.cell-input:focus { border-color:var(--accent); border-style:solid; background:white; }
+.cell-input.gap { border-color:var(--danger); background:var(--danger-bg); }
+
+.dq { display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:600; }
+.dq-d { width:7px; height:7px; border-radius:50%; }
+.dq-h .dq-d { background:var(--accent); } .dq-h { color:var(--accent); }
+.dq-m .dq-d { background:var(--warning); } .dq-m { color:var(--warning); }
+.dq-l .dq-d { background:var(--danger); } .dq-l { color:var(--danger); }
+
+/* ═══ IMPACT RESULTS ═══ */
+.stat-mini {
+    text-align:center; padding:14px; border-radius:var(--radius-md); background:var(--bg-card-alt);
+}
+.stat-mini .sv { font-size:22px; font-weight:700; font-family:'JetBrains Mono',monospace; }
+.stat-mini .sl { font-size:10.5px; color:var(--text-muted); margin-top:3px; line-height:1.4; }
+
+.bar-chart { display:flex; flex-direction:column; gap:10px; }
+.bar-row { display:flex; align-items:center; gap:10px; }
+.bar-label { width:130px; font-size:11.5px; color:var(--text-secondary); text-align:right; flex-shrink:0; }
+.bar-track { flex:1; height:26px; background:var(--bg-card-alt); border-radius:4px; overflow:hidden; display:flex; }
+.bar-seg { height:100%; transition:width 0.8s ease; }
+.bar-seg:hover { filter:brightness(1.1); }
+.bar-pct { font-size:11px; font-weight:600; font-family:'JetBrains Mono',monospace; width:48px; text-align:right; flex-shrink:0; }
+
+.chart-box { padding:18px; background:var(--bg-card); border-radius:var(--radius-md); border:1px solid var(--border-light); margin-top:14px; }
+.chart-title { font-size:13px; font-weight:600; margin-bottom:14px; display:flex; align-items:center; gap:7px; }
+
+/* ═══ TABS ═══ */
+.tabs { display:flex; gap:0; border-bottom:2px solid var(--border-light); margin-bottom:18px; }
+.tab {
+    padding:9px 16px; font-size:12px; font-weight:500; color:var(--text-muted);
+    cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:var(--transition);
+}
+.tab:hover { color:var(--text-primary); }
+.tab.active { color:var(--accent); border-bottom-color:var(--accent); font-weight:600; }
+
+/* ═══ TAGS ═══ */
+.tag-row { display:flex; flex-wrap:wrap; gap:5px; }
+.fw-tag { font-size:9.5px; padding:3px 8px; border-radius:3px; font-weight:600; border:1px solid; }
+.fw-tag.req { background:#ffebee; color:#c62828; border-color:#ef9a9a; }
+.fw-tag.rec { background:#fff3e0; color:#e65100; border-color:#ffcc80; }
+.fw-tag.opt { background:#e8f5e9; color:#2e7d32; border-color:#a5d6a7; }
+
+/* ═══ ACTIONS ═══ */
+.action-bar {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:16px 22px; border-top:1px solid var(--border-light);
+}
+.btn {
+    padding:8px 18px; border-radius:var(--radius-sm); font-size:12px; font-weight:600;
+    cursor:pointer; border:none; transition:var(--transition);
+    display:flex; align-items:center; gap:5px; font-family:inherit;
+}
+.btn-s { background:var(--bg-card-alt); color:var(--text-secondary); border:1px solid var(--border) !important; }
+.btn-s:hover { background:var(--border-light); }
+.btn-p { background:var(--accent); color:white; }
+.btn-p:hover { background:#256b29; }
+.btn-g { background:transparent; color:var(--text-muted); }
+
+/* ═══ VISIBILITY ═══ */
+.step-section { display:none; animation:fadeIn 0.3s ease; }
+.step-section.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+.divider { height:1px; background:var(--border-light); margin:18px 0; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+
+/* ═══ DASHBOARD SPECIFIC ═══ */
+.dash-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; margin-bottom:20px; }
+.dash-card {
+    padding:20px; border-radius:var(--radius-md); border:1px solid var(--border-light);
+    background:var(--bg-card); transition:var(--transition); cursor:pointer; position:relative;
+}
+.dash-card:hover { border-color:var(--accent); box-shadow:var(--shadow-md); transform:translateY(-2px); }
+.dash-card .dc-icon { font-size:26px; margin-bottom:10px; }
+.dash-card .dc-title { font-size:13px; font-weight:600; margin-bottom:4px; }
+.dash-card .dc-desc { font-size:11.5px; color:var(--text-secondary); line-height:1.55; }
+.dash-card .dc-status {
+    margin-top:10px; padding-top:8px; border-top:1px solid var(--border-light);
+    font-size:10.5px; font-weight:600; display:flex; align-items:center; gap:5px;
+}
+.dash-card .dc-tag {
+    position:absolute; top:12px; right:12px;
+    font-size:8.5px; padding:2px 6px; border-radius:3px; font-weight:700;
+    text-transform:uppercase; letter-spacing:0.5px;
+}
+
+.readiness-bar { display:flex; gap:2px; margin-top:8px; }
+.rb-seg { height:6px; border-radius:3px; flex:1; }
+.rb-done { background:var(--accent); }
+.rb-partial { background:var(--warning); }
+.rb-empty { background:var(--border-light); }
+
+.explainer {
+    background:linear-gradient(135deg, #f0fdf4, #e8f5e9);
+    border:1px solid #a5d6a7; border-radius:var(--radius-md);
+    padding:20px; margin-bottom:20px;
+}
+.explainer h4 { font-size:13px; font-weight:700; color:#1b5e20; margin-bottom:8px; display:flex; align-items:center; gap:7px; }
+.explainer p { font-size:12px; color:#2e5731; line-height:1.65; }
+.explainer ul { font-size:12px; color:#2e5731; line-height:1.8; padding-left:18px; margin-top:6px; }
+
+.int-card {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 14px; border:1px solid var(--border-light); border-radius:var(--radius-sm);
+    cursor:pointer; transition:var(--transition);
+}
+.int-card:hover { border-color:var(--accent); box-shadow:var(--shadow-sm); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ WORKFLOW SIDEBAR ═══════════ -->
+<aside class="sidebar">
+    <a class="sidebar-back" href="#" onclick="alert('Returning to TerraCAP Dashboard…')">
+        <span class="arrow">←</span> Back to Main Menu
+    </a>
+
+    <div class="sidebar-brand">
+        <div class="brand-icon">🔄</div>
+        <div class="brand-text">LCA Tool<span>Life Cycle Assessment</span></div>
+    </div>
+
+    <div class="sidebar-section-label">Workflow</div>
+
+    <div class="sidebar-item active" data-step="0" onclick="goToStep(0)">
+        <div class="step-num" style="border-color:var(--accent-light);color:var(--accent-light);">⌂</div>
+        <div class="step-text">LCA Dashboard<span class="step-sub">Overview & Data Readiness</span></div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-item" data-step="1" onclick="goToStep(1)">
+        <div class="step-num">1</div>
+        <div class="step-text">Goal & Scope<span class="step-sub">Purpose, Functional Unit</span></div>
+    </div>
+    <div class="sidebar-item" data-step="2" onclick="goToStep(2)">
+        <div class="step-num">2</div>
+        <div class="step-text">Methodology<span class="step-sub">LCIA Method & Categories</span></div>
+    </div>
+    <div class="sidebar-item" data-step="3" onclick="goToStep(3)">
+        <div class="step-num">3</div>
+        <div class="step-text">System Boundary<span class="step-sub">Life Cycle Stages</span></div>
+    </div>
+    <div class="sidebar-item" data-step="4" onclick="goToStep(4)">
+        <div class="step-num">4</div>
+        <div class="step-text">LC Inventory<span class="step-sub">Inputs, Outputs, Transport</span></div>
+    </div>
+    <div class="sidebar-item" data-step="5" onclick="goToStep(5)">
+        <div class="step-num">5</div>
+        <div class="step-text">Impact Assessment<span class="step-sub">LCIA Results & Hotspots</span></div>
+    </div>
+    <div class="sidebar-item" data-step="6" onclick="goToStep(6)">
+        <div class="step-num">6</div>
+        <div class="step-text">Interpretation<span class="step-sub">AI Insights & Scenarios</span></div>
+    </div>
+    <div class="sidebar-item" data-step="7" onclick="goToStep(7)">
+        <div class="step-num">7</div>
+        <div class="step-text">Report & Integrate<span class="step-sub">Publish & Push to Platform</span></div>
+    </div>
+
+    <div class="sidebar-footer">
+        ISO 14040 / 14044 Compliant<br>
+        TerraCAP v2.4 · Hertzwave Innovations
+    </div>
+</aside>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<main class="main-content">
+    <div class="topbar">
+        <div class="topbar-left">
+            <div>
+                <div class="topbar-title">Life Cycle Assessment Tool</div>
+                <div class="topbar-subtitle">ISO 14040 / 14044 Compliant · Product-Level Environmental Impact Analysis</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <button class="topbar-btn" onclick="showProjects()">📁 My Studies (3)</button>
+            <button class="topbar-btn primary" onclick="goToStep(1)">＋ New LCA Study</button>
+        </div>
+    </div>
+
+    <div class="content-area">
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- STEP 0: LCA DASHBOARD                      -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div id="step-0" class="step-section active">
+
+        <div class="explainer">
+            <h4>📘 What is Life Cycle Assessment (LCA)?</h4>
+            <p>LCA is a standardized methodology (ISO 14040 / ISO 14044) that quantifies the <strong>environmental impacts of a product, process, or service across its entire life</strong> — from raw material extraction through manufacturing, distribution, use, and end-of-life disposal. Unlike your organizational GHG inventory (Scope 1/2/3), LCA operates at the <strong>product level</strong>, answering: <em>"What is the environmental footprint of a specific product we make?"</em></p>
+            <ul>
+                <li><strong>GWP (Global Warming Potential)</strong> — Measures total greenhouse gas impact in kgCO₂-equivalent. This is the primary climate metric in LCA, equivalent to your carbon footprint per product.</li>
+                <li><strong>Acidification, Eutrophication, Water Depletion</strong> — Additional environmental impacts beyond carbon that regulators (CSRD, BRSR) increasingly require.</li>
+                <li><strong>Cradle-to-Gate vs Cradle-to-Grave</strong> — "Gate" means your factory exit; "Grave" means end-of-life disposal. CBAM requires Cradle-to-Gate; CSRD recommends Cradle-to-Grave.</li>
+            </ul>
+        </div>
+
+        <div class="explainer" style="background:linear-gradient(135deg,#e3f2fd,#e8eaf6);border-color:#90caf9;">
+            <h4 style="color:#0d47a1;">🔗 What TerraCAP Already Has for Your LCA</h4>
+            <p style="color:#1a3a5c;">Your GHG database already contains significant data that auto-populates the Life Cycle Inventory (Step 4). Here's what's ready and what you'll need to add:</p>
+        </div>
+
+        <!-- Data Readiness Cards -->
+        <div class="dash-grid">
+            <div class="dash-card" onclick="goToStep(4)">
+                <span class="dc-tag b-auto" style="background:var(--accent-subtle);color:var(--accent);">READY</span>
+                <div class="dc-icon">⚡</div>
+                <div class="dc-title">Energy Data (Scope 1 & 2)</div>
+                <div class="dc-desc">Electricity, natural gas, diesel, solar — all consumption data auto-maps to LCI energy inputs per product unit.</div>
+                <div class="readiness-bar"><div class="rb-seg rb-done"></div><div class="rb-seg rb-done"></div><div class="rb-seg rb-done"></div><div class="rb-seg rb-done"></div><div class="rb-seg rb-done"></div></div>
+                <div class="dc-status" style="color:var(--accent);">✓ 100% auto-populated from Scope 1 & 2</div>
+            </div>
+
+            <div class="dash-card" onclick="goToStep(4)">
+                <span class="dc-tag b-auto" style="background:var(--accent-subtle);color:var(--accent);">READY</span>
+                <div class="dc-icon">🚛</div>
+                <div class="dc-title">Transport Data (Scope 3 Cat. 4)</div>
+                <div class="dc-desc">Upstream transport routes, distances, modes, and emission factors from your Scope 3 Category 4 reporting.</div>
+                <div class="readiness-bar"><div class="rb-seg rb-done"></div><div class="rb-seg rb-done"></div><div class="rb-seg rb-done"></div><div class="rb-seg rb-done"></div><div class="rb-seg rb-partial"></div></div>
+                <div class="dc-status" style="color:var(--accent);">✓ 85% auto-populated from Scope 3</div>
+            </div>
+
+            <div class="dash-card" onclick="goToStep(4)">
+                <span class="dc-tag" style="background:var(--warning-bg);color:var(--warning);">PARTIAL</span>
+                <div class="dc-icon">⛏️</div>
+                <div class="dc-title">Raw Materials (Scope 3 Cat. 1)</div>
+                <div class="dc-desc">Purchased goods data partially available. Bill of Materials quantities need product-level allocation. Some emission factors need manual entry.</div>
+                <div class="readiness-bar"><div class="rb-seg rb-done"></div><div class="rb-seg rb-done"></div><div class="rb-seg rb-done"></div><div class="rb-seg rb-partial"></div><div class="rb-seg rb-empty"></div></div>
+                <div class="dc-status" style="color:var(--warning);">⚠ 60% available — BOM allocation needed</div>
+            </div>
+
+            <div class="dash-card" onclick="goToStep(4)">
+                <span class="dc-tag b-auto" style="background:var(--accent-subtle);color:var(--accent);">READY</span>
+                <div class="dc-icon">💧</div>
+                <div class="dc-title">Water Usage Data</div>
+                <div class="dc-desc">Water consumption by source (municipal, groundwater, recycled) from your Data Collection Forms — maps to water depletion impact.</div>
+                <div class="readiness-bar"><div class="rb-seg rb-done"></div><div class="rb-seg rb-done"></div><div class="rb-seg rb-done"></div><div class="rb-seg rb-done"></div><div class="rb-seg rb-partial"></div></div>
+                <div class="dc-status" style="color:var(--accent);">✓ 90% auto-populated from Water Module</div>
+            </div>
+
+            <div class="dash-card" onclick="goToStep(4)">
+                <span class="dc-tag" style="background:var(--warning-bg);color:var(--warning);">PARTIAL</span>
+                <div class="dc-icon">🗑️</div>
+                <div class="dc-title">Waste & Effluent Data</div>
+                <div class="dc-desc">Waste generation by type from your Waste Module. COD/BOD in effluent and process-specific emissions (VOCs, PM) may need manual entry.</div>
+                <div class="readiness-bar"><div class="rb-seg rb-done"></div><div class="rb-seg rb-done"></div><div class="rb-seg rb-done"></div><div class="rb-seg rb-partial"></div><div class="rb-seg rb-empty"></div></div>
+                <div class="dc-status" style="color:var(--warning);">⚠ 65% available — process emissions needed</div>
+            </div>
+
+            <div class="dash-card" onclick="goToStep(4)">
+                <span class="dc-tag" style="background:var(--danger-bg);color:var(--danger);">NEEDED</span>
+                <div class="dc-icon">📋</div>
+                <div class="dc-title">Product-Specific Allocation</div>
+                <div class="dc-desc">Your GHG data is at facility level. LCA needs <strong>per-product allocation</strong> — you'll define the functional unit and allocation method in Steps 1 & 3.</div>
+                <div class="readiness-bar"><div class="rb-seg rb-partial"></div><div class="rb-seg rb-empty"></div><div class="rb-seg rb-empty"></div><div class="rb-seg rb-empty"></div><div class="rb-seg rb-empty"></div></div>
+                <div class="dc-status" style="color:var(--danger);">○ Manual — define in Goal & Scope</div>
+            </div>
+        </div>
+
+        <!-- Framework Requirement Summary -->
+        <div class="card" style="margin-bottom:18px;">
+            <div class="card-header">
+                <h3>🏆 Where LCA Results Feed Into Your Frameworks</h3>
+            </div>
+            <div class="card-body">
+                <div class="info-banner info">
+                    <span class="bi">💡</span>
+                    <div>LCA results from this tool automatically flow into your <strong>Compliance Mapper, Scope 3 calculations, Supplier Evaluation scores, NetZero Pathfinder,</strong> and <strong>Reports</strong>. Each framework below uses specific LCA outputs.</div>
+                </div>
+                <table class="lci-table" style="border:1px solid var(--border-light); border-radius:var(--radius-sm);">
+                    <thead><tr><th>Framework</th><th>LCA Requirement</th><th>What LCA Provides</th><th>Status</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight:600;">BRSR (SEBI)</td>
+                            <td style="font-size:11.5px;">Explicitly asks: "Has an LCA been done?" (Principle 2 & 6)</td>
+                            <td style="font-size:11.5px;">Product footprint, resource reduction per unit, eco-design evidence</td>
+                            <td><span class="badge b-gap">Required</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:600;">EU CBAM</td>
+                            <td style="font-size:11.5px;">Embedded emissions per product (mandatory Jan 2026 for EU exports)</td>
+                            <td style="font-size:11.5px;">Cradle-to-Gate GWP (Global Warming Potential) per tonne of product</td>
+                            <td><span class="badge b-gap">Required</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:600;">CSRD / ESRS</td>
+                            <td style="font-size:11.5px;">ESRS E1-E5: Product-level environmental impacts recommended</td>
+                            <td style="font-size:11.5px;">GWP (Global Warming Potential), acidification, water use, circularity data</td>
+                            <td><span class="badge b-manual">Recommended</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:600;">CDP</td>
+                            <td style="font-size:11.5px;">Product-level Scope 3 (Cat 1, 11, 12) with activity-based data</td>
+                            <td style="font-size:11.5px;">Replaces spend-based estimates with actual product carbon footprint data</td>
+                            <td><span class="badge b-manual">Recommended</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:600;">GreenCo (CII)</td>
+                            <td style="font-size:11.5px;">LCA & Sustainable Product Portfolio is explicit scoring criteria</td>
+                            <td style="font-size:11.5px;">Product stewardship evidence, life cycle thinking documentation</td>
+                            <td><span class="badge b-est">Scoring</span></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:600;">EPD (ISO 14025)</td>
+                            <td style="font-size:11.5px;">Complete LCA is mandatory for Environmental Product Declarations</td>
+                            <td style="font-size:11.5px;">Full LCIA data package for third-party verified product declaration</td>
+                            <td><span class="badge b-gap">Required</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Existing Studies -->
+        <div class="card">
+            <div class="card-header">
+                <h3>📁 LCA Studies</h3>
+                <button class="btn btn-p" style="font-size:11px;padding:6px 14px;" onclick="goToStep(1)">＋ New Study</button>
+            </div>
+            <div class="card-body" style="padding:0;">
+                <table class="lci-table" style="border:none;">
+                    <thead><tr><th>Study Name</th><th>Product</th><th>Type</th><th>Status</th><th>GWP Result</th><th>Last Updated</th><th></th></tr></thead>
+                    <tbody>
+                        <tr onclick="goToStep(4)" style="cursor:pointer;">
+                            <td style="font-weight:600;">API Manufacturing — Paracetamol 500mg</td>
+                            <td>Paracetamol 500mg Tablet</td>
+                            <td>Cradle-to-Gate</td>
+                            <td><span class="badge b-manual">In Progress</span></td>
+                            <td class="v">7.82 kgCO₂e</td>
+                            <td style="font-size:11px;color:var(--text-muted);">24 Feb 2026</td>
+                            <td><button class="btn btn-s" style="font-size:10px;padding:4px 10px;">Open</button></td>
+                        </tr>
+                        <tr style="cursor:pointer;">
+                            <td style="font-weight:600;">Packaging LCA — Blister Strip</td>
+                            <td>HDPE/Al Blister Strip</td>
+                            <td>Cradle-to-Gate</td>
+                            <td><span class="badge b-auto">Completed</span></td>
+                            <td class="v">0.34 kgCO₂e</td>
+                            <td style="font-size:11px;color:var(--text-muted);">18 Feb 2026</td>
+                            <td><button class="btn btn-s" style="font-size:10px;padding:4px 10px;">View</button></td>
+                        </tr>
+                        <tr style="cursor:pointer;">
+                            <td style="font-weight:600;">Rail Wheel — Gate-to-Gate</td>
+                            <td>Forged Rail Wheel (1 unit)</td>
+                            <td>Gate-to-Gate</td>
+                            <td><span class="badge" style="background:#e8eaf6;color:#3949ab;">Draft</span></td>
+                            <td class="v" style="color:var(--text-muted);">—</td>
+                            <td style="font-size:11px;color:var(--text-muted);">12 Feb 2026</td>
+                            <td><button class="btn btn-s" style="font-size:10px;padding:4px 10px;">Edit</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- STEP 1: GOAL & SCOPE                       -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div id="step-1" class="step-section">
+        <div class="card">
+            <div class="card-header">
+                <h3>📋 Goal & Scope Definition <span style="font-size:10.5px;color:var(--text-muted);font-weight:400;margin-left:6px;">ISO 14040 §4.2</span></h3>
+                <span class="badge b-step">Step 1 of 7</span>
+            </div>
+            <div class="card-body">
+                <div class="info-banner info">
+                    <span class="bi">💡</span>
+                    <div>Define <strong>why</strong> you're doing this LCA, <strong>what</strong> product/process is being assessed, and <strong>how</strong> the results will be used. The <strong>Functional Unit</strong> is the reference measure (e.g., "1,000 tablets") against which all environmental impacts will be calculated. This step determines what data to collect in Step 4.</div>
+                </div>
+
+                <div class="form-grid" style="margin-bottom:18px;">
+                    <div class="form-group">
+                        <label class="form-label">Study Name <span class="req">*</span></label>
+                        <input type="text" class="form-input" value="API Manufacturing — Paracetamol 500mg">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Product / Process <span class="req">*</span></label>
+                        <input type="text" class="form-input" value="Paracetamol 500mg Tablet">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            Functional Unit <span class="req">*</span>
+                            <span class="tt-wrap"><span class="help-dot">?</span><span class="tt">The quantified performance of the product system used as a reference. All inputs, outputs, and impacts are calculated relative to this unit. Examples: "1 tonne of finished API", "1,000 tablets", "1 kWh delivered".</span></span>
+                        </label>
+                        <input type="text" class="form-input" value="1,000 tablets (500mg each)">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            Reference Flow
+                            <span class="tt-wrap"><span class="help-dot">?</span><span class="tt">The quantified amount of product needed to fulfill the functional unit. E.g., if functional unit is 1,000 tablets of 500mg each, the reference flow for API is 500g of Paracetamol.</span></span>
+                        </label>
+                        <input type="text" class="form-input" value="500g active pharmaceutical ingredient">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            LCA Type <span class="req">*</span>
+                            <span class="tt-wrap"><span class="help-dot">?</span><span class="tt"><strong>Cradle-to-Gate:</strong> Raw materials → factory exit. Used for CBAM, B2B footprints.<br><strong>Cradle-to-Grave:</strong> Full life cycle incl. use & disposal. Used for EPD, CSRD.<br><strong>Gate-to-Gate:</strong> Single process stage. Used for internal benchmarking.</span></span>
+                        </label>
+                        <select class="form-select">
+                            <option selected>Cradle-to-Gate</option>
+                            <option>Cradle-to-Grave</option>
+                            <option>Gate-to-Gate</option>
+                            <option>Well-to-Wheel</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            Study Purpose <span class="req">*</span>
+                            <span class="tt-wrap"><span class="help-dot">?</span><span class="tt">Determines reporting rigour: EPD studies need ISO-compliant critical review. Internal studies have more flexibility. CBAM studies must follow EU methodology for embedded emissions.</span></span>
+                        </label>
+                        <select class="form-select">
+                            <option selected>Regulatory Compliance (BRSR / CSRD / CBAM)</option>
+                            <option>Environmental Product Declaration (EPD)</option>
+                            <option>Internal Decision-Making</option>
+                            <option>Product Comparison / Eco-Design</option>
+                            <option>Supplier Assessment</option>
+                            <option>Carbon Labeling</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Facility / Site</label>
+                        <select class="form-select">
+                            <option selected>Hyderabad Manufacturing Plant</option>
+                            <option>Vizag API Facility</option>
+                            <option>Bengaluru R&D Center</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Assessment Period</label>
+                        <select class="form-select">
+                            <option selected>FY 2024-25 (Apr 2024 – Mar 2025)</option>
+                            <option>FY 2023-24</option>
+                            <option>CY 2024 (Jan – Dec)</option>
+                        </select>
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Study Description</label>
+                        <textarea class="form-textarea" rows="3">Cradle-to-gate LCA for Paracetamol 500mg tablet production at Hyderabad facility. Required for BRSR disclosure (Principle 6), CBAM reporting for EU export batches, and internal eco-design benchmarking.</textarea>
+                    </div>
+                </div>
+
+                <label class="form-label" style="margin-bottom:8px;">Target Frameworks <span style="font-size:10px;color:var(--text-muted);font-weight:400;">(auto-detected from your Compliance Mapper)</span></label>
+                <div class="tag-row" style="margin-bottom:16px;">
+                    <span class="fw-tag req">BRSR — Principle 2 & 6 (Required)</span>
+                    <span class="fw-tag req">CBAM — Embedded Emissions (Required)</span>
+                    <span class="fw-tag rec">CSRD ESRS E1-E5 (Recommended)</span>
+                    <span class="fw-tag rec">CDP — Product Footprint (Recommended)</span>
+                    <span class="fw-tag opt">GreenCo — Product Stewardship (Optional)</span>
+                </div>
+
+                <div class="info-banner success">
+                    <span class="bi">🔗</span>
+                    <div><strong>Auto-linked:</strong> GHG data from <strong>Hyderabad Manufacturing Plant</strong> (FY 2024-25) will auto-populate the Life Cycle Inventory in Step 4. Scope 1, 2, and 3 activity data available.</div>
+                </div>
+            </div>
+            <div class="action-bar">
+                <button class="btn btn-s" onclick="goToStep(0)">← Dashboard</button>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-s">💾 Save Draft</button>
+                    <button class="btn btn-p" onclick="goToStep(2)">Continue to Methodology →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- STEP 2: METHODOLOGY                        -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div id="step-2" class="step-section">
+        <div class="card">
+            <div class="card-header">
+                <h3>⚗️ LCIA Methodology Selection</h3>
+                <span class="badge b-step">Step 2 of 7</span>
+            </div>
+            <div class="card-body">
+                <div class="info-banner info">
+                    <span class="bi">📘</span>
+                    <div>Select the <strong>Life Cycle Impact Assessment (LCIA) method</strong> that converts your inventory data (energy, materials, emissions) into environmental impact scores. Each method uses different <strong>characterization factors</strong> to calculate impacts like <strong>GWP — Global Warming Potential</strong> (in kgCO₂-equivalent), acidification, water depletion, etc. Your method choice should align with your target frameworks.</div>
+                </div>
+
+                <div class="method-grid">
+                    <div class="method-card selected" onclick="selectMethod(this)">
+                        <div class="chk">✓</div>
+                        <div class="method-name">ReCiPe 2016 v1.1</div>
+                        <div class="method-std">Midpoint (H) + Endpoint</div>
+                        <div class="method-desc">Most widely used global LCIA method. Provides 18 midpoint impact categories including GWP — Global Warming Potential, plus 3 endpoint damage areas. Hierarchist perspective balances short and long-term impacts.</div>
+                        <div class="method-tags">
+                            <span class="method-tag">18 Midpoints</span>
+                            <span class="method-tag">3 Endpoints</span>
+                            <span class="method-tag">Global</span>
+                            <span class="method-tag">ISO 14044</span>
+                        </div>
+                    </div>
+                    <div class="method-card" onclick="selectMethod(this)">
+                        <div class="chk">✓</div>
+                        <div class="method-name">EU PEF 3.0</div>
+                        <div class="method-std">Product Environmental Footprint</div>
+                        <div class="method-desc">EU-recommended method for CSRD, EU Taxonomy, and Green Claims Directive. 16 impact categories with EU-approved normalization. Best choice for EU market compliance and CBAM alignment.</div>
+                        <div class="method-tags">
+                            <span class="method-tag">16 Categories</span>
+                            <span class="method-tag">CSRD Aligned</span>
+                            <span class="method-tag">EU Taxonomy</span>
+                            <span class="method-tag">CBAM</span>
+                        </div>
+                    </div>
+                    <div class="method-card" onclick="selectMethod(this)">
+                        <div class="chk">✓</div>
+                        <div class="method-name">CML-IA 2001</div>
+                        <div class="method-std">Leiden University Method</div>
+                        <div class="method-desc">Classic midpoint-only method. Conservative, well-established characterization factors. Preferred in academic studies and some Asian regulatory contexts. 11 baseline impact categories.</div>
+                        <div class="method-tags">
+                            <span class="method-tag">11 Categories</span>
+                            <span class="method-tag">Midpoint Only</span>
+                            <span class="method-tag">Conservative</span>
+                        </div>
+                    </div>
+                    <div class="method-card" onclick="selectMethod(this)">
+                        <div class="chk">✓</div>
+                        <div class="method-name">TRACI 2.1</div>
+                        <div class="method-std">US EPA Method</div>
+                        <div class="method-desc">US-specific characterization factors from the EPA. Required for US market compliance and SEC climate disclosure alignment. Uses North American environmental conditions.</div>
+                        <div class="method-tags">
+                            <span class="method-tag">10 Categories</span>
+                            <span class="method-tag">US EPA</span>
+                            <span class="method-tag">SEC Aligned</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+                <h4 style="font-size:13px;margin-bottom:10px;">Impact Categories — <span style="color:var(--accent)">ReCiPe 2016</span></h4>
+                <div class="info-banner success">
+                    <span class="bi">✅</span>
+                    <div>Categories auto-enabled based on your target frameworks (BRSR, CBAM, CSRD, CDP). <strong>GWP (Global Warming Potential)</strong> is always required. Toggle additional categories as needed.</div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px;">
+                    <label style="display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--border-light);border-radius:var(--radius-sm);font-size:11.5px;cursor:pointer;background:var(--accent-subtle);">
+                        <input type="checkbox" checked disabled> <strong>GWP — Global Warming Potential</strong> <span class="fw-tag req" style="margin-left:auto;font-size:8px;">Required</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--border-light);border-radius:var(--radius-sm);font-size:11.5px;cursor:pointer;background:var(--accent-subtle);">
+                        <input type="checkbox" checked disabled> <strong>Terrestrial Acidification</strong> <span class="fw-tag rec" style="margin-left:auto;font-size:8px;">CSRD E2</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--border-light);border-radius:var(--radius-sm);font-size:11.5px;cursor:pointer;background:var(--accent-subtle);">
+                        <input type="checkbox" checked disabled> <strong>Freshwater Eutrophication</strong> <span class="fw-tag rec" style="margin-left:auto;font-size:8px;">CSRD E3</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--border-light);border-radius:var(--radius-sm);font-size:11.5px;cursor:pointer;background:var(--accent-subtle);">
+                        <input type="checkbox" checked> <strong>Water Consumption</strong> <span class="fw-tag rec" style="margin-left:auto;font-size:8px;">BRSR</span>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--border-light);border-radius:var(--radius-sm);font-size:11.5px;cursor:pointer;"><input type="checkbox" checked> <strong>Ozone Depletion</strong></label>
+                    <label style="display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--border-light);border-radius:var(--radius-sm);font-size:11.5px;cursor:pointer;"><input type="checkbox" checked> <strong>Human Toxicity (non-cancer)</strong></label>
+                    <label style="display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--border-light);border-radius:var(--radius-sm);font-size:11.5px;cursor:pointer;"><input type="checkbox" checked> <strong>Photochem. Ozone Formation</strong></label>
+                    <label style="display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--border-light);border-radius:var(--radius-sm);font-size:11.5px;cursor:pointer;"><input type="checkbox"> Terrestrial Ecotoxicity</label>
+                    <label style="display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--border-light);border-radius:var(--radius-sm);font-size:11.5px;cursor:pointer;"><input type="checkbox"> Mineral Resource Scarcity</label>
+                    <label style="display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--border-light);border-radius:var(--radius-sm);font-size:11.5px;cursor:pointer;"><input type="checkbox"> Fossil Resource Scarcity</label>
+                    <label style="display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--border-light);border-radius:var(--radius-sm);font-size:11.5px;cursor:pointer;"><input type="checkbox"> Land Use</label>
+                    <label style="display:flex;align-items:center;gap:7px;padding:7px 10px;border:1px solid var(--border-light);border-radius:var(--radius-sm);font-size:11.5px;cursor:pointer;"><input type="checkbox"> Marine Eutrophication</label>
+                </div>
+            </div>
+            <div class="action-bar">
+                <button class="btn btn-s" onclick="goToStep(1)">← Goal & Scope</button>
+                <div style="display:flex;gap:8px;"><button class="btn btn-s">💾 Save</button><button class="btn btn-p" onclick="goToStep(3)">Continue to Boundary →</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- STEP 3: SYSTEM BOUNDARY                    -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div id="step-3" class="step-section">
+        <div class="card">
+            <div class="card-header"><h3>🔲 System Boundary Definition</h3><span class="badge b-step">Step 3 of 7</span></div>
+            <div class="card-body">
+                <div class="info-banner info">
+                    <span class="bi">🎯</span>
+                    <div>Click each life cycle stage to <strong>include or exclude</strong> it. For Cradle-to-Gate, stages from raw material through manufacturing are included. The boundary determines which data is collected in the next step. <strong>GWP (Global Warming Potential)</strong> and other impact categories are calculated only for included stages.</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+                    <span style="font-size:11px;font-weight:600;">Quick Set:</span>
+                    <button class="btn btn-s" onclick="setBoundary('c2gate')" style="font-size:10px;padding:4px 10px;">Cradle-to-Gate</button>
+                    <button class="btn btn-s" onclick="setBoundary('c2grave')" style="font-size:10px;padding:4px 10px;">Cradle-to-Grave</button>
+                    <button class="btn btn-s" onclick="setBoundary('g2gate')" style="font-size:10px;padding:4px 10px;">Gate-to-Gate</button>
+                </div>
+                <div class="boundary-flow">
+                    <div class="boundary-box included" id="s1" onclick="toggleB(this)"><button class="boundary-toggle">✓</button><div class="si">⛏️</div><div class="sn">Raw Material Extraction</div></div>
+                    <div class="b-arrow">→</div>
+                    <div class="boundary-box included" id="s2" onclick="toggleB(this)"><button class="boundary-toggle">✓</button><div class="si">🚛</div><div class="sn">Upstream Transport</div></div>
+                    <div class="b-arrow">→</div>
+                    <div class="boundary-box included" id="s3" onclick="toggleB(this)"><button class="boundary-toggle">✓</button><div class="si">🏭</div><div class="sn">Manufacturing</div></div>
+                    <div class="b-arrow">→</div>
+                    <div class="boundary-box excluded" id="s4" onclick="toggleB(this)"><button class="boundary-toggle">✗</button><div class="si">📦</div><div class="sn">Distribution & Retail</div></div>
+                    <div class="b-arrow">→</div>
+                    <div class="boundary-box excluded" id="s5" onclick="toggleB(this)"><button class="boundary-toggle">✗</button><div class="si">💊</div><div class="sn">Use Phase</div></div>
+                    <div class="b-arrow">→</div>
+                    <div class="boundary-box excluded" id="s6" onclick="toggleB(this)"><button class="boundary-toggle">✗</button><div class="si">♻️</div><div class="sn">End-of-Life</div></div>
+                </div>
+                <div class="divider"></div>
+                <div class="two-col">
+                    <div>
+                        <h4 style="font-size:12.5px;margin-bottom:10px;">Cut-off Criteria</h4>
+                        <div class="form-grid">
+                            <div class="form-group"><label class="form-label">Mass Cut-off <span class="tt-wrap"><span class="help-dot">?</span><span class="tt">Flows below this % of total mass input can be excluded from the inventory. ISO default is 1%.</span></span></label><input type="text" class="form-input" value="1%"></div>
+                            <div class="form-group"><label class="form-label">Energy Cut-off <span class="tt-wrap"><span class="help-dot">?</span><span class="tt">Flows below this % of total energy input can be excluded. ISO default is 1%.</span></span></label><input type="text" class="form-input" value="1%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="font-size:12.5px;margin-bottom:10px;">Allocation Method</h4>
+                        <div class="form-group"><label class="form-label">Multi-output Allocation <span class="tt-wrap"><span class="help-dot">?</span><span class="tt">When a process produces multiple products, how to split environmental burden. ISO 14044 prefers: 1) Avoid allocation, 2) Physical (mass/energy), 3) Economic.</span></span></label>
+                        <select class="form-select"><option>System Expansion (Avoided Burden)</option><option selected>Mass-based Allocation</option><option>Economic Allocation</option><option>Energy-based Allocation</option></select></div>
+                        <div class="form-group" style="margin-top:10px;"><label class="form-label">End-of-Life Allocation</label>
+                        <select class="form-select"><option selected>Cut-off (Recycled Content)</option><option>Avoided Burden</option><option>50/50 (PEF Circular Footprint Formula)</option></select></div>
+                    </div>
+                </div>
+                <div class="info-banner warning" style="margin-top:18px;">
+                    <span class="bi">⚠️</span>
+                    <div><strong>CBAM Note:</strong> EU CBAM requires <strong>Cradle-to-Gate</strong> boundary covering all embedded emissions from raw material through manufacturing. Ensure upstream transport and all process emissions are included.</div>
+                </div>
+            </div>
+            <div class="action-bar">
+                <button class="btn btn-s" onclick="goToStep(2)">← Methodology</button>
+                <div style="display:flex;gap:8px;"><button class="btn btn-s">💾 Save</button><button class="btn btn-p" onclick="goToStep(4)">Continue to Inventory →</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- STEP 4: LC INVENTORY                       -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div id="step-4" class="step-section">
+        <div class="card" style="margin-bottom:18px;">
+            <div class="card-header">
+                <h3>📊 Life Cycle Inventory (LCI) <span style="font-size:10.5px;color:var(--text-muted);font-weight:400;margin-left:6px;">ISO 14040 §4.3</span></h3>
+                <div style="display:flex;gap:6px;"><span class="badge b-auto">Auto: 68%</span><span class="badge b-manual">Manual: 22%</span><span class="badge b-gap">Gaps: 10%</span></div>
+            </div>
+            <div class="card-body">
+                <div class="info-banner success">
+                    <span class="bi">🔗</span>
+                    <div><strong>Auto-populated from GHG Database:</strong> Scope 1, 2, 3 data for Hyderabad Plant (FY 2024-25) mapped to LCI. <strong style="color:var(--accent);">68% auto-filled.</strong> <span style="color:var(--warning);">Orange = manual input needed.</span> <span style="color:var(--danger);">Red = data gap — use AI estimate or request from supplier.</span></div>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab(this,'t-in')">Inputs (Materials & Energy)</div>
+                    <div class="tab" onclick="switchTab(this,'t-out')">Outputs (Emissions & Waste)</div>
+                    <div class="tab" onclick="switchTab(this,'t-tr')">Transport & Logistics</div>
+                    <div class="tab" onclick="switchTab(this,'t-dq')">Data Quality Matrix</div>
+                </div>
+
+                <!-- INPUTS -->
+                <div id="t-in" class="tc">
+                    <div class="lci-section">
+                        <div class="lci-sh"><h4>⛏️ Raw Materials & Chemicals <span style="color:var(--text-muted);font-weight:400;font-size:10.5px;">(per 1,000 tablets)</span></h4><span style="font-size:10.5px;color:var(--text-muted);">8 items</span></div>
+                        <table class="lci-table"><thead><tr><th style="width:26%">Material</th><th style="width:11%">Amount</th><th style="width:7%">Unit</th><th style="width:14%">EF (kgCO₂e/unit)</th><th style="width:9%">Source</th><th style="width:10%">Quality</th><th style="width:23%">Notes</th></tr></thead>
+                        <tbody>
+                            <tr><td>Paracetamol API (4-Aminophenol)</td><td class="v v-m"><input type="text" class="cell-input" value="0.52" style="background:white;border-style:solid;border-color:var(--accent);"></td><td>kg</td><td class="v v-m"><input type="text" class="cell-input" value="8.42"></td><td><span class="badge b-manual">Manual</span></td><td><span class="dq dq-m"><span class="dq-d"></span>Fair</span></td><td style="font-size:10.5px;color:var(--text-muted);">Supplier data requested</td></tr>
+                            <tr><td>Microcrystalline Cellulose</td><td class="v v-a">0.18</td><td>kg</td><td class="v v-a">1.85</td><td><span class="badge b-auto">GHG DB</span></td><td><span class="dq dq-h"><span class="dq-d"></span>Good</span></td><td style="font-size:10.5px;color:var(--text-muted);">From Scope 3 Cat.1</td></tr>
+                            <tr><td>Starch (Maize)</td><td class="v v-a">0.12</td><td>kg</td><td class="v v-a">0.94</td><td><span class="badge b-auto">GHG DB</span></td><td><span class="dq dq-h"><span class="dq-d"></span>Good</span></td><td style="font-size:10.5px;color:var(--text-muted);">From Scope 3 Cat.1</td></tr>
+                            <tr><td>Magnesium Stearate</td><td class="v v-a">0.005</td><td>kg</td><td class="v v-a">2.10</td><td><span class="badge b-auto">GHG DB</span></td><td><span class="dq dq-m"><span class="dq-d"></span>Fair</span></td><td style="font-size:10.5px;color:var(--text-muted);">Industry avg EF</td></tr>
+                            <tr><td>PVP (Polyvinylpyrrolidone)</td><td class="v v-m"><input type="text" class="cell-input" value="0.03"></td><td>kg</td><td><input type="text" class="cell-input gap" value="" placeholder="Enter EF"></td><td><span class="badge b-gap">Gap</span></td><td><span class="dq dq-l"><span class="dq-d"></span>Low</span></td><td style="font-size:10.5px;color:var(--danger);">⚠ EF missing — AI estimate?</td></tr>
+                            <tr><td>HDPE Blister Packaging</td><td class="v v-a">0.08</td><td>kg</td><td class="v v-a">1.92</td><td><span class="badge b-auto">GHG DB</span></td><td><span class="dq dq-h"><span class="dq-d"></span>Good</span></td><td style="font-size:10.5px;color:var(--text-muted);">From packaging data</td></tr>
+                            <tr><td>Aluminium Foil (blister)</td><td class="v v-a">0.02</td><td>kg</td><td class="v v-a">8.14</td><td><span class="badge b-auto">GHG DB</span></td><td><span class="dq dq-h"><span class="dq-d"></span>Good</span></td><td style="font-size:10.5px;color:var(--text-muted);">From Scope 3 Cat.1</td></tr>
+                            <tr><td>Corrugated Cardboard</td><td class="v v-a">0.04</td><td>kg</td><td class="v v-a">0.79</td><td><span class="badge b-auto">GHG DB</span></td><td><span class="dq dq-h"><span class="dq-d"></span>Good</span></td><td></td></tr>
+                        </tbody></table>
+                    </div>
+
+                    <div class="lci-section">
+                        <div class="lci-sh"><h4>⚡ Energy Inputs <span style="color:var(--text-muted);font-weight:400;font-size:10.5px;">(per 1,000 tablets)</span></h4><span class="badge b-auto">100% Auto</span></div>
+                        <table class="lci-table"><thead><tr><th>Energy Source</th><th>Amount</th><th>Unit</th><th>EF (kgCO₂e/unit)</th><th>Source</th><th>Quality</th><th>TerraCAP Scope Mapping</th></tr></thead>
+                        <tbody>
+                            <tr><td>Grid Electricity (Telangana)</td><td class="v v-a">3.24</td><td>kWh</td><td class="v v-a">0.82</td><td><span class="badge b-auto">Scope 2</span></td><td><span class="dq dq-h"><span class="dq-d"></span>Good</span></td><td style="font-size:10.5px;color:var(--accent);font-weight:500;">Scope 2 → Location-based</td></tr>
+                            <tr><td>Natural Gas (Boiler)</td><td class="v v-a">0.18</td><td>m³</td><td class="v v-a">2.02</td><td><span class="badge b-auto">Scope 1</span></td><td><span class="dq dq-h"><span class="dq-d"></span>Good</span></td><td style="font-size:10.5px;color:var(--accent);font-weight:500;">Scope 1 → Stationary Combustion</td></tr>
+                            <tr><td>Diesel (Backup DG)</td><td class="v v-a">0.04</td><td>litres</td><td class="v v-a">2.68</td><td><span class="badge b-auto">Scope 1</span></td><td><span class="dq dq-h"><span class="dq-d"></span>Good</span></td><td style="font-size:10.5px;color:var(--accent);font-weight:500;">Scope 1 → Stationary</td></tr>
+                            <tr><td>Solar PV (Rooftop)</td><td class="v v-a">0.86</td><td>kWh</td><td class="v v-a">0.041</td><td><span class="badge b-auto">Scope 2</span></td><td><span class="dq dq-h"><span class="dq-d"></span>Good</span></td><td style="font-size:10.5px;color:var(--accent);font-weight:500;">Scope 2 → Market-based</td></tr>
+                        </tbody></table>
+                    </div>
+
+                    <div class="lci-section">
+                        <div class="lci-sh"><h4>💧 Water Inputs <span style="color:var(--text-muted);font-weight:400;font-size:10.5px;">(per 1,000 tablets)</span></h4></div>
+                        <table class="lci-table"><thead><tr><th>Water Source</th><th>Amount</th><th>Unit</th><th>Source</th><th>Quality</th></tr></thead>
+                        <tbody>
+                            <tr><td>Municipal Water (Process)</td><td class="v v-a">12.6</td><td>litres</td><td><span class="badge b-auto">Water Module</span></td><td><span class="dq dq-h"><span class="dq-d"></span>Good</span></td></tr>
+                            <tr><td>Groundwater (Cooling)</td><td class="v v-a">8.3</td><td>litres</td><td><span class="badge b-auto">Water Module</span></td><td><span class="dq dq-h"><span class="dq-d"></span>Good</span></td></tr>
+                            <tr><td>RO/DM Water (Pharma-grade)</td><td class="v v-m"><input type="text" class="cell-input" value="4.2"></td><td>litres</td><td><span class="badge b-manual">Manual</span></td><td><span class="dq dq-m"><span class="dq-d"></span>Fair</span></td></tr>
+                        </tbody></table>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-top:14px;">
+                        <button class="btn btn-s" style="font-size:11px;">➕ Add Line Item</button>
+                        <button class="btn btn-s" style="font-size:11px;">📥 Import CSV / ERP</button>
+                        <button class="btn btn-s" style="font-size:11px;">🤖 AI Fill Data Gaps (3)</button>
+                    </div>
+                </div>
+
+                <!-- OUTPUTS -->
+                <div id="t-out" class="tc" style="display:none;">
+                    <div class="lci-section">
+                        <div class="lci-sh"><h4>💨 Air Emissions <span style="color:var(--text-muted);font-weight:400;font-size:10.5px;">(per 1,000 tablets)</span></h4><span class="badge b-auto">Calculated</span></div>
+                        <table class="lci-table"><thead><tr><th>Emission</th><th>Amount</th><th>Unit</th><th>Basis</th><th>Source</th></tr></thead>
+                        <tbody>
+                            <tr><td>CO₂ (fossil)</td><td class="v v-a">3.18</td><td>kg</td><td style="font-size:10.5px;">Electricity × Grid EF + NG combustion</td><td><span class="badge b-auto">Calc</span></td></tr>
+                            <tr><td>CH₄</td><td class="v v-a">0.0024</td><td>kg</td><td style="font-size:10.5px;">Natural gas combustion</td><td><span class="badge b-auto">Calc</span></td></tr>
+                            <tr><td>N₂O</td><td class="v v-a">0.00008</td><td>kg</td><td style="font-size:10.5px;">Combustion + process</td><td><span class="badge b-auto">Calc</span></td></tr>
+                            <tr><td>SO₂</td><td class="v v-a">0.0052</td><td>kg</td><td style="font-size:10.5px;">Grid electricity upstream</td><td><span class="badge b-auto">Calc</span></td></tr>
+                            <tr><td>NOₓ</td><td class="v v-a">0.0041</td><td>kg</td><td style="font-size:10.5px;">Boiler + grid upstream</td><td><span class="badge b-auto">Calc</span></td></tr>
+                            <tr><td>VOCs (Solvents)</td><td class="v v-m"><input type="text" class="cell-input" value="0.015"></td><td>kg</td><td style="font-size:10.5px;">Manufacturing (granulation)</td><td><span class="badge b-manual">Manual</span></td></tr>
+                            <tr><td>PM₁₀</td><td class="v v-m"><input type="text" class="cell-input" value="0.0008"></td><td>kg</td><td style="font-size:10.5px;">Tableting & coating</td><td><span class="badge b-manual">Manual</span></td></tr>
+                        </tbody></table>
+                    </div>
+                    <div class="lci-section">
+                        <div class="lci-sh"><h4>🗑️ Waste & Effluent <span style="color:var(--text-muted);font-weight:400;font-size:10.5px;">(per 1,000 tablets)</span></h4></div>
+                        <table class="lci-table"><thead><tr><th>Stream</th><th>Amount</th><th>Unit</th><th>Treatment</th><th>Source</th></tr></thead>
+                        <tbody>
+                            <tr><td>Hazardous Waste</td><td class="v v-a">0.008</td><td>kg</td><td>Incineration (TSDF)</td><td><span class="badge b-auto">Waste Module</span></td></tr>
+                            <tr><td>Non-hazardous Solid</td><td class="v v-a">0.035</td><td>kg</td><td>Landfill</td><td><span class="badge b-auto">Waste Module</span></td></tr>
+                            <tr><td>Recyclable (paper/plastic)</td><td class="v v-a">0.022</td><td>kg</td><td>Recycling</td><td><span class="badge b-auto">Waste Module</span></td></tr>
+                            <tr><td>Wastewater</td><td class="v v-a">18.4</td><td>litres</td><td>ETP → Municipal</td><td><span class="badge b-auto">Water Module</span></td></tr>
+                            <tr><td>COD in Effluent</td><td class="v v-m"><input type="text" class="cell-input" value="0.042"></td><td>kg</td><td>—</td><td><span class="badge b-manual">Manual</span></td></tr>
+                        </tbody></table>
+                    </div>
+                </div>
+
+                <!-- TRANSPORT -->
+                <div id="t-tr" class="tc" style="display:none;">
+                    <div class="lci-section">
+                        <div class="lci-sh"><h4>🚛 Upstream Transport</h4></div>
+                        <table class="lci-table"><thead><tr><th>Route</th><th>Mode</th><th>Distance</th><th>Load</th><th>EF</th><th>kgCO₂e</th><th>Source</th></tr></thead>
+                        <tbody>
+                            <tr><td>API Supplier → Plant</td><td>Road (12T)</td><td class="v v-a">340 km</td><td>0.52 kg</td><td class="v">0.062/tkm</td><td class="v v-a">0.011</td><td><span class="badge b-auto">Scope 3.4</span></td></tr>
+                            <tr><td>Excipient Supplier → Plant</td><td>Road (8T)</td><td class="v v-a">180 km</td><td>0.38 kg</td><td class="v">0.062/tkm</td><td class="v v-a">0.004</td><td><span class="badge b-auto">Scope 3.4</span></td></tr>
+                            <tr><td>Packaging → Plant</td><td>Road (12T)</td><td class="v v-a">85 km</td><td>0.14 kg</td><td class="v">0.062/tkm</td><td class="v v-a">0.001</td><td><span class="badge b-auto">Scope 3.4</span></td></tr>
+                        </tbody></table>
+                    </div>
+                </div>
+
+                <!-- DATA QUALITY -->
+                <div id="t-dq" class="tc" style="display:none;">
+                    <div class="info-banner info"><span class="bi">📊</span><div>Data Quality Indicators (DQI) per ISO 14044 / PEF. Scores: 1=Excellent, 2=Good, 3=Fair, 4=Poor, 5=Very Poor. Overall DQR is weighted average.</div></div>
+                    <table class="lci-table" style="border:1px solid var(--border-light);border-radius:var(--radius-sm);">
+                        <thead><tr><th>Category</th><th style="text-align:center">Temporal</th><th style="text-align:center">Geographic</th><th style="text-align:center">Technological</th><th style="text-align:center">Precision</th><th style="text-align:center">Methodological</th><th style="text-align:center">DQR</th></tr></thead>
+                        <tbody>
+                            <tr><td style="font-weight:600">Energy (Scope 1 & 2)</td><td style="text-align:center"><span class="dq dq-h">1</span></td><td style="text-align:center"><span class="dq dq-h">1</span></td><td style="text-align:center"><span class="dq dq-h">1</span></td><td style="text-align:center"><span class="dq dq-h">1</span></td><td style="text-align:center"><span class="dq dq-h">1</span></td><td style="text-align:center;font-weight:700;color:var(--accent);">1.0 ★</td></tr>
+                            <tr><td style="font-weight:600">Raw Materials (Excipients)</td><td style="text-align:center"><span class="dq dq-h">1</span></td><td style="text-align:center"><span class="dq dq-h">2</span></td><td style="text-align:center"><span class="dq dq-m">2</span></td><td style="text-align:center"><span class="dq dq-h">1</span></td><td style="text-align:center"><span class="dq dq-h">1</span></td><td style="text-align:center;font-weight:700;color:var(--accent);">1.4</td></tr>
+                            <tr><td style="font-weight:600">Raw Materials (API)</td><td style="text-align:center"><span class="dq dq-m">2</span></td><td style="text-align:center"><span class="dq dq-m">3</span></td><td style="text-align:center"><span class="dq dq-m">3</span></td><td style="text-align:center"><span class="dq dq-m">2</span></td><td style="text-align:center"><span class="dq dq-m">2</span></td><td style="text-align:center;font-weight:700;color:var(--warning);">2.4</td></tr>
+                            <tr><td style="font-weight:600">Transport</td><td style="text-align:center"><span class="dq dq-h">1</span></td><td style="text-align:center"><span class="dq dq-h">1</span></td><td style="text-align:center"><span class="dq dq-m">2</span></td><td style="text-align:center"><span class="dq dq-m">2</span></td><td style="text-align:center"><span class="dq dq-h">1</span></td><td style="text-align:center;font-weight:700;color:var(--accent);">1.4</td></tr>
+                            <tr><td style="font-weight:600">Process Emissions</td><td style="text-align:center"><span class="dq dq-m">2</span></td><td style="text-align:center"><span class="dq dq-h">1</span></td><td style="text-align:center"><span class="dq dq-h">1</span></td><td style="text-align:center"><span class="dq dq-m">3</span></td><td style="text-align:center"><span class="dq dq-m">2</span></td><td style="text-align:center;font-weight:700;color:var(--warning);">1.8</td></tr>
+                            <tr><td style="font-weight:600">Water & Waste</td><td style="text-align:center"><span class="dq dq-h">1</span></td><td style="text-align:center"><span class="dq dq-h">1</span></td><td style="text-align:center"><span class="dq dq-h">1</span></td><td style="text-align:center"><span class="dq dq-h">2</span></td><td style="text-align:center"><span class="dq dq-h">1</span></td><td style="text-align:center;font-weight:700;color:var(--accent);">1.2</td></tr>
+                            <tr style="background:var(--bg-card-alt);font-weight:700"><td>WEIGHTED OVERALL</td><td style="text-align:center">1.3</td><td style="text-align:center">1.5</td><td style="text-align:center">1.7</td><td style="text-align:center">1.5</td><td style="text-align:center">1.3</td><td style="text-align:center;color:var(--accent);font-size:14px;">1.5 ✓</td></tr>
+                        </tbody>
+                    </table>
+                    <div class="info-banner success" style="margin-top:14px;"><span class="bi">✅</span><div>DQR <strong>1.5</strong> meets "Good Quality" threshold (≤2.0) for CSRD/PEF. API material data (2.4) is weakest — request primary data from supplier.</div></div>
+                </div>
+            </div>
+            <div class="action-bar">
+                <button class="btn btn-s" onclick="goToStep(3)">← Boundary</button>
+                <div style="display:flex;gap:8px;"><button class="btn btn-s">💾 Save</button><button class="btn btn-p" onclick="goToStep(5)">Run Impact Assessment →</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- STEP 5: IMPACT ASSESSMENT                  -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div id="step-5" class="step-section">
+        <div class="card" style="margin-bottom:18px;">
+            <div class="card-header">
+                <h3>📐 Life Cycle Impact Assessment (LCIA) <span style="font-size:10.5px;color:var(--text-muted);font-weight:400;margin-left:6px;">ReCiPe 2016 Midpoint (H)</span></h3>
+                <span class="badge b-step">Step 5 of 7</span>
+            </div>
+            <div class="card-body">
+                <div class="info-banner success">
+                    <span class="bi">⚡</span>
+                    <div>LCIA computed for <strong>Paracetamol 500mg — 1,000 tablets (Cradle-to-Gate)</strong>. Results show environmental impacts per functional unit across 7 impact categories. <strong>GWP = Global Warming Potential</strong>, measured in kg CO₂-equivalent — this is the total greenhouse gas impact of your product.</div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px;">
+                    <div class="stat-mini" style="border-left:3px solid var(--accent);"><div class="sv" style="color:var(--accent);">7.82</div><div class="sl">kgCO₂e / 1000 tabs<br><strong>GWP (Global Warming Potential)</strong></div></div>
+                    <div class="stat-mini" style="border-left:3px solid #1565c0;"><div class="sv" style="color:#1565c0;">25.1</div><div class="sl">litres / 1000 tabs<br><strong>Water Consumption</strong></div></div>
+                    <div class="stat-mini" style="border-left:3px solid var(--warning);"><div class="sv" style="color:var(--warning);">0.031</div><div class="sl">kgSO₂e / 1000 tabs<br><strong>Acidification</strong></div></div>
+                    <div class="stat-mini" style="border-left:3px solid #7b1fa2;"><div class="sv" style="color:#7b1fa2;">0.0078</div><div class="sl">kgPO₄e / 1000 tabs<br><strong>Eutrophication</strong></div></div>
+                </div>
+
+                <div class="chart-box">
+                    <div class="chart-title">📊 Contribution Analysis — Global Warming Potential (GWP) by Life Cycle Stage</div>
+                    <div class="bar-chart">
+                        <div class="bar-row"><div class="bar-label">Raw Material Extraction</div><div class="bar-track"><div class="bar-seg" style="width:56%;background:linear-gradient(90deg,#2e7d32,#4caf50);"></div></div><div class="bar-pct" style="color:var(--accent);">56.2%</div></div>
+                        <div class="bar-row"><div class="bar-label">Manufacturing</div><div class="bar-track"><div class="bar-seg" style="width:34%;background:linear-gradient(90deg,#1565c0,#42a5f5);"></div></div><div class="bar-pct" style="color:#1565c0;">34.0%</div></div>
+                        <div class="bar-row"><div class="bar-label">Packaging</div><div class="bar-track"><div class="bar-seg" style="width:7.6%;background:linear-gradient(90deg,#f57c00,#ffb74d);"></div></div><div class="bar-pct" style="color:var(--warning);">7.6%</div></div>
+                        <div class="bar-row"><div class="bar-label">Upstream Transport</div><div class="bar-track"><div class="bar-seg" style="width:2.2%;background:linear-gradient(90deg,#7b1fa2,#ba68c8);"></div></div><div class="bar-pct" style="color:#7b1fa2;">2.2%</div></div>
+                    </div>
+                </div>
+
+                <div class="chart-box">
+                    <div class="chart-title">📊 Multi-Category Contribution by Process</div>
+                    <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+                        <span style="font-size:10px;display:flex;align-items:center;gap:4px;"><span style="width:9px;height:9px;background:#2e7d32;border-radius:2px;"></span>API Synthesis</span>
+                        <span style="font-size:10px;display:flex;align-items:center;gap:4px;"><span style="width:9px;height:9px;background:#1565c0;border-radius:2px;"></span>Electricity</span>
+                        <span style="font-size:10px;display:flex;align-items:center;gap:4px;"><span style="width:9px;height:9px;background:#f57c00;border-radius:2px;"></span>Natural Gas</span>
+                        <span style="font-size:10px;display:flex;align-items:center;gap:4px;"><span style="width:9px;height:9px;background:#7b1fa2;border-radius:2px;"></span>Excipients</span>
+                        <span style="font-size:10px;display:flex;align-items:center;gap:4px;"><span style="width:9px;height:9px;background:#c62828;border-radius:2px;"></span>Packaging</span>
+                        <span style="font-size:10px;display:flex;align-items:center;gap:4px;"><span style="width:9px;height:9px;background:#bdbdbd;border-radius:2px;"></span>Other</span>
+                    </div>
+                    <div class="bar-chart">
+                        <div class="bar-row"><div class="bar-label">GWP (kgCO₂e)</div><div class="bar-track"><div class="bar-seg" style="width:42%;background:#2e7d32;"></div><div class="bar-seg" style="width:28%;background:#1565c0;"></div><div class="bar-seg" style="width:10%;background:#f57c00;"></div><div class="bar-seg" style="width:10%;background:#7b1fa2;"></div><div class="bar-seg" style="width:7%;background:#c62828;"></div><div class="bar-seg" style="width:3%;background:#bdbdbd;"></div></div><div class="bar-pct">7.82</div></div>
+                        <div class="bar-row"><div class="bar-label">Acidification (gSO₂e)</div><div class="bar-track"><div class="bar-seg" style="width:30%;background:#2e7d32;"></div><div class="bar-seg" style="width:38%;background:#1565c0;"></div><div class="bar-seg" style="width:18%;background:#f57c00;"></div><div class="bar-seg" style="width:8%;background:#7b1fa2;"></div><div class="bar-seg" style="width:4%;background:#c62828;"></div><div class="bar-seg" style="width:2%;background:#bdbdbd;"></div></div><div class="bar-pct">31.0</div></div>
+                        <div class="bar-row"><div class="bar-label">Water (litres)</div><div class="bar-track"><div class="bar-seg" style="width:8%;background:#2e7d32;"></div><div class="bar-seg" style="width:15%;background:#1565c0;"></div><div class="bar-seg" style="width:5%;background:#f57c00;"></div><div class="bar-seg" style="width:6%;background:#7b1fa2;"></div><div class="bar-seg" style="width:2%;background:#c62828;"></div><div class="bar-seg" style="width:64%;background:#42a5f5;"></div></div><div class="bar-pct">25.1</div></div>
+                        <div class="bar-row"><div class="bar-label">Eutrophication (gPO₄e)</div><div class="bar-track"><div class="bar-seg" style="width:55%;background:#2e7d32;"></div><div class="bar-seg" style="width:12%;background:#1565c0;"></div><div class="bar-seg" style="width:5%;background:#f57c00;"></div><div class="bar-seg" style="width:8%;background:#7b1fa2;"></div><div class="bar-seg" style="width:5%;background:#c62828;"></div><div class="bar-seg" style="width:15%;background:#bdbdbd;"></div></div><div class="bar-pct">7.8</div></div>
+                    </div>
+                </div>
+
+                <div class="info-banner warning" style="margin-top:18px;">
+                    <span class="bi">🔥</span>
+                    <div><strong>Hotspot:</strong> API synthesis contributes <strong>42% of GWP (Global Warming Potential)</strong> and <strong>55% of eutrophication</strong>. Grid electricity contributes <strong>28% of GWP</strong>. These are the primary reduction levers — see Interpretation (Step 6) for AI-recommended scenarios.</div>
+                </div>
+            </div>
+            <div class="action-bar">
+                <button class="btn btn-s" onclick="goToStep(4)">← Inventory</button>
+                <div style="display:flex;gap:8px;"><button class="btn btn-s">📊 Export</button><button class="btn btn-p" onclick="goToStep(6)">Interpretation & Scenarios →</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- STEP 6: INTERPRETATION                     -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div id="step-6" class="step-section">
+        <div class="card" style="margin-bottom:18px;">
+            <div class="card-header"><h3>🔍 Interpretation & Scenario Analysis <span style="font-size:10.5px;color:var(--text-muted);font-weight:400;margin-left:6px;">ISO 14040 §4.5</span></h3><span class="badge b-step">Step 6 of 7</span></div>
+            <div class="card-body">
+                <div class="tabs">
+                    <div class="tab active">🤖 AI Insights</div>
+                    <div class="tab">📊 Sensitivity</div>
+                    <div class="tab">🔄 Scenarios</div>
+                    <div class="tab">📏 Benchmarks</div>
+                </div>
+
+                <div style="background:linear-gradient(135deg,#f0fdf4,#e8f5e9);border:1px solid #a5d6a7;border-radius:var(--radius-md);padding:20px;margin-bottom:18px;">
+                    <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px;">
+                        <span style="font-size:16px;">🤖</span>
+                        <span style="font-size:13px;font-weight:700;color:#1b5e20;">TerraCAP AI — Automated Interpretation</span>
+                        <span style="font-size:9px;padding:2px 7px;background:rgba(46,125,50,0.15);color:var(--accent);border-radius:3px;font-weight:600;margin-left:auto;">AI-GENERATED</span>
+                    </div>
+                    <div style="font-size:12.5px;line-height:1.8;color:#1a2e1f;">
+                        <p style="margin-bottom:10px;"><strong>Key Findings:</strong></p>
+                        <p style="margin-bottom:7px;">1. <strong>API synthesis dominates environmental impact</strong> — 42% of GWP (Global Warming Potential), 55% of eutrophication, 30% of acidification. The 4-Aminophenol route is energy and solvent-intensive. Switching to catalytic hydrogenation could reduce API-stage GWP by ~18-25%.</p>
+                        <p style="margin-bottom:7px;">2. <strong>Grid electricity is the second-largest GWP contributor</strong> (28%). Telangana DISCOM grid EF: 0.82 kgCO₂e/kWh. Increasing rooftop solar from 21% to 60% would cut manufacturing-stage GWP by ~35% (overall product GWP reduction: ~12%).</p>
+                        <p style="margin-bottom:7px;">3. <strong>Water footprint driven by cooling</strong> (64%). Closed-loop cooling would reduce water consumption ~40% with 18-month payback.</p>
+                        <p>4. <strong>CBAM exposure:</strong> At 7.82 kgCO₂e/1000 tabs, embedded carbon is within pharma sector range. Applying combined scenarios could save ~₹2.4L/year in CBAM certificate costs at projected EU ETS prices.</p>
+                    </div>
+                </div>
+
+                <h4 style="font-size:13px;margin-bottom:12px;">🔄 Scenario Comparison — GWP (Global Warming Potential) Reduction Pathways</h4>
+                <table class="lci-table" style="border:1px solid var(--border-light);border-radius:var(--radius-sm);">
+                    <thead><tr><th>Scenario</th><th style="text-align:center">GWP (kgCO₂e)</th><th style="text-align:center">Δ GWP</th><th style="text-align:center">Water (L)</th><th style="text-align:center">Acidification</th><th style="text-align:center">Est. Cost</th></tr></thead>
+                    <tbody>
+                        <tr style="background:var(--bg-card-alt);font-weight:600;"><td>📍 Baseline (Current)</td><td style="text-align:center" class="v">7.82</td><td style="text-align:center">—</td><td style="text-align:center" class="v">25.1</td><td style="text-align:center" class="v">31.0</td><td style="text-align:center">—</td></tr>
+                        <tr><td>☀️ Solar Expansion (60% RE)</td><td style="text-align:center" class="v">6.88</td><td style="text-align:center;color:var(--accent);font-weight:600;">-12.0%</td><td style="text-align:center" class="v">25.1</td><td style="text-align:center" class="v">25.4</td><td style="text-align:center;font-size:11px;">₹18L, 3yr payback</td></tr>
+                        <tr><td>⚗️ Alt. API Route (Catalytic)</td><td style="text-align:center" class="v">6.40</td><td style="text-align:center;color:var(--accent);font-weight:600;">-18.2%</td><td style="text-align:center" class="v">22.3</td><td style="text-align:center" class="v">26.1</td><td style="text-align:center;font-size:11px;">Supplier switch</td></tr>
+                        <tr><td>💧 Closed-Loop Cooling</td><td style="text-align:center" class="v">7.68</td><td style="text-align:center;color:var(--accent);font-weight:600;">-1.8%</td><td style="text-align:center;color:var(--accent);font-weight:600" class="v">15.1</td><td style="text-align:center" class="v">30.2</td><td style="text-align:center;font-size:11px;">₹8L, 18mo payback</td></tr>
+                        <tr style="background:var(--accent-subtle);font-weight:600;"><td>🏆 Combined Optimized</td><td style="text-align:center;color:var(--accent)" class="v">5.12</td><td style="text-align:center;color:var(--accent);font-weight:700;font-size:14px;">-34.5%</td><td style="text-align:center;color:var(--accent)" class="v">12.3</td><td style="text-align:center;color:var(--accent)" class="v">20.8</td><td style="text-align:center;font-size:11px;">₹26L, 2.5yr</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="action-bar">
+                <button class="btn btn-s" onclick="goToStep(5)">← Impact Assessment</button>
+                <div style="display:flex;gap:8px;"><button class="btn btn-s">💾 Save</button><button class="btn btn-p" onclick="goToStep(7)">Report & Integrate →</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- STEP 7: REPORT & INTEGRATE                 -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div id="step-7" class="step-section">
+        <div class="card">
+            <div class="card-header"><h3>📄 Report Generation & Platform Integration</h3><span class="badge b-step">Step 7 of 7</span></div>
+            <div class="card-body">
+                <div class="two-col">
+                    <div>
+                        <h4 style="font-size:13px;margin-bottom:12px;">📄 Report Outputs</h4>
+                        <div style="display:flex;flex-direction:column;gap:8px;">
+                            <div class="int-card"><div style="display:flex;align-items:center;gap:9px;"><span style="font-size:18px;">📋</span><div><div style="font-size:12.5px;font-weight:600;">Full ISO 14040 LCA Report</div><div style="font-size:10.5px;color:var(--text-muted);">All 4 phases, 42 pages — includes GWP (Global Warming Potential) and all impact categories</div></div></div><button class="btn btn-s" style="font-size:10px;padding:4px 10px;">⬇ PDF</button></div>
+                            <div class="int-card"><div style="display:flex;align-items:center;gap:9px;"><span style="font-size:18px;">📊</span><div><div style="font-size:12.5px;font-weight:600;">Executive Summary</div><div style="font-size:10.5px;color:var(--text-muted);">Key findings, hotspots, recommendations — 4 pages</div></div></div><button class="btn btn-s" style="font-size:10px;padding:4px 10px;">⬇ PDF</button></div>
+                            <div class="int-card"><div style="display:flex;align-items:center;gap:9px;"><span style="font-size:18px;">🏷️</span><div><div style="font-size:12.5px;font-weight:600;">EPD Data Package</div><div style="font-size:10.5px;color:var(--text-muted);">ISO 14025 format for EPD program operator</div></div></div><button class="btn btn-s" style="font-size:10px;padding:4px 10px;">⬇ XML</button></div>
+                            <div class="int-card"><div style="display:flex;align-items:center;gap:9px;"><span style="font-size:18px;">🇪🇺</span><div><div style="font-size:12.5px;font-weight:600;">CBAM Embedded Emissions Declaration</div><div style="font-size:10.5px;color:var(--text-muted);">Product-level tCO₂e for EU import reporting</div></div></div><button class="btn btn-s" style="font-size:10px;padding:4px 10px;">⬇ XLSX</button></div>
+                            <div class="int-card"><div style="display:flex;align-items:center;gap:9px;"><span style="font-size:18px;">📊</span><div><div style="font-size:12.5px;font-weight:600;">LCI Dataset Export</div><div style="font-size:10.5px;color:var(--text-muted);">Raw inventory in ILCD / JSON-LD format</div></div></div><button class="btn btn-s" style="font-size:10px;padding:4px 10px;">⬇ JSON</button></div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="font-size:13px;margin-bottom:12px;">🔗 Push Results to TerraCAP</h4>
+                        <div class="info-banner info" style="margin-bottom:12px;"><span class="bi">🔄</span><div>LCA results integrate back into your platform modules. Select which to update.</div></div>
+                        <div style="display:flex;flex-direction:column;gap:8px;">
+                            <label style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--accent);border-radius:var(--radius-sm);background:var(--accent-subtle);cursor:pointer;"><input type="checkbox" checked style="margin-top:2px;"><div><div style="font-size:12px;font-weight:600;">📊 Dashboard — Product Carbon Intensity</div><div style="font-size:10.5px;color:var(--text-secondary);margin-top:2px;">Adds GWP of 7.82 kgCO₂e/1000 tabs to dashboard KPIs</div></div></label>
+                            <label style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--accent);border-radius:var(--radius-sm);background:var(--accent-subtle);cursor:pointer;"><input type="checkbox" checked style="margin-top:2px;"><div><div style="font-size:12px;font-weight:600;">🎯 Scope 3 — Refine Category 1 & 4</div><div style="font-size:10.5px;color:var(--text-secondary);margin-top:2px;">Replace spend-based estimates with activity-based LCA data</div></div></label>
+                            <label style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--accent);border-radius:var(--radius-sm);background:var(--accent-subtle);cursor:pointer;"><input type="checkbox" checked style="margin-top:2px;"><div><div style="font-size:12px;font-weight:600;">📋 Compliance Mapper — Auto-fill Frameworks</div><div style="font-size:10.5px;color:var(--text-secondary);margin-top:2px;">BRSR Principle 2 & 6, CSRD E1-E5, CDP, CBAM fields</div></div></label>
+                            <label style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--border-light);border-radius:var(--radius-sm);cursor:pointer;"><input type="checkbox" checked style="margin-top:2px;"><div><div style="font-size:12px;font-weight:600;">🏭 Supplier Evaluation — Carbon Scores</div><div style="font-size:10.5px;color:var(--text-secondary);margin-top:2px;">Update API supplier's embodied carbon scoring</div></div></label>
+                            <label style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--border-light);border-radius:var(--radius-sm);cursor:pointer;"><input type="checkbox" style="margin-top:2px;"><div><div style="font-size:12px;font-weight:600;">🚀 NetZero Pathfinder — Product Levers</div><div style="font-size:10.5px;color:var(--text-secondary);margin-top:2px;">Import scenario analysis into org-level NetZero model</div></div></label>
+                            <label style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--border-light);border-radius:var(--radius-sm);cursor:pointer;"><input type="checkbox" style="margin-top:2px;"><div><div style="font-size:12px;font-weight:600;">🔍 Audit & Assurance — Verification Package</div><div style="font-size:10.5px;color:var(--text-secondary);margin-top:2px;">Bundle LCA with data quality matrix for third-party review</div></div></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="info-banner success">
+                    <span class="bi">✅</span>
+                    <div><strong>LCA Study Complete.</strong> "API Manufacturing — Paracetamol 500mg" ready for publication. GWP (Global Warming Potential): <strong>7.82 kgCO₂e</strong> per 1,000 tablets. Results will flow into selected modules on confirmation.</div>
+                </div>
+            </div>
+            <div class="action-bar">
+                <button class="btn btn-s" onclick="goToStep(6)">← Interpretation</button>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn btn-s">💾 Save Draft</button>
+                    <button class="btn btn-p" onclick="alert('✅ LCA Study Published!\n\nGWP (Global Warming Potential): 7.82 kgCO₂e / 1,000 tablets\n\nResults pushed to:\n• Dashboard (Product Carbon Intensity)\n• Scope 3 (Cat 1 & 4 refined)\n• Compliance Mapper (BRSR, CSRD, CBAM)\n• Supplier Evaluation (API supplier score)')">✅ Publish & Integrate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div><!-- content-area -->
+</main>
+
+<script>
+let currentStep = 0;
+
+function goToStep(step) {
+    document.querySelectorAll('.step-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-' + step).classList.add('active');
+
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+        const s = parseInt(item.dataset.step);
+        item.classList.remove('active','completed');
+        if (s < step && s > 0) item.classList.add('completed');
+        if (s === step) item.classList.add('active');
+    });
+    // Dashboard always accessible
+    if (step === 0) {
+        document.querySelector('[data-step="0"]').classList.add('active');
+        document.querySelector('[data-step="0"]').classList.remove('completed');
+    } else {
+        document.querySelector('[data-step="0"]').classList.remove('active');
+        document.querySelector('[data-step="0"]').classList.add('completed');
+    }
+
+    currentStep = step;
+    window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function selectMethod(card) {
+    document.querySelectorAll('.method-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+}
+
+function toggleB(box) {
+    box.classList.toggle('included');
+    box.classList.toggle('excluded');
+    box.querySelector('.boundary-toggle').textContent = box.classList.contains('included') ? '✓' : '✗';
+}
+
+function setBoundary(type) {
+    const ids = ['s1','s2','s3','s4','s5','s6'];
+    const cfg = { 'c2gate':[1,1,1,0,0,0], 'c2grave':[1,1,1,1,1,1], 'g2gate':[0,0,1,0,0,0] };
+    ids.forEach((id,i) => {
+        const b = document.getElementById(id);
+        b.classList.toggle('included', !!cfg[type][i]);
+        b.classList.toggle('excluded', !cfg[type][i]);
+        b.querySelector('.boundary-toggle').textContent = cfg[type][i] ? '✓' : '✗';
+    });
+}
+
+function switchTab(tab, id) {
+    tab.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    tab.closest('.card-body').querySelectorAll('.tc').forEach(c => c.style.display = 'none');
+    document.getElementById(id).style.display = 'block';
+}
+
+function showProjects() {
+    alert('📁 LCA Studies\n\n1. API Manufacturing — Paracetamol 500mg (In Progress)\n2. Packaging LCA — Blister Strip (Completed)\n3. Rail Wheel — Gate-to-Gate (Draft)');
+}
+
+// Start at dashboard
+goToStep(0);
+</script>
+</body>
+</html>
