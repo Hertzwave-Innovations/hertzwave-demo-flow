@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!--trigger rebuild--!>
-    <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HWCAP - Complete Application Flow</title>
@@ -216,6 +215,28 @@
             margin: 1rem 0;
             font-size: 0.9rem;
         }
+
+        .tier-btn {
+            padding: 0.5rem 1.25rem;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 6px;
+            background: rgba(255,255,255,0.15);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+        }
+
+        .tier-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .tier-btn.active {
+            background: white;
+            color: var(--hz-primary-700);
+            border-color: white;
+        }
     </style>
 </head>
 <body>
@@ -224,13 +245,18 @@
             <div class="logo">🌱 HWCAP</div>
             <div class="subtitle">Complete Sustainability Platform - Demo Flow</div>
             <div class="credentials">
-                <strong>Demo Credentials:</strong> Email: <code>admin@hertzwave.in</code> | Password: <code>admin</code>
+                <strong>Demo Credentials:</strong> Email: <code><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="fc9d98919592bc94998e88868b9d8a99d29592">[email&#160;protected]</a></code> | Password: <code>admin</code>
                 <br><small>Select any tier to explore tier-specific features</small>
             </div>
         </div>
 
         <div class="demo-notice">
-            <strong>🎯 Demo Instructions:</strong> Start with the login page, select a tier, and explore all features based on your selected subscription level.
+            <strong>🎯 Demo Instructions:</strong> Select a tier below, then click any link — all pages will open with the correct tier applied.
+            <div style="margin-top: 0.75rem; display: flex; justify-content: center; gap: 0.75rem; flex-wrap: wrap;">
+                <button class="tier-btn" data-tier="essentials" onclick="selectTier('essentials')">Essentials</button>
+                <button class="tier-btn active" data-tier="professional" onclick="selectTier('professional')">Professional</button>
+                <button class="tier-btn" data-tier="enterprise" onclick="selectTier('enterprise')">Enterprise</button>
+            </div>
         </div>
 
         <!-- Main Application Flow -->
@@ -403,5 +429,39 @@
             <a href="login.html" class="start-btn">🚀 Start Demo</a>
         </div>
     </div>
+
+    <script>
+        var currentTier = 'professional';
+
+        // On load, check URL for tier param and initialize
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            var urlTier = params.get('tier');
+            if (urlTier && ['essentials', 'professional', 'enterprise'].indexOf(urlTier) !== -1) {
+                currentTier = urlTier;
+            }
+            selectTier(currentTier);
+        })();
+
+        function selectTier(tier) {
+            currentTier = tier;
+
+            // Update button active states
+            document.querySelectorAll('.tier-btn').forEach(function(btn) {
+                btn.classList.toggle('active', btn.getAttribute('data-tier') === tier);
+            });
+
+            // Append ?tier= to every internal link
+            document.querySelectorAll('a[href]').forEach(function(link) {
+                var href = link.getAttribute('href');
+                if (!href || href === '#' || href.startsWith('http') || href.startsWith('mailto:')) return;
+                var base = href.split('?')[0];
+                link.setAttribute('href', base + '?tier=' + tier);
+            });
+
+            // Also persist for pages that don't carry params
+            try { sessionStorage.setItem('userTier', tier); } catch(e) {}
+        }
+    </script>
 </body>
 </html>
