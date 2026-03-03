@@ -1326,36 +1326,15 @@
             chevron.classList.toggle('open');
         }
 
-        // Helper: get tier from URL > sessionStorage > default
-        function getUserTier() {
-            const params = new URLSearchParams(window.location.search);
-            const urlTier = params.get('tier');
-            if (urlTier) {
-                // Persist to sessionStorage as backup for pages that don't pass params
-                try { sessionStorage.setItem('userTier', urlTier); } catch(e) {}
-                return urlTier;
-            }
-            try { return sessionStorage.getItem('userTier') || 'professional'; } catch(e) { return 'professional'; }
-        }
-
-        // Helper: append ?tier= to all internal links so tier carries across pages
-        function propagateTierToLinks(tier) {
-            document.querySelectorAll('a[href]').forEach(function(link) {
-                var href = link.getAttribute('href');
-                if (!href || href === '#' || href.startsWith('http') || href.startsWith('mailto:')) return;
-                // Strip existing tier param if any
-                var base = href.split('?')[0];
-                var existingParams = new URLSearchParams(href.includes('?') ? href.split('?')[1] : '');
-                existingParams.set('tier', tier);
-                link.setAttribute('href', base + '?' + existingParams.toString());
-            });
-        }
-
         // Initialize page based on user tier
         document.addEventListener('DOMContentLoaded', function() {
-            const userTier = getUserTier();
+            // DEMO MODE: Hardcoded to professional tier and consent auto-approved
+            const userTier = 'professional';
+            try {
+                sessionStorage.setItem('userTier', 'professional');
+                localStorage.setItem('hwcap_consent_completed', 'true');
+            } catch(e) {}
             initializeDashboard(userTier);
-            propagateTierToLinks(userTier);
             initializeConsentChecking(); // NEW: Check consent status on load
         });
 
@@ -1526,9 +1505,8 @@
             
             alert('Please read the privacy & legal docs and provide the consent to enable access to the data apps.\n\nClick OK to go to the Consent Management page.');
             
-            // Navigate to consent page (carry tier param)
-            var tier = getUserTier();
-            window.location.href = 'consent-management-table.html?tier=' + tier;
+            // Navigate to consent page
+            window.location.href = 'consent-management-table.html';
         }
 
         // Function called from consent management page when consent is completed
