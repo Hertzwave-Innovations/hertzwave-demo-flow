@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HWCAP - Data Import & Export</title>
+    <title>TerraCAP - Data Import, Export & Evidence</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -21,13 +21,21 @@
             --warning: #F6AD55;
             --danger: #E53E3E;
             --info: #4299E1;
+            --scope-1: #E53E3E;
+            --scope-2: #F6AD55;
+            --scope-3: #4299E1;
+            --water: #00B4D8;
+            --waste: #8E4EC6;
+            --biodiversity: #22C55E;
+            --dei: #EC4899;
+            --governance: #6366F1;
+            --community: #F97316;
+            --climate: #0EA5E9;
+            --ehs: #14B8A6;
+            --air: #64748B;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Outfit', system-ui, -apple-system, sans-serif;
@@ -36,7 +44,7 @@
             line-height: 1.6;
         }
 
-        /* Header */
+        /* ── Header ── */
         .header {
             background: var(--hz-primary);
             color: white;
@@ -45,557 +53,1272 @@
             justify-content: space-between;
             align-items: center;
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             z-index: 100;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
         }
+        .logo { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 1.25rem; letter-spacing: 0.5px; }
+        .logo-icon { width: 28px; height: 28px; background: rgba(255,255,255,0.2); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+        .user-menu { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.15); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; }
+        .user-avatar { width: 32px; height: 32px; background: var(--hz-mint); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--hz-dark); font-weight: 700; font-size: 0.85rem; }
+        .auditor-badge { background: #fef3c7; color: #92400e; font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-weight: 700;
-            font-size: 1.25rem;
-            letter-spacing: 0.5px;
-        }
-
-        .logo-icon {
-            width: 28px;
-            height: 28px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-        }
-
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(255,255,255,0.15);
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            background: var(--hz-mint);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--hz-dark);
-            font-weight: 700;
-        }
-
-        /* Layout */
-        .layout {
-            display: flex;
-            margin-top: 64px;
-            min-height: calc(100vh - 64px);
-        }
+        /* ── Layout ── */
+        .layout { display: flex; margin-top: 64px; min-height: calc(100vh - 64px); }
 
         .sidebar {
-            width: 280px;
+            width: 260px;
             background: white;
             border-right: 1px solid var(--stroke);
             padding: 1.5rem 0;
             position: fixed;
-            left: 0;
-            top: 64px;
-            bottom: 0;
+            left: 0; top: 64px; bottom: 0;
             overflow-y: auto;
         }
+        .nav-section { margin-bottom: 1.75rem; }
+        .nav-section-title { padding: 0 1.25rem 0.6rem; font-size: 0.7rem; font-weight: 700; color: var(--subtle); text-transform: uppercase; letter-spacing: 0.5px; }
+        .nav-item { display: flex; align-items: center; padding: 0.65rem 1.25rem; color: var(--ink); text-decoration: none; transition: all 0.2s; border-left: 3px solid transparent; gap: 10px; font-size: 0.9rem; }
+        .nav-item:hover { background: var(--hz-primary-50); color: var(--hz-primary); }
+        .nav-item.active { background: var(--hz-primary-50); color: var(--hz-primary); border-left-color: var(--hz-primary); font-weight: 600; }
+        .nav-icon { width: 18px; text-align: center; font-size: 0.95rem; }
 
-        .nav-section {
-            margin-bottom: 2rem;
+        /* ── Main Content ── */
+        .main-content { flex: 1; margin-left: 260px; padding: 2rem; }
+
+        .page-header { margin-bottom: 1.75rem; }
+        .page-title { font-size: 1.85rem; font-weight: 700; color: var(--hz-primary); margin-bottom: 0.4rem; }
+        .page-subtitle { color: var(--subtle); font-size: 0.95rem; }
+
+        /* ── Module Tab Bar ── */
+        .module-tabs {
+            display: flex;
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 12px;
+            padding: 6px;
+            gap: 6px;
+            margin-bottom: 1.75rem;
         }
+        .module-tab {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0.65rem 1rem;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--subtle);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .module-tab:hover { background: var(--hz-primary-50); color: var(--hz-primary); }
+        .module-tab.active { background: var(--hz-primary); color: white; }
+        .module-tab .tab-badge {
+            background: rgba(255,255,255,0.25);
+            font-size: 0.7rem;
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+        .module-tab:not(.active) .tab-badge { background: var(--hz-primary-50); color: var(--hz-primary); }
 
-        .nav-section-title {
-            padding: 0 1.5rem 0.75rem;
+        /* ── Tab Panels ── */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ── Cards ── */
+        .card {
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 12px;
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .card-title { font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: 0.35rem; display: flex; align-items: center; gap: 10px; }
+        .card-subtitle { font-size: 0.875rem; color: var(--subtle); margin-bottom: 1.25rem; }
+
+        /* ── Buttons ── */
+        .btn {
+            padding: 0.65rem 1.25rem;
+            border: none; border-radius: 8px;
+            font-family: inherit; font-size: 0.875rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 7px;
+            text-decoration: none;
+        }
+        .btn-primary { background: var(--hz-primary); color: white; }
+        .btn-primary:hover { background: var(--hz-primary-700); transform: translateY(-1px); }
+        .btn-secondary { background: white; color: var(--ink); border: 1px solid var(--stroke); }
+        .btn-secondary:hover { background: var(--hz-primary-50); border-color: var(--hz-primary); }
+        .btn-outline { background: transparent; color: var(--hz-primary); border: 2px solid var(--hz-primary); }
+        .btn-outline:hover { background: var(--hz-primary); color: white; }
+        .btn-danger { background: #fff5f5; color: var(--danger); border: 1px solid #fed7d7; }
+        .btn-danger:hover { background: var(--danger); color: white; }
+        .btn-sm { padding: 0.4rem 0.85rem; font-size: 0.8rem; }
+        .btn-icon { padding: 0.4rem 0.5rem; }
+
+        /* ── Form Elements ── */
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+        .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+        .form-label { font-size: 0.8rem; font-weight: 600; color: var(--subtle); }
+        .form-label span.req { color: var(--danger); }
+        .form-control {
+            padding: 0.65rem 0.875rem;
+            border: 1px solid var(--stroke);
+            border-radius: 8px;
+            background: white;
+            font-family: inherit;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            color: var(--ink);
+        }
+        .form-control:focus { outline: none; border-color: var(--hz-primary); box-shadow: 0 0 0 3px rgba(74,124,89,0.1); }
+        textarea.form-control { min-height: 80px; resize: vertical; }
+
+        /* ── Upload Area ── */
+        .upload-area {
+            border: 2px dashed var(--stroke);
+            border-radius: 10px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            background: #fafaf9;
+            transition: all 0.25s;
+            cursor: pointer;
+            position: relative;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: var(--hz-primary);
+            background: var(--hz-primary-50);
+        }
+        .upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        .upload-icon { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .upload-text { font-size: 1rem; font-weight: 600; color: var(--ink); margin-bottom: 0.25rem; }
+        .upload-help { font-size: 0.8rem; color: var(--subtle); }
+
+        /* ── Evidence Upload Panel ── */
+        .evidence-upload-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 1.5rem; }
+
+        /* ── Category Color Chips ── */
+        .category-chip {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 0.75rem; font-weight: 600;
+            padding: 3px 10px; border-radius: 12px;
+        }
+        .chip-scope1   { background: rgba(229,62,62,0.1);    color: #c53030; }
+        .chip-scope2   { background: rgba(246,173,85,0.12);  color: #c05621; }
+        .chip-scope3   { background: rgba(66,153,225,0.12);  color: #2b6cb0; }
+        .chip-water    { background: rgba(0,180,216,0.1);    color: #0077b6; }
+        .chip-waste    { background: rgba(142,78,198,0.1);   color: #6b21a8; }
+        .chip-air      { background: rgba(100,116,139,0.1);  color: #475569; }
+        .chip-biodiv   { background: rgba(34,197,94,0.1);    color: #166534; }
+        .chip-climate  { background: rgba(14,165,233,0.1);   color: #0369a1; }
+        .chip-ehs      { background: rgba(20,184,166,0.1);   color: #0f766e; }
+        .chip-dei      { background: rgba(236,72,153,0.1);   color: #9d174d; }
+        .chip-community{ background: rgba(249,115,22,0.1);   color: #c2410c; }
+        .chip-governance{ background: rgba(99,102,241,0.12); color: #4338ca; }
+        .chip-others    { background: rgba(113,113,122,0.1);  color: #52525b; }
+
+        /* ── Uploaded Files Queue ── */
+        .files-queue { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1rem; }
+        .file-item {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--hz-primary-50); border-radius: 8px;
+            padding: 0.6rem 0.875rem;
+            border: 1px solid rgba(74,124,89,0.2);
+        }
+        .file-icon { font-size: 1.1rem; flex-shrink: 0; }
+        .file-info { flex: 1; min-width: 0; }
+        .file-name { font-size: 0.85rem; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-meta { font-size: 0.72rem; color: var(--subtle); }
+        .file-remove { color: var(--danger); cursor: pointer; font-size: 1rem; flex-shrink: 0; background: none; border: none; }
+
+        /* ── Evidence History Table ── */
+        .evidence-filters {
+            display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem; align-items: flex-end;
+        }
+        .evidence-filters .form-group { min-width: 160px; flex: 1; }
+        .evidence-filters .form-group.wide { min-width: 200px; flex: 2; }
+
+        .evidence-table-wrap { overflow-x: auto; }
+        .evidence-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .evidence-table th {
+            background: var(--hz-primary-50);
+            padding: 0.65rem 1rem;
+            text-align: left;
             font-size: 0.75rem;
             font-weight: 700;
             color: var(--subtle);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
+            border-bottom: 2px solid var(--stroke);
+            white-space: nowrap;
+        }
+        .evidence-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--stroke);
+            vertical-align: middle;
+        }
+        .evidence-table tr:hover td { background: #fafaf9; }
+        .evidence-table tr:last-child td { border-bottom: none; }
+
+        .file-type-icon { font-size: 1.2rem; }
+        .evidence-filename { font-weight: 600; color: var(--ink); font-size: 0.875rem; }
+        .evidence-category { display: flex; flex-wrap: wrap; gap: 4px; }
+
+        .tag-pill {
+            display: inline-flex; align-items: center; gap: 3px;
+            background: var(--hz-primary-50); color: var(--hz-primary);
+            font-size: 0.68rem; font-weight: 600;
+            padding: 2px 8px; border-radius: 10px;
+            border: 1px solid rgba(74,124,89,0.25);
         }
 
-        .nav-item {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1.5rem;
-            color: var(--ink);
-            text-decoration: none;
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent;
-            gap: 12px;
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 10px;
         }
+        .status-verified   { background: rgba(72,187,120,0.12); color: #276749; }
+        .status-pending    { background: rgba(246,173,85,0.15);  color: #c05621; }
+        .status-review     { background: rgba(66,153,225,0.12);  color: #2b6cb0; }
+        .status-draft      { background: rgba(91,110,100,0.1);   color: var(--subtle); }
 
-        .nav-item:hover {
-            background: var(--hz-primary-50);
-            color: var(--hz-primary);
+        .action-group { display: flex; gap: 5px; }
+
+        /* ── Evidence Detail Panel (slide-in) ── */
+        .detail-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+            z-index: 200; display: none; align-items: center; justify-content: flex-end;
         }
-
-        .nav-item.active {
-            background: var(--hz-primary-50);
-            color: var(--hz-primary);
-            border-left-color: var(--hz-primary);
-            font-weight: 600;
+        .detail-overlay.open { display: flex; }
+        .detail-panel {
+            width: 440px; height: 100%; background: white;
+            padding: 2rem; overflow-y: auto;
+            animation: slideIn 0.25s ease;
+            box-shadow: -4px 0 24px rgba(0,0,0,0.12);
         }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        .detail-close { background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--subtle); float: right; }
+        .detail-header { border-bottom: 1px solid var(--stroke); padding-bottom: 1.25rem; margin-bottom: 1.5rem; }
+        .detail-section { margin-bottom: 1.5rem; }
+        .detail-section-title { font-size: 0.72rem; font-weight: 700; color: var(--subtle); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem; }
+        .detail-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 0.4rem 0; border-bottom: 1px solid var(--hz-primary-50); gap: 1rem; }
+        .detail-label { font-size: 0.8rem; color: var(--subtle); flex-shrink: 0; }
+        .detail-value { font-size: 0.85rem; font-weight: 600; color: var(--ink); text-align: right; }
 
-        .nav-icon {
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-        }
+        /* ── Import/Export panels (preserved) ── */
+        .import-export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            margin-left: 280px;
-            padding: 2rem;
-        }
+        .columns-info { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.25rem; }
+        .column-group { background: var(--hz-primary-50); border-radius: 8px; padding: 1rem; }
+        .column-title { font-size: 0.85rem; font-weight: 700; color: var(--ink); margin-bottom: 0.75rem; }
+        .column-list { list-style: none; }
+        .column-list li { font-size: 0.8rem; color: var(--subtle); padding: 0.2rem 0; }
+        .column-list li strong { color: var(--ink); }
 
-        .page-header {
-            margin-bottom: 2rem;
-        }
-
-        .page-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--hz-primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .page-subtitle {
-            color: var(--subtle);
-            font-size: 1rem;
-        }
-
-        /* Import/Export Grid */
-        .import-export-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .import-section, .export-section {
-            background: white;
-            border: 1px solid var(--stroke);
-            border-radius: 12px;
-            padding: 2rem;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .section-icon {
-            width: 48px;
-            height: 48px;
-            background: var(--hz-primary-50);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--ink);
-        }
-
-        .section-description {
-            color: var(--subtle);
-            margin-bottom: 2rem;
-        }
-
-        /* Upload Area */
-        .upload-area {
-            border: 2px dashed var(--stroke);
-            border-radius: 8px;
-            padding: 3rem 2rem;
-            text-align: center;
-            background: #fafafa;
-            margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .upload-area:hover {
-            border-color: var(--hz-primary);
-            background: var(--hz-primary-50);
-        }
-
-        .upload-icon {
-            font-size: 3rem;
-            color: var(--hz-primary);
-            margin-bottom: 1rem;
-        }
-
-        .upload-text {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--ink);
-            margin-bottom: 0.5rem;
-        }
-
-        .upload-help {
-            font-size: 0.875rem;
-            color: var(--subtle);
-        }
-
-        /* Download Area */
         .download-area {
-            background: var(--hz-primary-50);
-            border-radius: 8px;
-            padding: 3rem 2rem;
+            background: linear-gradient(135deg, var(--hz-primary-50), #e0f0e5);
+            border: 1px solid rgba(74,124,89,0.25);
+            border-radius: 10px;
+            padding: 1.75rem;
             text-align: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
         }
+        .download-icon { font-size: 2.25rem; margin-bottom: 0.5rem; }
+        .download-text { font-size: 1rem; font-weight: 600; color: var(--ink); margin-bottom: 0.25rem; }
+        .download-help { font-size: 0.8rem; color: var(--subtle); margin-bottom: 0.75rem; }
+        .download-status { display: inline-flex; align-items: center; gap: 6px; background: rgba(72,187,120,0.15); color: #276749; font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 12px; }
 
-        .download-icon {
-            font-size: 3rem;
-            color: var(--hz-primary);
-            margin-bottom: 1rem;
+        .export-options { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-top: 1.25rem; }
+        .option-group { background: #f9faf8; border-radius: 8px; padding: 1.25rem; border: 1px solid var(--stroke); }
+        .option-title { font-size: 0.85rem; font-weight: 700; color: var(--ink); margin-bottom: 0.75rem; }
+        .option-list { list-style: none; }
+        .option-list li { font-size: 0.8rem; color: var(--subtle); padding: 0.2rem 0; }
+
+        /* ── Stats Bar ── */
+        .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card { background: white; border: 1px solid var(--stroke); border-radius: 10px; padding: 1rem 1.25rem; display: flex; align-items: center; gap: 1rem; }
+        .stat-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; }
+        .stat-icon.green { background: var(--hz-primary-50); }
+        .stat-icon.yellow { background: rgba(246,173,85,0.15); }
+        .stat-icon.blue { background: rgba(66,153,225,0.1); }
+        .stat-icon.purple { background: rgba(142,78,198,0.1); }
+        .stat-value { font-size: 1.4rem; font-weight: 700; color: var(--ink); line-height: 1; }
+        .stat-label { font-size: 0.75rem; color: var(--subtle); margin-top: 2px; }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed; bottom: 1.5rem; right: 1.5rem;
+            background: var(--hz-dark); color: white;
+            padding: 0.75rem 1.25rem; border-radius: 10px;
+            font-size: 0.875rem; font-weight: 600;
+            display: flex; align-items: center; gap: 8px;
+            transform: translateY(100px); opacity: 0;
+            transition: all 0.3s ease; z-index: 999;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
         }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { background: #276749; }
+        .toast.error { background: #c53030; }
 
-        .download-text {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--ink);
-            margin-bottom: 0.5rem;
-        }
+        /* ── Divider ── */
+        .section-divider { border: none; border-top: 1px solid var(--stroke); margin: 1.5rem 0; }
 
-        .download-help {
-            font-size: 0.875rem;
-            color: var(--subtle);
-            margin-bottom: 1rem;
-        }
+        /* ── Empty State ── */
+        .empty-state { text-align: center; padding: 3rem 2rem; color: var(--subtle); }
+        .empty-state-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+        .empty-state h3 { font-size: 1rem; font-weight: 600; color: var(--ink); margin-bottom: 0.5rem; }
 
-        .download-status {
-            background: white;
-            border: 1px solid var(--stroke);
-            border-radius: 6px;
-            padding: 1rem;
-            font-size: 0.875rem;
-            color: var(--subtle);
-        }
-
-        /* Buttons */
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            border: none;
-            font-size: 0.95rem;
-        }
-
-        .btn-primary {
-            background: var(--hz-primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--hz-primary-700);
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: white;
-            color: var(--hz-primary);
-            border: 2px solid var(--hz-primary);
-        }
-
-        .btn-secondary:hover {
-            background: var(--hz-primary-50);
-        }
-
-        /* Columns Info */
-        .columns-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .column-group {
-            background: #f9f9f9;
-            border-radius: 8px;
-            padding: 1.5rem;
-        }
-
-        .column-title {
-            font-weight: 600;
-            color: var(--ink);
-            margin-bottom: 1rem;
-        }
-
-        .column-list {
-            list-style: none;
-        }
-
-        .column-list li {
-            padding: 0.25rem 0;
-            font-size: 0.875rem;
-            color: var(--subtle);
-        }
-
-        .column-list li strong {
-            color: var(--ink);
-        }
-
-        /* Export Options */
-        .export-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .option-group {
-            background: #f9f9f9;
-            border-radius: 8px;
-            padding: 1.5rem;
-        }
-
-        .option-title {
-            font-weight: 600;
-            color: var(--ink);
-            margin-bottom: 1rem;
-        }
-
-        .option-list {
-            list-style: none;
-        }
-
-        .option-list li {
-            padding: 0.25rem 0;
-            font-size: 0.875rem;
-            color: var(--subtle);
-        }
-
-        @media (max-width: 1024px) {
-            .import-export-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .columns-info, .export-options {
-                grid-template-columns: 1fr;
-            }
-            
-            .main-content {
-                margin-left: 260px;
-            }
+        @media (max-width: 1100px) {
+            .import-export-grid, .evidence-upload-grid, .stats-bar { grid-template-columns: 1fr; }
+            .columns-info, .export-options { grid-template-columns: 1fr; }
+            .main-content { margin-left: 0; padding: 1.25rem; }
+            .sidebar { display: none; }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">
-            <div class="logo-icon">🌱</div>
-            HWCAP
-        </div>
+
+<!-- ── Header ── -->
+<div class="header">
+    <div class="logo">
+        <div class="logo-icon">🌱</div>
+        TerraCAP
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
         <div class="user-menu">
-            <div class="user-avatar">A</div>
+            <div class="user-avatar">KM</div>
             <span>Kamesh | Administrator</span>
         </div>
+        <div class="auditor-badge">🔍 Auditor View Active</div>
     </div>
+</div>
 
-    <div class="layout">
-        <nav class="sidebar">
-            <div class="nav-section">
-                <div class="nav-section-title">Overview</div>
-                <a href="hwcap_dashboard.html" class="nav-item">
-                    <div class="nav-icon">📊</div>
-                    Dashboard
-                </a>
-                <a href="analytics-insights.html" class="nav-item">
-                    <div class="nav-icon">📈</div>
-                    Analytics & Insights
-                </a>
-            </div>
+<!-- ── Layout ── -->
+<div class="layout">
+    <nav class="sidebar">
+        <div class="nav-section">
+            <div class="nav-section-title">Overview</div>
+            <a href="#" class="nav-item"><div class="nav-icon">📊</div>Dashboard</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Data Management</div>
+            <a href="#" class="nav-item"><div class="nav-icon">➕</div>Add Data</a>
+            <a href="#" class="nav-item active"><div class="nav-icon">📥</div>Import / Export</a>
+            <a href="#" class="nav-item"><div class="nav-icon">✅</div>Data Quality</a>
+        </div>
 
-            <div class="nav-section">
-                <div class="nav-section-title">Data Management</div>
-                <a href="add-data.html" class="nav-item">
-                    <div class="nav-icon">➕</div>
-                    Add Data
-                </a>
-                <a href="#" class="nav-item active">
-                    <div class="nav-icon">📥</div>
-                    Import/Export
-                </a>
-                <a href="#" class="nav-item">
-                    <div class="nav-icon">✅</div>
-                    Data Quality
-                </a>
-            </div>
+    </nav>
 
-            <div class="nav-section">
-                <div class="nav-section-title">Emissions Tracking</div>
-                <a href="goals-tracking.html" class="nav-item">
-                    <div class="nav-icon">🎯</div>
-                    Targets & Goals
-                </a>
-            </div>
+    <main class="main-content">
 
-            <div class="nav-section">
-                <div class="nav-section-title">Reports & Compliance</div>
-                <a href="HW-Reports-Application-Flow.html" class="nav-item">
-                    <div class="nav-icon">📄</div>
-                    Reports
-                </a>
-            </div>
-        </nav>
+        <div class="page-header">
+            <h1 class="page-title">Data Import, Export & Evidence</h1>
+            <p class="page-subtitle">Bulk-import emissions data, export reports, and manage audit-ready evidence files for all ESG categories</p>
+        </div>
 
-        <main class="main-content">
-            <div class="page-header">
-                <h1 class="page-title">Data Import & Export</h1>
-                <p class="page-subtitle">Bulk upload emissions data or export your existing data</p>
-            </div>
+        <!-- Module Tab Bar -->
+        <div class="module-tabs">
+            <button class="module-tab active" onclick="switchTab('import')">
+                📤 Import Data
+            </button>
+            <button class="module-tab" onclick="switchTab('export')">
+                📥 Export Data
+            </button>
+            <button class="module-tab" onclick="switchTab('evidence')">
+                📎 Evidence Upload
+                <span class="tab-badge" id="evidenceBadge">0</span>
+            </button>
+            <button class="module-tab" onclick="switchTab('history')">
+                🗂️ Evidence History
+                <span class="tab-badge" id="historyBadge">7</span>
+            </button>
+        </div>
 
+        <!-- ══════════════════════════════════════════════
+             TAB 1 — IMPORT DATA
+        ══════════════════════════════════════════════ -->
+        <div id="tab-import" class="tab-panel active">
             <div class="import-export-grid">
-                <!-- Import Section -->
-                <div class="import-section">
-                    <div class="section-header">
-                        <div class="section-icon">📤</div>
-                        <h2 class="section-title">Import Emissions Data</h2>
-                    </div>
-                    
-                    <p class="section-description">
-                        Upload a CSV, XLSX, JSON, XML file containing your emissions data. Your file must include the required columns.
-                    </p>
+                <div class="card">
+                    <div class="card-title">📤 Import Emissions Data</div>
+                    <p class="card-subtitle">Upload a CSV, XLSX, JSON, or XML file containing your emissions data. Your file must include the required columns.</p>
 
-                    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-area" id="importDropZone">
+                        <input type="file" id="importFileInput" accept=".csv,.xlsx,.json,.xml" onchange="handleImportFile(this)">
                         <div class="upload-icon">☁️</div>
                         <div class="upload-text">Click to upload or drag and drop</div>
-                        <div class="upload-help">CSV, XLSX, JSON, XML files up to 100MB</div>
-                        <input type="file" id="fileInput" style="display: none;" accept=".csv,.xlsx,.json,.xml">
+                        <div class="upload-help">CSV, XLSX, JSON, XML — up to 100 MB</div>
                     </div>
 
-                    <div style="text-align: center; margin-bottom: 1.5rem;">
-                        <span style="color: var(--subtle); margin-right: 1rem;">Need the correct format?</span>
-                        <button class="btn btn-secondary">📥 Download Template</button>
+                    <div style="text-align:center;margin:1rem 0 0.5rem">
+                        <span style="color:var(--subtle);font-size:0.85rem;margin-right:0.75rem;">Need the correct format?</span>
+                        <button class="btn btn-secondary" onclick="showToast('📥 Template download starting…','success')">📥 Download Template</button>
                     </div>
 
                     <div class="columns-info">
                         <div class="column-group">
-                            <h4 class="column-title">Required Columns:</h4>
+                            <h4 class="column-title">Required Columns</h4>
                             <ul class="column-list">
-                                <li><strong>scope_type</strong> - Scope (1, 2, 3, etc.)</li>
-                                <li><strong>category</strong> - Category (natural_gas, etc.)</li>
-                                <li><strong>value</strong> - Emission value</li>
-                                <li><strong>unit</strong> - Unit (m3, kWh, kg, etc.)</li>
-                                <li><strong>reporting_period</strong> - YYYY-MM-DD</li>
-                                <li><strong>emission_date</strong> - YYYY-MM-DD</li>
+                                <li><strong>scope_type</strong> — Scope (1, 2, 3…)</li>
+                                <li><strong>category</strong> — e.g. natural_gas</li>
+                                <li><strong>value</strong> — Emission value</li>
+                                <li><strong>unit</strong> — m³, kWh, kg…</li>
+                                <li><strong>reporting_period</strong> — YYYY-MM-DD</li>
+                                <li><strong>emission_date</strong> — YYYY-MM-DD</li>
                             </ul>
                         </div>
-                        
                         <div class="column-group">
-                            <h4 class="column-title">Optional Columns:</h4>
+                            <h4 class="column-title">Optional Columns</h4>
                             <ul class="column-list">
-                                <li><strong>region_code</strong> - Region (US, EU, etc.)</li>
-                                <li><strong>source</strong> - Source description</li>
-                                <li><strong>location</strong> - Location name</li>
-                                <li><strong>subcategory</strong> - Detailed category</li>
-                                <li><strong>supplier_id</strong> - Supplier ID</li>
-                                <li><strong>material_code</strong> - Material code</li>
-                                <li><strong>notes</strong> - Additional notes</li>
+                                <li><strong>region_code</strong> — US, EU…</li>
+                                <li><strong>source</strong> — Source description</li>
+                                <li><strong>location</strong> — Location name</li>
+                                <li><strong>subcategory</strong> — Detailed category</li>
+                                <li><strong>supplier_id</strong> — Supplier ID</li>
+                                <li><strong>notes</strong> — Additional notes</li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                <!-- Export Section -->
-                <div class="export-section">
-                    <div class="section-header">
-                        <div class="section-icon">📥</div>
-                        <h2 class="section-title">Export Emissions Data</h2>
+                <!-- Import History mini -->
+                <div class="card">
+                    <div class="card-title">📋 Recent Imports</div>
+                    <p class="card-subtitle">Last 5 data imports</p>
+                    <div id="importHistory">
+                        <!-- populated by JS -->
                     </div>
-                    
-                    <p class="section-description">
-                        Export your current emissions data to CSV format for analysis, reporting, or backup purposes.
-                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════
+             TAB 2 — EXPORT DATA
+        ══════════════════════════════════════════════ -->
+        <div id="tab-export" class="tab-panel">
+            <div class="import-export-grid">
+                <div class="card">
+                    <div class="card-title">📥 Export Emissions Data</div>
+                    <p class="card-subtitle">Export your current emissions data to CSV or Excel for analysis, reporting, or backup.</p>
 
                     <div class="download-area">
                         <div class="download-icon">📊</div>
-                        <div class="download-text">Click to export emissions data</div>
-                        <div class="download-help">Download complete CSV file with all calculated CO₂e values, timestamps, and metadata across all scopes.</div>
-                        <div class="download-status">Complete dataset ready for download</div>
+                        <div class="download-text">Complete dataset ready for download</div>
+                        <div class="download-help">All scopes · CO₂e values · Metadata · Timestamps</div>
+                        <span class="download-status">✅ 3,412 records available</span>
                     </div>
 
-                    <div style="text-align: center; margin-bottom: 1.5rem;">
-                        <button class="btn btn-primary">📥 Export CSV Data</button>
+                    <div style="text-align:center;margin-bottom:1.25rem;">
+                        <button class="btn btn-primary" style="margin-right:0.5rem" onclick="showToast('📥 CSV export started…','success')">📥 Export CSV</button>
+                        <button class="btn btn-outline" onclick="showToast('📥 Excel export started…','success')">📊 Export Excel</button>
                     </div>
 
                     <div class="export-options">
                         <div class="option-group">
-                            <h4 class="option-title">Export Includes:</h4>
+                            <h4 class="option-title">Export Includes</h4>
                             <ul class="option-list">
                                 <li>• All emissions data entries</li>
                                 <li>• Calculated CO₂e values</li>
-                                <li>• Source and location metadata</li>
+                                <li>• Source & location metadata</li>
                                 <li>• Scope categorization</li>
-                                <li>• Facility and location data</li>
-                                <li>• Regional classifications</li>
+                                <li>• Facility & location data</li>
+                                <li>• Evidence file references</li>
                             </ul>
                         </div>
-                        
                         <div class="option-group">
-                            <h4 class="option-title">Export Options:</h4>
+                            <h4 class="option-title">Export Options</h4>
                             <ul class="option-list">
                                 <li>• Complete dataset (all scopes)</li>
                                 <li>• Scope-specific exports</li>
                                 <li>• Date range selection</li>
                                 <li>• Custom field selection</li>
-                                <li>• Excel format support</li>
                                 <li>• Audit trail included</li>
+                                <li>• Evidence manifest</li>
                             </ul>
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
-    </div>
 
-    <script>
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                alert(`File "${file.name}" selected. Upload would start here in a real application.`);
+                <div class="card">
+                    <div class="card-title">⚙️ Export Configuration</div>
+                    <p class="card-subtitle">Customise what gets exported</p>
+                    <div class="form-group" style="margin-bottom:0.85rem">
+                        <label class="form-label">Date Range</label>
+                        <select class="form-control">
+                            <option>FY 2024–25 (Full year)</option>
+                            <option>Q4 2024 (Oct–Dec)</option>
+                            <option>Q3 2024 (Jul–Sep)</option>
+                            <option>Custom range…</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0.85rem">
+                        <label class="form-label">Scope Filter</label>
+                        <select class="form-control">
+                            <option>All Scopes</option>
+                            <option>Scope 1 Only</option>
+                            <option>Scope 2 Only</option>
+                            <option>Scope 3 Only</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0.85rem">
+                        <label class="form-label">Include Evidence Manifest</label>
+                        <select class="form-control">
+                            <option>Yes — include evidence file list</option>
+                            <option>No — data only</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:1.25rem">
+                        <label class="form-label">Export Format</label>
+                        <select class="form-control">
+                            <option>CSV (.csv)</option>
+                            <option>Excel (.xlsx)</option>
+                            <option>JSON (.json)</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="showToast('📥 Configured export started…','success')">📥 Export with Configuration</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════
+             TAB 3 — EVIDENCE UPLOAD
+        ══════════════════════════════════════════════ -->
+        <div id="tab-evidence" class="tab-panel">
+
+            <div class="evidence-upload-grid">
+
+                <!-- Left — Upload Form -->
+                <div class="card">
+                    <div class="card-title">📎 Upload Evidence Files</div>
+                    <p class="card-subtitle">Attach supporting documents, invoices, utility bills, certificates, and audit records. Tag them to the relevant ESG category and period.</p>
+
+                    <div class="upload-area" id="evidenceDropZone" style="margin-bottom:1rem;">
+                        <input type="file" id="evidenceFileInput" accept=".pdf,.xlsx,.xls,.csv,.png,.jpg,.jpeg,.docx,.doc,.zip" multiple onchange="handleEvidenceFiles(this)">
+                        <div class="upload-icon">📂</div>
+                        <div class="upload-text">Click to select or drag files here</div>
+                        <div class="upload-help">PDF, Excel, CSV, Images, Word, ZIP — up to 50 MB per file · Multiple files allowed</div>
+                    </div>
+
+                    <!-- Staged files queue -->
+                    <div class="files-queue" id="stagedFilesQueue"></div>
+
+                    <hr class="section-divider">
+
+                    <!-- Category & Tags -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">ESG Category <span class="req">*</span></label>
+                            <select class="form-control" id="evidenceCategory">
+                                <option value="">— Select Category —</option>
+                                <optgroup label="Emissions">
+                                    <option value="scope1">🔴 Scope 1 — Direct Emissions</option>
+                                    <option value="scope2">🟠 Scope 2 — Energy Indirect</option>
+                                    <option value="scope3">🔵 Scope 3 — Value Chain</option>
+                                </optgroup>
+                                <optgroup label="Environment">
+                                    <option value="water">💧 Water Management</option>
+                                    <option value="waste">♻️ Waste Management</option>
+                                    <option value="air">🌬️ Air Quality</option>
+                                    <option value="biodiversity">🌿 Biodiversity & Land Use</option>
+                                    <option value="climate">🌡️ Climate Resilience</option>
+                                </optgroup>
+                                <optgroup label="Social">
+                                    <option value="ehs">⛑️ Health & Safety (EHS)</option>
+                                    <option value="dei">👥 DEI & Workforce</option>
+                                    <option value="community">🤝 Community Engagement</option>
+                                </optgroup>
+                                <optgroup label="Governance">
+                                    <option value="governance">⚖️ Governance & Compliance</option>
+                                </optgroup>
+                                <optgroup label="Other">
+                                    <option value="others">📁 Others / Miscellaneous</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sub-Category / Parameter</label>
+                            <select class="form-control" id="evidenceSubcategory">
+                                <option value="">— Select after category —</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Reporting Period <span class="req">*</span></label>
+                            <select class="form-control" id="evidencePeriod">
+                                <option>FY 2024–25</option>
+                                <option>Q4 FY24 (Jan–Mar 2025)</option>
+                                <option>Q3 FY24 (Oct–Dec 2024)</option>
+                                <option>Q2 FY24 (Jul–Sep 2024)</option>
+                                <option>Q1 FY24 (Apr–Jun 2024)</option>
+                                <option>FY 2023–24</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Facility / Site</label>
+                            <select class="form-control" id="evidenceFacility">
+                                <option value="">All Facilities</option>
+                                <option>Bangalore HQ</option>
+                                <option>Pune Plant</option>
+                                <option>Chennai Office</option>
+                                <option>Hyderabad Unit</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Document Type <span class="req">*</span></label>
+                            <select class="form-control" id="evidenceDocType">
+                                <option>Utility Bill / Invoice</option>
+                                <option>Meter Reading Record</option>
+                                <option>Lab Test Report</option>
+                                <option>Third-party Audit Report</option>
+                                <option>Government Certificate</option>
+                                <option>Purchase Order / Receipt</option>
+                                <option>Measurement Data Sheet</option>
+                                <option>Policy Document</option>
+                                <option>Training Record</option>
+                                <option>Photograph / Site Image</option>
+                                <option>Other Supporting Document</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Document Date</label>
+                            <input type="date" class="form-control" id="evidenceDate">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:1rem">
+                        <label class="form-label">Description / Notes</label>
+                        <textarea class="form-control" id="evidenceNotes" placeholder="Briefly describe the evidence, its relevance to the category, and any important context for the auditor…"></textarea>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:1.25rem">
+                        <label class="form-label">Custom Tags (comma-separated)</label>
+                        <input type="text" class="form-control" id="evidenceTags" placeholder="e.g. BRSR-A1, electricity-2024, unit-3">
+                    </div>
+
+                    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+                        <button class="btn btn-primary" onclick="submitEvidence()">📎 Upload &amp; Tag Evidence</button>
+                        <button class="btn btn-secondary" onclick="clearEvidenceForm()">Clear Form</button>
+                    </div>
+                </div>
+
+                <!-- Right — Guidelines & Category Quick-Ref -->
+                <div>
+                    <div class="card">
+                        <div class="card-title">📋 Evidence Guidelines</div>
+                        <div style="font-size:0.85rem;color:var(--subtle);line-height:1.7;">
+                            <p style="margin-bottom:0.75rem;">Evidence files are linked to specific ESG data categories and visible to assigned <strong style="color:var(--ink)">Auditor roles</strong>. Follow these guidelines to ensure audit readiness:</p>
+                            <ul style="padding-left:1.25rem;display:flex;flex-direction:column;gap:0.4rem;">
+                                <li>Upload <strong>original source documents</strong> (not edited copies)</li>
+                                <li>Files must be clearly <strong>dated and identifiable</strong></li>
+                                <li>Utility bills should show <strong>meter readings</strong> and billing period</li>
+                                <li>Lab reports must include <strong>accreditation details</strong></li>
+                                <li>Use descriptive names before uploading (e.g. <em>electricity-bill-Q3-FY25.pdf</em>)</li>
+                                <li>Tag to the correct <strong>reporting period</strong> — auditors filter by this</li>
+                                <li>Multi-page PDFs preferred over multiple image files</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top:0;">
+                        <div class="card-title">🗂️ Category Quick Reference</div>
+                        <div style="display:flex;flex-direction:column;gap:0.5rem;margin-top:0.25rem;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--hz-primary-50);">
+                                <span class="category-chip chip-scope1">🔴 Scope 1</span>
+                                <span style="font-size:0.75rem;color:var(--subtle);">Fuel invoices, logbooks, gas records</span>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--hz-primary-50);">
+                                <span class="category-chip chip-scope2">🟠 Scope 2</span>
+                                <span style="font-size:0.75rem;color:var(--subtle);">Electricity bills, grid certificates</span>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--hz-primary-50);">
+                                <span class="category-chip chip-scope3">🔵 Scope 3</span>
+                                <span style="font-size:0.75rem;color:var(--subtle);">Supplier invoices, travel receipts</span>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--hz-primary-50);">
+                                <span class="category-chip chip-water">💧 Water</span>
+                                <span style="font-size:0.75rem;color:var(--subtle);">Water bills, lab reports, TSDF docs</span>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--hz-primary-50);">
+                                <span class="category-chip chip-waste">♻️ Waste</span>
+                                <span style="font-size:0.75rem;color:var(--subtle);">Manifest records, recycler certs</span>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--hz-primary-50);">
+                                <span class="category-chip chip-air">🌬️ Air</span>
+                                <span style="font-size:0.75rem;color:var(--subtle);">Stack emission test reports</span>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--hz-primary-50);">
+                                <span class="category-chip chip-biodiv">🌿 Biodiversity</span>
+                                <span style="font-size:0.75rem;color:var(--subtle);">Land surveys, environmental clearance</span>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--hz-primary-50);">
+                                <span class="category-chip chip-climate">🌡️ Climate</span>
+                                <span style="font-size:0.75rem;color:var(--subtle);">Risk assessment docs, adaptation plans</span>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--hz-primary-50);">
+                                <span class="category-chip chip-ehs">⛑️ Health & Safety</span>
+                                <span style="font-size:0.75rem;color:var(--subtle);">Incident reports, drill records, certs</span>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--hz-primary-50);">
+                                <span class="category-chip chip-dei">👥 DEI</span>
+                                <span style="font-size:0.75rem;color:var(--subtle);">HR reports, diversity survey data</span>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--hz-primary-50);">
+                                <span class="category-chip chip-community">🤝 Community</span>
+                                <span style="font-size:0.75rem;color:var(--subtle);">CSR reports, NGO agreements</span>
+                            </div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;">
+                                <span class="category-chip chip-governance">⚖️ Governance</span>
+                                <span style="font-size:0.75rem;color:var(--subtle);">Board minutes, policy docs, audits</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════
+             TAB 4 — EVIDENCE HISTORY
+        ══════════════════════════════════════════════ -->
+        <div id="tab-history" class="tab-panel">
+
+            <!-- Stats bar -->
+            <div class="stats-bar">
+                <div class="stat-card">
+                    <div class="stat-icon green">📎</div>
+                    <div>
+                        <div class="stat-value" id="statTotal">7</div>
+                        <div class="stat-label">Total Evidence Files</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">✅</div>
+                    <div>
+                        <div class="stat-value" id="statVerified">3</div>
+                        <div class="stat-label">Verified by Auditor</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon yellow">⏳</div>
+                    <div>
+                        <div class="stat-value" id="statPending">3</div>
+                        <div class="stat-label">Pending Review</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">🗂️</div>
+                    <div>
+                        <div class="stat-value" id="statCategories">9</div>
+                        <div class="stat-label">Categories Covered</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <!-- Filters -->
+                <div class="evidence-filters">
+                    <div class="form-group wide">
+                        <label class="form-label">Search</label>
+                        <input type="text" class="form-control" id="searchFilter" placeholder="Search by filename, notes, tags…" oninput="filterEvidence()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-control" id="categoryFilter" onchange="filterEvidence()">
+                            <option value="">All Categories</option>
+                            <option value="scope1">Scope 1</option>
+                            <option value="scope2">Scope 2</option>
+                            <option value="scope3">Scope 3</option>
+                            <option value="water">Water</option>
+                            <option value="waste">Waste</option>
+                            <option value="air">Air Quality</option>
+                            <option value="biodiversity">Biodiversity</option>
+                            <option value="climate">Climate</option>
+                            <option value="ehs">Health & Safety</option>
+                            <option value="dei">DEI</option>
+                            <option value="community">Community</option>
+                            <option value="governance">Governance</option>
+                            <option value="others">Others</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Period</label>
+                        <select class="form-control" id="periodFilter" onchange="filterEvidence()">
+                            <option value="">All Periods</option>
+                            <option>FY 2024–25</option>
+                            <option>Q4 FY24</option>
+                            <option>Q3 FY24</option>
+                            <option>Q2 FY24</option>
+                            <option>FY 2023–24</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select class="form-control" id="statusFilter" onchange="filterEvidence()">
+                            <option value="">All Statuses</option>
+                            <option value="verified">Verified</option>
+                            <option value="pending">Pending</option>
+                            <option value="review">Under Review</option>
+                            <option value="draft">Draft</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="justify-content:flex-end;padding-top:1.1rem;">
+                        <button class="btn btn-outline btn-sm" onclick="exportEvidenceManifest()">📋 Export Manifest</button>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="evidence-table-wrap">
+                    <table class="evidence-table" id="evidenceTable">
+                        <thead>
+                            <tr>
+                                <th>File</th>
+                                <th>Category</th>
+                                <th>Sub-Category</th>
+                                <th>Doc Type</th>
+                                <th>Period</th>
+                                <th>Facility</th>
+                                <th>Uploaded By</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="evidenceTableBody">
+                            <!-- populated by JS -->
+                        </tbody>
+                    </table>
+                    <div class="empty-state" id="emptyEvidenceState" style="display:none;">
+                        <div class="empty-state-icon">📂</div>
+                        <h3>No evidence files match your filters</h3>
+                        <p>Try adjusting your search criteria or upload new evidence files.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ── Evidence Detail Slide-over ── -->
+<div class="detail-overlay" id="detailOverlay" onclick="closeDetail(event)">
+    <div class="detail-panel" id="detailPanel">
+        <button class="detail-close" onclick="closeDetailPanel()">✕</button>
+        <div class="detail-header">
+            <div style="font-size:2rem;margin-bottom:0.5rem;" id="detailFileIcon">📄</div>
+            <h2 style="font-size:1.1rem;font-weight:700;color:var(--ink);margin-bottom:0.35rem;" id="detailFileName">—</h2>
+            <div id="detailStatusBadge"></div>
+        </div>
+        <div class="detail-section">
+            <div class="detail-section-title">Classification</div>
+            <div class="detail-row"><span class="detail-label">Category</span><span class="detail-value" id="detailCategory">—</span></div>
+            <div class="detail-row"><span class="detail-label">Sub-Category</span><span class="detail-value" id="detailSubcat">—</span></div>
+            <div class="detail-row"><span class="detail-label">Document Type</span><span class="detail-value" id="detailDocType">—</span></div>
+        </div>
+        <div class="detail-section">
+            <div class="detail-section-title">Metadata</div>
+            <div class="detail-row"><span class="detail-label">Period</span><span class="detail-value" id="detailPeriod">—</span></div>
+            <div class="detail-row"><span class="detail-label">Facility</span><span class="detail-value" id="detailFacility">—</span></div>
+            <div class="detail-row"><span class="detail-label">Document Date</span><span class="detail-value" id="detailDocDate">—</span></div>
+            <div class="detail-row"><span class="detail-label">Uploaded By</span><span class="detail-value" id="detailUploader">—</span></div>
+            <div class="detail-row"><span class="detail-label">Upload Date</span><span class="detail-value" id="detailUploadDate">—</span></div>
+            <div class="detail-row"><span class="detail-label">File Size</span><span class="detail-value" id="detailFileSize">—</span></div>
+        </div>
+        <div class="detail-section">
+            <div class="detail-section-title">Tags</div>
+            <div id="detailTags" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
+        </div>
+        <div class="detail-section">
+            <div class="detail-section-title">Description / Notes</div>
+            <p id="detailNotes" style="font-size:0.85rem;color:var(--ink);line-height:1.65;"></p>
+        </div>
+        <div class="detail-section">
+            <div class="detail-section-title">Audit Actions</div>
+            <div style="display:flex;flex-direction:column;gap:0.6rem;">
+                <button class="btn btn-primary btn-sm" onclick="markVerified()">✅ Mark as Verified</button>
+                <button class="btn btn-secondary btn-sm" onclick="requestRevision()">🔁 Request Revision</button>
+                <button class="btn btn-secondary btn-sm" onclick="addAuditorNote()">📝 Add Auditor Note</button>
+                <button class="btn btn-danger btn-sm" onclick="showToast('🗑️ File deleted from evidence repository','error');closeDetailPanel()">🗑️ Delete Evidence</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Data ───────────────────────────────────────────────────────────
+const SUBCATEGORIES = {
+    scope1: ['Stationary Combustion (Natural Gas)','Stationary Combustion (Coal)','Mobile Combustion (Diesel)','Mobile Combustion (Petrol)','Process Emissions','Fugitive Emissions (Refrigerants)','Other Scope 1'],
+    scope2: ['Grid Electricity','Renewable Energy (Purchased)','Steam / Heat Purchase','Cooling Purchase'],
+    scope3: ['Purchased Goods & Services','Capital Goods','Fuel & Energy Activities','Upstream Transportation','Waste Generated in Operations','Business Travel','Employee Commuting','Upstream Leased Assets','Downstream Transportation','End-of-life Treatment','Other Scope 3'],
+    water: ['Water Withdrawal (Municipal)','Water Withdrawal (Groundwater)','Water Recycled / Reused','Wastewater Discharged','Water Consumption Net'],
+    waste: ['Hazardous Waste Generated','Non-hazardous Waste','E-Waste','Biomedical Waste','Recycled / Co-processed','Landfill Disposal'],
+    air: ['Particulate Matter (PM2.5/PM10)','Nitrogen Oxides (NOx)','Sulphur Oxides (SOx)','VOC Emissions','CO Emissions','Stack Emission Test'],
+    biodiversity: ['Land Use (Owned)','Protected Area Proximity','Species Impact Assessment','Habitat Restoration','Green Cover Area'],
+    climate: ['Physical Risk Assessment','Transition Risk Assessment','TCFD Scenario Analysis','Adaptation Measure','Business Continuity Plan'],
+    ehs: ['Lost Time Injuries (LTI)','Near-miss Incidents','Fatalities','Safety Training Hours','Occupational Health Check','Mock Drill Record'],
+    dei: ['Gender Diversity (Overall)','Gender Diversity (Leadership)','Persons with Disabilities','Equal Pay Analysis','Training Hours (Total)','New Hires Diversity'],
+    community: ['CSR Spend','Beneficiaries Reached','Community Programs','Employee Volunteering','Grievance Mechanism'],
+    governance: ['Board Composition','Independent Directors','Anti-bribery Training','Whistleblower Complaints','Ethics / Code of Conduct','Regulatory Compliance'],
+    others: ['General Corporate Document','Regulatory Filing','Certification / Award','Press Release / Public Disclosure','Vendor / Supplier Document','Internal Policy','Legacy / Historical Record','Uncategorised']
+};
+
+const CATEGORY_LABELS = {
+    scope1:'🔴 Scope 1', scope2:'🟠 Scope 2', scope3:'🔵 Scope 3',
+    water:'💧 Water', waste:'♻️ Waste', air:'🌬️ Air Quality',
+    biodiversity:'🌿 Biodiversity', climate:'🌡️ Climate', ehs:'⛑️ Health & Safety',
+    dei:'👥 DEI', community:'🤝 Community', governance:'⚖️ Governance',
+    others:'📁 Others'
+};
+
+const CHIP_CLASS = {
+    scope1:'chip-scope1', scope2:'chip-scope2', scope3:'chip-scope3',
+    water:'chip-water', waste:'chip-waste', air:'chip-air',
+    biodiversity:'chip-biodiv', climate:'chip-climate', ehs:'chip-ehs',
+    dei:'chip-dei', community:'chip-community', governance:'chip-governance',
+    others:'chip-others'
+};
+
+// Seed evidence records
+let evidenceRecords = [
+    { id:'ev001', filename:'electricity-bill-Q3-FY25.pdf', icon:'📄', category:'scope2', subcategory:'Grid Electricity', docType:'Utility Bill / Invoice', period:'Q3 FY24', facility:'Bangalore HQ', uploader:'Kamesh M.', uploadDate:'2025-01-15', docDate:'2024-12-31', size:'1.2 MB', status:'verified', notes:'Monthly electricity bill from BESCOM for Oct–Dec 2024. Covers all metered connections at HQ.', tags:['BESCOM','Q3-FY25','electricity','metered'] },
+    { id:'ev002', filename:'diesel-fuel-logbook-Q3-FY25.xlsx', icon:'📊', category:'scope1', subcategory:'Mobile Combustion (Diesel)', docType:'Meter Reading Record', period:'Q3 FY24', facility:'Pune Plant', uploader:'Anita R.', uploadDate:'2025-01-18', docDate:'2024-12-31', size:'340 KB', status:'verified', notes:'Vehicle fuel consumption logbook for the Pune Plant fleet — all diesel vehicles, Q3 FY25.', tags:['diesel','fleet','Pune','Q3-FY25'] },
+    { id:'ev003', filename:'water-test-report-Dec24.pdf', icon:'📄', category:'water', subcategory:'Water Withdrawal (Municipal)', docType:'Lab Test Report', period:'Q3 FY24', facility:'Chennai Office', uploader:'Ravi K.', uploadDate:'2025-01-20', docDate:'2024-12-20', size:'2.1 MB', status:'pending', notes:'Third-party water quality test report from certified lab. Parameters: TDS, pH, BOD, COD.', tags:['water-quality','lab','Chennai'] },
+    { id:'ev004', filename:'hazardous-waste-manifest-Q3.pdf', icon:'📄', category:'waste', subcategory:'Hazardous Waste Generated', docType:'Measurement Data Sheet', period:'Q3 FY24', facility:'Pune Plant', uploader:'Sunita P.', uploadDate:'2025-01-22', docDate:'2024-12-28', size:'890 KB', status:'pending', notes:'E-waste and hazardous waste disposal manifest. Authorised recycler: EcoRecycle Pvt Ltd. TSDF manifest attached.', tags:['hazardous','TSDF','manifest','e-waste'] },
+    { id:'ev005', filename:'stack-emission-test-Pune.pdf', icon:'📄', category:'air', subcategory:'Stack Emission Test', docType:'Lab Test Report', period:'FY 2024–25', facility:'Pune Plant', uploader:'Ravi K.', uploadDate:'2025-02-03', docDate:'2025-01-15', size:'4.8 MB', status:'review', notes:'Annual CPCB-compliant stack emission test by accredited agency. PM, NOx, SOx, CO levels. Includes NABL cert.', tags:['CPCB','NABL','stack-test','air-quality'] },
+    { id:'ev006', filename:'employee-diversity-report-FY25.xlsx', icon:'📊', category:'dei', subcategory:'Gender Diversity (Overall)', docType:'Policy Document', period:'FY 2024–25', facility:'All Facilities', uploader:'Priya S.', uploadDate:'2025-02-10', docDate:'2025-02-01', size:'560 KB', status:'pending', notes:'Consolidated HR gender diversity and disability inclusion data across all facilities. BRSR A10 mapping included.', tags:['HR','diversity','BRSR-A10','gender'] },
+    { id:'ev007', filename:'board-composition-certificate.pdf', icon:'📄', category:'governance', subcategory:'Board Composition', docType:'Government Certificate', period:'FY 2024–25', facility:'Bangalore HQ', uploader:'Arun R.', uploadDate:'2025-02-14', docDate:'2025-01-30', size:'1.6 MB', status:'verified', notes:'MCA-certified Board composition document. Includes independent director ratios and committee memberships.', tags:['MCA','board','BRSR-G1','governance'] }
+];
+
+let stagedFiles = [];
+let currentDetailId = null;
+
+// ─── Tab Switching ────────────────────────────────────────────────
+function switchTab(tab) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.module-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+
+// ─── Import Tab ───────────────────────────────────────────────────
+function handleImportFile(input) {
+    if (input.files[0]) {
+        showToast(`📤 "${input.files[0].name}" queued for import…`, 'success');
+        renderImportHistory({ name: input.files[0].name, size: formatBytes(input.files[0].size), date: new Date().toLocaleDateString('en-IN') });
+    }
+}
+
+function renderImportHistory(newEntry) {
+    const container = document.getElementById('importHistory');
+    const entries = [
+        newEntry,
+        { name: 'emissions-data-Q3-FY25.csv', size: '84 KB', date: '15 Jan 2025' },
+        { name: 'scope3-suppliers-Q2.xlsx', size: '212 KB', date: '20 Oct 2024' },
+        { name: 'energy-data-FY24.csv', size: '156 KB', date: '03 Jun 2024' },
+        { name: 'water-waste-FY24.xlsx', size: '90 KB', date: '01 Jun 2024' }
+    ].slice(0, 5);
+    container.innerHTML = entries.map(e => `
+        <div style="display:flex;align-items:center;gap:10px;padding:0.65rem;background:var(--hz-primary-50);border-radius:8px;margin-bottom:0.5rem;">
+            <span style="font-size:1.1rem;">📊</span>
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:0.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}</div>
+                <div style="font-size:0.72rem;color:var(--subtle);">${e.size} · ${e.date}</div>
+            </div>
+            <span style="font-size:0.72rem;color:var(--success);font-weight:700;">✅ Done</span>
+        </div>
+    `).join('');
+}
+
+// ─── Evidence Upload ──────────────────────────────────────────────
+document.getElementById('evidenceCategory').addEventListener('change', function() {
+    const sub = document.getElementById('evidenceSubcategory');
+    const subs = SUBCATEGORIES[this.value] || [];
+    sub.innerHTML = subs.length
+        ? subs.map(s => `<option>${s}</option>`).join('')
+        : '<option value="">— Select after category —</option>';
+});
+
+function handleEvidenceFiles(input) {
+    Array.from(input.files).forEach(f => {
+        if (!stagedFiles.find(s => s.name === f.name)) {
+            stagedFiles.push(f);
+        }
+    });
+    renderStagedFiles();
+}
+
+function renderStagedFiles() {
+    const queue = document.getElementById('stagedFilesQueue');
+    if (stagedFiles.length === 0) { queue.innerHTML = ''; return; }
+    queue.innerHTML = stagedFiles.map((f, i) => `
+        <div class="file-item">
+            <span class="file-icon">${getFileIcon(f.name)}</span>
+            <div class="file-info">
+                <div class="file-name">${f.name}</div>
+                <div class="file-meta">${formatBytes(f.size)} · Staged for upload</div>
+            </div>
+            <button class="file-remove" onclick="removeStagedFile(${i})">✕</button>
+        </div>
+    `).join('');
+}
+
+function removeStagedFile(idx) {
+    stagedFiles.splice(idx, 1);
+    renderStagedFiles();
+}
+
+function submitEvidence() {
+    const category = document.getElementById('evidenceCategory').value;
+    const period = document.getElementById('evidencePeriod').value;
+
+    if (stagedFiles.length === 0) { showToast('⚠️ Please select at least one file', 'error'); return; }
+    if (!category) { showToast('⚠️ Please select an ESG category', 'error'); return; }
+
+    const subcategory = document.getElementById('evidenceSubcategory').value || '—';
+    const docType = document.getElementById('evidenceDocType').value;
+    const facility = document.getElementById('evidenceFacility').value || 'All Facilities';
+    const notes = document.getElementById('evidenceNotes').value;
+    const docDate = document.getElementById('evidenceDate').value;
+    const tagsRaw = document.getElementById('evidenceTags').value;
+    const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+    stagedFiles.forEach((f, idx) => {
+        const rec = {
+            id: 'ev' + Date.now() + idx,
+            filename: f.name,
+            icon: getFileIcon(f.name),
+            category, subcategory, docType, period, facility,
+            uploader: 'Kamesh M.',
+            uploadDate: new Date().toISOString().slice(0,10),
+            docDate: docDate || new Date().toISOString().slice(0,10),
+            size: formatBytes(f.size),
+            status: 'pending',
+            notes: notes || 'No description provided.',
+            tags: [...tags, category, period.replace(/\s/g,'').toLowerCase()]
+        };
+        evidenceRecords.unshift(rec);
+    });
+
+    updateBadges();
+    showToast(`📎 ${stagedFiles.length} evidence file(s) uploaded & tagged`, 'success');
+    clearEvidenceForm();
+}
+
+function clearEvidenceForm() {
+    stagedFiles = [];
+    renderStagedFiles();
+    document.getElementById('evidenceCategory').value = '';
+    document.getElementById('evidenceSubcategory').innerHTML = '<option value="">— Select after category —</option>';
+    document.getElementById('evidencePeriod').selectedIndex = 0;
+    document.getElementById('evidenceFacility').value = '';
+    document.getElementById('evidenceDocType').selectedIndex = 0;
+    document.getElementById('evidenceDate').value = '';
+    document.getElementById('evidenceNotes').value = '';
+    document.getElementById('evidenceTags').value = '';
+    document.getElementById('evidenceFileInput').value = '';
+}
+
+// ─── Evidence History ─────────────────────────────────────────────
+function filterEvidence() {
+    const search = document.getElementById('searchFilter').value.toLowerCase();
+    const category = document.getElementById('categoryFilter').value;
+    const period = document.getElementById('periodFilter').value;
+    const status = document.getElementById('statusFilter').value;
+
+    let filtered = evidenceRecords.filter(r => {
+        if (category && r.category !== category) return false;
+        if (period && !r.period.includes(period.replace('FY24','FY24').replace('FY 2024–25','FY 2024'))) {
+            if (!r.period.toLowerCase().includes(period.toLowerCase())) return false;
+        }
+        if (status && r.status !== status) return false;
+        if (search && !r.filename.toLowerCase().includes(search) && !r.notes.toLowerCase().includes(search) && !r.tags.join(' ').toLowerCase().includes(search)) return false;
+        return true;
+    });
+
+    renderEvidenceTable(filtered);
+}
+
+function renderEvidenceTable(records) {
+    const tbody = document.getElementById('evidenceTableBody');
+    const empty = document.getElementById('emptyEvidenceState');
+
+    if (records.length === 0) {
+        tbody.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+    }
+    empty.style.display = 'none';
+
+    tbody.innerHTML = records.map(r => `
+        <tr>
+            <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="file-type-icon">${r.icon}</span>
+                    <div>
+                        <div class="evidence-filename">${r.filename}</div>
+                        <div style="font-size:0.72rem;color:var(--subtle);">${r.size}</div>
+                    </div>
+                </div>
+            </td>
+            <td><span class="category-chip ${CHIP_CLASS[r.category]}">${CATEGORY_LABELS[r.category]}</span></td>
+            <td style="font-size:0.8rem;color:var(--subtle);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${r.subcategory}</td>
+            <td style="font-size:0.8rem;">${r.docType}</td>
+            <td><span class="tag-pill">${r.period}</span></td>
+            <td style="font-size:0.8rem;">${r.facility}</td>
+            <td style="font-size:0.8rem;">${r.uploader}</td>
+            <td style="font-size:0.8rem;white-space:nowrap;">${formatDate(r.uploadDate)}</td>
+            <td>${statusBadge(r.status)}</td>
+            <td>
+                <div class="action-group">
+                    <button class="btn btn-secondary btn-sm btn-icon" title="View Details" onclick="openDetail('${r.id}')">🔍</button>
+                    <button class="btn btn-secondary btn-sm btn-icon" title="Download" onclick="showToast('📥 Downloading ${r.filename}…','success')">📥</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function statusBadge(status) {
+    const map = {
+        verified: '<span class="status-pill status-verified">✅ Verified</span>',
+        pending:  '<span class="status-pill status-pending">⏳ Pending</span>',
+        review:   '<span class="status-pill status-review">👁️ Under Review</span>',
+        draft:    '<span class="status-pill status-draft">📝 Draft</span>'
+    };
+    return map[status] || status;
+}
+
+// ─── Detail Panel ─────────────────────────────────────────────────
+function openDetail(id) {
+    const r = evidenceRecords.find(e => e.id === id);
+    if (!r) return;
+    currentDetailId = id;
+
+    document.getElementById('detailFileIcon').textContent = r.icon;
+    document.getElementById('detailFileName').textContent = r.filename;
+    document.getElementById('detailStatusBadge').innerHTML = statusBadge(r.status);
+    document.getElementById('detailCategory').innerHTML = `<span class="category-chip ${CHIP_CLASS[r.category]}">${CATEGORY_LABELS[r.category]}</span>`;
+    document.getElementById('detailSubcat').textContent = r.subcategory;
+    document.getElementById('detailDocType').textContent = r.docType;
+    document.getElementById('detailPeriod').textContent = r.period;
+    document.getElementById('detailFacility').textContent = r.facility;
+    document.getElementById('detailDocDate').textContent = formatDate(r.docDate);
+    document.getElementById('detailUploader').textContent = r.uploader;
+    document.getElementById('detailUploadDate').textContent = formatDate(r.uploadDate);
+    document.getElementById('detailFileSize').textContent = r.size;
+    document.getElementById('detailNotes').textContent = r.notes;
+    document.getElementById('detailTags').innerHTML = r.tags.map(t => `<span class="tag-pill">🏷️ ${t}</span>`).join('');
+
+    document.getElementById('detailOverlay').classList.add('open');
+}
+
+function closeDetailPanel() { document.getElementById('detailOverlay').classList.remove('open'); }
+function closeDetail(e) { if (e.target === document.getElementById('detailOverlay')) closeDetailPanel(); }
+
+function markVerified() {
+    if (currentDetailId) {
+        const r = evidenceRecords.find(e => e.id === currentDetailId);
+        if (r) { r.status = 'verified'; filterEvidence(); updateBadges(); }
+    }
+    showToast('✅ Evidence marked as verified', 'success');
+    closeDetailPanel();
+}
+
+function requestRevision() {
+    if (currentDetailId) {
+        const r = evidenceRecords.find(e => e.id === currentDetailId);
+        if (r) { r.status = 'review'; filterEvidence(); updateBadges(); }
+    }
+    showToast('🔁 Revision requested — submitter notified', 'success');
+    closeDetailPanel();
+}
+
+function addAuditorNote() {
+    showToast('📝 Auditor note panel would open here', 'success');
+}
+
+// ─── Badges & Stats ───────────────────────────────────────────────
+function updateBadges() {
+    const newCount = evidenceRecords.filter(r => r.status === 'pending').length;
+    document.getElementById('evidenceBadge').textContent = stagedFiles.length;
+    document.getElementById('historyBadge').textContent = evidenceRecords.length;
+    document.getElementById('statTotal').textContent = evidenceRecords.length;
+    document.getElementById('statVerified').textContent = evidenceRecords.filter(r => r.status === 'verified').length;
+    document.getElementById('statPending').textContent = evidenceRecords.filter(r => r.status === 'pending').length;
+    const cats = new Set(evidenceRecords.map(r => r.category));
+    document.getElementById('statCategories').textContent = cats.size;
+    renderEvidenceTable(evidenceRecords);
+}
+
+// ─── Export Manifest ──────────────────────────────────────────────
+function exportEvidenceManifest() {
+    showToast('📋 Evidence manifest CSV exported', 'success');
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────
+function getFileIcon(name) {
+    const ext = name.split('.').pop().toLowerCase();
+    const map = { pdf:'📄', xlsx:'📊', xls:'📊', csv:'📋', png:'🖼️', jpg:'🖼️', jpeg:'🖼️', docx:'📝', doc:'📝', zip:'🗜️' };
+    return map[ext] || '📁';
+}
+
+function formatBytes(b) {
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b/1024).toFixed(0) + ' KB';
+    return (b/1048576).toFixed(1) + ' MB';
+}
+
+function formatDate(d) {
+    if (!d) return '—';
+    const dt = new Date(d);
+    return dt.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ─── Init ─────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('evidenceDate').value = new Date().toISOString().slice(0,10);
+    renderImportHistory({ name: 'emissions-data-Q3-FY25.csv', size: '84 KB', date: '15 Jan 2025' });
+    updateBadges();
+
+    // Drag-and-drop
+    ['evidenceDropZone','importDropZone'].forEach(id => {
+        const z = document.getElementById(id);
+        if (!z) return;
+        z.addEventListener('dragover', e => { e.preventDefault(); z.classList.add('dragover'); });
+        z.addEventListener('dragleave', () => z.classList.remove('dragover'));
+        z.addEventListener('drop', e => {
+            e.preventDefault(); z.classList.remove('dragover');
+            if (id === 'evidenceDropZone') {
+                const dt = { files: e.dataTransfer.files };
+                handleEvidenceFiles(dt);
             }
         });
-
-        document.querySelector('.btn-primary').addEventListener('click', function() {
-            alert('Export started! CSV file would be generated and downloaded in a real application.');
-        });
-
-        document.querySelector('.btn-secondary').addEventListener('click', function() {
-            alert('Template download would start here in a real application.');
-        });
-    </script>
+    });
+});
+</script>
 </body>
 </html>
