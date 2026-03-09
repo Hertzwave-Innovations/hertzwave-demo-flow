@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HWCAP - Sustainability Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <style>
         :root {
             --hz-primary: #4A7C59;
@@ -732,7 +733,535 @@
 .logo-text {
     color: inherit;
 }
-        
+
+        /* ─────────────────────────────────────
+           HELP PANEL
+        ───────────────────────────────────── */
+        .help-overlay {
+            position: fixed; inset: 0;
+            background: rgba(34,48,42,0.45);
+            backdrop-filter: blur(2px);
+            z-index: 999;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+        .help-overlay.active { opacity: 1; pointer-events: all; }
+
+        .help-panel {
+            position: fixed; top: 0; right: 0; bottom: 0;
+            width: 420px;
+            background: #fff;
+            z-index: 1000;
+            display: flex; flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.38s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: -8px 0 40px rgba(0,0,0,0.18);
+            border-left: 1px solid var(--stroke);
+            overflow: hidden;
+        }
+        .help-panel.active { transform: translateX(0); }
+
+        .hp-header {
+            background: linear-gradient(135deg, var(--hz-primary) 0%, var(--hz-primary-700) 100%);
+            padding: 1.25rem 1.5rem;
+            display: flex; align-items: center; gap: 12px;
+            position: relative; overflow: hidden; flex-shrink: 0;
+        }
+        .hp-header::before {
+            content: ''; position: absolute; top: -30px; right: -20px;
+            width: 120px; height: 120px; background: rgba(255,255,255,0.07); border-radius: 50%;
+        }
+        .hp-header-icon {
+            width: 36px; height: 36px; background: rgba(255,255,255,0.18);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1rem; flex-shrink: 0; position: relative; z-index: 1;
+        }
+        .hp-header-text { flex: 1; position: relative; z-index: 1; }
+        .hp-header-title { font-size: 1rem; font-weight: 700; color: white; line-height: 1.2; }
+        .hp-header-sub { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+        .hp-close {
+            width: 32px; height: 32px; background: rgba(255,255,255,0.15);
+            border: none; border-radius: 8px; color: white; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; transition: background 0.2s; position: relative; z-index: 1; flex-shrink: 0;
+        }
+        .hp-close:hover { background: rgba(255,255,255,0.28); }
+
+        .hp-back-row {
+            display: none; align-items: center; gap: 8px;
+            padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--stroke);
+            background: var(--hz-primary-50); flex-shrink: 0;
+        }
+        .hp-back-row.visible { display: flex; }
+        .hp-btn-back {
+            background: none; border: none; color: var(--hz-primary);
+            font-family: inherit; font-size: 0.875rem; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; gap: 6px; padding: 4px 0;
+        }
+        .hp-btn-back:hover { text-decoration: underline; }
+        .hp-view-title { font-size: 0.875rem; font-weight: 600; color: var(--ink); margin-left: auto; }
+
+        .hp-body {
+            flex: 1; overflow-y: auto; padding: 1.25rem; overflow-x: hidden;
+        }
+        .hp-body::-webkit-scrollbar { width: 4px; }
+        .hp-body::-webkit-scrollbar-thumb { background: var(--stroke); border-radius: 4px; }
+
+        .hp-view { display: none; animation: hpFade 0.25s ease; }
+        .hp-view.active { display: block; }
+        @keyframes hpFade {
+            from { opacity: 0; transform: translateX(16px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .hp-welcome {
+            background: var(--hz-primary-50); border: 1px solid #c8dece;
+            border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.25rem;
+        }
+        .hp-welcome p { font-size: 0.85rem; color: var(--hz-dark); line-height: 1.5; }
+        .hp-section-label {
+            font-size: 0.7rem; font-weight: 700; color: var(--subtle);
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-bottom: 0.75rem; margin-top: 0.25rem;
+        }
+        .hp-menu { display: flex; flex-direction: column; gap: 0.6rem; }
+        .hp-menu-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 0.9rem 1rem; background: white; border: 1px solid var(--stroke);
+            border-radius: 10px; cursor: pointer; transition: all 0.2s;
+            text-decoration: none; color: inherit;
+        }
+        .hp-menu-item:hover {
+            border-color: var(--hz-primary); background: var(--hz-primary-50);
+            transform: translateX(3px); box-shadow: 0 2px 12px rgba(74,124,89,0.12);
+        }
+        .hp-menu-icon {
+            width: 38px; height: 38px; border-radius: 10px;
+            background: var(--hz-primary-50); color: var(--hz-primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; flex-shrink: 0; transition: all 0.2s;
+        }
+        .hp-menu-item:hover .hp-menu-icon { background: var(--hz-primary); color: white; }
+        .hp-menu-label { font-weight: 600; font-size: 0.9rem; flex: 1; }
+        .hp-menu-desc { font-size: 0.75rem; color: var(--subtle); margin-top: 1px; }
+        .hp-menu-arrow { color: var(--subtle); font-size: 0.75rem; transition: all 0.2s; }
+        .hp-menu-item:hover .hp-menu-arrow { color: var(--hz-primary); transform: translateX(2px); }
+        .hp-badge {
+            font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+            background: var(--hz-primary); color: white;
+        }
+        .hp-badge.soon { background: #E8A838; }
+        .hp-badge.new-b { background: #4299E1; }
+        .hp-badge.ext { background: #9B59B6; }
+        .hp-search-box {
+            display: flex; align-items: center; gap: 10px;
+            background: white; border: 2px solid var(--stroke);
+            border-radius: 10px; padding: 0.7rem 1rem; margin-bottom: 1.25rem; transition: border-color 0.2s;
+        }
+        .hp-search-box:focus-within { border-color: var(--hz-primary); }
+        .hp-search-box i { color: var(--subtle); }
+        .hp-search-box input {
+            flex: 1; border: none; outline: none;
+            font-family: inherit; font-size: 0.9rem; color: var(--ink); background: transparent;
+        }
+        .hp-search-box input::placeholder { color: #aaa; }
+        .hp-results { display: flex; flex-direction: column; gap: 0.5rem; }
+        .hp-result {
+            padding: 0.85rem 1rem; background: white; border: 1px solid var(--stroke);
+            border-radius: 8px; cursor: pointer; transition: all 0.15s;
+        }
+        .hp-result:hover { border-color: var(--hz-primary); background: var(--hz-primary-50); }
+        .hp-result-title { font-weight: 600; font-size: 0.875rem; margin-bottom: 3px; }
+        .hp-result-section { font-size: 0.75rem; color: var(--hz-primary); font-weight: 500; }
+        .hp-result-excerpt { font-size: 0.8rem; color: var(--subtle); margin-top: 4px; line-height: 1.4; }
+        .hp-empty { text-align: center; padding: 2rem; color: var(--subtle); }
+        .hp-empty i { font-size: 2rem; margin-bottom: 0.75rem; display: block; }
+        .hp-steps { display: flex; flex-direction: column; gap: 0.85rem; }
+        .hp-step {
+            display: flex; gap: 14px; background: white; border: 1px solid var(--stroke);
+            border-radius: 10px; padding: 1rem;
+        }
+        .hp-step-num {
+            width: 32px; height: 32px; border-radius: 50%; background: var(--hz-primary); color: white;
+            font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .hp-step-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; }
+        .hp-step-text { font-size: 0.8rem; color: var(--subtle); line-height: 1.5; }
+        .hp-video-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .hp-video-card {
+            display: flex; gap: 12px; background: white; border: 1px solid var(--stroke);
+            border-radius: 10px; padding: 0.9rem; cursor: pointer; transition: all 0.2s;
+            text-decoration: none; color: inherit;
+        }
+        .hp-video-card:hover { border-color: var(--hz-primary); background: var(--hz-primary-50); }
+        .hp-video-thumb {
+            width: 64px; height: 48px; border-radius: 6px;
+            background: linear-gradient(135deg, var(--hz-primary) 0%, var(--hz-dark) 100%);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.25rem; flex-shrink: 0;
+        }
+        .hp-video-title { font-weight: 600; font-size: 0.85rem; margin-bottom: 3px; }
+        .hp-video-info { font-size: 0.75rem; color: var(--subtle); }
+        .hp-yt-cta {
+            margin-top: 1.25rem; text-align: center;
+            background: #FF0000; border-radius: 10px; padding: 1rem;
+        }
+        .hp-yt-cta a {
+            color: white; text-decoration: none; font-weight: 700; font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .hp-timeline { display: flex; flex-direction: column; }
+        .hp-release { display: flex; gap: 14px; padding-bottom: 1.25rem; position: relative; }
+        .hp-release:not(:last-child)::before {
+            content: ''; position: absolute; left: 15px; top: 32px; bottom: 0;
+            width: 2px; background: var(--stroke);
+        }
+        .hp-rdot {
+            width: 32px; height: 32px; border-radius: 50%; background: var(--hz-primary); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.65rem; font-weight: 700; flex-shrink: 0; position: relative; z-index: 1;
+        }
+        .hp-rdot.minor { background: #4299E1; }
+        .hp-rdot.patch { background: #9B59B6; }
+        .hp-rbody {
+            background: white; border: 1px solid var(--stroke); border-radius: 10px; padding: 0.9rem; flex: 1;
+        }
+        .hp-rheader { display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem; }
+        .hp-rver { font-weight: 700; font-size: 0.875rem; }
+        .hp-rdate { font-size: 0.75rem; color: var(--subtle); margin-left: auto; }
+        .hp-rtag {
+            font-size: 0.65rem; font-weight: 700; padding: 2px 7px;
+            border-radius: 6px; background: var(--hz-primary-50); color: var(--hz-primary);
+        }
+        .hp-rtag.minor { background: #EBF8FF; color: #2B6CB0; }
+        .hp-rtag.patch { background: #FAF5FF; color: #6B46C1; }
+        .hp-rlist { list-style: none; }
+        .hp-rlist li {
+            font-size: 0.8rem; color: var(--ink); padding: 3px 0;
+            display: flex; align-items: flex-start; gap: 6px; line-height: 1.4;
+        }
+        .hp-rlist li::before { content: '✦'; color: var(--hz-primary); font-size: 0.6rem; margin-top: 3px; flex-shrink: 0; }
+        .hp-contact-cards { display: flex; flex-direction: column; gap: 0.85rem; }
+        .hp-contact-card {
+            background: white; border: 1px solid var(--stroke); border-radius: 12px; padding: 1.25rem;
+            display: flex; gap: 14px; align-items: flex-start;
+            text-decoration: none; color: inherit; transition: all 0.2s;
+        }
+        .hp-contact-card:hover { border-color: var(--hz-primary); background: var(--hz-primary-50); }
+        .hp-contact-icon {
+            width: 44px; height: 44px; border-radius: 12px; background: var(--hz-primary-50); color: var(--hz-primary);
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;
+        }
+        .hp-contact-label { font-size: 0.75rem; color: var(--subtle); font-weight: 500; margin-bottom: 2px; }
+        .hp-contact-value { font-weight: 700; font-size: 0.95rem; color: var(--ink); }
+        .hp-contact-hint { font-size: 0.75rem; color: var(--subtle); margin-top: 2px; }
+        .hp-feedback-opts { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem; }
+        .hp-feedback-opt {
+            display: flex; gap: 12px; align-items: center;
+            background: white; border: 1px solid var(--stroke); border-radius: 10px; padding: 0.9rem 1rem;
+            cursor: pointer; transition: all 0.2s; text-decoration: none; color: inherit;
+        }
+        .hp-feedback-opt:hover { border-color: var(--hz-primary); background: var(--hz-primary-50); }
+        .hp-feedback-opt > i:first-child { color: var(--hz-primary); font-size: 1.1rem; width: 20px; text-align: center; }
+        .hp-feedback-title { font-weight: 600; font-size: 0.875rem; }
+        .hp-feedback-desc { font-size: 0.75rem; color: var(--subtle); }
+        .hp-note {
+            background: var(--hz-primary-50); border: 1px solid #c8dece;
+            border-radius: 10px; padding: 1rem; font-size: 0.8rem; color: var(--hz-dark);
+            line-height: 1.5; margin-top: 1rem;
+        }
+        .hp-about-overlay {
+            position: fixed; inset: 0; background: rgba(34,48,42,0.6);
+            z-index: 1100; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 1rem;
+        }
+        .hp-about-overlay.active { opacity: 1; pointer-events: all; }
+        .hp-about-box {
+            background: white; border-radius: 16px; width: 100%; max-width: 380px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            transform: scale(0.9); transition: transform 0.3s ease; overflow: hidden;
+        }
+        .hp-about-overlay.active .hp-about-box { transform: scale(1); }
+        .hp-about-head {
+            background: linear-gradient(135deg, var(--hz-primary), var(--hz-primary-700));
+            padding: 1.5rem; text-align: center; color: white;
+        }
+        .hp-about-logo {
+            width: 56px; height: 56px; border-radius: 14px; background: rgba(255,255,255,0.2);
+            margin: 0 auto 0.75rem; display: flex; align-items: center; justify-content: center; font-size: 1.75rem;
+        }
+        .hp-about-title { font-size: 1.2rem; font-weight: 700; }
+        .hp-about-sub { font-size: 0.8rem; opacity: 0.8; }
+        .hp-about-body { padding: 1.5rem; }
+        .hp-about-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.65rem 0; border-bottom: 1px solid var(--stroke);
+        }
+        .hp-about-row:last-child { border-bottom: none; }
+        .hp-about-lbl { font-size: 0.8rem; color: var(--subtle); font-weight: 500; }
+        .hp-about-val { font-size: 0.875rem; font-weight: 700; color: var(--ink); }
+        .hp-about-val.ver { color: var(--hz-primary); }
+        .hp-about-footer { padding: 0 1.5rem 1.5rem; }
+        .hp-btn-close {
+            width: 100%; padding: 0.75rem; background: var(--hz-primary); color: white;
+            border: none; border-radius: 8px; font-family: inherit; font-size: 0.875rem; font-weight: 600;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .hp-btn-close:hover { background: var(--hz-primary-700); }
+
+        /* ═══════════════════════════════════════
+           NOTIFICATION BELL + TRAY
+        ═══════════════════════════════════════ */
+        .notif-bell-btn {
+            position: relative;
+            width: 40px; height: 40px;
+            background: rgba(255,255,255,0.15);
+            border: none; border-radius: 10px;
+            color: white; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .notif-bell-btn:hover { background: rgba(255,255,255,0.28); }
+        .notif-bell-btn.ringing { animation: bellShake 0.6s ease; }
+
+        @keyframes bellShake {
+            0%,100% { transform: rotate(0); }
+            15% { transform: rotate(12deg); }
+            30% { transform: rotate(-10deg); }
+            45% { transform: rotate(8deg); }
+            60% { transform: rotate(-5deg); }
+            75% { transform: rotate(3deg); }
+        }
+
+        .notif-badge {
+            position: absolute; top: -5px; right: -5px;
+            min-width: 18px; height: 18px;
+            background: #E53E3E; color: white;
+            border-radius: 9px; font-size: 0.65rem; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0 4px;
+            border: 2px solid var(--hz-primary);
+            pointer-events: none;
+            transition: all 0.2s;
+        }
+        .notif-badge.hidden { opacity: 0; transform: scale(0); }
+
+        /* Bell wrapper needs to be relative for tray positioning */
+        .notif-bell-wrapper {
+            position: relative;
+        }
+
+        /* Tray */
+        .notif-tray {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 400px;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.16), 0 2px 8px rgba(0,0,0,0.06);
+            border: 1px solid var(--stroke);
+            z-index: 500;
+            display: flex; flex-direction: column;
+            max-height: 540px;
+            opacity: 0; pointer-events: none;
+            transform: translateY(-8px) scale(0.97);
+            transform-origin: top right;
+            transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.34,1.2,0.64,1);
+            overflow: hidden;
+        }
+        .notif-tray.open {
+            opacity: 1; pointer-events: all;
+            transform: translateY(0) scale(1);
+        }
+
+        .nt-header {
+            padding: 1rem 1.25rem 0.75rem;
+            border-bottom: 1px solid var(--stroke);
+            flex-shrink: 0;
+        }
+        .nt-header-row {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 0.75rem;
+        }
+        .nt-title { font-weight: 700; font-size: 1rem; color: var(--ink); flex: 1; }
+        .nt-unread-chip {
+            font-size: 0.7rem; font-weight: 700;
+            padding: 2px 8px; border-radius: 10px;
+            background: #FFF0F0; color: #E53E3E; border: 1px solid #FED7D7;
+        }
+        .nt-unread-chip.zero {
+            background: var(--hz-primary-50); color: var(--hz-primary); border-color: #c8dece;
+        }
+        .nt-btn-text {
+            background: none; border: none; font-family: inherit;
+            font-size: 0.75rem; color: var(--hz-primary); font-weight: 600;
+            cursor: pointer; padding: 4px 8px; border-radius: 6px; transition: background 0.15s;
+        }
+        .nt-btn-text:hover { background: var(--hz-primary-50); }
+
+        .nt-tabs { display: flex; gap: 4px; }
+        .nt-tab {
+            padding: 5px 12px; border-radius: 8px;
+            font-size: 0.78rem; font-weight: 600;
+            border: 1px solid transparent;
+            cursor: pointer; transition: all 0.15s;
+            color: var(--subtle); background: none; font-family: inherit;
+        }
+        .nt-tab:hover { background: var(--hz-primary-50); color: var(--hz-primary); }
+        .nt-tab.active { background: var(--hz-primary); color: white; border-color: var(--hz-primary); }
+        .nt-tab-count {
+            display: inline-block; border-radius: 6px; padding: 0 5px;
+            font-size: 0.65rem; margin-left: 3px;
+            background: rgba(255,255,255,0.3);
+        }
+        .nt-tab:not(.active) .nt-tab-count { background: var(--stroke); color: var(--subtle); }
+
+        .nt-list { flex: 1; overflow-y: auto; padding: 0.5rem 0; }
+        .nt-list::-webkit-scrollbar { width: 4px; }
+        .nt-list::-webkit-scrollbar-thumb { background: var(--stroke); border-radius: 4px; }
+
+        .nt-item {
+            display: flex; gap: 12px; align-items: flex-start;
+            padding: 0.85rem 1.25rem 0.85rem 1.5rem;
+            cursor: pointer; transition: background 0.15s;
+            position: relative; border-bottom: 1px solid #f5f5f4;
+        }
+        .nt-item:last-child { border-bottom: none; }
+        .nt-item:hover { background: #fafaf9; }
+        .nt-item.unread { background: #fffdf7; }
+        .nt-item.unread:hover { background: #fff9ed; }
+
+        .nt-unread-dot {
+            position: absolute; left: 7px; top: 50%; transform: translateY(-50%);
+            width: 6px; height: 6px; border-radius: 50%; background: var(--hz-primary);
+        }
+        .nt-item:not(.unread) .nt-unread-dot { opacity: 0; }
+
+        .nt-icon {
+            width: 36px; height: 36px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem; flex-shrink: 0; margin-top: 1px;
+        }
+        .nt-icon.critical { background: #FFF5F5; color: #E53E3E; }
+        .nt-icon.warning  { background: #FFFBEB; color: #D97706; }
+        .nt-icon.info     { background: #EBF8FF; color: #2B6CB0; }
+        .nt-icon.success  { background: #F0FFF4; color: #276749; }
+        .nt-icon.system   { background: var(--hz-primary-50); color: var(--hz-primary); }
+
+        .nt-content { flex: 1; min-width: 0; }
+        .nt-item-title {
+            font-size: 0.845rem; font-weight: 600; color: var(--ink);
+            line-height: 1.3; margin-bottom: 2px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .nt-item-body {
+            font-size: 0.775rem; color: var(--subtle); line-height: 1.4; margin-bottom: 5px;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .nt-item-meta { display: flex; align-items: center; gap: 8px; }
+        .nt-time { font-size: 0.72rem; color: #bbb; }
+        .nt-type-chip {
+            font-size: 0.63rem; font-weight: 700; padding: 1px 6px;
+            border-radius: 5px; text-transform: uppercase; letter-spacing: 0.3px;
+        }
+        .nt-type-chip.critical { background: #FFF5F5; color: #C53030; border: 1px solid #FED7D7; }
+        .nt-type-chip.warning  { background: #FFFBEB; color: #C05621; border: 1px solid #FEEBC8; }
+        .nt-type-chip.info     { background: #EBF8FF; color: #2C5282; border: 1px solid #BEE3F8; }
+        .nt-type-chip.success  { background: #F0FFF4; color: #22543D; border: 1px solid #C6F6D5; }
+        .nt-type-chip.system   { background: var(--hz-primary-50); color: var(--hz-primary); border: 1px solid #c8dece; }
+
+        .nt-dismiss {
+            width: 22px; height: 22px; border-radius: 6px;
+            background: none; border: none; color: #ccc; cursor: pointer; font-size: 0.75rem;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; transition: all 0.15s; margin-top: 2px;
+        }
+        .nt-dismiss:hover { background: #fee2e2; color: #E53E3E; }
+
+        .nt-empty {
+            text-align: center; padding: 2.5rem 1rem; color: var(--subtle);
+        }
+        .nt-empty i { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; opacity: 0.35; }
+        .nt-empty p { font-size: 0.875rem; }
+
+        .nt-footer {
+            padding: 0.75rem 1.25rem; border-top: 1px solid var(--stroke);
+            text-align: center; flex-shrink: 0;
+        }
+        .nt-footer a {
+            font-size: 0.8rem; color: var(--hz-primary); font-weight: 600; text-decoration: none;
+        }
+        .nt-footer a:hover { text-decoration: underline; }
+
+        /* ═══════════════════════════════════════
+           NOTIFICATION DETAIL MODAL
+        ═══════════════════════════════════════ */
+        .nd-overlay {
+            position: fixed; inset: 0;
+            background: rgba(34,48,42,0.5); backdrop-filter: blur(3px);
+            z-index: 1050;
+            display: flex; align-items: center; justify-content: center; padding: 1rem;
+            opacity: 0; pointer-events: none; transition: opacity 0.22s;
+        }
+        .nd-overlay.active { opacity: 1; pointer-events: all; }
+        .nd-modal {
+            background: white; border-radius: 16px; width: 100%; max-width: 480px;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+            transform: scale(0.94) translateY(10px);
+            transition: transform 0.26s cubic-bezier(0.34,1.2,0.64,1);
+            overflow: hidden;
+        }
+        .nd-overlay.active .nd-modal { transform: scale(1) translateY(0); }
+
+        .nd-mheader {
+            padding: 1.25rem 1.5rem 1rem;
+            display: flex; gap: 14px; align-items: flex-start;
+            border-bottom: 1px solid var(--stroke);
+        }
+        .nd-micon {
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.25rem; flex-shrink: 0;
+        }
+        .nd-micon.critical { background: #FFF5F5; color: #E53E3E; }
+        .nd-micon.warning  { background: #FFFBEB; color: #D97706; }
+        .nd-micon.info     { background: #EBF8FF; color: #2B6CB0; }
+        .nd-micon.success  { background: #F0FFF4; color: #276749; }
+        .nd-micon.system   { background: var(--hz-primary-50); color: var(--hz-primary); }
+
+        .nd-mtitle-area { flex: 1; }
+        .nd-mtitle { font-size: 1rem; font-weight: 700; color: var(--ink); line-height: 1.3; margin-bottom: 6px; }
+        .nd-mmeta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .nd-mclose {
+            width: 30px; height: 30px; background: var(--bg); border: none; border-radius: 8px;
+            cursor: pointer; color: var(--subtle); font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s;
+        }
+        .nd-mclose:hover { background: #fee2e2; color: #E53E3E; }
+
+        .nd-mbody { padding: 1.25rem 1.5rem; }
+        .nd-mdesc { font-size: 0.9rem; color: var(--ink); line-height: 1.7; margin-bottom: 1.1rem; }
+        .nd-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; margin-bottom: 1rem; }
+        .nd-detail-item { background: var(--bg); border-radius: 8px; padding: 0.6rem 0.85rem; }
+        .nd-detail-label { font-size: 0.7rem; color: var(--subtle); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 2px; }
+        .nd-detail-value { font-size: 0.85rem; font-weight: 600; color: var(--ink); }
+
+        .nd-mfooter {
+            padding: 0.75rem 1.5rem 1.25rem;
+            display: flex; gap: 0.65rem; justify-content: flex-end;
+            border-top: 1px solid var(--stroke);
+        }
+        .nd-btn {
+            padding: 0.6rem 1.25rem; border-radius: 8px; font-family: inherit;
+            font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.15s; border: none;
+        }
+        .nd-btn.primary { background: var(--hz-primary); color: white; }
+        .nd-btn.primary:hover { background: var(--hz-primary-700); }
+        .nd-btn.secondary { background: var(--bg); color: var(--ink); border: 1px solid var(--stroke); }
+        .nd-btn.secondary:hover { background: var(--stroke); }
+        .nd-btn.danger { background: #FFF5F5; color: #E53E3E; border: 1px solid #FED7D7; }
+        .nd-btn.danger:hover { background: #FED7D7; }
     </style>
 </head>
 <body>
@@ -746,6 +1275,37 @@
             <a href="hertzwave-consultant-flow.html" class="consultant-toggle" id="consultantMode" style="display: none;">
                 🎯 Consultant Mode
             </a>
+            <!-- Notification Bell -->
+            <div class="notif-bell-wrapper">
+                <button class="notif-bell-btn" id="notifBellBtn" onclick="toggleNotifTray(event)" title="Notifications">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                    <span class="notif-badge" id="notifBadge">5</span>
+                </button>
+                <!-- Notification Tray -->
+                <div class="notif-tray" id="notifTray">
+                    <div class="nt-header">
+                        <div class="nt-header-row">
+                            <span class="nt-title">Notifications</span>
+                            <span class="nt-unread-chip" id="ntUnreadChip">5 unread</span>
+                            <button class="nt-btn-text" onclick="ntMarkAllRead()">Mark all read</button>
+                        </div>
+                        <div class="nt-tabs">
+                            <button class="nt-tab active" data-tab="all" onclick="ntSwitchTab('all', this)">All <span class="nt-tab-count" id="nt-count-all">8</span></button>
+                            <button class="nt-tab" data-tab="unread" onclick="ntSwitchTab('unread', this)">Unread <span class="nt-tab-count" id="nt-count-unread">5</span></button>
+                            <button class="nt-tab" data-tab="critical" onclick="ntSwitchTab('critical', this)">Critical <span class="nt-tab-count" id="nt-count-critical">2</span></button>
+                        </div>
+                    </div>
+                    <div class="nt-list" id="ntList"></div>
+                    <div class="nt-footer">
+                        <a href="#" onclick="ntClearDismissed(); return false;">Clear dismissed</a>
+                        &nbsp;·&nbsp;
+                        <a href="notification-settings.html">Notification settings</a>
+                    </div>
+                </div>
+            </div>
             <div class="user-menu" onclick="toggleUserDropdown()">
                 <div class="user-avatar">A</div>
                 <span id="userDisplay">Admin</span>
@@ -917,6 +1477,11 @@
                 <a href="#" class="nav-item">
                     <div class="nav-icon">⚙️</div>
                     Settings
+                </a>
+                <a href="#" class="nav-item" onclick="openHelpPanel(); return false;" id="helpNavItem">
+                    <div class="nav-icon" style="color: var(--hz-primary);"><i class="fas fa-question-circle"></i></div>
+                    Help & Support
+                    <span class="nav-badge" style="background: var(--hz-primary); margin-left: auto;">?</span>
                 </a>
             </div>
         </nav>
@@ -1511,6 +2076,627 @@
 
         // Function called from consent management page when consent is completed
         window.updateConsentStatus = updateConsentStatus;
+
+        /* ════════════════════════════════════════
+           NOTIFICATIONS ENGINE
+        ════════════════════════════════════════ */
+
+        // SVG icons for notification types
+        const NT_SVG = {
+            critical: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+            warning:  `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+            info:     `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
+            success:  `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+            system:   `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>`,
+        };
+
+        // Notification data store
+        const NT_DATA = [
+            {
+                id: 'n001', severity: 'critical', read: false, dismissed: false,
+                icon: 'fas fa-exclamation-triangle',
+                title: 'Data Quality Alert — Scope 2 Missing',
+                body: 'South India region has no Scope 2 electricity data for Q2 2024. This may cause inaccurate tCO₂e totals and affect BRSR disclosures.',
+                category: 'Data Quality',
+                time: '10 min ago',
+                module: 'Data Management',
+                action: { label: 'Fix Now', href: 'add-data.html' },
+                details: {
+                    'Affected Region': 'South India',
+                    'Missing Period': 'Q2 2024 (Apr–Jun)',
+                    'Estimated Impact': '~12,400 tCO₂e gap',
+                    'Deadline': 'Before next report run',
+                }
+            },
+            {
+                id: 'n002', severity: 'critical', read: false, dismissed: false,
+                icon: 'fas fa-calendar-times',
+                title: 'BRSR Submission Due in 7 Days',
+                body: "Your organization's BRSR FY2023–24 report is due for submission to SEBI by the deadline. 3 mandatory disclosures are still incomplete.",
+                category: 'Compliance',
+                time: '1 hour ago',
+                module: 'Compliance Mapper',
+                action: { label: 'Open BRSR', href: 'compliance-mapper-app.html' },
+                details: {
+                    'Framework': 'BRSR FY2023–24',
+                    'Due Date': '16 Mar 2026',
+                    'Pending Items': '3 disclosures',
+                    'Status': 'In Progress',
+                }
+            },
+            {
+                id: 'n003', severity: 'warning', read: false, dismissed: false,
+                icon: 'fas fa-chart-line',
+                title: 'Scope 1 Emissions Spike Detected',
+                body: 'Scope 1 emissions in the Manufacturing facility increased 18.4% month-over-month. This may indicate a refrigerant leak or fuel usage anomaly.',
+                category: 'Emissions',
+                time: '3 hours ago',
+                module: 'Dashboard',
+                action: { label: 'View Analytics', href: 'analytics-insights.html' },
+                details: {
+                    'Facility': 'Manufacturing — Unit 3',
+                    'Change': '+18.4% MoM',
+                    'Likely Cause': 'Refrigerant leak (R22)',
+                    'Threshold': '±10% MoM',
+                }
+            },
+            {
+                id: 'n004', severity: 'warning', read: false, dismissed: false,
+                icon: 'fas fa-user-clock',
+                title: 'Audit Report Awaiting Your Approval',
+                body: 'The Q3 2024 GHG verification report submitted by your auditor is pending your review and sign-off in TerraAudit.',
+                category: 'Approval',
+                time: '5 hours ago',
+                module: 'Audit & Assurance',
+                action: { label: 'Review Report', href: 'terracap_audit_assurance.html' },
+                details: {
+                    'Report': 'Q3 2024 GHG Verification',
+                    'Auditor': 'TerraAudit Internal',
+                    'Submitted': '7 Mar 2026',
+                    'Action Required': 'Sign-off',
+                }
+            },
+            {
+                id: 'n005', severity: 'warning', read: false, dismissed: false,
+                icon: 'fas fa-industry',
+                title: '4 Suppliers Haven\'t Submitted ESG Data',
+                body: 'Scope 3 calculation for Q2 2024 is incomplete. 4 of your key suppliers have not submitted their emissions data via the supplier portal.',
+                category: 'Data Quality',
+                time: 'Yesterday',
+                module: 'Supplier Evaluation',
+                action: { label: 'Send Reminder', href: 'supplier-evaluation.html' },
+                details: {
+                    'Pending Suppliers': '4 of 18',
+                    'Deadline': '20 Mar 2026',
+                    'Scope Impact': 'Scope 3 Category 1',
+                    'Last Reminder': '5 Mar 2026',
+                }
+            },
+            {
+                id: 'n006', severity: 'info', read: true, dismissed: false,
+                icon: 'fas fa-bullhorn',
+                title: 'GreenCo v3 Assessment Window Open',
+                body: 'CII GreenCo v3 self-assessment submission window for 2025–26 is now open. Begin your assessment to target Gold or higher rating.',
+                category: 'Compliance',
+                time: '2 days ago',
+                module: 'Frameworks',
+                action: { label: 'Start Assessment', href: 'frameworks.html' },
+                details: {
+                    'Programme': 'CII GreenCo v3',
+                    'Window Open': '1 Mar 2026',
+                    'Deadline': '30 Apr 2026',
+                    'Current Rating': 'Silver (prev year)',
+                }
+            },
+            {
+                id: 'n007', severity: 'success', read: true, dismissed: false,
+                icon: 'fas fa-trophy',
+                title: 'NetZero Milestone Achieved — Scope 2',
+                body: 'Your Scope 2 emissions are now 22% below your 2030 Science-Based Target trajectory, ahead of schedule. Great work!',
+                category: 'Emissions',
+                time: '3 days ago',
+                module: 'NetZero Pathfinder',
+                action: { label: 'View Trajectory', href: 'netzero-modeler.html' },
+                details: {
+                    'Target': 'SBT 2030 Scope 2',
+                    'Progress': '22% ahead of curve',
+                    'Reduction vs Base': '–34% since 2019',
+                    'Next Milestone': '50% reduction by 2027',
+                }
+            },
+            {
+                id: 'n008', severity: 'system', read: true, dismissed: false,
+                icon: 'fas fa-rocket',
+                title: 'TerraCAP v1.2.0 Released',
+                body: 'New features: Agentic Forms for IGBC/GreenCo workflows, GreenMetric SUR Tool for universities, and the new LCA module. Help Center is now live.',
+                category: 'System',
+                time: '5 days ago',
+                module: 'System',
+                action: { label: "See What's New", href: null, fn: "openHelpPanel(); hpSetView('hp-whats-new');" },
+                details: {
+                    'Version': 'v1.2.0',
+                    'Release Date': '7 Mar 2026',
+                    'New Modules': 'Agentic Forms, LCA',
+                    'Type': 'Feature Release',
+                }
+            },
+        ];
+
+        let ntActiveTab = 'all';
+
+        function ntGetVisible() {
+            return NT_DATA.filter(n => {
+                if (n.dismissed) return false;
+                if (ntActiveTab === 'unread') return !n.read;
+                if (ntActiveTab === 'critical') return n.severity === 'critical' || n.severity === 'warning';
+                return true;
+            });
+        }
+
+        function ntCountUnread() { return NT_DATA.filter(n => !n.read && !n.dismissed).length; }
+        function ntCountAll()    { return NT_DATA.filter(n => !n.dismissed).length; }
+        function ntCountCrit()   { return NT_DATA.filter(n => !n.dismissed && (n.severity === 'critical' || n.severity === 'warning')).length; }
+
+        const NT_ICONS_MAP = {
+            critical: 'fas fa-exclamation-triangle',
+            warning:  'fas fa-exclamation-circle',
+            info:     'fas fa-info-circle',
+            success:  'fas fa-check-circle',
+            system:   'fas fa-cog',
+        };
+
+        function ntRender() {
+            const list = document.getElementById('ntList');
+            const visible = ntGetVisible();
+
+            if (!visible.length) {
+                list.innerHTML = `<div class="nt-empty"><svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="opacity:0.35;display:block;margin:0 auto 0.75rem"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/><line x1="1" y1="1" x2="23" y2="23"/></svg><p>No notifications here.</p></div>`;
+            } else {
+                list.innerHTML = visible.map(n => `
+                    <div class="nt-item${n.read ? '' : ' unread'}" id="ntitem-${n.id}" onclick="ntOpenDetail('${n.id}')">
+                        <div class="nt-unread-dot"></div>
+                        <div class="nt-icon ${n.severity}">${NT_SVG[n.severity]}</div>
+                        <div class="nt-content">
+                            <div class="nt-item-title">${n.title}</div>
+                            <div class="nt-item-body">${n.body}</div>
+                            <div class="nt-item-meta">
+                            <span class="nt-time"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline;vertical-align:middle;margin-right:2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${n.time}</span>
+                                <span class="nt-type-chip ${n.severity}">${n.category}</span>
+                            </div>
+                        </div>
+                        <button class="nt-dismiss" onclick="ntDismiss(event,'${n.id}')" title="Dismiss"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                    </div>
+                `).join('');
+            }
+
+            // Update badge + chips
+            const unread = ntCountUnread();
+            const badge = document.getElementById('notifBadge');
+            const chip  = document.getElementById('ntUnreadChip');
+            badge.textContent = unread;
+            badge.className = 'notif-badge' + (unread === 0 ? ' hidden' : '');
+            chip.textContent = unread === 0 ? 'All caught up' : `${unread} unread`;
+            chip.className = 'nt-unread-chip' + (unread === 0 ? ' zero' : '');
+
+            document.getElementById('nt-count-all').textContent = ntCountAll();
+            document.getElementById('nt-count-unread').textContent = ntCountUnread();
+            document.getElementById('nt-count-critical').textContent = ntCountCrit();
+        }
+
+        function ntSwitchTab(tab, el) {
+            ntActiveTab = tab;
+            document.querySelectorAll('.nt-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            ntRender();
+        }
+
+        function ntMarkAllRead() {
+            NT_DATA.forEach(n => n.read = true);
+            ntRender();
+        }
+
+        function ntDismiss(e, id) {
+            e.stopPropagation();
+            const n = NT_DATA.find(x => x.id === id);
+            if (n) { n.dismissed = true; n.read = true; }
+            ntRender();
+        }
+
+        function ntClearDismissed() {
+            NT_DATA.forEach(n => { if (n.dismissed) n.dismissed = false; });
+            ntRender();
+        }
+
+        function ntOpenDetail(id) {
+            const n = NT_DATA.find(x => x.id === id);
+            if (!n) return;
+            // Mark as read
+            n.read = true;
+            ntRender();
+
+            // Populate modal
+            document.getElementById('nd-icon').className = `nd-micon ${n.severity}`;
+            document.getElementById('nd-icon').innerHTML = NT_SVG[n.severity];
+            document.getElementById('nd-title').textContent = n.title;
+            document.getElementById('nd-meta').innerHTML = `
+                <span class="nt-type-chip ${n.severity}">${n.category}</span>
+                <span class="nt-time"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline;vertical-align:middle;margin-right:2px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${n.time}</span>
+                <span class="nt-time">· ${n.module}</span>
+            `;
+            document.getElementById('nd-desc').textContent = n.body;
+
+            // Detail grid
+            const grid = document.getElementById('nd-grid');
+            grid.innerHTML = Object.entries(n.details).map(([k, v]) => `
+                <div class="nd-detail-item">
+                    <div class="nd-detail-label">${k}</div>
+                    <div class="nd-detail-value">${v}</div>
+                </div>
+            `).join('');
+
+            // Action button
+            const actionBtn = document.getElementById('nd-action-btn');
+            if (n.action) {
+                actionBtn.style.display = '';
+                actionBtn.textContent = n.action.label;
+                actionBtn.onclick = () => {
+                    closeNotifDetail();
+                    if (n.action.fn) eval(n.action.fn);
+                    else if (n.action.href) window.location.href = n.action.href;
+                };
+            } else {
+                actionBtn.style.display = 'none';
+            }
+
+            // Open modal
+            document.getElementById('ndOverlay').classList.add('active');
+            closeNotifTray();
+        }
+
+        function closeNotifDetail() {
+            document.getElementById('ndOverlay').classList.remove('active');
+        }
+
+        function toggleNotifTray(e) {
+            e.stopPropagation();
+            const tray = document.getElementById('notifTray');
+            const isOpen = tray.classList.contains('open');
+            // Close user dropdown if open
+            document.getElementById('userDropdown').classList.remove('show');
+            tray.classList.toggle('open', !isOpen);
+            if (!isOpen) {
+                // Shake bell once
+                const btn = document.getElementById('notifBellBtn');
+                btn.classList.add('ringing');
+                setTimeout(() => btn.classList.remove('ringing'), 700);
+            }
+        }
+
+        function closeNotifTray() {
+            document.getElementById('notifTray').classList.remove('open');
+        }
+
+        // Close tray when clicking outside
+        document.addEventListener('click', function(e) {
+            const wrapper = document.querySelector('.notif-bell-wrapper');
+            if (wrapper && !wrapper.contains(e.target)) closeNotifTray();
+        });
+
+        // ESC closes both
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') { closeNotifTray(); closeNotifDetail(); }
+        });
+
+        // Init render
+        ntRender();
+
+        /* ════════════════════════════════════════
+           HELP PANEL LOGIC
+        ════════════════════════════════════════ */
+        const HP_KB = [
+            { title: 'How to add Scope 1 emissions data', section: 'Data Management', view: 'hp-getting-started', excerpt: 'Use Add Data or Data Collection Forms to log fuel combustion, vehicles and refrigerant usage.' },
+            { title: 'Setting up BRSR reporting', section: 'Frameworks', view: 'hp-getting-started', excerpt: 'Select BRSR in Compliance Mapper. TerraCAP maps your data to all BRSR disclosure fields automatically.' },
+            { title: 'Importing data via CSV', section: 'Data Management', view: 'hp-getting-started', excerpt: 'Go to Import/Export, download the template, fill in records, and upload.' },
+            { title: 'GreenCo assessment workflow', section: 'Frameworks', view: 'hp-getting-started', excerpt: 'GreenCo (CII v3) uses materiality-based scoring across 9 pillars.' },
+            { title: 'How to plan your NetZero trajectory', section: 'Advanced Features', view: 'hp-getting-started', excerpt: 'NetZero Pathfinder builds a Science-Based Target trajectory aligned to India 2070.' },
+            { title: 'Scope 2 market-based vs location-based', section: 'Emissions Tracking', view: 'hp-getting-started', excerpt: 'Market-based uses energy attribute certificates; location-based uses regional grid emission factors.' },
+            { title: 'Adding users and setting roles', section: 'Administration', view: 'hp-contact-support', excerpt: 'Go to Administration → User Management to invite team members and assign roles.' },
+            { title: 'How to generate a BRSR report PDF', section: 'Reports', view: 'hp-getting-started', excerpt: 'Navigate to Reports, select BRSR framework, choose the year and click Generate Report.' },
+            { title: 'Carbon credit marketplace — Track A vs Track B', section: 'Carbon Credits', view: 'hp-getting-started', excerpt: 'Track A is for buying verified credits; Track B is for internal sequestration projects.' },
+            { title: 'Contact phone number', section: 'Support', view: 'hp-contact-support', excerpt: '+91 83746 53145 — available Mon–Fri, 9 AM to 6 PM IST.' },
+            { title: 'Data quality score — what does it mean?', section: 'Data Management', view: 'hp-getting-started', excerpt: 'Measures completeness, timeliness, and source reliability across all ingested records.' },
+            { title: 'CBAM compliance for exports', section: 'Frameworks', view: 'hp-getting-started', excerpt: 'CBAM (EU Carbon Border Adjustment) tracking is in the Compliance Mapper for exporters.' },
+            { title: 'Latest features and releases', section: "What's New", view: 'hp-whats-new', excerpt: 'v1.2.0 includes Agentic Forms, GreenMetric SUR Tool, and LCA module.' },
+            { title: 'Send product feedback', section: 'Feedback', view: 'hp-send-feedback', excerpt: 'Use the feedback form to suggest features, report bugs, or share your experience.' },
+            { title: 'Supplier evaluation and Scope 3', section: 'Supplier Evaluation', view: 'hp-getting-started', excerpt: 'Supplier Evaluation collects Scope 3 data from your supply chain and scores suppliers on ESG criteria.' },
+        ];
+
+        const HP_POPULAR = HP_KB.slice(0, 5);
+
+        function openHelpPanel() {
+            document.getElementById('hp-overlay').classList.add('active');
+            document.getElementById('hp-panel').classList.add('active');
+            hpSetView('hp-home');
+        }
+
+        function closeHelpPanel() {
+            document.getElementById('hp-overlay').classList.remove('active');
+            document.getElementById('hp-panel').classList.remove('active');
+        }
+
+        const HP_VIEW_TITLES = {
+            'hp-search': 'Search Help',
+            'hp-getting-started': 'Getting Started',
+            'hp-video-tutorials': 'Video Tutorials',
+            'hp-whats-new': "What's New",
+            'hp-contact-support': 'Contact Support',
+            'hp-send-feedback': 'Send Feedback',
+        };
+
+        function hpSetView(viewId) {
+            document.querySelectorAll('.hp-view').forEach(v => v.classList.remove('active'));
+            const target = document.getElementById(viewId);
+            if (target) target.classList.add('active');
+
+            const backRow = document.getElementById('hp-back-row');
+            const titleEl = document.getElementById('hp-view-title');
+            if (viewId === 'hp-home') {
+                backRow.classList.remove('visible');
+            } else {
+                backRow.classList.add('visible');
+                titleEl.textContent = HP_VIEW_TITLES[viewId] || '';
+            }
+            if (viewId === 'hp-search') {
+                hpRenderResults(HP_POPULAR);
+                setTimeout(() => { const i = document.getElementById('hp-search-input'); if (i) i.focus(); }, 200);
+            }
+            document.querySelector('.hp-body').scrollTop = 0;
+        }
+
+        function hpRunSearch(q) {
+            const label = document.getElementById('hp-search-label');
+            q = q.trim().toLowerCase();
+            if (!q) { label.textContent = 'Popular topics'; hpRenderResults(HP_POPULAR); return; }
+            const hits = HP_KB.filter(x =>
+                x.title.toLowerCase().includes(q) || x.excerpt.toLowerCase().includes(q) || x.section.toLowerCase().includes(q)
+            );
+            label.textContent = hits.length ? `${hits.length} result${hits.length !== 1 ? 's' : ''} for "${q}"` : 'No results found';
+            hpRenderResults(hits);
+        }
+
+        function hpRenderResults(items) {
+            const el = document.getElementById('hp-results');
+            if (!items.length) {
+                el.innerHTML = `<div class="hp-empty"><i class="fas fa-search-minus"></i><div>No articles matched.<br>Try different keywords or <a href="#" onclick="hpSetView('hp-contact-support')" style="color:var(--hz-primary);">contact support</a>.</div></div>`;
+                return;
+            }
+            el.innerHTML = items.map(x => `
+                <div class="hp-result" onclick="hpSetView('${x.view}')">
+                    <div class="hp-result-title">${x.title}</div>
+                    <div class="hp-result-section"><i class="fas fa-tag" style="font-size:0.65rem;"></i> ${x.section}</div>
+                    <div class="hp-result-excerpt">${x.excerpt}</div>
+                </div>
+            `).join('');
+        }
+
+        function hpShowAbout() {
+            document.getElementById('hp-about-modal').classList.add('active');
+        }
+        function hpHideAbout(e) {
+            if (!e || e.target === document.getElementById('hp-about-modal')) {
+                document.getElementById('hp-about-modal').classList.remove('active');
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') { hpHideAbout(); closeHelpPanel(); }
+        });
     </script>
-</body>
-</html>
+
+    <!-- ══════════ NOTIFICATION DETAIL MODAL ══════════ -->
+    <div class="nd-overlay" id="ndOverlay" onclick="if(event.target===this) closeNotifDetail()">
+        <div class="nd-modal">
+            <div class="nd-mheader">
+                <div class="nd-micon critical" id="nd-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="nd-mtitle-area">
+                    <div class="nd-mtitle" id="nd-title">Notification Title</div>
+                    <div class="nd-mmeta" id="nd-meta"></div>
+                </div>
+                <button class="nd-mclose" onclick="closeNotifDetail()"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div class="nd-mbody">
+                <div class="nd-mdesc" id="nd-desc"></div>
+                <div class="nd-detail-grid" id="nd-grid"></div>
+            </div>
+            <div class="nd-mfooter">
+                <button class="nd-btn secondary" onclick="closeNotifDetail()">Dismiss</button>
+                <button class="nd-btn primary" id="nd-action-btn">Take Action</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════ HELP PANEL OVERLAY ══════════ -->
+    <div class="help-overlay" id="hp-overlay" onclick="closeHelpPanel()"></div>
+
+    <!-- ══════════ HELP PANEL ══════════ -->
+    <div class="help-panel" id="hp-panel">
+        <div class="hp-header">
+            <div class="hp-header-icon"><i class="fas fa-question-circle"></i></div>
+            <div class="hp-header-text">
+                <div class="hp-header-title">Help &amp; Support</div>
+                <div class="hp-header-sub">TerraCAP · Hertzwave Innovations</div>
+            </div>
+            <button class="hp-close" onclick="closeHelpPanel()"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="hp-back-row" id="hp-back-row">
+            <button class="hp-btn-back" onclick="hpSetView('hp-home')">
+                <i class="fas fa-chevron-left"></i> Help Home
+            </button>
+            <span class="hp-view-title" id="hp-view-title"></span>
+        </div>
+
+        <div class="hp-body">
+
+            <!-- HOME -->
+            <div class="hp-view active" id="hp-home">
+                <div class="hp-welcome">
+                    <p>Welcome to <strong>TerraCAP Help</strong>. Search for answers, explore tutorials, or reach our support team — we're here to help.</p>
+                </div>
+                <div class="hp-section-label">How can we help?</div>
+                <div class="hp-menu">
+
+                    <div class="hp-menu-item" onclick="hpSetView('hp-search')">
+                        <div class="hp-menu-icon"><i class="fas fa-search"></i></div>
+                        <div><div class="hp-menu-label">Search Help</div><div class="hp-menu-desc">Find answers across all topics</div></div>
+                        <i class="fas fa-chevron-right hp-menu-arrow"></i>
+                    </div>
+
+                    <div class="hp-menu-item" onclick="hpSetView('hp-getting-started')">
+                        <div class="hp-menu-icon"><i class="fas fa-rocket"></i></div>
+                        <div><div class="hp-menu-label">Getting Started</div><div class="hp-menu-desc">101 guide to TerraCAP modules</div></div>
+                        <i class="fas fa-chevron-right hp-menu-arrow"></i>
+                    </div>
+
+                    <div class="hp-menu-item" onclick="hpSetView('hp-video-tutorials')">
+                        <div class="hp-menu-icon"><i class="fas fa-play-circle"></i></div>
+                        <div><div class="hp-menu-label">Video Tutorials</div><div class="hp-menu-desc">Watch walkthroughs on YouTube</div></div>
+                        <span class="hp-badge ext">YouTube</span>
+                    </div>
+
+                    <div class="hp-menu-item" onclick="hpSetView('hp-whats-new')">
+                        <div class="hp-menu-icon"><i class="fas fa-bullhorn"></i></div>
+                        <div><div class="hp-menu-label">What's New</div><div class="hp-menu-desc">Latest releases &amp; features</div></div>
+                        <span class="hp-badge new-b">v1.2</span>
+                    </div>
+
+                    <div class="hp-menu-item" onclick="hpSetView('hp-contact-support')">
+                        <div class="hp-menu-icon"><i class="fas fa-envelope"></i></div>
+                        <div><div class="hp-menu-label">Contact Support</div><div class="hp-menu-desc">Phone &amp; email support</div></div>
+                        <i class="fas fa-chevron-right hp-menu-arrow"></i>
+                    </div>
+
+                    <div class="hp-menu-item" onclick="hpSetView('hp-send-feedback')">
+                        <div class="hp-menu-icon"><i class="fas fa-comment-alt"></i></div>
+                        <div><div class="hp-menu-label">Send Feedback</div><div class="hp-menu-desc">Feature requests &amp; bug reports</div></div>
+                        <i class="fas fa-chevron-right hp-menu-arrow"></i>
+                    </div>
+
+                    <div class="hp-menu-item" onclick="hpShowAbout()">
+                        <div class="hp-menu-icon"><i class="fas fa-info-circle"></i></div>
+                        <div><div class="hp-menu-label">About TerraCAP</div><div class="hp-menu-desc">Version, build &amp; license info</div></div>
+                        <span class="hp-badge soon">v1.2.0</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- SEARCH -->
+            <div class="hp-view" id="hp-search">
+                <div class="hp-search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="hp-search-input" placeholder="Search help articles…" oninput="hpRunSearch(this.value)"/>
+                </div>
+                <div class="hp-section-label" id="hp-search-label">Popular topics</div>
+                <div class="hp-results" id="hp-results"></div>
+            </div>
+
+            <!-- GETTING STARTED -->
+            <div class="hp-view" id="hp-getting-started">
+                <div class="hp-section-label">Start here</div>
+                <div class="hp-steps">
+                    <div class="hp-step"><div class="hp-step-num">1</div><div><div class="hp-step-title">Set up Organisation Profile</div><div class="hp-step-text">Enter company details, reporting boundary, and baseline year under <em>Administration → Organisation</em>. This drives scope assignments and framework eligibility.</div></div></div>
+                    <div class="hp-step"><div class="hp-step-num">2</div><div><div class="hp-step-title">Add &amp; ingest emissions data</div><div class="hp-step-text">Use <em>Data Management → Add Data</em> or <em>Data Collection Forms</em> to log Scope 1, 2, and 3 activities. Import CSVs via Import/Export for bulk data.</div></div></div>
+                    <div class="hp-step"><div class="hp-step-num">3</div><div><div class="hp-step-title">Review your Dashboard</div><div class="hp-step-text">Live tCO₂e totals by scope, trend charts, and data quality scores. Use filters to drill into specific periods or regions.</div></div></div>
+                    <div class="hp-step"><div class="hp-step-num">4</div><div><div class="hp-step-title">Select compliance frameworks</div><div class="hp-step-text">Go to <em>Compliance Mapper</em> and pick from BRSR, GreenCo, CBAM, GRI, CDP, and more. TerraCAP maps your data to each framework automatically.</div></div></div>
+                    <div class="hp-step"><div class="hp-step-num">5</div><div><div class="hp-step-title">Generate reports &amp; plan NetZero</div><div class="hp-step-text">Export board-ready ESG reports from <em>Reports &amp; Compliance</em>. Use <em>NetZero Pathfinder</em> to chart your trajectory to India's 2070 target with financial modeling.</div></div></div>
+                </div>
+            </div>
+
+            <!-- VIDEO TUTORIALS -->
+            <div class="hp-view" id="hp-video-tutorials">
+                <div class="hp-section-label">Featured tutorials</div>
+                <div class="hp-video-list">
+                    <a class="hp-video-card" href="https://www.youtube.com/@HertzwaveInnovations" target="_blank"><div class="hp-video-thumb"><i class="fas fa-play"></i></div><div><div class="hp-video-title">TerraCAP Platform Overview</div><div class="hp-video-info">~8 min · Getting Started</div></div></a>
+                    <a class="hp-video-card" href="https://www.youtube.com/@HertzwaveInnovations" target="_blank"><div class="hp-video-thumb"><i class="fas fa-play"></i></div><div><div class="hp-video-title">Setting Up BRSR Reporting</div><div class="hp-video-info">~12 min · Frameworks</div></div></a>
+                    <a class="hp-video-card" href="https://www.youtube.com/@HertzwaveInnovations" target="_blank"><div class="hp-video-thumb"><i class="fas fa-play"></i></div><div><div class="hp-video-title">Bulk Data Import Guide</div><div class="hp-video-info">~6 min · Data Management</div></div></a>
+                    <a class="hp-video-card" href="https://www.youtube.com/@HertzwaveInnovations" target="_blank"><div class="hp-video-thumb"><i class="fas fa-play"></i></div><div><div class="hp-video-title">NetZero Pathfinder Walkthrough</div><div class="hp-video-info">~15 min · Advanced</div></div></a>
+                    <a class="hp-video-card" href="https://www.youtube.com/@HertzwaveInnovations" target="_blank"><div class="hp-video-thumb"><i class="fas fa-play"></i></div><div><div class="hp-video-title">GreenCo Assessment Setup</div><div class="hp-video-info">~10 min · Frameworks</div></div></a>
+                </div>
+                <div class="hp-yt-cta"><a href="https://www.youtube.com/@HertzwaveInnovations" target="_blank"><i class="fab fa-youtube"></i> View all videos on YouTube</a></div>
+            </div>
+
+            <!-- WHAT'S NEW -->
+            <div class="hp-view" id="hp-whats-new">
+                <div class="hp-section-label">Release history</div>
+                <div class="hp-timeline">
+                    <div class="hp-release"><div class="hp-rdot" style="font-size:0.6rem;">MAJ</div><div class="hp-rbody"><div class="hp-rheader"><span class="hp-rver">v1.2.0</span><span class="hp-rtag">Major</span><span class="hp-rdate">Mar 2026</span></div><ul class="hp-rlist"><li>Agentic Forms — IGBC, GreenCo &amp; Green Label automation</li><li>GreenMetric SUR tool for Universities (2025+2026 merged)</li><li>LCA (Life Cycle Assessment) module launched</li><li>Help Center with contextual search integrated</li></ul></div></div>
+                    <div class="hp-release"><div class="hp-rdot minor" style="font-size:0.6rem;">MIN</div><div class="hp-rbody"><div class="hp-rheader"><span class="hp-rver">v1.1.0</span><span class="hp-rtag minor">Minor</span><span class="hp-rdate">Jan 2026</span></div><ul class="hp-rlist"><li>Supplier Evaluation with Scope 3 allocation scoring</li><li>TerraAudit dashboard for auditors &amp; consultants</li><li>Consent Management (DPDPA 2023 &amp; GDPR)</li><li>CBAM framework coverage added</li></ul></div></div>
+                    <div class="hp-release"><div class="hp-rdot patch" style="font-size:0.6rem;">PAT</div><div class="hp-rbody"><div class="hp-rheader"><span class="hp-rver">v1.0.3</span><span class="hp-rtag patch">Patch</span><span class="hp-rdate">Nov 2025</span></div><ul class="hp-rlist"><li>Fixed Professional tier session persistence on shared devices</li><li>RWF: 300+ GHG records ingested across Scopes 1–3</li><li>Karnataka MSME KERC tariff data corrections</li></ul></div></div>
+                    <div class="hp-release"><div class="hp-rdot minor" style="font-size:0.55rem;">LAUNCH</div><div class="hp-rbody"><div class="hp-rheader"><span class="hp-rver">v1.0.0</span><span class="hp-rtag minor">Launch</span><span class="hp-rdate">Jul 2024</span></div><ul class="hp-rlist"><li>TerraCAP launched — Essentials &amp; Professional tiers</li><li>BRSR, GRI, CDP, GreenCo frameworks live</li><li>NetZero Pathfinder with India 2070 trajectory modeling</li></ul></div></div>
+                </div>
+            </div>
+
+            <!-- CONTACT SUPPORT -->
+            <div class="hp-view" id="hp-contact-support">
+                <div class="hp-section-label">Reach us directly</div>
+                <div class="hp-contact-cards">
+                    <a href="tel:+918374653145" class="hp-contact-card">
+                        <div class="hp-contact-icon"><i class="fas fa-phone-alt"></i></div>
+                        <div><div class="hp-contact-label">Phone Support</div><div class="hp-contact-value">+91 83746 53145</div><div class="hp-contact-hint">Mon–Fri, 9 AM – 6 PM IST</div></div>
+                    </a>
+                    <a href="/cdn-cgi/l/email-protection#e1888f878ea1898493959b96809784cf888f" class="hp-contact-card">
+                        <div class="hp-contact-icon"><i class="fas fa-envelope"></i></div>
+                        <div><div class="hp-contact-label">Email Support</div><div class="hp-contact-value"><span class="__cf_email__" data-cfemail="4821262e2708202d3a3c323f293e2d662126">[email&#160;protected]</span></div><div class="hp-contact-hint">We typically respond within 4 business hours</div></div>
+                    </a>
+                    <a href="/cdn-cgi/l/email-protection#ff8c8a8f8f908d8bbf979a8d8b85889e899ad19691" class="hp-contact-card">
+                        <div class="hp-contact-icon"><i class="fas fa-headset"></i></div>
+                        <div><div class="hp-contact-label">Technical Support</div><div class="hp-contact-value"><span class="__cf_email__" data-cfemail="d4a7a1a4a4bba6a094bcb1a6a0aea3b5a2b1fabdba">[email&#160;protected]</span></div><div class="hp-contact-hint">For platform issues, data ingestion errors &amp; bugs</div></div>
+                    </a>
+                </div>
+                <div class="hp-note"><i class="fas fa-map-marker-alt" style="color:var(--hz-primary);"></i> <strong>Hertzwave Innovations Pvt. Ltd.</strong><br>Bengaluru, Karnataka, India</div>
+            </div>
+
+            <!-- SEND FEEDBACK -->
+            <div class="hp-view" id="hp-send-feedback">
+                <div class="hp-section-label">Share your thoughts</div>
+                <div class="hp-feedback-opts">
+                    <a class="hp-feedback-opt" href="https://forms.gle/YOUR_GOOGLE_FORM_ID" target="_blank">
+                        <i class="fas fa-lightbulb"></i><div><div class="hp-feedback-title">Feature Request</div><div class="hp-feedback-desc">Suggest a capability you'd like in TerraCAP</div></div>
+                        <i class="fas fa-external-link-alt" style="font-size:0.75rem;color:var(--subtle);margin-left:auto;"></i>
+                    </a>
+                    <a class="hp-feedback-opt" href="https://forms.gle/YOUR_GOOGLE_FORM_ID" target="_blank">
+                        <i class="fas fa-bug"></i><div><div class="hp-feedback-title">Report a Bug</div><div class="hp-feedback-desc">Tell us about something not working as expected</div></div>
+                        <i class="fas fa-external-link-alt" style="font-size:0.75rem;color:var(--subtle);margin-left:auto;"></i>
+                    </a>
+                    <a class="hp-feedback-opt" href="https://forms.gle/YOUR_GOOGLE_FORM_ID" target="_blank">
+                        <i class="fas fa-star"></i><div><div class="hp-feedback-title">General Feedback</div><div class="hp-feedback-desc">Share your overall experience with TerraCAP</div></div>
+                        <i class="fas fa-external-link-alt" style="font-size:0.75rem;color:var(--subtle);margin-left:auto;"></i>
+                    </a>
+                    <a class="hp-feedback-opt" href="/cdn-cgi/l/email-protection#533a3d353c133b36212729243225367d3a3d6c202631393630276e07362121321012037661631536363731323038">
+                        <i class="fas fa-envelope"></i><div><div class="hp-feedback-title">Email Us Directly</div><div class="hp-feedback-desc">Send detailed feedback to <span class="__cf_email__" data-cfemail="f891969e97b8909d8a8c828f998e9dd69196">[email&#160;protected]</span></div></div>
+                        <i class="fas fa-external-link-alt" style="font-size:0.75rem;color:var(--subtle);margin-left:auto;"></i>
+                    </a>
+                </div>
+                <div class="hp-note" style="text-align:center;"><i class="fas fa-heart" style="color:#E53E3E;"></i> Your feedback helps us build a better ESG platform for India.</div>
+            </div>
+
+        </div><!-- end hp-body -->
+    </div><!-- end help-panel -->
+
+    <!-- ══════════ ABOUT MODAL ══════════ -->
+    <div class="hp-about-overlay" id="hp-about-modal" onclick="hpHideAbout(event)">
+        <div class="hp-about-box">
+            <div class="hp-about-head">
+                <div class="hp-about-logo">🌿</div>
+                <div class="hp-about-title">TerraCAP / HWCAP</div>
+                <div class="hp-about-sub">Hertzwave Carbon Accounting Platform</div>
+            </div>
+            <div class="hp-about-body">
+                <div class="hp-about-row"><span class="hp-about-lbl">Release Version</span><span class="hp-about-val ver">v1.2.0</span></div>
+                <div class="hp-about-row"><span class="hp-about-lbl">Build Date</span><span class="hp-about-val">March 2026</span></div>
+                <div class="hp-about-row"><span class="hp-about-lbl">Build ID</span><span class="hp-about-val">hwcap-2026.03.07</span></div>
+                <div class="hp-about-row"><span class="hp-about-lbl">Platform</span><span class="hp-about-val">HWCAP Cloud (India)</span></div>
+                <div class="hp-about-row"><span class="hp-about-lbl">Developed by</span><span class="hp-about-val">Hertzwave Innovations Pvt. Ltd.</span></div>
+                <div class="hp-about-row"><span class="hp-about-lbl">Headquarters</span><span class="hp-about-val">Bengaluru, India</span></div>
+                <div class="hp-about-row"><span class="hp-about-lbl">Licens

@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification Settings — TerraCAP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --hz-primary:     #4A7C59;
+            --hz-primary-700: #355b3f;
+            --hz-primary-50:  #E9F1EC;
+            --hz-primary-100: #d2e5d8;
+            --hz-mint:        #A8E6A3;
+            --hz-dark:        #2F4F3F;
+            --ink:            #22302A;
+            --subtle:         #5B6E64;
+            --muted:          #8fa49a;
+            --bg:             #F6F7F4;
+            --card:           #FFFFFF;
+            --stroke:         #E5E9E6;
+            --stroke-dark:    #cdd6d1;
+            --success:        #48BB78;
+            --warning:        #D97706;
+            --danger:         #E53E3E;
+            --danger-bg:      #FFF5F5;
+            --danger-border:  #FED7D7;
+            --info:           #2B6CB0;
+            --info-bg:        #EBF8FF;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ── Top bar ── */
+        .topbar {
+            background: var(--hz-primary);
+            color: white;
+            padding: 0 1.5rem;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            gap: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+        .topbar-back {
+            display: flex; align-items: center; gap: 8px;
+            color: rgba(255,255,255,0.85); text-decoration: none;
+            font-size: 0.875rem; font-weight: 500;
+            padding: 6px 12px; border-radius: 8px;
+            transition: all 0.15s;
+            margin-right: 4px;
+        }
+        .topbar-back:hover { background: rgba(255,255,255,0.15); color: white; }
+        .topbar-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.25); margin: 0 12px; }
+        .topbar-title { font-size: 0.95rem; font-weight: 700; color: white; flex: 1; }
+        .topbar-role-chip {
+            font-size: 0.72rem; font-weight: 700;
+            background: rgba(255,255,255,0.2); color: white;
+            padding: 3px 10px; border-radius: 10px;
+        }
+
+        /* ── Layout ── */
+        .page-layout {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 0;
+            min-height: calc(100vh - 56px);
+        }
+
+        /* ── Sticky section nav ── */
+        .section-nav {
+            background: white;
+            border-right: 1px solid var(--stroke);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 56px;
+            height: calc(100vh - 56px);
+            overflow-y: auto;
+        }
+        .snav-label {
+            padding: 0 1.25rem 0.5rem;
+            font-size: 0.68rem; font-weight: 700; color: var(--muted);
+            text-transform: uppercase; letter-spacing: 0.6px;
+        }
+        .snav-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 0.6rem 1.25rem;
+            font-size: 0.85rem; color: var(--subtle); font-weight: 500;
+            cursor: pointer; transition: all 0.15s;
+            border-left: 3px solid transparent;
+            text-decoration: none;
+        }
+        .snav-item:hover { background: var(--hz-primary-50); color: var(--hz-primary); }
+        .snav-item.active {
+            background: var(--hz-primary-50); color: var(--hz-primary);
+            border-left-color: var(--hz-primary); font-weight: 600;
+        }
+        .snav-item svg { flex-shrink: 0; opacity: 0.7; }
+        .snav-item.active svg { opacity: 1; }
+
+        /* ── Main content ── */
+        .main {
+            padding: 2rem 2.5rem;
+            max-width: 860px;
+        }
+
+        .page-title-block {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--stroke);
+        }
+        .page-title {
+            font-size: 1.6rem; font-weight: 700; color: var(--hz-primary);
+            margin-bottom: 0.35rem;
+        }
+        .page-subtitle { font-size: 0.9rem; color: var(--subtle); }
+
+        /* ── Section cards ── */
+        .settings-section {
+            background: white;
+            border: 1px solid var(--stroke);
+            border-radius: 14px;
+            margin-bottom: 1.75rem;
+            overflow: hidden;
+            animation: fadeUp 0.3s ease both;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .settings-section:nth-child(2) { animation-delay: 0.05s; }
+        .settings-section:nth-child(3) { animation-delay: 0.10s; }
+        .settings-section:nth-child(4) { animation-delay: 0.15s; }
+        .settings-section:nth-child(5) { animation-delay: 0.20s; }
+        .settings-section:nth-child(6) { animation-delay: 0.25s; }
+
+        .sec-header {
+            padding: 1.1rem 1.5rem;
+            border-bottom: 1px solid var(--stroke);
+            display: flex; align-items: center; gap: 12px;
+            background: #fafaf9;
+        }
+        .sec-icon {
+            width: 34px; height: 34px; border-radius: 9px;
+            background: var(--hz-primary-50); color: var(--hz-primary);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .sec-title { font-size: 0.95rem; font-weight: 700; color: var(--ink); }
+        .sec-desc  { font-size: 0.78rem; color: var(--subtle); margin-top: 1px; }
+        .sec-body  { padding: 1.25rem 1.5rem; }
+
+        /* ── Toggle switch ── */
+        .toggle-row {
+            display: flex; align-items: center;
+            padding: 0.85rem 0;
+            border-bottom: 1px solid var(--stroke);
+            gap: 14px;
+        }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-info { flex: 1; }
+        .toggle-label { font-size: 0.875rem; font-weight: 600; color: var(--ink); }
+        .toggle-hint  { font-size: 0.775rem; color: var(--subtle); margin-top: 1px; }
+
+        .toggle-switch {
+            position: relative; width: 44px; height: 24px; flex-shrink: 0;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-track {
+            position: absolute; inset: 0;
+            background: var(--stroke-dark); border-radius: 12px;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .toggle-track::after {
+            content: '';
+            position: absolute; top: 3px; left: 3px;
+            width: 18px; height: 18px; border-radius: 50%;
+            background: white; transition: transform 0.2s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+        .toggle-switch input:checked + .toggle-track { background: var(--hz-primary); }
+        .toggle-switch input:checked + .toggle-track::after { transform: translateX(20px); }
+        .toggle-switch input:disabled + .toggle-track { opacity: 0.5; cursor: not-allowed; }
+
+        /* Always-on chip */
+        .always-on {
+            font-size: 0.68rem; font-weight: 700; padding: 2px 8px;
+            border-radius: 8px; background: var(--hz-primary-50); color: var(--hz-primary);
+            border: 1px solid var(--hz-primary-100); white-space: nowrap;
+        }
+
+        /* Sub-option indent */
+        .sub-option {
+            margin-left: 1.5rem; padding: 0.65rem 0;
+            border-bottom: 1px solid #f5f5f3;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .sub-option:last-child { border-bottom: none; }
+        .sub-option .toggle-info { flex: 1; }
+        .sub-option .toggle-label { font-size: 0.83rem; font-weight: 500; }
+
+        /* Inline select/input inside toggle rows */
+        .inline-select, .inline-input {
+            padding: 5px 10px; border: 1px solid var(--stroke-dark);
+            border-radius: 7px; font-family: inherit; font-size: 0.82rem;
+            color: var(--ink); background: white; cursor: pointer;
+            transition: border-color 0.15s;
+        }
+        .inline-select:focus, .inline-input:focus {
+            outline: none; border-color: var(--hz-primary);
+            box-shadow: 0 0 0 3px rgba(74,124,89,0.12);
+        }
+
+        /* ── Category matrix ── */
+        .matrix-wrap { overflow-x: auto; }
+        .matrix-table {
+            width: 100%; border-collapse: separate; border-spacing: 0;
+            font-size: 0.83rem;
+        }
+        .matrix-table th {
+            padding: 0.6rem 0.75rem; text-align: center;
+            font-size: 0.72rem; font-weight: 700; color: var(--subtle);
+            text-transform: uppercase; letter-spacing: 0.4px;
+            background: #fafaf9; border-bottom: 2px solid var(--stroke);
+        }
+        .matrix-table th:first-child { text-align: left; padding-left: 1rem; min-width: 180px; }
+        .matrix-table td {
+            padding: 0.65rem 0.75rem; text-align: center;
+            border-bottom: 1px solid #f5f5f3;
+            vertical-align: middle;
+        }
+        .matrix-table td:first-child {
+            text-align: left; padding-left: 1rem;
+            font-weight: 500; color: var(--ink);
+        }
+        .matrix-table tr:last-child td { border-bottom: none; }
+        .matrix-table tr:hover td { background: #fafaf9; }
+        .matrix-table tr:hover td:first-child { color: var(--hz-primary); }
+
+        /* Severity header chips */
+        .sev-chip {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 9px; border-radius: 8px; font-size: 0.7rem; font-weight: 700;
+        }
+        .sev-chip.critical { background: #FFF5F5; color: #C53030; }
+        .sev-chip.warning  { background: #FFFBEB; color: #C05621; }
+        .sev-chip.info     { background: #EBF8FF; color: #2C5282; }
+        .sev-chip.success  { background: #F0FFF4; color: #22543D; }
+        .sev-chip.system   { background: var(--hz-primary-50); color: var(--hz-primary); }
+
+        /* Matrix checkbox */
+        .matrix-cb {
+            width: 18px; height: 18px; cursor: pointer;
+            accent-color: var(--hz-primary);
+        }
+        .matrix-cb:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Locked cell */
+        .locked-cell {
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .lock-icon { color: var(--muted); }
+
+        /* Category row label */
+        .cat-label { font-size: 0.85rem; }
+        .cat-module {
+            font-size: 0.72rem; color: var(--muted); font-weight: 400;
+            display: block; margin-top: 1px;
+        }
+
+        /* ── Threshold controls ── */
+        .threshold-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;
+        }
+        .threshold-item {
+            background: var(--bg); border-radius: 10px; padding: 1rem 1.1rem;
+            border: 1px solid var(--stroke);
+        }
+        .threshold-item-label {
+            font-size: 0.8rem; font-weight: 700; color: var(--ink); margin-bottom: 4px;
+        }
+        .threshold-item-hint { font-size: 0.75rem; color: var(--subtle); margin-bottom: 0.85rem; }
+
+        /* Slider */
+        .slider-row { display: flex; align-items: center; gap: 10px; }
+        .hz-slider {
+            flex: 1; -webkit-appearance: none; appearance: none;
+            height: 4px; border-radius: 2px;
+            background: var(--stroke-dark); outline: none;
+            cursor: pointer;
+        }
+        .hz-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 18px; height: 18px; border-radius: 50%;
+            background: var(--hz-primary); cursor: pointer;
+            box-shadow: 0 1px 4px rgba(74,124,89,0.4);
+            transition: transform 0.1s;
+        }
+        .hz-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        .slider-val {
+            min-width: 42px; text-align: right;
+            font-size: 0.85rem; font-weight: 700; color: var(--hz-primary);
+        }
+
+        /* Days of week checkboxes */
+        .days-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 0.5rem; }
+        .day-chip {
+            display: flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px; border-radius: 8px;
+            border: 1.5px solid var(--stroke-dark);
+            font-size: 0.75rem; font-weight: 700; cursor: pointer;
+            transition: all 0.15s; color: var(--subtle); user-select: none;
+        }
+        .day-chip:hover { border-color: var(--hz-primary); color: var(--hz-primary); }
+        .day-chip.selected {
+            background: var(--hz-primary); color: white; border-color: var(--hz-primary);
+        }
+
+        /* Time picker row */
+        .time-row {
+            display: flex; align-items: center; gap: 10px; margin-top: 0.75rem; flex-wrap: wrap;
+        }
+        .time-label { font-size: 0.82rem; color: var(--subtle); font-weight: 500; }
+        .time-input {
+            padding: 6px 10px; border: 1px solid var(--stroke-dark); border-radius: 7px;
+            font-family: inherit; font-size: 0.85rem; color: var(--ink);
+            transition: border-color 0.15s;
+        }
+        .time-input:focus { outline: none; border-color: var(--hz-primary); box-shadow: 0 0 0 3px rgba(74,124,89,0.12); }
+        .time-input:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        /* ── Retention options ── */
+        .radio-group { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-bottom: 1.25rem; }
+        .radio-pill {
+            display: flex; align-items: center; gap: 7px;
+            padding: 7px 14px; border: 1.5px solid var(--stroke-dark); border-radius: 9px;
+            font-size: 0.84rem; font-weight: 500; cursor: pointer; transition: all 0.15s;
+            color: var(--subtle); background: white;
+        }
+        .radio-pill:hover { border-color: var(--hz-primary); color: var(--hz-primary); }
+        .radio-pill.selected { background: var(--hz-primary); color: white; border-color: var(--hz-primary); font-weight: 600; }
+        .radio-pill input { display: none; }
+
+        /* Danger zone */
+        .danger-zone {
+            background: var(--danger-bg); border: 1px solid var(--danger-border);
+            border-radius: 10px; padding: 1rem 1.25rem;
+            display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .danger-zone-text { flex: 1; }
+        .danger-zone-label { font-size: 0.875rem; font-weight: 600; color: var(--danger); }
+        .danger-zone-hint  { font-size: 0.775rem; color: #c53030; margin-top: 2px; }
+        .btn-danger {
+            padding: 0.55rem 1.1rem; background: var(--danger); color: white;
+            border: none; border-radius: 8px; font-family: inherit;
+            font-size: 0.83rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .btn-danger:hover { background: #c53030; }
+
+        /* ── Sticky footer ── */
+        .save-footer {
+            position: fixed; bottom: 0; left: 220px; right: 0;
+            background: white; border-top: 1px solid var(--stroke);
+            padding: 1rem 2.5rem;
+            display: flex; align-items: center; gap: 1rem;
+            z-index: 50;
+            transform: translateY(100%);
+            transition: transform 0.25s cubic-bezier(0.34,1.2,0.64,1);
+        }
+        .save-footer.visible { transform: translateY(0); }
+        .save-footer-msg {
+            font-size: 0.83rem; color: var(--subtle); flex: 1;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .btn-discard {
+            padding: 0.6rem 1.25rem; background: none; border: 1.5px solid var(--stroke-dark);
+            border-radius: 8px; font-family: inherit; font-size: 0.875rem;
+            font-weight: 600; color: var(--subtle); cursor: pointer; transition: all 0.15s;
+        }
+        .btn-discard:hover { border-color: var(--ink); color: var(--ink); }
+        .btn-save {
+            padding: 0.6rem 1.75rem; background: var(--hz-primary); color: white;
+            border: none; border-radius: 8px; font-family: inherit;
+            font-size: 0.875rem; font-weight: 700; cursor: pointer; transition: all 0.15s;
+        }
+        .btn-save:hover { background: var(--hz-primary-700); }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: var(--hz-dark); color: white;
+            padding: 0.7rem 1.4rem; border-radius: 10px;
+            font-size: 0.875rem; font-weight: 500;
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+            opacity: 0; pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.34,1.2,0.64,1);
+            z-index: 200; white-space: nowrap;
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast.success { background: var(--hz-primary); }
+        .toast.error   { background: var(--danger); }
+
+        /* ── Confirm dialog ── */
+        .confirm-overlay {
+            position: fixed; inset: 0; background: rgba(34,48,42,0.5);
+            backdrop-filter: blur(3px); z-index: 300;
+            display: flex; align-items: center; justify-content: center; padding: 1rem;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s;
+        }
+        .confirm-overlay.active { opacity: 1; pointer-events: all; }
+        .confirm-box {
+            background: white; border-radius: 14px; padding: 1.75rem;
+            width: 100%; max-width: 380px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            transform: scale(0.94); transition: transform 0.22s cubic-bezier(0.34,1.2,0.64,1);
+        }
+        .confirm-overlay.active .confirm-box { transform: scale(1); }
+        .confirm-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            background: var(--danger-bg); color: var(--danger);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 1rem;
+        }
+        .confirm-title { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .confirm-msg { font-size: 0.875rem; color: var(--subtle); line-height: 1.6; margin-bottom: 1.5rem; }
+        .confirm-btns { display: flex; gap: 0.75rem; justify-content: flex-end; }
+
+        /* ── Tooltip ── */
+        [data-tooltip] { position: relative; }
+        [data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute; bottom: calc(100% + 6px); left: 50%;
+            transform: translateX(-50%);
+            background: var(--hz-dark); color: white;
+            font-size: 0.72rem; padding: 5px 10px; border-radius: 6px;
+            white-space: nowrap; pointer-events: none;
+            opacity: 0; transition: opacity 0.15s;
+            z-index: 100;
+        }
+        [data-tooltip]:hover::after { opacity: 1; }
+
+        /* ── Info note ── */
+        .info-note {
+            background: var(--info-bg); border: 1px solid #BEE3F8;
+            border-radius: 9px; padding: 0.75rem 1rem;
+            font-size: 0.8rem; color: #2C5282; line-height: 1.5;
+            display: flex; gap: 8px; align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        .info-note svg { flex-shrink: 0; margin-top: 1px; }
+
+        /* spacer for footer */
+        .footer-spacer { height: 80px; }
+
+        /* Mobile responsive */
+        @media (max-width: 700px) {
+            .page-layout { grid-template-columns: 1fr; }
+            .section-nav { display: none; }
+            .save-footer { left: 0; padding: 1rem 1.25rem; }
+            .main { padding: 1.25rem; }
+            .threshold-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top bar -->
+<header class="topbar">
+    <a href="hwcap_dashboard.html" class="topbar-back">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Dashboard
+    </a>
+    <div class="topbar-divider"></div>
+    <span class="topbar-title">Notification Settings</span>
+    <span class="topbar-role-chip">Admin</span>
+</header>
+
+<div class="page-layout">
+
+    <!-- Section nav -->
+    <aside class="section-nav">
+        <div class="snav-label">Sections</div>
+        <a class="snav-item active" href="#channels" onclick="snav(this)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.57 3.18 2 2 0 0 1 3.55 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            Delivery Channels
+        </a>
+        <a class="snav-item" href="#categories" onclick="snav(this)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Alert Categories
+        </a>
+        <a class="snav-item" href="#thresholds" onclick="snav(this)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+            Thresholds
+        </a>
+        <a class="snav-item" href="#quiethours" onclick="snav(this)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            Quiet Hours
+        </a>
+        <a class="snav-item" href="#retention" onclick="snav(this)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+            Retention
+        </a>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+
+        <div class="page-title-block">
+            <h1 class="page-title">Notification Settings</h1>
+            <p class="page-subtitle">Configure how and when TerraCAP notifies you about emissions anomalies, compliance deadlines, approvals, and system events.</p>
+        </div>
+
+        <!-- ══ SECTION 1: Delivery Channels ══ -->
+        <div class="settings-section" id="channels">
+            <div class="sec-header">
+                <div class="sec-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.57 3.18 2 2 0 0 1 3.55 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </div>
+                <div>
+                    <div class="sec-title">Delivery Channels</div>
+                    <div class="sec-desc">Control where and how notifications are delivered</div>
+                </div>
+            </div>
+            <div class="sec-body">
+
+                <!-- In-app -->
+                <div class="toggle-row">
+                    <div class="toggle-info">
+                        <div class="toggle-label">In-App (Bell Tray)</div>
+                        <div class="toggle-hint">Notifications appear in the bell icon at the top of the dashboard</div>
+                    </div>
+                    <span class="always-on">Always on</span>
+                </div>
+
+                <!-- Email digest -->
+                <div class="toggle-row">
+                    <div class="toggle-info">
+                        <div class="toggle-label">Email Digest</div>
+                        <div class="toggle-hint">Daily summary of all unread notifications sent to <strong>admin@company.in</strong></div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="ch-email-digest" checked onchange="markDirty(); toggleDigestOptions()">
+                        <span class="toggle-track"></span>
+                    </label>
+                </div>
+                <div id="digest-sub">
+                    <div class="sub-option">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Digest delivery time</div>
+                        </div>
+                        <select class="inline-select" id="digest-time" onchange="markDirty()">
+                            <option>06:00 AM IST</option>
+                            <option selected>08:00 AM IST</option>
+                            <option>09:00 AM IST</option>
+                            <option>12:00 PM IST</option>
+                            <option>06:00 PM IST</option>
+                        </select>
+                    </div>
+                    <div class="sub-option">
+                        <div class="toggle-info">
+                            <div class="toggle-label">Include resolved alerts in digest</div>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="digest-resolved" onchange="markDirty()">
+                            <span class="toggle-track"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Email instant -->
+                <div class="toggle-row">
+                    <div class="toggle-info">
+                        <div class="toggle-label">Instant Email Alerts</div>
+                        <div class="toggle-hint">Immediate emails for Critical severity only — bypasses quiet hours</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="ch-email-instant" onchange="markDirty()">
+                        <span class="toggle-track"></span>
+                    </label>
+                </div>
+
+                <!-- Mobile push (future) -->
+                <div class="toggle-row" style="opacity:0.55;">
+                    <div class="toggle-info">
+                        <div class="toggle-label">Mobile Push Notifications <span style="font-size:0.72rem;background:#e8e8e8;padding:2px 7px;border-radius:6px;color:#666;font-weight:600;margin-left:4px;">Coming Soon</span></div>
+                        <div class="toggle-hint">Push alerts on the TerraCAP mobile app (iOS &amp; Android)</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" disabled>
+                        <span class="toggle-track"></span>
+                    </label>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ══ SECTION 2: Alert Categories ══ -->
+        <div class="settings-section" id="categories">
+            <div class="sec-header">
+                <div class="sec-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                </div>
+                <div>
+                    <div class="sec-title">Alert Categories</div>
+                    <div class="sec-desc">Choose which notification types you receive per severity level</div>
+                </div>
+            </div>
+            <div class="sec-body">
+                <div class="info-note">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <span><strong>Admin note:</strong> These settings apply org-wide as defaults. Individual users can override their own preferences within the bounds you set here. Locked cells <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline;vertical-align:middle"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> cannot be disabled due to regulatory obligations.</span>
+                </div>
+                <div class="matrix-wrap">
+                    <table class="matrix-table" id="catMatrix">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th><span class="sev-chip critical">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                                    Critical
+                                </span></th>
+                                <th><span class="sev-chip warning">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                    Warning
+                                </span></th>
+                                <th><span class="sev-chip info">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                    Info
+                                </span></th>
+                                <th><span class="sev-chip success">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                    Success
+                                </span></th>
+                                <th><span class="sev-chip system">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+                                    System
+                                </span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="matrixBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ SECTION 3: Thresholds ══ -->
+        <div class="settings-section" id="thresholds">
+            <div class="sec-header">
+                <div class="sec-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                </div>
+                <div>
+                    <div class="sec-title">Alert Thresholds &amp; Triggers</div>
+                    <div class="sec-desc">Fine-tune when automated alerts fire</div>
+                </div>
+            </div>
+            <div class="sec-body">
+                <div class="threshold-grid">
+
+                    <div class="threshold-item">
+                        <div class="threshold-item-label">Emissions Anomaly Threshold</div>
+                        <div class="threshold-item-hint">Fire a warning when any scope changes by more than this % month-over-month</div>
+                        <div class="slider-row">
+                            <input type="range" class="hz-slider" id="sl-emissions" min="5" max="50" value="10" oninput="updateSlider('sl-emissions','sv-emissions','%'); markDirty()">
+                            <span class="slider-val" id="sv-emissions">10%</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-top:4px;"><span>5% (sensitive)</span><span>50% (lenient)</span></div>
+                    </div>
+
+                    <div class="threshold-item">
+                        <div class="threshold-item-label">Data Completeness Warning</div>
+                        <div class="threshold-item-hint">Alert when data coverage for any region or scope drops below this %</div>
+                        <div class="slider-row">
+                            <input type="range" class="hz-slider" id="sl-completeness" min="50" max="100" value="80" oninput="updateSlider('sl-completeness','sv-completeness','%'); markDirty()">
+                            <span class="slider-val" id="sv-completeness">80%</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-top:4px;"><span>50%</span><span>100%</span></div>
+                    </div>
+
+                    <div class="threshold-item">
+                        <div class="threshold-item-label">Compliance Deadline — First Reminder</div>
+                        <div class="threshold-item-hint">Send first alert this many days before a compliance deadline</div>
+                        <div class="slider-row">
+                            <input type="range" class="hz-slider" id="sl-deadline1" min="3" max="30" value="14" oninput="updateSlider('sl-deadline1','sv-deadline1',' days'); markDirty()">
+                            <span class="slider-val" id="sv-deadline1">14 days</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-top:4px;"><span>3 days</span><span>30 days</span></div>
+                    </div>
+
+                    <div class="threshold-item">
+                        <div class="threshold-item-label">Compliance Deadline — Final Reminder</div>
+                        <div class="threshold-item-hint">Send a final urgent alert this many days before a deadline</div>
+                        <div class="slider-row">
+                            <input type="range" class="hz-slider" id="sl-deadline2" min="1" max="7" value="3" oninput="updateSlider('sl-deadline2','sv-deadline2',' days'); markDirty()">
+                            <span class="slider-val" id="sv-deadline2">3 days</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-top:4px;"><span>1 day</span><span>7 days</span></div>
+                    </div>
+
+                    <div class="threshold-item">
+                        <div class="threshold-item-label">Supplier Data Overdue</div>
+                        <div class="threshold-item-hint">Fire a warning if a supplier hasn't submitted data within this many days of the request</div>
+                        <div class="slider-row">
+                            <input type="range" class="hz-slider" id="sl-supplier" min="3" max="30" value="7" oninput="updateSlider('sl-supplier','sv-supplier',' days'); markDirty()">
+                            <span class="slider-val" id="sv-supplier">7 days</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-top:4px;"><span>3 days</span><span>30 days</span></div>
+                    </div>
+
+                    <div class="threshold-item">
+                        <div class="threshold-item-label">Audit Report Approval Wait</div>
+                        <div class="threshold-item-hint">Escalate to a critical alert if an audit report sits unapproved for this many days</div>
+                        <div class="slider-row">
+                            <input type="range" class="hz-slider" id="sl-audit" min="1" max="14" value="5" oninput="updateSlider('sl-audit','sv-audit',' days'); markDirty()">
+                            <span class="slider-val" id="sv-audit">5 days</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-top:4px;"><span>1 day</span><span>14 days</span></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ SECTION 4: Quiet Hours ══ -->
+        <div class="settings-section" id="quiethours">
+            <div class="sec-header">
+                <div class="sec-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </div>
+                <div>
+                    <div class="sec-title">Quiet Hours</div>
+                    <div class="sec-desc">Suppress non-critical notifications during defined periods</div>
+                </div>
+            </div>
+            <div class="sec-body">
+
+                <div class="toggle-row" style="padding-top:0;">
+                    <div class="toggle-info">
+                        <div class="toggle-label">Enable Quiet Hours</div>
+                        <div class="toggle-hint">Pause Warning, Info, Success, and System notifications during the window below</div>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="quiet-enabled" onchange="markDirty(); toggleQuietOptions()">
+                        <span class="toggle-track"></span>
+                    </label>
+                </div>
+
+                <div id="quiet-options" style="opacity:0.4;pointer-events:none;transition:opacity 0.2s;">
+                    <div style="margin-top:1rem;">
+                        <div style="font-size:0.8rem;font-weight:700;color:var(--ink);margin-bottom:6px;">Quiet window (IST)</div>
+                        <div class="time-row">
+                            <span class="time-label">From</span>
+                            <input type="time" class="time-input" id="quiet-from" value="22:00" onchange="markDirty()">
+                            <span class="time-label">to</span>
+                            <input type="time" class="time-input" id="quiet-to" value="08:00" onchange="markDirty()">
+                            <span style="font-size:0.75rem;color:var(--muted);">Asia/Kolkata</span>
+                        </div>
+                    </div>
+                    <div style="margin-top:1rem;">
+                        <div style="font-size:0.8rem;font-weight:700;color:var(--ink);margin-bottom:8px;">Apply on days</div>
+                        <div class="days-row" id="days-row">
+                            <div class="day-chip" data-day="0" onclick="toggleDay(this)">Sun</div>
+                            <div class="day-chip" data-day="1" onclick="toggleDay(this)">Mon</div>
+                            <div class="day-chip" data-day="2" onclick="toggleDay(this)">Tue</div>
+                            <div class="day-chip" data-day="3" onclick="toggleDay(this)">Wed</div>
+                            <div class="day-chip" data-day="4" onclick="toggleDay(this)">Thu</div>
+                            <div class="day-chip" data-day="5" onclick="toggleDay(this)">Fri</div>
+                            <div class="day-chip selected" data-day="6" onclick="toggleDay(this)">Sat</div>
+                            <div class="day-chip selected" data-day="7" onclick="toggleDay(this)">Sun</div>
+                        </div>
+                    </div>
+                    <div class="toggle-row" style="margin-top:1rem; background:var(--danger-bg); border:1px solid var(--danger-border); border-radius:9px; padding:0.85rem 1rem;">
+                        <div class="toggle-info">
+                            <div class="toggle-label" style="color:var(--danger);">Always deliver Critical alerts</div>
+                            <div class="toggle-hint">Critical notifications bypass quiet hours — this cannot be turned off</div>
+                        </div>
+                        <span class="always-on" style="background:#FFF5F5;color:var(--danger);border-color:var(--danger-border);">Forced on</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ══ SECTION 5: Retention ══ -->
+        <div class="settings-section" id="retention">
+            <div class="sec-header">
+                <div class="sec-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+                </div>
+                <div>
+                    <div class="sec-title">Notification Retention</div>
+                    <div class="sec-desc">Control how long dismissed notifications are kept in history</div>
+                </div>
+            </div>
+            <div class="sec-body">
+
+                <div style="font-size:0.85rem;font-weight:600;color:var(--ink);margin-bottom:0.75rem;">Keep dismissed notifications for</div>
+                <div class="radio-group" id="retentionGroup">
+                    <label class="radio-pill" onclick="selectRetention(this, '7d')"><input type="radio" name="retention" value="7d"> 7 days</label>
+                    <label class="radio-pill selected" onclick="selectRetention(this, '30d')"><input type="radio" name="retention" value="30d" checked> 30 days</label>
+                    <label class="radio-pill" onclick="selectRetention(this, '90d')"><input type="radio" name="retention" value="90d"> 90 days</label>
+                    <label class="radio-pill" onclick="selectRetention(this, 'forever')"><input type="radio" name="retention" value="forever"> Forever</label>
+                </div>
+
+                <div class="danger-zone">
+                    <div class="danger-zone-text">
+                        <div class="danger-zone-label">Clear all dismissed notifications</div>
+                        <div class="danger-zone-hint">Permanently removes all dismissed notifications from your history. This action cannot be undone.</div>
+                    </div>
+                    <button class="btn-danger" onclick="confirmClear()">Clear Now</button>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="footer-spacer"></div>
+    </main>
+</div>
+
+<!-- Sticky save footer -->
+<div class="save-footer" id="saveFooter">
+    <div class="save-footer-msg">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--warning)"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        You have unsaved changes
+    </div>
+    <button class="btn-discard" onclick="discardChanges()">Discard</button>
+    <button class="btn-save" onclick="saveSettings()">Save Settings</button>
+</div>
+
+<!-- Confirm clear dialog -->
+<div class="confirm-overlay" id="confirmOverlay" onclick="if(event.target===this) closeConfirm()">
+    <div class="confirm-box">
+        <div class="confirm-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </div>
+        <div class="confirm-title">Clear dismissed notifications?</div>
+        <div class="confirm-msg">This will permanently remove all dismissed notifications from your history. Active and unread notifications will not be affected. This action cannot be undone.</div>
+        <div class="confirm-btns">
+            <button class="btn-discard" onclick="closeConfirm()">Cancel</button>
+            <button class="btn-danger" onclick="executeClear()">Yes, clear all</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+    /* ── Category matrix data ── */
+    const CATEGORIES = [
+        { id: 'dataQuality',   label: 'Data Quality',          module: 'Data Management',    defaults: { critical:true,  warning:true,  info:true,  success:false, system:false }, locked: [] },
+        { id: 'compliance',    label: 'Compliance & Deadlines', module: 'Compliance Mapper',   defaults: { critical:true,  warning:true,  info:true,  success:true,  system:false }, locked: ['critical'] },
+        { id: 'emissions',     label: 'Emissions Anomalies',    module: 'Dashboard / Analytics',defaults:{ critical:true,  warning:true,  info:false, success:false, system:false }, locked: ['critical'] },
+        { id: 'approvals',     label: 'Approvals & Sign-offs',  module: 'Audit & Assurance',   defaults: { critical:true,  warning:true,  info:true,  success:false, system:false }, locked: [] },
+        { id: 'suppliers',     label: 'Supplier Updates',       module: 'Supplier Evaluation', defaults: { critical:false, warning:true,  info:true,  success:false, system:false }, locked: [] },
+        { id: 'netzero',       label: 'NetZero & Goals',        module: 'NetZero Pathfinder',  defaults: { critical:false, warning:true,  info:true,  success:true,  system:false }, locked: [] },
+        { id: 'carbonCredits', label: 'Carbon Credits',         module: 'Carbon Credit Mgmt',  defaults: { critical:false, warning:true,  info:true,  success:true,  system:false }, locked: [] },
+        { id: 'system',        label: 'System & Releases',      module: 'Platform',            defaults: { critical:false, warning:false, info:false, success:false, system:true  }, locked: [] },
+    ];
+    const SEVERITIES = ['critical','warning','info','success','system'];
+
+    // Deep-copy current state from defaults
+    let matrixState = {};
+    CATEGORIES.forEach(c => { matrixState[c.id] = { ...c.defaults }; });
+
+    let isDirty = false;
+    let savedState = null;
+
+    function buildMatrix() {
+        const tbody = document.getElementById('matrixBody');
+        tbody.innerHTML = CATEGORIES.map(cat => {
+            const cells = SEVERITIES.map(sev => {
+                const isLocked = cat.locked.includes(sev);
+                const isChecked = cat.defaults[sev];
+                if (isLocked) {
+                    return `<td><div class="locked-cell" data-tooltip="Mandatory — cannot be disabled for ${cat.label}">
+                        <input type="checkbox" class="matrix-cb" checked disabled>
+                        <svg class="lock-icon" xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div></td>`;
+                }
+                return `<td><input type="checkbox" class="matrix-cb" ${isChecked ? 'checked' : ''}
+                    data-cat="${cat.id}" data-sev="${sev}"
+                    onchange="matrixChange(this)"></td>`;
+            }).join('');
+            return `<tr>
+                <td><span class="cat-label">${cat.label}</span><span class="cat-module">${cat.module}</span></td>
+                ${cells}
+            </tr>`;
+        }).join('');
+    }
+
+    function matrixChange(el) {
+        matrixState[el.dataset.cat][el.dataset.sev] = el.checked;
+        markDirty();
+    }
+
+    /* ── Dirty state ── */
+    function markDirty() {
+        if (!isDirty) {
+            isDirty = true;
+            document.getElementById('saveFooter').classList.add('visible');
+        }
+    }
+
+    function discardChanges() {
+        isDirty = false;
+        document.getElementById('saveFooter').classList.remove('visible');
+        // Reset to last saved or defaults
+        location.reload();
+    }
+
+    function saveSettings() {
+        // Collect all current settings into a payload
+        const payload = {
+            channels: {
+                inApp: true,
+                emailDigest: document.getElementById('ch-email-digest').checked,
+                emailInstant: document.getElementById('ch-email-instant').checked,
+                digestTime: document.getElementById('digest-time').value,
+                digestIncludeResolved: document.getElementById('digest-resolved').checked,
+            },
+            categories: matrixState,
+            thresholds: {
+                emissionsAnomalyPct:  parseInt(document.getElementById('sl-emissions').value),
+                dataCompletenessPct:  parseInt(document.getElementById('sl-completeness').value),
+                complianceAdvanceDays: parseInt(document.getElementById('sl-deadline1').value),
+                complianceReminderDays: parseInt(document.getElementById('sl-deadline2').value),
+                supplierOverdueDays:   parseInt(document.getElementById('sl-supplier').value),
+                auditApprovalDays:     parseInt(document.getElementById('sl-audit').value),
+            },
+            quietHours: {
+                enabled: document.getElementById('quiet-enabled').checked,
+                from: document.getElementById('quiet-from').value,
+                to:   document.getElementById('quiet-to').value,
+                days: Array.from(document.querySelectorAll('.day-chip.selected')).map(d => parseInt(d.dataset.day)),
+            },
+            retention: document.querySelector('input[name="retention"]:checked')?.value || '30d',
+        };
+
+        console.log('[TerraCAP] Saving notification settings:', payload);
+        // TODO: POST payload to /api/v1/user/notification-settings
+
+        isDirty = false;
+        document.getElementById('saveFooter').classList.remove('visible');
+        showToast('✓ Settings saved successfully', 'success');
+    }
+
+    /* ── Sliders ── */
+    function updateSlider(sliderId, valId, suffix) {
+        document.getElementById(valId).textContent = document.getElementById(sliderId).value + suffix;
+    }
+
+    /* ── Toggle sub-options ── */
+    function toggleDigestOptions() {
+        const on = document.getElementById('ch-email-digest').checked;
+        document.getElementById('digest-sub').style.opacity = on ? '1' : '0.4';
+        document.getElementById('digest-sub').style.pointerEvents = on ? 'all' : 'none';
+    }
+
+    function toggleQuietOptions() {
+        const on = document.getElementById('quiet-enabled').checked;
+        const el = document.getElementById('quiet-options');
+        el.style.opacity = on ? '1' : '0.4';
+        el.style.pointerEvents = on ? 'all' : 'none';
+        document.querySelectorAll('#quiet-options .time-input').forEach(i => i.disabled = !on);
+    }
+
+    /* ── Day chips ── */
+    function toggleDay(el) {
+        el.classList.toggle('selected');
+        markDirty();
+    }
+
+    /* ── Retention pills ── */
+    function selectRetention(el, val) {
+        document.querySelectorAll('.radio-pill').forEach(p => p.classList.remove('selected'));
+        el.classList.add('selected');
+        markDirty();
+    }
+
+    /* ── Confirm clear ── */
+    function confirmClear() {
+        document.getElementById('confirmOverlay').classList.add('active');
+    }
+    function closeConfirm() {
+        document.getElementById('confirmOverlay').classList.remove('active');
+    }
+    function executeClear() {
+        closeConfirm();
+        showToast('✓ Dismissed notifications cleared', 'success');
+    }
+
+    /* ── Toast ── */
+    let toastTimer;
+    function showToast(msg, type = '') {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = `toast ${type} show`;
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    /* ── Section nav active state on scroll ── */
+    function snav(el) {
+        document.querySelectorAll('.snav-item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    const sections = ['channels','categories','thresholds','quiethours','retention'];
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(id => {
+            const el = document.getElementById(id);
+            if (el && el.getBoundingClientRect().top <= 100) current = id;
+        });
+        document.querySelectorAll('.snav-item').forEach(item => {
+            const href = item.getAttribute('href')?.replace('#','');
+            item.classList.toggle('active', href === current);
+        });
+    });
+
+    /* ── Warn before leaving with unsaved changes ── */
+    window.addEventListener('beforeunload', e => {
+        if (isDirty) { e.preventDefault(); e.returnValue = ''; }
+    });
+
+    /* ── ESC closes confirm ── */
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeConfirm();
+    });
+
+    /* ── Init ── */
+    buildMatrix();
+    toggleDigestOptions();
+    toggleQuietOptions();
+</script>
+</body>
+</html>

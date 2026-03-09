@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HWCAP Help Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <style>
+        :root {
+            --hz-primary: #4A7C59;
+            --hz-primary-700: #355b3f;
+            --hz-primary-50: #E9F1EC;
+            --hz-mint: #A8E6A3;
+            --hz-dark: #2F4F3F;
+            --ink: #22302A;
+            --subtle: #5B6E64;
+            --bg: #F6F7F4;
+            --card: #FFFFFF;
+            --stroke: #E5E9E6;
+            --panel-w: 420px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ── Demo page backdrop ── */
+        .demo-backdrop {
+            width: 100vw; height: 100vh;
+            background: linear-gradient(135deg, #e8f0ea 0%, #d4e8d8 100%);
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column; gap: 1rem;
+        }
+        .demo-note {
+            background: white; border: 1px solid var(--stroke);
+            border-radius: 12px; padding: 1.5rem 2rem;
+            text-align: center; max-width: 480px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .demo-note h2 { color: var(--hz-primary); margin-bottom: 0.5rem; }
+        .demo-note p { color: var(--subtle); font-size: 0.9rem; margin-bottom: 1rem; }
+        .btn-open-help {
+            background: var(--hz-primary); color: white;
+            border: none; padding: 0.75rem 1.75rem;
+            border-radius: 8px; font-family: inherit; font-size: 1rem;
+            font-weight: 600; cursor: pointer; transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-open-help:hover { background: var(--hz-primary-700); transform: translateY(-1px); }
+
+        /* ══════════════════════════════════
+           OVERLAY
+        ══════════════════════════════════ */
+        .help-overlay {
+            position: fixed; inset: 0;
+            background: rgba(34,48,42,0.45);
+            backdrop-filter: blur(2px);
+            z-index: 999;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+        .help-overlay.active { opacity: 1; pointer-events: all; }
+
+        /* ══════════════════════════════════
+           PANEL
+        ══════════════════════════════════ */
+        .help-panel {
+            position: fixed; top: 0; right: 0; bottom: 0;
+            width: var(--panel-w);
+            background: var(--card);
+            z-index: 1000;
+            display: flex; flex-direction: column;
+            transform: translateX(100%);
+            transition: transform 0.38s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: -8px 0 40px rgba(0,0,0,0.18);
+            border-left: 1px solid var(--stroke);
+            overflow: hidden;
+        }
+        .help-panel.active { transform: translateX(0); }
+
+        /* ── Panel Header ── */
+        .panel-header {
+            background: linear-gradient(135deg, var(--hz-primary) 0%, var(--hz-primary-700) 100%);
+            padding: 1.25rem 1.5rem;
+            display: flex; align-items: center; gap: 12px;
+            position: relative; overflow: hidden;
+            flex-shrink: 0;
+        }
+        .panel-header::before {
+            content: '';
+            position: absolute; top: -30px; right: -20px;
+            width: 120px; height: 120px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 50%;
+        }
+        .panel-header::after {
+            content: '';
+            position: absolute; bottom: -40px; right: 60px;
+            width: 80px; height: 80px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+        .panel-header-icon {
+            width: 36px; height: 36px;
+            background: rgba(255,255,255,0.18);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1rem; flex-shrink: 0;
+            position: relative; z-index: 1;
+        }
+        .panel-header-text { flex: 1; position: relative; z-index: 1; }
+        .panel-header-title {
+            font-size: 1rem; font-weight: 700; color: white;
+            line-height: 1.2;
+        }
+        .panel-header-sub {
+            font-size: 0.75rem; color: rgba(255,255,255,0.7);
+        }
+        .panel-close {
+            width: 32px; height: 32px;
+            background: rgba(255,255,255,0.15);
+            border: none; border-radius: 8px;
+            color: white; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; transition: background 0.2s;
+            position: relative; z-index: 1; flex-shrink: 0;
+        }
+        .panel-close:hover { background: rgba(255,255,255,0.28); }
+
+        /* ── Back button row ── */
+        .panel-back-row {
+            display: none; align-items: center; gap: 8px;
+            padding: 0.75rem 1.25rem;
+            border-bottom: 1px solid var(--stroke);
+            background: var(--hz-primary-50);
+            flex-shrink: 0;
+        }
+        .panel-back-row.visible { display: flex; }
+        .btn-back {
+            background: none; border: none;
+            color: var(--hz-primary); font-family: inherit;
+            font-size: 0.875rem; font-weight: 600;
+            cursor: pointer; display: flex; align-items: center; gap: 6px;
+            padding: 4px 0;
+        }
+        .btn-back:hover { text-decoration: underline; }
+        .panel-view-title {
+            font-size: 0.875rem; font-weight: 600; color: var(--ink);
+            margin-left: auto;
+        }
+
+        /* ── Scrollable body ── */
+        .panel-body {
+            flex: 1; overflow-y: auto; padding: 1.25rem;
+            overflow-x: hidden;
+        }
+        .panel-body::-webkit-scrollbar { width: 4px; }
+        .panel-body::-webkit-scrollbar-track { background: transparent; }
+        .panel-body::-webkit-scrollbar-thumb { background: var(--stroke); border-radius: 4px; }
+
+        /* ══════════════════════════════════
+           VIEW SYSTEM
+        ══════════════════════════════════ */
+        .view { display: none; animation: fadeSlide 0.25s ease; }
+        .view.active { display: block; }
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateX(18px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+
+        /* ══════════════════════════════════
+           HOME VIEW — menu grid
+        ══════════════════════════════════ */
+        .help-welcome {
+            background: var(--hz-primary-50);
+            border: 1px solid #c8dece;
+            border-radius: 12px; padding: 1rem 1.25rem;
+            margin-bottom: 1.25rem;
+        }
+        .help-welcome p {
+            font-size: 0.85rem; color: var(--hz-dark); line-height: 1.5;
+        }
+        .help-welcome strong { color: var(--hz-primary); }
+
+        .menu-grid {
+            display: flex; flex-direction: column; gap: 0.6rem;
+        }
+        .menu-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 0.9rem 1rem;
+            background: white; border: 1px solid var(--stroke);
+            border-radius: 10px; cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            text-decoration: none; color: inherit;
+        }
+        .menu-item:hover {
+            border-color: var(--hz-primary);
+            background: var(--hz-primary-50);
+            transform: translateX(3px);
+            box-shadow: 0 2px 12px rgba(74,124,89,0.12);
+        }
+        .menu-item-icon {
+            width: 38px; height: 38px; border-radius: 10px;
+            background: var(--hz-primary-50); color: var(--hz-primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; flex-shrink: 0; transition: all 0.2s;
+        }
+        .menu-item:hover .menu-item-icon {
+            background: var(--hz-primary); color: white;
+        }
+        .menu-item-label {
+            font-weight: 600; font-size: 0.9rem; flex: 1;
+        }
+        .menu-item-desc {
+            font-size: 0.75rem; color: var(--subtle); margin-top: 1px;
+        }
+        .menu-item-arrow {
+            color: var(--subtle); font-size: 0.75rem; transition: all 0.2s;
+        }
+        .menu-item:hover .menu-item-arrow { color: var(--hz-primary); transform: translateX(2px); }
+
+        .badge-pill {
+            font-size: 0.65rem; font-weight: 700;
+            padding: 2px 7px; border-radius: 10px;
+            background: var(--hz-primary); color: white;
+            letter-spacing: 0.3px;
+        }
+        .badge-pill.soon { background: #E8A838; }
+        .badge-pill.new { background: #4299E1; }
+        .badge-pill.external { background: #9B59B6; }
+
+        /* ══════════════════════════════════
+           SEARCH VIEW
+        ══════════════════════════════════ */
+        .search-box {
+            display: flex; align-items: center; gap: 10px;
+            background: white; border: 2px solid var(--stroke);
+            border-radius: 10px; padding: 0.7rem 1rem;
+            margin-bottom: 1.25rem; transition: border-color 0.2s;
+        }
+        .search-box:focus-within { border-color: var(--hz-primary); }
+        .search-box i { color: var(--subtle); }
+        .search-box input {
+            flex: 1; border: none; outline: none;
+            font-family: inherit; font-size: 0.9rem; color: var(--ink);
+            background: transparent;
+        }
+        .search-box input::placeholder { color: #aaa; }
+
+        .search-results { display: flex; flex-direction: column; gap: 0.5rem; }
+        .search-result-item {
+            padding: 0.85rem 1rem;
+            background: white; border: 1px solid var(--stroke);
+            border-radius: 8px; cursor: pointer;
+            transition: all 0.15s;
+        }
+        .search-result-item:hover { border-color: var(--hz-primary); background: var(--hz-primary-50); }
+        .search-result-title { font-weight: 600; font-size: 0.875rem; margin-bottom: 3px; }
+        .search-result-section { font-size: 0.75rem; color: var(--hz-primary); font-weight: 500; }
+        .search-result-excerpt { font-size: 0.8rem; color: var(--subtle); margin-top: 4px; line-height: 1.4; }
+        .search-empty { text-align: center; padding: 2rem; color: var(--subtle); }
+        .search-empty i { font-size: 2rem; margin-bottom: 0.75rem; display: block; }
+
+        /* ══════════════════════════════════
+           GETTING STARTED VIEW
+        ══════════════════════════════════ */
+        .gs-steps { display: flex; flex-direction: column; gap: 0.85rem; }
+        .gs-step {
+            display: flex; gap: 14px;
+            background: white; border: 1px solid var(--stroke);
+            border-radius: 10px; padding: 1rem;
+        }
+        .gs-step-num {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--hz-primary); color: white;
+            font-weight: 700; font-size: 0.85rem;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .gs-step-content {}
+        .gs-step-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; }
+        .gs-step-text { font-size: 0.8rem; color: var(--subtle); line-height: 1.5; }
+
+        .gs-module-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-top: 1rem; }
+        .gs-module-card {
+            background: white; border: 1px solid var(--stroke);
+            border-radius: 8px; padding: 0.75rem;
+            text-align: center; font-size: 0.8rem; font-weight: 500;
+        }
+        .gs-module-card i { display: block; font-size: 1.25rem; color: var(--hz-primary); margin-bottom: 4px; }
+
+        /* ══════════════════════════════════
+           VIDEOS VIEW
+        ══════════════════════════════════ */
+        .video-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .video-card {
+            display: flex; gap: 12px;
+            background: white; border: 1px solid var(--stroke);
+            border-radius: 10px; padding: 0.9rem;
+            cursor: pointer; transition: all 0.2s;
+            text-decoration: none; color: inherit;
+        }
+        .video-card:hover { border-color: var(--hz-primary); background: var(--hz-primary-50); }
+        .video-thumb {
+            width: 64px; height: 48px; border-radius: 6px;
+            background: linear-gradient(135deg, var(--hz-primary) 0%, var(--hz-dark) 100%);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.25rem; flex-shrink: 0;
+        }
+        .video-meta { flex: 1; }
+        .video-title { font-weight: 600; font-size: 0.85rem; margin-bottom: 3px; }
+        .video-info { font-size: 0.75rem; color: var(--subtle); }
+        .video-info span { margin-right: 8px; }
+
+        .yt-cta {
+            margin-top: 1.25rem; text-align: center;
+            background: #FF0000; border-radius: 10px; padding: 1rem;
+        }
+        .yt-cta a {
+            color: white; text-decoration: none;
+            font-weight: 700; font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        /* ══════════════════════════════════
+           WHAT'S NEW VIEW
+        ══════════════════════════════════ */
+        .release-timeline { display: flex; flex-direction: column; gap: 0; }
+        .release-item {
+            display: flex; gap: 14px;
+            padding-bottom: 1.25rem;
+            position: relative;
+        }
+        .release-item:not(:last-child)::before {
+            content: '';
+            position: absolute; left: 15px; top: 32px; bottom: 0;
+            width: 2px; background: var(--stroke);
+        }
+        .release-dot {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: var(--hz-primary); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 700; flex-shrink: 0;
+            position: relative; z-index: 1;
+        }
+        .release-dot.minor { background: #4299E1; }
+        .release-dot.patch { background: #9B59B6; }
+        .release-body {
+            background: white; border: 1px solid var(--stroke);
+            border-radius: 10px; padding: 0.9rem; flex: 1;
+        }
+        .release-header { display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem; }
+        .release-ver { font-weight: 700; font-size: 0.875rem; }
+        .release-date { font-size: 0.75rem; color: var(--subtle); margin-left: auto; }
+        .release-tag {
+            font-size: 0.65rem; font-weight: 700; padding: 2px 7px;
+            border-radius: 6px; background: var(--hz-primary-50);
+            color: var(--hz-primary);
+        }
+        .release-tag.minor { background: #EBF8FF; color: #2B6CB0; }
+        .release-tag.patch { background: #FAF5FF; color: #6B46C1; }
+        .release-list { list-style: none; }
+        .release-list li {
+            font-size: 0.8rem; color: var(--ink); padding: 3px 0;
+            display: flex; align-items: flex-start; gap: 6px; line-height: 1.4;
+        }
+        .release-list li::before { content: '✦'; color: var(--hz-primary); font-size: 0.6rem; margin-top: 3px; flex-shrink: 0; }
+
+        /* ══════════════════════════════════
+           CONTACT SUPPORT
+        ══════════════════════════════════ */
+        .contact-cards { display: flex; flex-direction: column; gap: 0.85rem; }
+        .contact-card {
+            background: white; border: 1px solid var(--stroke);
+            border-radius: 12px; padding: 1.25rem;
+            display: flex; gap: 14px; align-items: flex-start;
+            text-decoration: none; color: inherit; transition: all 0.2s;
+        }
+        .contact-card:hover { border-color: var(--hz-primary); background: var(--hz-primary-50); }
+        .contact-card-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            background: var(--hz-primary-50); color: var(--hz-primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; flex-shrink: 0;
+        }
+        .contact-card-body {}
+        .contact-card-label { font-size: 0.75rem; color: var(--subtle); font-weight: 500; margin-bottom: 2px; }
+        .contact-card-value { font-weight: 700; font-size: 0.95rem; color: var(--ink); }
+        .contact-card-hint { font-size: 0.75rem; color: var(--subtle); margin-top: 2px; }
+
+        .support-note {
+            background: var(--hz-primary-50); border: 1px solid #c8dece;
+            border-radius: 10px; padding: 1rem; font-size: 0.8rem;
+            color: var(--hz-dark); line-height: 1.5; margin-top: 1rem;
+        }
+        .support-note i { color: var(--hz-primary); margin-right: 4px; }
+
+        /* ══════════════════════════════════
+           SEND FEEDBACK
+        ══════════════════════════════════ */
+        .feedback-options { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem; }
+        .feedback-option {
+            display: flex; gap: 12px; align-items: center;
+            background: white; border: 1px solid var(--stroke);
+            border-radius: 10px; padding: 0.9rem 1rem;
+            cursor: pointer; transition: all 0.2s;
+            text-decoration: none; color: inherit;
+        }
+        .feedback-option:hover { border-color: var(--hz-primary); background: var(--hz-primary-50); }
+        .feedback-option i { color: var(--hz-primary); font-size: 1.1rem; width: 20px; text-align: center; }
+        .feedback-option-body {}
+        .feedback-option-title { font-weight: 600; font-size: 0.875rem; }
+        .feedback-option-desc { font-size: 0.75rem; color: var(--subtle); }
+
+        /* ══════════════════════════════════
+           ABOUT MODAL
+        ══════════════════════════════════ */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(34,48,42,0.6);
+            z-index: 1100;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+            padding: 1rem;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal-box {
+            background: white; border-radius: 16px;
+            width: 100%; max-width: 380px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            transform: scale(0.9); transition: transform 0.3s ease;
+            overflow: hidden;
+        }
+        .modal-overlay.active .modal-box { transform: scale(1); }
+        .modal-header {
+            background: linear-gradient(135deg, var(--hz-primary), var(--hz-primary-700));
+            padding: 1.5rem; text-align: center; color: white; position: relative;
+        }
+        .modal-logo {
+            width: 56px; height: 56px; border-radius: 14px;
+            background: rgba(255,255,255,0.2); margin: 0 auto 0.75rem;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.75rem;
+        }
+        .modal-title { font-size: 1.2rem; font-weight: 700; }
+        .modal-subtitle { font-size: 0.8rem; opacity: 0.8; }
+        .modal-body { padding: 1.5rem; }
+        .about-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.65rem 0; border-bottom: 1px solid var(--stroke);
+        }
+        .about-row:last-child { border-bottom: none; }
+        .about-label { font-size: 0.8rem; color: var(--subtle); font-weight: 500; }
+        .about-value { font-size: 0.875rem; font-weight: 700; color: var(--ink); }
+        .about-value.version { color: var(--hz-primary); }
+        .modal-footer { padding: 0 1.5rem 1.5rem; display: flex; gap: 0.75rem; }
+        .btn-modal-close {
+            flex: 1; padding: 0.75rem;
+            background: var(--hz-primary); color: white;
+            border: none; border-radius: 8px;
+            font-family: inherit; font-size: 0.875rem; font-weight: 600;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .btn-modal-close:hover { background: var(--hz-primary-700); }
+
+        /* section label */
+        .section-label {
+            font-size: 0.7rem; font-weight: 700; color: var(--subtle);
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin-bottom: 0.75rem; margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Demo backdrop (only shown in standalone mode) -->
+<div class="demo-backdrop" id="demoBackdrop">
+    <div class="demo-note">
+        <h2>🌿 HWCAP Help Center</h2>
+        <p>This is the standalone help panel component. When integrated into the dashboard, it slides in from the right edge of the screen via the sidebar Help menu.</p>
+        <button class="btn-open-help" onclick="openHelp()">
+            <i class="fas fa-question-circle"></i> Open Help Panel
+        </button>
+    </div>
+</div>
+
+<!-- ══════════ HELP OVERLAY ══════════ -->
+<div class="help-overlay" id="helpOverlay" onclick="closeHelp()"></div>
+
+<!-- ══════════ HELP PANEL ══════════ -->
+<div class="help-panel" id="helpPanel">
+
+    <!-- Header -->
+    <div class="panel-header">
+        <div class="panel-header-icon"><i class="fas fa-question-circle"></i></div>
+        <div class="panel-header-text">
+            <div class="panel-header-title">Help & Support</div>
+            <div class="panel-header-sub">TerraCAP · Hertzwave Innovations</div>
+        </div>
+        <button class="panel-close" onclick="closeHelp()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <!-- Back row (shown on sub-views) -->
+    <div class="panel-back-row" id="panelBackRow">
+        <button class="btn-back" onclick="setActiveView('home')">
+            <i class="fas fa-chevron-left"></i> Help Home
+        </button>
+        <span class="panel-view-title" id="panelViewTitle"></span>
+    </div>
+
+    <!-- ══ Scrollable body ══ -->
+    <div class="panel-body">
+
+        <!-- ── HOME VIEW ── -->
+        <div class="view active" id="view-home">
+            <div class="help-welcome">
+                <p>Welcome to <strong>TerraCAP Help</strong>. Search for answers, explore tutorials, or reach our support team — we're here to help you on your ESG journey.</p>
+            </div>
+
+            <div class="section-label">How can we help?</div>
+            <div class="menu-grid">
+
+                <div class="menu-item" onclick="setActiveView('search')">
+                    <div class="menu-item-icon"><i class="fas fa-search"></i></div>
+                    <div>
+                        <div class="menu-item-label">Search Help</div>
+                        <div class="menu-item-desc">Find answers across all topics</div>
+                    </div>
+                    <i class="fas fa-chevron-right menu-item-arrow"></i>
+                </div>
+
+                <div class="menu-item" onclick="setActiveView('getting-started')">
+                    <div class="menu-item-icon"><i class="fas fa-rocket"></i></div>
+                    <div>
+                        <div class="menu-item-label">Getting Started</div>
+                        <div class="menu-item-desc">101 guide to TerraCAP modules</div>
+                    </div>
+                    <i class="fas fa-chevron-right menu-item-arrow"></i>
+                </div>
+
+                <div class="menu-item" onclick="setActiveView('video-tutorials')">
+                    <div class="menu-item-icon"><i class="fas fa-play-circle"></i></div>
+                    <div>
+                        <div class="menu-item-label">Video Tutorials</div>
+                        <div class="menu-item-desc">Watch walkthroughs on YouTube</div>
+                    </div>
+                    <span class="badge-pill external">YouTube</span>
+                </div>
+
+                <div class="menu-item" onclick="setActiveView('whats-new')">
+                    <div class="menu-item-icon"><i class="fas fa-bullhorn"></i></div>
+                    <div>
+                        <div class="menu-item-label">What's New</div>
+                        <div class="menu-item-desc">Latest releases & features</div>
+                    </div>
+                    <span class="badge-pill new">v1.2</span>
+                </div>
+
+                <div class="menu-item" onclick="setActiveView('contact-support')">
+                    <div class="menu-item-icon"><i class="fas fa-envelope"></i></div>
+                    <div>
+                        <div class="menu-item-label">Contact Support</div>
+                        <div class="menu-item-desc">Phone & email — we respond fast</div>
+                    </div>
+                    <i class="fas fa-chevron-right menu-item-arrow"></i>
+                </div>
+
+                <div class="menu-item" onclick="setActiveView('send-feedback')">
+                    <div class="menu-item-icon"><i class="fas fa-comment-alt"></i></div>
+                    <div>
+                        <div class="menu-item-label">Send Feedback</div>
+                        <div class="menu-item-desc">Feature requests & suggestions</div>
+                    </div>
+                    <i class="fas fa-chevron-right menu-item-arrow"></i>
+                </div>
+
+                <div class="menu-item" onclick="showAboutModal()">
+                    <div class="menu-item-icon"><i class="fas fa-info-circle"></i></div>
+                    <div>
+                        <div class="menu-item-label">About TerraCAP</div>
+                        <div class="menu-item-desc">Version, build & license info</div>
+                    </div>
+                    <span class="badge-pill soon">v1.2.0</span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── SEARCH VIEW ── -->
+        <div class="view" id="view-search">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search help articles…" oninput="runSearch(this.value)" autofocus/>
+            </div>
+            <div class="section-label" id="searchLabel">Popular topics</div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+
+        <!-- ── GETTING STARTED VIEW ── -->
+        <div class="view" id="view-getting-started">
+            <div class="section-label">Start here</div>
+            <div class="gs-steps">
+                <div class="gs-step">
+                    <div class="gs-step-num">1</div>
+                    <div class="gs-step-content">
+                        <div class="gs-step-title">Set up your Organisation Profile</div>
+                        <div class="gs-step-text">Enter your company details, reporting boundary, and baseline year under <em>Administration → Organisation</em>. This drives scope assignments and framework eligibility.</div>
+                    </div>
+                </div>
+                <div class="gs-step">
+                    <div class="gs-step-num">2</div>
+                    <div class="gs-step-content">
+                        <div class="gs-step-title">Add & ingest emissions data</div>
+                        <div class="gs-step-text">Use <em>Data Management → Add Data</em> or <em>Data Collection Forms</em> to log Scope 1, 2, and 3 activities. Import bulk CSVs via Import/Export for large datasets.</div>
+                    </div>
+                </div>
+                <div class="gs-step">
+                    <div class="gs-step-num">3</div>
+                    <div class="gs-step-content">
+                        <div class="gs-step-title">Review your Dashboard</div>
+                        <div class="gs-step-text">The Sustainability Dashboard shows live tCO₂e totals by scope, trend charts, and data quality scores. Use filters to drill into specific periods or regions.</div>
+                    </div>
+                </div>
+                <div class="gs-step">
+                    <div class="gs-step-num">4</div>
+                    <div class="gs-step-content">
+                        <div class="gs-step-title">Select compliance frameworks</div>
+                        <div class="gs-step-text">Go to <em>Compliance Mapper</em> and pick from BRSR, GreenCo, CBAM, GRI, CDP, and more. TerraCAP maps your data to each framework automatically.</div>
+                    </div>
+                </div>
+                <div class="gs-step">
+                    <div class="gs-step-num">5</div>
+                    <div class="gs-step-content">
+                        <div class="gs-step-title">Generate reports & plan NetZero</div>
+                        <div class="gs-step-text">Export board-ready ESG reports from <em>Reports & Compliance</em>. Use <em>NetZero Pathfinder</em> to chart your trajectory to India's 2070 target with financial modeling.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-label" style="margin-top:1.25rem;">Key modules at a glance</div>
+            <div class="gs-module-grid">
+                <div class="gs-module-card"><i class="fas fa-chart-bar"></i>Dashboard</div>
+                <div class="gs-module-card"><i class="fas fa-database"></i>Data Mgmt</div>
+                <div class="gs-module-card"><i class="fas fa-file-alt"></i>Reports</div>
+                <div class="gs-module-card"><i class="fas fa-layer-group"></i>Frameworks</div>
+                <div class="gs-module-card"><i class="fas fa-rocket"></i>NetZero</div>
+                <div class="gs-module-card"><i class="fas fa-leaf"></i>Carbon Credits</div>
+                <div class="gs-module-card"><i class="fas fa-industry"></i>Supplier Eval</div>
+                <div class="gs-module-card"><i class="fas fa-clipboard-check"></i>Audit & Assurance</div>
+            </div>
+        </div>
+
+        <!-- ── VIDEO TUTORIALS VIEW ── -->
+        <div class="view" id="view-video-tutorials">
+            <div class="section-label">Featured tutorials</div>
+            <div class="video-list">
+                <a class="video-card" href="https://www.youtube.com/@HertzwaveInnovations" target="_blank">
+                    <div class="video-thumb"><i class="fas fa-play"></i></div>
+                    <div class="video-meta">
+                        <div class="video-title">TerraCAP Platform Overview</div>
+                        <div class="video-info"><span><i class="fas fa-clock"></i> ~8 min</span><span>Getting Started</span></div>
+                    </div>
+                </a>
+                <a class="video-card" href="https://www.youtube.com/@HertzwaveInnovations" target="_blank">
+                    <div class="video-thumb"><i class="fas fa-play"></i></div>
+                    <div class="video-meta">
+                        <div class="video-title">Setting Up BRSR Reporting</div>
+                        <div class="video-info"><span><i class="fas fa-clock"></i> ~12 min</span><span>Frameworks</span></div>
+                    </div>
+                </a>
+                <a class="video-card" href="https://www.youtube.com/@HertzwaveInnovations" target="_blank">
+                    <div class="video-thumb"><i class="fas fa-play"></i></div>
+                    <div class="video-meta">
+                        <div class="video-title">Bulk Data Import Guide</div>
+                        <div class="video-info"><span><i class="fas fa-clock"></i> ~6 min</span><span>Data Management</span></div>
+                    </div>
+                </a>
+                <a class="video-card" href="https://www.youtube.com/@HertzwaveInnovations" target="_blank">
+                    <div class="video-thumb"><i class="fas fa-play"></i></div>
+                    <div class="video-meta">
+                        <div class="video-title">NetZero Pathfinder Walkthrough</div>
+                        <div class="video-info"><span><i class="fas fa-clock"></i> ~15 min</span><span>Advanced</span></div>
+                    </div>
+                </a>
+                <a class="video-card" href="https://www.youtube.com/@HertzwaveInnovations" target="_blank">
+                    <div class="video-thumb"><i class="fas fa-play"></i></div>
+                    <div class="video-meta">
+                        <div class="video-title">GreenCo Assessment Setup</div>
+                        <div class="video-info"><span><i class="fas fa-clock"></i> ~10 min</span><span>Frameworks</span></div>
+                    </div>
+                </a>
+            </div>
+            <div class="yt-cta">
+                <a href="https://www.youtube.com/@HertzwaveInnovations" target="_blank">
+                    <i class="fab fa-youtube"></i> View all videos on YouTube
+                </a>
+            </div>
+        </div>
+
+        <!-- ── WHAT'S NEW VIEW ── -->
+        <div class="view" id="view-whats-new">
+            <div class="section-label">Release history</div>
+            <div class="release-timeline">
+
+                <div class="release-item">
+                    <div class="release-dot">MAJ</div>
+                    <div class="release-body">
+                        <div class="release-header">
+                            <span class="release-ver">v1.2.0</span>
+                            <span class="release-tag">Major</span>
+                            <span class="release-date">Mar 2026</span>
+                        </div>
+                        <ul class="release-list">
+                            <li>Agentic Forms — automated IGBC, GreenCo & Green Label workflows</li>
+                            <li>GreenMetric SUR tool for Universities (2025 + 2026 merged)</li>
+                            <li>LCA (Life Cycle Assessment) module launched</li>
+                            <li>Help Center integrated with contextual search</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="release-item">
+                    <div class="release-dot minor">MIN</div>
+                    <div class="release-body">
+                        <div class="release-header">
+                            <span class="release-ver">v1.1.0</span>
+                            <span class="release-tag minor">Minor</span>
+                            <span class="release-date">Jan 2026</span>
+                        </div>
+                        <ul class="release-list">
+                            <li>Supplier Evaluation module with Scope 3 allocation scoring</li>
+                            <li>TerraAudit dashboard for auditors & consultants</li>
+                            <li>Consent Management (DPDPA 2023 & GDPR) added</li>
+                            <li>CBAM framework coverage added to Compliance Mapper</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="release-item">
+                    <div class="release-dot patch">PAT</div>
+                    <div class="release-body">
+                        <div class="release-header">
+                            <span class="release-ver">v1.0.3</span>
+                            <span class="release-tag patch">Patch</span>
+                            <span class="release-date">Nov 2025</span>
+                        </div>
+                        <ul class="release-list">
+                            <li>Fixed Professional tier session persistence on shared devices</li>
+                            <li>RWF: 300+ GHG records ingested across Scopes 1–3</li>
+                            <li>Karnataka MSME KERC tariff data corrections</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="release-item">
+                    <div class="release-dot minor">MIN</div>
+                    <div class="release-body">
+                        <div class="release-header">
+                            <span class="release-ver">v1.0.0</span>
+                            <span class="release-tag minor">Launch</span>
+                            <span class="release-date">Jul 2024</span>
+                        </div>
+                        <ul class="release-list">
+                            <li>TerraCAP platform launched — Essentials & Professional tiers</li>
+                            <li>BRSR, GRI, CDP, GreenCo frameworks live</li>
+                            <li>NetZero Pathfinder with India 2070 trajectory modeling</li>
+                            <li>Carbon Credits marketplace (Track A & B) launched</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── CONTACT SUPPORT VIEW ── -->
+        <div class="view" id="view-contact-support">
+            <div class="section-label">Reach us directly</div>
+            <div class="contact-cards">
+                <a href="tel:+918374653145" class="contact-card">
+                    <div class="contact-card-icon"><i class="fas fa-phone-alt"></i></div>
+                    <div class="contact-card-body">
+                        <div class="contact-card-label">Phone Support</div>
+                        <div class="contact-card-value">+91 83746 53145</div>
+                        <div class="contact-card-hint">Mon–Fri, 9 AM – 6 PM IST</div>
+                    </div>
+                </a>
+                <a href="mailto:info@hertzwave.in" class="contact-card">
+                    <div class="contact-card-icon"><i class="fas fa-envelope"></i></div>
+                    <div class="contact-card-body">
+                        <div class="contact-card-label">Email Support</div>
+                        <div class="contact-card-value">info@hertzwave.in</div>
+                        <div class="contact-card-hint">We typically respond within 4 business hours</div>
+                    </div>
+                </a>
+                <a href="mailto:support@hertzwave.in" class="contact-card">
+                    <div class="contact-card-icon"><i class="fas fa-headset"></i></div>
+                    <div class="contact-card-body">
+                        <div class="contact-card-label">Technical Support</div>
+                        <div class="contact-card-value">support@hertzwave.in</div>
+                        <div class="contact-card-hint">For platform issues, data ingestion errors & bugs</div>
+                    </div>
+                </a>
+            </div>
+            <div class="support-note">
+                <i class="fas fa-map-marker-alt"></i>
+                <strong>Hertzwave Innovations Pvt. Ltd.</strong><br>
+                Bengaluru, Karnataka, India — CIN: U74999KA2023PTC000000
+            </div>
+        </div>
+
+        <!-- ── SEND FEEDBACK VIEW ── -->
+        <div class="view" id="view-send-feedback">
+            <div class="section-label">Share your thoughts</div>
+            <div class="feedback-options">
+                <a class="feedback-option" href="https://forms.gle/YOUR_GOOGLE_FORM_ID" target="_blank">
+                    <i class="fas fa-lightbulb"></i>
+                    <div class="feedback-option-body">
+                        <div class="feedback-option-title">Feature Request</div>
+                        <div class="feedback-option-desc">Suggest a capability you'd like to see in TerraCAP</div>
+                    </div>
+                    <i class="fas fa-external-link-alt" style="font-size:0.75rem; color: var(--subtle); margin-left: auto;"></i>
+                </a>
+                <a class="feedback-option" href="https://forms.gle/YOUR_GOOGLE_FORM_ID" target="_blank">
+                    <i class="fas fa-bug"></i>
+                    <div class="feedback-option-body">
+                        <div class="feedback-option-title">Report a Bug</div>
+                        <div class="feedback-option-desc">Tell us about something that isn't working as expected</div>
+                    </div>
+                    <i class="fas fa-external-link-alt" style="font-size:0.75rem; color: var(--subtle); margin-left: auto;"></i>
+                </a>
+                <a class="feedback-option" href="https://forms.gle/YOUR_GOOGLE_FORM_ID" target="_blank">
+                    <i class="fas fa-star"></i>
+                    <div class="feedback-option-body">
+                        <div class="feedback-option-title">General Feedback</div>
+                        <div class="feedback-option-desc">Share your overall experience with TerraCAP</div>
+                    </div>
+                    <i class="fas fa-external-link-alt" style="font-size:0.75rem; color: var(--subtle); margin-left: auto;"></i>
+                </a>
+                <a class="feedback-option" href="mailto:info@hertzwave.in?subject=TerraCAP%20Feedback" class="feedback-option">
+                    <i class="fas fa-envelope"></i>
+                    <div class="feedback-option-body">
+                        <div class="feedback-option-title">Email Us Directly</div>
+                        <div class="feedback-option-desc">Send detailed feedback to info@hertzwave.in</div>
+                    </div>
+                    <i class="fas fa-external-link-alt" style="font-size:0.75rem; color: var(--subtle); margin-left: auto;"></i>
+                </a>
+            </div>
+            <div class="support-note" style="text-align:center;">
+                <i class="fas fa-heart" style="color: #E53E3E;"></i>
+                Your feedback helps us build a better ESG platform for India.
+            </div>
+        </div>
+
+    </div><!-- end panel-body -->
+</div><!-- end help-panel -->
+
+<!-- ══════════ ABOUT MODAL ══════════ -->
+<div class="modal-overlay" id="aboutModal" onclick="hideAboutModal(event)">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div class="modal-logo">🌿</div>
+            <div class="modal-title">TerraCAP / HWCAP</div>
+            <div class="modal-subtitle">Hertzwave Carbon Accounting Platform</div>
+        </div>
+        <div class="modal-body">
+            <div class="about-row">
+                <span class="about-label">Release Version</span>
+                <span class="about-value version">v1.2.0</span>
+            </div>
+            <div class="about-row">
+                <span class="about-label">Build Date</span>
+                <span class="about-value">March 2026</span>
+            </div>
+            <div class="about-row">
+                <span class="about-label">Build ID</span>
+                <span class="about-value">hwcap-2026.03.07</span>
+            </div>
+            <div class="about-row">
+                <span class="about-label">Platform</span>
+                <span class="about-value">HWCAP Cloud (India)</span>
+            </div>
+            <div class="about-row">
+                <span class="about-label">Developed by</span>
+                <span class="about-value">Hertzwave Innovations Pvt. Ltd.</span>
+            </div>
+            <div class="about-row">
+                <span class="about-label">Headquarters</span>
+                <span class="about-value">Bengaluru, India</span>
+            </div>
+            <div class="about-row">
+                <span class="about-label">License</span>
+                <span class="about-value">Commercial — Proprietary</span>
+            </div>
+            <div class="about-row">
+                <span class="about-label">Patent Status</span>
+                <span class="about-value" style="color: #E8A838;">Provisional Filed (IN)</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-modal-close" onclick="hideAboutModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* ─── Help knowledge base for local search ─── */
+    const HELP_KB = [
+        { title: 'How to add Scope 1 emissions data', section: 'Data Management', view: 'getting-started', excerpt: 'Use Add Data or Data Collection Forms to log fuel combustion, company vehicles and refrigerant usage.' },
+        { title: 'Setting up BRSR reporting', section: 'Frameworks', view: 'getting-started', excerpt: 'Select BRSR in Compliance Mapper. TerraCAP maps your ingested data to all BRSR disclosure fields automatically.' },
+        { title: 'Importing data via CSV', section: 'Data Management', view: 'getting-started', excerpt: 'Go to Import/Export, download the template, fill in your emissions records, and upload.' },
+        { title: 'GreenCo assessment workflow', section: 'Frameworks', view: 'getting-started', excerpt: 'GreenCo (CII v3) uses a materiality-based scoring system across 9 pillars.' },
+        { title: 'How to plan your NetZero trajectory', section: 'Advanced Features', view: 'getting-started', excerpt: 'NetZero Pathfinder builds a Science-Based Target trajectory aligned to India 2070.' },
+        { title: 'Understanding scope 2 market-based vs location-based', section: 'Emissions Tracking', view: 'getting-started', excerpt: 'Market-based uses energy attribute certificates; location-based uses regional grid emission factors.' },
+        { title: 'Adding users and setting roles', section: 'Administration', view: 'contact-support', excerpt: 'Go to Administration → User Management to invite team members and assign roles.' },
+        { title: 'How to generate a BRSR report PDF', section: 'Reports', view: 'getting-started', excerpt: 'Navigate to Reports, select BRSR framework, choose reporting year and click Generate Report.' },
+        { title: 'Carbon credit marketplace — Track A vs Track B', section: 'Carbon Credits', view: 'getting-started', excerpt: 'Track A is for buying verified credits; Track B is for internal sequestration projects.' },
+        { title: 'Contact phone number', section: 'Support', view: 'contact-support', excerpt: '+91 83746 53145 — available Mon–Fri, 9 AM to 6 PM IST.' },
+        { title: 'Data quality score — what does it mean?', section: 'Data Management', view: 'getting-started', excerpt: 'The data quality score (0–100%) measures completeness, timeliness, and source reliability across all ingested records.' },
+        { title: 'CBAM compliance for exports', section: 'Frameworks', view: 'getting-started', excerpt: 'CBAM (EU Carbon Border Adjustment Mechanism) tracking is available in the Compliance Mapper for exporters.' },
+        { title: 'Latest features and releases', section: "What's New", view: 'whats-new', excerpt: 'View the full changelog including v1.2.0 with Agentic Forms, GreenMetric, and LCA tool.' },
+        { title: 'Send product feedback', section: 'Feedback', view: 'send-feedback', excerpt: 'Use the feedback form to suggest features, report bugs, or share your experience with TerraCAP.' },
+        { title: 'Supplier evaluation and Scope 3', section: 'Supplier Evaluation', view: 'getting-started', excerpt: 'Supplier Evaluation collects Scope 1/2/3 data from your supply chain and scores suppliers on ESG criteria.' },
+    ];
+
+    const POPULAR = HELP_KB.slice(0, 5);
+
+    function runSearch(q) {
+        const label = document.getElementById('searchLabel');
+        const results = document.getElementById('searchResults');
+        q = q.trim().toLowerCase();
+
+        if (!q) {
+            label.textContent = 'Popular topics';
+            renderResults(POPULAR);
+            return;
+        }
+
+        const hits = HELP_KB.filter(item =>
+            item.title.toLowerCase().includes(q) ||
+            item.excerpt.toLowerCase().includes(q) ||
+            item.section.toLowerCase().includes(q)
+        );
+
+        label.textContent = hits.length ? `${hits.length} result${hits.length !== 1 ? 's' : ''} for "${q}"` : 'No results found';
+        renderResults(hits);
+    }
+
+    function renderResults(items) {
+        const results = document.getElementById('searchResults');
+        if (!items.length) {
+            results.innerHTML = `<div class="search-empty"><i class="fas fa-search-minus"></i><div>No articles matched your search.<br>Try different keywords or <a href="#" onclick="setActiveView('contact-support')" style="color:var(--hz-primary);">contact support</a>.</div></div>`;
+            return;
+        }
+        results.innerHTML = items.map(item => `
+            <div class="search-result-item" onclick="setActiveView('${item.view}')">
+                <div class="search-result-title">${item.title}</div>
+                <div class="search-result-section"><i class="fas fa-tag" style="font-size:0.65rem;"></i> ${item.section}</div>
+                <div class="search-result-excerpt">${item.excerpt}</div>
+            </div>
+        `).join('');
+    }
+
+    /* ─── View titles ─── */
+    const VIEW_TITLES = {
+        'search': 'Search Help',
+        'getting-started': 'Getting Started',
+        'video-tutorials': 'Video Tutorials',
+        'whats-new': "What's New",
+        'contact-support': 'Contact Support',
+        'send-feedback': 'Send Feedback',
+    };
+
+    function setActiveView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        const target = document.getElementById('view-' + viewId);
+        if (target) target.classList.add('active');
+
+        const backRow = document.getElementById('panelBackRow');
+        const titleEl = document.getElementById('panelViewTitle');
+
+        if (viewId === 'home') {
+            backRow.classList.remove('visible');
+        } else {
+            backRow.classList.add('visible');
+            titleEl.textContent = VIEW_TITLES[viewId] || '';
+        }
+
+        // Init search with popular items when entering search view
+        if (viewId === 'search') {
+            renderResults(POPULAR);
+            setTimeout(() => { const inp = document.getElementById('searchInput'); if (inp) inp.focus(); }, 200);
+        }
+
+        // Scroll panel body to top
+        document.querySelector('.panel-body').scrollTop = 0;
+    }
+
+    /* ─── Panel open / close ─── */
+    function openHelp() {
+        document.getElementById('helpOverlay').classList.add('active');
+        document.getElementById('helpPanel').classList.add('active');
+        setActiveView('home');
+    }
+
+    function closeHelp() {
+        document.getElementById('helpOverlay').classList.remove('active');
+        document.getElementById('helpPanel').classList.remove('active');
+    }
+
+    /* ─── About Modal ─── */
+    function showAboutModal() {
+        document.getElementById('aboutModal').classList.add('active');
+    }
+
+    function hideAboutModal(e) {
+        if (!e || e.target === document.getElementById('aboutModal')) {
+            document.getElementById('aboutModal').classList.remove('active');
+        }
+    }
+
+    /* ─── Keyboard: ESC closes ─── */
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            hideAboutModal();
+            closeHelp();
+        }
+    });
+
+    // Auto-open in standalone mode
+    // window.addEventListener('load', openHelp);
+</script>
+</body>
+</html>
