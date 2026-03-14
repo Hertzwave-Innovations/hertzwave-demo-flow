@@ -724,7 +724,7 @@
 const CATEGORIES = [
     {
         id: 'scope1', label: 'Scope 1', icon: '🔥', color: 'var(--scope-1)',
-        badges: ['fw-ghg','fw-brsr','fw-greenco'],
+        badges: ['fw-ghg','fw-gri','fw-brsr','fw-cdp','fw-greenco'],
         subs: [
             { id: '1.1', name: 'Stationary Combustion', desc: 'Fuel combustion in stationary equipment — boilers, furnaces, generators' },
             { id: '1.2', name: 'Mobile Combustion', desc: 'Fuel combustion in company-owned vehicles, forklifts, mobile equipment' },
@@ -734,7 +734,7 @@ const CATEGORIES = [
     },
     {
         id: 'scope2', label: 'Scope 2', icon: '⚡', color: 'var(--scope-2)',
-        badges: ['fw-ghg','fw-brsr','fw-greenco'],
+        badges: ['fw-ghg','fw-gri','fw-brsr','fw-cdp','fw-greenco'],
         subs: [
             { id: '2.1', name: 'Purchased Electricity', desc: 'Grid electricity — location-based & market-based methods' },
             { id: '2.2', name: 'Purchased Steam & Heat', desc: 'Steam or heat purchased from external suppliers' },
@@ -744,7 +744,7 @@ const CATEGORIES = [
     },
     {
         id: 'scope3', label: 'Scope 3', icon: '🌐', color: 'var(--scope-3)',
-        badges: ['fw-ghg','fw-brsr','fw-cbam'],
+        badges: ['fw-ghg','fw-gri','fw-brsr','fw-cdp','fw-cbam','fw-csrd'],
         subs: [
             { id: '3.1', name: 'Purchased Goods & Services', desc: 'Cradle-to-gate emissions (Cat 1)' },
             { id: '3.2', name: 'Capital Goods', desc: 'Emissions from production of capital goods (Cat 2)' },
@@ -765,7 +765,7 @@ const CATEGORIES = [
     },
     {
         id: 'energy', label: 'Energy Mgmt', icon: '🔋', color: '#d97706',
-        badges: ['fw-greenco','fw-greenaudit','fw-brsr','fw-igbc'],
+        badges: ['fw-gri','fw-greenco','fw-greenaudit','fw-brsr','fw-igbc'],
         subs: [
             { id: 'EN.1', name: 'Energy Consumption & Mix', desc: 'Total energy, fuel/electricity split, renewable % (GRI 302-1, GreenCo Energy)' },
             { id: 'EN.2', name: 'Energy Intensity & EPI', desc: 'Specific energy consumption, Energy Performance Index kWh/sq.m/yr (BEE, Green Audit)' },
@@ -838,7 +838,7 @@ const CATEGORIES = [
     },
     {
         id: 'climate', label: 'Climate Risk', icon: '🌡️', color: 'var(--climate)',
-        badges: ['fw-tcfd','fw-brsr','fw-csrd'],
+        badges: ['fw-tcfd','fw-brsr','fw-csrd','fw-cdp'],
         subs: [
             { id: 'CR.1', name: 'Physical Risk Assessment', desc: 'Flood, cyclone, heat stress, drought exposure (TCFD)' },
             { id: 'CR.2', name: 'Transition Risk Assessment', desc: 'Carbon pricing, policy, technology, market risks (TCFD)' },
@@ -1186,8 +1186,6 @@ function buildHierarchy() {
     if (currentTier === 'professional') {
         label.textContent = '— 5-level hierarchy';
         flow.innerHTML = `
-            <span class="hierarchy-step active"><span class="dot"></span> Organization</span>
-            <span class="hierarchy-arrow">→</span>
             <span class="hierarchy-step active"><span class="dot"></span> Entity</span>
             <span class="hierarchy-arrow">→</span>
             <span class="hierarchy-step active"><span class="dot"></span> Business Unit</span>
@@ -1199,10 +1197,6 @@ function buildHierarchy() {
             <span class="hierarchy-step active"><span class="dot"></span> Sub-Dept</span>
         `;
         grid.innerHTML = `
-            <div class="form-group">
-                <label class="form-label">Organization</label>
-                <select class="form-select" disabled><option>Hertzwave Innovations Pvt Ltd</option></select>
-            </div>
             <div class="form-group">
                 <label class="form-label required">Entity</label>
                 <select class="form-select" id="selEntity" onchange="cascadePro('entity')">
@@ -1228,11 +1222,9 @@ function buildHierarchy() {
             </div>
         `;
     } else {
-        // Essentials: Org → Facility → Dept → Sub-Dept
+        // Essentials: Facility → Dept → Sub-Dept
         label.textContent = '— 3-level hierarchy';
         flow.innerHTML = `
-            <span class="hierarchy-step active"><span class="dot"></span> Organization</span>
-            <span class="hierarchy-arrow">→</span>
             <span class="hierarchy-step active"><span class="dot"></span> Facility</span>
             <span class="hierarchy-arrow">→</span>
             <span class="hierarchy-step active"><span class="dot"></span> Department</span>
@@ -1240,10 +1232,6 @@ function buildHierarchy() {
             <span class="hierarchy-step active"><span class="dot"></span> Sub-Dept</span>
         `;
         grid.innerHTML = `
-            <div class="form-group">
-                <label class="form-label">Organization</label>
-                <select class="form-select" disabled><option>Hertzwave Innovations Pvt Ltd</option></select>
-            </div>
             <div class="form-group">
                 <label class="form-label required">Facility</label>
                 <select class="form-select" id="selFacilityEss" onchange="cascadeEss('facility')">
