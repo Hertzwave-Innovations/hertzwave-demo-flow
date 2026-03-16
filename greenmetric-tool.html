@@ -214,6 +214,20 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);line
 .form-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);padding:.5rem 0 .3rem;margin-top:.5rem;border-top:1px dashed var(--border-light);display:flex;align-items:center;gap:.4rem}
 .info-banner{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:var(--r-md);padding:12px 15px;margin-bottom:16px;font-size:12px;color:#1E40AF;line-height:1.65}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+/* ── FORMULA PANEL ──────────────────────────────────────── */
+.fp-panel{background:#FFFBEB;border:1px solid #FCD34D;border-radius:var(--r-md);padding:13px 14px;margin-bottom:12px;animation:fadeUp .2s ease}
+.fp-header{font-size:10px;font-weight:700;color:#92400E;margin-bottom:10px;text-transform:uppercase;letter-spacing:.8px}
+.fp-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;margin-bottom:10px}
+.fp-field{display:flex;flex-direction:column;gap:3px}
+.fp-field.fp-wide{grid-column:1/-1}
+.fp-label{font-size:9px;font-weight:600;color:#78350F;text-transform:uppercase;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center}
+.fp-shared{font-size:8px;color:#B45309;font-weight:400;font-style:italic;text-transform:none;letter-spacing:0}
+.fp-input{width:100%;padding:6px 8px;font-size:12px;border:1px solid #FCD34D;border-radius:var(--r-sm);background:#fff;font-family:var(--mono);outline:none;color:var(--text-primary);transition:border-color .15s}
+.fp-input:focus{border-color:#D97706;box-shadow:0 0 0 2px rgba(217,119,6,.12)}
+.fp-result{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:#fff;border-radius:var(--r-sm);border:1px solid #FCD34D;flex-wrap:wrap;gap:6px;font-size:11px;color:#78350F}
+.fp-auto-badge{font-size:9px;font-weight:700;color:#fff;background:#D97706;padding:2px 8px;border-radius:4px;font-family:var(--mono)}
+.fp-result-empty{font-size:10px;color:#B45309;font-style:italic;text-align:center;padding:5px 0}
+.fp-pop-note{grid-column:1/-1;font-size:9px;color:#B45309;font-style:italic;margin-top:-4px;margin-bottom:4px}
 </style>
 </head>
 <body>
@@ -452,7 +466,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);line
   <div class="result-grid">
     <div class="card">
       <div class="card-header"><span class="card-title">Top Indian Universities — GreenMetric 2025</span><span class="tag mahe">MAHE #1 INDIA</span></div>
-      <div class="card-body" style="padding:0"><table class="rank-table"><thead><tr><th>Rank</th><th>Institution</th><th>Score</th><th>SI</th><th>EC</th><th>WS</th><th>WR</th><th>TR</th><th>ED</th></tr></thead><tbody id="indiaRankTable"></tbody></table></div>
+      <div class="card-body" style="padding:0">
+        <table class="rank-table"><thead><tr><th>Rank</th><th>Institution</th><th>Score</th><th>SI</th><th>EC</th><th>WS</th><th>WR</th><th>TR</th><th>ED</th><th style="color:var(--cat-gd)">GD*</th></tr></thead><tbody id="indiaRankTable"></tbody></table>
+        <div style="padding:8px 14px;font-size:10px;color:var(--text-muted);border-top:1px solid var(--border-light)">* GD (Governance &amp; Digitalization) is new in 2026 — values shown are HWCAP estimates based on known institutional profiles. Actual scores will vary.</div>
+      </div>
     </div>
     <div class="card">
       <div class="card-header"><span class="card-title">Global Top 15 — GreenMetric 2025</span></div>
@@ -471,6 +488,40 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-primary);line
   <div class="card">
     <div class="card-header"><span class="card-title">Peer Comparison — Indian Universities (Radar)</span></div>
     <div class="card-body"><div class="chart-wrap" style="height:300px"><canvas id="peerRadar"></canvas></div></div>
+  </div>
+
+  <!-- ── CATEGORY SCORE HEATMAP ── -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">Category Score Heatmap — India Peer Group</span>
+      <span class="tag orange">% of max · colour = performance tier</span>
+    </div>
+    <div class="card-body" style="padding:0;overflow-x:auto">
+      <table class="rank-table" id="benchHeatmapTable">
+        <thead>
+          <tr>
+            <th style="min-width:180px;padding-left:14px">University</th>
+            <th>SI<div style="font-weight:400;color:var(--text-muted);font-size:8px">11%</div></th>
+            <th>EC<div style="font-weight:400;color:var(--text-muted);font-size:8px">20%</div></th>
+            <th>WS<div style="font-weight:400;color:var(--text-muted);font-size:8px">17%</div></th>
+            <th>WR<div style="font-weight:400;color:var(--text-muted);font-size:8px">11%</div></th>
+            <th>TR<div style="font-weight:400;color:var(--text-muted);font-size:8px">17%</div></th>
+            <th>ED<div style="font-weight:400;color:var(--text-muted);font-size:8px">13%</div></th>
+            <th style="color:var(--cat-gd)">GD<div style="font-weight:400;color:var(--text-muted);font-size:8px">11% NEW</div></th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody id="benchHeatmapBody"></tbody>
+      </table>
+      <div style="padding:10px 14px;font-size:10px;color:var(--text-muted);border-top:1px solid var(--border-light);display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+        <strong style="color:var(--text-secondary)">Legend:</strong>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#D1FAE5;border-radius:2px;margin-right:3px;vertical-align:middle"></span>≥ 80% — Strong</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#FEF9C3;border-radius:2px;margin-right:3px;vertical-align:middle"></span>65–79% — Good</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#FED7AA;border-radius:2px;margin-right:3px;vertical-align:middle"></span>50–64% — Fair</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:#FECACA;border-radius:2px;margin-right:3px;vertical-align:middle"></span>&lt; 50% — Needs Work</span>
+        <span style="margin-left:auto;font-style:italic">GD* estimated for 2026 (new category). MAHE row updates live from your assessment.</span>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -810,16 +861,16 @@ const MAHE_HISTORY = {
 };
 
 const INDIA_RANKINGS = [
-  {rank:1,name:'Manipal Academy of Higher Education',score:8400,si:1075,ec:1525,ws:1425,wr:950,tr:1700,ed:1725,highlight:true},
-  {rank:2,name:'Mangalore University',score:8050,si:1050,ec:1380,ws:1420,wr:780,tr:1380,ed:1040},
-  {rank:3,name:'SRM Institute of Science & Technology',score:7850,si:990,ec:1300,ws:1390,wr:740,tr:1320,ed:1110},
-  {rank:4,name:'Amrita Vishwa Vidyapeetham',score:7720,si:970,ec:1260,ws:1360,wr:720,tr:1300,ed:1110},
-  {rank:5,name:'IIT Madras',score:7550,si:930,ec:1320,ws:1260,wr:700,tr:1220,ed:1120},
-  {rank:6,name:'JSS Academy of Higher Education',score:7450,si:910,ec:1220,ws:1310,wr:690,tr:1260,ed:1060},
-  {rank:7,name:'KIIT University',score:7300,si:890,ec:1200,ws:1260,wr:660,tr:1220,ed:1070},
-  {rank:8,name:'VIT Vellore',score:7180,si:860,ec:1170,ws:1210,wr:650,tr:1200,ed:1090},
-  {rank:9,name:'Anna University',score:7020,si:830,ec:1120,ws:1190,wr:630,tr:1190,ed:1060},
-  {rank:10,name:'University of Hyderabad',score:6880,si:810,ec:1100,ws:1160,wr:610,tr:1140,ed:1060}
+  {rank:1,name:'Manipal Academy of Higher Education',score:8400,si:1075,ec:1525,ws:1425,wr:950,tr:1700,ed:1725,gd:770,highlight:true},
+  {rank:2,name:'Mangalore University',score:8050,si:1050,ec:1380,ws:1420,wr:780,tr:1380,ed:1040,gd:462},
+  {rank:3,name:'SRM Institute of Science & Technology',score:7850,si:990,ec:1300,ws:1390,wr:740,tr:1320,ed:1110,gd:418},
+  {rank:4,name:'Amrita Vishwa Vidyapeetham',score:7720,si:970,ec:1260,ws:1360,wr:720,tr:1300,ed:1110,gd:385},
+  {rank:5,name:'IIT Madras',score:7550,si:930,ec:1320,ws:1260,wr:700,tr:1220,ed:1120,gd:440},
+  {rank:6,name:'JSS Academy of Higher Education',score:7450,si:910,ec:1220,ws:1310,wr:690,tr:1260,ed:1060,gd:374},
+  {rank:7,name:'KIIT University',score:7300,si:890,ec:1200,ws:1260,wr:660,tr:1220,ed:1070,gd:330},
+  {rank:8,name:'VIT Vellore',score:7180,si:860,ec:1170,ws:1210,wr:650,tr:1200,ed:1090,gd:341},
+  {rank:9,name:'Anna University',score:7020,si:830,ec:1120,ws:1190,wr:630,tr:1190,ed:1060,gd:308},
+  {rank:10,name:'University of Hyderabad',score:6880,si:810,ec:1100,ws:1160,wr:610,tr:1140,ed:1060,gd:297}
 ];
 
 const GLOBAL_RANKINGS = [
@@ -874,8 +925,130 @@ const EVIDENCE_TEMPLATES = [
   {icon:'📋',title:'Evidence Checklist (Master)',desc:'All 60 indicators: evidence type, responsible dept, status tracker',cat:'ALL',color:'#2D6A4F'}
 ];
 
+// ─── RAW DATA FIELD DEFINITIONS ──────────────────────────────────────
+const FIELD_DEFS = {
+  campusArea:                 {label:'Total campus area',               unit:'m²'},
+  buildingFootprint:          {label:'Ground floor area of buildings',  unit:'m²'},
+  forestArea:                 {label:'Forest vegetation area',          unit:'m²'},
+  plantedArea:                {label:'Planted vegetation area',         unit:'m²'},
+  regularStudents:            {label:'Regular students',                unit:'students'},
+  onlineStudents:             {label:'Online students',                 unit:'students'},
+  academicAdminStaff:         {label:'Academic & admin staff',          unit:'staff'},
+  smartBuildingArea:          {label:'Smart building area',             unit:'m²'},
+  totalBuildingsArea:         {label:'Total buildings area',            unit:'m²'},
+  electricityUsage:           {label:'Annual electricity usage',        unit:'kWh'},
+  renewableEnergy:            {label:'Annual renewable energy output',  unit:'kWh'},
+  totalCarbonFootprint:       {label:'Total carbon footprint (net)',    unit:'tCO₂e'},
+  carsEntering:               {label:'Cars entering campus daily',      unit:'vehicles'},
+  motorcyclesEntering:        {label:'Motorcycles entering daily',      unit:'vehicles'},
+  zevCount:                   {label:'ZEV on campus (daily avg)',       unit:'vehicles'},
+  groundParkingArea:          {label:'Ground parking area',             unit:'m²'},
+  sustainabilityCourses:      {label:'Sustainability courses/subjects', unit:'courses'},
+  totalCourses:               {label:'Total courses/subjects offered',  unit:'courses'},
+  sustainabilityResearchFunds:{label:'Sustainability research funds',   unit:'USD'},
+  totalResearchFunds:         {label:'Total research funds',            unit:'USD'},
+  lecturers:                  {label:'Lecturers & researchers',         unit:'people'},
+  sustainabilityPubs:         {label:'Sustainability publications/yr',  unit:'papers'},
+  greenJobGrads:              {label:'Green job graduates (3 yrs)',     unit:'graduates'},
+  totalGrads:                 {label:'Total graduates (3 yrs)',         unit:'graduates'},
+  universityBudget:           {label:'Total university budget',         unit:'USD'},
+  sustainabilityBudget:       {label:'Sustainability budget',           unit:'USD'},
+  totalLeaders:               {label:'Total institutional leaders',     unit:'leaders'},
+  femaleLeaders:              {label:'Female leaders',                  unit:'leaders'},
+};
+
+// ─── FORMULA DEFINITIONS ─────────────────────────────────────────────
+// Each entry: fields[], compute(rawData)→value|null, label, fmt(v)→string, getBand(v)→0-4
+const FORMULA_DEFS = {
+  SI1:{fields:['campusArea','buildingFootprint'],
+    compute:(d)=>(!d.campusArea||!d.buildingFootprint||d.buildingFootprint>=d.campusArea)?null:(d.campusArea-d.buildingFootprint)/d.campusArea*100,
+    label:'Open space ratio',fmt:(v)=>v.toFixed(1)+'%',
+    getBand:(v)=>v<=1?0:v<=80?1:v<=90?2:v<=95?3:4},
+  SI2:{fields:['campusArea','forestArea'],
+    compute:(d)=>(!d.campusArea||!d.forestArea)?null:d.forestArea/d.campusArea*100,
+    label:'Forest area ratio',fmt:(v)=>v.toFixed(1)+'%',
+    getBand:(v)=>v<=2?0:v<=10?1:v<=25?2:v<=35?3:4},
+  SI3:{fields:['campusArea','plantedArea'],
+    compute:(d)=>(!d.campusArea||!d.plantedArea)?null:d.plantedArea/d.campusArea*100,
+    label:'Planted vegetation ratio',fmt:(v)=>v.toFixed(1)+'%',
+    getBand:(v)=>v<=10?0:v<=20?1:v<=30?2:v<=50?3:4},
+  SI4:{fields:['campusArea','buildingFootprint','regularStudents','onlineStudents','academicAdminStaff'],
+    compute:(d)=>{const p=(d.regularStudents||0)+(d.onlineStudents||0)+(d.academicAdminStaff||0);return(!d.campusArea||!d.buildingFootprint||!p)?null:(d.campusArea-d.buildingFootprint)/p;},
+    label:'Open space per person',fmt:(v)=>v.toFixed(1)+' m²/person',
+    getBand:(v)=>v<=10?0:v<=20?1:v<=40?2:v<=70?3:4},
+  EC2:{fields:['smartBuildingArea','totalBuildingsArea'],
+    compute:(d)=>(!d.smartBuildingArea||!d.totalBuildingsArea)?null:d.smartBuildingArea/d.totalBuildingsArea*100,
+    label:'Smart building coverage',fmt:(v)=>v.toFixed(1)+'%',
+    getBand:(v)=>v<1?0:v<=25?1:v<=50?2:v<=75?3:4},
+  EC4:{fields:['electricityUsage','regularStudents','onlineStudents','academicAdminStaff'],
+    compute:(d)=>{const p=(d.regularStudents||0)+(d.onlineStudents||0)+(d.academicAdminStaff||0);return(!d.electricityUsage||!p)?null:d.electricityUsage/p;},
+    label:'Electricity per capita',fmt:(v)=>Math.round(v).toLocaleString()+' kWh/person',
+    getBand:(v)=>v>=2400?0:v>1500?1:v>600?2:v>250?3:4},
+  EC5:{fields:['renewableEnergy','electricityUsage'],
+    compute:(d)=>(!d.renewableEnergy||!d.electricityUsage)?null:d.renewableEnergy/d.electricityUsage*100,
+    label:'Renewable energy ratio',fmt:(v)=>v.toFixed(2)+'%',
+    getBand:(v)=>v<=0.5?0:v<=1?1:v<=2?2:v<=25?3:4},
+  EC8:{fields:['totalCarbonFootprint','regularStudents','onlineStudents','academicAdminStaff'],
+    compute:(d)=>{const p=(d.regularStudents||0)+(d.onlineStudents||0)+(d.academicAdminStaff||0);return(!d.totalCarbonFootprint||!p)?null:d.totalCarbonFootprint/p;},
+    label:'Carbon per capita',fmt:(v)=>v.toFixed(3)+' tCO₂e/person',
+    getBand:(v)=>v>=2.05?0:v>1.11?1:v>0.42?2:v>0.10?3:4},
+  TR1:{fields:['carsEntering','motorcyclesEntering','regularStudents','onlineStudents','academicAdminStaff'],
+    compute:(d)=>{const p=(d.regularStudents||0)+(d.onlineStudents||0)+(d.academicAdminStaff||0);const v=(d.carsEntering||0)+(d.motorcyclesEntering||0);return(!p||!v)?null:v/p;},
+    label:'Vehicles per person',fmt:(v)=>v.toFixed(4),
+    getBand:(v)=>v>=1?0:v>0.5?1:v>0.125?2:v>0.045?3:4},
+  TR4:{fields:['zevCount','regularStudents','onlineStudents','academicAdminStaff'],
+    compute:(d)=>{const p=(d.regularStudents||0)+(d.onlineStudents||0)+(d.academicAdminStaff||0);return(!d.zevCount||!p)?null:d.zevCount/p;},
+    label:'ZEV per person',fmt:(v)=>v.toFixed(5),
+    getBand:(v)=>v<=0.002?0:v<=0.004?1:v<=0.008?2:v<=0.02?3:4},
+  TR5:{fields:['groundParkingArea','campusArea'],
+    compute:(d)=>(!d.groundParkingArea||!d.campusArea)?null:d.groundParkingArea/d.campusArea*100,
+    label:'Parking area ratio',fmt:(v)=>v.toFixed(2)+'%',
+    getBand:(v)=>v>11?0:v>7?1:v>4?2:v>1?3:4},
+  ED1:{fields:['sustainabilityCourses','totalCourses'],
+    compute:(d)=>(!d.sustainabilityCourses||!d.totalCourses)?null:d.sustainabilityCourses/d.totalCourses*100,
+    label:'Sustainability course ratio',fmt:(v)=>v.toFixed(1)+'%',
+    getBand:(v)=>v<=1?0:v<=5?1:v<=10?2:v<=20?3:4},
+  ED2:{fields:['sustainabilityResearchFunds','totalResearchFunds'],
+    compute:(d)=>(!d.sustainabilityResearchFunds||!d.totalResearchFunds)?null:d.sustainabilityResearchFunds/d.totalResearchFunds*100,
+    label:'Sustainability research ratio',fmt:(v)=>v.toFixed(1)+'%',
+    getBand:(v)=>v<=1?0:v<=10?1:v<=20?2:v<=40?3:4},
+  ED3:{fields:['sustainabilityPubs','lecturers'],
+    compute:(d)=>(!d.sustainabilityPubs||!d.lecturers)?null:d.sustainabilityPubs/d.lecturers,
+    label:'Publications per lecturer',fmt:(v)=>v.toFixed(2)+' pubs/lecturer',
+    getBand:(v)=>v<0.5?0:v<=1?1:v<=2?2:v<=3?3:4},
+  ED10:{fields:['greenJobGrads','totalGrads'],
+    compute:(d)=>(!d.greenJobGrads||!d.totalGrads)?null:d.greenJobGrads/d.totalGrads*100,
+    label:'Green jobs ratio',fmt:(v)=>v.toFixed(1)+'%',
+    getBand:(v)=>v<=1?0:v<=5?1:v<=10?2:v<=20?3:4},
+  GD1:{fields:['sustainabilityBudget','universityBudget'],
+    compute:(d)=>(!d.sustainabilityBudget||!d.universityBudget)?null:d.sustainabilityBudget/d.universityBudget*100,
+    label:'Sustainability budget ratio',fmt:(v)=>v.toFixed(2)+'%',
+    getBand:(v)=>v<=1?0:v<=5?1:v<=10?2:v<=15?3:4},
+  GD8:{fields:['femaleLeaders','totalLeaders'],
+    compute:(d)=>(!d.femaleLeaders||!d.totalLeaders)?null:d.femaleLeaders/d.totalLeaders*100,
+    label:'Female leadership ratio',fmt:(v)=>v.toFixed(1)+'%',
+    getBand:(v)=>v<=5?0:v<=20?1:v<=35?2:v<=50?3:4},
+};
+
+// ─── MAHE PRE-SEEDED RAW DATA ─────────────────────────────────────────
+// Values calibrated to reproduce the MAHE_ANS baseline bands
+const MAHE_RAW = {
+  campusArea:2430000,buildingFootprint:315900,forestArea:151000,plantedArea:947700,
+  regularStudents:27500,onlineStudents:500,academicAdminStaff:3500,
+  smartBuildingArea:75000,totalBuildingsArea:500000,
+  electricityUsage:79400000,renewableEnergy:1200000,totalCarbonFootprint:11025,
+  carsEntering:800,motorcyclesEntering:600,zevCount:400,groundParkingArea:20000,
+  sustainabilityCourses:450,totalCourses:3000,
+  sustainabilityResearchFunds:9000000,totalResearchFunds:32000000,
+  lecturers:2500,sustainabilityPubs:6500,
+  greenJobGrads:2800,totalGrads:18000,
+  universityBudget:100000000,sustainabilityBudget:7000000,
+  totalLeaders:280,femaleLeaders:75,
+};
+
 // ─── STATE ────────────────────────────────────────────────────────────
 let ans = {...MAHE_ANS};
+let rawData = {...MAHE_RAW};
 let activeCat = 0;
 let currentBenchmark = 'top100';
 let charts = {};
@@ -964,6 +1137,8 @@ function updateHeroScore() {
   document.getElementById('gapGrade').textContent=grade.label;
   document.getElementById('gapGrade').className='tag '+grade.cls;
   document.getElementById('gapTier').textContent=getTier(pct);
+  // Refresh heatmap live if benchmark tab is open
+  if(document.getElementById('sec-rankings').classList.contains('active')) renderBenchmarkHeatmap();
 }
 
 // ─── CATEGORY GRID ────────────────────────────────────────────────────
@@ -1064,6 +1239,7 @@ function renderAssessment() {
         ${ind.formula?'<span style="font-size:9px;color:#D97706;font-weight:700;padding:2px 6px;background:#FEF3C7;border-radius:3px;margin-left:4px">FORMULA</span>':''}
       </div>
       ${ind.hint?`<div class="ind-hint">${ind.hint}</div>`:''}
+      ${ind.formula?renderFormulaPanel(ind.id):''}
       <div class="opts">${opts.map((o,i)=>{
         const sc=sm?Math.round(sm.p*sm.m[i]):0;
         return `<div class="opt ${sel===i?'sel':''}" onclick="selectOpt('${ind.id}',${i})">
@@ -1092,7 +1268,74 @@ function selectOpt(id, idx) {
   renderAssessment();
 }
 
-// ─── GAP ANALYSIS ────────────────────────────────────────────────────
+// ─── FORMULA PANEL ───────────────────────────────────────────────────
+// Build a map of which fields are shared across multiple formula indicators
+function getSharedFields(indId) {
+  const sharedMap = {};
+  const myFields = FORMULA_DEFS[indId]?.fields || [];
+  Object.entries(FORMULA_DEFS).forEach(([id,fd])=>{
+    if(id===indId) return;
+    fd.fields.forEach(k=>{ if(myFields.includes(k)){ sharedMap[k]=sharedMap[k]||[]; sharedMap[k].push(id); }});
+  });
+  return sharedMap;
+}
+
+const POP_FIELDS = ['regularStudents','onlineStudents','academicAdminStaff'];
+
+function renderFormulaPanel(indId) {
+  const fd = FORMULA_DEFS[indId];
+  if(!fd) return '';
+  const shared = getSharedFields(indId);
+  const hasPop = fd.fields.some(k=>POP_FIELDS.includes(k));
+
+  const fieldsHtml = fd.fields.map(key=>{
+    const f = FIELD_DEFS[key];
+    const val = rawData[key]||'';
+    const sharedWith = shared[key];
+    const sharedNote = sharedWith ? `<span class="fp-shared">↔ shared with ${sharedWith.join(', ')}</span>` : '';
+    const wide = (hasPop && !POP_FIELDS.includes(key) && fd.fields.filter(k=>!POP_FIELDS.includes(k)).length===1) ? ' fp-wide' : '';
+    return `<div class="fp-field${wide}">
+      <label class="fp-label">${f.label} <span style="color:#B45309;font-weight:400">(${f.unit})</span>${sharedNote}</label>
+      <input class="fp-input" type="number" min="0" value="${val}" placeholder="0"
+        onchange="updateRawField('${key}',this.value)">
+    </div>`;
+  }).join('');
+
+  const popGroupNote = hasPop ? `<div class="fp-pop-note">💡 Population fields (students + staff) are shared across EC4, EC8, TR1, TR4 — update once here</div>` : '';
+
+  const result = fd.compute(rawData);
+  let resultHtml;
+  if(result!==null && !isNaN(result) && isFinite(result)) {
+    const band = fd.getBand(result);
+    const bandLabel = IND_OPTS[indId][band];
+    resultHtml = `<div class="fp-result">
+      <span>📊 <strong>${fd.label}:</strong> ${fd.fmt(result)}</span>
+      <span class="fp-auto-badge">→ Auto-selected: Band ${band+1} · ${bandLabel}</span>
+    </div>`;
+  } else {
+    resultHtml = `<div class="fp-result"><span class="fp-result-empty">📥 Enter values above to auto-calculate and select band</span></div>`;
+  }
+
+  return `<div class="fp-panel">
+    <div class="fp-header">🔢 Calculate from Raw Data — band auto-selects below</div>
+    <div class="fp-fields">${fieldsHtml}${popGroupNote}</div>
+    ${resultHtml}
+  </div>`;
+}
+
+function updateRawField(key, value) {
+  rawData[key] = (value===''||isNaN(+value)) ? 0 : +value;
+  // Recompute every formula indicator that uses this field
+  Object.entries(FORMULA_DEFS).forEach(([id,fd])=>{
+    if(!fd.fields.includes(key)) return;
+    const result = fd.compute(rawData);
+    if(result!==null && !isNaN(result) && isFinite(result)) ans[id]=fd.getBand(result);
+  });
+  updateHeroScore();
+  renderAssessment();
+}
+
+
 function renderGapAnalysis() {
   updateHeroScore();
   // Re-draw charts
@@ -1177,7 +1420,9 @@ function setBenchmark(key, btn) {
 function renderRankings() {
   document.getElementById('indiaRankTable').innerHTML = INDIA_RANKINGS.map(r=>{
     const cls=r.highlight?'highlight':'';
-    return `<tr class="${cls}"><td class="rank-num">${r.rank}</td><td>${r.highlight?'<strong>⭐ '+r.name+'</strong>':r.name}</td><td style="font-family:var(--mono);font-weight:700;color:var(--g600)">${r.score.toLocaleString()}</td><td style="font-size:11px">${r.si}</td><td style="font-size:11px">${r.ec}</td><td style="font-size:11px">${r.ws}</td><td style="font-size:11px">${r.wr}</td><td style="font-size:11px">${r.tr}</td><td style="font-size:11px">${r.ed}</td></tr>`;
+    const gdPct=Math.round(r.gd/1100*100);
+    const gdClr=gdPct>=70?'var(--g700)':gdPct>=50?'#D97706':'#DC2626';
+    return `<tr class="${cls}"><td class="rank-num">${r.rank}</td><td>${r.highlight?'<strong>⭐ '+r.name+'</strong>':r.name}</td><td style="font-family:var(--mono);font-weight:700;color:var(--g600)">${r.score.toLocaleString()}</td><td style="font-size:11px">${r.si}</td><td style="font-size:11px">${r.ec}</td><td style="font-size:11px">${r.ws}</td><td style="font-size:11px">${r.wr}</td><td style="font-size:11px">${r.tr}</td><td style="font-size:11px">${r.ed}</td><td style="font-size:11px;font-weight:700;color:${gdClr}">${r.gd}<span style="font-size:9px;color:var(--text-muted);font-weight:400"> est.</span></td></tr>`;
   }).join('');
   document.getElementById('globalRankTable').innerHTML = GLOBAL_RANKINGS.map(r=>`<tr><td class="rank-num">${r.rank}</td><td>${r.name}</td><td style="font-size:11px;color:var(--text-muted)">${r.country}</td><td style="font-family:var(--mono);font-weight:700">${r.score.toLocaleString()}</td></tr>`).join('');
   // MAHE history chart
@@ -1212,15 +1457,15 @@ function renderRankings() {
   // Peer radar
   if(charts.peerRadar) charts.peerRadar.destroy();
   const peerData=[
-    {name:'MAHE',scores:[71,73,84,95,100,96],color:'#52B788'},
-    {name:'Mangalore',scores:[70,66,84,78,81,58],color:'#DC6843'},
-    {name:'SRM',scores:[66,62,82,74,78,62],color:'#7C3AED'},
-    {name:'Amrita',scores:[65,60,80,72,76,62],color:'#0891B2'},
-    {name:'IIT Madras',scores:[62,63,74,70,72,62],color:'#D97706'}
+    {name:'MAHE',scores:[98,76,84,86,100,95,70],color:'#52B788'},
+    {name:'Mangalore',scores:[70,66,84,71,81,58,42],color:'#DC6843'},
+    {name:'SRM',scores:[66,62,82,67,78,62,38],color:'#7C3AED'},
+    {name:'Amrita',scores:[65,60,80,65,76,62,35],color:'#0891B2'},
+    {name:'IIT Madras',scores:[62,63,74,64,72,62,40],color:'#D97706'}
   ];
   charts.peerRadar = new Chart(document.getElementById('peerRadar'),{
     type:'radar',
-    data:{labels:['SI','EC','WS','WR','TR','ED'],datasets:peerData.map(p=>({
+    data:{labels:['SI','EC','WS','WR','TR','ED','GD'],datasets:peerData.map(p=>({
       label:p.name,data:p.scores,borderColor:p.color,backgroundColor:p.color+'15',borderWidth:2,pointRadius:3
     }))},
     options:{responsive:true,maintainAspectRatio:false,
@@ -1228,9 +1473,63 @@ function renderRankings() {
       plugins:{legend:{position:'bottom',labels:{font:{size:10},usePointStyle:true}}}
     }
   });
+  // Draw heatmap after charts are done
+  renderBenchmarkHeatmap();
 }
 
-// ─── EVIDENCE ────────────────────────────────────────────────────────
+// ─── BENCHMARK HEATMAP ────────────────────────────────────────────────
+function heatClr(v){
+  if(v>=80) return{bg:'#D1FAE5',txt:'#065F46'};
+  if(v>=65) return{bg:'#FEF9C3',txt:'#854D0E'};
+  if(v>=50) return{bg:'#FED7AA',txt:'#9A3412'};
+  return{bg:'#FECACA',txt:'#991B1B'};
+}
+
+function renderBenchmarkHeatmap(){
+  const CAT_MAXES={SI:1100,EC:2000,WS:1700,WR:1100,TR:1700,ED:1300,GD:1100};
+  // First row: MAHE live from assessment
+  const maheRow={
+    name:'⭐ MAHE (Current Assessment)',clr:'#2D6A4F',isMahe:true,
+    pct:{
+      SI:getCatPct(CATS.find(c=>c.id==='SI')),
+      EC:getCatPct(CATS.find(c=>c.id==='EC')),
+      WS:getCatPct(CATS.find(c=>c.id==='WS')),
+      WR:getCatPct(CATS.find(c=>c.id==='WR')),
+      TR:getCatPct(CATS.find(c=>c.id==='TR')),
+      ED:getCatPct(CATS.find(c=>c.id==='ED')),
+      GD:getCatPct(CATS.find(c=>c.id==='GD'))
+    }
+  };
+  // Peer rows (estimated 2026 % of max)
+  const peers=[
+    {name:'Mangalore University',         clr:'#3B82F6',pct:{SI:70,EC:66,WS:84,WR:71,TR:81,ED:58,GD:42}},
+    {name:'SRM Institute of Sci & Tech',  clr:'#D97706',pct:{SI:66,EC:62,WS:82,WR:67,TR:78,ED:62,GD:38}},
+    {name:'Amrita Vishwa Vidyapeetham',   clr:'#7C3AED',pct:{SI:65,EC:60,WS:80,WR:65,TR:76,ED:62,GD:35}},
+    {name:'IIT Madras',                   clr:'#0891B2',pct:{SI:62,EC:63,WS:74,WR:64,TR:72,ED:62,GD:40}},
+    {name:'VIT Vellore',                  clr:'#BE185D',pct:{SI:58,EC:56,WS:71,WR:59,TR:71,ED:61,GD:31}},
+    {name:'── GreenMetric Top 100 Avg ──',clr:'#94A3B8',pct:{SI:78,EC:74,WS:76,WR:72,TR:70,ED:78,GD:70},isDivider:true},
+    {name:'── GreenMetric Top 10 Avg ──', clr:'#6B7280',pct:{SI:92,EC:88,WS:90,WR:88,TR:85,ED:90,GD:85},isDivider:true},
+  ];
+  const rows=[maheRow,...peers];
+  const catIds=['SI','EC','WS','WR','TR','ED','GD'];
+  const tbody=document.getElementById('benchHeatmapBody');
+  if(!tbody) return;
+  tbody.innerHTML=rows.map(r=>{
+    const totalPct=Math.round(catIds.reduce((sum,id)=>{
+      const w=CAT_MAXES[id]/10000;
+      return sum+r.pct[id]*w;
+    },0));
+    const totClr=heatClr(totalPct);
+    const rowBg=r.isMahe?'background:var(--g50)':r.isDivider?'background:var(--surface-alt);opacity:.85':'';
+    return `<tr style="${rowBg}">
+      <td style="padding-left:14px"><strong style="color:${r.clr}">${r.name}</strong>${r.isMahe?'<span class="tag green" style="margin-left:6px;font-size:8px">LIVE</span>':''}</td>
+      ${catIds.map(id=>{const c=heatClr(r.pct[id]);return`<td style="background:${c.bg};color:${c.txt};font-weight:700;font-size:11px;text-align:center;padding:9px 6px">${r.pct[id]}%</td>`;}).join('')}
+      <td style="background:${totClr.bg};color:${totClr.txt};font-weight:800;font-size:12px;text-align:center;font-family:var(--mono)">${totalPct}%</td>
+    </tr>`;
+  }).join('');
+}
+
+
 function renderEvidence() {
   // Coverage
   const catMap={};CATS.forEach(c=>catMap[c.id]=c);
