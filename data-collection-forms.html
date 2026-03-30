@@ -782,6 +782,8 @@ const CATEGORIES = [
             { id: 'W.3', name: 'Water Recycling & Reuse', desc: 'STP/ETP volumes, recycling rate, RO reject (GRI 303-3, GreenCo Water)' },
             { id: 'W.4', name: 'Water Discharge & Quality', desc: 'Effluent discharge, BOD/COD/TSS/pH levels, ZLD status (GRI 303-4)' },
             { id: 'W.5', name: 'Water Intensity', desc: 'Water use per unit output/revenue, water efficiency metrics (Green Audit)' },
+            { id: 'W.6', name: 'Water Use by End-Use & Metering', desc: 'Consumption breakdown by purpose — process, cooling, domestic, HVAC, irrigation; meter-based vs. estimated (GRI 303-5, GreenCo Water, CDP W6)' },
+            { id: 'W.7', name: 'Water Balance & Accountability', desc: 'Mass-balance reconciliation: Total Inputs vs. (End-Uses + Discharge + ΔStorage). Gap % flags unaccounted losses for audit (GRI 303, CDP Water Security)' },
         ]
     },
     {
@@ -1037,6 +1039,66 @@ const FF = {
     'W.3': { sections: [{ fields: [ { name: 'STP/ETP Inflow', hint: 'Wastewater into treatment', unit: 'kL', type: 'number' }, { name: 'Treated Water Reused', hint: 'Reused internally', unit: 'kL', type: 'number' }, ]}, { fields: [ { name: 'Recycling Rate', hint: 'Percentage recycled', unit: '%', type: 'number' }, { name: 'RO Reject / Brine', hint: 'RO reject generated', unit: 'kL', type: 'number' }, ]}]},
     'W.4': { sections: [{ fields: [ { name: 'Treated Effluent Discharged', hint: 'Volume discharged', unit: 'kL', type: 'number' }, { name: 'ZLD Status', hint: 'Zero Liquid Discharge', unit: '', type: 'select', options: ['Full ZLD','Partial ZLD','No ZLD'] }, ]}, { fields: [ { name: 'BOD of Discharge', hint: 'Biochemical Oxygen Demand', unit: 'mg/L', type: 'number' }, { name: 'COD of Discharge', hint: 'Chemical Oxygen Demand', unit: 'mg/L', type: 'number' }, ]}, { fields: [ { name: 'TSS of Discharge', hint: 'Total Suspended Solids', unit: 'mg/L', type: 'number' }, { name: 'pH of Discharge', hint: 'pH value of effluent', unit: 'pH', type: 'number' }, ]}]},
     'W.5': { sections: [{ fields: [ { name: 'Water Intensity (Output)', hint: 'Water per unit of production', unit: 'kL/unit', type: 'number' }, { name: 'Water Intensity (Revenue)', hint: 'Water per ₹ Cr revenue', unit: 'kL/₹Cr', type: 'number' }, ]}]},
+
+    // ── W.6: Water Use by End-Use & Metering ──
+    'W.6': { sections: [
+        { label: 'Process & Manufacturing', fields: [
+            { name: 'Process / Manufacturing Use', hint: 'Cooling, quenching, washing, product incorporation', unit: 'kL', type: 'number' },
+            { name: 'Measurement Method — Process', hint: 'How this volume is measured', unit: '', type: 'select', options: ['Flow Meter (Primary)','Sub-Meter','Utility Bill','Estimated / Calculated','Not Measured'] },
+        ]},
+        { label: 'Cooling & Thermal Systems', fields: [
+            { name: 'Cooling Tower Makeup Water', hint: 'Evaporation losses + blowdown + drift', unit: 'kL', type: 'number' },
+            { name: 'Boiler / Steam Generation Makeup', hint: 'Feed water for steam boilers', unit: 'kL', type: 'number' },
+        ]},
+        { label: 'HVAC & Building Services', fields: [
+            { name: 'HVAC Makeup Water', hint: 'Chiller, cooling coil makeup', unit: 'kL', type: 'number' },
+            { name: 'Measurement Method — Cooling + HVAC', hint: 'Method for thermal system volumes', unit: '', type: 'select', options: ['Flow Meter (Primary)','Sub-Meter','Utility Bill','Estimated / Calculated','Not Measured'] },
+        ]},
+        { label: 'Domestic & Sanitation', fields: [
+            { name: 'Domestic / Sanitation Use', hint: 'Toilets, handwashing, cafeteria, housekeeping', unit: 'kL', type: 'number' },
+            { name: 'Measurement Method — Domestic', hint: 'How domestic volumes are tracked', unit: '', type: 'select', options: ['Sub-Meter','Per-Capita Estimate','Utility Bill Allocation','Not Measured'] },
+        ]},
+        { label: 'Landscaping & External Uses', fields: [
+            { name: 'Irrigation / Landscaping / Horticulture', hint: 'Garden, lawns, plantation watering', unit: 'kL', type: 'number' },
+            { name: 'Dust Suppression / Road Washing', hint: 'Yard and road maintenance', unit: 'kL', type: 'number' },
+        ]},
+        { label: 'Safety & Other', fields: [
+            { name: 'Fire Fighting Events (actual use)', hint: 'Water used in actual firefighting events; exclude standing reserve tanks', unit: 'kL', type: 'number' },
+            { name: 'Other Uses (specify in Notes)', hint: 'Any other operational end-use', unit: 'kL', type: 'number' },
+        ]},
+        { label: 'Metering Infrastructure', fields: [
+            { name: 'Total Sub-Metered Points', hint: 'Number of active water sub-meters installed', unit: 'Nos', type: 'number' },
+            { name: 'Metered Coverage (%)', hint: '% of total consumption measured via meters vs. estimated', unit: '%', type: 'number' },
+        ]},
+    ]},
+
+    // ── W.7: Water Balance & Accountability ──
+    'W.7': { sections: [
+        { label: 'Water Inputs (carry forward from W.1)', fields: [
+            { name: 'Total Water Input — All Sources', hint: 'Sum of all W.1 source volumes; enter confirmed total', unit: 'kL', type: 'number' },
+            { name: 'Opening Storage Volume', hint: 'Water held in tanks/reservoirs at period start', unit: 'kL', type: 'number' },
+        ]},
+        { label: 'Water Outputs (from W.4 + W.3)', fields: [
+            { name: 'Total Effluent Discharged', hint: 'Carry from W.4 — treated effluent to drain / river / CETP', unit: 'kL', type: 'number' },
+            { name: 'Treated Water Reused / Recycled', hint: 'Carry from W.3 — internal reuse volume', unit: 'kL', type: 'number' },
+        ]},
+        { label: 'End-Use Consumption (from W.6)', fields: [
+            { name: 'Total Metered End-Use Consumption', hint: 'Sum of all W.6 end-use category volumes', unit: 'kL', type: 'number' },
+            { name: 'Closing Storage Volume', hint: 'Water held in tanks/reservoirs at period end', unit: 'kL', type: 'number' },
+        ]},
+        { label: 'Balance & Gap Analysis', fields: [
+            { name: 'Calculated Balance Gap (kL)', hint: 'Input + Opening Storage minus EndUse + Discharged + Reused + Closing Storage. Positive = unaccounted loss.', unit: 'kL', type: 'number' },
+            { name: 'Balance Gap (%)', hint: 'Gap as % of Total Input. Flag if greater than 5% for audit review.', unit: '%', type: 'number' },
+        ]},
+        { label: 'Gap Disposition', fields: [
+            { name: 'Gap Classification', hint: 'Nature of the unaccounted gap', unit: '', type: 'select', options: ['Within tolerance (less than 2%)','Meter inaccuracy (2-5%)','Evaporative losses — unmetered','Leak / distribution loss','Missing meter point — to be installed','Data gap — estimation required','Greater than 5% — Audit flag raised'] },
+            { name: 'Corrective Action Planned', hint: 'Steps to close accounting gap', unit: '', type: 'select', options: ['None required','Additional metering being installed','Leak detection survey commissioned','Data reconciliation in progress','Third-party audit initiated'] },
+        ]},
+        { label: 'Verification & Assurance', fields: [
+            { name: 'Water Audit Conducted', hint: 'Has a formal water audit been done for this period?', unit: '', type: 'select', options: ['Yes — Internal Audit','Yes — Third-Party Audit','Planned','Not Conducted'] },
+            { name: 'Data Confidence Level', hint: 'Overall confidence in water accounting completeness', unit: '', type: 'select', options: ['High — more than 90% metered','Medium — 60 to 90% metered','Low — less than 60% metered or largely estimated','Under Review'] },
+        ]},
+    ]},
 
     // ── WASTE (expanded with EPR) ──
     'WS.1': { sections: [{ fields: [ { name: 'Hazardous Waste Generated', hint: 'Per CPCB HW categories', unit: 'Tonnes', type: 'number' }, { name: 'Hazardous Waste Disposed (TSDF)', hint: 'To authorized TSDF', unit: 'Tonnes', type: 'number' }, ]}, { fields: [ { name: 'Used Oil / Lubricants', hint: 'Waste oil disposal', unit: 'Litres', type: 'number' }, { name: 'Chemical Waste', hint: 'Spent chemicals/solvents', unit: 'Kg', type: 'number' }, ]}]},
