@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TerraCAP — Zone Dashboard · AMTZ MedTech Zone</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --hz-primary: #4A7C59;
+    --hz-primary-700: #355b3f;
+    --hz-primary-50: #E9F1EC;
+    --hz-dark: #2F4F3F;
+    --ink: #22302A;
+    --subtle: #5B6E64;
+    --bg: #F6F7F4;
+    --card: #FFFFFF;
+    --stroke: #E5E9E6;
+    --success: #48BB78;
+    --warning: #F6AD55;
+    --danger: #E53E3E;
+    --info: #4299E1;
+    --font: 'Outfit', system-ui, sans-serif;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:var(--font); background:var(--bg); color:var(--ink); min-height:100vh; overflow-x:hidden; }
+
+  /* ── HEADER ── */
+  .header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 28px; background:var(--hz-primary);
+    position:sticky; top:0; z-index:200;
+    box-shadow:0 2px 8px rgba(0,0,0,0.14);
+  }
+  .header-brand { display:flex; align-items:center; gap:12px; }
+  .logo-mark { width:32px; height:32px; background:rgba(255,255,255,0.2); border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; color:#fff; }
+  .brand-name { font-size:17px; font-weight:700; color:#fff; }
+  .brand-sub  { font-size:12px; color:rgba(255,255,255,0.75); margin-top:1px; }
+  .zone-badge { background:rgba(255,255,255,0.18); border:1px solid rgba(255,255,255,0.35); color:#fff; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; }
+  .header-right { display:flex; align-items:center; gap:16px; }
+  .header-client { font-size:13px; color:rgba(255,255,255,0.8); }
+  .header-client strong { color:#fff; }
+
+  /* ── CONTEXT BANNER ── */
+  .context-banner { display:none; align-items:center; justify-content:space-between; background:#fffbeb; border-bottom:2px solid #F6AD55; padding:10px 28px; font-size:13px; color:#92400e; }
+  .context-banner.active { display:flex; }
+  .context-back { display:flex; align-items:center; gap:6px; background:#fff; border:1px solid #F6AD55; color:#92400e; padding:5px 14px; border-radius:20px; cursor:pointer; font-size:12px; font-weight:600; }
+  .context-back:hover { background:#fef3c7; }
+  .readonly-pill { background:#fee2e2; color:#b91c1c; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600; margin-left:8px; }
+
+  /* ── LAYOUT ── */
+  .layout { display:grid; grid-template-columns:260px 1fr; min-height:calc(100vh - 65px); }
+
+  /* ── SIDEBAR ── */
+  .sidebar { background:#fff; border-right:1px solid var(--stroke); padding:20px 0; overflow-y:auto; }
+  .sidebar-label { font-size:10px; font-weight:700; letter-spacing:1.5px; color:var(--subtle); text-transform:uppercase; padding:8px 20px 6px; }
+  .sidebar-item { display:flex; align-items:center; gap:10px; padding:10px 20px; cursor:pointer; transition:all 0.15s; border-left:3px solid transparent; font-size:13px; color:var(--ink); }
+  .sidebar-item:hover { background:var(--hz-primary-50); color:var(--hz-primary); }
+  .sidebar-item.active { background:var(--hz-primary-50); border-left-color:var(--hz-primary); color:var(--hz-primary); font-weight:600; }
+  .s-badge { margin-left:auto; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px; text-transform:uppercase; }
+  .s-badge.pro { background:#ede9fe; color:#5b21b6; }
+  .s-badge.live { background:#dcfce7; color:#166534; }
+  .s-badge.new { background:#E9F1EC; color:#355b3f; }
+  .sidebar-divider { height:1px; background:var(--stroke); margin:8px 20px; }
+  .new-tag { display:inline-block; background:#4A7C59; color:#fff; font-size:9px; font-weight:700; padding:1px 5px; border-radius:4px; letter-spacing:0.5px; text-transform:uppercase; vertical-align:middle; margin-left:6px; }
+  .sidebar-dropdown-toggle { display:flex; align-items:center; gap:10px; padding:10px 20px; cursor:pointer; transition:all 0.15s; border-left:3px solid transparent; font-size:13px; color:var(--ink); user-select:none; }
+  .sidebar-dropdown-toggle:hover { background:var(--hz-primary-50); color:var(--hz-primary); }
+  .sidebar-dropdown-toggle.open { color:var(--hz-primary); font-weight:600; }
+  .sidebar-dropdown-toggle .chevron { margin-left:auto; font-size:10px; color:var(--subtle); transition:transform 0.2s; display:inline-block; }
+  .sidebar-dropdown-toggle.open .chevron { transform:rotate(90deg); }
+  .sidebar-dropdown-items { display:none; }
+  .sidebar-dropdown-items.open { display:block; }
+  .sidebar-dropdown-items .sidebar-item { padding-left:36px; font-size:12px; }
+
+  /* ── MAIN ── */
+  .main { overflow-y:auto; padding:28px; }
+  .view { display:none; }
+  .view.active { display:block; animation:fadeIn 0.25s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+  .view-header { margin-bottom:24px; }
+  .view-title { font-size:22px; font-weight:700; color:var(--hz-primary); }
+  .view-sub { font-size:13px; color:var(--subtle); margin-top:5px; line-height:1.6; }
+
+  /* ── SECTION BANDS ── */
+  .kpi-band { margin-bottom:20px; }
+  .band-label {
+    display:flex; align-items:center; gap:10px;
+    font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase;
+    margin-bottom:10px; padding:7px 14px; border-radius:var(--radius-sm);
+  }
+  .band-label.teal { background:#ccfbf1; color:#134e4a; border-left:3px solid #0f766e; }
+  .band-label.green { background:var(--hz-primary-50); color:var(--hz-primary-700); border-left:3px solid var(--hz-primary); }
+  .band-label.amber { background:#fef3c7; color:#92400e; border-left:3px solid #F6AD55; }
+
+  /* ── KPI GRID ── */
+  .kpi-grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .kpi-grid-5 { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; }
+
+  .kpi { background:#fff; border:1px solid var(--stroke); border-radius:var(--radius); padding:16px 18px; position:relative; overflow:hidden; }
+  .kpi::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--accent,var(--hz-primary)); }
+  .kpi-label { font-size:10px; font-weight:700; color:var(--subtle); text-transform:uppercase; letter-spacing:0.7px; margin-bottom:8px; }
+  .kpi-val { font-size:24px; font-weight:700; color:var(--ink); line-height:1; margin-bottom:5px; }
+  .kpi-val span { font-size:12px; font-weight:400; color:var(--subtle); margin-left:3px; }
+  .kpi-delta { font-size:11px; }
+  .kpi-delta.down { color:#059669; }
+  .kpi-delta.up   { color:#dc2626; }
+  .kpi-delta.flat { color:#d97706; }
+  .kpi-delta.warn { color:#d97706; }
+  .kpi-icon { position:absolute; top:14px; right:14px; font-size:20px; opacity:0.15; }
+
+  /* Scope 3 sub-breakdown inside a KPI */
+  .kpi-s3-rows { margin-top:8px; border-top:1px solid var(--stroke); padding-top:7px; }
+  .kpi-s3-row { display:flex; justify-content:space-between; font-size:11px; color:var(--subtle); margin-bottom:3px; }
+  .kpi-s3-row strong { color:var(--ink); }
+  .kpi-s3-row.cat13 { color:#92400e; }
+  .kpi-s3-row.cat13 strong { color:#92400e; }
+
+  /* ── CARDS ── */
+  .card { background:#fff; border:1px solid var(--stroke); border-radius:var(--radius); padding:20px; }
+  .card-title { font-size:12px; font-weight:700; color:var(--subtle); letter-spacing:0.4px; text-transform:uppercase; margin-bottom:14px; }
+  .section-hdr { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px; gap:12px; }
+  .section-hdr-title { font-size:15px; font-weight:700; color:var(--ink); }
+  .section-hdr-sub { font-size:12px; color:var(--subtle); margin-top:2px; }
+
+  /* ── GRID LAYOUTS ── */
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
+  .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-bottom:20px; }
+  .grid-2-1 { display:grid; grid-template-columns:2fr 1fr; gap:20px; margin-bottom:20px; }
+  .grid-1-2 { display:grid; grid-template-columns:1fr 2fr; gap:20px; margin-bottom:20px; }
+
+  /* ── SCOPE TOGGLE ── */
+  .scope-tabs { display:flex; gap:4px; background:var(--bg); border-radius:8px; padding:3px; margin-bottom:14px; }
+  .scope-tab { flex:1; text-align:center; padding:5px 0; border-radius:6px; font-size:12px; font-weight:600; cursor:pointer; color:var(--subtle); transition:all 0.15s; }
+  .scope-tab.active { background:#fff; color:var(--hz-primary); box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+
+  /* ── DOUBLE DONUT CHART AREA ── */
+  .donut-wrap { display:flex; align-items:center; gap:20px; }
+  .donut-legend { flex:1; }
+  .legend-row { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink); margin-bottom:7px; }
+  .legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+
+  /* ── PROGRESS BARS ── */
+  .progress-wrap { margin-bottom:12px; }
+  .progress-meta { display:flex; justify-content:space-between; margin-bottom:5px; font-size:12px; }
+  .progress-meta span { color:var(--subtle); }
+  .progress-meta strong { color:var(--ink); }
+  .progress-bar { height:7px; background:#E9F1EC; border-radius:4px; overflow:hidden; }
+  .progress-fill { height:100%; border-radius:4px; background:var(--hz-primary); }
+  .progress-fill.amber { background:#F6AD55; }
+  .progress-fill.blue  { background:#4299E1; }
+  .progress-fill.red   { background:#E53E3E; }
+  .progress-fill.purple { background:#7c3aed; }
+
+  /* ── TENANT COMPARISON BARS ── */
+  .tbar-row { display:flex; align-items:center; gap:10px; margin-bottom:9px; }
+  .tbar-name { font-size:12px; color:var(--ink); min-width:130px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tbar-track { flex:1; height:9px; background:#E9F1EC; border-radius:4px; overflow:hidden; }
+  .tbar-fill { height:100%; border-radius:4px; }
+  .tbar-val { font-size:11px; font-weight:600; color:var(--subtle); min-width:80px; text-align:right; }
+
+  /* ── PILLS ── */
+  .pill { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:12px; font-size:11px; font-weight:600; }
+  .pill-green  { background:#dcfce7; color:#166534; }
+  .pill-amber  { background:#fef3c7; color:#92400e; }
+  .pill-red    { background:#fee2e2; color:#b91c1c; }
+  .pill-blue   { background:#dbeafe; color:#1e40af; }
+  .pill-purple { background:#ede9fe; color:#5b21b6; }
+  .pill-grey   { background:#f3f4f6; color:#374151; }
+  .pill-teal   { background:#ccfbf1; color:#134e4a; }
+
+  /* ── TABLES ── */
+  .data-table { width:100%; border-collapse:collapse; font-size:13px; }
+  .data-table th { background:#F6F7F4; color:var(--subtle); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; padding:9px 12px; text-align:left; border-bottom:1px solid var(--stroke); }
+  .data-table td { padding:11px 12px; border-bottom:1px solid var(--stroke); vertical-align:middle; }
+  .data-table tr:last-child td { border-bottom:none; }
+  .data-table tr:hover td { background:#F6F7F4; }
+  .data-table tr.clickable { cursor:pointer; }
+
+  /* ── ALERTS ── */
+  .alert { display:flex; align-items:flex-start; gap:10px; border-radius:var(--radius-sm); padding:11px 14px; font-size:13px; margin-bottom:12px; }
+  .alert.green  { background:#f0fdf4; border:1px solid #bbf7d0; color:#166534; }
+  .alert.amber  { background:#fffbeb; border:1px solid #fde68a; color:#92400e; }
+  .alert.red    { background:#fff1f2; border:1px solid #fecaca; color:#b91c1c; }
+  .alert.blue   { background:#eff6ff; border:1px solid #bfdbfe; color:#1e40af; }
+  .alert-icon { font-size:15px; flex-shrink:0; margin-top:1px; }
+
+  /* ── ACTIVITY ── */
+  .activity-item { display:flex; gap:10px; padding:9px 0; border-bottom:1px solid var(--stroke); }
+  .activity-item:last-child { border-bottom:none; }
+  .activity-dot { width:8px; height:8px; border-radius:50%; background:var(--hz-primary); flex-shrink:0; margin-top:5px; }
+  .activity-dot.amber { background:#F6AD55; }
+  .activity-dot.red { background:#E53E3E; }
+  .activity-text { font-size:13px; color:var(--ink); line-height:1.5; }
+  .activity-time { font-size:11px; color:var(--subtle); margin-top:2px; }
+
+  /* ── MINI STAT ── */
+  .mini-stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .mini-stat { background:#F6F7F4; border-radius:var(--radius-sm); padding:11px 14px; }
+  .mini-stat-label { font-size:10px; color:var(--subtle); font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+  .mini-stat-val { font-size:19px; font-weight:700; color:var(--ink); }
+  .mini-stat-unit { font-size:11px; color:var(--subtle); font-weight:400; }
+
+  /* ── BUTTONS ── */
+  .btn { display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border-radius:20px; font-size:12px; font-weight:600; cursor:pointer; border:none; font-family:var(--font); transition:all 0.15s; }
+  .btn-primary { background:var(--hz-primary); color:#fff; }
+  .btn-primary:hover { background:var(--hz-primary-700); }
+  .btn-outline { background:#fff; color:var(--hz-primary); border:1px solid var(--hz-primary); }
+  .btn-outline:hover { background:var(--hz-primary-50); }
+  .btn-sm { padding:4px 11px; font-size:11px; }
+
+  .drill-btn { display:inline-flex; align-items:center; gap:4px; background:var(--hz-primary-50); color:var(--hz-primary); border:1px solid transparent; padding:4px 10px; border-radius:14px; font-size:11px; font-weight:600; cursor:pointer; transition:all 0.15s; }
+  .drill-btn:hover { background:var(--hz-primary); color:#fff; }
+
+  /* ── FRAMEWORK ROWS ── */
+  .fw-row { display:flex; align-items:center; justify-content:space-between; padding:11px 0; border-bottom:1px solid var(--stroke); gap:12px; }
+  .fw-row:last-child { border-bottom:none; padding-bottom:0; }
+  .fw-name { font-size:13px; font-weight:600; color:var(--ink); }
+  .fw-sub  { font-size:12px; color:var(--subtle); margin-top:2px; }
+  .fw-action { background:var(--hz-primary-50); color:var(--hz-primary); border:1px solid var(--hz-primary); padding:4px 12px; border-radius:20px; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap; }
+  .fw-action:hover { background:var(--hz-primary); color:#fff; }
+
+  /* ── TREND SVG ── */
+  .trend-line { fill:none; stroke:var(--hz-primary); stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .trend-line-s3 { fill:none; stroke:#7c3aed; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; stroke-dasharray:5 3; }
+  .trend-area { fill:var(--hz-primary); opacity:0.07; }
+
+  /* ── S3 CATEGORY TABLE ── */
+  .s3-cat-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .s3-cat-table th { background:#F6F7F4; color:var(--subtle); font-size:10px; font-weight:700; text-transform:uppercase; padding:7px 10px; text-align:left; border-bottom:1px solid var(--stroke); }
+  .s3-cat-table td { padding:9px 10px; border-bottom:1px solid var(--stroke); }
+  .s3-cat-table tr:last-child td { border-bottom:none; }
+  .s3-cat-table .cat13-row td { background:#fffbeb; color:#92400e; }
+  .s3-cat-table .total-row td { background:var(--hz-primary-50); font-weight:700; }
+
+  /* ── MODAL ── */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:500; display:none; align-items:center; justify-content:center; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:#fff; border-radius:var(--radius); padding:26px; width:520px; max-height:80vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.2); }
+  .modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+  .modal-title { font-size:16px; font-weight:700; color:var(--ink); }
+  .modal-close { background:none; border:none; font-size:20px; cursor:pointer; color:var(--subtle); line-height:1; }
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .form-field label { display:block; font-size:12px; font-weight:600; color:var(--subtle); margin-bottom:4px; }
+  .form-field input, .form-field select { width:100%; padding:7px 11px; border:1px solid var(--stroke); border-radius:var(--radius-sm); font-family:var(--font); font-size:13px; color:var(--ink); background:#fff; }
+  .form-field input:focus, .form-field select:focus { outline:none; border-color:var(--hz-primary); }
+
+  /* ── DOUBLE-COUNT NOTE ── */
+  .dc-note { background:#fef3c7; border:1px solid #fde68a; border-radius:var(--radius-sm); padding:10px 14px; font-size:12px; color:#92400e; display:flex; gap:8px; align-items:flex-start; margin-bottom:16px; }
+</style>
+</head>
+<body>
+
+<!-- ════ HEADER ════ -->
+<div class="header">
+  <div class="header-brand">
+    <div class="logo-mark">TC</div>
+    <div>
+      <div class="brand-name">TerraCAP</div>
+      <div class="brand-sub">Hertzwave Carbon Accounting Platform</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="zone-badge">Zone Manager</span>
+    <div class="header-client">Signed in as <strong>AMTZ Zone Admin</strong></div>
+  </div>
+</div>
+
+<!-- ════ CONTEXT BANNER ════ -->
+<div class="context-banner" id="contextBanner">
+  <span>Viewing tenant: <strong id="contextTenantName">—</strong> <span class="readonly-pill">Read-only</span></span>
+  <button class="context-back" onclick="exitTenantContext()">← Back to Zone Dashboard</button>
+</div>
+
+<!-- ════ LAYOUT ════ -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div style="margin-bottom:8px">
+      <div class="sidebar-label">Zone Management <span class="new-tag">New</span></div>
+      <div class="sidebar-item active" onclick="showView('overview')"><span>📊</span> Zone Overview</div>
+      <div class="sidebar-item" onclick="showView('tenants')"><span>🏭</span> Tenant Roster <span class="s-badge live">12</span></div>
+      <div class="sidebar-item" onclick="showView('scope3')"><span>🔗</span> Scope 3 Detail <span class="s-badge new">New</span></div>
+      <div class="sidebar-item" onclick="showView('compliance')"><span>📋</span> Zone Compliance</div>
+      <div class="sidebar-item" onclick="showView('reports')"><span>📄</span> Zone Reports</div>
+      <div class="sidebar-item" onclick="showView('integrations')"><span>🔌</span> Integrations</div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div style="margin-bottom:8px">
+      <div class="sidebar-label">Overview</div>
+      <div class="sidebar-item" onclick="window.open('analytics-insights','_blank')"><span>📈</span> Analytics & Insights</div>
+      <div class="sidebar-item" onclick="window.open('goals-tracking','_blank')"><span>🎯</span> Targets & Goals</div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div style="margin-bottom:8px">
+      <div class="sidebar-dropdown-toggle" onclick="toggleDropdown('dd-advanced')">
+        <span>▼</span> Advanced Features <span class="chevron">▶</span>
+      </div>
+      <div class="sidebar-dropdown-items" id="dd-advanced">
+        <div class="sidebar-item" onclick="window.open('supplier-evaluation','_blank')"><span>🏭</span> Supplier Evaluation</div>
+        <div class="sidebar-item" onclick="window.open('carbon-credits.html','_blank')"><span>🌳</span> Carbon Credit Management</div>
+        <div class="sidebar-item" onclick="window.open('netzero-modeler.html','_blank')"><span>🚀</span> NetZero Pathfinder</div>
+        <div class="sidebar-item" onclick="window.open('terracap_audit_assurance','_blank')"><span>📋</span> Audit & Assurance</div>
+        <div class="sidebar-item" onclick="window.open('hwcap_auditor_dashboard','_blank')"><span>🔍</span> TerraAudit</div>
+        <div class="sidebar-item" onclick="window.open('compliance-mapper-app','_blank')"><span>📋</span> Compliance Mapper</div>
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div style="margin-bottom:8px">
+      <div class="sidebar-label">Reports & Compliance</div>
+      <div class="sidebar-item" onclick="window.open('hw-reports-application-flow','_blank')"><span>📄</span> Reports</div>
+      <div class="sidebar-item" onclick="window.open('frameworks','_blank')"><span>🏆</span> Frameworks</div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div style="margin-bottom:8px">
+      <div class="sidebar-dropdown-toggle" onclick="toggleDropdown('dd-tools')">
+        <span>🔧</span> Tools <span class="chevron">▶</span>
+      </div>
+      <div class="sidebar-dropdown-items" id="dd-tools">
+        <div class="sidebar-item" onclick="window.open('greenmetric-tool','_blank')"><span>🌿</span> GreenMetric Tool <span class="s-badge live">UI</span></div>
+        <div class="sidebar-item" onclick="window.open('lca-tool.html','_blank')"><span>🔄</span> LCA Tool <span class="s-badge new">New</span></div>
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div>
+      <div class="sidebar-label">Administration</div>
+      <div class="sidebar-item" onclick="showView('orgprofile')"><span>⚙️</span> Zone Configuration</div>
+      <div class="sidebar-item"><span>👥</span> User Management</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="mainContent">
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- VIEW: ZONE OVERVIEW                        -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="view-overview" class="view active">
+      <div class="view-header">
+        <div class="view-title">Zone Overview — AMTZ MedTech Zone</div>
+        <div class="view-sub">FY 2024–25 (Apr–Mar) &nbsp;·&nbsp; GHG Protocol operational control boundary &nbsp;·&nbsp; 12 active tenants</div>
+      </div>
+
+      <!-- ── ROW A: AMTZ OWN INVENTORY ── -->
+      <div class="kpi-band">
+        <div class="band-label teal">
+          <span>🏛</span> Row A — AMTZ Zone Authority own GHG inventory (shared services entity)
+        </div>
+        <div class="kpi-grid-5">
+          <div class="kpi" style="--accent:#0f766e">
+            <div class="kpi-icon">🏛</div>
+            <div class="kpi-label">AMTZ Scope 1</div>
+            <div class="kpi-val">1,240<span>tCO₂e</span></div>
+            <div class="kpi-delta down">↓ 4.2% vs FY24</div>
+          </div>
+          <div class="kpi" style="--accent:#4299E1">
+            <div class="kpi-icon">⚡</div>
+            <div class="kpi-label">AMTZ Scope 2</div>
+            <div class="kpi-val">3,810<span>tCO₂e</span></div>
+            <div class="kpi-delta down">↓ 9.1% — 18% renewable</div>
+          </div>
+          <div class="kpi" style="--accent:#7c3aed">
+            <div class="kpi-icon">🔗</div>
+            <div class="kpi-label">AMTZ Scope 3 (upstream)</div>
+            <div class="kpi-val">920<span>tCO₂e</span></div>
+            <div class="kpi-delta flat">→ Cat 1+2+5+6+7</div>
+            <div class="kpi-s3-rows">
+              <div class="kpi-s3-row"><span>Cat 1 — purchased svc</span><strong>380</strong></div>
+              <div class="kpi-s3-row"><span>Cat 6/7 — travel+commute</span><strong>310</strong></div>
+              <div class="kpi-s3-row"><span>Cat 2+5 — capex+waste</span><strong>230</strong></div>
+            </div>
+          </div>
+          <div class="kpi" style="--accent:#F6AD55">
+            <div class="kpi-icon">🏭</div>
+            <div class="kpi-label">Scope 3 Cat 13 (leased assets)</div>
+            <div class="kpi-val">81,250<span>tCO₂e</span></div>
+            <div class="kpi-delta warn">GHG Protocol required disclosure</div>
+            <div class="kpi-s3-rows">
+              <div class="kpi-s3-row cat13"><span>= sum of all tenant S1+S2</span><strong>81,250</strong></div>
+              <div class="kpi-s3-row" style="font-size:10px;color:#92400e;font-style:italic"><span>Excluded from Zone Total (Row B)</span></div>
+            </div>
+          </div>
+          <div class="kpi" style="--accent:#0f766e">
+            <div class="kpi-icon">∑</div>
+            <div class="kpi-label">AMTZ Total (own entity)</div>
+            <div class="kpi-val">87,220<span>tCO₂e</span></div>
+            <div class="kpi-delta down">incl. Cat 13</div>
+            <div class="kpi-s3-rows">
+              <div class="kpi-s3-row"><span>S1+S2+S3 upstream</span><strong>5,970</strong></div>
+              <div class="kpi-s3-row cat13"><span>+ Cat 13</span><strong>81,250</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── ROW B: ZONE CONSOLIDATED TOTAL ── -->
+      <div class="kpi-band">
+        <div class="band-label green">
+          <span>🌍</span> Row B — Zone Consolidated Total (AMTZ shared services + all 12 tenants · Cat 13 excluded to prevent double-count)
+        </div>
+        <div class="dc-note">
+          <span style="flex-shrink:0">⚠️</span>
+          <span>Cat 13 (Downstream Leased Assets) is reported in AMTZ's own Scope 3 above but <strong>excluded from the Zone Consolidated Total</strong> below — tenant emissions are already counted directly in Row B Scope 1+2. Including Cat 13 here would double-count every tenant's S1+S2.</span>
+        </div>
+        <div class="kpi-grid-5">
+          <div class="kpi" style="--accent:#4A7C59">
+            <div class="kpi-icon">🔥</div>
+            <div class="kpi-label">Zone Scope 1</div>
+            <div class="kpi-val">30,380<span>tCO₂e</span></div>
+            <div class="kpi-delta flat">→ flat vs FY24</div>
+          </div>
+          <div class="kpi" style="--accent:#4299E1">
+            <div class="kpi-icon">⚡</div>
+            <div class="kpi-label">Zone Scope 2</div>
+            <div class="kpi-val">56,290<span>tCO₂e</span></div>
+            <div class="kpi-delta down">↓ 11% grid + renewables</div>
+          </div>
+          <div class="kpi" style="--accent:#7c3aed">
+            <div class="kpi-icon">🔗</div>
+            <div class="kpi-label">Zone Scope 3 (upstream)</div>
+            <div class="kpi-val">4,760<span>tCO₂e</span></div>
+            <div class="kpi-delta down">↓ 3.1% vs FY24</div>
+            <div class="kpi-s3-rows">
+              <div class="kpi-s3-row"><span>AMTZ upstream S3</span><strong>920</strong></div>
+              <div class="kpi-s3-row"><span>Tenant S3 (all cats)</span><strong>3,840</strong></div>
+            </div>
+          </div>
+          <div class="kpi" style="--accent:#4A7C59">
+            <div class="kpi-icon">✅</div>
+            <div class="kpi-label">Zone Total (S1+S2+S3)</div>
+            <div class="kpi-val">91,430<span>tCO₂e</span></div>
+            <div class="kpi-delta down">↓ 7.6% vs FY 2023–24</div>
+          </div>
+          <div class="kpi" style="--accent:#48BB78">
+            <div class="kpi-icon">📋</div>
+            <div class="kpi-label">Tenants Reporting</div>
+            <div class="kpi-val">10<span>/ 12</span></div>
+            <div class="kpi-delta warn">⚠ 2 tenants — Q4 pending</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TREND + COMPLIANCE ── -->
+      <div class="grid-2-1" style="margin-bottom:20px">
+        <div class="card">
+          <div class="section-hdr">
+            <div>
+              <div class="section-hdr-title">Zone Emissions Trend — 5 Years</div>
+              <div class="section-hdr-sub">Zone Consolidated Total · Scope 1+2+3 (Cat 13 excluded)</div>
+            </div>
+            <div style="display:flex;gap:12px;align-items:center">
+              <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--subtle)"><span style="width:12px;height:2px;background:#4A7C59;display:inline-block;border-radius:2px"></span> S1+S2</div>
+              <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--subtle)"><span style="width:12px;height:2px;background:#7c3aed;display:inline-block;border-radius:2px;border-top:2px dashed #7c3aed"></span> S3</div>
+            </div>
+          </div>
+          <svg viewBox="0 0 560 170" width="100%" style="overflow:visible">
+            <line x1="0" y1="20"  x2="560" y2="20"  stroke="#E5E9E6" stroke-width="0.5"/>
+            <line x1="0" y1="60"  x2="560" y2="60"  stroke="#E5E9E6" stroke-width="0.5"/>
+            <line x1="0" y1="100" x2="560" y2="100" stroke="#E5E9E6" stroke-width="0.5"/>
+            <line x1="0" y1="140" x2="560" y2="140" stroke="#E5E9E6" stroke-width="0.5"/>
+            <text x="2" y="24"  font-size="10" fill="#9db5a5" font-family="Outfit,sans-serif">110K</text>
+            <text x="2" y="64"  font-size="10" fill="#9db5a5" font-family="Outfit,sans-serif">100K</text>
+            <text x="2" y="104" font-size="10" fill="#9db5a5" font-family="Outfit,sans-serif">95K</text>
+            <text x="2" y="144" font-size="10" fill="#9db5a5" font-family="Outfit,sans-serif">90K</text>
+            <!-- S1+S2 area -->
+            <path class="trend-area" d="M55,30 L170,45 L285,65 L400,80 L515,95 L515,140 L55,140 Z"/>
+            <!-- S1+S2 line -->
+            <polyline class="trend-line" points="55,30 170,45 285,65 400,80 515,95"/>
+            <!-- S3 dashed line -->
+            <polyline class="trend-line-s3" points="55,110 170,115 285,118 400,120 515,122"/>
+            <!-- Dots -->
+            <circle cx="55"  cy="30"  r="4" fill="#4A7C59"/>
+            <circle cx="170" cy="45"  r="4" fill="#4A7C59"/>
+            <circle cx="285" cy="65"  r="4" fill="#4A7C59"/>
+            <circle cx="400" cy="80"  r="4" fill="#4A7C59"/>
+            <circle cx="515" cy="95"  r="5" fill="#4A7C59" stroke="#fff" stroke-width="2"/>
+            <circle cx="515" cy="122" r="4" fill="#7c3aed" stroke="#fff" stroke-width="2"/>
+            <!-- X labels -->
+            <text x="55"  y="158" font-size="11" fill="#9db5a5" text-anchor="middle" font-family="Outfit,sans-serif">FY21</text>
+            <text x="170" y="158" font-size="11" fill="#9db5a5" text-anchor="middle" font-family="Outfit,sans-serif">FY22</text>
+            <text x="285" y="158" font-size="11" fill="#9db5a5" text-anchor="middle" font-family="Outfit,sans-serif">FY23</text>
+            <text x="400" y="158" font-size="11" fill="#9db5a5" text-anchor="middle" font-family="Outfit,sans-serif">FY24</text>
+            <text x="515" y="158" font-size="11" fill="#4A7C59" font-weight="600" text-anchor="middle" font-family="Outfit,sans-serif">FY25</text>
+          </svg>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Compliance Snapshot</div>
+          <div class="progress-wrap"><div class="progress-meta"><span>CII GreenCo Zone</span><strong>72%</strong></div><div class="progress-bar"><div class="progress-fill" style="width:72%"></div></div></div>
+          <div class="progress-wrap"><div class="progress-meta"><span>CCTS credits registered</span><strong>58%</strong></div><div class="progress-bar"><div class="progress-fill" style="width:58%"></div></div></div>
+          <div class="progress-wrap"><div class="progress-meta"><span>CBAM-ready tenants</span><strong>4 / 7</strong></div><div class="progress-bar"><div class="progress-fill amber" style="width:57%"></div></div></div>
+          <div class="progress-wrap"><div class="progress-meta"><span>BEE PAT compliance</span><strong>90%</strong></div><div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div></div>
+          <div class="progress-wrap"><div class="progress-meta"><span>Scope 3 Cat 13 coverage</span><strong>10 / 12</strong></div><div class="progress-bar"><div class="progress-fill purple" style="width:83%"></div></div></div>
+          <div style="margin-top:12px">
+            <div class="mini-stat-grid">
+              <div class="mini-stat"><div class="mini-stat-label">Credits issued</div><div class="mini-stat-val">1,240 <span class="mini-stat-unit">tCO₂e</span></div></div>
+              <div class="mini-stat"><div class="mini-stat-label">Zone DQS avg</div><div class="mini-stat-val">86<span class="mini-stat-unit">%</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TENANT COMPARISON + ALERTS ── -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="section-hdr">
+            <div>
+              <div class="section-hdr-title">Tenant Emissions Breakdown</div>
+              <div class="section-hdr-sub">FY 2024–25 · Scope 1+2 · tCO₂e</div>
+            </div>
+            <div style="display:flex;gap:6px">
+              <span class="pill pill-grey" style="cursor:pointer">S1+S2</span>
+              <span class="pill pill-purple" style="cursor:pointer">+S3</span>
+            </div>
+          </div>
+          <div class="tbar-row"><div class="tbar-name">Bharat Biotech</div><div class="tbar-track"><div class="tbar-fill" style="width:92%;background:#4A7C59"></div></div><div class="tbar-val">18,420 tCO₂e</div></div>
+          <div class="tbar-row"><div class="tbar-name">Aurobindo API Unit</div><div class="tbar-track"><div class="tbar-fill" style="width:78%;background:#4A7C59"></div></div><div class="tbar-val">15,610 tCO₂e</div></div>
+          <div class="tbar-row"><div class="tbar-name">Divi's Laboratories</div><div class="tbar-track"><div class="tbar-fill" style="width:62%;background:#4A7C59"></div></div><div class="tbar-val">12,400 tCO₂e</div></div>
+          <div class="tbar-row"><div class="tbar-name">Poly Medicure</div><div class="tbar-track"><div class="tbar-fill" style="width:42%;background:#4A7C59"></div></div><div class="tbar-val">8,380 tCO₂e</div></div>
+          <div class="tbar-row"><div class="tbar-name">HLL Lifecare</div><div class="tbar-track"><div class="tbar-fill" style="width:34%;background:#4A7C59"></div></div><div class="tbar-val">6,810 tCO₂e</div></div>
+          <div class="tbar-row"><div class="tbar-name">ESIC Diagnostics</div><div class="tbar-track"><div class="tbar-fill" style="width:22%;background:#4A7C59"></div></div><div class="tbar-val">4,400 tCO₂e</div></div>
+          <div class="tbar-row" style="border-top:1px solid var(--stroke);padding-top:8px;margin-top:2px">
+            <div class="tbar-name" style="color:var(--subtle)">6 others</div>
+            <div class="tbar-track"><div class="tbar-fill" style="width:15%;background:#A8E6A3"></div></div>
+            <div class="tbar-val" style="color:var(--subtle)">15,230 tCO₂e</div>
+          </div>
+          <div style="margin-top:12px;text-align:right"><button class="btn btn-outline btn-sm" onclick="showView('tenants')">Full Roster →</button></div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card">
+            <div class="card-title">Active Alerts</div>
+            <div class="alert amber"><span class="alert-icon">⚠️</span><div>2 tenants have not submitted Q4 FY25 data — deadline 30 Apr 2025. Cat 13 figure will be understated until resolved.</div></div>
+            <div class="alert amber"><span class="alert-icon">🔌</span><div>DISCOM API sync failed — 3 utility meters offline since 22 Mar. Manual upload required for Scope 2.</div></div>
+            <div class="alert blue"><span class="alert-icon">🔗</span><div>Scope 3 Cat 13 figure is provisional — 2 pending tenants not yet included. Updated on submission.</div></div>
+            <div class="alert green"><span class="alert-icon">✅</span><div>GreenCo zone application submitted — CII verification scheduled 15 May 2025.</div></div>
+          </div>
+          <div class="card" style="flex:1">
+            <div class="card-title">Recent Activity</div>
+            <div class="activity-item"><div class="activity-dot"></div><div><div class="activity-text">Bharat Biotech submitted Scope 1+2+3 data for Q4 FY25</div><div class="activity-time">Today, 10:34 AM</div></div></div>
+            <div class="activity-item"><div class="activity-dot"></div><div><div class="activity-text">CCTS credit project initiated — 380 tCO₂e registered</div><div class="activity-time">Yesterday, 3:12 PM</div></div></div>
+            <div class="activity-item"><div class="activity-dot amber"></div><div><div class="activity-text">Aurobindo: Scope 3 Cat 1 data quality flagged (DQS 72%)</div><div class="activity-time">28 Mar, 11:05 AM</div></div></div>
+            <div class="activity-item"><div class="activity-dot"></div><div><div class="activity-text">Cat 13 recalculated following Divi's Q3 revision</div><div class="activity-time">26 Mar, 9:20 AM</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- VIEW: SCOPE 3 DETAIL                       -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="view-scope3" class="view">
+      <div class="view-header">
+        <div class="view-title">Scope 3 Detail</div>
+        <div class="view-sub">Full Scope 3 breakdown for both AMTZ's own inventory and zone consolidated view · GHG Protocol Category mapping</div>
+      </div>
+
+      <div class="dc-note" style="margin-bottom:20px">
+        <span style="flex-shrink:0">ℹ️</span>
+        <span><strong>GHG Protocol note — Cat 13 Downstream Leased Assets:</strong> AMTZ as zone lessor is required to disclose tenant Scope 1+2 as its own Scope 3 Cat 13. This is a separate disclosure obligation from the zone consolidated total. Cat 13 is reported in AMTZ's own inventory but excluded from the zone consolidated Scope 3 to prevent double-counting tenant data which is already reported directly.</span>
+      </div>
+
+      <div class="grid-2">
+
+        <!-- AMTZ own S3 -->
+        <div class="card">
+          <div class="section-hdr">
+            <div>
+              <div class="section-hdr-title">AMTZ Own Scope 3 Inventory</div>
+              <div class="section-hdr-sub">AMTZ Zone Authority as reporting entity · FY 2024–25</div>
+            </div>
+            <span class="pill pill-teal">Row A</span>
+          </div>
+          <table class="s3-cat-table">
+            <thead><tr><th>Category</th><th>Description</th><th>tCO₂e</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Cat 1</td><td>Purchased services &amp; goods</td><td><strong>380</strong></td><td><span class="pill pill-green">Verified</span></td></tr>
+              <tr><td>Cat 2</td><td>Capital goods (zone infrastructure)</td><td><strong>120</strong></td><td><span class="pill pill-green">Verified</span></td></tr>
+              <tr><td>Cat 3</td><td>Fuel &amp; energy related (upstream)</td><td><strong>48</strong></td><td><span class="pill pill-green">Verified</span></td></tr>
+              <tr><td>Cat 5</td><td>Zone waste in operations</td><td><strong>62</strong></td><td><span class="pill pill-amber">Estimated</span></td></tr>
+              <tr><td>Cat 6</td><td>Business travel</td><td><strong>98</strong></td><td><span class="pill pill-green">Verified</span></td></tr>
+              <tr><td>Cat 7</td><td>Employee commuting</td><td><strong>212</strong></td><td><span class="pill pill-amber">Estimated</span></td></tr>
+              <tr class="cat13-row"><td><strong>Cat 13</strong></td><td><strong>Downstream leased assets (tenant ops)</strong></td><td><strong>81,250</strong></td><td><span class="pill pill-amber">Provisional</span></td></tr>
+              <tr class="total-row"><td colspan="2"><strong>AMTZ Total Scope 3</strong></td><td><strong>82,170</strong></td><td></td></tr>
+            </tbody>
+          </table>
+          <div style="margin-top:12px;font-size:12px;color:var(--subtle);line-height:1.6">
+            Cat 13 comprises: sum of all active tenant Scope 1 + Scope 2 = <strong style="color:#92400e">81,250 tCO₂e</strong>. This figure is provisional until 2 pending tenants submit Q4 data.
+          </div>
+        </div>
+
+        <!-- Zone consolidated S3 -->
+        <div class="card">
+          <div class="section-hdr">
+            <div>
+              <div class="section-hdr-title">Zone Consolidated Scope 3</div>
+              <div class="section-hdr-sub">AMTZ upstream + all tenant Scope 3 · Cat 13 excluded</div>
+            </div>
+            <span class="pill pill-green">Row B</span>
+          </div>
+          <table class="s3-cat-table">
+            <thead><tr><th>Source</th><th>Category</th><th>tCO₂e</th><th>Tenants</th></tr></thead>
+            <tbody>
+              <tr><td>AMTZ upstream</td><td>Cat 1+2+3+5+6+7</td><td><strong>920</strong></td><td>—</td></tr>
+              <tr><td>Tenant aggregate</td><td>Cat 1 — purchased goods</td><td><strong>1,840</strong></td><td>10 / 12</td></tr>
+              <tr><td>Tenant aggregate</td><td>Cat 4 — upstream transport</td><td><strong>640</strong></td><td>8 / 12</td></tr>
+              <tr><td>Tenant aggregate</td><td>Cat 5 — waste</td><td><strong>380</strong></td><td>10 / 12</td></tr>
+              <tr><td>Tenant aggregate</td><td>Cat 6+7 — travel+commute</td><td><strong>520</strong></td><td>9 / 12</td></tr>
+              <tr><td>Tenant aggregate</td><td>Cat 11 — use of products</td><td><strong>320</strong></td><td>4 / 12</td></tr>
+              <tr><td>Tenant aggregate</td><td>Cat 12 — end of life</td><td><strong>140</strong></td><td>3 / 12</td></tr>
+              <tr class="total-row"><td colspan="2"><strong>Zone Total Scope 3</strong></td><td><strong>4,760</strong></td><td></td></tr>
+            </tbody>
+          </table>
+          <div class="alert amber" style="margin-top:14px;margin-bottom:0">
+            <span class="alert-icon">⚠️</span>
+            <div style="font-size:12px">Cat 13 is <strong>intentionally excluded</strong> from this table. Tenant S1+S2 is counted directly in Zone Scope 1 and Scope 2 (Row B). Including Cat 13 here would count tenant emissions twice.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Per-tenant S3 coverage -->
+      <div class="card">
+        <div class="section-hdr">
+          <div>
+            <div class="section-hdr-title">Per-Tenant Scope 3 Coverage</div>
+            <div class="section-hdr-sub">Which tenants have submitted Scope 3 data and for which categories · FY 2024–25</div>
+          </div>
+          <button class="btn btn-outline btn-sm">Export Coverage Matrix</button>
+        </div>
+        <table class="data-table" style="font-size:12px">
+          <thead><tr><th>Tenant</th><th>Cat 1 (purch.)</th><th>Cat 4 (transport)</th><th>Cat 5 (waste)</th><th>Cat 6+7 (travel)</th><th>Cat 11 (use)</th><th>Total S3</th><th>DQS</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Bharat Biotech</strong></td><td><span class="pill pill-green">✓ 640</span></td><td><span class="pill pill-green">✓ 210</span></td><td><span class="pill pill-green">✓ 88</span></td><td><span class="pill pill-green">✓ 145</span></td><td><span class="pill pill-grey">—</span></td><td><strong>1,083</strong></td><td style="color:#4A7C59;font-weight:700">94%</td></tr>
+            <tr><td><strong>Aurobindo API Unit</strong></td><td><span class="pill pill-amber">⏳ est.</span></td><td><span class="pill pill-green">✓ 180</span></td><td><span class="pill pill-green">✓ 62</span></td><td><span class="pill pill-green">✓ 98</span></td><td><span class="pill pill-grey">—</span></td><td><strong>720</strong></td><td style="color:#d97706;font-weight:700">72%</td></tr>
+            <tr><td><strong>Divi's Laboratories</strong></td><td><span class="pill pill-green">✓ 420</span></td><td><span class="pill pill-green">✓ 155</span></td><td><span class="pill pill-green">✓ 71</span></td><td><span class="pill pill-green">✓ 112</span></td><td><span class="pill pill-green">✓ 180</span></td><td><strong>938</strong></td><td style="color:#4A7C59;font-weight:700">91%</td></tr>
+            <tr><td><strong>Poly Medicure</strong></td><td><span class="pill pill-amber">⏳ Q4 pend.</span></td><td><span class="pill pill-grey">—</span></td><td><span class="pill pill-amber">⏳ est.</span></td><td><span class="pill pill-green">✓ 55</span></td><td><span class="pill pill-grey">—</span></td><td><strong>~290</strong></td><td style="color:#d97706;font-weight:700">78%</td></tr>
+            <tr><td><strong>HLL Lifecare</strong></td><td><span class="pill pill-green">✓ 220</span></td><td><span class="pill pill-grey">—</span></td><td><span class="pill pill-green">✓ 48</span></td><td><span class="pill pill-green">✓ 72</span></td><td><span class="pill pill-green">✓ 140</span></td><td><strong>480</strong></td><td style="color:#4A7C59;font-weight:700">88%</td></tr>
+            <tr><td><strong>ESIC Diagnostics</strong></td><td><span class="pill pill-green">✓ 140</span></td><td><span class="pill pill-grey">—</span></td><td><span class="pill pill-green">✓ 31</span></td><td><span class="pill pill-green">✓ 38</span></td><td><span class="pill pill-grey">—</span></td><td><strong>209</strong></td><td style="color:#4A7C59;font-weight:700">90%</td></tr>
+            <tr><td colspan="7" style="color:var(--subtle);font-style:italic;font-size:11px">6 additional tenants — partial data, excluded from zone S3 aggregate pending full submission</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- VIEW: TENANT ROSTER                        -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="view-tenants" class="view">
+      <div class="view-header">
+        <div class="view-title">Tenant Roster</div>
+        <div class="view-sub">12 tenants onboarded · Click any row to enter read-only tenant view · Cat 13 total recalculates on each tenant submission</div>
+      </div>
+      <div class="card">
+        <div class="section-hdr">
+          <div><div class="section-hdr-title">Active Tenants — FY 2024–25</div></div>
+          <div style="display:flex;gap:10px">
+            <input type="text" placeholder="Search tenants…" style="padding:6px 12px;border:1px solid var(--stroke);border-radius:20px;font-size:12px;font-family:var(--font);width:180px;">
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-onboard')">+ Onboard Tenant</button>
+          </div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Tenant</th><th>Sector</th><th>S1+S2 (tCO₂e)</th><th>S3 (tCO₂e)</th><th>Cat 13 contribution</th><th>Submission</th><th>DQS</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr class="clickable" onclick="enterTenantContext('Bharat Biotech')">
+              <td><strong>Bharat Biotech</strong><div style="font-size:11px;color:var(--subtle)">Unit 4 · Block C</div></td>
+              <td>Vaccines / Biologics</td><td>18,420</td><td>1,083</td>
+              <td><span class="pill pill-amber" style="font-size:10px">18,420 → AMTZ Cat 13</span></td>
+              <td><span class="pill pill-green">✓ Complete</span></td>
+              <td><strong style="color:#4A7C59">94%</strong></td>
+              <td><button class="drill-btn" onclick="event.stopPropagation();enterTenantContext('Bharat Biotech')">View →</button></td>
+            </tr>
+            <tr class="clickable" onclick="enterTenantContext('Aurobindo API Unit')">
+              <td><strong>Aurobindo API Unit</strong><div style="font-size:11px;color:var(--subtle)">Unit 2 · Block A</div></td>
+              <td>API Pharma</td><td>15,610</td><td>720</td>
+              <td><span class="pill pill-amber" style="font-size:10px">15,610 → AMTZ Cat 13</span></td>
+              <td><span class="pill pill-green">✓ Complete</span></td>
+              <td><strong style="color:#d97706">72%</strong></td>
+              <td><button class="drill-btn" onclick="event.stopPropagation();enterTenantContext('Aurobindo API Unit')">View →</button></td>
+            </tr>
+            <tr class="clickable" onclick="enterTenantContext('Divi\'s Laboratories')">
+              <td><strong>Divi's Laboratories</strong><div style="font-size:11px;color:var(--subtle)">Unit 7 · Block B</div></td>
+              <td>API Pharma</td><td>12,400</td><td>938</td>
+              <td><span class="pill pill-amber" style="font-size:10px">12,400 → AMTZ Cat 13</span></td>
+              <td><span class="pill pill-green">✓ Complete</span></td>
+              <td><strong style="color:#4A7C59">91%</strong></td>
+              <td><button class="drill-btn" onclick="event.stopPropagation();enterTenantContext('Divi\'s Laboratories')">View →</button></td>
+            </tr>
+            <tr class="clickable" onclick="enterTenantContext('Poly Medicure')">
+              <td><strong>Poly Medicure</strong><div style="font-size:11px;color:var(--subtle)">Unit 1 · Block A</div></td>
+              <td>Medical Devices</td><td>8,380</td><td>~290</td>
+              <td><span class="pill pill-red" style="font-size:10px">Q4 pending — Cat 13 provisional</span></td>
+              <td><span class="pill pill-amber">⏳ Q4 Pending</span></td>
+              <td><strong style="color:#d97706">78%</strong></td>
+              <td><button class="drill-btn" onclick="event.stopPropagation();enterTenantContext('Poly Medicure')">View →</button></td>
+            </tr>
+            <tr class="clickable" onclick="enterTenantContext('HLL Lifecare')">
+              <td><strong>HLL Lifecare</strong><div style="font-size:11px;color:var(--subtle)">Unit 5 · Block C</div></td>
+              <td>Medical Supplies</td><td>6,810</td><td>480</td>
+              <td><span class="pill pill-amber" style="font-size:10px">6,810 → AMTZ Cat 13</span></td>
+              <td><span class="pill pill-green">✓ Complete</span></td>
+              <td><strong style="color:#4A7C59">88%</strong></td>
+              <td><button class="drill-btn" onclick="event.stopPropagation();enterTenantContext('HLL Lifecare')">View →</button></td>
+            </tr>
+            <tr class="clickable" onclick="enterTenantContext('ESIC Diagnostics')">
+              <td><strong>ESIC Diagnostics</strong><div style="font-size:11px;color:var(--subtle)">Unit 9 · Block D</div></td>
+              <td>Diagnostics</td><td>4,400</td><td>209</td>
+              <td><span class="pill pill-amber" style="font-size:10px">4,400 → AMTZ Cat 13</span></td>
+              <td><span class="pill pill-green">✓ Complete</span></td>
+              <td><strong style="color:#4A7C59">90%</strong></td>
+              <td><button class="drill-btn" onclick="event.stopPropagation();enterTenantContext('ESIC Diagnostics')">View →</button></td>
+            </tr>
+            <tr class="clickable" onclick="enterTenantContext('SciGen MedTech')">
+              <td><strong>SciGen MedTech</strong><div style="font-size:11px;color:var(--subtle)">Unit 3 · Block B</div></td>
+              <td>Biologics</td><td>3,920</td><td>—</td>
+              <td><span class="pill pill-red" style="font-size:10px">Q4 pending — excluded</span></td>
+              <td><span class="pill pill-amber">⏳ Q4 Pending</span></td>
+              <td><strong style="color:#d97706">65%</strong></td>
+              <td><button class="drill-btn" onclick="event.stopPropagation();enterTenantContext('SciGen MedTech')">View →</button></td>
+            </tr>
+            <tr class="clickable">
+              <td><strong>Wipro GE Healthcare</strong><div style="font-size:11px;color:var(--subtle)">Unit 6 · Block A</div></td>
+              <td>Imaging / Equipment</td><td>3,610</td><td>195</td>
+              <td><span class="pill pill-amber" style="font-size:10px">3,610 → AMTZ Cat 13</span></td>
+              <td><span class="pill pill-green">✓ Complete</span></td>
+              <td><strong style="color:#4A7C59">93%</strong></td>
+              <td><button class="drill-btn">View →</button></td>
+            </tr>
+            <tr class="clickable">
+              <td><strong>Thyrocare Labs</strong></td><td>Pathology</td><td>2,840</td><td>160</td>
+              <td><span class="pill pill-amber" style="font-size:10px">2,840 → AMTZ Cat 13</span></td>
+              <td><span class="pill pill-green">✓ Complete</span></td>
+              <td><strong style="color:#4A7C59">86%</strong></td>
+              <td><button class="drill-btn">View →</button></td>
+            </tr>
+            <tr class="clickable">
+              <td><strong>Innova Captab</strong></td><td>Formulations</td><td>2,100</td><td>112</td>
+              <td><span class="pill pill-amber" style="font-size:10px">2,100 → AMTZ Cat 13</span></td>
+              <td><span class="pill pill-green">✓ Complete</span></td>
+              <td><strong style="color:#4A7C59">82%</strong></td>
+              <td><button class="drill-btn">View →</button></td>
+            </tr>
+            <tr class="clickable">
+              <td><strong>Hester Biosciences</strong></td><td>Veterinary Vaccines</td><td>1,940</td><td>—</td>
+              <td><span class="pill pill-amber" style="font-size:10px">1,940 → AMTZ Cat 13</span></td>
+              <td><span class="pill pill-green">✓ Complete</span></td>
+              <td><strong style="color:#4A7C59">80%</strong></td>
+              <td><button class="drill-btn">View →</button></td>
+            </tr>
+            <tr class="clickable">
+              <td><strong>AMTZ R&amp;D Centre</strong><div style="font-size:11px;color:var(--subtle)">HQ · Common Area</div></td>
+              <td>R&amp;D</td><td>3,780</td><td>163</td>
+              <td><span class="pill pill-amber" style="font-size:10px">3,780 → AMTZ Cat 13</span></td>
+              <td><span class="pill pill-green">✓ Complete</span></td>
+              <td><strong style="color:#4A7C59">89%</strong></td>
+              <td><button class="drill-btn">View →</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:14px;padding:10px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:12px;color:#92400e">
+          <strong>Cat 13 running total (provisional):</strong> 81,250 tCO₂e from 10 confirmed tenants. Will increase once Poly Medicure and SciGen MedTech submit Q4 FY25 data. Expected final figure ~85,500 tCO₂e.
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- VIEW: ZONE COMPLIANCE                      -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="view-compliance" class="view">
+      <div class="view-header">
+        <div class="view-title">Zone Compliance</div>
+        <div class="view-sub">Framework status across all zone-level regulatory and voluntary programmes</div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Active Frameworks</div>
+          <div class="fw-row"><div><div class="fw-name">CII GreenCo — Zone Application</div><div class="fw-sub">Zone-level v3 · 10 parameters · Score: 72/100</div></div><div style="display:flex;gap:8px"><span class="pill pill-green">In Progress</span><button class="fw-action">View →</button></div></div>
+          <div class="fw-row"><div><div class="fw-name">CCTS India — Zone Sub-Registrar</div><div class="fw-sub">BEE administered · 1,240 tCO₂e registered</div></div><div style="display:flex;gap:8px"><span class="pill pill-green">Active</span><button class="fw-action">View →</button></div></div>
+          <div class="fw-row"><div><div class="fw-name">BEE PAT Scheme</div><div class="fw-sub">8 of 9 designated consumers compliant · Cycle 3</div></div><div style="display:flex;gap:8px"><span class="pill pill-amber">1 Pending</span><button class="fw-action">View →</button></div></div>
+          <div class="fw-row"><div><div class="fw-name">EU CBAM — Zone Attestation</div><div class="fw-sub">4 of 7 export-eligible tenants CBAM-ready</div></div><div style="display:flex;gap:8px"><span class="pill pill-amber">Partial</span><button class="fw-action">View →</button></div></div>
+          <div class="fw-row"><div><div class="fw-name">GHG Protocol Cat 13 Disclosure</div><div class="fw-sub">Downstream Leased Assets · 81,250 tCO₂e provisional</div></div><div style="display:flex;gap:8px"><span class="pill pill-amber">Provisional</span><button class="fw-action" onclick="showView('scope3')">Scope 3 →</button></div></div>
+          <div class="fw-row"><div><div class="fw-name">MoEFCC / CPCB — Form V</div><div class="fw-sub">Environment Statement support</div></div><div style="display:flex;gap:8px"><span class="pill pill-blue">Supported</span><button class="fw-action">View →</button></div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">CII GreenCo — 10 Parameter Scores</div>
+          <div class="progress-wrap"><div class="progress-meta"><span>Energy Efficiency</span><strong>82%</strong></div><div class="progress-bar"><div class="progress-fill" style="width:82%"></div></div></div>
+          <div class="progress-wrap"><div class="progress-meta"><span>Renewable Energy</span><strong>68%</strong></div><div class="progress-bar"><div class="progress-fill" style="width:68%"></div></div></div>
+          <div class="progress-wrap"><div class="progress-meta"><span>Material Conservation</span><strong>71%</strong></div><div class="progress-bar"><div class="progress-fill" style="width:71%"></div></div></div>
+          <div class="progress-wrap"><div class="progress-meta"><span>Water Management</span><strong>75%</strong></div><div class="progress-bar"><div class="progress-fill" style="width:75%"></div></div></div>
+          <div class="progress-wrap"><div class="progress-meta"><span>GHG Management (incl. Cat 13)</span><strong>70%</strong></div><div class="progress-bar"><div class="progress-fill" style="width:70%"></div></div></div>
+          <div class="progress-wrap"><div class="progress-meta"><span>Waste Management</span><strong>66%</strong></div><div class="progress-bar"><div class="progress-fill amber" style="width:66%"></div></div></div>
+          <div class="progress-wrap"><div class="progress-meta"><span>Supply Chain Greening</span><strong>58%</strong></div><div class="progress-bar"><div class="progress-fill amber" style="width:58%"></div></div></div>
+          <div class="progress-wrap"><div class="progress-meta"><span>Product Stewardship</span><strong>74%</strong></div><div class="progress-bar"><div class="progress-fill" style="width:74%"></div></div></div>
+          <div class="progress-wrap"><div class="progress-meta"><span>Compliance</span><strong>90%</strong></div><div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div></div>
+          <div class="progress-wrap"><div class="progress-meta"><span>Innovation</span><strong>64%</strong></div><div class="progress-bar"><div class="progress-fill" style="width:64%"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- VIEW: ZONE REPORTS                         -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="view-reports" class="view">
+      <div class="view-header">
+        <div class="view-title">Zone Reports</div>
+        <div class="view-sub">Generate and export zone-level consolidated ESG reports · Both AMTZ own inventory and zone consolidated formats supported</div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Available Zone Reports</div>
+          <div class="fw-row"><div><div class="fw-name">Zone GHG Inventory — AMTZ Own Entity</div><div class="fw-sub">S1+S2+S3 incl. Cat 13 · GHG Protocol · FY 2024–25</div></div><div style="display:flex;gap:8px"><span class="pill pill-green">Ready</span><button class="fw-action">Export PDF</button></div></div>
+          <div class="fw-row"><div><div class="fw-name">Zone Consolidated GHG Report</div><div class="fw-sub">AMTZ + all tenants · Cat 13 excluded · FY 2024–25</div></div><div style="display:flex;gap:8px"><span class="pill pill-amber">Provisional</span><button class="fw-action">Export</button></div></div>
+          <div class="fw-row"><div><div class="fw-name">Scope 3 Detailed Breakdown</div><div class="fw-sub">Cat 13 + upstream · both reporting formats</div></div><div style="display:flex;gap:8px"><span class="pill pill-amber">Provisional</span><button class="fw-action" onclick="showView('scope3')">View →</button></div></div>
+          <div class="fw-row"><div><div class="fw-name">CII GreenCo Zone Application Pack</div><div class="fw-sub">All 10 parameters · Evidence bundle</div></div><div style="display:flex;gap:8px"><span class="pill pill-amber">72% ready</span><button class="fw-action">Continue</button></div></div>
+          <div class="fw-row"><div><div class="fw-name">CCTS Credit Project Dossier</div><div class="fw-sub">1,240 tCO₂e · MRV documentation · BEE format</div></div><div style="display:flex;gap:8px"><span class="pill pill-green">Ready</span><button class="fw-action">Export</button></div></div>
+          <div class="fw-row"><div><div class="fw-name">Auditor Evidence Package (ISAE 3410)</div><div class="fw-sub">Complete audit trail · ZIP bundle</div></div><div style="display:flex;gap:8px"><span class="pill pill-green">Ready</span><button class="fw-action">Export ZIP</button></div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Report History</div>
+          <table class="data-table" style="font-size:12px">
+            <thead><tr><th>Report</th><th>Period</th><th>Generated</th><th>By</th></tr></thead>
+            <tbody>
+              <tr><td>Zone GHG Own Entity</td><td>FY 2023–24</td><td>15 Jun 2024</td><td>Zone Admin</td></tr>
+              <tr><td>Zone Consolidated</td><td>FY 2023–24</td><td>15 Jun 2024</td><td>Zone Admin</td></tr>
+              <tr><td>GreenCo Zone Pack</td><td>FY 2023–24</td><td>10 Jul 2024</td><td>Zone Admin</td></tr>
+              <tr><td>CCTS Dossier</td><td>FY 2022–23</td><td>8 Apr 2023</td><td>Zone Admin</td></tr>
+              <tr><td>Auditor Bundle</td><td>FY 2023–24</td><td>20 Jun 2024</td><td>Mr. Parthasarathi</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- VIEW: INTEGRATIONS                         -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="view-integrations" class="view">
+      <div class="view-header">
+        <div class="view-title">Integrations &amp; Data Connectors</div>
+        <div class="view-sub">Zone-level API connections · All credentials in AWS Secrets Manager · Note: Cat 13 auto-recalculates on each tenant submission event</div>
+      </div>
+      <div class="card">
+        <table class="data-table">
+          <thead><tr><th>Connector</th><th>Type</th><th>Data Flow</th><th>Status</th><th>Last Sync</th></tr></thead>
+          <tbody>
+            <tr><td><strong>DISCOM / AP-TRANSCO</strong></td><td>API / CSV fallback</td><td>kWh per meter → Scope 2</td><td><span class="pill pill-amber">⚠ 9/12 meters</span></td><td>22 Mar 2025</td></tr>
+            <tr><td><strong>GSTN (e-Way Bill)</strong></td><td>API — tenant consent</td><td>Procurement → Scope 3 Cat 1</td><td><span class="pill pill-green">Active</span></td><td>31 Mar 2025</td></tr>
+            <tr><td><strong>CCTS India Registry</strong></td><td>API</td><td>Credit issuance / retirement</td><td><span class="pill pill-green">Active</span></td><td>30 Mar 2025</td></tr>
+            <tr><td><strong>EU CBAM Portal</strong></td><td>XML export</td><td>PCF per product → CBAM declaration</td><td><span class="pill pill-blue">Manual export</span></td><td>15 Feb 2025</td></tr>
+            <tr><td><strong>Cat 13 Auto-Aggregator</strong></td><td>Internal event trigger</td><td>Tenant submission → Cat 13 recalc → AMTZ S3 update</td><td><span class="pill pill-green">Active</span></td><td>Real-time</td></tr>
+            <tr><td><strong>BMS / SCADA Feed</strong></td><td>MQTT</td><td>Real-time energy → auto Scope 2</td><td><span class="pill pill-purple">Phase 2</span></td><td>—</td></tr>
+            <tr><td><strong>SAP / Tally ERP</strong></td><td>CSV / API</td><td>Production volumes, utility costs</td><td><span class="pill pill-amber">Configurable</span></td><td>Varies</td></tr>
+            <tr><td><strong>TerraCAP REST API</strong></td><td>Outbound</td><td>Zone totals queryable by AMTZ IT</td><td><span class="pill pill-green">Live</span></td><td>Real-time</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════ -->
+    <!-- VIEW: ZONE CONFIGURATION                   -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="view-orgprofile" class="view">
+      <div class="view-header">
+        <div class="view-title">Zone Configuration</div>
+        <div class="view-sub">Zone metadata, GHG reporting boundary, Cat 13 disclosure settings · Exclusive to zone_manager org type</div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Zone Identity</div>
+          <div style="display:grid;grid-template-columns:1fr;gap:12px">
+            <div class="form-field"><label>Zone Name</label><input value="AMTZ MedTech Zone"></div>
+            <div class="form-field"><label>Zone Type</label><select><option selected>Industrial Zone (SEZ)</option><option>Academic Campus</option><option>Commercial Complex</option></select></div>
+            <div class="form-field"><label>Zone Admin Authority</label><input value="Andhra Pradesh MedTech Zone Authority (AMTZ)"></div>
+            <div class="form-field"><label>Zone CTO Contact</label><input value="Mr. Suraj, suraj@amtz.in"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">GHG Boundary &amp; Scope 3 Settings</div>
+          <div style="display:grid;grid-template-columns:1fr;gap:12px">
+            <div class="form-field"><label>GHG Boundary Method</label><select><option selected>Operational Control</option><option>Financial Control</option><option>Equity Share</option></select></div>
+            <div class="form-field"><label>Reporting Period</label><select><option selected>April–March (Indian FY)</option><option>January–December</option></select></div>
+            <div class="form-field"><label>Scope 3 Cat 13 Mode</label><select><option selected>Tenant S1+S2 auto-aggregation (live)</option><option>Manual entry</option><option>Disabled</option></select></div>
+            <div class="form-field"><label>Cat 13 Disclosure Report Format</label><select><option selected>Separate row in AMTZ own inventory</option><option>Footnote only</option></select></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-hdr">
+          <div><div class="section-hdr-title">CCTS Sub-Registrar Settings</div></div>
+          <span class="pill pill-green">Registered</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-field"><label>Sub-Registrar ID</label><input value="CCTS-SR-AP-2024-0041" readonly style="background:#F6F7F4;color:var(--subtle)"></div>
+          <div class="form-field"><label>Registry Integration</label><input value="Live — BEE Central Registry API v2" readonly style="background:#F6F7F4;color:var(--subtle)"></div>
+          <div class="form-field"><label>Credits Issued (All Time)</label><input value="1,240 tCO₂e" readonly style="background:#F6F7F4;color:var(--subtle)"></div>
+          <div class="form-field"><label>Credits Retired (All Time)</label><input value="320 tCO₂e" readonly style="background:#F6F7F4;color:var(--subtle)"></div>
+        </div>
+        <div style="margin-top:18px;display:flex;gap:10px">
+          <button class="btn btn-primary">Save Configuration</button>
+          <button class="btn btn-outline">Export Zone Config JSON</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL: ONBOARD TENANT -->
+<div class="modal-overlay" id="modal-onboard" onclick="closeModal('modal-onboard')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title">Onboard New Tenant</div>
+      <button class="modal-close" onclick="closeModal('modal-onboard')">✕</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-field"><label>Company Name</label><input placeholder="e.g. Cipla Ltd"></div>
+      <div class="form-field"><label>Unit / Block</label><input placeholder="e.g. Unit 13 · Block E"></div>
+      <div class="form-field"><label>Sector</label><select><option value="">— Select —</option><option>API Pharma</option><option>Formulations</option><option>Medical Devices</option><option>Vaccines / Biologics</option><option>Diagnostics</option><option>R&D</option></select></div>
+      <div class="form-field"><label>GSTIN</label><input placeholder="22AAAAA0000A1Z5"></div>
+      <div class="form-field"><label>Contact Name</label><input placeholder="Full name"></div>
+      <div class="form-field"><label>Contact Email</label><input type="email" placeholder="esg@company.com"></div>
+      <div class="form-field"><label>Baseline Year</label><select><option>FY 2021–22</option><option>FY 2022–23</option><option selected>FY 2023–24</option></select></div>
+      <div class="form-field"><label>Subscription Tier</label><select><option selected>Essentials (₹1.2L/yr)</option><option>Professional (₹18L/yr)</option></select></div>
+    </div>
+    <div class="alert blue" style="margin-top:14px;margin-bottom:0;font-size:12px">
+      <span class="alert-icon">ℹ️</span>
+      <span>On onboarding, this tenant's Scope 1+2 submissions will automatically contribute to AMTZ's Scope 3 Cat 13 total. The Cat 13 figure on the Zone Overview will update on each submission.</span>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeModal('modal-onboard')">Cancel</button>
+      <button class="btn btn-primary">Send Invitation →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleDropdown(id) {
+    const items = document.getElementById(id);
+    const toggle = items.previousElementSibling;
+    items.classList.toggle('open');
+    toggle.classList.toggle('open');
+  }
+
+  function showView(id) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+    const el = document.getElementById('view-' + id);
+    if (el) el.classList.add('active');
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+      if (item.getAttribute('onclick')?.includes("'" + id + "'")) item.classList.add('active');
+    });
+    document.getElementById('mainContent').scrollTo(0, 0);
+  }
+
+  function enterTenantContext(name) {
+    document.getElementById('contextTenantName').textContent = name;
+    document.getElementById('contextBanner').classList.add('active');
+    setTimeout(() => {
+      alert('Tenant context: ' + name + '\n\nIn production: dashboard reloads in read-only mode scoped to this tenant.\nAll write controls disabled. Query param: ?tenant_context=<org_id>');
+    }, 100);
+  }
+
+  function exitTenantContext() {
+    document.getElementById('contextBanner').classList.remove('active');
+    showView('overview');
+  }
+
+  function openModal(id) { document.getElementById(id)?.classList.add('open'); }
+  function closeModal(id) { document.getElementById(id)?.classList.remove('open'); }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  });
+</script>
+</body>
+</html>
