@@ -1573,5 +1573,36 @@ document.addEventListener('DOMContentLoaded', () => {
     selectCategory('scope1');
 });
 </script>
+
+<!-- ══════════ ASK TERRACAP CHATBOT ══════════ -->
+    <script src="terra-chat.js"></script>
+    <script>
+    TerraChat.init({
+        page: 'data-collection',
+        pageName: 'Data Collection Forms',
+        period: document.querySelector('.form-period-select')?.value || 'FY 2025-26',
+        context: {
+            activeCategory: document.querySelector('.category-tab.active')?.textContent?.trim() || 'Energy',
+            facilityName: document.querySelector('.facility-select')?.value || '',
+            completionPercent: parseFloat(document.querySelector('.form-progress-value')?.textContent) || 0,
+            emissionFactorSource: 'CEA 2023 / IPCC AR6'
+        }
+    });
+
+    // Update chatbot context when user switches category or facility
+    document.querySelectorAll('.category-tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            TerraChat.updateContext({
+                page: 'data-collection',
+                pageName: 'Data Collection — ' + this.textContent.trim(),
+                context: {
+                    activeCategory: this.textContent.trim(),
+                    facilityName: document.querySelector('.facility-select')?.value || ''
+                }
+            });
+        });
+    });
+    </script>
+
 </body>
 </html>
