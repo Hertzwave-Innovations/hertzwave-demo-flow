@@ -4,6 +4,9 @@
  *  Version: 1.0.0 | TerraCAP v1.2.0
  *  
  *  USAGE: Add one line before </body> on any page:
+ *    <script src="terra-chat.js"></script>
+ *
+ *  For server deployments, use the full path:
  *    <script src="/assets/js/terra-chat.js"></script>
  *
  *  OPTIONAL: Pass page context for contextual answers:
@@ -78,6 +81,24 @@
             { icon: 'fa-question-circle', text: 'What can you help me with?' }
         ]
     };
+
+    // ── INJECT DEPENDENCIES (Font Awesome + Outfit font) ──
+    function injectDependencies() {
+        // Font Awesome — only add if not already loaded
+        if (!document.querySelector('link[href*="font-awesome"], link[href*="fontawesome"]')) {
+            var fa = document.createElement('link');
+            fa.rel = 'stylesheet';
+            fa.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
+            document.head.appendChild(fa);
+        }
+        // Outfit font — only add if not already loaded
+        if (!document.querySelector('link[href*="Outfit"]')) {
+            var outfit = document.createElement('link');
+            outfit.rel = 'stylesheet';
+            outfit.href = 'https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap';
+            document.head.appendChild(outfit);
+        }
+    }
 
     // ── INJECT CSS ──
     function injectStyles() {
@@ -542,6 +563,7 @@
             state.context = opts.context || {};
             if (opts.apiEndpoint) state.apiEndpoint = opts.apiEndpoint;
 
+            injectDependencies();
             injectStyles();
             injectDOM();
         },
