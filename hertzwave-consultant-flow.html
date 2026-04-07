@@ -3544,6 +3544,125 @@
         </div>
       </div>
 
+      <!-- ════════ CLIENT CARBON FOOTPRINT DASHBOARD ════════ -->
+      <div id="client-dashboard" class="screen">
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+          <button class="btn btn-secondary" onclick="showScreen('clients')" style="padding: 0.5rem 1rem; font-size: 0.85rem;">← Back to Clients</button>
+          <div>
+            <h1 class="page-title" id="cdash-client-name">Client Dashboard</h1>
+            <p class="page-subtitle" id="cdash-client-industry">Carbon Footprint Overview</p>
+          </div>
+          <span id="cdash-status-badge" class="status-indicator" style="margin-left: auto;"></span>
+        </div>
+
+        <!-- KPI Row -->
+        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+          <div class="stat-card">
+            <div class="stat-label">Total Emissions</div>
+            <div class="stat-value" id="cdash-total-emissions">—</div>
+            <div style="font-size: 0.8rem; color: #718096; margin-top: 0.25rem;">tCO₂e (annualised)</div>
+          </div>
+          <div class="stat-card" style="border-left-color: #e53e3e;">
+            <div class="stat-label">Scope 1 — Direct</div>
+            <div class="stat-value" id="cdash-scope1">—</div>
+            <div style="font-size: 0.8rem; color: #718096; margin-top: 0.25rem;">Fuel, process, fugitive</div>
+          </div>
+          <div class="stat-card" style="border-left-color: #ecc94b;">
+            <div class="stat-label">Scope 2 — Energy</div>
+            <div class="stat-value" id="cdash-scope2">—</div>
+            <div style="font-size: 0.8rem; color: #718096; margin-top: 0.25rem;">Purchased electricity & heat</div>
+          </div>
+          <div class="stat-card" style="border-left-color: #4299e1;">
+            <div class="stat-label">Scope 3 — Value Chain</div>
+            <div class="stat-value" id="cdash-scope3">—</div>
+            <div style="font-size: 0.8rem; color: #718096; margin-top: 0.25rem;">Upstream & downstream</div>
+          </div>
+        </div>
+
+        <!-- Second KPI Row -->
+        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+          <div class="stat-card">
+            <div class="stat-label">YoY Reduction</div>
+            <div class="stat-value" id="cdash-reduction" style="color: #48bb78;">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Data Quality Score</div>
+            <div class="stat-value" id="cdash-dq">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Assigned Consultant</div>
+            <div class="stat-value" id="cdash-consultant" style="font-size: 1.1rem;">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">NetZero Target</div>
+            <div class="stat-value" id="cdash-netzero" style="font-size: 1.3rem;">—</div>
+          </div>
+        </div>
+
+        <!-- Scope Breakdown & Trend -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+          <div class="card">
+            <h3 style="margin-bottom: 1rem;">Scope Breakdown</h3>
+            <div id="cdash-scope-bars">
+              <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                  <span>Scope 1 — Direct Emissions</span><span id="cdash-s1-pct">—</span>
+                </div>
+                <div style="background: #e2e8f0; border-radius: 6px; height: 14px; overflow: hidden;">
+                  <div id="cdash-s1-bar" style="height: 100%; background: #e53e3e; border-radius: 6px; transition: width 0.6s;"></div>
+                </div>
+              </div>
+              <div style="margin-bottom: 1rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                  <span>Scope 2 — Purchased Energy</span><span id="cdash-s2-pct">—</span>
+                </div>
+                <div style="background: #e2e8f0; border-radius: 6px; height: 14px; overflow: hidden;">
+                  <div id="cdash-s2-bar" style="height: 100%; background: #ecc94b; border-radius: 6px; transition: width 0.6s;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.35rem;">
+                  <span>Scope 3 — Value Chain</span><span id="cdash-s3-pct">—</span>
+                </div>
+                <div style="background: #e2e8f0; border-radius: 6px; height: 14px; overflow: hidden;">
+                  <div id="cdash-s3-bar" style="height: 100%; background: #4299e1; border-radius: 6px; transition: width 0.6s;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="margin-bottom: 1rem;">Quarterly Emission Trend (tCO₂e)</h3>
+            <div id="cdash-trend" style="display: flex; align-items: flex-end; gap: 0.75rem; height: 180px; padding-top: 1rem;"></div>
+            <div style="display: flex; justify-content: space-around; font-size: 0.75rem; color: #a0aec0; margin-top: 0.5rem;" id="cdash-trend-labels"></div>
+          </div>
+        </div>
+
+        <!-- AI Insight & Actions -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+          <div class="card" style="border-left: 4px solid #4a7c59;">
+            <h3 style="margin-bottom: 1rem;">🤖 AI Insights</h3>
+            <div id="cdash-ai-insight" style="font-size: 0.9rem; line-height: 1.7; color: #4a5568;"></div>
+          </div>
+          <div class="card">
+            <h3 style="margin-bottom: 1rem;">Reduction Initiatives</h3>
+            <div id="cdash-initiatives"></div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card" style="margin-top: 1.5rem;">
+          <h3 style="margin-bottom: 1rem;">Quick Actions</h3>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button class="btn btn-primary" onclick="alert('Opening full BRSR report generator...')">📄 Generate BRSR Report</button>
+            <button class="btn btn-secondary" onclick="alert('Opening NetZero Modeller...')">🎯 NetZero Pathway</button>
+            <button class="btn btn-secondary" onclick="alert('Opening Supplier Evaluation...')">🔗 Supplier Evaluation</button>
+            <button class="btn btn-secondary" onclick="alert('Launching Data Collection Forms...')">📋 Data Collection Forms</button>
+            <button class="btn btn-secondary" onclick="alert('Opening Audit Pack...')">🔍 Auditor Pack</button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -4189,13 +4308,127 @@
       });
     }
     
-    function viewClient(clientId) {
-      showScreen('client-data-management');
-      const selector = document.getElementById('clientDataSelector');
-      if (selector) {
-        selector.value = clientId;
-        loadClientData();
+    const clientDB = {
+      alpha: {
+        name: 'Alpha Manufacturing Ltd', industry: 'Manufacturing', status: 'Critical', statusClass: 'status-critical',
+        total: '145K', scope1: '58K', scope2: '32K', scope3: '55K', s1pct: 40, s2pct: 22, s3pct: 38,
+        reduction: '8%', dq: '72%', consultant: 'Priya Sharma', netzero: '2045',
+        trend: [42000, 39500, 38000, 36500, 37200, 36800, 36200, 35500],
+        trendLabels: ['Q1-24','Q2-24','Q3-24','Q4-24','Q1-25','Q2-25','Q3-25','Q4-25'],
+        insight: '<strong>⚠️ Data Quality Alert:</strong> Scope 3 data missing for Q3 & Q4 2025 — 15 key suppliers have not submitted transportation and distribution data.<br><br><strong>📉 Reduction Stalling:</strong> 8% YoY reduction is below the 12% trajectory needed for 2045 NetZero. Recommend fuel-switching in boiler operations (est. 4,200 tCO₂e saving).<br><br><strong>🔍 Audit Risk:</strong> DEFRA emission factors not updated to 2025 release. Recalculation may shift Scope 1 by ±3%.',
+        initiatives: [
+          { name: 'Boiler fuel switching (FO → PNG)', status: 'Planned', saving: '4,200 tCO₂e', color: '#ecc94b' },
+          { name: 'Rooftop solar 500 kWp', status: 'In Progress', saving: '680 tCO₂e', color: '#4299e1' },
+          { name: 'Supplier engagement programme', status: 'Not Started', saving: '~8,000 tCO₂e', color: '#e2e8f0' },
+          { name: 'LED retrofit — plant floor', status: 'Completed', saving: '320 tCO₂e', color: '#48bb78' }
+        ]
+      },
+      beta: {
+        name: 'Beta Pharma Inc.', industry: 'Healthcare', status: 'Warning', statusClass: 'status-warning',
+        total: '23K', scope1: '5.2K', scope2: '9.8K', scope3: '8K', s1pct: 23, s2pct: 43, s3pct: 34,
+        reduction: '28%', dq: '88%', consultant: 'Rahul Mehta', netzero: '2040',
+        trend: [7200, 6800, 6100, 5900, 5700, 5500, 5600, 5400],
+        trendLabels: ['Q1-24','Q2-24','Q3-24','Q4-24','Q1-25','Q2-25','Q3-25','Q4-25'],
+        insight: '<strong>📈 Good Progress:</strong> 28% reduction is strong but rate is slowing — Q3 showed slight uptick.<br><br><strong>⚡ Energy Opportunity:</strong> Purchased energy (Scope 2) is 43% of footprint. Open-access renewable PPA could reduce Scope 2 by 60%.<br><br><strong>🏥 Sector Benchmark:</strong> Performing above pharma industry median (22% reduction). Candidate for GreenCo certification.',
+        initiatives: [
+          { name: 'Green PPA — 2 MW wind', status: 'In Progress', saving: '5,800 tCO₂e', color: '#4299e1' },
+          { name: 'Cold chain optimisation', status: 'Planned', saving: '1,200 tCO₂e', color: '#ecc94b' },
+          { name: 'Waste-to-energy pilot', status: 'Not Started', saving: '~900 tCO₂e', color: '#e2e8f0' }
+        ]
+      },
+      gamma: {
+        name: 'Gamma Tech Solutions', industry: 'Technology', status: 'Good', statusClass: 'status-good',
+        total: '12.5K', scope1: '0.8K', scope2: '4.2K', scope3: '7.5K', s1pct: 6, s2pct: 34, s3pct: 60,
+        reduction: '18%', dq: '95%', consultant: 'Anjali Gupta', netzero: '2035',
+        trend: [3800, 3500, 3200, 3100, 3000, 2900, 2850, 2800],
+        trendLabels: ['Q1-24','Q2-24','Q3-24','Q4-24','Q1-25','Q2-25','Q3-25','Q4-25'],
+        insight: '<strong>✅ On Track:</strong> Consistent quarterly decline — projected to meet 2035 NetZero target with current trajectory.<br><br><strong>🔗 Scope 3 Dominant:</strong> Value chain emissions are 60% of footprint. Cloud infrastructure and employee commuting are top categories.<br><br><strong>🏆 Case Study Ready:</strong> Data quality at 95% — ideal candidate for BRSR showcase and investor ESG reporting.',
+        initiatives: [
+          { name: 'Cloud carbon optimisation (AWS)', status: 'In Progress', saving: '2,100 tCO₂e', color: '#4299e1' },
+          { name: '100% renewable electricity', status: 'Completed', saving: '4,200 tCO₂e', color: '#48bb78' },
+          { name: 'Remote-first policy expansion', status: 'Completed', saving: '850 tCO₂e', color: '#48bb78' }
+        ]
+      },
+      delta: {
+        name: 'Delta Retail Corp', industry: 'Retail', status: 'Good', statusClass: 'status-good',
+        total: '8.9K', scope1: '1.8K', scope2: '3.6K', scope3: '3.5K', s1pct: 20, s2pct: 40, s3pct: 40,
+        reduction: '22%', dq: '91%', consultant: 'Vikram Singh', netzero: '2038',
+        trend: [2800, 2600, 2400, 2300, 2200, 2100, 2050, 1950],
+        trendLabels: ['Q1-24','Q2-24','Q3-24','Q4-24','Q1-25','Q2-25','Q3-25','Q4-25'],
+        insight: '<strong>📈 Consistent Performer:</strong> 22% reduction with steady quarterly improvement across all three scopes.<br><br><strong>🏬 Store-Level Opportunity:</strong> Refrigerant leakage (Scope 1) can be cut 40% with natural refrigerant retrofit across 12 outlets.<br><br><strong>📊 Retail Benchmark Leader:</strong> Top quartile in sector. Ready for advanced carbon neutrality planning.',
+        initiatives: [
+          { name: 'Natural refrigerant retrofit', status: 'Planned', saving: '720 tCO₂e', color: '#ecc94b' },
+          { name: 'Rooftop solar — 8 stores', status: 'In Progress', saving: '1,400 tCO₂e', color: '#4299e1' },
+          { name: 'Green logistics partner switch', status: 'Completed', saving: '600 tCO₂e', color: '#48bb78' },
+          { name: 'Packaging reduction programme', status: 'In Progress', saving: '350 tCO₂e', color: '#4299e1' }
+        ]
       }
+    };
+
+    function viewClient(clientId) {
+      const c = clientDB[clientId];
+      if (!c) return;
+
+      showScreen('client-dashboard');
+
+      document.getElementById('cdash-client-name').textContent = c.name;
+      document.getElementById('cdash-client-industry').textContent = c.industry + ' — Carbon Footprint Overview';
+      const badge = document.getElementById('cdash-status-badge');
+      badge.textContent = c.status;
+      badge.className = 'status-indicator ' + c.statusClass;
+
+      document.getElementById('cdash-total-emissions').textContent = c.total;
+      document.getElementById('cdash-scope1').textContent = c.scope1;
+      document.getElementById('cdash-scope2').textContent = c.scope2;
+      document.getElementById('cdash-scope3').textContent = c.scope3;
+      document.getElementById('cdash-reduction').textContent = c.reduction;
+      document.getElementById('cdash-reduction').style.color = parseFloat(c.reduction) >= 15 ? '#48bb78' : '#e53e3e';
+      document.getElementById('cdash-dq').textContent = c.dq;
+      document.getElementById('cdash-consultant').textContent = c.consultant;
+      document.getElementById('cdash-netzero').textContent = c.netzero;
+
+      document.getElementById('cdash-s1-pct').textContent = c.s1pct + '%';
+      document.getElementById('cdash-s2-pct').textContent = c.s2pct + '%';
+      document.getElementById('cdash-s3-pct').textContent = c.s3pct + '%';
+      document.getElementById('cdash-s1-bar').style.width = c.s1pct + '%';
+      document.getElementById('cdash-s2-bar').style.width = c.s2pct + '%';
+      document.getElementById('cdash-s3-bar').style.width = c.s3pct + '%';
+
+      // Trend bars
+      const maxVal = Math.max(...c.trend);
+      const trendDiv = document.getElementById('cdash-trend');
+      const labelDiv = document.getElementById('cdash-trend-labels');
+      trendDiv.innerHTML = '';
+      labelDiv.innerHTML = '';
+      c.trend.forEach((v, i) => {
+        const pct = (v / maxVal) * 100;
+        const bar = document.createElement('div');
+        bar.style.cssText = 'flex:1; background: #4a7c59; border-radius: 4px 4px 0 0; min-width: 0; transition: height 0.5s; cursor: pointer; position: relative;';
+        bar.style.height = pct + '%';
+        bar.title = c.trendLabels[i] + ': ' + v.toLocaleString() + ' tCO₂e';
+        if (i === c.trend.length - 1) bar.style.background = '#2d6150';
+        trendDiv.appendChild(bar);
+        const lbl = document.createElement('span');
+        lbl.textContent = c.trendLabels[i];
+        labelDiv.appendChild(lbl);
+      });
+
+      document.getElementById('cdash-ai-insight').innerHTML = c.insight;
+
+      const initDiv = document.getElementById('cdash-initiatives');
+      initDiv.innerHTML = '';
+      c.initiatives.forEach(ini => {
+        initDiv.innerHTML += '<div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #f1f5f9;">' +
+          '<div style="display: flex; align-items: center; gap: 0.75rem;">' +
+            '<div style="width: 10px; height: 10px; border-radius: 50%; background: ' + ini.color + ';"></div>' +
+            '<div><div style="font-weight: 600; font-size: 0.9rem;">' + ini.name + '</div>' +
+            '<div style="font-size: 0.8rem; color: #a0aec0;">' + ini.status + '</div></div>' +
+          '</div>' +
+          '<div style="font-weight: 700; color: #4a7c59; font-size: 0.85rem;">↓ ' + ini.saving + '</div>' +
+        '</div>';
+      });
+
+      window.scrollTo(0, 0);
     }
     
     function openAddConsultantModal() {
