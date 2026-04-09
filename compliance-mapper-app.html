@@ -50,7 +50,7 @@
     .step.completed .step-label{color:#2d5f4f}
 
     /* ── MAIN CONTENT ── */
-    .main-content{margin-left:220px;flex:1;padding:0 2rem 2rem;padding-top:165px}
+    .main-content{margin-left:220px;flex:1;padding:0 2rem 2rem;padding-top:220px}
     .content-section{display:none}
     .content-section.active{display:block;animation:fadeIn .25s ease}
     @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -1526,55 +1526,142 @@ function triggerExport(fmt){
 }
 </script>
 
-<!-- ══════════ ASK TERRACAP CHATBOT ══════════ -->
-<script src="/assets/js/terra-chat.js"></script>
-<script>
-TerraChat.init({
-    page: 'reports',
-    pageName: 'Reports & Compliance – Reporting Studio',
-    period: 'FY 2024-25',
-    context: {
-        selectedFramework: (function(){ return window.selectedFW || ''; })(),
-        availableFrameworks: ['BRSR', 'GRI', 'GreenCo', 'CDP', 'CSRD', 'CBAM', 'ISO14064'],
-        currentStep: (function(){ return window.currentStep || 1; })(),
-        company: document.querySelector('#user-company')?.textContent || ''
-    }
-});
 
-// Update chatbot context when user moves between steps or selects a framework
-(function(){
-    var origGoToStep = window.goToStep;
-    window.goToStep = function(n){
-        origGoToStep(n);
-        if(typeof TerraChat !== 'undefined' && TerraChat.updateContext){
-            TerraChat.updateContext({
-                page: 'reports',
-                pageName: 'Reporting Studio — Step ' + n,
-                context: {
-                    selectedFramework: window.selectedFW || '',
-                    currentStep: n,
-                    company: document.querySelector('#user-company')?.textContent || ''
-                }
-            });
+    <!-- ══════════ ASK TERRACAP CHATBOT ══════════ -->
+    <!--
+        terra-chat.js must be in the SAME FOLDER as this HTML file.
+        Relative path (no leading slash) works for both local file:// and Netlify.
+        If the file is missing, a silent no-op stub is created — no console errors.
+    -->
+
+    <!-- Synchronous load: next <script> runs only after this completes ── -->
+    <script src="terra-chat.js" onerror="window._terraChatFailed=true"></script>
+
+    <script>
+    // ── If file missing or failed to load, install a silent no-op stub ───
+    if (window._terraChatFailed || typeof TerraChat === 'undefined') {
+        window.TerraChat = {
+            init:          function() {},
+            updateContext: function() {},
+            open:          function() {},
+            close:         function() {}
+        };
+        if (window._terraChatFailed) {
+            console.warn('[TerraCAP] terra-chat.js not found in the same folder as this HTML file.');
         }
-    };
-    var origSelect = window.onFrameworkSelect;
-    window.onFrameworkSelect = function(key){
-        origSelect(key);
-        if(typeof TerraChat !== 'undefined' && TerraChat.updateContext){
-            TerraChat.updateContext({
-                page: 'reports',
-                pageName: 'Reporting Studio — ' + (key || 'Framework Select'),
-                context: {
-                    selectedFramework: key || '',
-                    currentStep: window.currentStep || 1,
-                    company: document.querySelector('#user-company')?.textContent || ''
-                }
-            });
+    }
+
+    // ── Build live context from current page state ────────────────────────
+    function _buildTerraContext() {
+        var fw      = window.selectedFW  || '';
+        var fwData  = (typeof FW_DATA !== 'undefined' && fw) ? FW_DATA[fw] : null;
+        var company = (document.getElementById('user-company') || {}).textContent || '';
+        var step    = window.currentStep || 1;
+
+        var total = 0, confirmed = 0, aiDraft = 0, pending = 0, gaps = [];
+
+        if (typeof getAllIndicators === 'function' && fw) {
+            try {
+                var all = getAllIndicators();
+                total     = all.length;
+                confirmed = all.filter(function(i) {
+                    return (i.status === 'complete' && !i.aiPrefilled) || i.status === 'calculated';
+                }).length;
+                aiDraft   = all.filter(function(i) {
+                    return i.status === 'complete' && i.aiPrefilled;
+                }).length;
+                pending   = all.filter(function(i) { return i.status === 'pending'; }).length;
+                gaps      = all
+                    .filter(function(i) {
+                        return i.status === 'pending' &&
+                               (i.type === 'essential' || i.type === 'mandatory');
+                    })
+                    .slice(0, 6)
+                    .map(function(i) { return i.code; });
+            } catch(e) {}
         }
-    };
-})();
-</script>
+
+        var readiness = total > 0 ? Math.round((confirmed + aiDraft) / total * 100) : 0;
+        var fwName = fwData ? fwData.title.split('(')[0].trim() : (fw || 'None selected');
+
+        return {
+            page:     'reports-compliance',
+            pageName: fwName + ' — Compliance Mapper',
+            period:   'FY 2025-26',
+            context: {
+                framework:           fw || 'none',
+                company:             company.trim(),
+                currentStep:         step,
+                readiness:           readiness,
+                totalIndicators:     total,
+                confirmedIndicators: confirmed,
+                aiDraftIndicators:   aiDraft,
+                pendingIndicators:   pending,
+                gaps:                gaps,
+                totalPrinciples:     fw === 'BRSR' ? 9 : fw === 'GreenCo' ? 10 : null,
+                availableFrameworks: ['BRSR','GreenCo','GRI','CDP','CSRD','CBAM','ISO14064']
+            }
+        };
+    }
+
+    // ── Safe caller — guards every TerraChat call ─────────────────────────
+    function _tc(method, arg) {
+        try {
+            if (window.TerraChat && typeof window.TerraChat[method] === 'function') {
+                window.TerraChat[method](arg !== undefined ? arg : _buildTerraContext());
+            }
+        } catch(e) {}
+    }
+
+    // ── Initialise on DOMContentLoaded ────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function() {
+        _tc('init');
+    });
+
+    // ── Patch onFrameworkSelect ───────────────────────────────────────────
+    (function() {
+        var _orig = window.onFrameworkSelect;
+        if (typeof _orig !== 'function') return;
+        window.onFrameworkSelect = function(key) {
+            _orig(key);
+            setTimeout(function() { _tc('updateContext'); }, 100);
+        };
+    })();
+
+    // ── Patch goToStep ────────────────────────────────────────────────────
+    (function() {
+        var _orig = window.goToStep;
+        if (typeof _orig !== 'function') return;
+        window.goToStep = function(n) {
+            _orig(n);
+            if (typeof fitContentPadding === 'function') {
+                setTimeout(fitContentPadding, 60);
+                setTimeout(fitContentPadding, 250);
+            }
+            setTimeout(function() { _tc('updateContext'); }, 120);
+        };
+    })();
+
+    // ── Patch saveIndicator ───────────────────────────────────────────────
+    (function() {
+        var _orig = window.saveIndicator;
+        if (typeof _orig !== 'function') return;
+        window.saveIndicator = function(idx) {
+            _orig(idx);
+            setTimeout(function() { _tc('updateContext'); }, 100);
+        };
+    })();
+
+    // ── Patch confirmAllAI ────────────────────────────────────────────────
+    (function() {
+        var _orig = window.confirmAllAI;
+        if (typeof _orig !== 'function') return;
+        window.confirmAllAI = function() {
+            _orig();
+            setTimeout(function() { _tc('updateContext'); }, 150);
+        };
+    })();
+    </script>
 
 </body>
 </html>
