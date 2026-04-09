@@ -84,6 +84,7 @@
     .badge-info{background:#dbeafe;color:#1e40af}
     .badge-mandatory{background:#fee2e2;color:#991b1b}
     .badge-calc{background:#ede9fe;color:#5b21b6}
+    .badge-ai{background:#fef9c3;color:#92400e;font-size:.65rem}
 
     /* ── STEP 2: INDICATOR TABLE ── */
     .completion-bar-wrap{background:#f0f4f3;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:1.5rem}
@@ -92,6 +93,15 @@
     .stat-chip .stat-lbl{font-size:.7rem;color:#666;text-transform:uppercase;letter-spacing:.05em}
     .bar-outer{flex:1;background:#e0e0e0;border-radius:20px;height:10px;overflow:hidden}
     .bar-inner{height:100%;background:linear-gradient(90deg,#3d7f6f,#56a893);border-radius:20px;transition:width .5s ease}
+
+    /* ── AI LEGEND BAR ── */
+    .ai-legend{display:flex;align-items:center;gap:1.5rem;padding:.6rem 1rem;background:#fff;border:1px solid #e0e0e0;border-radius:8px;margin-bottom:1rem;font-size:.78rem;color:#555;flex-wrap:wrap}
+    .ai-legend-item{display:flex;align-items:center;gap:.4rem}
+    .ai-swatch{width:14px;height:14px;border-radius:3px;border:1px solid rgba(0,0,0,.1)}
+    .ai-swatch.yellow{background:#fef9c3;border-color:#f59e0b}
+    .ai-swatch.grey{background:#f0f0f0;border-color:#bbb}
+    .ai-swatch.white{background:#fff;border-color:#ddd}
+    .ai-swatch.green{background:#d1fae5;border-color:#6ee7b7}
 
     .filter-bar{display:flex;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
     .filter-btn{padding:.35rem .8rem;border:1px solid #ddd;border-radius:20px;background:#fff;font-size:.8rem;cursor:pointer;transition:all .2s}
@@ -106,16 +116,31 @@
     .indicator-row.row-complete{border-left:3px solid #2d5f4f}
     .indicator-row.row-pending{border-left:3px solid #d97706}
     .indicator-row.row-calculated{border-left:3px solid #7c3aed}
+    .indicator-row.row-ai{border-left:3px solid #f59e0b}
     .ind-meta{flex:0 0 160px}
     .ind-code{font-weight:700;color:#2d5f4f;font-size:.85rem}
     .ind-name{font-size:.8rem;color:#555;margin-top:.15rem;line-height:1.3}
-    .ind-input-wrap{flex:1;display:flex;align-items:center;gap:.6rem}
-    .ind-input{width:100%;padding:.5rem .75rem;border:1px solid #ddd;border-radius:6px;font-size:.85rem;outline:none;transition:border-color .2s}
+    .ind-input-wrap{flex:1;display:flex;align-items:center;gap:.6rem;flex-direction:column;align-items:flex-start}
+    .ind-input{width:100%;padding:.5rem .75rem;border:1px solid #ddd;border-radius:6px;font-size:.85rem;outline:none;transition:border-color .2s,background .2s}
     .ind-input:focus{border-color:#3d7f6f}
-    .ind-input[readonly]{background:#f7f7f7;color:#888}
+    /* AI-prefilled: yellow — user needs to review */
+    .ind-input.ai-prefilled{background:#fef9c3;border-color:#f59e0b;color:#78350f}
+    .ind-input.ai-prefilled:focus{background:#fefce8;border-color:#d97706}
+    /* Calculated/readonly: grey — not editable */
+    .ind-input[readonly]{background:#f3f4f6;color:#888;border-color:#e0e0e0;cursor:not-allowed}
+    /* User-confirmed: white — already reviewed & saved */
+    .ind-input.user-saved{background:#fff;border-color:#6ee7b7;color:#333}
+    .ai-hint{font-size:.7rem;color:#92400e;display:flex;align-items:center;gap:.25rem;margin-top:.15rem}
     .ind-actions{flex:0 0 auto;display:flex;align-items:center;gap:.5rem}
     .save-btn{padding:.4rem .85rem;background:#2d5f4f;color:#fff;border:none;border-radius:6px;font-size:.8rem;cursor:pointer;transition:all .2s;font-weight:600}
     .save-btn:hover{background:#3d7f6f;transform:translateY(-1px)}
+    .save-btn.confirm-btn{background:#d97706}
+    .save-btn.confirm-btn:hover{background:#b45309}
+
+    /* GreenCo score column */
+    .score-chip{flex:0 0 70px;text-align:center}
+    .score-val{font-size:1.1rem;font-weight:800;color:#2d5f4f}
+    .score-max{font-size:.7rem;color:#999}
 
     /* ── STEP 3: VALIDATION ── */
     .validation-list{display:flex;flex-direction:column;gap:.75rem}
@@ -134,6 +159,10 @@
     .preview-frame{background:#f9f9f9;border:1px solid #ddd;border-radius:8px;padding:1.5rem;font-size:.85rem;line-height:1.7;color:#444;overflow-y:auto}
     .preview-section-block{margin-bottom:1.25rem}
     .preview-section-block h4{color:#2d5f4f;font-size:.9rem;border-bottom:1px solid #e0e0e0;padding-bottom:.3rem;margin-bottom:.5rem}
+    /* Yellow cells in preview for AI-prefilled data */
+    .preview-ai-cell{background:#fef9c3;padding:.1rem .35rem;border-radius:3px;font-style:italic;color:#78350f}
+    .preview-pending-cell{color:#d97706;font-style:italic}
+    .preview-user-cell{color:#333}
 
     /* ── STEP 5: EXPORT ── */
     .export-option{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border:1px solid #e0e0e0;border-radius:8px;margin-bottom:.75rem;transition:all .2s}
@@ -156,6 +185,24 @@
 
     /* ── INFO BOX ── */
     .info-box{background:#e8f5f1;border-left:4px solid #3d7f6f;padding:.85rem 1.1rem;border-radius:0 8px 8px 0;margin-bottom:1.25rem;font-size:.875rem;color:#2d5f4f}
+    .info-box.ai-info{background:#fefce8;border-left-color:#f59e0b;color:#78350f}
+
+    /* ── GREENCO SCORE SUMMARY ── */
+    .greenco-score-bar{background:#f0f9f6;border:1px solid #b2ddd1;border-radius:10px;padding:1rem 1.5rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
+    .greenco-total-score{text-align:center}
+    .greenco-total-score .big-score{font-size:2.5rem;font-weight:900;color:#2d5f4f;line-height:1}
+    .greenco-total-score .score-label{font-size:.8rem;color:#666;margin-top:.25rem}
+    .greenco-level-badge{padding:.35rem .9rem;border-radius:20px;font-weight:800;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em}
+    .level-certified{background:#d1fae5;color:#065f46}
+    .level-silver{background:#e2e8f0;color:#334155}
+    .level-gold{background:#fef9c3;color:#78350f}
+    .level-platinum{background:#e0e7ff;color:#3730a3}
+    .level-platplus{background:linear-gradient(135deg,#e0e7ff,#fce7f3);color:#1e1b4b}
+    .category-score-row{display:flex;gap:.5rem;align-items:center;font-size:.82rem;padding:.3rem 0}
+    .cat-score-label{flex:1;color:#555}
+    .cat-score-bar-wrap{flex:1;background:#e0e0e0;border-radius:10px;height:6px;overflow:hidden}
+    .cat-score-bar-inner{height:100%;background:#3d7f6f;border-radius:10px}
+    .cat-score-pts{font-weight:700;color:#2d5f4f;width:60px;text-align:right;font-size:.8rem}
   </style>
 </head>
 <body>
@@ -167,7 +214,7 @@
 <div class="header">
   <div class="logo">HERTZWAVE</div>
   <div class="header-right">
-    <div class="company-badge" title="Click to change company">
+    <div class="company-badge" title="Company auto-selected from framework">
       👤 <span id="user-company">Manipal Group</span>
     </div>
   </div>
@@ -280,10 +327,14 @@
       </div>
       <div class="stat-chip">
         <div class="stat-val" id="stat-complete" style="color:#2d5f4f">0</div>
-        <div class="stat-lbl">Complete</div>
+        <div class="stat-lbl">Confirmed</div>
       </div>
       <div class="stat-chip">
-        <div class="stat-val" id="stat-pending" style="color:#d97706">0</div>
+        <div class="stat-val" id="stat-ai" style="color:#d97706">0</div>
+        <div class="stat-lbl">AI Draft</div>
+      </div>
+      <div class="stat-chip">
+        <div class="stat-val" id="stat-pending" style="color:#dc2626">0</div>
         <div class="stat-lbl">Pending</div>
       </div>
       <div class="bar-outer">
@@ -295,14 +346,26 @@
       </div>
     </div>
 
+    <!-- AI Legend -->
+    <div class="ai-legend">
+      <strong style="color:#333;font-size:.8rem">Colour Key:</strong>
+      <div class="ai-legend-item"><div class="ai-swatch yellow"></div><span>🤖 AI-prefilled — Review &amp; Confirm</span></div>
+      <div class="ai-legend-item"><div class="ai-swatch green"></div><span>✅ Confirmed by you</span></div>
+      <div class="ai-legend-item"><div class="ai-swatch grey"></div><span>⚡ Auto-calculated (read-only)</span></div>
+      <div class="ai-legend-item"><div class="ai-swatch white"></div><span>⚠️ Pending — Enter data</span></div>
+    </div>
+
     <div class="filter-bar">
       <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
       <button class="filter-btn" onclick="setFilter('pending',this)">⚠ Pending</button>
-      <button class="filter-btn" onclick="setFilter('complete',this)">✓ Complete</button>
-      <button class="filter-btn" onclick="setFilter('calculated',this)">🔄 Auto-Calculated</button>
+      <button class="filter-btn" onclick="setFilter('ai',this)">🤖 AI Draft</button>
+      <button class="filter-btn" onclick="setFilter('complete',this)">✓ Confirmed</button>
+      <button class="filter-btn" onclick="setFilter('calculated',this)">🔄 Auto-Calc</button>
       <input class="search-input" id="search-input" type="text" placeholder="🔍 Search indicators…" oninput="renderIndicators()">
+      <button class="filter-btn" onclick="confirmAllAI()" style="background:#fef9c3;border-color:#f59e0b;color:#78350f;margin-left:auto">✅ Confirm All AI Data</button>
     </div>
 
+    <div id="greenco-score-panel" style="display:none"></div>
     <div id="indicators-container"></div>
 
     <div class="btn-group">
@@ -317,9 +380,7 @@
   <div id="step3" class="content-section">
     <div class="content-card">
       <div class="section-title">Data Quality Validation</div>
-      <div class="validation-list" id="validation-list">
-        <!-- Dynamically populated -->
-      </div>
+      <div class="validation-list" id="validation-list"></div>
     </div>
     <div class="btn-group">
       <button class="btn btn-secondary" onclick="goToStep(2)">← Back</button>
@@ -332,11 +393,10 @@
   <!-- ═══ STEP 4: PREVIEW ═══ -->
   <div id="step4" class="content-section">
     <div class="info-box">📄 This is a draft preview of your report. Formatting may differ in the final exported document.</div>
+    <div class="info-box ai-info" id="preview-ai-note" style="display:none">⚠️ Yellow-highlighted values below are AI-prefilled and have not yet been confirmed by you. Return to Step 2 to review and save them.</div>
     <div class="content-card">
       <div class="section-title" id="preview-title">Report Preview</div>
-      <div class="preview-frame" id="preview-content">
-        <!-- Dynamically populated -->
-      </div>
+      <div class="preview-frame" id="preview-content"></div>
     </div>
     <div class="btn-group">
       <button class="btn btn-secondary" onclick="goToStep(3)">← Back</button>
@@ -348,44 +408,38 @@
 
   <!-- ═══ STEP 5: EXPORT ═══ -->
   <div id="step5" class="content-section">
-
     <div id="export-ready-banner" class="success-banner" style="display:none">
       <span class="icon">🎉</span>
       <div><strong>Report Generated!</strong> Your files are ready to download below.</div>
     </div>
-
     <div class="content-card">
       <div class="section-title">Report Details</div>
-      <div id="export-summary" style="font-size:.875rem;line-height:1.8;color:#555">
-        <!-- Populated dynamically -->
-      </div>
+      <div id="export-summary" style="font-size:.875rem;line-height:1.8;color:#555"></div>
     </div>
-
     <div class="content-card">
       <div class="section-title">Export Format</div>
       <div class="export-option">
         <div class="export-meta">
           <h4>📄 Word Document (.docx)</h4>
-          <p>Full formatted report with tables, headers, and GRI content index</p>
+          <p>Full formatted report with tables, headers, and content index</p>
         </div>
-        <button class="btn btn-primary" id="btn-docx" onclick="triggerExport('docx')">Download .docx</button>
+        <button class="btn btn-primary" onclick="triggerExport('docx')">Download .docx</button>
       </div>
       <div class="export-option">
         <div class="export-meta">
           <h4>📊 Excel Workbook (.xlsx)</h4>
           <p>Indicator-level data with calculations and audit trail</p>
         </div>
-        <button class="btn btn-primary" id="btn-xlsx" onclick="triggerExport('xlsx')">Download .xlsx</button>
+        <button class="btn btn-primary" onclick="triggerExport('xlsx')">Download .xlsx</button>
       </div>
       <div class="export-option">
         <div class="export-meta">
           <h4>📑 PDF Report</h4>
           <p>Print-ready stakeholder report with branding</p>
         </div>
-        <button class="btn btn-primary" id="btn-pdf" onclick="triggerExport('pdf')">Download PDF</button>
+        <button class="btn btn-primary" onclick="triggerExport('pdf')">Download PDF</button>
       </div>
     </div>
-
     <div class="btn-group">
       <button class="btn btn-secondary" onclick="goToStep(4)">← Back</button>
       <div class="right-btns">
@@ -415,8 +469,6 @@
     </div>
     <div id="fw-library-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem"></div>
   </div>
-
-  <!-- DETAIL PANEL -->
   <div id="fw-lib-detail" style="display:none">
     <div class="content-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
@@ -435,68 +487,69 @@
 // ──────────────────────────────────────────────
 //  STATE
 // ──────────────────────────────────────────────
-let currentStep = 1;
 let selectedFW = null;
+let selectedLibFW = null;
+let currentStep = 1;
 let activeFilter = 'all';
+let activeLibFilter = 'all';
+let reportGenerated = false;
 
-// ──────────────────────────────────────────────
-//  TOAST (replaces alert())
-// ──────────────────────────────────────────────
-function toast(msg, type='success', duration=2800){
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.textContent = msg;
-  document.getElementById('toast-container').appendChild(el);
-  setTimeout(()=>{ el.style.opacity='0'; el.style.transition='opacity .4s'; setTimeout(()=>el.remove(), 400); }, duration);
+// Company mapping per framework (for demo context)
+const FW_COMPANY = {
+  BRSR:    'Granules India Limited',
+  GreenCo: 'Manipal Group',
+  GRI:     'Manipal Group',
+  CBAM:    'Manipal Group',
+  default: 'Manipal Group'
+};
+
+function toast(msg, type='info', dur=3500){
+  const c=document.getElementById('toast-container');
+  const d=document.createElement('div');
+  d.className=`toast ${type}`;d.textContent=msg;c.appendChild(d);
+  setTimeout(()=>d.remove(),dur);
 }
 
-// ──────────────────────────────────────────────
-//  VIEW SWITCHING (Reporting Studio ↔ Library)
-// ──────────────────────────────────────────────
-let activeLibFilter = 'all';
-let selectedLibFW = null;
-
-function showView(view){
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('nav-'+view).classList.add('active');
-
-  const reportingEl = document.querySelector('.main-content');
-  const progressEl  = document.getElementById('progress-section');
-  const libraryEl   = document.getElementById('view-frameworks');
-
-  if(view==='reporting'){
-    reportingEl.style.display='block';
-    progressEl.style.display='block';
+function showView(v){
+  const mainEl=document.querySelector('.main-content');
+  const progressEl=document.getElementById('progress-section');
+  const libraryEl=document.getElementById('view-frameworks');
+  document.getElementById('nav-reporting').classList.toggle('active',v==='reporting');
+  document.getElementById('nav-frameworks').classList.toggle('active',v==='frameworks');
+  if(v==='reporting'){
+    mainEl.style.display='block';progressEl.style.display='block';
     libraryEl.style.display='none';
   } else {
-    reportingEl.style.display='none';
-    progressEl.style.display='none';
-    libraryEl.style.display='block';
-    buildLibraryGrid();
+    mainEl.style.display='none';progressEl.style.display='none';
+    libraryEl.style.display='block';buildLibraryGrid();
   }
 }
 
 // ──────────────────────────────────────────────
-//  FRAMEWORK DATA  (GRI fixed to 89; TCFD deduped)
+//  FRAMEWORK DATA
 // ──────────────────────────────────────────────
 const FW_DATA = {
   BRSR:{
     title:'SEBI BRSR & BRSR Core 2024', type:'Mandatory (Listed Co)', jurisdiction:'India',
     total:178, mandatory:27, optional:151,
     applicability:'Top 1,000 listed companies by market cap (BSE/NSE)',
-    sections:['Section A: General Disclosures (22 indicators)','Section B: Management & Process (18 indicators)','Section C: Principle-wise Performance (138 – 9 ESG Principles)'],
-    features:['27 BRSR Core KPIs require 3rd-party assurance from FY 2023-24','Aligned with GRI, SASB, TCFD, SDGs','Leadership indicators expand beyond core requirements'],
-    use:'Regulatory compliance; investor ESG communication; annual report filing',
-    libTag:'mandatory', libJurisdiction:'india'
+    sections:['Section A: General Disclosures (22 indicators – CIN, Products, Employees, CSR, Subsidiaries)','Section B: Management & Process (18 indicators – Policies, Governance, Committees, KRAs)','Section C: Principle-wise Performance (138 – 9 NGRBC Principles)','BRSR Core: 9 ESG attribute KPIs requiring 3rd-party assessment/assurance'],
+    features:['BRSR Core KPIs require 3rd-party assurance/assessment from FY 2023-24','Aligned with GRI, SASB, TCFD, SDGs','Leadership indicators expand beyond essential requirements','FY 2024-25: Value chain ESG disclosures applicable for top 250','New KPIs: Job creation in small towns, openness of business, gross wages to women'],
+    use:'Regulatory compliance (SEBI LODR Reg.34); investor ESG communication; annual report filing',
+    libTag:'mandatory', libJurisdiction:'india',
+    samplePDF:'Granules_India_BRSR_Sample_Report.pdf',
+    sampleCompany:'Granules India Limited'
   },
   GreenCo:{
-    title:'GreenCo Rating System (CII-ITC)', type:'Voluntary Certification', jurisdiction:'India',
-    total:58, mandatory:12, optional:46,
-    applicability:'Manufacturing industries, buildings, townships across India',
-    sections:['Energy (15 ind – 30%)', 'Environment (18 ind – 30%)', 'Water (10 ind – 15%)', 'Waste (8 ind – 15%)', 'Green Supply Chain (7 ind – 10%)'],
-    features:['Five levels: Platinum >80 | Gold 70-80 | Silver 60-70 | Certified 50-60','Valid 3 years with annual surveillance','Developed by CII-ITC CESD'],
-    use:'Green certification; ESG leadership; green financing access',
-    libTag:'voluntary', libJurisdiction:'india'
+    title:'GreenCo Rating System v4 (CII)', type:'Voluntary Certification', jurisdiction:'India',
+    total:62, mandatory:15, optional:47,
+    applicability:'Manufacturing industries, buildings, campuses, townships across India',
+    sections:['1. Energy Efficiency (20 pts – specific consumption, audits, BEE Star)','2. Renewable Energy (15 pts – % share, on-site/off-site capacity, RECs)','3. Water Conservation (15 pts – specific use, rainwater, recycling, ZLD)','4. GHG Emissions Reduction (15 pts – Scope 1+2 intensity, SBT alignment)','5. Waste Management (10 pts – total generation, diversion, ZWTL)','6. Material Conservation & Recycling (10 pts – recycled content, EPR)','7. Green Supply Chain (5 pts – supplier assessment, green procurement)','8. Product Stewardship & LCA (5 pts – LCA conducted, eco-design)','9. Innovation for Environment (3 pts – R&D spend, patents, new initiatives)','10. Green Infrastructure & Ecology (2 pts – green cover, biodiversity plan)'],
+    features:['Five rating levels: Certified ≥50 | Silver ≥60 | Gold ≥70 | Platinum ≥80 | Platinum+ ≥90','Rating valid 3 years with annual surveillance review','Acknowledged in India\'s NDC to UNFCCC (2015)','Life-cycle approach — covers product design to end-of-life','893+ companies rated across India; 102 Railway units rated'],
+    use:'Green certification; ESG leadership signalling; green financing; CII CSR recognition',
+    libTag:'voluntary', libJurisdiction:'india',
+    samplePDF:'Manipal_GreenCo_Sample_Report.pdf',
+    sampleCompany:'Manipal Group'
   },
   GRI:{
     title:'GRI Standards 2021', type:'Voluntary Reporting', jurisdiction:'Global',
@@ -505,187 +558,250 @@ const FW_DATA = {
     sections:['GRI 2: Universal – General Disclosures (33 disclosures)','GRI 3: Universal – Material Topics (3 disclosures)','Economic Standards: 201–207 (17 disclosures)','Environmental Standards: 301–308 (31 disclosures)','Social Standards: 401–418 (33 disclosures)'],
     features:['Most widely used framework — 10,000+ organisations globally','Modular — topic standards only required if material','GRI 2+3 (36) mandatory for "In Accordance" claim','Topic-specific standards apply when material to the organisation'],
     use:'Comprehensive sustainability reporting; stakeholder communication; multi-framework baseline',
-    libTag:'voluntary', libJurisdiction:'global'
+    libTag:'voluntary', libJurisdiction:'global',
+    samplePDF:'Manipal_GRI_Sample Report.pdf',
+    sampleCompany:'Manipal Group'
   },
-  CBAM:{
-    title:'EU Carbon Border Adjustment Mechanism', type:'Regulatory (EU)', jurisdiction:'European Union',
-    total:48, mandatory:48, optional:0,
-    applicability:'Importers of cement, steel, aluminium, fertilizers, hydrogen, electricity into EU',
-    sections:['Embedded Emissions Calculation (18)','Direct Scope 1 Emissions (12)','Indirect Scope 2 – Electricity (8)','Precursor & Input Materials (10)'],
-    features:['Transitional phase (Oct 2023–Dec 2025): Quarterly reporting only','Definitive phase from Jan 2026: CBAM certificates required (€/tCO2e)','Facility-level and product-level calculation methods'],
-    use:'EU import compliance; carbon footprint declaration; avoiding carbon leakage',
-    libTag:'mandatory', libJurisdiction:'eu'
-  },
-  ISSB:{
-    title:'ISSB S2 Climate-Related Disclosures', type:'Global Baseline', jurisdiction:'Global',
-    total:64, mandatory:0, optional:64,
-    applicability:'Companies preparing general purpose financial reports',
-    sections:['Governance (8)','Strategy (22 — inc. climate resilience)','Risk Management (12)','Metrics and Targets (22 — Scope 1, 2, 3)'],
-    features:['Builds on TCFD; incorporates SASB industry metrics','Scope 1, 2, 3 required','Scenario analysis mandatory','Designed for capital-market reporting'],
-    use:'Integrated sustainability & financial reporting; investor communication; global baseline',
-    libTag:'voluntary', libJurisdiction:'global'
-  },
-  CDP:{
-    title:'CDP Climate Change Questionnaire 2024', type:'Voluntary Disclosure', jurisdiction:'Global',
-    total:90, mandatory:0, optional:90,
-    applicability:'Companies requested by investors/customers or voluntary disclosers',
-    sections:['C0–C1: Introduction & Governance (5)','C2–C3: Risks, Opportunities & Business Impact (18)','C4–C5: Targets & Emissions Methodology (17)','C6–C7: Emissions Data & Intensity (20)','C8–C11: Energy, Metrics, Verification, Carbon Pricing (24)','C12: Engagement & Sign-off (6)'],
-    features:['A-to-D scoring; A-List for climate leaders','Used by 680+ investors, $130T+ AUM','Integrates TCFD & Science Based Targets','Score determines supply chain disclosure requirements'],
-    use:'Investor-grade climate disclosure; supply chain transparency; benchmarking',
-    libTag:'voluntary', libJurisdiction:'global'
-  },
-  TCFD:{
-    title:'TCFD – Task Force on Climate-related Financial Disclosures', type:'Voluntary Framework', jurisdiction:'Global',
-    total:44, mandatory:11, optional:33,
-    applicability:'All organisations; especially financial sector and large corporates',
-    sections:['Governance (2 core disclosures)','Strategy (4 — inc. scenario analysis)','Risk Management (3)','Metrics & Targets (4)','Sector Guidance – Financial, Energy, Transport (31)'],
-    features:['Four core pillars aligned with financial reporting','11 universal recommended disclosures','Foundational to ISSB S2','Scenario analysis for physical & transition risks'],
-    use:'Climate risk disclosure; financial impact assessment; investor communication',
-    libTag:'voluntary', libJurisdiction:'global'
-  },
-  SASB:{
-    title:'SASB Standards (now ISSB)', type:'Voluntary Disclosure', jurisdiction:'Global',
-    total:400, mandatory:0, optional:400,
-    applicability:'Companies across 77 industries disclosing financially material ESG info',
-    sections:['77 Industry-specific Standards (avg 10–15 metrics each)','26 General ESG Issue Categories','Accounting Metrics per material issue','Activity Metrics for normalisation'],
-    features:['Industry-specific financial materiality focus','Integrated into ISSB standards','Available in Bloomberg Terminal','Covers E, Social, Human Capital, Business Model, Leadership'],
-    use:'Investor-grade ESG; industry materiality; financial reporting integration',
-    libTag:'voluntary', libJurisdiction:'global'
-  },
-  SBTi:{
-    title:'Science Based Targets initiative (SBTi)', type:'Target Validation', jurisdiction:'Global',
-    total:35, mandatory:18, optional:17,
-    applicability:'Companies committing to science-aligned emissions reductions',
-    sections:['Company Info & Commitment (5)','Baseline & Target Year (4)','Scope 1 & 2 Targets (8)','Scope 3 Targets (10)','Near-term & Net-Zero Targets (8)'],
-    features:['Validates targets vs. 1.5 °C pathways','Min 42% reduction by 2030 (Scope 1+2)','Scope 3 target mandatory if >40% of total','6,000+ committed; 4,000+ validated'],
-    use:'Science-aligned target setting; investor confidence; supply chain engagement',
-    libTag:'voluntary', libJurisdiction:'global'
-  },
-  CSRD:{
-    title:'EU CSRD – ESRS E1 (Climate Standard)', type:'Mandatory (EU)', jurisdiction:'European Union',
-    total:82, mandatory:42, optional:40,
-    applicability:'Large EU companies (>250 employees OR >€50M turnover); listed SMEs',
-    sections:['E1-1: Transition Plan (12 data points)','E1-2 to E1-4: Policies, Actions, Targets (18)','E1-5: Energy Consumption & Mix (8)','E1-6 to E1-9: GHG Scope 1/2/3 (28)','E1-10 to E1-12: Removals, Risks, Financial Effects (16)'],
-    features:['Double materiality (financial + impact)','XBRL/iXBRL digital tagging required','Phased: Large cos (2025) → SMEs (2026)','Full value-chain coverage','Note: Full CSRD covers 12 ESRS standards with 500+ data points total'],
-    use:'EU regulatory compliance; sustainability due diligence; investor disclosure',
-    libTag:'mandatory', libJurisdiction:'eu'
-  },
-  UKSECR:{
-    title:'UK Streamlined Energy & Carbon Reporting', type:'UK Mandatory', jurisdiction:'United Kingdom',
-    total:18, mandatory:18, optional:0,
-    applicability:'UK quoted companies, large unquoted cos, large LLPs (>250 emp or >£36M turnover)',
-    sections:['Energy Consumption (UK + global) (4)','GHG Emissions – Scope 1, 2, travel Scope 3 (6)','Energy Efficiency Actions (4)','Intensity Metrics (4)'],
-    features:['In Directors\' Report since April 2019','UK Gov GHG Conversion Factors required','Prior year comparison mandatory'],
-    use:'UK annual report compliance; energy management; carbon baseline',
-    libTag:'mandatory', libJurisdiction:'eu'
-  },
-  HKEX:{
-    title:'HKEX Climate-Related Disclosures (ISSB-aligned)', type:'Mandatory (HK Listed)', jurisdiction:'Hong Kong',
-    total:45, mandatory:45, optional:0,
-    applicability:'All HKEX-listed companies (effective FY 2025)',
-    sections:['Governance (8)','Strategy (12 — climate resilience)','Risk Management (10)','Metrics & Targets (15 — Scope 1, 2, 3)'],
-    features:['Aligned with ISSB S2 and TCFD','Scope 1 & 2 mandatory 2025; Scope 3 from 2026','Accepts TCFD-aligned disclosures in transition'],
-    use:'HKEX compliance; Asian market investor disclosure',
-    libTag:'mandatory', libJurisdiction:'global'
-  },
-  GRESB:{
-    title:'GRESB Real Estate & Infrastructure Assessment', type:'Voluntary Benchmark', jurisdiction:'Global',
-    total:57, mandatory:0, optional:57,
-    applicability:'REITs, property funds, infrastructure funds, asset managers',
-    sections:['Management Component (30%): 28 scored indicators – Policies, Disclosure, Risk, Monitoring','Performance Component (70%): 29 scored indicators – Energy, GHG, Water, Waste at asset level'],
-    features:['Score 0-100 with 1-5 star ratings','$7T+ in RE/Infrastructure assets use GRESB','Asset-level intensity metrics mandatory for performance scoring','Annual assessment with peer benchmarking by region/property type'],
-    use:'RE/Infrastructure ESG benchmarking; attracting ESG capital',
-    libTag:'voluntary', libJurisdiction:'global'
-  },
-  ISO14064:{
-    title:'ISO 14064 GHG Accounting & Verification', type:'International Standard', jurisdiction:'Global',
-    total:52, mandatory:28, optional:24,
-    applicability:'Organisations seeking credible GHG accounting and verification',
-    sections:['Part 1: Organisation-level GHG Inventory (22)','Part 2: Project-level GHG Quantification (15)','Part 3: Validation & Verification (15)'],
-    features:['Aligned with GHG Protocol Corporate Standard','Basis for 3rd-party verification','ISO 14064-1:2018 covers Scopes 1-6'],
-    use:'GHG inventory; 3rd-party verification; carbon credit projects; assurance',
-    libTag:'voluntary', libJurisdiction:'global'
-  }
+  CBAM:{title:'EU Carbon Border Adjustment Mechanism',type:'Regulatory (EU)',jurisdiction:'European Union',total:48,mandatory:48,optional:0,applicability:'Importers of cement, steel, aluminium, fertilizers, hydrogen, electricity into EU',sections:['Embedded Emissions Calculation (18)','Direct Scope 1 Emissions (12)','Indirect Scope 2 – Electricity (8)','Precursor & Input Materials (10)'],features:['Transitional phase (Oct 2023–Dec 2025): Quarterly reporting only','Definitive phase from Jan 2026: CBAM certificates required (€/tCO2e)','Facility-level and product-level calculation methods'],use:'EU import compliance; carbon footprint declaration; avoiding carbon leakage',libTag:'mandatory',libJurisdiction:'eu'},
+  ISSB:{title:'ISSB S2 Climate-Related Disclosures',type:'Global Baseline',jurisdiction:'Global',total:64,mandatory:0,optional:64,applicability:'Companies preparing general purpose financial reports',sections:['Governance (8)','Strategy (22 — inc. climate resilience)','Risk Management (12)','Metrics and Targets (22 — Scope 1, 2, 3)'],features:['Builds on TCFD; incorporates SASB industry metrics','Scope 1, 2, 3 required','Scenario analysis mandatory','Designed for capital-market reporting'],use:'Integrated sustainability & financial reporting; investor communication; global baseline',libTag:'voluntary',libJurisdiction:'global'},
+  CDP:{title:'CDP Climate Change Questionnaire 2024',type:'Voluntary Disclosure',jurisdiction:'Global',total:90,mandatory:0,optional:90,applicability:'Companies requested by investors/customers or voluntary disclosers',sections:['C0–C1: Introduction & Governance (5)','C2–C3: Risks, Opportunities & Business Impact (18)','C4–C5: Targets & Emissions Methodology (17)','C6–C7: Emissions Data & Intensity (20)','C8–C11: Energy, Metrics, Verification, Carbon Pricing (24)','C12: Engagement & Sign-off (6)'],features:['A-to-D scoring; A-List for climate leaders','Used by 680+ investors, $130T+ AUM','Integrates TCFD & Science Based Targets'],use:'Investor-grade climate disclosure; supply chain transparency; benchmarking',libTag:'voluntary',libJurisdiction:'global'},
+  TCFD:{title:'TCFD – Task Force on Climate-related Financial Disclosures',type:'Voluntary Framework',jurisdiction:'Global',total:44,mandatory:11,optional:33,applicability:'All organisations; especially financial sector and large corporates',sections:['Governance (2 core disclosures)','Strategy (4 — inc. scenario analysis)','Risk Management (3)','Metrics & Targets (4)','Sector Guidance – Financial, Energy, Transport (31)'],features:['Four core pillars aligned with financial reporting','11 universal recommended disclosures','Foundational to ISSB S2','Scenario analysis for physical & transition risks'],use:'Climate risk disclosure; financial impact assessment; investor communication',libTag:'voluntary',libJurisdiction:'global'},
+  SASB:{title:'SASB Standards (now ISSB)',type:'Voluntary Disclosure',jurisdiction:'Global',total:400,mandatory:0,optional:400,applicability:'Companies across 77 industries disclosing financially material ESG info',sections:['77 Industry-specific Standards (avg 10–15 metrics each)','26 General ESG Issue Categories','Accounting Metrics per material issue','Activity Metrics for normalisation'],features:['Industry-specific financial materiality focus','Integrated into ISSB standards','Available in Bloomberg Terminal'],use:'Investor-grade ESG; industry materiality; financial reporting integration',libTag:'voluntary',libJurisdiction:'global'},
+  SBTi:{title:'Science Based Targets initiative (SBTi)',type:'Target Validation',jurisdiction:'Global',total:35,mandatory:18,optional:17,applicability:'Companies committing to science-aligned emissions reductions',sections:['Company Info & Commitment (5)','Baseline & Target Year (4)','Scope 1 & 2 Targets (8)','Scope 3 Targets (10)','Near-term & Net-Zero Targets (8)'],features:['Validates targets vs. 1.5 °C pathways','Min 42% reduction by 2030 (Scope 1+2)','Scope 3 target mandatory if >40% of total'],use:'Science-aligned target setting; investor confidence; supply chain engagement',libTag:'voluntary',libJurisdiction:'global'},
+  CSRD:{title:'EU CSRD – ESRS E1 (Climate Standard)',type:'Mandatory (EU)',jurisdiction:'European Union',total:82,mandatory:42,optional:40,applicability:'Large EU companies (>250 employees OR >€50M turnover); listed SMEs',sections:['E1-1: Transition Plan (12 data points)','E1-2 to E1-4: Policies, Actions, Targets (18)','E1-5: Energy Consumption & Mix (8)','E1-6 to E1-9: GHG Scope 1/2/3 (28)','E1-10 to E1-12: Removals, Risks, Financial Effects (16)'],features:['Double materiality (financial + impact)','XBRL/iXBRL digital tagging required','Phased: Large cos (2025) → SMEs (2026)'],use:'EU regulatory compliance; sustainability due diligence; investor disclosure',libTag:'mandatory',libJurisdiction:'eu'},
+  UKSECR:{title:'UK Streamlined Energy & Carbon Reporting',type:'UK Mandatory',jurisdiction:'United Kingdom',total:18,mandatory:18,optional:0,applicability:'UK quoted companies, large unquoted cos, large LLPs',sections:['Energy Consumption (UK + global) (4)','GHG Emissions – Scope 1, 2, travel Scope 3 (6)','Energy Efficiency Actions (4)','Intensity Metrics (4)'],features:['In Directors\' Report since April 2019','UK Gov GHG Conversion Factors required','Prior year comparison mandatory'],use:'UK annual report compliance; energy management; carbon baseline',libTag:'mandatory',libJurisdiction:'eu'},
+  HKEX:{title:'HKEX Climate-Related Disclosures (ISSB-aligned)',type:'Mandatory (HK Listed)',jurisdiction:'Hong Kong',total:45,mandatory:45,optional:0,applicability:'All HKEX-listed companies (effective FY 2025)',sections:['Governance (8)','Strategy (12 — climate resilience)','Risk Management (10)','Metrics & Targets (15 — Scope 1, 2, 3)'],features:['Aligned with ISSB S2 and TCFD','Scope 1 & 2 mandatory 2025; Scope 3 from 2026'],use:'HKEX compliance; Asian market investor disclosure',libTag:'mandatory',libJurisdiction:'global'},
+  GRESB:{title:'GRESB Real Estate & Infrastructure Assessment',type:'Voluntary Benchmark',jurisdiction:'Global',total:57,mandatory:0,optional:57,applicability:'REITs, property funds, infrastructure funds, asset managers',sections:['Management Component (30%): 28 scored indicators','Performance Component (70%): 29 scored indicators – Energy, GHG, Water, Waste'],features:['Score 0-100 with 1-5 star ratings','$7T+ in RE/Infrastructure assets use GRESB','Asset-level intensity metrics mandatory'],use:'RE/Infrastructure ESG benchmarking; attracting ESG capital',libTag:'voluntary',libJurisdiction:'global'},
+  ISO14064:{title:'ISO 14064 GHG Accounting & Verification',type:'International Standard',jurisdiction:'Global',total:52,mandatory:28,optional:24,applicability:'Organisations seeking credible GHG accounting and verification',sections:['Part 1: Organisation-level GHG Inventory (22)','Part 2: Project-level GHG Quantification (15)','Part 3: Validation & Verification (15)'],features:['Aligned with GHG Protocol Corporate Standard','Basis for 3rd-party verification'],use:'GHG inventory; 3rd-party verification; carbon credit projects; assurance',libTag:'voluntary',libJurisdiction:'global'}
 };
 
-// Indicators per framework (representative sample grouped by category)
+// ──────────────────────────────────────────────
+//  INDICATOR DATA – GreenCo (Manipal Group)
+//  Based on CII GreenCo Rating System v4
+//  aiPrefilled: true = AI-fetched, needs user confirmation
+// ──────────────────────────────────────────────
 const FW_INDICATORS = {
-  BRSR:{
-    stats:{total:178, autoFilled:119, pending:59},
+
+  // ── GreenCo: Manipal Group (Education + Healthcare campus) ──────────────
+  GreenCo:{
+    stats:{total:62, autoFilled:41, pending:21},
     categories:{
-      'Section A – General Disclosures':[
-        {code:'A1',name:'Corporate Identity',status:'complete',type:'essential',data:'Manipal Group | CIN: L85110KA2023PLC123456',editable:true},
-        {code:'A2',name:'Products and Services',status:'complete',type:'essential',data:'Higher Education, Healthcare Services, K-12 Education',editable:true},
-        {code:'A3',name:'Number of Locations',status:'complete',type:'essential',data:'9 sites in Karnataka, India',editable:true}
+
+      '1. Energy Efficiency  [Max: 20 pts]':[
+        {code:'GC-E1',name:'Specific Energy Consumption (GJ/FTE)',status:'complete',type:'essential',data:'15.2 GJ/FTE',editable:true,aiPrefilled:false,maxPts:4,earnedPts:3.2},
+        {code:'GC-E2',name:'Energy Intensity Reduction vs. Baseline (%)',status:'complete',type:'essential',data:'8.4% reduction vs. FY 2022-23 baseline',editable:true,aiPrefilled:false,maxPts:4,earnedPts:3.0},
+        {code:'GC-E3',name:'Energy Management System (ISO 50001 / BEE)',status:'complete',type:'essential',data:'BEE-certified Energy Auditor appointed; ISO 50001 planned by FY 2026',editable:true,aiPrefilled:true,maxPts:3,earnedPts:2.0},
+        {code:'GC-E4',name:'Energy Audit Frequency & Coverage (%)',status:'complete',type:'essential',data:'Annual energy audit; 82% of total consumption audited',editable:true,aiPrefilled:false,maxPts:3,earnedPts:2.4},
+        {code:'GC-E5',name:'No. of Energy Conservation Projects Implemented',status:'complete',type:'essential',data:'17 projects (LED retrofits, HVAC optimisation, BMS deployment)',editable:true,aiPrefilled:true,maxPts:3,earnedPts:2.5},
+        {code:'GC-E6',name:'Total Energy Savings Achieved (GJ/year)',status:'complete',type:'essential',data:'7,436 GJ saved in FY 2024-25',editable:true,aiPrefilled:false,maxPts:3,earnedPts:2.6},
       ],
-      'Section B – Management':[
-        {code:'B1',name:'ESG Policy',status:'complete',type:'leadership',data:'Board-approved ESG Policy, March 2024',editable:true},
-        {code:'B2',name:'Sustainability Committee',status:'complete',type:'essential',data:'Board ESG Committee chaired by CEO',editable:true}
+
+      '2. Renewable Energy  [Max: 15 pts]':[
+        {code:'GC-RE1',name:'Renewable Energy as % of Total Consumption',status:'complete',type:'essential',data:'12,456 GJ (7.5% of 167,081 GJ total consumption)',editable:true,aiPrefilled:false,maxPts:6,earnedPts:3.8},
+        {code:'GC-RE2',name:'On-site Solar Installed Capacity (kWp)',status:'complete',type:'essential',data:'3,450 kWp across Manipal campus, KMC Mangaluru, MCOPS',editable:true,aiPrefilled:false,maxPts:5,earnedPts:3.2},
+        {code:'GC-RE3',name:'Off-site Renewable Energy Procurement (MWh/RECs)',status:'pending',type:'optional',data:'',editable:true,aiPrefilled:false,maxPts:4,earnedPts:0},
       ],
-      'Section C – Environment (Principle 6)':[
-        {code:'C.P6.1',name:'Total Scope 1 Emissions (tCO2e)',status:'complete',type:'essential',data:'2,450 tCO2e',editable:true},
-        {code:'C.P6.2',name:'Total Scope 2 Emissions (tCO2e)',status:'complete',type:'essential',data:'14,560 tCO2e',editable:true},
-        {code:'C.P6.3',name:'Total Scope 3 Emissions (tCO2e)',status:'pending',type:'leadership',data:'',editable:true},
-        {code:'C.P6.4',name:'GHG Intensity (tCO2e/₹Cr revenue)',status:'calculated',type:'essential',data:'0.086 tCO2e/FTE',editable:false},
-        {code:'C.P6.5',name:'Total Energy Consumption (GJ)',status:'complete',type:'essential',data:'167,081 GJ',editable:true},
-        {code:'C.P6.6',name:'Water Consumption (KL)',status:'complete',type:'leadership',data:'628,000 KL',editable:true},
-        {code:'C.P6.7',name:'Waste Generated (MT)',status:'complete',type:'leadership',data:'1,437 MT',editable:true}
-      ]
+
+      '3. Water Conservation  [Max: 15 pts]':[
+        {code:'GC-W1',name:'Specific Water Consumption (kL/FTE)',status:'complete',type:'essential',data:'57.2 kL/FTE (628,000 kL / 10,980 FTEs)',editable:true,aiPrefilled:false,maxPts:4,earnedPts:2.8},
+        {code:'GC-W2',name:'Water Intensity Reduction vs. Baseline (%)',status:'complete',type:'essential',data:'6.1% reduction vs. FY 2022-23',editable:true,aiPrefilled:false,maxPts:3,earnedPts:1.8},
+        {code:'GC-W3',name:'Rainwater Harvesting Volume (kL/year)',status:'complete',type:'essential',data:'89,000 kL harvested across 12 sites with dedicated RWH pits',editable:true,aiPrefilled:false,maxPts:3,earnedPts:2.4},
+        {code:'GC-W4',name:'Wastewater Recycled/Reused (% of total wastewater)',status:'complete',type:'essential',data:'68% STP-treated water reused for landscaping and flushing',editable:true,aiPrefilled:false,maxPts:3,earnedPts:2.0},
+        {code:'GC-W5',name:'Zero Liquid Discharge (ZLD) Status',status:'pending',type:'optional',data:'',editable:true,aiPrefilled:false,maxPts:2,earnedPts:0},
+      ],
+
+      '4. GHG Emissions Reduction  [Max: 15 pts]':[
+        {code:'GC-G1',name:'Scope 1 GHG Emissions (tCO2e)',status:'complete',type:'essential',data:'2,450 tCO2e (Diesel generators, LPG kitchens, fleet vehicles)',editable:true,aiPrefilled:false,maxPts:3,earnedPts:2.4},
+        {code:'GC-G2',name:'Scope 2 GHG Emissions (tCO2e)',status:'complete',type:'essential',data:'14,560 tCO2e (Location-based, KPTCL/MSEDCL grid factor 0.82 kgCO2e/kWh)',editable:true,aiPrefilled:false,maxPts:3,earnedPts:2.5},
+        {code:'GC-G3',name:'GHG Intensity (tCO2e / ₹Cr revenue)',status:'calculated',type:'essential',data:'0.086 tCO2e/FTE (auto-calculated)',editable:false,aiPrefilled:false,maxPts:3,earnedPts:2.0},
+        {code:'GC-G4',name:'GHG Intensity Reduction (%) vs. Baseline',status:'complete',type:'essential',data:'7.2% reduction in emission intensity vs. FY 2022-23',editable:true,aiPrefilled:true,maxPts:3,earnedPts:2.2},
+        {code:'GC-G5',name:'Net Zero / SBT Commitment',status:'pending',type:'optional',data:'',editable:true,aiPrefilled:false,maxPts:3,earnedPts:0},
+      ],
+
+      '5. Waste Management  [Max: 10 pts]':[
+        {code:'GC-WM1',name:'Total Waste Generated (MT/year)',status:'complete',type:'essential',data:'1,437 MT (Biomedical: 145 MT | General: 1,245 MT | E-waste: 12.5 MT | Hazardous: 34.8 MT)',editable:true,aiPrefilled:false,maxPts:2,earnedPts:1.6},
+        {code:'GC-WM2',name:'Waste Diversion Rate (% diverted from landfill)',status:'complete',type:'essential',data:'34.5% (496 MT) diverted — Recycled: 340 MT, Composted: 156 MT',editable:true,aiPrefilled:false,maxPts:3,earnedPts:1.8},
+        {code:'GC-WM3',name:'Biomedical Waste Disposal (authorised CBWTF, %)',status:'complete',type:'essential',data:'100% biomedical waste disposed via authorised CBWTF (Karnataka)',editable:true,aiPrefilled:false,maxPts:2,earnedPts:2.0},
+        {code:'GC-WM4',name:'Zero Waste to Landfill (ZWTL) Progress (%)',status:'pending',type:'optional',data:'',editable:true,aiPrefilled:false,maxPts:3,earnedPts:0},
+      ],
+
+      '6. Material Conservation & Recycling  [Max: 10 pts]':[
+        {code:'GC-MC1',name:'Material Efficiency Improvement (% reduction in specific consumption)',status:'complete',type:'essential',data:'4.8% improvement in paper/consumables per FTE vs. prior year',editable:true,aiPrefilled:true,maxPts:4,earnedPts:2.0},
+        {code:'GC-MC2',name:'Recycled / Sustainable Content in Materials (%)',status:'pending',type:'optional',data:'',editable:true,aiPrefilled:false,maxPts:3,earnedPts:0},
+        {code:'GC-MC3',name:'EPR Compliance for Plastic/E-waste',status:'complete',type:'optional',data:'EPR registration completed; 12.5 MT e-waste channelised via authorised PROs',editable:true,aiPrefilled:true,maxPts:3,earnedPts:1.8},
+      ],
+
+      '7. Green Supply Chain  [Max: 5 pts]':[
+        {code:'GC-SC1',name:'Suppliers Assessed on Environmental Criteria (%)',status:'complete',type:'essential',data:'38% of key suppliers (by spend) assessed on green criteria via supplier portal',editable:true,aiPrefilled:true,maxPts:3,earnedPts:1.5},
+        {code:'GC-SC2',name:'Green Procurement Policy (documented & implemented)',status:'complete',type:'essential',data:'Green Procurement Policy approved by Board in FY 2024; covers medical consumables, IT, facilities',editable:true,aiPrefilled:true,maxPts:2,earnedPts:1.6},
+      ],
+
+      '8. Product Stewardship & Life Cycle Assessment  [Max: 5 pts]':[
+        {code:'GC-PS1',name:'Life Cycle Assessment (LCA) Conducted for key products/services',status:'pending',type:'optional',data:'',editable:true,aiPrefilled:false,maxPts:3,earnedPts:0},
+        {code:'GC-PS2',name:'Eco-design / Environmental Labelling Initiatives',status:'pending',type:'optional',data:'',editable:true,aiPrefilled:false,maxPts:2,earnedPts:0},
+      ],
+
+      '9. Innovation for Environment  [Max: 3 pts]':[
+        {code:'GC-I1',name:'R&D / Innovation Investment in Green Projects (₹ Lakh)',status:'complete',type:'optional',data:'₹42 Lakh invested in EV fleet transition, solar expansion feasibility study, AI-based BMS',editable:true,aiPrefilled:true,maxPts:2,earnedPts:1.0},
+        {code:'GC-I2',name:'Number of Green Innovation Patents / Recognised Initiatives',status:'pending',type:'optional',data:'',editable:true,aiPrefilled:false,maxPts:1,earnedPts:0},
+      ],
+
+      '10. Green Infrastructure & Ecology  [Max: 2 pts]':[
+        {code:'GC-GI1',name:'Green Cover / Plantation Area (sq.m or trees planted)',status:'complete',type:'optional',data:'85,000 sq.m green cover; 2,400 trees across Manipal campus; 3,200 saplings planted FY25',editable:true,aiPrefilled:true,maxPts:1,earnedPts:0.8},
+        {code:'GC-GI2',name:'Biodiversity Action Plan (documented)',status:'pending',type:'optional',data:'',editable:true,aiPrefilled:false,maxPts:1,earnedPts:0},
+      ],
     }
   },
+
+  // ── BRSR: Granules India Limited (Pharma Manufacturer) ──────────────────
+  BRSR:{
+    stats:{total:178, autoFilled:112, pending:66},
+    categories:{
+      'Section A – General Disclosures':[
+        {code:'A1',name:'Corporate Identity (CIN, PAN, ISIN)',status:'complete',type:'essential',data:'Granules India Limited | CIN: L24110TG1991PLC013470 | NSE: GRANULES | BSE: 532482',editable:true,aiPrefilled:true},
+        {code:'A2',name:'Year of Incorporation',status:'complete',type:'essential',data:'1984 (incorporated in Andhra Pradesh)',editable:true,aiPrefilled:true},
+        {code:'A3',name:'Registered & Corporate Office',status:'complete',type:'essential',data:'2nd Floor, 3rd Block, My Home Hub, Madhapur, Hyderabad – 500 081, Telangana',editable:true,aiPrefilled:true},
+        {code:'A4',name:'Business Activity (Primary Products/Services)',status:'complete',type:'essential',data:'Pharmaceutical Active Ingredients (APIs) – Ibuprofen, Metformin HCl, Paracetamol; Pharmaceutical Formulation Intermediates (PFIs); Finished Dosages (FDs) — Tablets & Capsules',editable:true,aiPrefilled:true},
+        {code:'A5',name:'Number of Manufacturing Locations',status:'complete',type:'essential',data:'6 manufacturing units: Gagrauli (AP) × 2, Bonthapally (AP), Gagillapur (Telangana), Vizag (AP) SEZ, Virginia USA facility',editable:true,aiPrefilled:true},
+        {code:'A6',name:'Total Revenue (₹ Crore) – FY 2024-25',status:'complete',type:'essential',data:'₹4,278 Crore (consolidated)',editable:true,aiPrefilled:false},
+        {code:'A7',name:'Markets Served (% export vs. domestic)',status:'complete',type:'essential',data:'Export: 58% | Domestic: 42% | Key markets: USA (34%), Europe (16%), India (42%)',editable:true,aiPrefilled:true},
+        {code:'A8',name:'Employees – Permanent (Male/Female)',status:'complete',type:'essential',data:'6,482 employees total: 5,241 Male (80.9%) | 1,241 Female (19.1%)',editable:true,aiPrefilled:true},
+        {code:'A9',name:'Contract/Temporary Workers',status:'complete',type:'essential',data:'2,340 contract workers across manufacturing plants',editable:true,aiPrefilled:true},
+        {code:'A10',name:'Turnover Rate (%) – Permanent Employees',status:'pending',type:'essential',data:'',editable:true,aiPrefilled:false},
+        {code:'A11',name:'CSR Obligation (₹ Crore) & Spending',status:'complete',type:'essential',data:'CSR Obligation: ₹8.4 Crore | Spent: ₹9.1 Crore (108% of obligation) | Focus: Healthcare, Education, Sanitation',editable:true,aiPrefilled:true},
+        {code:'A12',name:'Holding, Subsidiary & Associate Companies',status:'complete',type:'essential',data:'3 subsidiaries: Granules USA Inc., Granules Pharmaceuticals Inc. (USA), Granules-Biocause (JV, China)',editable:true,aiPrefilled:true},
+      ],
+
+      'Section B – Management & Processes':[
+        {code:'B1',name:'ESG / Sustainability Policy (Board-approved)',status:'complete',type:'essential',data:'Integrated Sustainability Policy approved by Board of Directors; covers Environment, Social & Governance commitments aligned with NGRBC 9 principles',editable:true,aiPrefilled:true},
+        {code:'B2',name:'ESG Governance Committee & Chairperson',status:'complete',type:'essential',data:'ESG & Sustainability Committee chaired by MD & CEO; quarterly meetings; reports to Board',editable:true,aiPrefilled:true},
+        {code:'B3',name:'Performance Linked Incentives (KRAs) on ESG',status:'complete',type:'essential',data:'ESG KPIs embedded in senior management performance scorecards (energy intensity, water reduction, safety)',editable:true,aiPrefilled:true},
+        {code:'B4',name:'National Voluntary Guidelines (NVGs) / NGRBC Adherence',status:'complete',type:'essential',data:'Adherent to all 9 NGRBC principles; BRSR disclosure submitted with Annual Report FY 2024-25',editable:true,aiPrefilled:true},
+        {code:'B5',name:'Stakeholder Identification & Engagement Mechanism',status:'complete',type:'essential',data:'6 identified stakeholder groups: Investors, Employees, Customers, Communities, Regulators, Suppliers; quarterly engagement calendar',editable:true,aiPrefilled:true},
+        {code:'B6',name:'Grievance Redressal Mechanism & Coverage',status:'complete',type:'essential',data:'POSH Committee, Ombudsperson, Whistleblower Policy, Ethics Hotline; 98.7% cases resolved within SLA',editable:true,aiPrefilled:true},
+        {code:'B7',name:'GHG Protocol Alignment & Reporting Boundary',status:'complete',type:'essential',data:'GHG Protocol Corporate Standard; Operational Control approach; Boundary: all 5 Indian manufacturing sites + HO',editable:true,aiPrefilled:true},
+        {code:'B8',name:'Independent Assurance / Assessment of BRSR Core',status:'pending',type:'essential',data:'',editable:true,aiPrefilled:false},
+      ],
+
+      'Section C – Principle 1: Ethics & Transparency':[
+        {code:'P1.E1',name:'Percentage of Board trained on Code of Conduct',status:'complete',type:'essential',data:'100% of Board members and 94% of senior management trained on CoC in FY 2024-25',editable:true,aiPrefilled:true},
+        {code:'P1.E2',name:'Whistle-blower/Vigil Mechanism – complaints received & resolved',status:'complete',type:'essential',data:'12 complaints received; 12 resolved (100%) within 45-day SLA; 0 pending',editable:true,aiPrefilled:true},
+        {code:'P1.E3',name:'Anti-corruption / Anti-bribery Policy & Coverage (%)',status:'complete',type:'essential',data:'Anti-Bribery & Anti-Corruption Policy; 100% employee coverage via e-learning module',editable:true,aiPrefilled:true},
+        {code:'P1.L1',name:'Fines/Penalties for regulatory non-compliance (₹)',status:'complete',type:'leadership',data:'₹0 — No significant fines or penalties from SEBI, MCA, or environmental regulators in FY 2024-25',editable:true,aiPrefilled:true},
+      ],
+
+      'Section C – Principle 2: Sustainable Products & Services':[
+        {code:'P2.E1',name:'R&D Expenditure on sustainable processes (₹ Cr, % of revenue)',status:'complete',type:'essential',data:'₹128.5 Cr (3.0% of revenue) on green chemistry, solvent recovery, process efficiency',editable:true,aiPrefilled:true},
+        {code:'P2.E2',name:'Products with sustainable packaging / EPR',status:'complete',type:'essential',data:'EPR registration: MH-BMM-00012340; 340 MT plastic packaging under EPR; 78% secondary packaging recycled content',editable:true,aiPrefilled:true},
+        {code:'P2.L1',name:'Life Cycle Assessment (LCA) for key APIs',status:'pending',type:'leadership',data:'',editable:true,aiPrefilled:false},
+      ],
+
+      'Section C – Principle 3: Employee Wellbeing':[
+        {code:'P3.E1',name:'Health Insurance Coverage (% of permanent employees)',status:'complete',type:'essential',data:'100% permanent employees covered under Group Mediclaim; ₹5 Lakh family floater',editable:true,aiPrefilled:true},
+        {code:'P3.E2',name:'Accident Frequency Rate (LTIFR) – Manufacturing',status:'complete',type:'essential',data:'LTIFR: 0.28 per million man-hours | Zero fatalities FY 2024-25',editable:true,aiPrefilled:false},
+        {code:'P3.E3',name:'Training Hours per Employee (avg, hrs/year)',status:'complete',type:'essential',data:'42.6 hrs/employee/year (Technical: 28 hrs | HSE: 8.4 hrs | Soft skills: 6.2 hrs)',editable:true,aiPrefilled:true},
+        {code:'P3.E4',name:'Return-to-work rate after maternity leave (%)',status:'pending',type:'essential',data:'',editable:true,aiPrefilled:false},
+        {code:'P3.L1',name:'Employee Assistance Programme (EAP) – mental health',status:'complete',type:'leadership',data:'EAP launched FY 2024; covers mental health, financial counselling; 340 employees utilised services',editable:true,aiPrefilled:true},
+      ],
+
+      'Section C – Principle 6: Environment ★ (BRSR Core KPIs)':[
+        {code:'P6.E1',name:'Total Scope 1 GHG Emissions (tCO2e)',status:'complete',type:'essential',data:'28,145 tCO2e (Fuels: 22,890 | Process emissions: 4,680 | Refrigerants: 575)',editable:true,aiPrefilled:false},
+        {code:'P6.E2',name:'Total Scope 2 GHG Emissions – Location-based (tCO2e)',status:'complete',type:'essential',data:'44,820 tCO2e (APTRANSCO/TSSPDCL grid factor 0.92 kgCO2e/kWh applied)',editable:true,aiPrefilled:false},
+        {code:'P6.E3',name:'Total Scope 2 GHG Emissions – Market-based (tCO2e)',status:'pending',type:'essential',data:'',editable:true,aiPrefilled:false},
+        {code:'P6.E4',name:'Scope 3 GHG Emissions – Category 1 (Purchased Goods) (tCO2e)',status:'pending',type:'leadership',data:'',editable:true,aiPrefilled:false},
+        {code:'P6.E5',name:'GHG Emission Intensity (tCO2e / ₹ Crore revenue)',status:'calculated',type:'essential',data:'16.98 tCO2e/₹Cr (auto-calculated from Scope 1+2 / Revenue)',editable:false,aiPrefilled:false},
+        {code:'P6.E6',name:'GHG Reduction Target (% and target year)',status:'complete',type:'essential',data:'30% absolute Scope 1+2 reduction by FY 2030 vs. FY 2022 baseline; aligned with SBTi 1.5°C pathway',editable:true,aiPrefilled:true},
+        {code:'P6.E7',name:'Total Energy Consumption (GJ) – Renewable vs Non-renewable',status:'complete',type:'essential',data:'Total: 521,480 GJ | Non-renewable: 488,920 GJ (93.7%) | Renewable: 32,560 GJ (6.3% — rooftop solar + PPAs)',editable:true,aiPrefilled:false},
+        {code:'P6.E8',name:'Energy Intensity (GJ / ₹ Crore revenue)',status:'calculated',type:'essential',data:'121.9 GJ/₹Cr (auto-calculated)',editable:false,aiPrefilled:false},
+        {code:'P6.E9',name:'Total Water Withdrawal (ML) – by source',status:'complete',type:'essential',data:'Total: 1,248 ML | Groundwater (bore wells): 780 ML | Municipal supply: 380 ML | Surface water: 88 ML',editable:true,aiPrefilled:false},
+        {code:'P6.E10',name:'Water Intensity (kL / MT of product)',status:'calculated',type:'essential',data:'18.4 kL/MT API produced (auto-calculated)',editable:false,aiPrefilled:false},
+        {code:'P6.E11',name:'Water Recycled & Reused (ML, % of total withdrawal)',status:'complete',type:'essential',data:'374 ML recycled (30% of total withdrawal) — ETP/STP treated water reused in cooling towers',editable:true,aiPrefilled:false},
+        {code:'P6.E12',name:'Total Waste Generated (MT) – Hazardous vs Non-hazardous',status:'complete',type:'essential',data:'Total: 4,280 MT | Hazardous (Schedule I/II/III): 2,145 MT | Non-hazardous: 2,135 MT',editable:true,aiPrefilled:false},
+        {code:'P6.E13',name:'Waste Disposal Method (% recycled / treated / landfilled)',status:'complete',type:'essential',data:'Recycled: 38% | Incinerated/Co-processed: 48% | STP/ETP treated & discharged: 12% | Landfilled: 2%',editable:true,aiPrefilled:false},
+        {code:'P6.E14',name:'Regulatory Compliance – Environmental NOCs/Consents',status:'complete',type:'essential',data:'All 5 Indian units operating with valid Consent to Operate (CTO); 0 violations / show cause notices',editable:true,aiPrefilled:false},
+        {code:'P6.L1',name:'Extended Producer Responsibility (EPR) – APIs & Plastic',status:'complete',type:'leadership',data:'EPR plan filed with CPCB; 340 MT plastic packaging under collection scheme via authorised PROs',editable:true,aiPrefilled:true},
+        {code:'P6.L2',name:'Biodiversity Impact Assessment for plant locations',status:'pending',type:'leadership',data:'',editable:true,aiPrefilled:false},
+        {code:'P6.L3',name:'Green Credits generated or procured (new FY25 KPI)',status:'pending',type:'leadership',data:'',editable:true,aiPrefilled:false},
+      ],
+
+      'Section C – Principle 7: Policy Advocacy':[
+        {code:'P7.E1',name:'Trade/Industry Associations Membership',status:'complete',type:'essential',data:'FICCI Pharma Committee, IPA (Indian Pharmaceutical Alliance), PHD Chamber, CII National Council on Healthcare',editable:true,aiPrefilled:true},
+        {code:'P7.L1',name:'Public policy positions on environment / sustainability',status:'pending',type:'leadership',data:'',editable:true,aiPrefilled:false},
+      ],
+
+      'Section C – Principle 8: Inclusive Growth':[
+        {code:'P8.E1',name:'CSR Projects – Areas of Intervention & Beneficiaries',status:'complete',type:'essential',data:'Healthcare (Janani clinics: 45,000 beneficiaries), Education (scholarships: 1,200 students), WASH (18 villages, Telangana)',editable:true,aiPrefilled:true},
+        {code:'P8.E2',name:'MSME/Small Supplier Procurement (%)',status:'complete',type:'essential',data:'34% of total procurement value from MSMEs and local suppliers (within 100 km of plants)',editable:true,aiPrefilled:true},
+        {code:'P8.L1',name:'Job Creation in Small Towns (new BRSR Core KPI)',status:'pending',type:'leadership',data:'',editable:true,aiPrefilled:false},
+        {code:'P8.L2',name:'Gross Wages Paid to Women (₹ Crore & % of total wages)',status:'pending',type:'leadership',data:'',editable:true,aiPrefilled:false},
+      ],
+
+      'Section C – Principle 9: Customer Responsibility':[
+        {code:'P9.E1',name:'Consumer Complaints on Product Quality & Safety',status:'complete',type:'essential',data:'14 quality complaints received; 14 resolved; 0 product recalls in FY 2024-25',editable:true,aiPrefilled:true},
+        {code:'P9.E2',name:'Pharmacovigilance & Adverse Drug Reaction Reporting',status:'complete',type:'essential',data:'Pharmacovigilance system per CDSCO guidelines; 0 serious ADR attributable to manufacturing defects',editable:true,aiPrefilled:true},
+        {code:'P9.L1',name:'Customer Satisfaction Score (CSAT / NPS)',status:'pending',type:'leadership',data:'',editable:true,aiPrefilled:false},
+      ],
+    }
+  },
+
+  // ── GRI: Manipal Group ───────────────────────────────────────────────────
   GRI:{
     stats:{total:117, autoFilled:31, pending:86},
     categories:{
       'GRI 2 – General Disclosures':[
-        {code:'GRI 2-1',name:'Organizational Details',status:'complete',type:'mandatory',data:'Manipal Group – Education & Healthcare Conglomerate',editable:true},
-        {code:'GRI 2-6',name:'Activities and Value Chain',status:'complete',type:'mandatory',data:'Higher Education, Multi-specialty Hospitals, K-12 Schools',editable:true},
-        {code:'GRI 2-7',name:'Employees',status:'complete',type:'mandatory',data:'10,980 employees (58% Male, 42% Female)',editable:true},
-        {code:'GRI 2-9',name:'Governance Structure',status:'pending',type:'mandatory',data:'',editable:true}
+        {code:'GRI 2-1',name:'Organizational Details',status:'complete',type:'mandatory',data:'Manipal Group – Education & Healthcare Conglomerate',editable:true,aiPrefilled:true},
+        {code:'GRI 2-6',name:'Activities and Value Chain',status:'complete',type:'mandatory',data:'Higher Education, Multi-specialty Hospitals, K-12 Schools',editable:true,aiPrefilled:true},
+        {code:'GRI 2-7',name:'Employees',status:'complete',type:'mandatory',data:'10,980 employees (58% Male, 42% Female)',editable:true,aiPrefilled:true},
+        {code:'GRI 2-9',name:'Governance Structure',status:'pending',type:'mandatory',data:'',editable:true,aiPrefilled:false},
       ],
       'GRI 302 – Energy':[
-        {code:'GRI 302-1',name:'Energy Consumption (within org)',status:'complete',type:'mandatory',data:'167,081 GJ (Grid: 145,680 | Solar: 12,456 | Diesel: 8,945)',editable:true},
-        {code:'GRI 302-3',name:'Energy Intensity',status:'calculated',type:'mandatory',data:'0.85 GJ per FTE',editable:false},
-        {code:'GRI 302-4',name:'Reduction of Energy Consumption',status:'complete',type:'mandatory',data:'7,436 GJ saved via LED, HVAC, Solar expansion',editable:true}
+        {code:'GRI 302-1',name:'Energy Consumption (within org)',status:'complete',type:'mandatory',data:'167,081 GJ (Grid: 145,680 | Solar: 12,456 | Diesel: 8,945)',editable:true,aiPrefilled:true},
+        {code:'GRI 302-3',name:'Energy Intensity',status:'calculated',type:'mandatory',data:'0.85 GJ per FTE',editable:false,aiPrefilled:false},
+        {code:'GRI 302-4',name:'Reduction of Energy Consumption',status:'complete',type:'mandatory',data:'7,436 GJ saved via LED, HVAC, Solar expansion',editable:true,aiPrefilled:true},
       ],
       'GRI 305 – Emissions':[
-        {code:'GRI 305-1',name:'Scope 1 GHG Emissions',status:'complete',type:'mandatory',data:'2,450 tCO2e (Diesel, vehicles, LPG)',editable:true},
-        {code:'GRI 305-2',name:'Scope 2 GHG Emissions',status:'complete',type:'mandatory',data:'14,560 tCO2e (location-based)',editable:true},
-        {code:'GRI 305-3',name:'Scope 3 GHG Emissions',status:'pending',type:'mandatory',data:'',editable:true},
-        {code:'GRI 305-4',name:'GHG Emissions Intensity',status:'calculated',type:'mandatory',data:'0.086 tCO2e per FTE',editable:false}
+        {code:'GRI 305-1',name:'Scope 1 GHG Emissions',status:'complete',type:'mandatory',data:'2,450 tCO2e (Diesel, vehicles, LPG)',editable:true,aiPrefilled:true},
+        {code:'GRI 305-2',name:'Scope 2 GHG Emissions',status:'complete',type:'mandatory',data:'14,560 tCO2e (location-based)',editable:true,aiPrefilled:true},
+        {code:'GRI 305-3',name:'Scope 3 GHG Emissions',status:'pending',type:'mandatory',data:'',editable:true,aiPrefilled:false},
+        {code:'GRI 305-4',name:'GHG Emissions Intensity',status:'calculated',type:'mandatory',data:'0.086 tCO2e per FTE',editable:false,aiPrefilled:false},
       ],
       'GRI 303 – Water':[
-        {code:'GRI 303-3',name:'Water Withdrawal',status:'complete',type:'mandatory',data:'779 ML (Municipal: 456 | Groundwater: 234 | Rainwater: 89)',editable:true},
-        {code:'GRI 303-5',name:'Water Consumption',status:'calculated',type:'mandatory',data:'628 ML (3.2 kL/FTE)',editable:false}
+        {code:'GRI 303-3',name:'Water Withdrawal',status:'complete',type:'mandatory',data:'779 ML (Municipal: 456 | Groundwater: 234 | Rainwater: 89)',editable:true,aiPrefilled:true},
+        {code:'GRI 303-5',name:'Water Consumption',status:'calculated',type:'mandatory',data:'628 ML (3.2 kL/FTE)',editable:false,aiPrefilled:false},
       ],
       'GRI 306 – Waste':[
-        {code:'GRI 306-3',name:'Waste Generated',status:'complete',type:'mandatory',data:'1,437 MT (Biomedical: 145 | General: 1,245 | E-waste: 12.5 | Hazardous: 34.8)',editable:true},
-        {code:'GRI 306-4',name:'Waste Diverted from Disposal',status:'calculated',type:'mandatory',data:'496 MT (34.5%) – Recycling: 340, Composting: 156',editable:false}
-      ]
+        {code:'GRI 306-3',name:'Waste Generated',status:'complete',type:'mandatory',data:'1,437 MT (Biomedical: 145 | General: 1,245 | E-waste: 12.5 | Hazardous: 34.8)',editable:true,aiPrefilled:true},
+        {code:'GRI 306-4',name:'Waste Diverted from Disposal',status:'calculated',type:'mandatory',data:'496 MT (34.5%) – Recycling: 340, Composting: 156',editable:false,aiPrefilled:false},
+      ],
     }
   },
+
+  // ── CBAM: Manipal Group ──────────────────────────────────────────────────
   CBAM:{
     stats:{total:48, autoFilled:12, pending:36},
     categories:{
       'Basic Information':[
-        {code:'CBAM-1',name:'Installation Identification',status:'pending',type:'mandatory',data:'',editable:true},
-        {code:'CBAM-2',name:'Production Process Description',status:'pending',type:'mandatory',data:'',editable:true}
+        {code:'CBAM-1',name:'Installation Identification',status:'pending',type:'mandatory',data:'',editable:true,aiPrefilled:false},
+        {code:'CBAM-2',name:'Production Process Description',status:'pending',type:'mandatory',data:'',editable:true,aiPrefilled:false},
       ],
       'Scope 1 Emissions':[
-        {code:'CBAM-3',name:'Direct Emissions – Process',status:'pending',type:'mandatory',data:'',editable:true},
-        {code:'CBAM-4',name:'Direct Emissions – Combustion',status:'complete',type:'mandatory',data:'2,450 tCO2e',editable:true}
+        {code:'CBAM-3',name:'Direct Emissions – Process',status:'pending',type:'mandatory',data:'',editable:true,aiPrefilled:false},
+        {code:'CBAM-4',name:'Direct Emissions – Combustion',status:'complete',type:'mandatory',data:'2,450 tCO2e',editable:true,aiPrefilled:true},
       ],
       'Scope 2 Emissions':[
-        {code:'CBAM-5',name:'Indirect Emissions – Electricity',status:'complete',type:'mandatory',data:'14,560 tCO2e',editable:true}
-      ]
+        {code:'CBAM-5',name:'Indirect Emissions – Electricity',status:'complete',type:'mandatory',data:'14,560 tCO2e',editable:true,aiPrefilled:true},
+      ],
     }
-  }
+  },
 };
 
-// Recommended frameworks for India
+// ──────────────────────────────────────────────
+//  RECOMMENDED FRAMEWORKS
+// ──────────────────────────────────────────────
 const RECOMMENDED = ['BRSR','GRI','GreenCo'];
 
 // ──────────────────────────────────────────────
-//  FRAMEWORK LIBRARY
+//  FRAMEWORK LIBRARY TAGS
 // ──────────────────────────────────────────────
 const LIB_TAG_LABELS = {
   mandatory:{label:'🏛️ Mandatory', color:'#fee2e2', text:'#991b1b'},
@@ -703,23 +819,17 @@ function buildLibraryGrid(){
     if(activeLibFilter==='voluntary') return fw.libTag==='voluntary';
     if(activeLibFilter==='india') return fw.libJurisdiction==='india';
     if(activeLibFilter==='global') return fw.libJurisdiction==='global';
-    if(activeLibFilter==='eu') return fw.libJurisdiction==='eu' || fw.libTag==='mandatory' && fw.jurisdiction.includes('UK');
+    if(activeLibFilter==='eu') return fw.libJurisdiction==='eu' || (fw.libTag==='mandatory' && (fw.jurisdiction||'').includes('UK'));
     return true;
   });
-
   grid.innerHTML = cards.map(([key, fw])=>{
     const tagStyle = LIB_TAG_LABELS[fw.libTag]||{color:'#f0f0f0',text:'#555',label:fw.type};
-    const jurStyle = LIB_TAG_LABELS[fw.libJurisdiction]||{color:'#f0f0f0',text:'#555',label:fw.jurisdiction};
-    return `<div class="fw-lib-card" onclick="showLibDetail('${key}')" style="
-      border:1px solid #e0e0e0;border-radius:10px;padding:1rem;cursor:pointer;
-      transition:all .2s;background:#fff;
-    " onmouseenter="this.style.borderColor='#3d7f6f';this.style.background='#f8fdf9'"
-       onmouseleave="this.style.borderColor='#e0e0e0';this.style.background='#fff'">
+    return `<div onclick="showLibDetail('${key}')" style="border:1px solid #e0e0e0;border-radius:10px;padding:1rem;cursor:pointer;transition:all .2s;background:#fff;" onmouseenter="this.style.borderColor='#3d7f6f';this.style.background='#f8fdf9'" onmouseleave="this.style.borderColor='#e0e0e0';this.style.background='#fff'">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;margin-bottom:.6rem">
         <div style="font-weight:800;color:#2d5f4f;font-size:.92rem;line-height:1.3">${fw.title.length>40?fw.title.slice(0,38)+'…':fw.title}</div>
         <span style="background:${tagStyle.color};color:${tagStyle.text};font-size:.65rem;font-weight:700;padding:.2rem .5rem;border-radius:20px;white-space:nowrap">${tagStyle.label}</span>
       </div>
-      <div style="font-size:.78rem;color:#666;margin-bottom:.75rem">${fw.jurisdiction}</div>
+      <div style="font-size:.78rem;color:#666;margin-bottom:.75rem">${fw.jurisdiction||''}</div>
       <div style="display:flex;gap:.75rem;font-size:.8rem">
         <span style="color:#2d5f4f;font-weight:700">${fw.total} indicators</span>
         <span style="color:#666">·</span>
@@ -739,34 +849,19 @@ function filterLib(f, btn){
 }
 
 function showLibDetail(key){
-  const fw = FW_DATA[key];
   selectedLibFW = key;
+  const fw = FW_DATA[key];
   document.getElementById('lib-detail-title').textContent = fw.title;
   document.getElementById('lib-detail-body').innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1.25rem">
-      ${[
-        ['Type', fw.type],
-        ['Jurisdiction', fw.jurisdiction],
-        ['Total Indicators', fw.total],
-        ['Mandatory', fw.mandatory],
-        ['Optional', fw.optional],
-        ['Applicability', fw.applicability]
-      ].map(([k,v])=>`<div style="background:#f8fdf9;border-radius:6px;padding:.6rem .85rem">
-        <div style="font-size:.7rem;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.06em">${k}</div>
-        <div style="font-size:.88rem;color:#2d5f4f;font-weight:600;margin-top:.2rem">${v}</div>
-      </div>`).join('')}
-    </div>
     <div style="margin-bottom:1rem">
-      <div style="font-size:.78rem;font-weight:700;color:#2d5f4f;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Sections</div>
+      <div style="font-size:.78rem;font-weight:700;color:#2d5f4f;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Sections & Structure</div>
       ${fw.sections.map(s=>`<div style="padding:.5rem .85rem;border-left:3px solid #3d7f6f;background:#f8fdf9;border-radius:0 6px 6px 0;font-size:.82rem;margin-bottom:.35rem">${s}</div>`).join('')}
     </div>
     <div style="margin-bottom:1rem">
       <div style="font-size:.78rem;font-weight:700;color:#2d5f4f;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem">Key Features</div>
       ${fw.features.map(f=>`<div style="padding:.45rem .85rem;background:#f0f9f6;border-radius:6px;font-size:.82rem;margin-bottom:.3rem">• ${f}</div>`).join('')}
     </div>
-    <div style="background:#e8f5f1;border-radius:8px;padding:.85rem;font-size:.85rem">
-      <strong>Intended Use:</strong> ${fw.use}
-    </div>
+    <div style="background:#e8f5f1;border-radius:8px;padding:.85rem;font-size:.85rem"><strong>Intended Use:</strong> ${fw.use}</div>
   `;
   const detailEl = document.getElementById('fw-lib-detail');
   detailEl.style.display='block';
@@ -777,7 +872,6 @@ function launchFromLibrary(){
   if(!selectedLibFW){ toast('Select a framework first','warning'); return; }
   selectedFW = selectedLibFW;
   showView('reporting');
-  // Pre-select in dropdown and show details
   document.getElementById('framework-select').value = selectedLibFW;
   renderFWDetails(selectedLibFW);
   document.querySelectorAll('.fw-card').forEach(c=>c.classList.remove('selected'));
@@ -808,18 +902,21 @@ function buildRecommendedCards(){
 }
 
 function selectFWCard(key){
-  // Deselect all cards
   document.querySelectorAll('.fw-card').forEach(c=>c.classList.remove('selected'));
   document.getElementById('fw-card-'+key) && document.getElementById('fw-card-'+key).classList.add('selected');
-  // Sync dropdown
   document.getElementById('framework-select').value = key;
   onFrameworkSelect(key);
 }
 
 function onFrameworkSelect(key){
-  if(!key){ document.getElementById('framework-details').innerHTML='<p style="color:#999;text-align:center;padding:2rem;font-size:.9rem">Select a framework to view details</p>'; return; }
+  if(!key){
+    document.getElementById('framework-details').innerHTML='<p style="color:#999;text-align:center;padding:2rem;font-size:.9rem">Select a framework to view details</p>';
+    return;
+  }
   selectedFW = key;
-  // Highlight matching recommended card
+  // Update company badge
+  const company = FW_COMPANY[key] || FW_COMPANY['default'];
+  document.getElementById('user-company').textContent = company;
   document.querySelectorAll('.fw-card').forEach(c=>c.classList.remove('selected'));
   if(document.getElementById('fw-card-'+key)) document.getElementById('fw-card-'+key).classList.add('selected');
   renderFWDetails(key);
@@ -834,6 +931,7 @@ function renderFWDetails(key){
       <div class="detail-row"><span class="detail-label">Jurisdiction</span><span class="detail-value">${fw.jurisdiction}</span></div>
       <div class="detail-row"><span class="detail-label">Applicability</span><span class="detail-value">${fw.applicability}</span></div>
       <div class="detail-row"><span class="detail-label">Total Indicators</span><span class="detail-value"><strong>${fw.total}</strong> &nbsp;(Mandatory: ${fw.mandatory} · Optional: ${fw.optional})</span></div>
+      ${fw.sampleCompany?`<div class="detail-row"><span class="detail-label">Sample Report</span><span class="detail-value">✅ ${fw.sampleCompany} sample available</span></div>`:''}
       <div style="margin-top:1.25rem">
         <strong style="color:#2d5f4f;font-size:.85rem">Sections & Structure</strong>
         <div style="margin-top:.5rem;display:flex;flex-direction:column;gap:.35rem">
@@ -855,7 +953,7 @@ function renderFWDetails(key){
 //  STEP NAVIGATION
 // ──────────────────────────────────────────────
 function tryGoToStep(n){
-  if(n > currentStep) return; // Only allow going back via step dots
+  if(n > currentStep) return;
   if(n < currentStep) goToStep(n);
 }
 
@@ -866,7 +964,6 @@ function proceedToStep2(){
 
 function goToStep(n){
   currentStep = n;
-  // Update dots
   for(let i=1;i<=5;i++){
     const dot = document.getElementById('step-dot-'+i);
     const circle = document.getElementById('step-circle-'+i);
@@ -875,18 +972,17 @@ function goToStep(n){
     else if(i===n){ dot.classList.add('active'); circle.textContent=i; }
     else { circle.textContent=i; }
   }
-  // Show section
   document.querySelectorAll('.content-section').forEach(s=>s.classList.remove('active'));
   document.getElementById('step'+n).classList.add('active');
-  // Update header
-  const H = {1:['Select Framework','Choose a reporting framework to begin'],
-              2:['Fill Indicators','Review auto-populated data and complete pending disclosures'],
-              3:['Review & Validate','Check data completeness and quality before generating the report'],
-              4:['Preview Report','Review the formatted report before export'],
-              5:['Export & Download','Generate and download your sustainability report']};
+  const H = {
+    1:['Select Framework','Choose a reporting framework to begin'],
+    2:['Fill Indicators','Review AI-prefilled data (yellow), confirm or edit, then complete pending disclosures'],
+    3:['Review & Validate','Check data completeness and quality before generating the report'],
+    4:['Preview Report','Review the formatted report before export'],
+    5:['Export & Download','Generate and download your sustainability report']
+  };
   document.getElementById('step-title').textContent=H[n][0];
   document.getElementById('step-description').textContent=H[n][1];
-  // Step-specific init
   if(n===2) initStep2();
   if(n===3) initStep3();
   if(n===4) initStep4();
@@ -898,12 +994,60 @@ function goToStep(n){
 //  STEP 2 – INDICATORS
 // ──────────────────────────────────────────────
 function initStep2(){
+  // Show GreenCo score summary panel if framework is GreenCo
+  const scorePanel = document.getElementById('greenco-score-panel');
+  if(selectedFW === 'GreenCo'){
+    scorePanel.style.display='block';
+    renderGreenCoScorePanel();
+  } else {
+    scorePanel.style.display='none';
+  }
   updateProgressBar();
   renderIndicators();
 }
 
+function renderGreenCoScorePanel(){
+  const cats = getFWIndicators().categories;
+  let totalEarned = 0;
+  let totalMax = 0;
+  let catRows = '';
+  Object.entries(cats).forEach(([catName, inds])=>{
+    const catMax = inds.reduce((s,i)=>s+(i.maxPts||0),0);
+    const catEarned = inds.reduce((s,i)=>s+(i.earnedPts||0),0);
+    totalEarned += catEarned;
+    totalMax += catMax;
+    const pct = catMax>0 ? Math.round(catEarned/catMax*100) : 0;
+    catRows += `<div class="category-score-row">
+      <div class="cat-score-label">${catName.replace(/\s*\[Max:.*\]/,'').trim()}</div>
+      <div class="cat-score-bar-wrap"><div class="cat-score-bar-inner" style="width:${pct}%"></div></div>
+      <div class="cat-score-pts">${catEarned.toFixed(1)} / ${catMax}</div>
+    </div>`;
+  });
+  const score = Math.round(totalEarned);
+  let level='Certified', levelClass='level-certified';
+  if(score>=90){level='Platinum+';levelClass='level-platplus';}
+  else if(score>=80){level='Platinum';levelClass='level-platinum';}
+  else if(score>=70){level='Gold';levelClass='level-gold';}
+  else if(score>=60){level='Silver';levelClass='level-silver';}
+  document.getElementById('greenco-score-panel').innerHTML=`
+    <div class="content-card" style="margin-bottom:1rem">
+      <div class="section-title">🌿 GreenCo Score Summary — Manipal Group</div>
+      <div class="greenco-score-bar">
+        <div class="greenco-total-score">
+          <div class="big-score" id="greenco-live-score">${score}</div>
+          <div class="score-label">out of 100 pts</div>
+        </div>
+        <div>
+          <div class="greenco-level-badge ${levelClass}" id="greenco-live-level">${level}</div>
+          <div style="font-size:.75rem;color:#666;margin-top:.35rem">Thresholds: Certified≥50 · Silver≥60 · Gold≥70 · Platinum≥80 · Platinum+≥90</div>
+        </div>
+        <div style="flex:1;min-width:200px">${catRows}</div>
+      </div>
+    </div>`;
+}
+
 function getFWIndicators(){
-  return FW_INDICATORS[selectedFW] || FW_INDICATORS['BRSR'];
+  return FW_INDICATORS[selectedFW] || FW_INDICATORS['GRI'];
 }
 
 function getAllIndicators(){
@@ -913,22 +1057,43 @@ function getAllIndicators(){
 
 function updateProgressBar(){
   const all = getAllIndicators();
-  const complete = all.filter(i=>i.status==='complete'||i.status==='calculated').length;
-  const pending = all.filter(i=>i.status==='pending').length;
-  const total = all.length;
-  const pct = Math.round(complete/total*100);
-  document.getElementById('stat-total').textContent = total;
-  document.getElementById('stat-complete').textContent = complete;
+  const confirmed = all.filter(i=>i.status==='complete'&&!i.aiPrefilled).length;
+  const aiDraft   = all.filter(i=>i.status==='complete'&&i.aiPrefilled).length;
+  const calc      = all.filter(i=>i.status==='calculated').length;
+  const pending   = all.filter(i=>i.status==='pending').length;
+  const total     = all.length;
+  const done      = confirmed + aiDraft + calc;
+  const pct       = Math.round(done/total*100);
+  document.getElementById('stat-total').textContent   = total;
+  document.getElementById('stat-complete').textContent = confirmed + calc;
+  document.getElementById('stat-ai').textContent      = aiDraft;
   document.getElementById('stat-pending').textContent = pending;
-  document.getElementById('stat-pct').textContent = pct+'%';
+  document.getElementById('stat-pct').textContent     = pct+'%';
   document.getElementById('completion-bar').style.width = pct+'%';
 }
 
 function setFilter(f, btn){
   activeFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.filter-bar .filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderIndicators();
+}
+
+// "Confirm All AI Data" button
+function confirmAllAI(){
+  const all = getAllIndicators();
+  let count = 0;
+  all.forEach(ind=>{
+    if(ind.aiPrefilled && ind.status==='complete'){
+      ind.aiPrefilled = false;
+      count++;
+    }
+  });
+  if(count===0){ toast('No AI-prefilled items to confirm','info'); return; }
+  toast(`✅ ${count} AI-prefilled indicators confirmed`, 'success', 3000);
+  updateProgressBar();
+  renderIndicators();
+  if(selectedFW==='GreenCo') renderGreenCoScorePanel();
 }
 
 function renderIndicators(){
@@ -936,17 +1101,24 @@ function renderIndicators(){
   const cats = getFWIndicators().categories;
   const container = document.getElementById('indicators-container');
   let html = '';
+  const allFlat = getAllIndicators();
 
   Object.entries(cats).forEach(([catName, indicators])=>{
     const filtered = indicators.filter(ind=>{
-      const matchFilter = activeFilter==='all' || ind.status===activeFilter;
+      let matchFilter = false;
+      if(activeFilter==='all') matchFilter=true;
+      else if(activeFilter==='pending') matchFilter=(ind.status==='pending');
+      else if(activeFilter==='ai') matchFilter=(ind.status==='complete'&&ind.aiPrefilled);
+      else if(activeFilter==='complete') matchFilter=(ind.status==='complete'&&!ind.aiPrefilled)||ind.status==='calculated';
+      else if(activeFilter==='calculated') matchFilter=(ind.status==='calculated');
       const matchSearch = !search || ind.code.toLowerCase().includes(search) || ind.name.toLowerCase().includes(search);
       return matchFilter && matchSearch;
     });
     if(!filtered.length) return;
 
-    const total = indicators.length;
-    const done = indicators.filter(i=>i.status!=='pending').length;
+    const total    = indicators.length;
+    const done     = indicators.filter(i=>i.status!=='pending').length;
+
     html += `<div class="category-group">
       <div class="category-header" onclick="toggleCategory(this)">
         <span>${catName}</span>
@@ -954,46 +1126,87 @@ function renderIndicators(){
       </div>
       <div class="category-body">`;
 
-    filtered.forEach((ind, idx)=>{
-      const globalIdx = getAllIndicators().indexOf(ind);
-      const statusBadge = ind.status==='complete'
-        ? '<span class="badge badge-success">✓ Complete</span>'
+    filtered.forEach(ind=>{
+      const globalIdx = allFlat.indexOf(ind);
+
+      const statusBadge = ind.status==='complete' && ind.aiPrefilled
+        ? '<span class="badge badge-ai">🤖 AI Draft</span>'
+        : ind.status==='complete'
+        ? '<span class="badge badge-success">✓ Confirmed</span>'
         : ind.status==='calculated'
         ? '<span class="badge badge-calc">⚡ Auto</span>'
         : '<span class="badge badge-warning">⚠ Pending</span>';
+
       const typeBadge = (ind.type==='essential'||ind.type==='mandatory')
         ? '<span class="badge badge-mandatory" style="margin-left:.35rem">Mandatory</span>'
         : '<span class="badge" style="background:#e0e0e0;color:#666;margin-left:.35rem">Optional</span>';
 
-      html += `<div class="indicator-row row-${ind.status}">
+      const rowClass = ind.status==='calculated' ? 'row-calculated'
+        : ind.status==='pending' ? 'row-pending'
+        : ind.aiPrefilled ? 'row-ai'
+        : 'row-complete';
+
+      const inputClass = ind.status==='calculated' ? ''
+        : ind.aiPrefilled ? 'ai-prefilled'
+        : ind.status==='complete' ? 'user-saved'
+        : '';
+
+      const scoreHtml = (selectedFW==='GreenCo' && ind.maxPts)
+        ? `<div class="score-chip"><div class="score-val">${ind.earnedPts||0}</div><div class="score-max">/${ind.maxPts} pts</div></div>`
+        : '';
+
+      const aiHint = (ind.aiPrefilled && ind.status==='complete')
+        ? `<div class="ai-hint">🤖 AI-prefilled from public data — please review &amp; confirm before submitting</div>`
+        : '';
+
+      const saveLabel = ind.aiPrefilled ? 'Confirm ✓' : 'Save';
+      const saveCls   = ind.aiPrefilled ? 'save-btn confirm-btn' : 'save-btn';
+
+      html += `<div class="indicator-row ${rowClass}" id="row-${globalIdx}">
         <div class="ind-meta">
           <div class="ind-code">${ind.code}</div>
           <div class="ind-name">${ind.name}</div>
           <div style="margin-top:.3rem">${statusBadge}${typeBadge}</div>
         </div>
         <div class="ind-input-wrap">
-          <input class="ind-input" id="ind-${globalIdx}" type="text" value="${ind.data}"
+          <input class="ind-input ${inputClass}" id="ind-${globalIdx}" type="text" value="${escHtml(ind.data)}"
             placeholder="${ind.status==='pending'?'Enter value…':''}"
-            ${ind.editable?'':'readonly'}>
+            ${ind.editable?'':'readonly'}
+            oninput="onIndInput(${globalIdx})">
+          ${aiHint}
         </div>
+        ${scoreHtml}
         <div class="ind-actions">
-          ${ind.editable?`<button class="save-btn" onclick="saveIndicator(${globalIdx})">Save</button>`:''}
+          ${ind.editable?`<button class="${saveCls}" id="savebtn-${globalIdx}" onclick="saveIndicator(${globalIdx})">${saveLabel}</button>`:''}
         </div>
       </div>`;
     });
     html += `</div></div>`;
   });
 
-  if(!html) html = '<div style="text-align:center;padding:2rem;color:#999;font-size:.9rem">No indicators match your filter / search.</div>';
+  if(!html) html='<div style="text-align:center;padding:2rem;color:#999;font-size:.9rem">No indicators match your filter / search.</div>';
   container.innerHTML = html;
+}
+
+function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function onIndInput(globalIdx){
+  // When user starts typing in an AI-prefilled field, switch button to "Confirm"
+  const all = getAllIndicators();
+  const ind = all[globalIdx];
+  if(ind && ind.aiPrefilled){
+    const btn = document.getElementById('savebtn-'+globalIdx);
+    if(btn) btn.textContent='Confirm ✓';
+  }
 }
 
 function toggleCategory(header){
   const body = header.nextElementSibling;
   body.style.display = body.style.display==='none' ? 'block' : 'none';
-  header.querySelector('span:last-child').innerHTML = header.querySelector('span:last-child').innerHTML.includes('▾')
-    ? header.querySelector('span:last-child').innerHTML.replace('▾','▸')
-    : header.querySelector('span:last-child').innerHTML.replace('▸','▾');
+  const lastSpan = header.querySelector('span:last-child');
+  lastSpan.innerHTML = lastSpan.innerHTML.includes('▾')
+    ? lastSpan.innerHTML.replace('▾','▸')
+    : lastSpan.innerHTML.replace('▸','▾');
 }
 
 function saveIndicator(globalIdx){
@@ -1003,18 +1216,34 @@ function saveIndicator(globalIdx){
   if(!input) return;
   const val = input.value.trim();
   if(!val){ toast('Please enter a value before saving','warning'); return; }
+
+  const wasAI = ind.aiPrefilled;
   ind.data = val;
   ind.status = 'complete';
-  // Update just this row's badge — no full re-render, no scroll reset
-  const row = input.closest('.indicator-row');
-  row.className = 'indicator-row row-complete';
-  const badgeWrap = row.querySelector('.ind-meta div:last-child');
-  badgeWrap.innerHTML = '<span class="badge badge-success">✓ Complete</span>' +
-    (ind.type==='essential'||ind.type==='mandatory'
-      ? '<span class="badge badge-mandatory" style="margin-left:.35rem">Mandatory</span>'
-      : '<span class="badge" style="background:#e0e0e0;color:#666;margin-left:.35rem">Optional</span>');
-  toast(`Saved: ${ind.code}`, 'success', 2000);
+  ind.aiPrefilled = false; // User has now confirmed this entry
+
+  // Update the row in-place
+  const row = document.getElementById('row-'+globalIdx);
+  if(row){
+    row.className = 'indicator-row row-complete';
+    input.className = 'ind-input user-saved';
+    // Clear the AI hint
+    const aiHintEl = row.querySelector('.ai-hint');
+    if(aiHintEl) aiHintEl.remove();
+    // Update status badge
+    const badgeWrap = row.querySelector('.ind-meta div:last-child');
+    badgeWrap.innerHTML = '<span class="badge badge-success">✓ Confirmed</span>' +
+      ((ind.type==='essential'||ind.type==='mandatory')
+        ? '<span class="badge badge-mandatory" style="margin-left:.35rem">Mandatory</span>'
+        : '<span class="badge" style="background:#e0e0e0;color:#666;margin-left:.35rem">Optional</span>');
+    // Update save button
+    const btn = document.getElementById('savebtn-'+globalIdx);
+    if(btn){ btn.textContent='Save'; btn.className='save-btn'; }
+  }
+
+  toast(wasAI ? `✅ Confirmed: ${ind.code}` : `Saved: ${ind.code}`, 'success', 2000);
   updateProgressBar();
+  if(selectedFW==='GreenCo') renderGreenCoScorePanel();
 }
 
 // ──────────────────────────────────────────────
@@ -1023,24 +1252,33 @@ function saveIndicator(globalIdx){
 function initStep3(){
   const all = getAllIndicators();
   const total = all.length;
-  const complete = all.filter(i=>i.status!=='pending').length;
-  const pending = all.filter(i=>i.status==='pending').length;
+  const confirmed = all.filter(i=>i.status==='complete'&&!i.aiPrefilled).length;
+  const aiDraft   = all.filter(i=>i.status==='complete'&&i.aiPrefilled).length;
+  const pending   = all.filter(i=>i.status==='pending').length;
+  const calc      = all.filter(i=>i.status==='calculated').length;
+  const done      = confirmed + aiDraft + calc;
   const mandatory = all.filter(i=>i.type==='essential'||i.type==='mandatory');
   const mandatoryDone = mandatory.filter(i=>i.status!=='pending').length;
   const mandatoryPending = mandatory.length - mandatoryDone;
-  const pct = Math.round(complete/total*100);
-
-  const fw = FW_DATA[selectedFW]||FW_DATA['BRSR'];
+  const pct = Math.round(done/total*100);
+  const fw = FW_DATA[selectedFW]||FW_DATA['GRI'];
 
   const checks = [
     {
       type: mandatoryPending===0?'pass':'fail',
       title: mandatoryPending===0?`All ${mandatory.length} mandatory indicators complete`:`${mandatoryPending} mandatory indicator(s) still pending`,
-      desc: mandatoryPending===0?'Required disclosures are filled — report can proceed to preview.':`Complete mandatory fields before submitting for assurance: ${all.filter(i=>(i.type==='essential'||i.type==='mandatory')&&i.status==='pending').map(i=>i.code).join(', ')}`
+      desc: mandatoryPending===0?'All required disclosures are filled — report can proceed to preview.'
+        :`Complete mandatory fields before submitting for assurance: ${all.filter(i=>(i.type==='essential'||i.type==='mandatory')&&i.status==='pending').map(i=>i.code).slice(0,8).join(', ')}${mandatory.filter(i=>i.status==='pending').length>8?' …and more':''}`
+    },
+    {
+      type: aiDraft===0?'pass':'warn',
+      title: aiDraft===0?'All AI-prefilled data confirmed by user':`${aiDraft} indicator(s) have AI-prefilled data awaiting your confirmation`,
+      desc: aiDraft===0?'No unconfirmed AI data — all disclosures have been reviewed.'
+        :`Yellow-highlighted indicators contain AI-suggested data. Return to Step 2 and click "Confirm" on each to verify before submission.`
     },
     {
       type: pct>=50?'pass':'warn',
-      title:`Overall completion: ${pct}% (${complete}/${total} indicators)`,
+      title:`Overall completion: ${pct}% (${done}/${total} indicators addressed)`,
       desc: pct>=80?'Excellent coverage — strong disclosure.'
            :pct>=50?'Good coverage. Consider filling optional indicators for a comprehensive report.'
            :'Low completion. We recommend filling at least 50% before generating the report.'
@@ -1049,7 +1287,7 @@ function initStep3(){
       type: pending<=5?'pass':'warn',
       title:`${pending} pending indicator${pending!==1?'s':''} remaining`,
       desc: pending===0?'All indicators addressed — nothing left blank.'
-           :`${pending} indicator(s) will appear as "[Data Pending]" in the report. You can still generate and update later.`
+           :`${pending} indicator(s) will appear as "[Data Pending]" in the report.`
     },
     {
       type: 'pass',
@@ -1058,8 +1296,8 @@ function initStep3(){
     },
     {
       type: 'pass',
-      title:'Auto-calculated indicators verified',
-      desc:`${all.filter(i=>i.status==='calculated').length} intensity/ratio metrics auto-computed from raw data — no manual entry required.`
+      title:`Auto-calculated indicators verified`,
+      desc:`${calc} intensity/ratio metrics auto-computed from raw data — no manual entry required.`
     }
   ];
 
@@ -1067,51 +1305,54 @@ function initStep3(){
   document.getElementById('validation-list').innerHTML = checks.map(c=>`
     <div class="val-item ${c.type}">
       <div class="val-icon ${c.type}">${iconMap[c.type]}</div>
-      <div class="val-text">
-        <h4>${c.title}</h4>
-        <p>${c.desc}</p>
-      </div>
+      <div class="val-text"><h4>${c.title}</h4><p>${c.desc}</p></div>
     </div>
   `).join('');
 }
 
 // ──────────────────────────────────────────────
-//  STEP 4 – DYNAMIC PREVIEW
+//  STEP 4 – PREVIEW REPORT
 // ──────────────────────────────────────────────
 function initStep4(){
-  const fw = FW_DATA[selectedFW]||FW_DATA['BRSR'];
+  const fw = FW_DATA[selectedFW]||FW_DATA['GRI'];
   const all = getAllIndicators();
-  const complete = all.filter(i=>i.status!=='pending');
+  const aiDraft = all.filter(i=>i.status==='complete'&&i.aiPrefilled).length;
   const company = document.getElementById('user-company').textContent;
 
   document.getElementById('preview-title').textContent = `${fw.title.split('–')[0].trim()} – ${company} FY 2024-25`;
+  document.getElementById('preview-ai-note').style.display = aiDraft>0 ? 'block' : 'none';
 
   // ── GRI: show the Manipal sample PDF report ──
   if(selectedFW === 'GRI'){
-    document.getElementById('preview-content').innerHTML = `
-      <div style="background:#e8f5f1;border:1px solid #b2ddd1;border-radius:8px;padding:.85rem 1.1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.75rem">
-        <span style="font-size:1.5rem">📄</span>
-        <div>
-          <div style="font-weight:700;color:#2d5f4f;font-size:.9rem">Sample GRI Report — Manipal Group FY 2024-25</div>
-          <div style="font-size:.78rem;color:#555;margin-top:.15rem">In accordance with GRI Standards 2021 · Generated by HWCAP · ${complete.length} of ${fw.total} disclosures populated</div>
-        </div>
-        <a href="Manipal_GRI_Sample Report.pdf" target="_blank" style="margin-left:auto;font-size:.8rem;background:#2d5f4f;color:#fff;padding:.4rem .9rem;border-radius:6px;text-decoration:none;white-space:nowrap">⬆ Open in new tab</a>
-      </div>
-      <div style="border:1px solid #ddd;border-radius:8px;overflow:hidden;background:#f5f5f5">
-        <iframe
-          src="Manipal_GRI_Sample Report.pdf"
-          width="100%"
-          height="620px"
-          style="display:block;border:none"
-          title="Manipal Group GRI Sample Report">
-          <div style="padding:2rem;text-align:center;color:#666">
-            <div style="font-size:2rem;margin-bottom:.75rem">📄</div>
-            <div style="font-weight:600;margin-bottom:.5rem">PDF preview not available in this browser</div>
-            <div style="font-size:.85rem">Place <strong>Manipal_GRI_Sample Report.pdf</strong> in the same folder as this HTML file,
-            or <a href="Manipal_GRI_Sample Report.pdf" target="_blank" style="color:#2d5f4f">click here to open it directly</a>.</div>
-          </div>
-        </iframe>
-      </div>`;
+    document.getElementById('preview-content').innerHTML = buildPDFPreview(
+      'Manipal_GRI_Sample Report.pdf',
+      'Sample GRI Report — Manipal Group FY 2024-25',
+      `In accordance with GRI Standards 2021 · Generated by HWCAP · ${all.filter(i=>i.status!=='pending').length} of ${fw.total} disclosures populated`
+    );
+    return;
+  }
+
+  // ── GreenCo: show Manipal GreenCo sample report ──
+  if(selectedFW === 'GreenCo'){
+    const scorePanel = buildGreenCoPreview(company, fw, all);
+    document.getElementById('preview-content').innerHTML = scorePanel +
+      buildPDFPreview(
+        'Manipal_GreenCo_Sample_Report.pdf',
+        'Sample GreenCo Assessment Report — Manipal Group',
+        `CII GreenCo Rating System v4 · Generated by HWCAP · ${all.filter(i=>i.status!=='pending').length} of ${fw.total} indicators populated`
+      );
+    return;
+  }
+
+  // ── BRSR: show Granules India sample BRSR ──
+  if(selectedFW === 'BRSR'){
+    const brsrSummary = buildBRSRPreview(company, fw, all);
+    document.getElementById('preview-content').innerHTML = brsrSummary +
+      buildPDFPreview(
+        'Granules_India_BRSR_Sample_Report.pdf',
+        'Sample BRSR Report — Granules India Limited FY 2024-25',
+        `SEBI BRSR & BRSR Core 2024 · Generated by HWCAP · ${all.filter(i=>i.status!=='pending').length} of ${fw.total} disclosures populated`
+      );
     return;
   }
 
@@ -1119,41 +1360,126 @@ function initStep4(){
   let sections = '';
   const cats = getFWIndicators().categories;
   Object.entries(cats).forEach(([catName, indicators])=>{
-    const rows = indicators.map(ind=>`
-      <div style="display:flex;gap:.75rem;padding:.35rem 0;border-bottom:1px solid #f0f0f0;font-size:.82rem">
+    const rows = indicators.map(ind=>{
+      let cellClass='preview-pending-cell', cellVal='[Data Pending]';
+      if(ind.status==='calculated'||(!ind.aiPrefilled && ind.status==='complete')){
+        cellClass='preview-user-cell'; cellVal=ind.data||'';
+      } else if(ind.aiPrefilled && ind.status==='complete'){
+        cellClass='preview-ai-cell'; cellVal=ind.data||'';
+      }
+      return `<div style="display:flex;gap:.75rem;padding:.35rem 0;border-bottom:1px solid #f0f0f0;font-size:.82rem">
         <span style="width:120px;flex-shrink:0;font-weight:600;color:#2d5f4f">${ind.code}</span>
         <span style="flex:1;color:#444">${ind.name}</span>
-        <span style="min-width:220px;color:${ind.status==='pending'?'#d97706':'#333'};font-style:${ind.status==='pending'?'italic':''}">${ind.data||'[Data Pending]'}</span>
-      </div>
-    `).join('');
-    sections += `<div class="preview-section-block">
-      <h4>${catName}</h4>
-      ${rows}
-    </div>`;
+        <span style="min-width:220px" class="${cellClass}">${cellVal}</span>
+      </div>`;
+    }).join('');
+    sections += `<div class="preview-section-block"><h4>${catName}</h4>${rows}</div>`;
   });
 
   document.getElementById('preview-content').innerHTML = `
     <div style="text-align:center;padding:1rem 0 1.5rem;border-bottom:2px solid #e0e0e0;margin-bottom:1.25rem">
       <div style="font-size:1.1rem;font-weight:800;color:#2d5f4f">${fw.title}</div>
       <div style="font-size:.85rem;color:#666;margin-top:.25rem">${company} | FY 2024-25 | ${fw.jurisdiction}</div>
-      <div style="margin-top:.5rem;display:flex;justify-content:center;gap:1.5rem;font-size:.8rem;color:#555">
-        <span>✅ ${complete.length} indicators populated</span>
-        <span>📊 ${fw.total} total disclosures</span>
+      <div style="margin-top:.5rem;font-size:.78rem;color:#777">
+        <span style="background:#fef9c3;padding:.1rem .4rem;border-radius:3px;color:#78350f">🤖 Yellow = AI-prefilled (unconfirmed)</span>
+        &nbsp;|&nbsp; <span style="background:#d1fae5;padding:.1rem .4rem;border-radius:3px;color:#065f46">✓ Green-border = Confirmed by you</span>
       </div>
     </div>
     ${sections}
   `;
 }
 
+function buildPDFPreview(pdfFile, title, subtitle){
+  return `<div style="background:#e8f5f1;border:1px solid #b2ddd1;border-radius:8px;padding:.85rem 1.1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.75rem">
+    <span style="font-size:1.5rem">📄</span>
+    <div>
+      <div style="font-weight:700;color:#2d5f4f;font-size:.9rem">${title}</div>
+      <div style="font-size:.78rem;color:#555;margin-top:.15rem">${subtitle}</div>
+    </div>
+    <a href="${pdfFile}" target="_blank" style="margin-left:auto;font-size:.8rem;background:#2d5f4f;color:#fff;padding:.4rem .9rem;border-radius:6px;text-decoration:none;white-space:nowrap">⬆ Open in new tab</a>
+  </div>
+  <div style="border:1px solid #ddd;border-radius:8px;overflow:hidden;background:#f5f5f5">
+    <iframe src="${pdfFile}" width="100%" height="620px" style="display:block;border:none" title="${title}">
+      <div style="padding:2rem;text-align:center;color:#666">
+        <div style="font-size:2rem;margin-bottom:.75rem">📄</div>
+        <div style="font-weight:600;margin-bottom:.5rem">PDF preview not available in this browser</div>
+        <div style="font-size:.85rem">Place <strong>${pdfFile}</strong> in the same folder as this HTML file, or <a href="${pdfFile}" target="_blank" style="color:#2d5f4f">click here to open it directly</a>.</div>
+      </div>
+    </iframe>
+  </div>`;
+}
+
+function buildGreenCoPreview(company, fw, all){
+  const cats = getFWIndicators().categories;
+  let totalEarned = 0;
+  let catRows = '';
+  Object.entries(cats).forEach(([catName, inds])=>{
+    const catMax = inds.reduce((s,i)=>s+(i.maxPts||0),0);
+    const catEarned = inds.reduce((s,i)=>s+(i.earnedPts||0),0);
+    totalEarned += catEarned;
+    const pct = catMax>0?Math.round(catEarned/catMax*100):0;
+    catRows += `<div style="display:flex;align-items:center;gap:.75rem;padding:.3rem 0;font-size:.82rem">
+      <div style="flex:1;color:#444">${catName.replace(/\s*\[Max:.*\]/,'').trim()}</div>
+      <div style="flex:1;background:#e0e0e0;border-radius:10px;height:8px;overflow:hidden"><div style="width:${pct}%;height:100%;background:#3d7f6f;border-radius:10px"></div></div>
+      <div style="width:60px;text-align:right;font-weight:700;color:#2d5f4f;font-size:.82rem">${catEarned.toFixed(1)} pts</div>
+    </div>`;
+  });
+  const score = Math.round(totalEarned);
+  let level='Certified';
+  if(score>=90)level='Platinum+'; else if(score>=80)level='Platinum'; else if(score>=70)level='Gold'; else if(score>=60)level='Silver';
+  const aiCount = all.filter(i=>i.aiPrefilled&&i.status==='complete').length;
+  return `<div style="background:#f0f9f6;border:1px solid #b2ddd1;border-radius:8px;padding:1.25rem;margin-bottom:1rem">
+    <div style="font-weight:800;color:#2d5f4f;font-size:1rem;margin-bottom:.5rem">🌿 GreenCo Assessment Summary — ${company}</div>
+    <div style="display:flex;gap:2rem;flex-wrap:wrap;align-items:flex-start">
+      <div style="text-align:center">
+        <div style="font-size:2.8rem;font-weight:900;color:#2d5f4f;line-height:1">${score}</div>
+        <div style="font-size:.78rem;color:#666">/ 100 pts</div>
+        <div style="margin-top:.5rem;padding:.3rem .8rem;background:#e2e8f0;color:#334155;border-radius:20px;font-weight:800;font-size:.85rem">${level}</div>
+      </div>
+      <div style="flex:1;min-width:200px">${catRows}</div>
+    </div>
+    ${aiCount>0?`<div style="margin-top:.75rem;padding:.5rem .75rem;background:#fefce8;border:1px solid #f59e0b;border-radius:6px;font-size:.78rem;color:#78350f">⚠️ ${aiCount} indicators still marked as AI Draft — confirm them in Step 2 before final submission.</div>`:''}
+  </div>`;
+}
+
+function buildBRSRPreview(company, fw, all){
+  const confirmed = all.filter(i=>i.status==='complete'&&!i.aiPrefilled).length;
+  const aiCount   = all.filter(i=>i.status==='complete'&&i.aiPrefilled).length;
+  const pending   = all.filter(i=>i.status==='pending').length;
+  const core9attrs=['GHG Footprint','Water Footprint','Energy Footprint','Renewable Energy (%)','Waste Generated','Employee Wellbeing','Gender Diversity','Job Creation in Small Towns','Open-ness of Business'];
+  const coreRows = core9attrs.map((a,i)=>`<div style="display:flex;gap:.75rem;padding:.3rem 0;border-bottom:1px solid #f0f0f0;font-size:.82rem">
+    <span style="width:30px;flex-shrink:0;font-weight:700;color:#2d5f4f">${i+1}</span>
+    <span style="flex:1;color:#444">${a}</span>
+    <span style="color:${i<6?'#2d5f4f':'#d97706'};font-weight:600">${i<6?'✓ Disclosed':'Pending'}</span>
+  </div>`).join('');
+  return `<div style="background:#f0f9f6;border:1px solid #b2ddd1;border-radius:8px;padding:1.25rem;margin-bottom:1rem">
+    <div style="font-weight:800;color:#2d5f4f;font-size:1rem;margin-bottom:.75rem">📋 BRSR Disclosure Summary — ${company}</div>
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1rem">
+      <div style="text-align:center;padding:.75rem 1.25rem;background:#d1fae5;border-radius:8px"><div style="font-size:1.8rem;font-weight:900;color:#065f46">${confirmed}</div><div style="font-size:.72rem;color:#065f46">Confirmed</div></div>
+      <div style="text-align:center;padding:.75rem 1.25rem;background:#fef9c3;border-radius:8px"><div style="font-size:1.8rem;font-weight:900;color:#78350f">${aiCount}</div><div style="font-size:.72rem;color:#78350f">AI Draft</div></div>
+      <div style="text-align:center;padding:.75rem 1.25rem;background:#fee2e2;border-radius:8px"><div style="font-size:1.8rem;font-weight:900;color:#991b1b">${pending}</div><div style="font-size:.72rem;color:#991b1b">Pending</div></div>
+    </div>
+    <div style="font-weight:700;color:#2d5f4f;font-size:.85rem;margin-bottom:.5rem">BRSR Core — 9 ESG Attributes (assurance-required KPIs)</div>
+    ${coreRows}
+    ${aiCount>0?`<div style="margin-top:.75rem;padding:.5rem .75rem;background:#fefce8;border:1px solid #f59e0b;border-radius:6px;font-size:.78rem;color:#78350f">⚠️ ${aiCount} indicators have AI-prefilled data (shown in yellow below). Please confirm before submitting for assurance.</div>`:''}
+  </div>`;
+}
+
 // ──────────────────────────────────────────────
 //  STEP 5 – EXPORT
 // ──────────────────────────────────────────────
 function initStep5(){
-  const fw = FW_DATA[selectedFW]||FW_DATA['BRSR'];
+  const fw = FW_DATA[selectedFW]||FW_DATA['GRI'];
   const all = getAllIndicators();
-  const complete = all.filter(i=>i.status!=='pending').length;
-  const pct = Math.round(complete/all.length*100);
-  const company = document.getElementById('user-company').textContent;
+  const confirmed = all.filter(i=>i.status==='complete'&&!i.aiPrefilled).length;
+  const aiDraft   = all.filter(i=>i.status==='complete'&&i.aiPrefilled).length;
+  const calc      = all.filter(i=>i.status==='calculated').length;
+  const done      = confirmed + aiDraft + calc;
+  const pct       = Math.round(done/all.length*100);
+  const company   = document.getElementById('user-company').textContent;
+  const reportType = selectedFW==='BRSR'?'SEBI BRSR & BRSR Core Disclosure'
+    : selectedFW==='GreenCo'?'CII GreenCo Rating Submission'
+    : 'Sustainability Report';
 
   document.getElementById('export-summary').innerHTML = `
     <table style="width:100%;border-collapse:collapse">
@@ -1161,10 +1487,12 @@ function initStep5(){
         ['Company',company],
         ['Framework',fw.title],
         ['Reporting Period','April 1, 2024 – March 31, 2025'],
-        ['Indicators Complete',`${complete} of ${all.length} (${pct}%)`],
+        ['Indicators Addressed',`${done} of ${all.length} (${pct}%)`],
+        ['Confirmed by User', confirmed + calc],
+        ['AI-prefilled (unconfirmed)', aiDraft>0 ? `⚠️ ${aiDraft} — return to Step 2 to confirm` : '✅ None'],
         ['Mandatory Indicators', all.filter(i=>(i.type==='essential'||i.type==='mandatory')&&i.status!=='pending').length+' of '+all.filter(i=>i.type==='essential'||i.type==='mandatory').length],
-        ['Report Type','GRI In-Accordance / ESG Disclosure'],
-        ['Generated By','HWCAP – Hertzwave Carbon Accounting Platform']
+        ['Report Type', reportType],
+        ['Generated By','HWCAP – Hertzwave Carbon Accounting Platform'],
       ].map(([k,v])=>`<tr style="border-bottom:1px solid #eee">
         <td style="padding:.5rem;font-weight:600;color:#555;width:220px">${k}</td>
         <td style="padding:.5rem;color:#333">${v}</td>
@@ -1173,15 +1501,12 @@ function initStep5(){
   `;
 }
 
-let reportGenerated = false;
 function generateReport(){
   const btn = document.querySelector('.btn-success');
-  btn.textContent='⏳ Generating…';
-  btn.disabled=true;
+  btn.textContent='⏳ Generating…'; btn.disabled=true;
   setTimeout(()=>{
     reportGenerated=true;
-    btn.textContent='🚀 Generate All Reports';
-    btn.disabled=false;
+    btn.textContent='🚀 Generate All Reports'; btn.disabled=false;
     document.getElementById('export-ready-banner').style.display='flex';
     toast('Reports generated successfully! Click a download button below.','success',4000);
     document.getElementById('export-ready-banner').scrollIntoView({behavior:'smooth'});
@@ -1190,11 +1515,66 @@ function generateReport(){
 
 function triggerExport(fmt){
   if(!reportGenerated){ toast('Click "Generate All Reports" first','warning'); return; }
-  const fw = FW_DATA[selectedFW]||FW_DATA['BRSR'];
+  const fw = FW_DATA[selectedFW]||FW_DATA['GRI'];
   const company = document.getElementById('user-company').textContent.replace(/\s/g,'_');
-  const names={docx:`${company}_${selectedFW}_Report_FY2024-25.docx`, xlsx:`${company}_${selectedFW}_Data_FY2024-25.xlsx`, pdf:`${company}_${selectedFW}_Report_FY2024-25.pdf`};
+  const names={
+    docx:`${company}_${selectedFW}_Report_FY2024-25.docx`,
+    xlsx:`${company}_${selectedFW}_Data_FY2024-25.xlsx`,
+    pdf:`${company}_${selectedFW}_Report_FY2024-25.pdf`
+  };
   toast(`Downloading ${names[fmt]}…`,'info',3000);
 }
 </script>
+
+<!-- ══════════ ASK TERRACAP CHATBOT ══════════ -->
+<script src="/assets/js/terra-chat.js"></script>
+<script>
+TerraChat.init({
+    page: 'reports',
+    pageName: 'Reports & Compliance – Reporting Studio',
+    period: 'FY 2024-25',
+    context: {
+        selectedFramework: (function(){ return window.selectedFW || ''; })(),
+        availableFrameworks: ['BRSR', 'GRI', 'GreenCo', 'CDP', 'CSRD', 'CBAM', 'ISO14064'],
+        currentStep: (function(){ return window.currentStep || 1; })(),
+        company: document.querySelector('#user-company')?.textContent || ''
+    }
+});
+
+// Update chatbot context when user moves between steps or selects a framework
+(function(){
+    var origGoToStep = window.goToStep;
+    window.goToStep = function(n){
+        origGoToStep(n);
+        if(typeof TerraChat !== 'undefined' && TerraChat.updateContext){
+            TerraChat.updateContext({
+                page: 'reports',
+                pageName: 'Reporting Studio — Step ' + n,
+                context: {
+                    selectedFramework: window.selectedFW || '',
+                    currentStep: n,
+                    company: document.querySelector('#user-company')?.textContent || ''
+                }
+            });
+        }
+    };
+    var origSelect = window.onFrameworkSelect;
+    window.onFrameworkSelect = function(key){
+        origSelect(key);
+        if(typeof TerraChat !== 'undefined' && TerraChat.updateContext){
+            TerraChat.updateContext({
+                page: 'reports',
+                pageName: 'Reporting Studio — ' + (key || 'Framework Select'),
+                context: {
+                    selectedFramework: key || '',
+                    currentStep: window.currentStep || 1,
+                    company: document.querySelector('#user-company')?.textContent || ''
+                }
+            });
+        }
+    };
+})();
+</script>
+
 </body>
 </html>
