@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAAC Green Audit Tool — TerraCAP / SustaiNex</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#F5F6F8;--surface:#FFF;--surface-alt:#F9FAFB;--border:#E2E5EA;--border-light:#EEF0F3;
+  --text-primary:#111827;--text-secondary:#4B5563;--text-muted:#9CA3AF;
+  --g900:#0F2B1D;--g800:#14412A;--g700:#22734A;--g600:#2D6A4F;--g500:#40916C;--g400:#52B788;--g200:#D1FAE5;--g50:#ECFDF5;
+  --cat-en:#F59E0B;--cat-wr:#3B82F6;--cat-ws:#8B5CF6;--cat-bd:#10B981;--cat-cb:#EF4444;--cat-rc:#6366F1;
+  --r-sm:6px;--r-md:10px;--r-lg:14px;
+  --font:'DM Sans',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.04);--shadow-md:0 4px 12px rgba(0,0,0,.07);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text-primary);line-height:1.5;-webkit-font-smoothing:antialiased}
+
+/* HEADER */
+.app-header{background:linear-gradient(135deg,#0F2B1D 0%,#14412A 50%,#1A3345 100%);position:fixed;top:0;left:0;right:0;z-index:100;border-bottom:2px solid #2D6A4F;height:64px}
+.header-inner{max-width:100%;padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-icon{width:44px;height:44px;background:rgba(255,255,255,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.brand-text .t1{font-size:14px;font-weight:700;color:#fff;letter-spacing:.2px}
+.brand-text .t2{font-size:9px;color:#A8CCBA;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-top:1px}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.hdr-pill{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:5px 14px;font-size:11px;color:#C8DFD0;display:flex;align-items:center;gap:6px}
+.hdr-pill strong{font-size:15px;color:#6EE8A0;font-family:var(--mono)}
+.hdr-badge{background:rgba(45,106,79,.35);border:1px solid rgba(82,183,136,.4);border-radius:4px;padding:3px 10px;font-size:9px;color:#A8CCBA;font-weight:700;letter-spacing:1.2px;text-transform:uppercase}
+
+/* NAV TABS */
+/* sidebar */
+.sidebar{width:260px;background:#fff;border-right:1px solid #E5E9E6;padding:1.25rem 0;position:fixed;left:0;top:64px;bottom:0;overflow-y:auto;z-index:50}
+.sb-section{margin-bottom:1.5rem}
+.sb-section-title{padding:0 1.25rem 0.6rem;font-size:0.7rem;font-weight:700;color:#5B6E64;text-transform:uppercase;letter-spacing:0.5px}
+.sb-item{display:flex;align-items:center;padding:0.7rem 1.25rem;color:#22302A;text-decoration:none;transition:all .2s;border-left:3px solid transparent;gap:11px;cursor:pointer;background:none;border-top:none;border-right:none;border-bottom:none;width:100%;font-family:var(--font);font-size:0.82rem;text-align:left}
+.sb-item:hover{background:#E9F1EC;color:#4A7C59}
+.sb-item.active{background:#E9F1EC;color:#4A7C59;border-left-color:#4A7C59;font-weight:600}
+.sb-item.done{color:#4A7C59}
+.sb-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.sb-step-num{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;background:#E5E9E6;color:#5B6E64;flex-shrink:0;font-family:var(--mono);transition:all .2s}
+.sb-item.active .sb-step-num{background:#4A7C59;color:#fff}
+.sb-item.done .sb-step-num{background:#52B788;color:#fff}
+.sb-badge{margin-left:auto;padding:2px 7px;border-radius:10px;font-size:0.65rem;font-weight:600;white-space:nowrap}
+.sb-divider{height:1px;background:#E5E9E6;margin:0.5rem 1.25rem 1rem}
+.sb-back{display:flex;align-items:center;gap:8px;padding:0.6rem 1.25rem;color:#5B6E64;font-size:0.78rem;text-decoration:none;transition:color .2s;border-left:3px solid transparent}
+.sb-back:hover{color:#4A7C59}
+
+/* WORKFLOW BAR */
+.wf-bar{display:flex;gap:0;background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);padding:5px;margin-bottom:20px;overflow-x:auto}
+.wf-step{flex:1;display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:var(--r-md);min-width:90px;cursor:pointer;transition:background .15s;position:relative}
+.wf-step:hover{background:rgba(45,106,79,.06)}.wf-step.active{background:var(--g50)}
+.wf-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:var(--mono);background:var(--border);color:var(--text-muted);flex-shrink:0;transition:all .2s}
+.wf-step.active .wf-num{background:var(--g600);color:#fff}
+.wf-step.done .wf-num{background:var(--g400);color:#fff}
+.wf-label{font-size:11px;font-weight:600;color:var(--text-secondary);line-height:1.2}
+.wf-step.active .wf-label{color:var(--g600);font-weight:700}
+.wf-sub{font-size:9px;color:var(--text-muted)}
+.wf-arrow{color:var(--text-muted);font-size:13px;padding:0 2px;display:flex;align-items:center}
+
+/* MAIN */
+.main{max-width:1100px;margin:0 auto;padding:22px 28px 60px;margin-left:260px;margin-top:64px}
+.section{display:none}.section.active{display:block}
+
+/* CARDS */
+.card{background:var(--surface);border-radius:var(--r-lg);border:1px solid var(--border);box-shadow:var(--shadow-sm);overflow:hidden;margin-bottom:18px;animation:fadeUp .3s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card-header{padding:12px 18px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.card-title{font-size:13px;font-weight:700}
+.card-body{padding:18px}
+
+/* TAGS */
+.tag{display:inline-block;padding:2px 9px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.tag.green{background:var(--g200);color:var(--g800)}.tag.orange{background:#FFF7ED;color:#C05621}
+.tag.blue{background:#EFF6FF;color:#1D4ED8}.tag.red{background:#FEF2F2;color:#B91C1C}
+.tag.yellow{background:#FEFCE8;color:#A16207}.tag.purple{background:#F3E8FF;color:#6D28D9}
+.tag.gray{background:#F3F4F6;color:#374151}.tag.teal{background:#F0FDF4;color:#065F46}
+
+/* FORMS */
+.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-label{display:block;font-size:10px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.9px;margin-bottom:4px}
+.form-input{width:100%;padding:8px 11px;font-size:13px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface);font-family:var(--font);transition:border-color .2s;outline:none;color:var(--text-primary)}
+.form-input:focus{border-color:var(--g600);box-shadow:0 0 0 3px rgba(45,106,79,.1)}
+.form-hint{font-size:10px;color:var(--text-muted);margin-top:3px;line-height:1.4}
+.pfbadge{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:#1D4ED8;background:#EFF6FF;border:1px solid #BFDBFE;padding:1px 6px;border-radius:3px;margin-left:6px;vertical-align:middle}
+
+/* SCORE HERO */
+.hero-score{background:linear-gradient(135deg,#0F2B1D,#1A3345);border-radius:var(--r-lg);padding:22px 28px;color:#fff;margin-bottom:18px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;align-items:center}
+.big-num{font-size:42px;font-weight:800;letter-spacing:-2px;line-height:1;font-family:var(--mono)}
+.label-sm{font-size:9px;font-weight:700;color:#A8CCBA;text-transform:uppercase;letter-spacing:2px;margin-bottom:6px}
+
+/* ASSESS LAYOUT */
+.assess-layout{display:grid;grid-template-columns:210px 1fr;gap:18px;align-items:start}
+.side-nav{position:sticky;top:100px}
+.side-nav-list{display:flex;flex-direction:column;gap:2px;padding:8px}
+.side-btn{display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:var(--r-sm);border:none;cursor:pointer;font-size:11px;font-weight:500;font-family:var(--font);color:var(--text-secondary);background:transparent;text-align:left;border-left:3px solid transparent;transition:all .15s;width:100%}
+.side-btn:hover{background:var(--surface-alt)}
+.side-btn.active{font-weight:700;background:var(--g50);border-left-color:var(--g600);color:var(--g600)}
+.side-icon{font-size:15px;flex-shrink:0}
+.side-pct{font-size:9px;color:var(--text-muted);font-family:var(--mono);font-weight:600;margin-left:auto}
+.dom-panel{display:none}.dom-panel.active{display:block}
+
+/* INDICATOR / QUESTION CARDS */
+.ind-card{padding:15px 16px;background:var(--surface-alt);border-radius:var(--r-md);border:1px solid var(--border-light);margin-bottom:11px;transition:border-color .15s}
+.ind-card:hover{border-color:var(--border)}
+.ind-card.answered{border-left:3px solid var(--g600)}
+.ind-header{display:flex;align-items:flex-start;gap:8px;margin-bottom:5px}
+.ind-id{font-size:9px;font-weight:700;font-family:var(--mono);padding:2px 6px;border-radius:3px;flex-shrink:0;margin-top:2px}
+.ind-label{font-size:13px;font-weight:600;flex:1;line-height:1.4}
+.ind-pts{font-size:9px;font-weight:700;background:var(--g50);color:var(--g700);border:1px solid var(--g200);padding:2px 7px;border-radius:4px;flex-shrink:0;margin-top:2px;font-family:var(--mono)}
+.ind-naac{font-size:9px;color:var(--text-muted);margin-bottom:8px}
+.ind-hint{font-size:11px;color:var(--text-muted);margin-bottom:10px;line-height:1.55;padding:7px 10px;background:#fff;border-radius:6px;border:1px solid var(--border-light)}
+
+/* OPTIONS */
+.opts{display:flex;flex-direction:column;gap:4px}
+.opt{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;transition:all .15s;font-size:12px;line-height:1.5}
+.opt:hover{border-color:var(--g400);background:var(--g50)}
+.opt.sel{border-color:var(--g600);background:var(--g50);font-weight:500}
+.opt input[type=radio]{display:none}
+.odot{width:15px;height:15px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .15s}
+.opt.sel .odot{border-color:var(--g600);background:var(--g600)}
+.opt.sel .odot::after{content:'';width:5px;height:5px;background:#fff;border-radius:50%;display:block}
+.onum{font-family:var(--mono);font-size:9px;background:rgba(0,0,0,.05);border-radius:3px;padding:1px 4px;flex-shrink:0;color:var(--text-muted)}
+.opt.sel .onum{background:var(--g200);color:var(--g800)}
+.osc{margin-left:auto;font-family:var(--mono);font-size:9px;color:var(--text-muted);flex-shrink:0}
+.opt.sel .osc{color:var(--g600);font-weight:700}
+.csd{margin-top:8px;padding:7px 10px;background:var(--g50);border-radius:6px;border:1px solid var(--g200);font-size:11px;color:var(--g700);display:flex;justify-content:space-between;align-items:center}
+.csv{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--g700)}
+
+/* NUMERIC INPUT */
+.num-wrap{display:flex;align-items:center;gap:9px}
+.num-inp{width:160px;padding:8px 11px;font-size:14px;font-family:var(--mono);border:1.5px solid var(--border);border-radius:var(--r-sm);outline:none;transition:border-color .2s;background:var(--surface);color:var(--text-primary)}
+.num-inp:focus{border-color:var(--g600);box-shadow:0 0 0 3px rgba(45,106,79,.1)}
+.num-unit{font-size:11px;color:var(--text-secondary);font-weight:500}
+.pf-btn{font-size:9px;padding:3px 8px;border-radius:3px;background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE;font-weight:700;cursor:pointer;font-family:var(--font);transition:background .15s}
+.pf-btn:hover{background:#DBEAFE}
+
+/* DOMAIN SCORE ROW */
+.d-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--r-md);border:1px solid var(--border-light);background:var(--surface-alt);margin-bottom:7px}
+.d-bar{flex:2;height:6px;border-radius:3px;background:var(--border-light);overflow:hidden}
+.d-bar-fill{height:100%;border-radius:3px;transition:width .8s ease}
+.d-badge{font-size:10px;font-weight:700;padding:2px 9px;border-radius:4px;min-width:64px;text-align:center}
+
+/* CHECKLIST */
+.cl-item{display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:var(--r-md);border:1px solid var(--border-light);background:var(--surface-alt);margin-bottom:6px;transition:all .15s}
+.cl-item.obs{background:var(--g50);border-color:var(--g200)}
+.cl-item.disc{background:#FEF2F2;border-color:#FCA5A5}
+.cl-item.na{background:#F9FAFB;border-color:var(--border)}
+.cl-dot{width:28px;height:28px;border-radius:7px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;background:#fff;transition:all .15s}
+.cl-item.obs .cl-dot{background:var(--g600);border-color:var(--g600);color:#fff}
+.cl-item.disc .cl-dot{background:#EF4444;border-color:#EF4444;color:#fff}
+.cl-item.na .cl-dot{background:#9CA3AF;border-color:#9CA3AF;color:#fff}
+.cl-label{font-size:12px;font-weight:500;flex:1;line-height:1.4}
+.cl-sub{font-size:9px;color:var(--text-muted);margin-top:1px}
+.cl-btns{display:flex;gap:4px;margin-left:auto;flex-shrink:0}
+.cl-btn{font-size:9px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:#fff;cursor:pointer;font-family:var(--font);font-weight:600;transition:all .15s;white-space:nowrap;color:var(--text-secondary)}
+.cl-btn:hover{background:var(--surface-alt)}
+.cl-btn.a-obs{background:var(--g600);color:#fff;border-color:var(--g600)}
+.cl-btn.a-disc{background:#EF4444;color:#fff;border-color:#EF4444}
+.cl-btn.a-na{background:#9CA3AF;color:#fff;border-color:#9CA3AF}
+
+/* GAP + REC */
+.gap-row{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-radius:var(--r-md);border:1px solid var(--border-light);background:var(--surface-alt);margin-bottom:7px}
+.rec-card{padding:13px 15px;border-radius:var(--r-md);border:1px solid var(--border-light);background:var(--surface-alt);margin-bottom:9px}
+.rec-hdr{display:flex;align-items:center;gap:7px;margin-bottom:5px;flex-wrap:wrap}
+.rec-body{font-size:12px;color:var(--text-secondary);line-height:1.65}
+.rec-bar{height:4px;border-radius:2px;background:var(--border-light);overflow:hidden;margin-top:7px}
+.rec-bar-fill{height:100%;border-radius:2px}
+
+/* READINESS */
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:var(--r-md);margin-bottom:7px;border:1px solid}
+.check-item.pass{background:#F0FDF4;border-color:#BBF7D0}
+.check-item.warn{background:#FFFBEB;border-color:#FDE68A}
+.check-item.fail{background:#FEF2F2;border-color:#FECACA}
+.check-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.check-label{font-size:12px;font-weight:600}
+.check-desc{font-size:11px;color:var(--text-muted);margin-top:2px}
+
+/* BTNS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:9px 20px;font-size:12px;font-weight:700;font-family:var(--font);border:none;border-radius:var(--r-md);cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--g600);color:#fff}.btn-primary:hover{background:var(--g800)}
+.btn-outline{background:transparent;color:var(--g600);border:1.5px solid var(--g600)}.btn-outline:hover{background:var(--g50)}
+.btn-ghost{background:#F3F4F6;color:var(--text-secondary)}.btn-ghost:hover{background:var(--border)}
+.btn-group{display:flex;gap:9px;justify-content:space-between;margin-top:20px;padding-top:14px;border-top:1px solid var(--border)}
+
+/* CHART */
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.chart-wrap{position:relative;height:290px}
+
+/* UPLOAD */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--r-md);padding:26px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface-alt)}
+.upload-zone:hover{border-color:var(--g600);background:var(--g50)}
+
+/* SCROLL */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.info-banner{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:var(--r-md);padding:11px 15px;margin-bottom:16px;font-size:12px;color:#1E40AF;line-height:1.65}
+
+@media(max-width:900px){
+  .result-grid,.form-grid{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .main{margin-left:0;margin-top:64px}
+}
+@media(max-width:1100px){
+  .assess-layout{grid-template-columns:180px 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-icon">🌿</div>
+      <div class="brand-text">
+        <div class="t1">NAAC Green Audit Tool</div>
+        <div class="t2">National Assessment &amp; Accreditation Council &middot; Criterion 7 &middot; Powered by TerraCAP</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="hdr-pill">Green Score&nbsp;<strong id="hdrScore">0</strong>&nbsp;/&nbsp;100</div>
+      <div class="hdr-pill">Band&nbsp;<strong id="hdrBand" style="color:#6EE8A0">&mdash;</strong></div>
+      <span class="hdr-badge">SustaiNex</span>
+    </div>
+  </div>
+</header>
+
+<nav class="sidebar">
+  <a href="hwcap_dashboard.html" class="sb-back">
+    <span style="font-size:14px">&#8592;</span> Back to TerraCAP
+  </a>
+  <div class="sb-divider"></div>
+
+  <div class="sb-section">
+    <div class="sb-section-title">Audit Workflow</div>
+    <button class="sb-item active" id="sbn-setup" onclick="showSection('setup',this)">
+      <span class="sb-step-num" id="sbn-num-setup">1</span>
+      <span class="sb-icon">🏛️</span>
+      <span>Institution Setup</span>
+    </button>
+    <button class="sb-item" id="sbn-collect" onclick="showSection('collect',this)">
+      <span class="sb-step-num" id="sbn-num-collect">2</span>
+      <span class="sb-icon">📋</span>
+      <span>Data Collection</span>
+    </button>
+    <button class="sb-item" id="sbn-site" onclick="showSection('site',this)">
+      <span class="sb-step-num" id="sbn-num-site">3</span>
+      <span class="sb-icon">🔍</span>
+      <span>Site Checklist</span>
+    </button>
+    <button class="sb-item" id="sbn-scores" onclick="showSection('scores',this)">
+      <span class="sb-step-num" id="sbn-num-scores">4</span>
+      <span class="sb-icon">📊</span>
+      <span>Scores &amp; Gaps</span>
+    </button>
+    <button class="sb-item" id="sbn-action" onclick="showSection('action',this)">
+      <span class="sb-step-num" id="sbn-num-action">5</span>
+      <span class="sb-icon">⚡</span>
+      <span>Action Plan</span>
+    </button>
+    <button class="sb-item" id="sbn-submit" onclick="showSection('submit',this)">
+      <span class="sb-step-num" id="sbn-num-submit">6</span>
+      <span class="sb-icon">📤</span>
+      <span>NAAC Submission</span>
+    </button>
+  </div>
+
+  <div class="sb-divider"></div>
+
+  <div class="sb-section">
+    <div class="sb-section-title">Live Score</div>
+    <div style="padding:0 1.25rem">
+      <div style="font-size:11px;color:#5B6E64;margin-bottom:6px" id="sbInst">No institution set</div>
+      <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:8px">
+        <span style="font-size:32px;font-weight:800;color:#4A7C59;font-family:var(--mono)" id="sbScore">0</span>
+        <span style="font-size:12px;color:#5B6E64">/ 100</span>
+      </div>
+      <div style="height:6px;border-radius:3px;background:#E5E9E6;overflow:hidden;margin-bottom:5px">
+        <div id="sbScoreBar" style="height:100%;border-radius:3px;background:#4A7C59;width:0%;transition:width .5s"></div>
+      </div>
+      <div id="sbBand" style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:4px;display:inline-block;margin-top:2px;background:#E5E9E6;color:#5B6E64">&mdash;</div>
+    </div>
+  </div>
+
+  <div class="sb-divider"></div>
+
+  <div class="sb-section">
+    <div class="sb-section-title">Domains</div>
+    <div id="sbDomainList" style="padding:0 1.25rem;display:flex;flex-direction:column;gap:5px"></div>
+  </div>
+</nav>
+
+<div class="main">
+
+<!-- WORKFLOW BAR -->
+<div class="wf-bar">
+  <div class="wf-step active" id="wf1" onclick="showSection('setup')"><div class="wf-num">1</div><div><div class="wf-label">Institution Setup</div><div class="wf-sub">Profile &amp; audit config</div></div></div>
+  <div class="wf-arrow">&rsaquo;</div>
+  <div class="wf-step" id="wf2" onclick="showSection('collect')"><div class="wf-num">2</div><div><div class="wf-label">Data Collection</div><div class="wf-sub">6 NAAC domains</div></div></div>
+  <div class="wf-arrow">&rsaquo;</div>
+  <div class="wf-step" id="wf3" onclick="showSection('site')"><div class="wf-num">3</div><div><div class="wf-label">Site Checklist</div><div class="wf-sub">Field observations</div></div></div>
+  <div class="wf-arrow">&rsaquo;</div>
+  <div class="wf-step" id="wf4" onclick="showSection('scores')"><div class="wf-num">4</div><div><div class="wf-label">Scores &amp; Gaps</div><div class="wf-sub">Radar + benchmark</div></div></div>
+  <div class="wf-arrow">&rsaquo;</div>
+  <div class="wf-step" id="wf5" onclick="showSection('action')"><div class="wf-num">5</div><div><div class="wf-label">Action Plan</div><div class="wf-sub">Auto-recommendations</div></div></div>
+  <div class="wf-arrow">&rsaquo;</div>
+  <div class="wf-step" id="wf6" onclick="showSection('submit')"><div class="wf-num">6</div><div><div class="wf-label">NAAC Submission</div><div class="wf-sub">Pack &amp; export</div></div></div>
+</div>
+
+<!-- ===== SECTION 1: SETUP ===== -->
+<div class="section active" id="sec-setup">
+  <div class="result-grid">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Institution Profile</span><span class="tag blue">STEP 1 OF 6</span></div>
+      <div class="card-body">
+        <div class="form-grid" style="margin-bottom:14px">
+          <div><label class="form-label">Institution Name</label><input class="form-input" id="instName" placeholder="e.g. St. Aloysius University" oninput="refreshHeader()"></div>
+          <div><label class="form-label">NAAC Institution ID</label><input class="form-input" id="naacId" placeholder="e.g. IN-KA-0123"></div>
+          <div><label class="form-label">Institution Type</label>
+            <select class="form-input" id="instType">
+              <option>Deemed University</option><option>State University</option><option>Central University</option>
+              <option>Autonomous College</option><option>Affiliated College</option>
+            </select></div>
+        </div>
+        <div class="form-grid" style="margin-bottom:14px">
+          <div><label class="form-label">City</label><input class="form-input" id="instCity" placeholder="e.g. Mangaluru"></div>
+          <div><label class="form-label">State</label>
+            <select class="form-input" id="instState">
+              <option>Karnataka</option><option>Maharashtra</option><option>Tamil Nadu</option><option>Kerala</option>
+              <option>Telangana</option><option>Andhra Pradesh</option><option>Delhi</option><option>Other</option>
+            </select></div>
+          <div><label class="form-label">Academic Year</label>
+            <select class="form-input" id="auditYear"><option>2025-26</option><option>2024-25</option><option>2023-24</option></select></div>
+        </div>
+        <div class="form-grid">
+          <div><label class="form-label">Campus Area (sq m)</label><input class="form-input" id="campusArea" type="number" placeholder="e.g. 85000"><div class="form-hint">Total built + open area</div></div>
+          <div><label class="form-label">Total Students</label><input class="form-input" id="stuCount" type="number" placeholder="e.g. 4800"></div>
+          <div><label class="form-label">Total Staff</label><input class="form-input" id="staffCount" type="number" placeholder="e.g. 420"><div class="form-hint">Teaching + non-teaching</div></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Audit Domains &amp; Weights</span><span class="tag green">AUTO-CONFIGURED</span></div>
+        <div class="card-body">
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;line-height:1.6">Six NAAC Criterion 7 domains are pre-configured. Platform data is pre-populated from TerraCAP where available.</div>
+          <div id="domainConfigList"></div>
+          <div style="margin-top:12px;padding:10px 13px;background:var(--g50);border:1px solid var(--g200);border-radius:var(--r-md);font-size:11px;color:var(--g700);line-height:1.8">
+            <strong>Schema:</strong> Generic NAAC &middot; Criterion 7<br>
+            <strong>Scoring:</strong> Option-based multipliers + numeric benchmarks<br>
+            <strong>Pre-fill:</strong> Fields marked <span class="pfbadge">From platform</span> auto-populated from TerraCAP
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Audit Team</span><span class="tag gray">OPTIONAL</span></div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div><label class="form-label">Lead Auditor</label><input class="form-input" id="leadAuditor" placeholder="Name"></div>
+            <div><label class="form-label">Coordinator</label><input class="form-input" id="coordinator" placeholder="Name"></div>
+            <div><label class="form-label">Reviewer</label><input class="form-input" id="reviewer" placeholder="Name"></div>
+          </div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;padding:10px 13px;background:#FEFCE8;border:1px solid #FDE047;border-radius:var(--r-sm);font-size:11px;color:#92400E">
+            <span><strong>Data Deadline:</strong> <input type="date" style="margin-left:6px;font-family:var(--mono);font-size:11px;border:1px solid var(--border);border-radius:4px;padding:2px 7px" id="dateDL"></span>
+            <span><strong>Site Visit:</strong> <input type="date" style="margin-left:6px;font-family:var(--mono);font-size:11px;border:1px solid var(--border);border-radius:4px;padding:2px 7px" id="siteDL"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-group"><span></span><button class="btn btn-primary" onclick="showSection('collect')">Proceed to Data Collection &rarr;</button></div>
+</div>
+
+<!-- ===== SECTION 2: DATA COLLECTION ===== -->
+<div class="section" id="sec-collect">
+  <div class="info-banner"><strong>🔗 Platform data pre-population:</strong> Fields marked <span class="pfbadge">From platform</span> are pulled from TerraCAP&rsquo;s GHG engine and compliance tracker. Review and confirm or override each value. All other fields require manual entry from institutional records.</div>
+  <div class="assess-layout">
+    <div class="card side-nav">
+      <div style="padding:10px 10px 4px;font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.5px">Audit Domains</div>
+      <div class="side-nav-list" id="sideNavList"></div>
+      <div style="padding:8px 10px;border-top:1px solid var(--border-light);margin-top:4px">
+        <div style="font-size:9px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px">Progress</div>
+        <div style="height:4px;border-radius:2px;background:var(--border-light);overflow:hidden;margin-bottom:3px"><div id="sideProgressBar" style="height:100%;border-radius:2px;background:var(--g600);width:0%;transition:width .5s"></div></div>
+        <div id="sideProgressText" style="font-size:10px;color:var(--text-secondary);font-family:var(--mono)">0/36 answered</div>
+      </div>
+    </div>
+    <div id="assessContent"></div>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-ghost" onclick="showSection('setup')">&larr; Back to Setup</button>
+    <button class="btn btn-primary" onclick="showSection('site')">Proceed to Site Checklist &rarr;</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 3: SITE CHECKLIST ===== -->
+<div class="section" id="sec-site">
+  <div class="result-grid">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Site Observation Checklist</span><span class="tag orange">FIELD AUDITOR</span></div>
+      <div class="card-body">
+        <div class="info-banner" style="margin-bottom:14px"><strong>Instructions:</strong> Walk through the campus and mark each item. <strong style="color:var(--g600)">Observed</strong> = physically confirmed. <strong style="color:#EF4444">Discrepant</strong> = data entered does not match what is observed on-site. <strong style="color:#6B7280">N/A</strong> = not applicable. Discrepancies are flagged in the gap report.</div>
+        <div id="checklistItems"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card"><div class="card-header"><span class="card-title">Observation Summary</span></div><div class="card-body" id="clSummary"></div></div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Photo Evidence</span><span class="tag gray">OPTIONAL</span></div>
+        <div class="card-body">
+          <div class="upload-zone" onclick="alert('Photo upload with GPS tagging — available in HWCAP production build.')">
+            <div style="font-size:28px;margin-bottom:8px">📷</div>
+            <div style="font-size:12px;font-weight:600;color:var(--text-secondary)">Tap to upload site photos</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:3px">GPS metadata auto-captured on mobile &middot; JPEG / PNG</div>
+          </div>
+          <div style="margin-top:10px;font-size:11px;color:var(--text-muted);line-height:1.6">Photos are GPS-tagged to checklist items and included in the NAAC evidence appendix.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Site Sign-off</span></div>
+        <div class="card-body">
+          <div style="margin-bottom:10px"><label class="form-label">Lead Auditor Name</label><input class="form-input" id="auditorName" placeholder="Full name"></div>
+          <div style="margin-bottom:12px"><label class="form-label">Date of Visit</label><input type="date" class="form-input" id="visitDate"></div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doSignOff()">&check; Sign Off Site Visit</button>
+          <div id="signOffMsg" style="display:none;margin-top:10px;padding:10px;background:var(--g50);border:1px solid var(--g200);border-radius:var(--r-sm);font-size:11px;color:var(--g700);font-weight:600">✅ Site visit signed off &mdash; proceed to scoring.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-ghost" onclick="showSection('collect')">&larr; Back</button>
+    <button class="btn btn-primary" onclick="showSection('scores');renderScores()">Compute Scores &rarr;</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 4: SCORES & GAPS ===== -->
+<div class="section" id="sec-scores">
+  <div class="hero-score" id="scoreHero">
+    <div><div class="label-sm" id="heroInst">Institution</div><div class="big-num" id="heroScore">0</div><span class="tag green" id="heroBand">&mdash;</span></div>
+    <div style="text-align:center"><div class="label-sm">Performance</div><div style="font-size:36px;font-weight:800;font-family:var(--mono);color:#6EE8A0" id="heroPct">0%</div></div>
+    <div style="text-align:right"><div class="label-sm">Weakest Domain</div><div style="font-size:20px;font-weight:700" id="heroWeak">&mdash;</div></div>
+  </div>
+  <div class="result-grid">
+    <div class="card"><div class="card-header"><span class="card-title">Domain Score Breakdown</span><span class="tag green">NAAC CRITERION 7</span></div><div class="card-body" id="scoreBreakdown"></div></div>
+    <div class="card"><div class="card-header"><span class="card-title">Green Audit Radar &mdash; vs NAAC Benchmark</span></div><div class="card-body"><div class="chart-wrap"><canvas id="radarChart"></canvas></div></div></div>
+  </div>
+  <div class="card"><div class="card-header"><span class="card-title">Gap Analysis by Domain</span><span class="tag red">PRIORITY AREAS</span></div><div class="card-body" id="gapTableBody"></div></div>
+  <div class="btn-group">
+    <button class="btn btn-ghost" onclick="showSection('site')">&larr; Back</button>
+    <button class="btn btn-primary" onclick="showSection('action');renderAction()">View Action Plan &rarr;</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 5: ACTION PLAN ===== -->
+<div class="section" id="sec-action">
+  <div class="result-grid">
+    <div class="card"><div class="card-header"><span class="card-title">Prioritised Recommendations</span><span class="tag orange">AUTO-GENERATED FROM GAPS</span></div><div class="card-body" id="recsBody"></div></div>
+    <div>
+      <div class="card"><div class="card-header"><span class="card-title">Effort vs Impact Matrix</span></div><div class="card-body" id="effortMatrix"></div></div>
+      <div class="card"><div class="card-header"><span class="card-title">NAAC Benchmark Comparison</span></div><div class="card-body" id="benchCompare"></div></div>
+    </div>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-ghost" onclick="showSection('scores')">&larr; Back</button>
+    <button class="btn btn-primary" onclick="showSection('submit');renderSubmit()">Prepare NAAC Submission &rarr;</button>
+  </div>
+</div>
+
+<!-- ===== SECTION 6: SUBMIT ===== -->
+<div class="section" id="sec-submit">
+  <div class="result-grid">
+    <div class="card"><div class="card-header"><span class="card-title">Submission Readiness Checklist</span><span class="tag blue">NAAC CRITERION 7</span></div><div class="card-body" id="readinessBody"></div></div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Generate Submission Pack</span></div>
+      <div class="card-body">
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px;line-height:1.7">Your NAAC DVV submission pack contains the audit report, domain data tables, and evidence index &mdash; ready for manual upload to the NAAC portal.</div>
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);margin-bottom:6px">Pack structure</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--text-muted);line-height:2;background:var(--surface-alt);border:1px solid var(--border-light);border-radius:var(--r-sm);padding:10px 12px;margin-bottom:16px">
+          NAAC_GreenAudit_<span id="packId" style="color:var(--g600)">{NAAC_ID}</span>_<span id="packYr" style="color:var(--g600)">2025-26</span>/<br>
+          &nbsp;&nbsp;7.1.1_Regulatory_Compliance/<br>
+          &nbsp;&nbsp;7.1.2_Energy_Water_Carbon/<br>
+          &nbsp;&nbsp;7.1.3_Biodiversity/<br>
+          &nbsp;&nbsp;7.1.4_Waste_Management/<br>
+          &nbsp;&nbsp;GreenAudit_Report_{ID}_{AY}.pdf<br>
+          &nbsp;&nbsp;DataSummary_NAAC_7.1_{ID}.xlsx
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <button class="btn btn-primary" style="justify-content:center" onclick="exportCSV()">📥 Export Score Summary (CSV)</button>
+          <button class="btn btn-outline" style="justify-content:center" onclick="alert('Full submission pack — available in HWCAP production build.')">&#128230; Generate Full Submission Pack</button>
+          <button class="btn btn-ghost" style="justify-content:center" onclick="window.open('https://naac.gov.in','_blank')">🌐 Open NAAC Portal &nearr;</button>
+        </div>
+        <div style="margin-top:14px;padding:12px 14px;background:var(--g50);border:1px solid var(--g200);border-radius:var(--r-md);font-size:11px;color:var(--g700);line-height:1.8">
+          <strong>Note:</strong> NAAC has no public submission API. Download the pack above and upload manually.<br>
+          <strong>Submission window:</strong> Typically April &ndash; July each cycle.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-ghost" onclick="showSection('action')">&larr; Back</button>
+    <button class="btn btn-outline" onclick="window.print()">🖨 Print Audit Summary</button>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// =====================================================
+// DATA MODEL
+// =====================================================
+const DOMAINS = [
+  { id:'EN', icon:'⚡', name:'Energy', wt:20, col:'#F59E0B', naac:'C7.1.2(i)(ii)',
+    qs:[
+      { id:'EN1', lbl:'Overall energy management practice', pts:20, naac:'7.1.2(i)', pf:false,
+        hint:'How comprehensively does the institution manage and optimise its energy consumption?',
+        opts:['Comprehensive programme: dedicated energy manager, BMS, real-time monitoring, published targets','Structured approach: energy audits conducted, LED retrofit complete, solar installed','Basic measures: LED in most areas, some solar, no formal programme','Minimal or no formal energy management programme'],
+        mults:[1, 0.75, 0.45, 0.1] },
+      { id:'EN2', lbl:'Renewable energy as % of total electricity', pts:20, naac:'7.1.2(ii)', pf:false,
+        hint:'What percentage of total campus electricity consumption comes from renewable sources (solar, wind, biomass)?',
+        opts:['50% or more from renewables','25–49% from renewables','10–24% from renewables','Less than 10% from renewables'],
+        mults:[1, 0.75, 0.45, 0.1] },
+      { id:'EN3', lbl:'LED lighting conversion status', pts:15, naac:'7.1.2(i)', pf:false,
+        hint:'What proportion of campus lighting has been converted to LED technology?',
+        opts:['100% LED across all campus buildings and outdoor areas','75–99% LED conversion completed','50–74% converted, remainder in progress','Below 50% LED conversion'],
+        mults:[1, 0.75, 0.45, 0.1] },
+      { id:'EN4', lbl:'Formal energy audit conducted', pts:20, naac:'7.1.2(i)', pf:false,
+        hint:'Has a BEE-certified or equivalent energy audit been conducted with a published report?',
+        opts:['Yes — BEE-certified audit completed in last 2 years with published recommendations','Yes — internal audit completed but not formally certified','Audit in progress or planned for current year','No formal energy audit conducted'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'EN5', lbl:'Energy Conservation Building Code (ECBC) compliance', pts:15, naac:'7.1.2(i)', pf:false,
+        hint:'Do campus buildings comply with India’s Energy Conservation Building Code?',
+        opts:['Full ECBC compliance across all major buildings with compliance certificates','Partial compliance — major buildings comply, older buildings in retrofit','ECBC assessment completed but compliance work ongoing','No ECBC assessment or compliance activity'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'EN6', lbl:'Solar installed capacity', pts:10, naac:'7.1.2(ii)', pf:false,
+        hint:'What is the total solar PV installed capacity on campus?',
+        opts:['More than 500 kWp installed','100–500 kWp installed','10–99 kWp installed','Less than 10 kWp or none installed'],
+        mults:[1, 0.75, 0.45, 0.1] }
+    ]
+  },
+  { id:'WR', icon:'💧', name:'Water', wt:20, col:'#3B82F6', naac:'C7.1.2(iii)',
+    qs:[
+      { id:'WR1', lbl:'Overall water management practice', pts:20, naac:'7.1.2(iii)', pf:false,
+        hint:'How comprehensively does the institution manage water consumption and conservation?',
+        opts:['Comprehensive: water audit, sub-metering, reduction targets, STP with 100% reuse','Structured: STP operational, rainwater harvested, water consumption tracked','Basic: water conservation awareness, some harvesting infrastructure, no STP','Minimal or no formal water management'],
+        mults:[1, 0.75, 0.45, 0.1] },
+      { id:'WR2', lbl:'Rainwater harvesting capacity and utilisation', pts:20, naac:'7.1.2(iii)', pf:false,
+        hint:'What is the extent of rainwater harvesting infrastructure and its actual utilisation on campus?',
+        opts:['Extensive RWH — multiple pits/tanks, covers >50% of campus demand during monsoon','Moderate RWH — functional systems installed, covers 20–50% of need','Basic RWH — some infrastructure exists but limited coverage','No rainwater harvesting infrastructure'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'WR3', lbl:'Sewage / Effluent Treatment Plant (STP/ETP)', pts:20, naac:'7.1.2(iii)', pf:false,
+        hint:'Does the campus have an operational STP/ETP and how is treated water reused?',
+        opts:['Operational STP/ETP with 100% treated water reused for irrigation and flushing','STP/ETP operational, partial reuse (50–99% recycled)','STP/ETP installed but limited reuse (<50%)','No STP/ETP installed'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'WR4', lbl:'Water metering and monitoring', pts:10, naac:'7.1.2(iii)', pf:false,
+        hint:'Is water consumption metered at building or zone level?',
+        opts:['Building-level sub-metering with monthly consumption data tracked and published','Zone-level metering with quarterly tracking','Main meter only — total campus consumption tracked','No formal water metering beyond utility bill'],
+        mults:[1, 0.75, 0.45, 0.1] },
+      { id:'WR5', lbl:'Water conservation initiatives', pts:20, naac:'7.1.2(iii)', pf:false,
+        hint:'What water conservation measures have been implemented?',
+        opts:['Drip irrigation, sensor taps, dual-flush toilets, and active conservation programme','Drip irrigation and sensor taps installed in major areas','Basic conservation — signage and awareness only','No specific water conservation measures'],
+        mults:[1, 0.75, 0.45, 0.1] },
+      { id:'WR6', lbl:'Groundwater recharge and dependency', pts:10, naac:'7.1.2(iii)', pf:false,
+        hint:'What is the campus approach to groundwater management?',
+        opts:['Recharge pits installed, borewell usage minimised (<10% of total water from groundwater)','Partial recharge, groundwater used for 10–30% of total','Groundwater used for 30–60% with some recharge measures','Heavily dependent on groundwater (>60%), minimal recharge'],
+        mults:[1, 0.75, 0.45, 0.1] }
+    ]
+  },
+  { id:'WS', icon:'♻️', name:'Waste', wt:20, col:'#8B5CF6', naac:'C7.1.4',
+    qs:[
+      { id:'WS1', lbl:'Waste segregation at source', pts:25, naac:'7.1.4', pf:false,
+        hint:'How effectively is waste segregated at the point of generation across campus?',
+        opts:['Complete segregation: wet, dry, hazardous and e-waste bins at all key points, verified by audit','Good segregation: wet/dry bins everywhere, some hazardous collection','Partial: some segregation in common areas, inconsistent in classrooms/labs','Minimal or no segregation practice'],
+        mults:[1, 0.75, 0.45, 0.1] },
+      { id:'WS2', lbl:'Organic waste management', pts:20, naac:'7.1.4', pf:false,
+        hint:'How is organic waste (canteen, garden, kitchen) managed on campus?',
+        opts:['On-campus composting / vermicomposting converting 100% of organic waste to fertiliser','Composting unit operational, processes 50–99% of organic waste','Small-scale composting or biogas unit, limited coverage','Organic waste entirely sent to landfill or municipal collection'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'WS3', lbl:'Biomedical waste management (if applicable)', pts:20, naac:'7.1.4', pf:false,
+        hint:'How is biomedical / clinical waste managed? Mark N/A if no medical/dental/lab facilities.',
+        opts:['Full compliance: authorised vendor, manifests maintained, colour-coded bags, staff trained','Partial compliance: vendor used but documentation gaps','Basic: some segregation but not fully compliant with BMWM Rules','No formal biomedical waste management (or N/A)'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'WS4', lbl:'E-waste management', pts:15, naac:'7.1.4', pf:false,
+        hint:'How does the institution manage electronic waste from computers, lab equipment, and devices?',
+        opts:['Annual e-waste collection drives with PCB-registered recycler, disposal certificates obtained','Bi-annual collection, certificates sometimes obtained','Occasional collection, no formal certificates','No organised e-waste management'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'WS5', lbl:'Plastic reduction and single-use plastic policy', pts:10, naac:'7.1.4', pf:false,
+        hint:'Has the institution adopted a policy to reduce single-use plastics?',
+        opts:['Formal SUP ban enforced campus-wide, reusable alternatives provided, monitored','Partial ban, some areas plastic-free, active awareness campaign','Policy exists but limited enforcement','No plastic reduction policy or initiative'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'WS6', lbl:'Waste-to-value or landfill diversion', pts:10, naac:'7.1.4', pf:false,
+        hint:'What percentage of campus waste is diverted from landfill through recycling, composting, or reuse?',
+        opts:['More than 80% landfill diversion achieved and documented','50–80% diverted','20–49% diverted','Less than 20% or no measurement'],
+        mults:[1, 0.75, 0.45, 0.0] }
+    ]
+  },
+  { id:'BD', icon:'🌳', name:'Biodiversity', wt:15, col:'#10B981', naac:'C7.1.3',
+    qs:[
+      { id:'BD1', lbl:'Green and landscape area coverage', pts:25, naac:'7.1.3', pf:false,
+        hint:'What percentage of total campus area is covered by green / vegetated space?',
+        opts:['More than 50% of campus area is green/vegetated space','30–50% green coverage','15–29% green coverage','Less than 15% green coverage'],
+        mults:[1, 0.75, 0.45, 0.1] },
+      { id:'BD2', lbl:'Native plant species documentation', pts:20, naac:'7.1.3', pf:false,
+        hint:'Has the institution documented its campus biodiversity with a formal plant species register?',
+        opts:['Formal species register with 50+ native species, botanical names, updated annually','Register exists with 20–49 species, periodically updated','Informal list maintained, <20 species documented','No plant species documentation'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'BD3', lbl:'Miyawaki or dense native plantation', pts:15, naac:'7.1.3', pf:false,
+        hint:'Has the campus established a Miyawaki-method or dense native species plantation?',
+        opts:['Active Miyawaki grove of 500+ sq m with documented species list and survival rate','Small Miyawaki plantation (100–499 sq m) established and maintained','Plantation planned and site allocated','No Miyawaki or dense native plantation'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'BD4', lbl:'Pesticide-free / organic management zone', pts:15, naac:'7.1.3', pf:false,
+        hint:'Has the institution designated and maintained a pesticide-free or organically managed green zone?',
+        opts:['Entire campus pesticide-free with documented organic / IPM practices','Designated pesticide-free zone (>25% of green area) with documented practice','Small pesticide-free zone, mostly symbolic','No pesticide-free zone or organic practice'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'BD5', lbl:'Biodiversity / ecology awareness initiatives', pts:15, naac:'7.1.3', pf:false,
+        hint:'What biodiversity awareness initiatives does the campus run for students and staff?',
+        opts:['Annual biodiversity festival, nature trail, birdwatch programme, student-led species surveys','Regular events — at least two per year with documented participation','Occasional events, no regular programme','No biodiversity awareness initiatives'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'BD6', lbl:'Campus green area management and maintenance', pts:10, naac:'7.1.3', pf:false,
+        hint:'How is the campus landscape actively managed to enhance biodiversity value?',
+        opts:['Dedicated landscape team, documented maintenance schedule, biodiversity-sensitive practices','Landscape maintained regularly with some biodiversity considerations','Basic maintenance — mowing and watering only','Minimal maintenance, landscape poorly managed'],
+        mults:[1, 0.75, 0.45, 0.1] }
+    ]
+  },
+  { id:'CB', icon:'🌡️', name:'Carbon', wt:15, col:'#EF4444', naac:'C7.1.2(iv)',
+    qs:[
+      { id:'CB1', lbl:'GHG inventory calculation and documentation', pts:20, naac:'7.1.2(iv)', pf:true,
+        hint:'Has the institution calculated and documented its greenhouse gas emissions? Pre-filled from TerraCAP GHG engine if available.',
+        opts:['Full Scope 1+2+3 inventory per GHG Protocol, published annually on website','Scope 1+2 inventory calculated and internally reported','Scope 1 only or partial inventory attempted','No GHG inventory calculated'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'CB2', lbl:'Carbon reduction target and progress', pts:20, naac:'7.1.2(iv)', pf:false,
+        hint:'Has the institution set a formal carbon reduction target and demonstrated measurable progress?',
+        opts:['Science-based or net-zero target set, with 2+ years of demonstrated reduction and annual reporting','Quantified target set with baseline year, first year of tracking underway','Informal commitment to reduce carbon, no quantified target','No carbon reduction target or commitment'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'CB3', lbl:'Green transport options for campus community', pts:20, naac:'7.1.2(iv)', pf:false,
+        hint:'What low-carbon transport options are available for students and staff?',
+        opts:['EV charging, covered bicycle bays, electric shuttle, carpool scheme all available and actively promoted','Three of the above four options available','One or two options available','No formal green transport provision'],
+        mults:[1, 0.75, 0.45, 0.1] },
+      { id:'CB4', lbl:'Campus transport fleet electrification', pts:15, naac:'7.1.2(iv)', pf:false,
+        hint:'What is the electrification status of campus-owned vehicles and transport fleet?',
+        opts:['100% electric or hybrid fleet for campus transport','50–99% electric or hybrid','1–49% electric or hybrid (transition underway)','No electric or hybrid vehicles in campus fleet'],
+        mults:[1, 0.75, 0.45, 0.1] },
+      { id:'CB5', lbl:'Carbon offset or neutrality programme', pts:15, naac:'7.1.2(iv)', pf:false,
+        hint:'Does the institution offset residual emissions or participate in any carbon neutrality programme?',
+        opts:['Certified carbon offset programme active, offset certificates obtained for residual emissions','Tree plantation scheme used for internal offset, volume documented','Informal neutrality aspirations, limited action','No carbon offset or neutrality activity'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'CB6', lbl:'Sustainable procurement and low-carbon supply chain', pts:10, naac:'7.1.2(iv)', pf:false,
+        hint:'Does the institution have a sustainable procurement policy to reduce supply chain emissions?',
+        opts:['Formal sustainable procurement policy: preference for low-carbon, local, certified products','Informal preference for sustainable products in major purchases','Ad-hoc sustainable choices, no policy','No sustainable procurement consideration'],
+        mults:[1, 0.75, 0.45, 0.0] }
+    ]
+  },
+  { id:'RC', icon:'📋', name:'Compliance', wt:10, col:'#6366F1', naac:'C7.1.1',
+    qs:[
+      { id:'RC1', lbl:'Consent to Operate (CTO) and PCB NOC status', pts:25, naac:'7.1.1', pf:true,
+        hint:'Pre-filled from TerraCAP compliance tracker. Are the campus CTO and PCB NOC current and valid?',
+        opts:['Both CTO and PCB NOC valid, renewed at least 3 months before expiry each cycle','Both valid but renewal sometimes last-minute','One valid, other lapsed or under renewal','Both lapsed or not applicable to institution type'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'RC2', lbl:'ISO 14001 Environmental Management certification', pts:20, naac:'7.1.1', pf:false,
+        hint:'Does the institution hold a valid ISO 14001:2015 Environmental Management System certification?',
+        opts:['Valid ISO 14001:2015 certificate from accredited body, no major non-conformities','Certificate in place, minor non-conformities noted in last audit','Certification process initiated / gap assessment complete','No ISO 14001 certification or plans underway'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'RC3', lbl:'Green building certification (IGBC / LEED / GRIHA)', pts:20, naac:'7.1.1', pf:false,
+        hint:'Has any campus building achieved a recognised green building rating?',
+        opts:['Gold or Platinum rating for one or more buildings — certificate current','Silver or basic certified rating, or pre-certification achieved','Registration submitted, assessment in progress','No green building certification or plans'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'RC4', lbl:'Annual Environment / Sustainability Report publication', pts:15, naac:'7.1.1', pf:false,
+        hint:'Does the institution publish an annual sustainability or environment report aligned to a recognised framework?',
+        opts:['Annual report aligned to GRI / BRSR / NAAC C7, publicly available on website','Annual report published but not aligned to formal framework','Sustainability information included in annual report but not a standalone report','No sustainability or environment reporting'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'RC5', lbl:'Environment / Sustainability policy and governance', pts:10, naac:'7.1.1', pf:false,
+        hint:'Does the institution have a formal environment policy approved by governing body?',
+        opts:['Board-approved environment policy, Environment Committee with regular meetings, KPIs tracked','Policy exists and displayed, committee exists but meets infrequently','Informal policy, no committee structure','No formal environment policy'],
+        mults:[1, 0.75, 0.45, 0.0] },
+      { id:'RC6', lbl:'Previous NAAC cycle Criterion 7 compliance', pts:10, naac:'7.1.1', pf:false,
+        hint:'Was Criterion 7 data submitted in the previous NAAC assessment cycle?',
+        opts:['Full C7 data submitted in previous cycle, DVV verification completed successfully','Submitted in previous cycle, some DVV clarifications were requested','Partial C7 data submitted','First cycle or no prior NAAC C7 submission'],
+        mults:[1, 0.75, 0.45, 0.0] }
+    ]
+  }
+];
+
+const CHECKLIST_ITEMS = [
+  { id:'cl1', dom:'EN', lbl:'Energy meters visible and functional in main buildings', sub:'Inverter or meter display confirms live readings' },
+  { id:'cl2', dom:'EN', lbl:'Solar panels installed and clearly active', sub:'Inverter display shows generation data' },
+  { id:'cl3', dom:'EN', lbl:'LED lighting observed in majority of classrooms and corridors', sub:'Confirm fixture type in at least 5 locations' },
+  { id:'cl4', dom:'WR', lbl:'Rainwater harvesting pits or storage tanks visible and maintained', sub:'Check that inlets are clear and tanks are clean' },
+  { id:'cl5', dom:'WR', lbl:'STP or ETP unit physically present and operational', sub:'Effluent quality log or operator present' },
+  { id:'cl6', dom:'WR', lbl:'Water meters or flow meters installed at key consumption points', sub:'Canteen, hostel, labs' },
+  { id:'cl7', dom:'WS', lbl:'Segregated waste bins present throughout campus', sub:'Wet, dry, and hazardous bins in canteen, corridors, and labs' },
+  { id:'cl8', dom:'WS', lbl:'Composting or vermicomposting unit active', sub:'Fresh material and compost product visible' },
+  { id:'cl9', dom:'WS', lbl:'E-waste collection point designated and labelled', sub:'Locked bin or storage room for e-waste' },
+  { id:'cl10', dom:'BD', lbl:'Green area well-maintained with visible plant species labels', sub:'Labels on trees, shrubs, or plant beds' },
+  { id:'cl11', dom:'BD', lbl:'Miyawaki grove or dense native plantation visible', sub:'High-density planting with native species' },
+  { id:'cl12', dom:'BD', lbl:'Campus biodiversity map or register on display or available', sub:'Notice board, reception, or accessible online' },
+  { id:'cl13', dom:'CB', lbl:'Generator fuel and maintenance log available for inspection', sub:'Register or digital log with at least last 3 entries' },
+  { id:'cl14', dom:'CB', lbl:'EV charging station or covered bicycle parking available', sub:'Functional charger or well-maintained bicycle bay' },
+  { id:'cl15', dom:'RC', lbl:'CTO / PCB NOC certificate displayed on notice board or in office', sub:'Within validity period visible on certificate' },
+  { id:'cl16', dom:'RC', lbl:'Green building rating plaque or certificate displayed', sub:'IGBC, LEED, or GRIHA certificate physically present' },
+  { id:'cl17', dom:'RC', lbl:'Environment policy document displayed or publicly accessible', sub:'Website URL or physical display confirmed' }
+];
+
+const RECS = {
+  EN:[
+    { t:'Commission a BEE-certified energy audit and implement the top 3 recommendations within one semester. This single action delivers the highest ROI on energy expenditure.', ef:'Low', im:'High' },
+    { t:'Expand solar PV capacity to cover 30%+ of total electricity demand. Evaluate rooftop potential using TerraCAP’s energy module. ROI typically 5–7 years.', ef:'High', im:'High' },
+    { t:'Install building-level sub-metering for the top 5 energy-consuming buildings and set monthly department targets with a friendly inter-department competition.', ef:'Med', im:'Med' }
+  ],
+  WR:[
+    { t:'Install sub-metering in high-use zones (canteen, labs, hostels) and set monthly consumption reduction targets per zone. Visibility alone drives 10–15% reduction.', ef:'Low', im:'Med' },
+    { t:'Upgrade STP to tertiary treatment to enable 100% reuse for irrigation and toilet flushing, eliminating dependency on fresh water for these uses.', ef:'High', im:'High' },
+    { t:'Deploy drip irrigation for all landscaped areas to cut landscape water consumption by 35–40%. Pairs well with STP reuse water.', ef:'Med', im:'Med' }
+  ],
+  WS:[
+    { t:'Place colour-coded bins (wet/dry/hazardous) at every 50 m across campus and run a semester-long awareness campaign with resident NSS volunteers.', ef:'Low', im:'High' },
+    { t:'Set up a campus-wide vermicomposting unit near the canteen to convert all organic kitchen waste to fertiliser — eliminates 30–40% of solid waste to landfill.', ef:'Med', im:'Med' },
+    { t:'Partner with a PCB-registered e-waste recycler and run bi-annual collection drives with disposal certificates — mandatory for NAAC DVV compliance.', ef:'Low', im:'Med' }
+  ],
+  BD:[
+    { t:'Conduct a student-led campus species survey through NSS / botany department and publish a formal biodiversity register with botanical names.', ef:'Low', im:'Med' },
+    { t:'Designate 1,000 sq m for a Miyawaki plantation using 30+ native species — doubles as an outdoor ecology laboratory and boosts green coverage metric.', ef:'Med', im:'High' },
+    { t:'Declare the entire campus pesticide-free and transition to Integrated Pest Management (IPM) practices — documented, low-cost, strong NAAC signal.', ef:'Low', im:'Med' }
+  ],
+  CB:[
+    { t:'Calculate a full Scope 1+2 GHG inventory using TerraCAP’s GHG engine and publish the results on the institution website. This single action maximises C7.1.2(iv) score.', ef:'Low', im:'High' },
+    { t:'Set a formal 5-year carbon reduction target (e.g. 30% vs 2024 baseline) and appoint an Environment Officer to track and report monthly progress.', ef:'Low', im:'High' },
+    { t:'Install EV charging points (minimum 4) and covered bicycle bays. Promote carpool and cycling with incentives — directly addresses transport emissions.', ef:'Med', im:'Med' }
+  ],
+  RC:[
+    { t:'Create a compliance calendar for CTO and PCB NOC renewals with 3-month advance reminders. A lapsed CTO is a critical fail in NAAC DVV verification.', ef:'Low', im:'High' },
+    { t:'Apply for IGBC Green Campus certification — use TerraCAP’s Compliance Mapper to track evidence requirements. A Gold rating is achievable within 18 months.', ef:'High', im:'High' },
+    { t:'Draft and publish an annual Environment Sustainability Report aligned to GRI standards and NAAC Criterion 7. This directly satisfies DVV evidence requirement.', ef:'Med', im:'Med' }
+  ]
+};
+
+const BM_NAAC = { EN:62, WR:58, WS:55, BD:48, CB:52, RC:71 };
+
+// =====================================================
+// STATE
+// =====================================================
+const A = {};
+const CL = {};
+let signedOff = false;
+let radarChart = null;
+let curDom = 'EN';
+
+// =====================================================
+// NAVIGATION
+// =====================================================
+const SEC_IDS = ['setup','collect','site','scores','action','submit'];
+function showSection(id, triggerEl) {
+  SEC_IDS.forEach((s,i) => {
+    document.getElementById('sec-'+s).classList.remove('active');
+    const sbn = document.getElementById('sbn-'+s);
+    if(sbn) sbn.classList.remove('active');
+    const wf = document.getElementById('wf'+(i+1));
+    if(wf) { wf.classList.remove('active'); }
+  });
+  document.getElementById('sec-'+id).classList.add('active');
+  const sbn = document.getElementById('sbn-'+id);
+  if(sbn) sbn.classList.add('active');
+  const idx = SEC_IDS.indexOf(id);
+  const wf = document.getElementById('wf'+(idx+1));
+  if(wf) wf.classList.add('active');
+  // mark prior steps done in sidebar
+  SEC_IDS.forEach((s,i) => {
+    const num = document.getElementById('sbn-num-'+s);
+    const btn = document.getElementById('sbn-'+s);
+    if(i < idx) { if(num) num.textContent='✓'; if(btn) btn.classList.add('done'); }
+    else { if(num) num.textContent=(i+1); if(btn) btn.classList.remove('done'); }
+  });
+  // mark wf steps
+  for(let i=0;i<idx;i++) { const w=document.getElementById('wf'+(i+1)); if(w) w.classList.add('done'); }
+  if(id==='scores') renderScores();
+  if(id==='action') renderAction();
+  if(id==='submit') renderSubmit();
+  window.scrollTo(0,0);
+}
+
+// =====================================================
+// SETUP: DOMAIN CONFIG LIST
+// =====================================================
+function initSetup() {
+  document.getElementById('domainConfigList').innerHTML = DOMAINS.map(d => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r-sm);border:1px solid var(--border-light);background:var(--surface-alt);margin-bottom:5px">
+      <span style="font-size:15px">${d.icon}</span>
+      <span style="font-size:12px;font-weight:600;flex:1">${d.name}</span>
+      <span style="font-size:10px;color:var(--text-muted)">${d.naac}</span>
+      <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--g600)">${d.wt}%</span>
+    </div>`).join('');
+}
+
+// =====================================================
+// DATA COLLECTION
+// =====================================================
+function initCollect() {
+  // Side nav
+  document.getElementById('sideNavList').innerHTML = DOMAINS.map(d => `
+    <button class="side-btn ${d.id===curDom?'active':''}" id="sb-${d.id}" onclick="switchDom('${d.id}',this)">
+      <span class="side-icon">${d.icon}</span>
+      <span>${d.name}</span>
+      <span class="side-pct" id="spct-${d.id}">0%</span>
+    </button>`).join('');
+  // Domain panels
+  document.getElementById('assessContent').innerHTML = DOMAINS.map(d =>
+    `<div class="dom-panel ${d.id===curDom?'active':''}" id="dp-${d.id}">${buildDomainPanel(d)}</div>`
+  ).join('');
+  refreshProgress();
+}
+
+function buildDomainPanel(d) {
+  const hasPf = d.qs.some(q=>q.pf);
+  const pfNote = hasPf ? `<div class="info-banner">🔗 <strong>Platform data available:</strong> Questions marked <span class="pfbadge">From platform</span> are pre-populated from TerraCAP. Review and confirm or override each answer.</div>` : '';
+  return `<div class="card">
+    <div class="card-header">
+      <span class="card-title">${d.icon} ${d.name} <span style="font-size:10px;color:var(--text-muted);font-weight:400">&#8212; ${d.naac}</span></span>
+      <span class="tag" style="background:${d.col}22;color:${d.col}">${d.wt}% of total score</span>
+    </div>
+    <div class="card-body">${pfNote}${d.qs.map(q => buildQCard(q)).join('')}</div>
+  </div>`;
+}
+
+function buildQCard(q) {
+  const done = A[q.id] !== undefined;
+  const pfTag = q.pf ? `<span class="pfbadge">From platform</span>` : '';
+  const opts = q.opts.map((o,i) => {
+    const sel = A[q.id]===i;
+    const sc = Math.round(q.pts * q.mults[i]);
+    return `<label class="opt${sel?' sel':''}" onclick="setAns('${q.id}',${i},this.closest('.ind-card'))">
+      <input type="radio" name="${q.id}">
+      <div class="odot"></div>
+      <span class="onum">${i+1}</span>
+      <span>${o}</span>
+      <span class="osc">${sc} pts</span>
+    </label>`;
+  }).join('');
+  const sc = done ? Math.round(q.pts * q.mults[A[q.id]]) : null;
+  return `<div class="ind-card${done?' answered':''}" id="qc-${q.id}">
+    <div class="ind-header">
+      <span class="ind-id" style="background:${getDomCol(q.id)}22;color:${getDomCol(q.id)}">${q.id}</span>
+      <span class="ind-label">${q.lbl}${pfTag}</span>
+      <span class="ind-pts">${q.pts} pts</span>
+    </div>
+    <div class="ind-naac">NAAC ref: ${q.naac}</div>
+    <div class="ind-hint">${q.hint}</div>
+    <div class="opts">${opts}</div>
+    ${done ? `<div class="csd"><span>Score for this question</span><span class="csv">${sc} / ${q.pts}</span></div>` : ''}
+  </div>`;
+}
+
+function getDomCol(qid) {
+  const d = DOMAINS.find(d=>d.qs.some(q=>q.id===qid));
+  return d ? d.col : '#888';
+}
+
+function setAns(qid, val, card) {
+  A[qid] = val;
+  const q = DOMAINS.flatMap(d=>d.qs).find(q=>q.id===qid);
+  // Update options
+  card.querySelectorAll('.opt').forEach((el,i) => el.classList.toggle('sel', i===val));
+  // Update or add score display
+  card.classList.add('answered');
+  let csd = card.querySelector('.csd');
+  if(!csd) { csd=document.createElement('div'); csd.className='csd'; card.appendChild(csd); }
+  csd.innerHTML = `<span>Score for this question</span><span class="csv">${Math.round(q.pts*q.mults[val])} / ${q.pts}</span>`;
+  refreshProgress();
+  refreshHeader();
+}
+
+function switchDom(id, el) {
+  curDom = id;
+  document.querySelectorAll('.dom-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.side-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('dp-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+function refreshProgress() {
+  const totalQ = DOMAINS.reduce((s,d)=>s+d.qs.length,0);
+  const answered = Object.keys(A).length;
+  DOMAINS.forEach(d => {
+    const f = d.qs.filter(q=>A[q.id]!==undefined).length;
+    const pct = Math.round(f/d.qs.length*100);
+    const el = document.getElementById('spct-'+d.id);
+    if(el) el.textContent = pct+'%';
+  });
+  const bar = document.getElementById('sideProgressBar');
+  const txt = document.getElementById('sideProgressText');
+  if(bar) bar.style.width = Math.round(answered/totalQ*100)+'%';
+  if(txt) txt.textContent = answered+'/'+totalQ+' answered';
+}
+
+// =====================================================
+// CHECKLIST
+// =====================================================
+function initChecklist() {
+  document.getElementById('checklistItems').innerHTML = CHECKLIST_ITEMS.map(cl => {
+    const st = CL[cl.id]||'';
+    const d = DOMAINS.find(d=>d.id===cl.dom);
+    return `<div class="cl-item${st==='obs'?' obs':st==='disc'?' disc':st==='na'?' na':''}" id="ci-${cl.id}">
+      <div class="cl-dot">${st==='obs'?'&#10003;':st==='disc'?'!':st==='na'?'&ndash;':''}</div>
+      <div style="flex:1">
+        <div class="cl-label">${cl.lbl}</div>
+        <div class="cl-sub">${d.icon} ${d.name} &middot; ${cl.sub}</div>
+      </div>
+      <div class="cl-btns">
+        <button class="cl-btn${st==='obs'?' a-obs':''}" onclick="setCL('${cl.id}','obs')">&#10003; Observed</button>
+        <button class="cl-btn${st==='disc'?' a-disc':''}" onclick="setCL('${cl.id}','disc')">! Discrepant</button>
+        <button class="cl-btn${st==='na'?' a-na':''}" onclick="setCL('${cl.id}','na')">N/A</button>
+      </div>
+    </div>`;
+  }).join('');
+  refreshClSummary();
+}
+
+function setCL(id, st) {
+  CL[id] = st;
+  const el = document.getElementById('ci-'+id);
+  el.className = 'cl-item'+(st==='obs'?' obs':st==='disc'?' disc':st==='na'?' na':'');
+  el.querySelector('.cl-dot').innerHTML = st==='obs'?'&#10003;':st==='disc'?'!':st==='na'?'&ndash;':'';
+  el.querySelectorAll('.cl-btn').forEach(b => {
+    b.className = 'cl-btn' +
+      (b.textContent.includes('Obs') && st==='obs' ? ' a-obs' :
+       b.textContent.includes('Disc') && st==='disc' ? ' a-disc' :
+       b.textContent.includes('N/A') && st==='na' ? ' a-na' : '');
+  });
+  refreshClSummary();
+}
+
+function refreshClSummary() {
+  const obs = Object.values(CL).filter(s=>s==='obs').length;
+  const disc = Object.values(CL).filter(s=>s==='disc').length;
+  const na = Object.values(CL).filter(s=>s==='na').length;
+  const tot = CHECKLIST_ITEMS.length;
+  document.getElementById('clSummary').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div style="padding:12px;background:var(--g50);border:1px solid var(--g200);border-radius:var(--r-md);text-align:center">
+        <div style="font-size:28px;font-weight:800;color:var(--g600);font-family:var(--mono)">${obs}</div>
+        <div style="font-size:10px;font-weight:700;color:var(--g700);text-transform:uppercase;letter-spacing:.07em">Observed</div>
+      </div>
+      <div style="padding:12px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:var(--r-md);text-align:center">
+        <div style="font-size:28px;font-weight:800;color:#EF4444;font-family:var(--mono)">${disc}</div>
+        <div style="font-size:10px;font-weight:700;color:#B91C1C;text-transform:uppercase;letter-spacing:.07em">Discrepant</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--text-secondary);line-height:1.7">
+      <span><strong>${na}</strong> items N/A</span> &nbsp;&middot;&nbsp; <span><strong>${tot-obs-disc-na}</strong> pending</span>
+      ${disc>0?`<div style="margin-top:8px;padding:8px 10px;background:#FEF2F2;border:1px solid #FCA5A5;border-radius:5px;color:#B91C1C"><strong>⚠ ${disc} discrepanc${disc>1?'ies':'y'} flagged</strong> &mdash; review before sign-off.</div>`:''}
+    </div>
+    <div style="margin-top:10px;height:5px;border-radius:3px;background:var(--border-light);overflow:hidden">
+      <div style="height:100%;width:${Math.round(obs/tot*100)}%;background:var(--g600);border-radius:3px;transition:width .4s"></div>
+    </div>
+    <div style="font-size:10px;font-family:var(--mono);color:var(--g700);margin-top:4px">${obs}/${tot} observed (${Math.round(obs/tot*100)}%)</div>`;
+}
+
+function doSignOff() {
+  signedOff = true;
+  document.getElementById('signOffMsg').style.display = 'block';
+}
+
+// =====================================================
+// SCORING
+// =====================================================
+function calcDomScore(d) {
+  const tot = d.qs.reduce((s,q)=>s+q.pts,0);
+  const got = d.qs.reduce((s,q)=>{
+    if(A[q.id]===undefined) return s;
+    return s + Math.round(q.pts * q.mults[A[q.id]]);
+  },0);
+  return Math.round(got/tot*100);
+}
+
+function calcOverall() {
+  return Math.round(DOMAINS.reduce((s,d) => s + calcDomScore(d)*d.wt/100, 0));
+}
+
+function getBand(sc) {
+  if(sc>=75) return {l:'Excellent',bg:'#D1FAE5',c:'#065F46'};
+  if(sc>=50) return {l:'Good',bg:'#DBEAFE',c:'#1E40AF'};
+  if(sc>=30) return {l:'Average',bg:'#FEF3C7',c:'#92400E'};
+  return {l:'Below par',bg:'#FEE2E2',c:'#991B1B'};
+}
+
+function refreshHeader() {
+  const sc = calcOverall();
+  const b = getBand(sc);
+  document.getElementById('hdrScore').textContent = sc;
+  const bEl = document.getElementById('hdrBand');
+  bEl.textContent = sc>0 ? b.l : '—';
+  bEl.style.color = sc>0 ? b.c : '#6EE8A0';
+  // sidebar score panel
+  const inst = document.getElementById('instName').value;
+  const sbInst = document.getElementById('sbInst');
+  if(sbInst) sbInst.textContent = inst || 'No institution set';
+  const sbScore = document.getElementById('sbScore');
+  if(sbScore) sbScore.textContent = sc;
+  const sbBar = document.getElementById('sbScoreBar');
+  if(sbBar) sbBar.style.width = sc+'%';
+  const sbBand = document.getElementById('sbBand');
+  if(sbBand) {
+    if(sc>0){ sbBand.textContent=b.l; sbBand.style.background=b.bg; sbBand.style.color=b.c; }
+    else { sbBand.textContent='—'; sbBand.style.background='#E5E9E6'; sbBand.style.color='#5B6E64'; }
+  }
+  // sidebar domain mini-list
+  const dl = document.getElementById('sbDomainList');
+  if(dl) dl.innerHTML = DOMAINS.map(d => {
+    const ds = calcDomScore(d);
+    return `<div style="display:flex;align-items:center;gap:7px;padding:2px 0">
+      <span style="font-size:12px">${d.icon}</span>
+      <span style="font-size:10px;font-weight:500;flex:1;color:#22302A">${d.name}</span>
+      <span style="font-size:10px;font-family:var(--mono);font-weight:700;color:${d.col}">${ds}</span>
+    </div>`;
+  }).join('');
+}
+
+// =====================================================
+// SCORES TAB
+// =====================================================
+function renderScores() {
+  const overall = calcOverall();
+  const b = getBand(overall);
+  const inst = document.getElementById('instName').value || 'Institution';
+  const weak = [...DOMAINS].sort((a,aa)=>calcDomScore(a)-calcDomScore(aa))[0];
+  document.getElementById('heroInst').textContent = inst;
+  document.getElementById('heroScore').textContent = overall;
+  document.getElementById('heroPct').textContent = overall+'%';
+  document.getElementById('heroBand').textContent = b.l;
+  document.getElementById('heroBand').style.background = b.bg;
+  document.getElementById('heroBand').style.color = b.c;
+  document.getElementById('heroWeak').textContent = weak.icon+' '+weak.name;
+
+  // Breakdown
+  document.getElementById('scoreBreakdown').innerHTML = DOMAINS.map(d => {
+    const sc = calcDomScore(d), bnd = getBand(sc);
+    return `<div class="d-row">
+      <span style="font-size:18px;flex-shrink:0">${d.icon}</span>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:600">${d.name}</div>
+        <div style="font-size:9px;color:var(--text-muted)">${d.wt}% weight &middot; ${d.naac}</div>
+      </div>
+      <div class="d-bar"><div class="d-bar-fill" style="width:${sc}%;background:${d.col}"></div></div>
+      <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:${d.col};width:38px;text-align:right">${sc}</div>
+      <div class="d-badge" style="background:${bnd.bg};color:${bnd.c}">${bnd.l}</div>
+    </div>`;
+  }).join('') + `<div style="margin-top:14px;padding:12px 16px;background:linear-gradient(135deg,#0F2B1D,#1A3345);border-radius:var(--r-md);display:flex;justify-content:space-between;align-items:center">
+    <div style="color:#A8CCBA;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px">Overall Green Score</div>
+    <div style="display:flex;align-items:baseline;gap:8px">
+      <span style="font-size:38px;font-weight:800;color:#fff;font-family:var(--mono)">${overall}</span>
+      <span style="font-size:13px;color:#A8CCBA">/ 100</span>
+      <span style="padding:3px 10px;border-radius:4px;font-weight:700;font-size:12px;background:${b.bg};color:${b.c}">${b.l}</span>
+    </div>
+  </div>`;
+
+  // Radar
+  if(radarChart) radarChart.destroy();
+  radarChart = new Chart(document.getElementById('radarChart').getContext('2d'), {
+    type:'radar',
+    data:{
+      labels: DOMAINS.map(d=>d.name),
+      datasets:[
+        { label:'Your institution', data:DOMAINS.map(d=>calcDomScore(d)), borderColor:'#2D6A4F', backgroundColor:'rgba(45,106,79,.15)', pointBackgroundColor:'#2D6A4F', pointRadius:4, borderWidth:2.5 },
+        { label:'NAAC benchmark', data:DOMAINS.map(d=>BM_NAAC[d.id]), borderColor:'#F59E0B', backgroundColor:'rgba(245,158,11,.08)', pointBackgroundColor:'#F59E0B', pointRadius:3, borderWidth:1.5, borderDash:[4,3] }
+      ]
+    },
+    options:{ responsive:true, maintainAspectRatio:false, scales:{ r:{ min:0, max:100, ticks:{ stepSize:20, font:{size:9} }, pointLabels:{ font:{size:11,weight:'600'} }, grid:{ color:'rgba(0,0,0,.07)' } } }, plugins:{ legend:{ position:'bottom', labels:{ font:{size:11}, usePointStyle:true, pointStyleWidth:8 } } } }
+  });
+
+  // Gap table
+  const gaps = [...DOMAINS].map(d=>({d, sc:calcDomScore(d), bm:BM_NAAC[d.id]})).sort((a,b)=>a.sc-b.sc);
+  document.getElementById('gapTableBody').innerHTML =
+    `<div style="display:flex;gap:10px;font-size:10px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;padding:0 14px;margin-bottom:10px">
+      <span style="flex:1">Domain</span><span style="width:70px;text-align:center">Score</span><span style="width:70px;text-align:center">Benchmark</span><span style="width:80px;text-align:center">Gap</span><span style="width:80px;text-align:center">Severity</span>
+    </div>` +
+    gaps.map(({d,sc,bm}) => {
+      const g=bm-sc;
+      const sev = sc<30?{l:'Critical',bg:'#FEE2E2',c:'#991B1B'} : sc<50?{l:'Moderate',bg:'#FEF3C7',c:'#92400E'} : sc<70?{l:'Minor',bg:'#FFF7ED',c:'#C05621'} : {l:'On track',bg:'#D1FAE5',c:'#065F46'};
+      return `<div class="gap-row">
+        <div style="display:flex;align-items:center;gap:9px;flex:1">
+          <span style="font-size:17px">${d.icon}</span>
+          <div><div style="font-size:12px;font-weight:600">${d.name}</div><div style="font-size:9px;color:var(--text-muted)">${d.wt}% weight</div></div>
+        </div>
+        <div style="width:70px;text-align:center;font-size:16px;font-weight:700;font-family:var(--mono);color:${d.col}">${sc}</div>
+        <div style="width:70px;text-align:center;font-size:14px;color:var(--text-muted);font-family:var(--mono)">${bm}</div>
+        <div style="width:80px;text-align:center;font-size:14px;font-weight:700;font-family:var(--mono);color:${g>0?'#EF4444':'#10B981'}">${g>0?'-':'+'}${Math.abs(g)}</div>
+        <div style="width:80px;text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 9px;border-radius:4px;background:${sev.bg};color:${sev.c}">${sev.l}</span></div>
+      </div>`;
+    }).join('');
+}
+
+// =====================================================
+// ACTION PLAN
+// =====================================================
+function renderAction() {
+  const sorted = [...DOMAINS].sort((a,b)=>calcDomScore(a)-calcDomScore(b));
+  document.getElementById('recsBody').innerHTML = sorted.map(d => {
+    const sc = calcDomScore(d);
+    const r = sc<40?RECS[d.id][0] : sc<65?RECS[d.id][1] : RECS[d.id][2];
+    const ec = {Low:'#D1FAE5',Med:'#FEF3C7',High:'#FEE2E2'};
+    const tc = {Low:'#065F46',Med:'#92400E',High:'#991B1B'};
+    return `<div class="rec-card">
+      <div class="rec-hdr">
+        <span style="font-size:16px">${d.icon}</span>
+        <span class="tag" style="background:${d.col}22;color:${d.col}">${d.name}</span>
+        <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:${d.col}">${sc}/100</span>
+        <span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;background:${ec[r.ef]};color:${tc[r.ef]}">${r.ef} effort</span>
+        <span style="font-size:10px;font-weight:700;color:var(--g600);margin-left:auto">&uarr; +${Math.min(25,100-sc)} pts potential</span>
+      </div>
+      <div class="rec-body">${r.t}</div>
+      <div class="rec-bar"><div class="rec-bar-fill" style="width:${sc}%;background:${d.col}"></div></div>
+    </div>`;
+  }).join('');
+
+  // Effort/Impact 2x2
+  document.getElementById('effortMatrix').innerHTML = `
+    <div style="position:relative;width:100%;aspect-ratio:1.1;border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden">
+      <div style="position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr">
+        <div style="border-right:1px dashed var(--border);border-bottom:1px dashed var(--border);padding:9px;background:#F0FDF4"><div style="font-size:9px;font-weight:700;color:#065F46">HIGH IMPACT &middot; LOW EFFORT</div><div style="font-size:9px;color:var(--g600);margin-top:2px">&#10003; Quick wins &mdash; do first</div></div>
+        <div style="border-bottom:1px dashed var(--border);padding:9px;background:#FEFCE8"><div style="font-size:9px;font-weight:700;color:#92400E">HIGH IMPACT &middot; HIGH EFFORT</div><div style="font-size:9px;color:#A16207;margin-top:2px">Major projects &mdash; plan now</div></div>
+        <div style="border-right:1px dashed var(--border);padding:9px;background:#F9FAFB"><div style="font-size:9px;font-weight:700;color:var(--text-muted)">LOW IMPACT &middot; LOW EFFORT</div><div style="font-size:9px;color:var(--text-muted);margin-top:2px">Fill-ins when time permits</div></div>
+        <div style="padding:9px;background:#FFF1F2"><div style="font-size:9px;font-weight:700;color:#BE123C">LOW IMPACT &middot; HIGH EFFORT</div><div style="font-size:9px;color:#9F1239;margin-top:2px">Deprioritise</div></div>
+      </div>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:14px;padding:20px">
+        ${sorted.map(d=>`<div title="${d.name}: ${calcDomScore(d)}/100" style="font-size:24px;cursor:default;text-shadow:0 2px 4px rgba(0,0,0,.15)">${d.icon}</div>`).join('')}
+      </div>
+    </div>
+    <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px">${DOMAINS.map(d=>`<span style="font-size:10px;display:flex;align-items:center;gap:3px">${d.icon}<span>${d.name}</span></span>`).join('')}</div>`;
+
+  // Benchmark compare
+  document.getElementById('benchCompare').innerHTML = DOMAINS.map(d => {
+    const sc=calcDomScore(d), bm=BM_NAAC[d.id], ab=sc>=bm;
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border-light)">
+      <span style="font-size:13px">${d.icon}</span>
+      <span style="font-size:11px;font-weight:500;flex:1">${d.name}</span>
+      <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:${d.col}">${sc}</span>
+      <span style="font-size:10px;color:var(--text-muted)">vs ${bm}</span>
+      <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;background:${ab?'#D1FAE5':'#FEE2E2'};color:${ab?'#065F46':'#991B1B'}">${ab?'&#9650; Above':'&#9660; Below'}</span>
+    </div>`;
+  }).join('');
+}
+
+// =====================================================
+// SUBMIT
+// =====================================================
+function renderSubmit() {
+  const inst = document.getElementById('instName').value;
+  const ans = Object.keys(A).length;
+  const totalQ = DOMAINS.reduce((s,d)=>s+d.qs.length,0);
+  const overall = calcOverall();
+  const crit = DOMAINS.filter(d=>calcDomScore(d)<30);
+  const obs = Object.values(CL).filter(s=>s==='obs').length;
+  const rc = DOMAINS.find(d=>d.id==='RC');
+  const checks = [
+    { l:'Institution profile complete', d:inst?`"${inst}" configured`:'Enter institution name in Step 1', p:!!inst, ico:'🏛️' },
+    { l:`All questions answered: ${ans}/${totalQ}`, d:ans>=totalQ?'All questions answered':totalQ-ans+' questions still pending &mdash; answer to maximise accuracy', p:ans>=Math.floor(totalQ*.9), w:ans>=Math.floor(totalQ*.7)&&ans<Math.floor(totalQ*.9), ico:'📝' },
+    { l:`Overall score: ${overall}/100 &mdash; ${getBand(overall).l}`, d:overall>=75?'Excellent &mdash; strong contribution to A/A+ grade':overall>=50?'Good &mdash; adequate for B+/A range':overall>=30?'Average &mdash; risk of C7 deduction':'Significant gaps &mdash; follow action plan', p:overall>=50, w:overall>=30&&overall<50, ico:'📊' },
+    { l:'No domains critically below 30%', d:crit.length===0?'All domains above minimum threshold':'Critical: '+crit.map(d=>d.name).join(', '), p:crit.length===0, w:crit.length<=1, ico:'⚠️' },
+    { l:`Site checklist: ${obs}/${CHECKLIST_ITEMS.length} items observed`, d:obs>=Math.floor(CHECKLIST_ITEMS.length*.8)?'Good site observation coverage':'Complete remaining checklist items in Step 3', p:obs>=Math.floor(CHECKLIST_ITEMS.length*.8), w:obs>=Math.floor(CHECKLIST_ITEMS.length*.5), ico:'🔍' },
+    { l:'Site visit signed off by lead auditor', d:signedOff?'Signed off &mdash; status verified':'Complete site sign-off in Step 3', p:signedOff, ico:'✅' },
+    { l:'Compliance domain &ge; 50%', d:calcDomScore(rc)>=50?'Compliance domain acceptable':'CTO/NOC/ISO items are mandatory &mdash; address before submission', p:calcDomScore(rc)>=50, ico:'📋' }
+  ];
+  const passCount = checks.filter(c=>c.p).length;
+  document.getElementById('readinessBody').innerHTML = checks.map(c => {
+    const cls=c.p?'pass':c.w?'warn':'fail', ico=c.p?'&#9989;':c.w?'&#9888;&#65039;':'&#10060;';
+    return `<div class="check-item ${cls}"><span class="check-icon">${ico}</span><div style="flex:1"><div class="check-label">${c.l}</div><div class="check-desc">${c.d}</div></div><span style="font-size:17px;flex-shrink:0">${c.ico}</span></div>`;
+  }).join('') + `<div style="margin-top:14px;padding:14px;background:linear-gradient(135deg,#0F2B1D,#1A3345);border-radius:var(--r-md);text-align:center">
+    <div style="font-size:9px;font-weight:700;color:#B8D8C8;text-transform:uppercase;letter-spacing:2px;margin-bottom:5px">Submission Readiness</div>
+    <div style="font-size:36px;font-weight:800;color:#fff;font-family:var(--mono)">${Math.round(passCount/checks.length*100)}%</div>
+    <div style="font-size:10px;color:#B8D8C8;margin-top:3px">${passCount}/${checks.length} checks passed</div>
+  </div>`;
+  document.getElementById('packId').textContent = document.getElementById('naacId').value||'{NAAC_ID}';
+  document.getElementById('packYr').textContent = document.getElementById('auditYear').value||'2025-26';
+}
+
+// =====================================================
+// EXPORT
+// =====================================================
+function exportCSV() {
+  const inst = document.getElementById('instName').value||'Institution';
+  const rows = [['Domain','Question ID','Question','Max Pts','Option Selected','Score']];
+  DOMAINS.forEach(d => d.qs.forEach(q => {
+    const opt = A[q.id]!==undefined ? q.opts[A[q.id]] : '';
+    const sc = A[q.id]!==undefined ? Math.round(q.pts*q.mults[A[q.id]]) : '';
+    rows.push([d.name,q.id,q.lbl,q.pts,opt,sc]);
+  }));
+  rows.push(['','OVERALL','Green Score (0-100)','100','',calcOverall()]);
+  const csv = rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download = 'NAAC_GreenAudit_'+inst.replace(/\s+/g,'_')+'.csv';
+  a.click();
+}
+
+// =====================================================
+// INIT
+// =====================================================
+initSetup();
+initCollect();
+initChecklist();
+refreshHeader();
+</script>
+</body>
+</html>
