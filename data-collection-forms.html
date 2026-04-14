@@ -567,6 +567,49 @@
             .cat-btn { min-width: 68px; height: 52px; }
         }
 
+        /* ─── ENTRY METHOD TOGGLE ─── */
+        .entry-method-wrap {
+            display: flex; align-items: center; gap: 1rem;
+            background: var(--hz-primary-25);
+            border: 1.5px solid var(--hz-primary-50);
+            border-radius: var(--radius-md);
+            padding: 0.7rem 1rem;
+            margin-bottom: 1rem;
+        }
+        .entry-method-label {
+            font-size: 0.72rem; font-weight: 700; color: var(--subtle);
+            text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+        }
+        .entry-method-opts { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+        .entry-method-opt {
+            display: inline-flex; align-items: center; gap: 0.35rem;
+            padding: 0.35rem 0.85rem;
+            border: 1.5px solid var(--stroke);
+            border-radius: 20px;
+            font-size: 0.78rem; font-weight: 600;
+            cursor: pointer; transition: all .15s;
+            color: var(--subtle); background: #fff;
+            user-select: none;
+        }
+        .entry-method-opt input[type=radio] { display: none; }
+        .entry-method-opt.active {
+            border-color: var(--hz-primary);
+            background: var(--hz-primary);
+            color: #fff;
+        }
+        /* Group header row inside form panel */
+        .form-group-header {
+            display: flex; align-items: center; gap: 0.5rem;
+            margin: 1.1rem 0 0.5rem;
+            padding: 0.3rem 0.7rem;
+            background: linear-gradient(90deg, var(--hz-primary-50) 0%, transparent 100%);
+            border-left: 3px solid var(--hz-primary);
+            border-radius: 0 4px 4px 0;
+            font-size: 0.7rem; font-weight: 800;
+            color: var(--hz-primary); text-transform: uppercase; letter-spacing: 0.6px;
+        }
+        .method-hidden { display: none !important; }
+
         @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .anim-in { animation: fadeUp .3s ease forwards; }
     </style>
@@ -736,10 +779,10 @@ const CATEGORIES = [
         id: 'scope2', label: 'Scope 2', icon: '⚡', color: 'var(--scope-2)',
         badges: ['fw-ghg','fw-gri','fw-brsr','fw-cdp','fw-greenco'],
         subs: [
-            { id: '2.1', name: 'Purchased Electricity', desc: 'Grid electricity — location-based & market-based methods' },
-            { id: '2.2', name: 'Purchased Steam & Heat', desc: 'Steam or heat purchased from external suppliers' },
-            { id: '2.3', name: 'Purchased Cooling', desc: 'District cooling from external providers' },
-            { id: '2.4', name: 'On-site Renewables', desc: 'Solar, wind, biomass self-generation (GreenCo Renewable Energy parameter)' },
+            { id: '2.1', name: 'Purchased Electricity', desc: 'Grid electricity consumed — location-based & market-based methods. On-site generation captured here as a market-based adjustment attribute.' },
+            { id: '2.2', name: 'Purchased Steam', desc: 'Steam purchased or acquired from an external supplier (utility, CHP plant, or district system)' },
+            { id: '2.3', name: 'Purchased Heat', desc: 'Heat energy purchased from an external source — district heating, CHP, waste heat, solar thermal' },
+            { id: '2.4', name: 'Purchased Cooling', desc: 'Cooling energy purchased from an external provider — district cooling, chiller plant, chilled water' },
         ]
     },
     {
@@ -891,105 +934,952 @@ const CATEGORIES = [
 // ═══════════════════ FORM FIELDS ═══════════════════
 
 const FF = {
-    '1.1': { materialRow: true, sections: [
-        { label: 'Natural Gas', fields: [
-            { name: 'Natural Gas Consumption', hint: 'Boilers, heating, process equipment', unit: 'm³', type: 'number' },
-            { name: 'Natural Gas Cost', hint: 'Total cost for traceability', unit: '₹', type: 'number' },
+    // ═══════════════════════════════════════════════════
+    // SCOPE 1 — DIRECT EMISSIONS
+    // ═══════════════════════════════════════════════════
+
+    // 1.1 Stationary Combustion — Comprehensive GHG Protocol fuel list
+    // Entry toggle: Actual Quantity (default) | Cost-Based
+    '1.1': { materialRow: true, entryToggle: true, sections: [
+        // ── SOLID FUELS ──
+        { groupHeader: '🪨 Solid Fuels' },
+        { label: 'Anthracite Coal', fields: [
+            { name: 'Anthracite Coal — Quantity', hint: 'High-rank coal, boilers & furnaces', unit: 'Tonnes', type: 'number', method: 'qty' },
+            { name: 'Anthracite Coal — Cost', hint: 'Total purchase cost incl. taxes', unit: '₹', type: 'number', method: 'cost' },
         ]},
-        { label: 'Coal', fields: [
-            { name: 'Coal Consumption', hint: 'Boilers, furnaces, power generation', unit: 'Tonnes', type: 'number' },
-            { name: 'Coal Cost', hint: 'Total purchase cost', unit: '₹', type: 'number' },
+        { label: 'Bituminous Coal', fields: [
+            { name: 'Bituminous Coal — Quantity', hint: 'Steam coal, most common boiler fuel', unit: 'Tonnes', type: 'number', method: 'qty' },
+            { name: 'Bituminous Coal — Cost', hint: 'Total purchase cost incl. taxes', unit: '₹', type: 'number', method: 'cost' },
         ]},
-        { label: 'Diesel (Stationary)', fields: [
-            { name: 'HSD / Diesel Consumption', hint: 'DG sets and stationary equipment', unit: 'Litres', type: 'number' },
-            { name: 'LPG Consumption', hint: 'Heating and process use', unit: 'Kg', type: 'number' },
+        { label: 'Sub-bituminous Coal', fields: [
+            { name: 'Sub-bituminous Coal — Quantity', hint: 'Lower-rank thermal coal', unit: 'Tonnes', type: 'number', method: 'qty' },
+            { name: 'Sub-bituminous Coal — Cost', hint: 'Total purchase cost incl. taxes', unit: '₹', type: 'number', method: 'cost' },
         ]},
-        { label: 'Other Fuels', fields: [
-            { name: 'Furnace Oil / FO', hint: 'Industrial heating', unit: 'Litres', type: 'number' },
-            { name: 'Biomass / Briquettes', hint: 'Renewable biomass fuels', unit: 'Tonnes', type: 'number' },
+        { label: 'Lignite / Brown Coal', fields: [
+            { name: 'Lignite — Quantity', hint: 'Lowest-rank coal; high moisture', unit: 'Tonnes', type: 'number', method: 'qty' },
+            { name: 'Lignite — Cost', hint: 'Total purchase cost incl. taxes', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Coking Coal', fields: [
+            { name: 'Coking Coal — Quantity', hint: 'Metallurgical coal for coke ovens', unit: 'Tonnes', type: 'number', method: 'qty' },
+            { name: 'Coking Coal — Cost', hint: 'Total purchase cost incl. taxes', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Coal Coke / Petroleum Coke', fields: [
+            { name: 'Coke — Quantity', hint: 'Solid fuel from coal/petroleum refining', unit: 'Tonnes', type: 'number', method: 'qty' },
+            { name: 'Coke — Cost', hint: 'Total purchase cost incl. taxes', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Charcoal', fields: [
+            { name: 'Charcoal — Quantity', hint: 'Biomass-derived charcoal; IPCC Table 1', unit: 'Tonnes', type: 'number', method: 'qty' },
+            { name: 'Charcoal — Cost', hint: 'Total purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Wood / Wood Waste (Biomass)', fields: [
+            { name: 'Wood/Wood Waste — Quantity', hint: 'Logs, chips, pellets, sawdust', unit: 'Tonnes', type: 'number', method: 'qty' },
+            { name: 'Wood/Wood Waste — Cost', hint: 'Total purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Agricultural Biomass / Residues', fields: [
+            { name: 'Agri Biomass — Quantity', hint: 'Bagasse, rice husk, straw, briquettes', unit: 'Tonnes', type: 'number', method: 'qty' },
+            { name: 'Agri Biomass — Cost', hint: 'Total purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Peat', fields: [
+            { name: 'Peat — Quantity', hint: 'Compressed biomass; IPCC fossil fuel factor', unit: 'Tonnes', type: 'number', method: 'qty' },
+            { name: 'Peat — Cost', hint: 'Total purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Municipal Solid Waste (Non-Biogenic)', fields: [
+            { name: 'MSW — Quantity', hint: 'Only non-biogenic fraction per IPCC', unit: 'Tonnes', type: 'number', method: 'qty' },
+            { name: 'MSW — Cost', hint: 'Tipping fee / fuel cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+
+        // ── LIQUID FUELS ──
+        { groupHeader: '🛢️ Liquid Fuels' },
+        { label: 'High Speed Diesel (HSD)', fields: [
+            { name: 'HSD — Quantity', hint: 'DG sets, boilers, industrial heaters', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'HSD — Cost', hint: 'Total fuel purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Light Diesel Oil (LDO)', fields: [
+            { name: 'LDO — Quantity', hint: 'Industrial furnaces & burners', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'LDO — Cost', hint: 'Total fuel purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Furnace Oil / Heavy Fuel Oil (HFO)', fields: [
+            { name: 'Furnace Oil — Quantity', hint: 'Industrial furnaces & boilers', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Furnace Oil — Cost', hint: 'Total fuel purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Low Sulphur Heavy Stock (LSHS)', fields: [
+            { name: 'LSHS — Quantity', hint: 'Residual fuel oil, large boilers', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'LSHS — Cost', hint: 'Total fuel purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Kerosene / Superior Kerosene Oil (SKO)', fields: [
+            { name: 'Kerosene — Quantity', hint: 'Heating, small burners', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Kerosene — Cost', hint: 'Total fuel purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Petrol / Gasoline (Stationary)', fields: [
+            { name: 'Petrol — Quantity', hint: 'Small generators, engine pumps', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Petrol — Cost', hint: 'Total fuel purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'LPG (Stationary — Heating / Process)', fields: [
+            { name: 'LPG — Quantity', hint: 'Heating, cooking, process burners', unit: 'Kg', type: 'number', method: 'qty' },
+            { name: 'LPG — Cost', hint: 'Total fuel purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Naphtha', fields: [
+            { name: 'Naphtha — Quantity', hint: 'Petrochemical feedstock / fuel', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Naphtha — Cost', hint: 'Total fuel purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Residual Fuel Oil (RFO)', fields: [
+            { name: 'RFO — Quantity', hint: 'Bottom-of-barrel heavy oil', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'RFO — Cost', hint: 'Total fuel purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Biodiesel (B100)', fields: [
+            { name: 'Biodiesel B100 — Quantity', hint: 'Pure biodiesel; biogenic CO₂ excluded', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Biodiesel B100 — Cost', hint: 'Total fuel purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+
+        // ── GASEOUS FUELS ──
+        { groupHeader: '💨 Gaseous Fuels' },
+        { label: 'Natural Gas (Piped PNG)', fields: [
+            { name: 'Natural Gas — Quantity', hint: 'Boilers, heating, process equipment', unit: 'm³', type: 'number', method: 'qty' },
+            { name: 'Natural Gas — Cost', hint: 'Invoice amount incl. taxes', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'LNG (Liquefied Natural Gas)', fields: [
+            { name: 'LNG — Quantity', hint: 'Regasified on-site; bulk supply', unit: 'Tonnes', type: 'number', method: 'qty' },
+            { name: 'LNG — Cost', hint: 'Total delivered cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'CNG (Compressed Natural Gas — Stationary)', fields: [
+            { name: 'CNG — Quantity', hint: 'Cylinder-fed stationary engines', unit: 'Kg', type: 'number', method: 'qty' },
+            { name: 'CNG — Cost', hint: 'Total cylinder purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Biogas / Biomethane', fields: [
+            { name: 'Biogas — Quantity', hint: 'Anaerobic digestion; IPCC biogenic', unit: 'm³', type: 'number', method: 'qty' },
+            { name: 'Biogas — Cost', hint: 'Total purchase / generation cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Propane', fields: [
+            { name: 'Propane — Quantity', hint: 'LPG sub-type; process / heating burners', unit: 'Kg', type: 'number', method: 'qty' },
+            { name: 'Propane — Cost', hint: 'Total purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Butane', fields: [
+            { name: 'Butane — Quantity', hint: 'LPG sub-type; small industrial burners', unit: 'Kg', type: 'number', method: 'qty' },
+            { name: 'Butane — Cost', hint: 'Total purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Blast Furnace Gas (BFG)', fields: [
+            { name: 'BFG — Quantity', hint: 'By-product gas from iron blast furnaces', unit: 'm³', type: 'number', method: 'qty' },
+            { name: 'BFG — Cost', hint: 'Transfer price / imputed cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Coke Oven Gas (COG)', fields: [
+            { name: 'COG — Quantity', hint: 'By-product of coking operations', unit: 'm³', type: 'number', method: 'qty' },
+            { name: 'COG — Cost', hint: 'Transfer price / imputed cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Refinery Gas / Still Gas', fields: [
+            { name: 'Refinery Gas — Quantity', hint: 'Mixed refinery off-gas burned on-site', unit: 'm³', type: 'number', method: 'qty' },
+            { name: 'Refinery Gas — Cost', hint: 'Internal cost allocation', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Hydrogen (Combustion)', fields: [
+            { name: 'Hydrogen — Quantity', hint: 'Green/grey H₂ burned as fuel; zero CO₂', unit: 'Nm³', type: 'number', method: 'qty' },
+            { name: 'Hydrogen — Cost', hint: 'Total supply cost', unit: '₹', type: 'number', method: 'cost' },
         ]},
     ]},
-    '1.2': { sections: [
-        { fields: [
-            { name: 'Petrol / Gasoline (Fleet)', hint: 'Company-owned vehicles', unit: 'Litres', type: 'number' },
-            { name: 'Diesel (Mobile Fleet)', hint: 'Trucks, mobile machinery', unit: 'Litres', type: 'number' },
+
+    // 1.2 Mobile Combustion — GHG Protocol all fuel/distance options
+    // Toggle: Fuel Quantity | Distance Travelled
+    '1.2': { entryToggle: true, entryToggleLabels: ['⛽ Fuel Quantity', '📍 Distance Travelled'], sections: [
+        { groupHeader: '🚗 Passenger Cars' },
+        { label: 'Small Car — Petrol (≤1400cc)', fields: [
+            { name: 'Small Petrol Car — Count', hint: 'Company-owned small petrol cars; DEFRA small petrol car EF applied', unit: 'Nos', type: 'number' },
+            { name: 'Small Petrol Car — Fuel', hint: 'Total petrol consumed', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Small Petrol Car — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
         ]},
-        { fields: [
-            { name: 'CNG (Fleet)', hint: 'CNG vehicles', unit: 'Kg', type: 'number' },
-            { name: 'EV Electricity (Fleet)', hint: 'Company EVs', unit: 'kWh', type: 'number' },
+        { label: 'Medium Car — Petrol (1400–2000cc)', fields: [
+            { name: 'Medium Petrol Car — Count', hint: 'Company-owned medium petrol cars; DEFRA medium petrol car EF applied', unit: 'Nos', type: 'number' },
+            { name: 'Medium Petrol Car — Fuel', hint: 'Total petrol consumed', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Medium Petrol Car — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
         ]},
-        { fields: [
-            { name: 'Fleet Vehicle Count', hint: 'Total company-owned vehicles', unit: 'Nos', type: 'number' },
-            { name: 'Total Distance Travelled', hint: 'Aggregate fleet km', unit: 'km', type: 'number' },
+        { label: 'Large Car / SUV — Petrol (>2000cc)', fields: [
+            { name: 'Large Petrol Car / SUV — Count', hint: 'Company-owned large petrol cars and SUVs', unit: 'Nos', type: 'number' },
+            { name: 'Large Petrol Car / SUV — Fuel', hint: 'Total petrol consumed', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Large Petrol Car / SUV — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Average / Mixed Petrol Car (Unknown Size)', fields: [
+            { name: 'Average Petrol Car — Count', hint: 'Use when engine-size split is unavailable; DEFRA average petrol car EF', unit: 'Nos', type: 'number' },
+            { name: 'Average Petrol Car — Fuel', hint: 'Total petrol consumed — all sizes combined', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Average Petrol Car — Distance', hint: 'Total km driven — all sizes combined', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Small Car — Diesel (≤1400cc)', fields: [
+            { name: 'Small Diesel Car — Count', hint: 'Company-owned small diesel cars', unit: 'Nos', type: 'number' },
+            { name: 'Small Diesel Car — Fuel', hint: 'Total diesel consumed', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Small Diesel Car — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Medium Car — Diesel (1400–2000cc)', fields: [
+            { name: 'Medium Diesel Car — Count', hint: 'Company-owned medium diesel cars', unit: 'Nos', type: 'number' },
+            { name: 'Medium Diesel Car — Fuel', hint: 'Total diesel consumed', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Medium Diesel Car — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Large Car / SUV — Diesel (>2000cc)', fields: [
+            { name: 'Large Diesel Car / SUV — Count', hint: 'Company-owned large diesel cars and SUVs', unit: 'Nos', type: 'number' },
+            { name: 'Large Diesel Car / SUV — Fuel', hint: 'Total diesel consumed', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Large Diesel Car / SUV — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Average / Mixed Diesel Car (Unknown Size)', fields: [
+            { name: 'Average Diesel Car — Count', hint: 'Use when engine-size split unavailable; DEFRA average diesel car EF', unit: 'Nos', type: 'number' },
+            { name: 'Average Diesel Car — Fuel', hint: 'Total diesel consumed — all sizes combined', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Average Diesel Car — Distance', hint: 'Total km driven — all sizes combined', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Car — CNG', fields: [
+            { name: 'CNG Car — Count', hint: 'Company-owned CNG cars', unit: 'Nos', type: 'number' },
+            { name: 'CNG Car — Fuel', hint: 'Total CNG consumed', unit: 'Kg', type: 'number', method: 'qty' },
+            { name: 'CNG Car — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Car — LPG', fields: [
+            { name: 'LPG Car — Count', hint: 'Company-owned LPG-converted cars', unit: 'Nos', type: 'number' },
+            { name: 'LPG Car — Fuel', hint: 'Total LPG consumed', unit: 'Kg', type: 'number', method: 'qty' },
+            { name: 'LPG Car — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Hybrid Car — Petrol-Electric', fields: [
+            { name: 'Hybrid Car — Count', hint: 'Petrol-electric hybrids; only petrol combustion portion is Scope 1', unit: 'Nos', type: 'number' },
+            { name: 'Hybrid Car — Petrol Consumed', hint: 'Petrol fraction only; EV charging kWh goes to Scope 2', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Hybrid Car — Total Distance', hint: 'Full distance; apply petrol/electric split for Scope 1 vs Scope 2', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { groupHeader: '🛵 Two-Wheelers' },
+        { label: 'Motorcycle / Scooter — Petrol', fields: [
+            { name: 'Petrol Two-Wheeler — Count', hint: 'Company-owned petrol motorcycles and scooters', unit: 'Nos', type: 'number' },
+            { name: 'Petrol Two-Wheeler — Fuel', hint: 'Total petrol consumed', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Petrol Two-Wheeler — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Electric Two-Wheeler (E-Scooter / E-Bike) — Zero Scope 1', fields: [
+            { name: 'Electric Two-Wheeler — Count', hint: 'Company-owned electric scooters and bikes; zero combustion = zero Scope 1', unit: 'Nos', type: 'number' },
+            { name: 'Electric Two-Wheeler — Scope Classification', hint: 'Zero Scope 1. Enter kWh charging consumption in Scope 2 (Purchased Electricity).', unit: '', type: 'select', options: ['Zero Scope 1 — kWh entered in Scope 2','Zero Scope 1 — kWh not yet captured','Not applicable'] },
+        ]},
+        { groupHeader: '🛺 Three-Wheelers / Auto-Rickshaws' },
+        { label: 'Three-Wheeler — CNG', fields: [
+            { name: 'CNG Three-Wheeler — Count', hint: 'Company-owned CNG auto-rickshaws or delivery three-wheelers', unit: 'Nos', type: 'number' },
+            { name: 'CNG Three-Wheeler — Fuel', hint: 'Total CNG consumed', unit: 'Kg', type: 'number', method: 'qty' },
+            { name: 'CNG Three-Wheeler — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Three-Wheeler — Petrol', fields: [
+            { name: 'Petrol Three-Wheeler — Count', hint: 'Company-owned petrol auto-rickshaws', unit: 'Nos', type: 'number' },
+            { name: 'Petrol Three-Wheeler — Fuel', hint: 'Total petrol consumed', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Petrol Three-Wheeler — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Electric Three-Wheeler / E-Rickshaw — Zero Scope 1', fields: [
+            { name: 'Electric Three-Wheeler — Count', hint: 'Company-owned e-rickshaws; zero combustion = zero Scope 1', unit: 'Nos', type: 'number' },
+            { name: 'Electric Three-Wheeler — Scope Classification', hint: 'Zero Scope 1. Enter kWh charging consumption in Scope 2 (Purchased Electricity).', unit: '', type: 'select', options: ['Zero Scope 1 — kWh entered in Scope 2','Zero Scope 1 — kWh not yet captured','Not applicable'] },
+        ]},
+        { groupHeader: '🚐 Vans & Light Commercial Vehicles (LCV, <3.5t GVW)' },
+        { label: 'Van / LCV — Petrol', fields: [
+            { name: 'Petrol Van / LCV — Count', hint: 'Company-owned petrol vans and light commercials', unit: 'Nos', type: 'number' },
+            { name: 'Petrol Van / LCV — Fuel', hint: 'Total petrol consumed', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Petrol Van / LCV — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Van / LCV — Diesel', fields: [
+            { name: 'Diesel Van / LCV — Count', hint: 'Company-owned diesel vans and light commercials', unit: 'Nos', type: 'number' },
+            { name: 'Diesel Van / LCV — Fuel', hint: 'Total diesel consumed', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Diesel Van / LCV — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Van / LCV — CNG', fields: [
+            { name: 'CNG Van / LCV — Count', hint: 'Company-owned CNG vans', unit: 'Nos', type: 'number' },
+            { name: 'CNG Van / LCV — Fuel', hint: 'Total CNG consumed', unit: 'Kg', type: 'number', method: 'qty' },
+            { name: 'CNG Van / LCV — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { groupHeader: '🚚 Medium Commercial Vehicles (MCV, 3.5–12t GVW)' },
+        { label: 'MCV — Diesel', fields: [
+            { name: 'Diesel MCV — Count', hint: 'Company-owned medium trucks (3.5–12t)', unit: 'Nos', type: 'number' },
+            { name: 'Diesel MCV — Fuel', hint: 'Total diesel consumed', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Diesel MCV — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { groupHeader: '🚛 Heavy Commercial Vehicles — Rigid (HCV Rigid, >12t GVW)' },
+        { label: 'HCV Rigid — Diesel', fields: [
+            { name: 'Rigid HCV — Count', hint: 'Company-owned rigid heavy trucks (non-articulated)', unit: 'Nos', type: 'number' },
+            { name: 'Rigid HCV — Fuel', hint: 'Total diesel consumed', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Rigid HCV — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { groupHeader: '🚛 Heavy Commercial Vehicles — Articulated (Tractor-Trailer)' },
+        { label: 'Articulated HCV — Diesel', fields: [
+            { name: 'Articulated HCV — Count', hint: 'Company-owned tractor-trailer units; separate EF from rigid HCV', unit: 'Nos', type: 'number' },
+            { name: 'Articulated HCV — Fuel', hint: 'Total diesel consumed (laden and unladen)', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Articulated HCV — Distance', hint: 'Total km driven (laden and unladen)', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Articulated HCV — LNG', fields: [
+            { name: 'LNG Articulated HCV — Count', hint: 'Company-owned LNG long-haul tractor units', unit: 'Nos', type: 'number' },
+            { name: 'LNG Articulated HCV — Fuel', hint: 'Total LNG consumed', unit: 'Kg', type: 'number', method: 'qty' },
+            { name: 'LNG Articulated HCV — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { groupHeader: '❄️ Refrigerated Trucks (Reefer Vehicles)' },
+        { label: 'Reefer Truck — Traction Engine (Diesel)', fields: [
+            { name: 'Reefer Truck — Count', hint: 'Company-owned refrigerated trucks', unit: 'Nos', type: 'number' },
+            { name: 'Reefer Traction — Fuel', hint: 'Diesel for driving the vehicle only', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Reefer Truck — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Transport Refrigeration Unit (TRU) — Diesel', fields: [
+            { name: 'TRU Diesel — Fuel', hint: 'Diesel for the reefer/TRU engine; separate from traction; always record', unit: 'Litres', type: 'number' },
+            { name: 'TRU — Operating Hours', hint: 'Refrigeration unit running hours (alternative to fuel if metered)', unit: 'Hours', type: 'number' },
+        ]},
+        { groupHeader: '🚌 Buses (Employee / School / Intercity)' },
+        { label: 'Bus — Diesel', fields: [
+            { name: 'Diesel Bus — Count', hint: 'Company-owned / operated diesel buses', unit: 'Nos', type: 'number' },
+            { name: 'Diesel Bus — Fuel', hint: 'Total diesel consumed by diesel bus fleet', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Diesel Bus — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Bus — CNG', fields: [
+            { name: 'CNG Bus — Count', hint: 'Company-owned / operated CNG buses', unit: 'Nos', type: 'number' },
+            { name: 'CNG Bus — Fuel', hint: 'Total CNG consumed by CNG bus fleet', unit: 'Kg', type: 'number', method: 'qty' },
+            { name: 'CNG Bus — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Electric Bus — Zero Scope 1', fields: [
+            { name: 'Electric Bus — Count', hint: 'Company-owned electric buses; zero combustion = zero Scope 1', unit: 'Nos', type: 'number' },
+            { name: 'Electric Bus — Scope Classification', hint: 'Zero Scope 1. Enter kWh charging consumption in Scope 2 (Purchased Electricity).', unit: '', type: 'select', options: ['Zero Scope 1 — kWh entered in Scope 2','Zero Scope 1 — kWh not yet captured','Not applicable'] },
+        ]},
+        { groupHeader: '⚙️ Off-Road & Material Handling Equipment' },
+        { label: 'Forklift — Diesel', fields: [
+            { name: 'Diesel Forklift — Count', hint: 'Company-owned diesel forklifts and reach stackers', unit: 'Nos', type: 'number' },
+            { name: 'Diesel Forklift — Fuel', hint: 'Total diesel consumed', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Diesel Forklift — Hours', hint: 'Total operational hours (use if fuel metering unavailable)', unit: 'Hours', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Forklift — LPG', fields: [
+            { name: 'LPG Forklift — Count', hint: 'Company-owned LPG forklifts', unit: 'Nos', type: 'number' },
+            { name: 'LPG Forklift — Fuel', hint: 'Total LPG consumed', unit: 'Kg', type: 'number', method: 'qty' },
+            { name: 'LPG Forklift — Hours', hint: 'Total operational hours', unit: 'Hours', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Forklift — Electric (Zero Scope 1)', fields: [
+            { name: 'Electric Forklift — Count', hint: 'Company-owned electric forklifts; zero combustion = zero Scope 1', unit: 'Nos', type: 'number' },
+            { name: 'Electric Forklift — Scope Classification', hint: 'Zero Scope 1. Enter kWh charging consumption in Scope 2 (Purchased Electricity).', unit: '', type: 'select', options: ['Zero Scope 1 — kWh entered in Scope 2','Zero Scope 1 — kWh not yet captured','Not applicable'] },
+        ]},
+        { label: 'Construction Equipment — Diesel (Excavators, Loaders, Cranes)', fields: [
+            { name: 'Construction Equipment — Count', hint: 'Excavators, backhoes, loaders, mobile cranes', unit: 'Nos', type: 'number' },
+            { name: 'Construction Equipment — Fuel', hint: 'Total diesel consumed', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Construction Equipment — Hours', hint: 'Total operational hours', unit: 'Hours', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Agricultural Equipment — Diesel (Tractors, Harvesters)', fields: [
+            { name: 'Agricultural Equipment — Count', hint: 'Tractors, combine harvesters, pump sets', unit: 'Nos', type: 'number' },
+            { name: 'Agricultural Equipment — Fuel', hint: 'Total diesel consumed', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Agricultural Equipment — Hours', hint: 'Total operational hours', unit: 'Hours', type: 'number', method: 'cost' },
+        ]},
+        { groupHeader: '♻️ Alternative Fuel Vehicles (Any Vehicle Type — Record by Fuel)' },
+        { label: 'Biodiesel B20 Fleet', fields: [
+            { name: 'Biodiesel B20 — Vehicle Count', hint: 'Vehicles running on 20% biodiesel blend across all vehicle types', unit: 'Nos', type: 'number' },
+            { name: 'Biodiesel B20 — Fuel Consumed', hint: '20% biodiesel blend; fossil fraction (80%) drives Scope 1 EF', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Biodiesel B20 — Distance', hint: 'Total km driven on B20', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Biodiesel B100 Fleet', fields: [
+            { name: 'Biodiesel B100 — Vehicle Count', hint: 'Vehicles running on pure biodiesel', unit: 'Nos', type: 'number' },
+            { name: 'Biodiesel B100 — Fuel Consumed', hint: 'Pure biodiesel; biogenic CO₂ excluded from Scope 1 total; report separately', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Biodiesel B100 — Distance', hint: 'Total km driven on B100', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Ethanol Blend Fleet (E10 / E85)', fields: [
+            { name: 'Ethanol Blend — Vehicle Count', hint: 'Vehicles running on E10 or E85 ethanol blend', unit: 'Nos', type: 'number' },
+            { name: 'Ethanol Blend — Fuel Consumed', hint: 'E10: fossil fraction = 90%; E85: fossil fraction = 15%', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Ethanol Blend — Distance', hint: 'Total km driven on ethanol blend', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Hydrogen FCEV Fleet', fields: [
+            { name: 'H₂ FCEV — Vehicle Count', hint: 'Fuel cell vehicles (cars, buses, trucks); zero tailpipe CO₂', unit: 'Nos', type: 'number' },
+            { name: 'H₂ FCEV — Hydrogen Consumed', hint: 'kg H₂ consumed; zero Scope 1 CO₂ at point of use (grey/green H₂ upstream = Scope 3 Cat 3.3)', unit: 'Kg', type: 'number', method: 'qty' },
+            { name: 'H₂ FCEV — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { groupHeader: '⚡ Electric Vehicles — Scope Classification Note' },
+        { label: 'EV Fleet — Total Count & Scope Confirmation', fields: [
+            { name: 'Total EV Fleet Count (All EV Types)', hint: 'Cars, two-wheelers, three-wheelers, buses, forklifts — aggregate count for disclosure', unit: 'Nos', type: 'number' },
+            { name: 'EV Scope 1 Status', hint: 'Electric vehicles produce ZERO Scope 1 emissions. kWh charging consumption must be entered in Scope 2 (Purchased Electricity).', unit: '', type: 'select', options: ['Confirmed — Zero Scope 1; kWh captured in Scope 2','EVs present but kWh not yet captured in Scope 2','No EVs in fleet'] },
+        ]},
+        { groupHeader: '📊 Fleet Summary' },
+        { label: 'Total Fleet Count & Distance', fields: [
+            { name: 'Total Fleet Count — All Vehicle Types', hint: 'Sum of all company-owned & operated vehicles including EVs', unit: 'Nos', type: 'number' },
+            { name: 'Total Combustion Fleet Distance', hint: 'Aggregate km for all fuel-burning vehicles; exclude EVs', unit: 'km', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Total Fuel Consumed', fields: [
+            { name: 'Total Diesel Consumed — All Vehicles', hint: 'Aggregate diesel across all vehicle types using diesel', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Total Petrol Consumed — All Vehicles', hint: 'Aggregate petrol across all vehicle types using petrol', unit: 'Litres', type: 'number', method: 'qty' },
+        ]},
+        { label: 'Total Alternative Fuels', fields: [
+            { name: 'Total CNG Consumed — All Vehicles', hint: 'Aggregate CNG across cars, three-wheelers, vans, buses', unit: 'Kg', type: 'number', method: 'qty' },
+            { name: 'Total LPG Consumed — All Vehicles', hint: 'Aggregate LPG across cars and forklifts', unit: 'Kg', type: 'number', method: 'qty' },
         ]},
     ]},
+
+    // 1.3 Fugitive Emissions — Full GHG Protocol refrigerant list
+
     '1.3': { sections: [
-        { fields: [
-            { name: 'Refrigerant Type', hint: 'Primary refrigerant used', unit: '', type: 'select', options: ['R-22 (HCFC)','R-134a (HFC)','R-410A','R-32','R-404A','R-407C','Other'] },
-            { name: 'Refrigerant Refill Qty', hint: 'Recharged during period', unit: 'Kg', type: 'number' },
+        { label: 'Refrigerant Category', fields: [
+            { name: 'Gas Category', hint: 'Select the refrigerant family', unit: '', type: 'select',
+              options: ['CFCs — Chlorofluorocarbons','HCFCs — Hydrochlorofluorocarbons','HFCs — Hydrofluorocarbons','HFOs — Hydrofluoroolefins','PFCs — Perfluorocarbons','Blends — Azeotropic','Blends — Zeotropic','SF₆ — Sulphur Hexafluoride','NF₃ — Nitrogen Trifluoride','NH₃ — Ammonia (natural)','CO₂ — Carbon Dioxide (natural)','HC — Hydrocarbons (natural)','Other'] },
         ]},
-        { fields: [
-            { name: 'SF₆ Emissions', hint: 'From switchgear/electrical equipment', unit: 'Kg', type: 'number' },
-            { name: 'Fugitive Methane / Other', hint: 'Pipeline leaks, equipment fugitives', unit: 'tCO₂e', type: 'number' },
+        { label: 'CFCs (Chlorofluorocarbons)', fields: [
+            { name: 'CFC Refrigerant Type', hint: 'R-11, R-12, R-113, R-114, R-115, R-500, R-502', unit: '', type: 'select',
+              options: ['R-11 (CFC-11)','R-12 (CFC-12)','R-113 (CFC-113)','R-114 (CFC-114)','R-115 (CFC-115)','R-500 (CFC-12/HFC-152a)','R-502 (CFC-115/HCFC-22)','Other CFC'] },
+            { name: 'CFC Refill Quantity', hint: 'Amount recharged in period', unit: 'Kg', type: 'number' },
+        ]},
+        { label: 'HCFCs (Hydrochlorofluorocarbons)', fields: [
+            { name: 'HCFC Refrigerant Type', hint: 'R-22 most common; being phased out', unit: '', type: 'select',
+              options: ['R-22 (HCFC-22)','R-123 (HCFC-123)','R-124 (HCFC-124)','R-141b (HCFC-141b)','R-142b (HCFC-142b)','R-401A','R-401B','R-402A','R-402B','R-403A','R-403B','R-408A','R-409A','R-412A','Other HCFC'] },
+            { name: 'HCFC Refill Quantity', hint: 'Amount recharged in period', unit: 'Kg', type: 'number' },
+        ]},
+        { label: 'HFCs (Hydrofluorocarbons)', fields: [
+            { name: 'HFC Refrigerant Type', hint: 'Most common in modern A/C & refrigeration', unit: '', type: 'select',
+              options: ['R-23 (HFC-23)','R-32 (HFC-32)','R-125 (HFC-125)','R-134a (HFC-134a)','R-143a (HFC-143a)','R-152a (HFC-152a)','R-227ea (HFC-227ea)','R-245fa (HFC-245fa)','R-404A','R-407A','R-407B','R-407C','R-407F','R-410A','R-413A','R-416A','R-417A','R-417B','R-422A','R-422D','R-424A','R-427A','R-428A','R-434A','R-438A','R-442A','R-507A','Other HFC'] },
+            { name: 'HFC Refill Quantity', hint: 'Amount recharged in period', unit: 'Kg', type: 'number' },
+        ]},
+        { label: 'HFOs (Hydrofluoroolefins — Low-GWP)', fields: [
+            { name: 'HFO Refrigerant Type', hint: '4th generation low-GWP refrigerants', unit: '', type: 'select',
+              options: ['R-1234yf (HFO-1234yf)','R-1234ze (HFO-1234ze)','R-1233zd (HFO-1233zd)','R-447A','R-448A','R-449A','R-450A','R-452A','R-452B','R-454B','R-513A','R-516A','Other HFO'] },
+            { name: 'HFO Refill Quantity', hint: 'Amount recharged in period', unit: 'Kg', type: 'number' },
+        ]},
+        { label: 'PFCs (Perfluorocarbons)', fields: [
+            { name: 'PFC Type', hint: 'Aluminium smelting & semiconductor process gases', unit: '', type: 'select',
+              options: ['CF₄ (PFC-14)','C₂F₆ (PFC-116)','C₃F₈ (PFC-218)','C₄F₁₀ (PFC-3-1-10)','c-C₄F₈ (PFC-c318)','C₅F₁₂ (PFC-4-1-12)','C₆F₁₄ (PFC-5-1-14)','C₄F₆','Other PFC'] },
+            { name: 'PFC Quantity', hint: 'Amount consumed / leaked', unit: 'Kg', type: 'number' },
+        ]},
+        { label: 'SF₆ (Sulphur Hexafluoride)', fields: [
+            { name: 'SF₆ Quantity Leaked', hint: 'Switchgear, HV breakers, GIS; GWP = 23,500', unit: 'Kg', type: 'number' },
+            { name: 'SF₆ Equipment Count', hint: 'Number of SF₆-filled assets', unit: 'Nos', type: 'number' },
+        ]},
+        { label: 'NF₃ (Nitrogen Trifluoride)', fields: [
+            { name: 'NF₃ Emissions', hint: 'Semiconductor & flat-panel display manufacturing', unit: 'Kg', type: 'number' },
+            { name: 'NF₃ Source', hint: 'Process type', unit: '', type: 'select', options: ['CVD Chamber Cleaning','Semiconductor Etching','LCD/FPD Manufacturing','Other'] },
+        ]},
+        { label: 'Natural Refrigerants (NH₃, CO₂, HCs)', fields: [
+            { name: 'Natural Refrigerant Type', hint: 'Ammonia, CO₂, hydrocarbons', unit: '', type: 'select',
+              options: ['R-717 (Ammonia / NH₃)','R-744 (CO₂)','R-290 (Propane)','R-600a (Isobutane)','R-1270 (Propylene)','R-170 (Ethane)','Other Natural'] },
+            { name: 'Natural Refrigerant Qty', hint: 'Fugitive leak quantity', unit: 'Kg', type: 'number' },
+        ]},
+        { label: 'Source & Detection Method', fields: [
+            { name: 'Source Type', hint: 'Equipment type causing fugitive release', unit: '', type: 'select',
+              options: ['Air Conditioning (HVAC)','Chiller (Central Plant)','Industrial Refrigeration','Cold Storage','Refrigerated Transport','Fire Suppression System','Electrical Switchgear (SF₆)','Semiconductor / Electronics Process','Industrial Process Gas','Pipeline Leaks','Other'] },
+            { name: 'Detection / Calculation Method', hint: 'How leak quantity was determined', unit: '', type: 'select',
+              options: ['Direct Measurement (IR / Electronic Detector)','Mass Balance (Inventory Method)','Refill Records (Make-Up Approach)','Screening Emission Factors','OEM Leak Rate Calculation','Other'] },
         ]},
     ]},
+
+    // 1.4 Process Emissions — GHG Protocol process categories
     '1.4': { sections: [
-        { fields: [
-            { name: 'Process CO₂ Emissions', hint: 'Direct CO₂ from chemical processes', unit: 'tCO₂e', type: 'number' },
-            { name: 'Process N₂O Emissions', hint: 'Nitrous oxide from processes', unit: 'tCO₂e', type: 'number' },
+        { label: 'Process Category', fields: [
+            { name: 'Process Category', hint: 'Select the industrial process category', unit: '', type: 'select',
+              options: ['Mineral & Cement Processes','Metal Processes — Iron & Steel','Metal Processes — Non-Ferrous','Chemical Processes','Petroleum Refining','Pulp & Paper / Biomass','Food & Beverage','Electronics & Semiconductors','Waste Incineration / Landfill','Other Industrial Process'] },
         ]},
-        { fields: [
-            { name: 'Calcination / Clinker', hint: 'Cement/mineral processing emissions', unit: 'tCO₂e', type: 'number' },
-            { name: 'Other Process Emissions', hint: 'Any other direct process emissions', unit: 'tCO₂e', type: 'number' },
+        { label: 'Mineral & Cement Processes', fields: [
+            { name: 'Specific Process — Mineral', hint: 'Calcination, glass, ceramics, lime', unit: '', type: 'select',
+              options: ['Clinker Production / Calcination','Cement Production (blended)','Lime Production','Dolomite Calcination','Magnesite Calcination','Glass Manufacturing','Ceramic / Tile Manufacturing','Gypsum Dehydration','Soda Ash (Solvay Process)','Other Mineral'] },
+            { name: 'Process CO₂ Emissions — Mineral', hint: 'Direct process CO₂; exclude combustion', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Metal Processes', fields: [
+            { name: 'Specific Process — Metals', hint: 'Steel, aluminium, ferroalloys, foundry', unit: '', type: 'select',
+              options: ['Iron & Steel Production (BF-BOF)','DRI / Electric Arc Furnace (EAF)','Sintering & Pelletising','Coke Production','Aluminium Smelting (Prebake)','Aluminium Smelting (Søderberg)','Primary Aluminium — PFC Emissions','Zinc Smelting','Copper Smelting','Lead Smelting','Ferroalloy Manufacturing','Foundry / Casting Operations','Other Metal'] },
+            { name: 'Process Emissions — Metals', hint: 'CO₂ + PFC (aluminium) as tCO₂e', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Chemical Processes', fields: [
+            { name: 'Specific Process — Chemical', hint: 'Ammonia, acids, hydrogen, petrochemicals', unit: '', type: 'select',
+              options: ['Ammonia Production','Nitric Acid Production (N₂O)','Adipic Acid Production (N₂O)','Caprolactam Production','Carbide Production','Carbon Black Manufacturing','Ethylene Production (Steam Cracking)','Ethylene Oxide Production','Methanol Production','Urea Production','Sulphuric Acid Production','Hydrogen Production (SMR)','Petrochemical Cracking','Soda Ash Production','Other Chemical'] },
+            { name: 'Process Emissions — Chemical', hint: 'Direct GHG from process reactions', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Petroleum Refining', fields: [
+            { name: 'Specific Process — Refinery', hint: 'FCCU, flaring, venting, cracking', unit: '', type: 'select',
+              options: ['Catalytic Cracking (FCCU)','FCCU Regeneration — CO₂','Thermal Cracking','Hydrocracking','Flare Gas Combustion','Refinery Venting / Fugitive','Hydrogen Plant CO₂ Venting','Sulphur Recovery Unit','Other Refinery Process'] },
+            { name: 'Process Emissions — Refinery', hint: 'Process CO₂ / CH₄ / N₂O as tCO₂e', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Pulp, Paper & Biomass Processes', fields: [
+            { name: 'Specific Process — Pulp/Paper', hint: 'Recovery boiler, fermentation, biogas', unit: '', type: 'select',
+              options: ['Kraft Pulp Mill — Black Liquor Recovery','NSSC Pulp Process','Bleaching Emissions','Bioethanol Fermentation (fossil CO₂)','Biogas Generation','Biomass Decomposition','Other Pulp/Paper'] },
+            { name: 'Process Emissions — Pulp/Paper', hint: 'Fossil-fraction process emissions', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Food & Beverage Processes', fields: [
+            { name: 'Specific Process — F&B', hint: 'Fermentation CO₂, CO₂ from calcination', unit: '', type: 'select',
+              options: ['Beverage Carbonation (fossil CO₂ use)','Alcoholic Fermentation (beer/wine/spirits)','Yeast Production','Amine CO₂ Capture Venting','Sugar Refining — Lime Kiln','Other Food & Beverage'] },
+            { name: 'Process Emissions — F&B', hint: 'Fossil-fraction process CO₂ / N₂O', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Electronics & Semiconductor Processes', fields: [
+            { name: 'Specific Process — Electronics', hint: 'SF₆, NF₃, PFC process gases', unit: '', type: 'select',
+              options: ['CVD / Plasma Etch (NF₃)','SF₆ Dielectric Etch','HFC Process Gas Use','PFC Process Gas Use','TFT / LCD Manufacturing','Solar Cell Manufacturing','Other Semiconductor'] },
+            { name: 'Process Emissions — Electronics', hint: 'NF₃ + SF₆ + PFC/HFC as tCO₂e', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Common Data — All Process Types', fields: [
+            { name: 'Calculation Method', hint: 'How emissions were quantified', unit: '', type: 'select',
+              options: ['Direct Measurement (CEMS)','Mass Balance Method','Emission Factor (IPCC / BEE)','Stoichiometric Calculation','Industry-Specific Protocol','Engineering Estimate','Other'] },
+            { name: 'Production / Activity Volume', hint: 'Tonnes of product or input material', unit: 'Tonnes', type: 'number' },
         ]},
     ]},
+
+    // ═══════════════════════════════════════════════════
+    // SCOPE 2 — INDIRECT ENERGY EMISSIONS
+    // ═══════════════════════════════════════════════════
     '2.1': { sections: [
-        { fields: [
-            { name: 'Grid Electricity Consumption', hint: 'Total from utility grid', unit: 'kWh', type: 'number' },
-            { name: 'Electricity Cost', hint: 'Total incl. all charges', unit: '₹', type: 'number' },
+        { label: 'Purchased Grid Electricity (Location-Based)', fields: [
+            { name: 'Grid Electricity Consumption', hint: 'Total units purchased from utility grid', unit: 'kWh', type: 'number' },
+            { name: 'Electricity Cost', hint: 'Total bill incl. fixed charges & taxes', unit: '₹', type: 'number' },
         ]},
-        { fields: [
-            { name: 'Renewable Energy (RECs/PPAs)', hint: 'Purchased RECs & PPAs', unit: 'kWh', type: 'number' },
-            { name: 'Solar Generation (On-site)', hint: 'Self-generated solar', unit: 'kWh', type: 'number' },
+        { label: 'Grid Region & Emission Factor', fields: [
+            { name: 'Grid Region', hint: 'CEA regional grid for emission factor selection', unit: '', type: 'select',
+              options: ['Northern Grid','Southern Grid','Eastern Grid','Western Grid','North-Eastern Grid','Island Grid (Andaman / Lakshadweep)','Other / International'] },
+            { name: 'Grid Emission Factor Applied', hint: 'CEA 2023 national / regional factor', unit: 'tCO₂e/MWh', type: 'number' },
         ]},
-        { fields: [
-            { name: 'Installed Solar Capacity', hint: 'Total rooftop/ground solar', unit: 'kWp', type: 'number' },
-            { name: 'Grid Emission Factor', hint: 'CEA regional grid factor', unit: 'tCO₂e/MWh', type: 'number' },
+        { label: 'Market-Based Instruments (RECs & PPAs)', fields: [
+            { name: 'Renewable Energy Certificates (RECs)', hint: 'Purchased RECs — used for market-based method', unit: 'MWh', type: 'number' },
+            { name: 'PPA / Direct Renewable Purchase', hint: 'Power Purchase Agreement renewable units acquired', unit: 'kWh', type: 'number' },
+        ]},
+        { label: 'Supplier Residual Mix EF (Market-Based)', fields: [
+            { name: 'Supplier-Specific Emission Factor', hint: 'If supplier provides a contract EF', unit: 'kgCO₂e/kWh', type: 'number' },
+            { name: 'Residual Mix EF (if no supplier EF)', hint: 'National / regional residual mix factor', unit: 'kgCO₂e/kWh', type: 'number' },
+        ]},
+        { label: 'T&D Losses Adjustment', fields: [
+            { name: 'T&D Loss Rate Applied', hint: 'Utility-reported or CEA average loss rate', unit: '%', type: 'number' },
+            { name: 'T&D Loss Electricity Equivalent', hint: 'Auto-calculated or enter manually', unit: 'kWh', type: 'number' },
+        ]},
+        { groupHeader: '☀️ On-Site Generation — Market-Based Attribute (Not a Scope 2 Source)' },
+        { label: 'On-Site Renewable Generation (Self-Consumed)', fields: [
+            { name: 'Rooftop / Ground Solar PV — Self-Consumed', hint: 'Own-generated solar consumed on-site; reduces market-based Scope 2', unit: 'kWh', type: 'number' },
+            { name: 'Other On-Site Renewable Generation', hint: 'Wind, biomass, hydro — self-generated & consumed', unit: 'kWh', type: 'number' },
+        ]},
+        { label: 'On-Site Generation Capacity', fields: [
+            { name: 'Installed Solar Capacity', hint: 'Total rooftop + ground-mount capacity', unit: 'kWp', type: 'number' },
+            { name: 'On-Site RE % of Total Electricity', hint: 'Self-generation as share of total consumption', unit: '%', type: 'number' },
         ]},
     ]},
-    '2.2': { sections: [{ fields: [
-        { name: 'Purchased Steam', hint: 'From external suppliers', unit: 'Tonnes', type: 'number' },
-        { name: 'Purchased Heat', hint: 'External heat energy', unit: 'GJ', type: 'number' },
-    ]}]},
-    '2.3': { sections: [{ fields: [
-        { name: 'District Cooling', hint: 'External centralized cooling', unit: 'kWh', type: 'number' },
-        { name: 'Chilled Water Purchased', hint: 'Purchased chilled water', unit: 'TR-hrs', type: 'number' },
-    ]}]},
+
+    // 2.2 Purchased Steam — separate energy vector from heat
+    '2.2': { sections: [
+        { label: 'Steam Type & Pressure Class', fields: [
+            { name: 'Steam Type', hint: 'Pressure class for correct emission factor', unit: '', type: 'select',
+              options: ['High Pressure Steam (>10 bar)','Medium Pressure Steam (3–10 bar)','Low Pressure Steam (<3 bar)','Saturated Steam','Superheated Steam'] },
+            { name: 'Steam Pressure', hint: 'Operating pressure at delivery point', unit: 'bar(g)', type: 'number' },
+        ]},
+        { label: 'Process Application', fields: [
+            { name: 'Process Application', hint: 'End-use consuming the purchased steam', unit: '', type: 'select',
+              options: ['Manufacturing Process','Sterilization / Autoclaving','Chemical Processing','Food Processing','Textile Processing / Dyeing','Paper / Pulp Manufacturing','Power Generation (Turbine Drive)','HVAC / Humidification','Other Industrial Use'] },
+            { name: 'Steam Temperature (°C)', hint: 'Inlet temperature at delivery / metering point', unit: '°C', type: 'number' },
+        ]},
+        { label: 'Quantity', fields: [
+            { name: 'Purchased Steam — Tonnes', hint: 'Mass-based billing (most common)', unit: 'Tonnes', type: 'number' },
+            { name: 'Purchased Steam — Energy Equivalent', hint: 'Energy content if mass is unavailable', unit: 'GJ', type: 'number' },
+        ]},
+        { label: 'Supplier & Emission Factor', fields: [
+            { name: 'Steam Supplier / Source', hint: 'Utility, CHP plant, or district system name', unit: '', type: 'select',
+              options: ['Supplier EF provided (preferred)','Default national factor applied','IPCC default used','Not available — use engineering estimate'] },
+            { name: 'Supplier Steam Emission Factor', hint: 'Supplier-reported or default kgCO₂e per tonne steam', unit: 'kgCO₂e/tonne', type: 'number' },
+        ]},
+    ]},
+
+    // 2.3 Purchased Heat — distinct from steam; different EF basis
+    '2.3': { sections: [
+        { label: 'Heat Source Type', fields: [
+            { name: 'Heat Source', hint: 'How the purchased heat energy is generated', unit: '', type: 'select',
+              options: ['District Heating System','Combined Heat & Power (CHP)','Waste Heat Recovery (External)','Solar Thermal (Purchased from Utility)','Geothermal (Purchased)','Biomass Boiler (Utility-Operated)','Heat Pump (Utility-Operated)','Other'] },
+            { name: 'Heat Application / End-Use', hint: 'What the purchased heat is used for', unit: '', type: 'select',
+              options: ['Space Heating','Process Heating (Industrial)','Water Heating (Domestic / Process)','Combined / Multiple Applications','Other'] },
+        ]},
+        { label: 'Quantity', fields: [
+            { name: 'Purchased Heat Quantity', hint: 'Energy content of purchased heat (GJ preferred)', unit: 'GJ', type: 'number' },
+            { name: 'Purchased Heat — Alternative Unit', hint: 'If billed in MWh, MMBtu, or therms', unit: 'MWh', type: 'number' },
+        ]},
+        { label: 'Supplier & Emission Factor', fields: [
+            { name: 'Heat Supplier / District System', hint: 'Source of the purchased heat', unit: '', type: 'select',
+              options: ['Supplier EF provided (preferred)','Default national factor applied','IPCC default used','Not available'] },
+            { name: 'Supplier Heat Emission Factor', hint: 'Supplier-reported or IPCC default kgCO₂e/GJ', unit: 'kgCO₂e/GJ', type: 'number' },
+        ]},
+    ]},
+
+    // 2.4 Purchased Cooling
     '2.4': { sections: [
-        { fields: [
-            { name: 'Solar Generation', hint: 'Rooftop & ground-mount', unit: 'kWh', type: 'number' },
-            { name: 'Wind Generation', hint: 'On-site wind turbines', unit: 'kWh', type: 'number' },
+        { label: 'Cooling Source', fields: [
+            { name: 'Cooling Source Type', hint: 'How the purchased cooling is provided', unit: '', type: 'select',
+              options: ['District Cooling System','Utility-Operated Chiller Plant','Ice Storage (Purchased from External)','Purchased Chilled Water','Other'] },
+            { name: 'Cooling Application / End-Use', hint: 'What the purchased cooling is used for', unit: '', type: 'select',
+              options: ['HVAC / Space Cooling','Process Cooling','Data Centre Cooling','Industrial Cooling','Cold Storage','Combined Applications','Other'] },
         ]},
-        { fields: [
-            { name: 'Biomass Power', hint: 'On-site biomass energy', unit: 'kWh', type: 'number' },
-            { name: 'Renewable % of Total Energy', hint: 'RE share of total consumption', unit: '%', type: 'number' },
+        { label: 'Quantity', fields: [
+            { name: 'Purchased Cooling (TR-hours)', hint: 'Tonne-refrigeration-hours — most common billing unit', unit: 'TR-hrs', type: 'number' },
+            { name: 'Purchased Cooling (MWh)', hint: 'If billed in energy units', unit: 'MWh', type: 'number' },
+        ]},
+        { label: 'Supplier & Emission Factor', fields: [
+            { name: 'Cooling Supplier / District System', hint: 'Source of purchased cooling', unit: '', type: 'select',
+              options: ['Supplier EF provided (preferred)','Default national factor applied','IPCC default used','Not available'] },
+            { name: 'Supplier Cooling Emission Factor', hint: 'kgCO₂e per MWh cooling or per TR-hr', unit: 'kgCO₂e/MWh', type: 'number' },
         ]},
     ]},
-    '3.1': { sections: [{ fields: [ { name: 'Raw Materials Spend', hint: 'Total raw materials', unit: '₹ Lakhs', type: 'number' }, { name: 'Packaging Materials Spend', hint: 'Packaging materials', unit: '₹ Lakhs', type: 'number' }, ]}, { fields: [ { name: 'Services Spend', hint: 'Outsourced services', unit: '₹ Lakhs', type: 'number' }, { name: 'Supplier Emission Data', hint: 'Primary data availability', unit: '', type: 'select', options: ['Yes - Primary Data','Partial','No - Spend-based'] }, ]}]},
-    '3.2': { sections: [{ fields: [ { name: 'Capital Goods Spend', hint: 'Machinery, equipment', unit: '₹ Lakhs', type: 'number' }, { name: 'IT Equipment Spend', hint: 'Servers, laptops, networking', unit: '₹ Lakhs', type: 'number' }, ]}]},
-    '3.3': { sections: [{ fields: [ { name: 'Upstream Energy (T&D Losses)', hint: 'Transmission & distribution losses', unit: 'kWh', type: 'number' }, { name: 'Upstream Fuel Production', hint: 'Well-to-tank emissions', unit: 'tCO₂e', type: 'number' }, ]}]},
-    '3.4': { sections: [{ fields: [ { name: 'Inbound Transportation', hint: 'Upstream transport', unit: 'tonne-km', type: 'number' }, { name: 'Primary Transport Mode', hint: 'Dominant inbound mode', unit: '', type: 'select', options: ['Road','Rail','Sea','Air','Multi-modal'] }, ]}]},
-    '3.5': { sections: [{ fields: [ { name: 'Waste to Landfill', hint: 'Landfill disposal', unit: 'Tonnes', type: 'number' }, { name: 'Waste to Incineration', hint: 'Incineration w/wo energy recovery', unit: 'Tonnes', type: 'number' }, ]}, { fields: [ { name: 'Wastewater Treatment', hint: 'STP/ETP volumes', unit: 'kL', type: 'number' }, { name: 'Waste Recycled', hint: 'Diverted via recycling', unit: 'Tonnes', type: 'number' }, ]}]},
-    '3.6': { sections: [{ fields: [ { name: 'Air Travel — Domestic', hint: 'Domestic flights', unit: 'km', type: 'number' }, { name: 'Air Travel — International', hint: 'International flights', unit: 'km', type: 'number' }, ]}, { fields: [ { name: 'Rail Travel', hint: 'Rail distance', unit: 'km', type: 'number' }, { name: 'Road Travel (Taxi/Rental)', hint: 'Taxi and rental car', unit: 'km', type: 'number' }, ]}, { fields: [ { name: 'Hotel Nights', hint: 'Total hotel stays', unit: 'Nights', type: 'number' }, { name: 'Travel Spend (Total)', hint: 'Total travel expenditure', unit: '₹ Lakhs', type: 'number' }, ]}]},
-    '3.7': { sections: [{ fields: [ { name: 'Total Employees', hint: 'Headcount for calculation', unit: 'Nos', type: 'number' }, { name: 'Avg Commute Distance (one-way)', hint: 'Average per employee', unit: 'km/day', type: 'number' }, ]}, { fields: [ { name: 'WFH Days per Month', hint: 'Average WFH days', unit: 'Days', type: 'number' }, { name: 'Company Transport Riders', hint: 'Employees on company bus/shuttle', unit: 'Nos', type: 'number' }, ]}]},
-    '3.8': { sections: [{ fields: [ { name: 'Leased Office/Warehouse Area', hint: 'Total leased area', unit: 'sq ft', type: 'number' }, { name: 'Energy Use in Leased Assets', hint: 'Electricity in leased spaces', unit: 'kWh', type: 'number' }, ]}]},
-    '3.9': { sections: [{ fields: [ { name: 'Outbound Transportation', hint: 'Distribution to customers', unit: 'tonne-km', type: 'number' }, { name: 'Primary Distribution Mode', hint: 'Dominant outbound mode', unit: '', type: 'select', options: ['Road','Rail','Sea','Air','Multi-modal'] }, ]}]},
-    '3.10': { sections: [{ fields: [ { name: 'Intermediate Products Sold', hint: 'Products needing further processing', unit: 'Tonnes', type: 'number' }, { name: 'Estimated Processing Energy', hint: 'Downstream processing energy', unit: 'GJ', type: 'number' }, ]}]},
-    '3.11': { sections: [{ fields: [ { name: 'Product Use-Phase Energy', hint: 'Lifetime energy use', unit: 'kWh', type: 'number' }, { name: 'Product Use-Phase Fuel', hint: 'Lifetime fuel consumption', unit: 'Litres', type: 'number' }, ]}]},
-    '3.12': { sections: [{ fields: [ { name: 'Products to Landfill', hint: 'EOL to landfill', unit: 'Tonnes', type: 'number' }, { name: 'Products Recycled', hint: 'EOL recovered/recycled', unit: 'Tonnes', type: 'number' }, ]}]},
-    '3.13': { sections: [{ fields: [ { name: 'Leased-Out Assets Area', hint: 'Area leased to others', unit: 'sq ft', type: 'number' }, { name: 'Lessee Energy Use', hint: 'Energy by lessees', unit: 'kWh', type: 'number' }, ]}]},
-    '3.14': { sections: [{ fields: [ { name: 'Franchise Count', hint: 'Number of franchises', unit: 'Nos', type: 'number' }, { name: 'Franchise Energy Use', hint: 'Aggregate franchise energy', unit: 'kWh', type: 'number' }, ]}]},
-    '3.15': { sections: [{ fields: [ { name: 'Equity Investments', hint: 'Market value of equity', unit: '₹ Cr', type: 'number' }, { name: 'Project Finance / Debt', hint: 'Outstanding project finance', unit: '₹ Cr', type: 'number' }, ]}]},
+
+    // ═══════════════════════════════════════════════════
+    // SCOPE 3 — VALUE CHAIN EMISSIONS (ALL 15 CATEGORIES)
+    // ═══════════════════════════════════════════════════
+    '3.1': { sections: [
+        { label: 'Calculation Approach', fields: [
+            { name: 'Calculation Method', hint: 'Spend-based is default; primary data preferred', unit: '', type: 'select',
+              options: ['Spend-based (EEIO factors)','Supplier-Specific Primary Data','Hybrid (Spend + Activity)','Life Cycle Assessment (LCA) Data'] },
+        ]},
+        { label: 'Raw Materials (Spend-Based)', fields: [
+            { name: 'Raw Materials Spend', hint: 'Total spend on production inputs', unit: '₹ Lakhs', type: 'number' },
+            { name: 'Packaging Materials Spend', hint: 'All primary & secondary packaging', unit: '₹ Lakhs', type: 'number' },
+        ]},
+        { label: 'Goods Sub-Categories (Spend)', fields: [
+            { name: 'Metals & Alloys Spend', hint: 'Steel, aluminium, copper, etc.', unit: '₹ Lakhs', type: 'number' },
+            { name: 'Plastics & Polymers Spend', hint: 'All plastic inputs & composites', unit: '₹ Lakhs', type: 'number' },
+        ]},
+        { label: 'Services & Others (Spend)', fields: [
+            { name: 'Professional / IT Services Spend', hint: 'Consulting, legal, accounting, cloud', unit: '₹ Lakhs', type: 'number' },
+            { name: 'Maintenance & Repair Services Spend', hint: 'Third-party maintenance', unit: '₹ Lakhs', type: 'number' },
+        ]},
+        { label: 'Primary Activity Data (If Available)', fields: [
+            { name: 'Supplier Primary Emission Data Available', hint: 'Can be uploaded if yes', unit: '', type: 'select', options: ['Yes — Primary Data from Supplier','Partial — Some Suppliers','No — Spend-Based Applied'] },
+            { name: 'Total Category 1 Emissions (tCO₂e)', hint: 'Enter if already calculated', unit: 'tCO₂e', type: 'number' },
+        ]},
+    ]},
+    '3.2': { sections: [
+        { label: 'Data Availability & Calculation Path', fields: [
+            { name: 'Asset Category', hint: 'Select the type of capital good procured this period', unit: '', type: 'select',
+              options: ['Buildings & Civil Structures','Plant, Machinery & Equipment','Transport Vehicles','Computer & IT Infrastructure','Furniture & Fixtures','Energy Generation Equipment','Specialized / Lab Equipment','Other Capital Good'] },
+            { name: 'Calculation Method Applied', hint: 'Physical / supplier data preferred; spend-based is fallback', unit: '', type: 'select',
+              options: ['Supplier-Specific LCA Data (Tier 1 - preferred)','Physical Units x Emission Factor (Tier 2 - preferred)','Depreciation-Based Allocation (Tier 2)','Spend-Based / EEIO (fallback - Tier 3)'] },
+        ]},
+        { groupHeader: '✅ Path A — Physical Units & Supplier Data (Preferred)' },
+        { label: 'Physical Quantity — Buildings & Civil Works', fields: [
+            { name: 'Concrete Volume Procured', hint: 'For construction: concrete is typically the dominant material', unit: 'm³', type: 'number' },
+            { name: 'Steel / Structural Steel Procured', hint: 'Weight of structural steel in capital assets', unit: 'Tonnes', type: 'number' },
+        ]},
+        { label: 'Physical Quantity — Machinery & Equipment', fields: [
+            { name: 'Machinery Procured — Total Weight', hint: 'Mass basis for production & industrial equipment', unit: 'Tonnes', type: 'number' },
+            { name: 'Suppliers with LCA / EPD Data (Count)', hint: 'Number of suppliers providing verified LCA or EPD', unit: 'Nos', type: 'number' },
+        ]},
+        { label: 'Physical Quantity — IT & Technology', fields: [
+            { name: 'Servers Procured', hint: 'Number of rack / blade servers acquired', unit: 'Units', type: 'number' },
+            { name: 'Laptops / Desktops Procured', hint: 'Count of end-user compute devices', unit: 'Units', type: 'number' },
+        ]},
+        { label: 'Physical Quantity — Vehicles', fields: [
+            { name: 'Vehicles Procured — Count', hint: 'Total vehicles of all types acquired this period', unit: 'Nos', type: 'number' },
+            { name: 'Vehicles Procured — Total Kerb Weight', hint: 'Total mass of fleet additions', unit: 'Tonnes', type: 'number' },
+        ]},
+        { label: 'Supplier LCA / EPD Emissions', fields: [
+            { name: 'Capital Goods — Supplier Emissions (tCO₂e)', hint: 'Sum from supplier Environmental Product Declarations or LCA', unit: 'tCO₂e', type: 'number' },
+            { name: 'Category 3.2 Emissions — Physical / LCA Path', hint: 'Total from Tier 1/2 calculation', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { groupHeader: '⚠️ Path B — Spend-Based Fallback (Use Only Where Physical Data Unavailable)' },
+        { label: 'Spend-Based Inputs (Fallback)', fields: [
+            { name: 'Total Capex Spend — This Period', hint: 'All capital procurement; EEIO factor applied as fallback', unit: '₹ Lakhs', type: 'number' },
+            { name: 'IT & Technology Capex (Fallback)', hint: 'Servers, laptops, networking, data centre', unit: '₹ Lakhs', type: 'number' },
+        ]},
+        { label: 'Category 3.2 Total', fields: [
+            { name: 'Total Category 3.2 Emissions (tCO₂e)', hint: 'Combined from physical + LCA + spend-based paths', unit: 'tCO₂e', type: 'number' },
+            { name: 'Spend-Based Share of Total (%)', hint: 'Transparency metric — lower is better', unit: '%', type: 'number' },
+        ]},
+    ]},
+    '3.3': { sections: [
+        { groupHeader: '⛽ Sub-Bucket A — Upstream of Purchased Fuels (Well-to-Tank)' },
+        { label: 'Fuel A1 — Diesel / HSD', fields: [
+            { name: 'Diesel Consumed (Scope 1 basis)', hint: 'Litres used in Scope 1 — drives the WTT upstream factor', unit: 'Litres', type: 'number' },
+            { name: 'Diesel WTT Emissions (tCO₂e)', hint: 'DEFRA 2024 WTT factor x litres consumed', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Fuel A2 — Petrol / Gasoline', fields: [
+            { name: 'Petrol Consumed (Scope 1 basis)', hint: 'Litres used in Scope 1', unit: 'Litres', type: 'number' },
+            { name: 'Petrol WTT Emissions (tCO₂e)', hint: 'DEFRA 2024 WTT factor x litres', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Fuel A3 — Natural Gas', fields: [
+            { name: 'Natural Gas Consumed (Scope 1 basis)', hint: 'm3 used in Scope 1', unit: 'm³', type: 'number' },
+            { name: 'Natural Gas WTT Emissions (tCO₂e)', hint: 'DEFRA 2024 WTT factor x m3', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Fuel A4 — LPG', fields: [
+            { name: 'LPG Consumed (Scope 1 basis)', hint: 'Kg used in Scope 1', unit: 'Kg', type: 'number' },
+            { name: 'LPG WTT Emissions (tCO₂e)', hint: 'DEFRA 2024 WTT factor x kg', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Fuel A5 — Coal', fields: [
+            { name: 'Coal Consumed (Scope 1 basis)', hint: 'Tonnes used in Scope 1', unit: 'Tonnes', type: 'number' },
+            { name: 'Coal WTT Emissions (tCO₂e)', hint: 'DEFRA 2024 WTT factor x tonnes', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Fuel A6 — Other Fuels', fields: [
+            { name: 'Other Fuel Type', hint: 'Specify if not covered above', unit: '', type: 'select',
+              options: ['Furnace Oil / HFO','Naphtha','Kerosene','LNG','CNG','Biogas','Other'] },
+            { name: 'Other Fuels WTT Emissions (tCO₂e)', hint: 'Appropriate WTT factor x quantity consumed', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { groupHeader: '⚡ Sub-Bucket B — Upstream of Purchased Electricity' },
+        { label: 'T&D Losses — Grid Electricity', fields: [
+            { name: 'Grid Electricity Consumed (Scope 2 basis)', hint: 'Total grid kWh from Scope 2 — used to derive T&D loss volume', unit: 'kWh', type: 'number' },
+            { name: 'T&D Loss Rate Applied', hint: 'CEA or utility-reported grid loss rate', unit: '%', type: 'number' },
+        ]},
+        { label: 'T&D Loss Quantity & Emissions', fields: [
+            { name: 'T&D Loss Volume (kWh)', hint: 'Loss kWh = consumption x loss rate', unit: 'kWh', type: 'number' },
+            { name: 'T&D Loss Emissions (tCO₂e)', hint: 'Loss volume x grid EF (kgCO2e/kWh)', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Upstream of Electricity Generation Fuel', fields: [
+            { name: 'Grid Fuel Mix (Dominant Source)', hint: 'From CEA fuel mix data for the grid region', unit: '', type: 'select',
+              options: ['Coal-Dominant Grid','Gas-Dominant Grid','Hydro-Dominant Grid','Mixed (National Average)','Renewable-Heavy Grid','Other / Unknown'] },
+            { name: 'Upstream Electricity Generation Emissions (tCO₂e)', hint: 'WTT upstream of grid fuel; DEFRA upstream electricity factor', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { groupHeader: '🌡️ Sub-Bucket C — Upstream of Purchased Steam & Heat' },
+        { label: 'Upstream of Purchased Steam', fields: [
+            { name: 'Purchased Steam Consumed (Scope 2 basis)', hint: 'Tonnes of steam from Scope 2 — drives upstream WTT calc', unit: 'Tonnes', type: 'number' },
+            { name: 'Steam Upstream Emissions (tCO₂e)', hint: 'WTT factor for the fuel used to generate the purchased steam', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Upstream of Purchased Heat', fields: [
+            { name: 'Purchased Heat Consumed (Scope 2 basis)', hint: 'GJ of heat from Scope 2 — drives upstream WTT calc', unit: 'GJ', type: 'number' },
+            { name: 'Heat Upstream Emissions (tCO₂e)', hint: 'WTT factor for the fuel used to generate the purchased heat', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { groupHeader: '❄️ Sub-Bucket D — Upstream of Purchased Cooling' },
+        { label: 'Upstream of Purchased Cooling', fields: [
+            { name: 'Purchased Cooling Consumed (Scope 2 basis)', hint: 'MWh of cooling from Scope 2 — drives upstream WTT calc', unit: 'MWh', type: 'number' },
+            { name: 'Cooling Upstream Emissions (tCO₂e)', hint: 'Upstream of electricity / fuel used to generate the purchased cooling', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Category 3.3 Total', fields: [
+            { name: 'Total Category 3.3 Emissions (tCO₂e)', hint: 'Sum of all four sub-buckets A + B + C + D', unit: 'tCO₂e', type: 'number' },
+            { name: 'Largest Contributing Sub-Bucket', hint: 'For reporting transparency', unit: '', type: 'select',
+              options: ['A — Upstream Fuels (WTT)','B — Upstream Electricity (T&D + Generation Fuel)','C — Upstream Steam & Heat','D — Upstream Cooling'] },
+        ]},
+    ]},
+    '3.4': { sections: [
+        { label: 'Transport Mode', fields: [
+            { name: 'Primary Inbound Mode', hint: 'Dominant mode for upstream transport', unit: '', type: 'select',
+              options: ['Road — Light Duty Truck','Road — Medium Duty Truck','Road — Heavy Duty Truck','Road — Refrigerated Truck','Rail — Diesel Freight','Rail — Electric Freight','Air — Domestic Cargo','Air — International Cargo','Sea — Container Ship','Sea — Bulk Carrier','Sea — Tanker','Sea — Coastal Barge','Pipeline','Intermodal (Road + Rail)','Intermodal (Road + Sea)','Other'] },
+        ]},
+        { label: 'Activity Data', fields: [
+            { name: 'Inbound Freight (tonne-km)', hint: 'Weight × distance; preferred method', unit: 'tonne-km', type: 'number' },
+            { name: 'Inbound Freight (Spend-Based)', hint: 'Total logistics cost if tonne-km unavailable', unit: '₹ Lakhs', type: 'number' },
+        ]},
+        { label: 'Additional Transport Legs', fields: [
+            { name: 'Secondary Transport Mode', hint: 'If multi-modal legs used', unit: '', type: 'select',
+              options: ['Not Applicable','Road','Rail','Sea','Air','Other'] },
+            { name: 'Secondary Mode (tonne-km)', hint: 'Freight volume on secondary mode', unit: 'tonne-km', type: 'number' },
+        ]},
+    ]},
+    '3.5': { sections: [
+        { groupHeader: '🗑️ Stream 1 — Municipal Solid Waste (MSW)' },
+        { label: 'MSW — Landfill Treatment', fields: [
+            { name: 'MSW to Landfill (Unmanaged / Open Dump)', hint: 'Uncontrolled landfill; highest CH4 factor', unit: 'Tonnes', type: 'number' },
+            { name: 'MSW to Landfill (Managed / Lined)', hint: 'Controlled landfill with liner; lower CH4 factor', unit: 'Tonnes', type: 'number' },
+        ]},
+        { label: 'MSW — Thermal Treatment', fields: [
+            { name: 'MSW to Incineration (w/o Energy Recovery)', hint: 'Direct combustion; IPCC fossil fraction CO2', unit: 'Tonnes', type: 'number' },
+            { name: 'MSW to Waste-to-Energy (WtE)', hint: 'Incineration with energy recovery; lower net EF', unit: 'Tonnes', type: 'number' },
+        ]},
+        { label: 'MSW — Diversion from Disposal', fields: [
+            { name: 'MSW Recycled (Dry Waste)', hint: 'Paper, plastic, metal, glass diverted to recyclers', unit: 'Tonnes', type: 'number' },
+            { name: 'MSW Composted (Wet / Organic Fraction)', hint: 'Organic fraction composted; biogenic CO2 + N2O', unit: 'Tonnes', type: 'number' },
+        ]},
+        { groupHeader: '☣️ Stream 2 — Hazardous Waste' },
+        { label: 'Hazardous Waste — Disposal Methods', fields: [
+            { name: 'Hazardous Waste — Secure Landfill', hint: 'CPCB-authorised secured landfill facility', unit: 'Tonnes', type: 'number' },
+            { name: 'Hazardous Waste — High-Temperature Incineration (HWI)', hint: 'HWI with scrubbing; CO2 per IPCC factors', unit: 'Tonnes', type: 'number' },
+        ]},
+        { label: 'Hazardous Waste — Treatment & Recovery', fields: [
+            { name: 'Hazardous Waste — Chemical / Physical Treatment', hint: 'Neutralisation, stabilisation, solidification', unit: 'Tonnes', type: 'number' },
+            { name: 'Hazardous Waste — Co-processing (Cement Kiln)', hint: 'Alternative fuel/raw material use in cement kiln', unit: 'Tonnes', type: 'number' },
+        ]},
+        { groupHeader: '🏭 Stream 3 — Industrial & Process Waste' },
+        { label: 'Industrial Waste — Disposal Methods', fields: [
+            { name: 'Industrial Waste — Landfill', hint: 'Non-hazardous industrial solid waste to landfill', unit: 'Tonnes', type: 'number' },
+            { name: 'Industrial Waste — Incineration', hint: 'Industrial waste combusted; CO2 per IPCC factors', unit: 'Tonnes', type: 'number' },
+        ]},
+        { label: 'Industrial Waste — Recovery', fields: [
+            { name: 'Industrial Waste — Recycled / Recovered', hint: 'Metal scrap, process by-product reuse, recycling', unit: 'Tonnes', type: 'number' },
+            { name: 'Industrial Waste — Reused / Sold as By-product', hint: 'Fly ash, slag, gypsum sold; typically near-zero EF', unit: 'Tonnes', type: 'number' },
+        ]},
+        { groupHeader: '🌿 Stream 4 — Organic & Food Waste' },
+        { label: 'Organic Waste — Disposal Methods', fields: [
+            { name: 'Organic Waste — Landfill', hint: 'Food / organic waste to landfill; highest CH4 factor', unit: 'Tonnes', type: 'number' },
+            { name: 'Organic Waste — Composting (Aerobic)', hint: 'Biogenic CO2 + N2O; IPCC compost EF', unit: 'Tonnes', type: 'number' },
+        ]},
+        { label: 'Organic Waste — Biogas & Diversion', fields: [
+            { name: 'Organic Waste — Anaerobic Digestion (AD)', hint: 'Biogas captured; CH4 credit if energy recovered', unit: 'Tonnes', type: 'number' },
+            { name: 'Organic Waste — Animal Feed / Donation', hint: 'Diverted from disposal; typically zero EF', unit: 'Tonnes', type: 'number' },
+        ]},
+        { groupHeader: '💻 Stream 5 — E-Waste (WEEE)' },
+        { label: 'E-Waste — Treatment Methods', fields: [
+            { name: 'E-Waste — Formal Recycling (CPCB-registered)', hint: 'Authorised e-waste recycler; lower EF', unit: 'Tonnes', type: 'number' },
+            { name: 'E-Waste — Informal / Uncontrolled Disposal', hint: 'Informal sector or landfill; higher EF', unit: 'Tonnes', type: 'number' },
+        ]},
+        { label: 'E-Waste — Reuse & Take-Back', fields: [
+            { name: 'E-Waste — Refurbished / Donated', hint: 'Devices refurbished and reused; near-zero EF', unit: 'Units', type: 'number' },
+            { name: 'E-Waste — Returned to OEM (Take-Back)', hint: 'Manufacturer take-back programme', unit: 'Tonnes', type: 'number' },
+        ]},
+        { groupHeader: '💧 Stream 6 — Wastewater & Sludge' },
+        { label: 'Wastewater — Treatment Methods', fields: [
+            { name: 'Wastewater — Aerobic Treatment (STP/ETP)', hint: 'Activated sludge or aerobic process; lower CH4 factor', unit: 'kL', type: 'number' },
+            { name: 'Wastewater — Anaerobic Treatment', hint: 'Anaerobic lagoon or reactor; higher CH4 factor per IPCC', unit: 'kL', type: 'number' },
+        ]},
+        { label: 'Wastewater — Discharge & GHG', fields: [
+            { name: 'Wastewater — Direct Discharge (Untreated)', hint: 'CH4 and N2O from untreated effluent; highest factor', unit: 'kL', type: 'number' },
+            { name: 'Wastewater Treatment — CH4 Emissions (tCO2e)', hint: 'Calculated or measured; kgCH4 x GWP 27.9 (IPCC AR6)', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Sludge — Treatment Methods', fields: [
+            { name: 'Sludge — Landfill (Dry Weight)', hint: 'Dewatered sludge disposed to landfill', unit: 'Tonnes', type: 'number' },
+            { name: 'Sludge — Land Application / Composting', hint: 'Agricultural land application or composting', unit: 'Tonnes', type: 'number' },
+        ]},
+        { groupHeader: '📊 Category 3.5 Summary' },
+        { label: 'Total Waste Generated & Emissions', fields: [
+            { name: 'Total Waste Generated — All Streams', hint: 'Sum of all waste types across all treatment paths', unit: 'Tonnes', type: 'number' },
+            { name: 'Total Category 3.5 Emissions (tCO₂e)', hint: 'Sum across all streams and all treatment methods', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Diversion Rate & Calculation Method', fields: [
+            { name: 'Total Waste Diverted from Disposal (%)', hint: 'Recycled + composted + AD + reuse as % of total generated', unit: '%', type: 'number' },
+            { name: 'Calculation Method', hint: 'How emissions were estimated', unit: '', type: 'select',
+              options: ['IPCC Waste Sector Methodology (Tier 1)','IPCC Tier 2 (Waste Composition Data)','DEFRA 2024 Waste EFs','CPCB India Waste Factors','Direct Measurement / Contractor Data','Engineering Estimate'] },
+        ]},
+    ]},
+    '3.6': { sections: [
+        { label: 'Air Travel', fields: [
+            { name: 'Domestic Air Travel (Economy)', hint: 'Distance or trip count — domestic flights', unit: 'km', type: 'number' },
+            { name: 'International Air Travel (Economy)', hint: 'Radiative forcing factor applies', unit: 'km', type: 'number' },
+        ]},
+        { label: 'Air Travel — Premium Classes', fields: [
+            { name: 'Domestic Air — Business Class', hint: 'Higher carbon per seat-km', unit: 'km', type: 'number' },
+            { name: 'International Air — Business / First Class', hint: 'Typically 2–3× economy EF', unit: 'km', type: 'number' },
+        ]},
+        { label: 'Rail Travel', fields: [
+            { name: 'Domestic Rail (Electric)', hint: 'Indian Railways / metro rail', unit: 'km', type: 'number' },
+            { name: 'Domestic Rail (Diesel)', hint: 'Non-electrified route travel', unit: 'km', type: 'number' },
+        ]},
+        { label: 'Road Travel', fields: [
+            { name: 'Taxi / Cab / Ride-Share', hint: 'App-based or traditional taxi', unit: 'km', type: 'number' },
+            { name: 'Rental Car (Petrol / Diesel)', hint: 'Self-drive rentals', unit: 'km', type: 'number' },
+        ]},
+        { label: 'Accommodation', fields: [
+            { name: 'Hotel Nights (Domestic)', hint: 'India hotel stays', unit: 'Nights', type: 'number' },
+            { name: 'Hotel Nights (International)', hint: 'Overseas hotel stays', unit: 'Nights', type: 'number' },
+        ]},
+        { label: 'Summary (Spend-Based Fallback)', fields: [
+            { name: 'Total Travel Spend', hint: 'If activity data not available', unit: '₹ Lakhs', type: 'number' },
+            { name: 'Total Category 6 Emissions (tCO₂e)', hint: 'Enter if already calculated', unit: 'tCO₂e', type: 'number' },
+        ]},
+    ]},
+    '3.7': { sections: [
+        { label: 'Workforce Data', fields: [
+            { name: 'Total Employees (Commuting)', hint: 'Headcount including contract staff', unit: 'Nos', type: 'number' },
+            { name: 'Working Days per Year', hint: 'Adjusted for WFH & leaves', unit: 'Days', type: 'number' },
+        ]},
+        { label: 'Commute Mode Split', fields: [
+            { name: 'Personal Car — Petrol/Diesel (%)', hint: '% of employees commuting by personal car', unit: '%', type: 'number' },
+            { name: 'Two-Wheeler — Petrol (%)', hint: '% using petrol motorcycle/scooter', unit: '%', type: 'number' },
+        ]},
+        { label: 'Public & Shared Transport', fields: [
+            { name: 'Public Bus / Metro / Rail (%)', hint: '% using public transit', unit: '%', type: 'number' },
+            { name: 'Company Shuttle / Bus (%)', hint: '% on company-operated transport', unit: '%', type: 'number' },
+        ]},
+        { label: 'Distance & WFH', fields: [
+            { name: 'Avg One-Way Commute Distance', hint: 'Average per commuting employee', unit: 'km/day', type: 'number' },
+            { name: 'WFH Days per Month (Average)', hint: 'Reduces commuting emissions', unit: 'Days/month', type: 'number' },
+        ]},
+        { label: 'EVs & Active Transport', fields: [
+            { name: 'Electric Vehicle (EV) Commuters (%)', hint: '% using personal EV', unit: '%', type: 'number' },
+            { name: 'Bicycle / Walk (%)', hint: '% using zero-emission active transport', unit: '%', type: 'number' },
+        ]},
+    ]},
+    '3.8': { sections: [
+        { label: 'Leased Asset Type', fields: [
+            { name: 'Asset Type', hint: 'Primary category of upstream leased asset', unit: '', type: 'select',
+              options: ['Office Space / Building','Warehouse / Logistics Facility','Manufacturing / Industrial Facility','Data Centre','Vehicle Fleet (Leased)','Equipment & Machinery (Leased)','Retail Space','Other'] },
+            { name: 'Reporting Approach', hint: 'Lessor-based (Cat 8) vs. operationally controlled', unit: '', type: 'select',
+              options: ['Lessee-based (Cat 8 — lessor controls energy)','Operationally controlled (Scope 1/2 if applicable)'] },
+        ]},
+        { label: 'Energy in Leased Space', fields: [
+            { name: 'Electricity in Leased Assets (kWh)', hint: 'Grid electricity in spaces not under lessee control', unit: 'kWh', type: 'number' },
+            { name: 'Heating / Cooling in Leased Assets (GJ)', hint: 'Thermal energy in leased spaces', unit: 'GJ', type: 'number' },
+        ]},
+        { label: 'Lease Details', fields: [
+            { name: 'Total Leased Area', hint: 'Gross leasable area under lease', unit: 'sq ft', type: 'number' },
+            { name: 'Number of Leased Locations', hint: 'Count of leased premises', unit: 'Nos', type: 'number' },
+        ]},
+    ]},
+    '3.9': { sections: [
+        { label: 'Outbound Transport Mode', fields: [
+            { name: 'Primary Outbound Mode', hint: 'Dominant mode for product distribution', unit: '', type: 'select',
+              options: ['Road — Light Duty Delivery Van','Road — Medium Duty Truck','Road — Heavy Duty Truck','Road — Refrigerated Truck','Rail — Diesel Freight','Rail — Electric Freight','Air — Domestic Cargo','Air — International Cargo','Sea — Container Ship','Sea — Bulk Carrier','Sea — Coastal Shipping','Courier / Last-Mile (Petrol)','Courier / Last-Mile (EV)','Intermodal','Pipeline','Other'] },
+        ]},
+        { label: 'Outbound Freight Activity', fields: [
+            { name: 'Outbound Freight (tonne-km)', hint: 'Weight × distance for all outbound legs', unit: 'tonne-km', type: 'number' },
+            { name: 'Outbound Logistics Spend (₹)', hint: 'If tonne-km data unavailable', unit: '₹ Lakhs', type: 'number' },
+        ]},
+        { label: 'Retail / Warehousing (Operated by Third Parties)', fields: [
+            { name: 'Third-Party Warehouse Energy', hint: 'Energy in distributor-operated warehouses', unit: 'kWh', type: 'number' },
+            { name: 'Retail Store Electricity (Third-Party)', hint: 'Energy at point-of-sale not operated by company', unit: 'kWh', type: 'number' },
+        ]},
+    ]},
+    '3.10': { sections: [
+        { label: 'Sold Products Requiring Further Processing', fields: [
+            { name: 'Processing Type', hint: 'How customers further process your products', unit: '', type: 'select',
+              options: ['Manufacturing / Assembly by Customer','Chemical Processing','Food Processing / Cooking','Refining / Blending','Fabrication / Machining','Packaging / Repackaging','Other'] },
+        ]},
+        { label: 'Activity Data', fields: [
+            { name: 'Volume of Intermediate Products Sold', hint: 'Products sold requiring downstream processing', unit: 'Tonnes', type: 'number' },
+            { name: 'Estimated Processing Energy by Customer', hint: 'Energy intensity of downstream processing', unit: 'GJ/tonne', type: 'number' },
+        ]},
+        { label: 'Emissions Estimate', fields: [
+            { name: 'Category 10 Emissions (tCO₂e)', hint: 'Enter if calculated via industry data', unit: 'tCO₂e', type: 'number' },
+            { name: 'Data Source / Basis', hint: 'Industry average / supplier data / LCA', unit: '', type: 'select', options: ['Industry Average EF','Supplier/Customer Data','LCA Study','Engineering Estimate','Not Applicable'] },
+        ]},
+    ]},
+    '3.11': { sections: [
+        { label: 'Product Category (Use-Phase)', fields: [
+            { name: 'Product Type', hint: 'Category of sold product for use-phase calculation', unit: '', type: 'select',
+              options: ['Energy-Consuming Product (Appliances, Electronics, Machinery)','Fuel-Based Product (Gasoline, Diesel, Gas)','Product Containing GHGs (Refrigerants, Aerosols)','Product Releasing GHGs in Use (Chemicals, Solvents)','Product Requiring Heating / Cooling in Use','Non-Energy Consumer Product','Industrial Intermediate (Cat 10 applies instead)','Other'] },
+        ]},
+        { label: 'Use-Phase Activity', fields: [
+            { name: 'Units of Product Sold (Period)', hint: 'Volume of product sold this reporting period', unit: 'Units', type: 'number' },
+            { name: 'Expected Product Lifetime', hint: 'Average useful life of product in service', unit: 'Years', type: 'number' },
+        ]},
+        { label: 'Energy / Fuel Consumed in Use', fields: [
+            { name: 'Energy Consumption per Unit per Year', hint: 'Annual use-phase energy', unit: 'kWh/unit/yr', type: 'number' },
+            { name: 'Fuel Consumed per Unit per Year', hint: 'For fuel-based products', unit: 'Litres/unit/yr', type: 'number' },
+        ]},
+        { label: 'GHG Released in Use', fields: [
+            { name: 'GHG Content per Unit (if product contains GHG)', hint: 'Refrigerant charge per product', unit: 'Kg/unit', type: 'number' },
+            { name: 'Category 11 Emissions (tCO₂e)', hint: 'Enter if already calculated', unit: 'tCO₂e', type: 'number' },
+        ]},
+    ]},
+    '3.12': { sections: [
+        { label: 'Product EOL Category', fields: [
+            { name: 'Product Category', hint: 'Type of product reaching end-of-life', unit: '', type: 'select',
+              options: ['Consumer Electronics (Phones, Laptops, TVs)','Household Appliances (AC, Washing Machines)','Packaging — Plastic','Packaging — Paper / Cardboard','Packaging — Glass','Packaging — Metal','Industrial Equipment & Machinery','Vehicles & Transport Equipment','Building Materials','Textiles / Garments','Other'] },
+        ]},
+        { label: 'EOL Treatment Mix', fields: [
+            { name: 'To Landfill', hint: 'Disposed in landfill', unit: 'Tonnes', type: 'number' },
+            { name: 'To Incineration (with energy recovery)', hint: 'WtE incineration', unit: 'Tonnes', type: 'number' },
+        ]},
+        { label: 'Recovery & Recycling', fields: [
+            { name: 'Recycled / Component Recovery', hint: 'Material recovery at EOL', unit: 'Tonnes', type: 'number' },
+            { name: 'Composted (Biogenic only)', hint: 'Paper, cardboard, organic packaging', unit: 'Tonnes', type: 'number' },
+        ]},
+        { label: 'Emissions', fields: [
+            { name: 'Volume Sold (for EOL base)', hint: 'Products sold this period reaching EOL', unit: 'Tonnes', type: 'number' },
+            { name: 'Category 12 Emissions (tCO₂e)', hint: 'Enter if calculated', unit: 'tCO₂e', type: 'number' },
+        ]},
+    ]},
+    '3.13': { sections: [
+        { label: 'Leased Asset Type (Downstream)', fields: [
+            { name: 'Downstream Leased Asset', hint: 'Assets owned and leased to others', unit: '', type: 'select',
+              options: ['Real Estate — Office Buildings','Real Estate — Retail / Commercial','Real Estate — Industrial / Warehouse','Real Estate — Residential','Manufacturing Equipment','Vehicles / Fleet (Leased to Customer)','IT / Technology Equipment','Other'] },
+            { name: 'Number of Leased Assets / Tenants', hint: 'Count of lessees / tenants', unit: 'Nos', type: 'number' },
+        ]},
+        { label: 'Lessee Energy Data', fields: [
+            { name: 'Total Leased Area (sq ft)', hint: 'Gross area leased to all tenants', unit: 'sq ft', type: 'number' },
+            { name: 'Lessee Electricity Use (kWh)', hint: 'Energy consumed by lessees', unit: 'kWh', type: 'number' },
+        ]},
+        { label: 'Emissions', fields: [
+            { name: 'Lessee Heating / Cooling (GJ)', hint: 'Thermal energy by lessees', unit: 'GJ', type: 'number' },
+            { name: 'Category 13 Emissions (tCO₂e)', hint: 'Enter if already calculated', unit: 'tCO₂e', type: 'number' },
+        ]},
+    ]},
+    '3.14': { sections: [
+        { label: 'Franchise Type', fields: [
+            { name: 'Franchise Category', hint: 'Type of franchise operations', unit: '', type: 'select',
+              options: ['Restaurant / QSR / Food Service','Retail Store','Service Centre','Hospitality / Hotels','Fuel Station / Petrol Pump','Education / Training','Healthcare','Other'] },
+        ]},
+        { label: 'Franchise Count & Scale', fields: [
+            { name: 'Number of Franchise Outlets', hint: 'Total franchisee locations in period', unit: 'Nos', type: 'number' },
+            { name: 'Average Outlet Area', hint: 'Average floor area per outlet', unit: 'sq ft', type: 'number' },
+        ]},
+        { label: 'Energy Consumption at Franchises', fields: [
+            { name: 'Aggregate Franchise Electricity (kWh)', hint: 'Total grid electricity all outlets', unit: 'kWh', type: 'number' },
+            { name: 'Aggregate Franchise Natural Gas / LPG', hint: 'Cooking & heating fuel at outlets', unit: 'GJ', type: 'number' },
+        ]},
+        { label: 'Franchise Refrigerant & Other', fields: [
+            { name: 'Franchise Refrigerant Refill (kg)', hint: 'If refrigeration at outlets', unit: 'Kg', type: 'number' },
+            { name: 'Category 14 Emissions (tCO₂e)', hint: 'Enter if aggregated from franchisees', unit: 'tCO₂e', type: 'number' },
+        ]},
+    ]},
+    '3.15': { sections: [
+        { label: 'Investment Type', fields: [
+            { name: 'Investment Category', hint: 'Asset class for financed emissions (PCAF)', unit: '', type: 'select',
+              options: ['Listed Equity','Unlisted Equity / Private Equity','Corporate Bonds (Listed)','Corporate Bonds (Unlisted)','Business Loans','Project Finance','Commercial Real Estate (Loan)','Mortgages','Motor Vehicle Loans','Sovereign Bonds','Managed Investments (Funds/ETFs)','Client Services (Facilitated Emissions)','Other'] },
+        ]},
+        { label: 'Investment Value', fields: [
+            { name: 'Outstanding Investment / Loan Value', hint: 'Book value of portfolio for the period', unit: '₹ Cr', type: 'number' },
+            { name: 'Enterprise Value (EVIC) of Investee', hint: 'For equity & bond attribution calculation', unit: '₹ Cr', type: 'number' },
+        ]},
+        { label: 'Attributed Emissions', fields: [
+            { name: 'Investee Absolute Emissions (tCO₂e)', hint: 'Total Scope 1+2 of investee company', unit: 'tCO₂e', type: 'number' },
+            { name: 'Attributed / Financed Emissions (tCO₂e)', hint: '(Investment / EVIC) × Investee Emissions', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'PCAF Data Quality', fields: [
+            { name: 'PCAF Data Quality Score', hint: '1 = Best (audited); 5 = Estimated', unit: '', type: 'select',
+              options: ['1 — Audited company data','2 — Reported but unaudited','3 — Verified sector average','4 — Proxy / modelled','5 — Revenue / spend estimated'] },
+            { name: 'Category 15 Total Emissions (tCO₂e)', hint: 'Aggregate financed emissions this period', unit: 'tCO₂e', type: 'number' },
+        ]},
+    ]},
 
     // ── ENERGY MANAGEMENT (NEW — GreenCo, Green Audit, IGBC) ──
     'EN.1': { sections: [
@@ -1492,12 +2382,35 @@ function buildFormFields(subId) {
         </div>`;
     }
 
+    // Entry method toggle (cost vs quantity, or fuel vs distance)
+    if (def.entryToggle) {
+        const labels = def.entryToggleLabels || ['⛽ Actual Quantity', '₹ Cost-Based'];
+        html += `<div class="entry-method-wrap">
+            <span class="entry-method-label">Entry Method</span>
+            <div class="entry-method-opts">
+                <label class="entry-method-opt active" id="em-qty-${subId}">
+                    <input type="radio" name="em-${subId}" value="qty" checked onchange="switchEntryMethod('${subId}','qty')">
+                    ${labels[0]}
+                </label>
+                <label class="entry-method-opt" id="em-cost-${subId}">
+                    <input type="radio" name="em-${subId}" value="cost" onchange="switchEntryMethod('${subId}','cost')">
+                    ${labels[1]}
+                </label>
+            </div>
+        </div>`;
+    }
+
     def.sections.forEach(sec => {
+        if (sec.groupHeader) {
+            html += `<div class="form-group-header">${sec.groupHeader}</div>`;
+            return;
+        }
         if (sec.label) html += `<div class="form-section-label">${sec.label}</div>`;
         html += '<div class="field-row">';
         sec.fields.forEach(f => {
+            const methodClass = f.method ? ` method-${f.method}` : '';
             if (f.type === 'select') {
-                html += `<div class="field-group">
+                html += `<div class="field-group${methodClass}">
                     <label class="field-label">${f.name}</label>
                     ${f.hint ? `<span class="field-hint">${f.hint}</span>` : ''}
                     <div class="input-wrap">
@@ -1508,7 +2421,7 @@ function buildFormFields(subId) {
                     </div>
                 </div>`;
             } else {
-                html += `<div class="field-group">
+                html += `<div class="field-group${methodClass}">
                     <label class="field-label">${f.name}</label>
                     ${f.hint ? `<span class="field-hint">${f.hint}</span>` : ''}
                     <div class="input-wrap">
@@ -1527,8 +2440,22 @@ function buildFormFields(subId) {
     </div></div>`;
 
     body.innerHTML = html;
+    // Apply initial toggle state after render
+    if (def.entryToggle) switchEntryMethod(subId, 'qty');
     body.classList.add('anim-in');
     setTimeout(() => body.classList.remove('anim-in'), 350);
+}
+
+function switchEntryMethod(subId, method) {
+    const body = document.getElementById('formPanelBody');
+    // Update pill button styles
+    const qtyBtn = document.getElementById(`em-qty-${subId}`);
+    const costBtn = document.getElementById(`em-cost-${subId}`);
+    if (qtyBtn) qtyBtn.classList.toggle('active', method === 'qty');
+    if (costBtn) costBtn.classList.toggle('active', method === 'cost');
+    // Show/hide fields by method class
+    body.querySelectorAll('.method-qty').forEach(el => el.classList.toggle('method-hidden', method !== 'qty'));
+    body.querySelectorAll('.method-cost').forEach(el => el.classList.toggle('method-hidden', method !== 'cost'));
 }
 
 // ═══════════════════ ACTIONS ═══════════════════
