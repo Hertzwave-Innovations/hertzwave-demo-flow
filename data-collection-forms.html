@@ -610,7 +610,77 @@
         }
         .method-hidden { display: none !important; }
 
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        /* ── FUEL / VEHICLE GROUP FILTER TABS ── */
+        .fuel-group-tabs {
+            display: flex; align-items: center; gap: 0.35rem;
+            flex-wrap: wrap;
+            padding: 0.55rem 0.75rem;
+            background: var(--hz-primary-25);
+            border: 1px solid var(--stroke-light);
+            border-radius: var(--radius-md);
+            margin-bottom: 0.85rem;
+        }
+        .fuel-group-label {
+            font-size: 0.68rem; font-weight: 700; color: var(--subtle);
+            text-transform: uppercase; letter-spacing: 0.5px;
+            white-space: nowrap; margin-right: 0.3rem;
+        }
+        .fgt-btn {
+            padding: 0.28rem 0.75rem;
+            border: 1.5px solid var(--stroke);
+            border-radius: 20px;
+            font-size: 0.74rem; font-weight: 600;
+            cursor: pointer; transition: all .15s;
+            background: #fff; color: var(--subtle);
+            font-family: inherit; line-height: 1.5;
+        }
+        .fgt-btn.active {
+            border-color: var(--hz-primary);
+            background: var(--hz-primary);
+            color: #fff;
+        }
+        .fgt-btn:hover:not(.active) {
+            border-color: var(--hz-primary);
+            color: var(--hz-primary);
+        }
+        .fuel-group-block { }
+        .fuel-group-block.hidden { display: none !important; }
+
+        /* ── PER-ENTRY SUPPLIER STRIP ── */
+        .supplier-strip {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr 1.6fr;
+            gap: 0.5rem;
+            padding: 0.45rem 0.65rem 0.6rem;
+            background: #f0f6f1;
+            border-radius: var(--radius-sm);
+            border: 1px dashed #bfd4c4;
+            margin-top: -0.45rem;
+            margin-bottom: 1rem;
+        }
+        .supplier-strip .ss-field {
+            display: flex; flex-direction: column; gap: 2px;
+        }
+        .supplier-strip .ss-label {
+            font-size: 0.61rem; font-weight: 700;
+            color: var(--hz-primary); text-transform: uppercase; letter-spacing: 0.4px;
+        }
+        .supplier-strip input {
+            width: 100%;
+            padding: 0.28rem 0.5rem;
+            border: 1px solid var(--stroke);
+            border-radius: var(--radius-sm);
+            font-family: inherit; font-size: 0.78rem;
+            color: var(--ink); background: #fff;
+            transition: border-color .15s;
+        }
+        .supplier-strip input:focus {
+            outline: none;
+            border-color: var(--hz-primary);
+            box-shadow: 0 0 0 2px rgba(74,124,89,0.1);
+        }
+
+                @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .anim-in { animation: fadeUp .3s ease forwards; }
     </style>
 </head>
@@ -940,9 +1010,9 @@ const FF = {
 
     // 1.1 Stationary Combustion — Comprehensive GHG Protocol fuel list
     // Entry toggle: Actual Quantity (default) | Cost-Based
-    '1.1': { materialRow: true, entryToggle: true, sections: [
+    '1.1': { fuelGroupTabs: true, perEntrySupplier: true, entryToggle: true, sections: [
         // ── SOLID FUELS ──
-        { groupHeader: '🪨 Solid Fuels' },
+        { groupHeader: '🪨 Solid Fuels', groupId: 'solid' },
         { label: 'Anthracite Coal', fields: [
             { name: 'Anthracite Coal — Quantity', hint: 'High-rank coal, boilers & furnaces', unit: 'Tonnes', type: 'number', method: 'qty' },
             { name: 'Anthracite Coal — Cost', hint: 'Total purchase cost incl. taxes', unit: '₹', type: 'number', method: 'cost' },
@@ -989,7 +1059,7 @@ const FF = {
         ]},
 
         // ── LIQUID FUELS ──
-        { groupHeader: '🛢️ Liquid Fuels' },
+        { groupHeader: '🛢️ Liquid Fuels', groupId: 'liquid' },
         { label: 'High Speed Diesel (HSD)', fields: [
             { name: 'HSD — Quantity', hint: 'DG sets, boilers, industrial heaters', unit: 'Litres', type: 'number', method: 'qty' },
             { name: 'HSD — Cost', hint: 'Total fuel purchase cost', unit: '₹', type: 'number', method: 'cost' },
@@ -1032,7 +1102,7 @@ const FF = {
         ]},
 
         // ── GASEOUS FUELS ──
-        { groupHeader: '💨 Gaseous Fuels' },
+        { groupHeader: '💨 Gaseous Fuels', groupId: 'gas' },
         { label: 'Natural Gas (Piped PNG)', fields: [
             { name: 'Natural Gas — Quantity', hint: 'Boilers, heating, process equipment', unit: 'm³', type: 'number', method: 'qty' },
             { name: 'Natural Gas — Cost', hint: 'Invoice amount incl. taxes', unit: '₹', type: 'number', method: 'cost' },
@@ -1077,8 +1147,8 @@ const FF = {
 
     // 1.2 Mobile Combustion — GHG Protocol all fuel/distance options
     // Toggle: Fuel Quantity | Distance Travelled
-    '1.2': { entryToggle: true, entryToggleLabels: ['⛽ Fuel Quantity', '📍 Distance Travelled'], sections: [
-        { groupHeader: '🚗 Passenger Cars' },
+    '1.2': { perEntrySupplier: true, vehicleGroupTabs: true, entryToggle: true, entryToggleLabels: ['⛽ Fuel Quantity', '📍 Distance Travelled'], sections: [
+        { groupHeader: '🚗 Passenger Cars', groupId: 'personal' },
         { label: 'Small Car — Petrol (≤1400cc)', fields: [
             { name: 'Small Petrol Car — Count', hint: 'Company-owned small petrol cars; DEFRA small petrol car EF applied', unit: 'Nos', type: 'number' },
             { name: 'Small Petrol Car — Fuel', hint: 'Total petrol consumed', unit: 'Litres', type: 'number', method: 'qty' },
@@ -1134,7 +1204,7 @@ const FF = {
             { name: 'Hybrid Car — Petrol Consumed', hint: 'Petrol fraction only; EV charging kWh goes to Scope 2', unit: 'Litres', type: 'number', method: 'qty' },
             { name: 'Hybrid Car — Total Distance', hint: 'Full distance; apply petrol/electric split for Scope 1 vs Scope 2', unit: 'km', type: 'number', method: 'cost' },
         ]},
-        { groupHeader: '🛵 Two-Wheelers' },
+        { groupHeader: '🛵 Two-Wheelers', groupId: 'personal' },
         { label: 'Motorcycle / Scooter — Petrol', fields: [
             { name: 'Petrol Two-Wheeler — Count', hint: 'Company-owned petrol motorcycles and scooters', unit: 'Nos', type: 'number' },
             { name: 'Petrol Two-Wheeler — Fuel', hint: 'Total petrol consumed', unit: 'Litres', type: 'number', method: 'qty' },
@@ -1144,7 +1214,7 @@ const FF = {
             { name: 'Electric Two-Wheeler — Count', hint: 'Company-owned electric scooters and bikes; zero combustion = zero Scope 1', unit: 'Nos', type: 'number' },
             { name: 'Electric Two-Wheeler — Scope Classification', hint: 'Zero Scope 1. Enter kWh charging consumption in Scope 2 (Purchased Electricity).', unit: '', type: 'select', options: ['Zero Scope 1 — kWh entered in Scope 2','Zero Scope 1 — kWh not yet captured','Not applicable'] },
         ]},
-        { groupHeader: '🛺 Three-Wheelers / Auto-Rickshaws' },
+        { groupHeader: '🛺 Three-Wheelers / Auto-Rickshaws', groupId: 'personal' },
         { label: 'Three-Wheeler — CNG', fields: [
             { name: 'CNG Three-Wheeler — Count', hint: 'Company-owned CNG auto-rickshaws or delivery three-wheelers', unit: 'Nos', type: 'number' },
             { name: 'CNG Three-Wheeler — Fuel', hint: 'Total CNG consumed', unit: 'Kg', type: 'number', method: 'qty' },
@@ -1159,7 +1229,7 @@ const FF = {
             { name: 'Electric Three-Wheeler — Count', hint: 'Company-owned e-rickshaws; zero combustion = zero Scope 1', unit: 'Nos', type: 'number' },
             { name: 'Electric Three-Wheeler — Scope Classification', hint: 'Zero Scope 1. Enter kWh charging consumption in Scope 2 (Purchased Electricity).', unit: '', type: 'select', options: ['Zero Scope 1 — kWh entered in Scope 2','Zero Scope 1 — kWh not yet captured','Not applicable'] },
         ]},
-        { groupHeader: '🚐 Vans & Light Commercial Vehicles (LCV, <3.5t GVW)' },
+        { groupHeader: '🚐 Vans & Light Commercial Vehicles (LCV, <3.5t GVW)', groupId: 'commercial' },
         { label: 'Van / LCV — Petrol', fields: [
             { name: 'Petrol Van / LCV — Count', hint: 'Company-owned petrol vans and light commercials', unit: 'Nos', type: 'number' },
             { name: 'Petrol Van / LCV — Fuel', hint: 'Total petrol consumed', unit: 'Litres', type: 'number', method: 'qty' },
@@ -1175,19 +1245,19 @@ const FF = {
             { name: 'CNG Van / LCV — Fuel', hint: 'Total CNG consumed', unit: 'Kg', type: 'number', method: 'qty' },
             { name: 'CNG Van / LCV — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
         ]},
-        { groupHeader: '🚚 Medium Commercial Vehicles (MCV, 3.5–12t GVW)' },
+        { groupHeader: '🚚 Medium Commercial Vehicles (MCV, 3.5–12t GVW)', groupId: 'commercial' },
         { label: 'MCV — Diesel', fields: [
             { name: 'Diesel MCV — Count', hint: 'Company-owned medium trucks (3.5–12t)', unit: 'Nos', type: 'number' },
             { name: 'Diesel MCV — Fuel', hint: 'Total diesel consumed', unit: 'Litres', type: 'number', method: 'qty' },
             { name: 'Diesel MCV — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
         ]},
-        { groupHeader: '🚛 Heavy Commercial Vehicles — Rigid (HCV Rigid, >12t GVW)' },
+        { groupHeader: '🚛 Heavy Commercial Vehicles — Rigid (HCV Rigid, >12t GVW)', groupId: 'commercial' },
         { label: 'HCV Rigid — Diesel', fields: [
             { name: 'Rigid HCV — Count', hint: 'Company-owned rigid heavy trucks (non-articulated)', unit: 'Nos', type: 'number' },
             { name: 'Rigid HCV — Fuel', hint: 'Total diesel consumed', unit: 'Litres', type: 'number', method: 'qty' },
             { name: 'Rigid HCV — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
         ]},
-        { groupHeader: '🚛 Heavy Commercial Vehicles — Articulated (Tractor-Trailer)' },
+        { groupHeader: '🚛 Heavy Commercial Vehicles — Articulated (Tractor-Trailer)', groupId: 'commercial' },
         { label: 'Articulated HCV — Diesel', fields: [
             { name: 'Articulated HCV — Count', hint: 'Company-owned tractor-trailer units; separate EF from rigid HCV', unit: 'Nos', type: 'number' },
             { name: 'Articulated HCV — Fuel', hint: 'Total diesel consumed (laden and unladen)', unit: 'Litres', type: 'number', method: 'qty' },
@@ -1198,7 +1268,7 @@ const FF = {
             { name: 'LNG Articulated HCV — Fuel', hint: 'Total LNG consumed', unit: 'Kg', type: 'number', method: 'qty' },
             { name: 'LNG Articulated HCV — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
         ]},
-        { groupHeader: '❄️ Refrigerated Trucks (Reefer Vehicles)' },
+        { groupHeader: '❄️ Refrigerated Trucks (Reefer Vehicles)', groupId: 'commercial' },
         { label: 'Reefer Truck — Traction Engine (Diesel)', fields: [
             { name: 'Reefer Truck — Count', hint: 'Company-owned refrigerated trucks', unit: 'Nos', type: 'number' },
             { name: 'Reefer Traction — Fuel', hint: 'Diesel for driving the vehicle only', unit: 'Litres', type: 'number', method: 'qty' },
@@ -1208,7 +1278,7 @@ const FF = {
             { name: 'TRU Diesel — Fuel', hint: 'Diesel for the reefer/TRU engine; separate from traction; always record', unit: 'Litres', type: 'number' },
             { name: 'TRU — Operating Hours', hint: 'Refrigeration unit running hours (alternative to fuel if metered)', unit: 'Hours', type: 'number' },
         ]},
-        { groupHeader: '🚌 Buses (Employee / School / Intercity)' },
+        { groupHeader: '🚌 Buses (Employee / School / Intercity)', groupId: 'commercial' },
         { label: 'Bus — Diesel', fields: [
             { name: 'Diesel Bus — Count', hint: 'Company-owned / operated diesel buses', unit: 'Nos', type: 'number' },
             { name: 'Diesel Bus — Fuel', hint: 'Total diesel consumed by diesel bus fleet', unit: 'Litres', type: 'number', method: 'qty' },
@@ -1223,7 +1293,7 @@ const FF = {
             { name: 'Electric Bus — Count', hint: 'Company-owned electric buses; zero combustion = zero Scope 1', unit: 'Nos', type: 'number' },
             { name: 'Electric Bus — Scope Classification', hint: 'Zero Scope 1. Enter kWh charging consumption in Scope 2 (Purchased Electricity).', unit: '', type: 'select', options: ['Zero Scope 1 — kWh entered in Scope 2','Zero Scope 1 — kWh not yet captured','Not applicable'] },
         ]},
-        { groupHeader: '⚙️ Off-Road & Material Handling Equipment' },
+        { groupHeader: '⚙️ Off-Road & Material Handling Equipment', groupId: 'offroad' },
         { label: 'Forklift — Diesel', fields: [
             { name: 'Diesel Forklift — Count', hint: 'Company-owned diesel forklifts and reach stackers', unit: 'Nos', type: 'number' },
             { name: 'Diesel Forklift — Fuel', hint: 'Total diesel consumed', unit: 'Litres', type: 'number', method: 'qty' },
@@ -1248,7 +1318,7 @@ const FF = {
             { name: 'Agricultural Equipment — Fuel', hint: 'Total diesel consumed', unit: 'Litres', type: 'number', method: 'qty' },
             { name: 'Agricultural Equipment — Hours', hint: 'Total operational hours', unit: 'Hours', type: 'number', method: 'cost' },
         ]},
-        { groupHeader: '♻️ Alternative Fuel Vehicles (Any Vehicle Type — Record by Fuel)' },
+        { groupHeader: '♻️ Alternative Fuel Vehicles (Any Vehicle Type — Record by Fuel)', groupId: 'offroad' },
         { label: 'Biodiesel B20 Fleet', fields: [
             { name: 'Biodiesel B20 — Vehicle Count', hint: 'Vehicles running on 20% biodiesel blend across all vehicle types', unit: 'Nos', type: 'number' },
             { name: 'Biodiesel B20 — Fuel Consumed', hint: '20% biodiesel blend; fossil fraction (80%) drives Scope 1 EF', unit: 'Litres', type: 'number', method: 'qty' },
@@ -1269,12 +1339,12 @@ const FF = {
             { name: 'H₂ FCEV — Hydrogen Consumed', hint: 'kg H₂ consumed; zero Scope 1 CO₂ at point of use (grey/green H₂ upstream = Scope 3 Cat 3.3)', unit: 'Kg', type: 'number', method: 'qty' },
             { name: 'H₂ FCEV — Distance', hint: 'Total km driven', unit: 'km', type: 'number', method: 'cost' },
         ]},
-        { groupHeader: '⚡ Electric Vehicles — Scope Classification Note' },
+        { groupHeader: '⚡ Electric Vehicles — Scope Classification Note', groupId: 'offroad' },
         { label: 'EV Fleet — Total Count & Scope Confirmation', fields: [
             { name: 'Total EV Fleet Count (All EV Types)', hint: 'Cars, two-wheelers, three-wheelers, buses, forklifts — aggregate count for disclosure', unit: 'Nos', type: 'number' },
             { name: 'EV Scope 1 Status', hint: 'Electric vehicles produce ZERO Scope 1 emissions. kWh charging consumption must be entered in Scope 2 (Purchased Electricity).', unit: '', type: 'select', options: ['Confirmed — Zero Scope 1; kWh captured in Scope 2','EVs present but kWh not yet captured in Scope 2','No EVs in fleet'] },
         ]},
-        { groupHeader: '📊 Fleet Summary' },
+        { groupHeader: '📊 Fleet Summary', groupId: 'summary' },
         { label: 'Total Fleet Count & Distance', fields: [
             { name: 'Total Fleet Count — All Vehicle Types', hint: 'Sum of all company-owned & operated vehicles including EVs', unit: 'Nos', type: 'number' },
             { name: 'Total Combustion Fleet Distance', hint: 'Aggregate km for all fuel-burning vehicles; exclude EVs', unit: 'km', type: 'number', method: 'cost' },
@@ -1291,7 +1361,7 @@ const FF = {
 
     // 1.3 Fugitive Emissions — Full GHG Protocol refrigerant list
 
-    '1.3': { sections: [
+    '1.3': { perEntrySupplier: true, sections: [
         { label: 'Refrigerant Category', fields: [
             { name: 'Gas Category', hint: 'Select the refrigerant family', unit: '', type: 'select',
               options: ['CFCs — Chlorofluorocarbons','HCFCs — Hydrochlorofluorocarbons','HFCs — Hydrofluorocarbons','HFOs — Hydrofluoroolefins','PFCs — Perfluorocarbons','Blends — Azeotropic','Blends — Zeotropic','SF₆ — Sulphur Hexafluoride','NF₃ — Nitrogen Trifluoride','NH₃ — Ammonia (natural)','CO₂ — Carbon Dioxide (natural)','HC — Hydrocarbons (natural)','Other'] },
@@ -1490,7 +1560,7 @@ const FF = {
     // ═══════════════════════════════════════════════════
     // SCOPE 3 — VALUE CHAIN EMISSIONS (ALL 15 CATEGORIES)
     // ═══════════════════════════════════════════════════
-    '3.1': { sections: [
+    '3.1': { perEntrySupplier: true, sections: [
         { label: 'Calculation Approach', fields: [
             { name: 'Calculation Method', hint: 'Spend-based is default; primary data preferred', unit: '', type: 'select',
               options: ['Spend-based (EEIO factors)','Supplier-Specific Primary Data','Hybrid (Spend + Activity)','Life Cycle Assessment (LCA) Data'] },
@@ -1611,7 +1681,7 @@ const FF = {
               options: ['A — Upstream Fuels (WTT)','B — Upstream Electricity (T&D + Generation Fuel)','C — Upstream Steam & Heat','D — Upstream Cooling'] },
         ]},
     ]},
-    '3.4': { sections: [
+    '3.4': { perEntrySupplier: true, sections: [
         { label: 'Transport Mode', fields: [
             { name: 'Primary Inbound Mode', hint: 'Dominant mode for upstream transport', unit: '', type: 'select',
               options: ['Road — Light Duty Truck','Road — Medium Duty Truck','Road — Heavy Duty Truck','Road — Refrigerated Truck','Rail — Diesel Freight','Rail — Electric Freight','Air — Domestic Cargo','Air — International Cargo','Sea — Container Ship','Sea — Bulk Carrier','Sea — Tanker','Sea — Coastal Barge','Pipeline','Intermodal (Road + Rail)','Intermodal (Road + Sea)','Other'] },
@@ -1764,7 +1834,7 @@ const FF = {
             { name: 'Number of Leased Locations', hint: 'Count of leased premises', unit: 'Nos', type: 'number' },
         ]},
     ]},
-    '3.9': { sections: [
+    '3.9': { perEntrySupplier: true, sections: [
         { label: 'Outbound Transport Mode', fields: [
             { name: 'Primary Outbound Mode', hint: 'Dominant mode for product distribution', unit: '', type: 'select',
               options: ['Road — Light Duty Delivery Van','Road — Medium Duty Truck','Road — Heavy Duty Truck','Road — Refrigerated Truck','Rail — Diesel Freight','Rail — Electric Freight','Air — Domestic Cargo','Air — International Cargo','Sea — Container Ship','Sea — Bulk Carrier','Sea — Coastal Shipping','Courier / Last-Mile (Petrol)','Courier / Last-Mile (EV)','Intermodal','Pipeline','Other'] },
@@ -2365,6 +2435,14 @@ function selectSubcat(subId) {
     buildFormFields(subId);
 }
 
+function supplierStripHTML(codePh) {
+    return `<div class="supplier-strip">
+        <div class="ss-field"><span class="ss-label">Material Code</span><input type="text" placeholder="${codePh ? 'e.g., ' + codePh + '-001' : 'e.g., MAT-001'}"></div>
+        <div class="ss-field"><span class="ss-label">Supplier ID</span><input type="text" placeholder="e.g., SUPP-001"></div>
+        <div class="ss-field"><span class="ss-label">Supplier Name</span><input type="text" placeholder="e.g., GAIL India Ltd"></div>
+    </div>`;
+}
+
 function buildFormFields(subId) {
     const body = document.getElementById('formPanelBody');
     const def = FF[subId];
@@ -2374,15 +2452,29 @@ function buildFormFields(subId) {
     }
 
     let html = '';
-    if (def.materialRow) {
-        html += `<div class="material-row">
-            <div class="field-group"><label class="field-label" style="font-size:0.72rem;">Material Code</label><div class="input-wrap"><input type="text" placeholder="e.g., FUEL-NG-001"></div></div>
-            <div class="field-group"><label class="field-label" style="font-size:0.72rem;">Supplier ID</label><div class="input-wrap"><input type="text" placeholder="e.g., SUPP-001"></div></div>
-            <div class="field-group"><label class="field-label" style="font-size:0.72rem;">Supplier Name</label><div class="input-wrap"><input type="text" placeholder="e.g., GAIL India Ltd"></div></div>
+
+    // Group filter tabs — fuel groups (1.1) and vehicle groups (1.2)
+    if (def.fuelGroupTabs) {
+        html += `<div class="fuel-group-tabs">
+            <span class="fuel-group-label">Fuel group:</span>
+            <button class="fgt-btn active" onclick="filterFuelGroup('solid',this)">🪨 Solid</button>
+            <button class="fgt-btn" onclick="filterFuelGroup('liquid',this)">🛢️ Liquid</button>
+            <button class="fgt-btn" onclick="filterFuelGroup('gas',this)">💨 Gaseous</button>
+            <button class="fgt-btn" onclick="filterFuelGroup('all',this)">☰ All</button>
+        </div>`;
+    }
+    if (def.vehicleGroupTabs) {
+        html += `<div class="fuel-group-tabs">
+            <span class="fuel-group-label">Vehicle type:</span>
+            <button class="fgt-btn active" onclick="filterFuelGroup('personal',this)">🚗 Personal</button>
+            <button class="fgt-btn" onclick="filterFuelGroup('commercial',this)">🚛 Commercial</button>
+            <button class="fgt-btn" onclick="filterFuelGroup('offroad',this)">⚙️ Off-Road & Alt</button>
+            <button class="fgt-btn" onclick="filterFuelGroup('summary',this)">📊 Summary</button>
+            <button class="fgt-btn" onclick="filterFuelGroup('all',this)">☰ All</button>
         </div>`;
     }
 
-    // Entry method toggle (cost vs quantity, or fuel vs distance)
+    // Entry method toggle
     if (def.entryToggle) {
         const labels = def.entryToggleLabels || ['⛽ Actual Quantity', '₹ Cost-Based'];
         html += `<div class="entry-method-wrap">
@@ -2400,8 +2492,18 @@ function buildFormFields(subId) {
         </div>`;
     }
 
+    // Sections
+    let currentGroupId = null;
     def.sections.forEach(sec => {
         if (sec.groupHeader) {
+            const hasTabs = def.fuelGroupTabs || def.vehicleGroupTabs;
+            if (hasTabs && currentGroupId !== null) html += '</div>'; // close previous block
+            currentGroupId = sec.groupId || null;
+            if (hasTabs && currentGroupId) {
+                const defaultGroup = def.fuelGroupTabs ? 'solid' : 'personal';
+                const hidden = currentGroupId !== defaultGroup ? ' hidden' : '';
+                html += `<div class="fuel-group-block${hidden}" data-fuelgroup="${currentGroupId}">`;
+            }
             html += `<div class="form-group-header">${sec.groupHeader}</div>`;
             return;
         }
@@ -2432,7 +2534,16 @@ function buildFormFields(subId) {
             }
         });
         html += '</div>';
+        // Per-section supplier strip
+        if (def.perEntrySupplier && sec.label && !sec.noSupplier) {
+            const words = sec.label.replace(/[^A-Za-z0-9 ]/g, '').split(' ');
+            const codePh = words[0].toUpperCase().slice(0, 6);
+            html += supplierStripHTML(codePh);
+        }
     });
+
+    // Close last fuel-group-block
+    if (def.fuelGroupTabs && currentGroupId !== null) html += '</div>';
 
     html += `<div class="field-row-1" style="margin-top:0.5rem;"><div class="field-group">
         <label class="field-label">Notes & Methodology</label>
@@ -2440,10 +2551,21 @@ function buildFormFields(subId) {
     </div></div>`;
 
     body.innerHTML = html;
-    // Apply initial toggle state after render
     if (def.entryToggle) switchEntryMethod(subId, 'qty');
     body.classList.add('anim-in');
     setTimeout(() => body.classList.remove('anim-in'), 350);
+}
+
+function filterFuelGroup(group, btn) {
+    document.querySelectorAll('.fgt-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.fuel-group-block').forEach(el => {
+        if (group === 'all' || el.dataset.fuelgroup === group) {
+            el.classList.remove('hidden');
+        } else {
+            el.classList.add('hidden');
+        }
+    });
 }
 
 function switchEntryMethod(subId, method) {
