@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RUA Green Audit Tool v2 — SustaiNex</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#F4F6F4;--sf:#FFF;--sa:#F7F9F7;--bd:#DDE4DD;--bl:#EBF0EB;--ink:#111;--k2:#4B5563;--mt:#9CA3AF;--rd:#1E3A14;--rm:#2E5A1E;--rg:#3E7A2A;--rl:#7EC228;--rll:#C8E8A0;--r50:#EDF7E0;--fn:'DM Sans',system-ui,sans-serif;--mo:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fn);background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+.hdr{background:linear-gradient(135deg,#1E3A14 0%,#2A4F18 55%,#1A3345 100%);position:fixed;top:0;left:0;right:0;z-index:100;border-bottom:2px solid #3E7A2A;height:60px}
+.hdr-in{padding:0 22px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px}
+.blogo{width:40px;height:40px;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.blogo img{width:37px;height:37px;object-fit:contain}
+.bt1{font-size:14px;font-weight:700;color:#fff}.bt2{font-size:8px;color:#A8D898;font-weight:600;letter-spacing:1.2px;text-transform:uppercase}
+.hdr-r{display:flex;align-items:center;gap:8px}
+.hpill{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:4px 12px;font-size:10px;color:#C0D8B0;display:flex;align-items:center;gap:5px}
+.hpill strong{font-size:14px;color:#A0E060;font-family:var(--mo)}
+.hchip{background:rgba(62,122,42,.3);border:1px solid rgba(126,194,40,.35);border-radius:4px;padding:3px 9px;font-size:8px;color:#A8D898;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.hchip2{background:rgba(29,78,216,.3);border:1px solid rgba(96,165,250,.35);border-radius:4px;padding:3px 9px;font-size:8px;color:#BAD4F8;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.sb{width:230px;background:#fff;border-right:1px solid var(--bd);padding:.8rem 0;position:fixed;left:0;top:60px;bottom:0;overflow-y:auto;z-index:50}
+.sbi{display:flex;align-items:center;padding:.6rem 1rem;color:#22302A;border-left:3px solid transparent;gap:9px;cursor:pointer;background:none;border-top:none;border-right:none;border-bottom:none;width:100%;font-family:var(--fn);font-size:.76rem;text-align:left;transition:all .15s}
+.sbi:hover{background:#E9F1E9;color:#3E7A2A}.sbi.active{background:#EDF5E8;color:#2E5A1E;border-left-color:#3E7A2A;font-weight:600}
+.sbn{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;background:#E5E9E5;color:#5B6E54;flex-shrink:0;font-family:var(--mo);transition:all .15s}
+.sbi.active .sbn{background:#3E7A2A;color:#fff}
+.sbdiv{height:1px;background:var(--bd);margin:.4rem 1rem .7rem}
+.sbpw{padding:0 1rem .8rem}.sbpb{height:4px;background:#E5E9E5;border-radius:2px;overflow:hidden;margin-top:4px}
+.sbpf{height:100%;background:linear-gradient(90deg,#3E7A2A,#7EC228);border-radius:2px;transition:width .4s}
+.sbpt{font-size:8px;color:var(--mt);font-family:var(--mo)}
+.sbst{padding:0 1rem .4rem;font-size:.63rem;font-weight:700;color:#5B6E54;text-transform:uppercase;letter-spacing:.5px}
+.main{max-width:1060px;margin:0 auto;padding:18px 20px 60px;margin-left:230px;margin-top:60px}
+.sec{display:none}.sec.active{display:block}
+@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.wfb{display:flex;background:var(--sf);border-radius:12px;border:1px solid var(--bd);padding:4px;margin-bottom:16px;overflow-x:auto}
+.wfs{flex:1;display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:8px;min-width:70px;cursor:pointer;transition:background .15s}
+.wfs:hover{background:rgba(62,122,42,.06)}.wfs.active{background:var(--r50)}
+.wfn{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;font-family:var(--mo);background:var(--bd);color:var(--mt);flex-shrink:0;transition:all .15s}
+.wfs.active .wfn{background:#3E7A2A;color:#fff}.wfs.done .wfn{background:#7EC228;color:#fff}
+.wfl{font-size:10px;font-weight:600;color:var(--k2)}.wfs.active .wfl{color:#3E7A2A;font-weight:700}.wfs-s{font-size:8px;color:var(--mt)}
+.card{background:var(--sf);border-radius:12px;border:1px solid var(--bd);box-shadow:0 1px 2px rgba(0,0,0,.04);overflow:hidden;margin-bottom:12px;animation:fu .25s ease both}
+.ch{padding:10px 14px;border-bottom:1px solid var(--bl);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ct{font-size:12px;font-weight:700}.cb{padding:14px}
+.fg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:11px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:11px}
+.fg4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:11px}
+.fl{display:block;font-size:9px;font-weight:700;color:var(--k2);text-transform:uppercase;letter-spacing:.7px;margin-bottom:3px}
+.fi{width:100%;padding:7px 10px;font-size:12px;border:1px solid var(--bd);border-radius:6px;background:var(--sf);font-family:var(--fn);outline:none;color:var(--ink);transition:border-color .15s}
+.fi:focus{border-color:var(--rg);box-shadow:0 0 0 2px rgba(62,122,42,.08)}
+.fi.auto-inp,.fi.locked{background:#EFF6FF;color:#1D4ED8;border-color:#BFDBFE;cursor:default}
+.fsel{width:100%;padding:7px 10px;font-size:12px;border:1px solid var(--bd);border-radius:6px;background:var(--sf);font-family:var(--fn);outline:none;color:var(--ink);cursor:pointer}
+.fsel:focus{border-color:var(--rg)}.fh{font-size:9px;color:var(--mt);margin-top:2px;line-height:1.3}
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:.4px;text-transform:uppercase}
+.tg{background:var(--rll);color:var(--rd)}.to{background:#FFF7ED;color:#C05621}.tb{background:#EFF6FF;color:#1D4ED8}.tr{background:#FEF2F2;color:#B91C1C}
+.ib{padding:7px 11px;background:var(--r50);border:1px solid var(--rll);border-radius:6px;font-size:11px;color:#2E5A1E;margin-bottom:11px}
+.pb{padding:7px 11px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:6px;font-size:11px;color:#1D4ED8;margin-bottom:11px}
+.wb{padding:7px 11px;background:#FEF3C7;border:1px solid #FDE68A;border-radius:6px;font-size:11px;color:#78350F;margin-bottom:11px}
+.il{display:grid;grid-template-columns:188px 1fr;gap:12px;align-items:start}
+.inav{position:sticky;top:84px}
+.inn{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:6px;border:none;cursor:pointer;font-size:10px;font-weight:500;font-family:var(--fn);color:var(--k2);background:transparent;text-align:left;border-left:3px solid transparent;transition:all .15s;width:100%}
+.inn:hover{background:var(--sa)}.inn.active{font-weight:700;background:var(--r50);border-left-color:var(--rg);color:var(--rg)}
+.iic{font-size:12px;flex-shrink:0}.iip{font-size:8px;color:var(--mt);font-family:var(--mo);font-weight:600;margin-left:auto}
+.ipts{font-size:8px;font-family:var(--mo);font-weight:700;color:var(--rg);margin-left:2px}
+.sp{display:none}.sp.active{display:block}.dp{display:none}.dp.active{display:block}
+.gh{font-size:9px;font-weight:700;color:var(--rm);text-transform:uppercase;letter-spacing:.8px;margin:11px 0 6px;display:flex;align-items:center;gap:7px}
+.gh::after{content:'';flex:1;height:1px;background:var(--bl)}
+.yn-w{display:flex;gap:5px}
+.yn-b{flex:1;padding:7px;border:1.5px solid var(--bd);border-radius:7px;cursor:pointer;font-size:11px;font-weight:600;font-family:var(--fn);background:#fff;transition:all .15s;text-align:center}
+.yn-b:hover{border-color:var(--rl)}.yn-b.sy{border-color:var(--rg);background:var(--r50);color:var(--rd)}.yn-b.sn{border-color:#EF4444;background:#FEF2F2;color:#B91C1C}
+.msw{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.msb{padding:5px 10px;border:1.5px solid var(--bd);border-radius:5px;cursor:pointer;font-size:11px;font-weight:500;font-family:var(--fn);background:#fff;transition:all .15s}
+.msb:hover{border-color:var(--rl)}.msb.sel{border-color:var(--rg);background:var(--r50);color:var(--rd);font-weight:600}
+.clg{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:5px}
+.cli{display:flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid var(--bd);border-radius:5px;cursor:pointer;font-size:10px;background:#fff;transition:all .15s}
+.cli:hover{border-color:var(--rl)}.cli.ck{border-color:var(--rg);background:var(--r50);font-weight:600;color:var(--rd)}
+.clcb{width:13px;height:13px;border-radius:3px;border:1.5px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px}
+.cli.ck .clcb{background:var(--rg);border-color:var(--rg);color:#fff}
+.tw{display:flex;flex-wrap:wrap;gap:5px}
+.tb2{padding:6px 11px;border:1.5px solid var(--bd);border-radius:6px;cursor:pointer;font-size:10px;font-weight:600;font-family:var(--fn);background:#fff;transition:all .15s}
+.tb2:hover{border-color:var(--rl)}.tb2.sel{border-color:var(--rg);background:var(--r50);color:var(--rd)}
+.nw{display:flex;align-items:center;gap:6px}
+.ni{width:120px;padding:7px 9px;font-size:13px;font-family:var(--mo);border:1.5px solid var(--bd);border-radius:6px;outline:none;transition:border-color .15s;background:var(--sf);color:var(--ink)}
+.ni:focus{border-color:var(--rg)}.ni.au{background:var(--r50);color:var(--rd);border-color:var(--rll)}.ni.lk{background:#EFF6FF;color:#1D4ED8;border-color:#BFDBFE}
+.nu{font-size:10px;color:var(--k2);font-weight:500}.nt{font-size:9px;color:var(--mt);font-style:italic;margin-left:auto}
+.ar{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--r50);border-radius:6px;border:1px solid var(--rll);font-size:11px;margin-top:5px}
+.av{font-family:var(--mo);font-size:14px;font-weight:700;color:var(--rd)}.af{font-size:9px;color:var(--rg);flex:1}
+.cft{display:flex;background:var(--sf);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:12px;max-width:520px}
+.cftb{flex:1;padding:9px 14px;border:none;cursor:pointer;font-size:11px;font-weight:600;font-family:var(--fn);transition:all .2s;background:transparent;color:var(--k2);line-height:1.35}
+.cftb.ap{background:linear-gradient(135deg,#1D4ED8,#3B82F6);color:#fff}.cftb.am{background:linear-gradient(135deg,#2E5A1E,#3E7A2A);color:#fff}
+.qb{padding:11px 12px;background:var(--sa);border-radius:10px;border:1px solid var(--bl);margin-bottom:8px}
+.qb:hover{border-color:var(--bd)}.qb.answered{border-left:3px solid var(--rg)}.qb.afau{border-left:3px solid #7EC228;background:#F7FCF0}.qb.measr{border-left:3px solid #F59E0B}
+.qh{display:flex;align-items:flex-start;gap:7px;margin-bottom:4px}
+.qn{font-size:8px;font-weight:700;font-family:var(--mo);padding:2px 5px;border-radius:3px;flex-shrink:0;margin-top:2px;background:#E8F0E4;color:#2E5A1E}
+.ql{font-size:12px;font-weight:600;flex:1;line-height:1.4}.qm{font-size:8px;font-weight:700;background:var(--r50);color:var(--rd);border:1px solid var(--rll);padding:2px 6px;border-radius:4px;flex-shrink:0;margin-top:2px;font-family:var(--mo)}
+.qsd{margin-top:6px;padding:5px 8px;background:var(--r50);border-radius:5px;border:1px solid var(--rll);display:flex;justify-content:space-between;align-items:center;font-size:10px}
+.qsv{font-family:var(--mo);font-size:12px;font-weight:700;color:var(--rd)}
+.hero{background:linear-gradient(135deg,#1E3A14,#1A3345);border-radius:12px;padding:18px 22px;color:#fff;margin-bottom:14px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:center}
+.hbig{font-size:40px;font-weight:800;letter-spacing:-2px;line-height:1;font-family:var(--mo)}
+.hlbl{font-size:8px;font-weight:700;color:#A8D898;text-transform:uppercase;letter-spacing:2px;margin-bottom:5px}
+.bpill{padding:3px 9px;border-radius:999px;font-size:9px;font-weight:700;display:inline-flex;align-items:center;gap:3px}
+.dr{display:flex;align-items:center;gap:9px;padding:8px 11px;border-radius:9px;border:1px solid var(--bl);background:var(--sa);margin-bottom:6px}
+.dbar{flex:2;height:5px;border-radius:3px;background:var(--bl);overflow:hidden}.dbf{height:100%;border-radius:3px;transition:width .8s}
+.dbd{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;min-width:54px;text-align:center}
+.ob-c{padding:9px 11px;background:var(--sa);border-radius:9px;border:1px solid var(--bl);margin-bottom:6px}
+.ob-c.observed{background:var(--r50);border-color:var(--rll)}.ob-c.finding{background:#FEF2F2;border-color:#FECACA}.ob-c.na{background:#F9FAFB;border-color:var(--bd)}
+.ob-bs{display:flex;gap:4px;margin-top:6px}
+.ob-b{font-size:8px;padding:3px 8px;border-radius:4px;border:1px solid var(--bd);background:#fff;cursor:pointer;font-family:var(--fn);font-weight:700;transition:all .15s}
+.ob-b.aob{background:var(--rg);color:#fff;border-color:var(--rg)}.ob-b.afn{background:#EF4444;color:#fff;border-color:#EF4444}.ob-b.ana{background:#9CA3AF;color:#fff;border-color:#9CA3AF}
+.chk{display:flex;align-items:flex-start;gap:8px;padding:8px 11px;border-radius:9px;margin-bottom:6px;border:1px solid}
+.chk.pass{background:#EDF7E0;border-color:#B8E090}.chk.warn{background:#FFFBEB;border-color:#FDE68A}.chk.fail{background:#FEF2F2;border-color:#FECACA}
+.chki{font-size:15px;flex-shrink:0;margin-top:1px}.chkl{font-size:11px;font-weight:600}.chkd{font-size:10px;color:var(--mt);margin-top:1px}
+.rc{padding:10px 12px;border-radius:9px;border:1px solid var(--bl);background:var(--sa);margin-bottom:7px}
+.rch{display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap}.rcb{font-size:11px;color:var(--k2);line-height:1.6}
+.rcbr{height:3px;border-radius:2px;background:var(--bl);overflow:hidden;margin-top:5px}.rcbf{height:100%;border-radius:2px}
+.btn{display:inline-flex;align-items:center;gap:4px;padding:7px 15px;font-size:11px;font-weight:700;font-family:var(--fn);border:none;border-radius:9px;cursor:pointer;transition:all .2s}
+.bp{background:var(--rg);color:#fff}.bp:hover{background:var(--rd)}.bo{background:#fff;color:var(--rg);border:1.5px solid var(--rg)}.bo:hover{background:var(--r50)}.bs{background:var(--sa);color:var(--k2);border:1px solid var(--bd)}
+.bsm{padding:4px 10px;font-size:10px}.sf{display:flex;justify-content:flex-end;gap:7px;margin-top:16px;padding-top:12px;border-top:1px solid var(--bl)}
+.cw{position:relative;height:200px}
+@media print{.sb,.hdr,.wfb,.sf{display:none}.main{margin-left:0;padding:0}}
+
+.etab-bar{display:flex;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:3px;gap:3px;margin-bottom:14px}
+.etab{flex:1;padding:7px 10px;border:none;cursor:pointer;font-size:11px;font-weight:600;font-family:var(--fn);border-radius:7px;background:transparent;color:var(--k2);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px}
+.etab:hover{background:var(--sa)}.etab.active{background:var(--rg);color:#fff}
+.etab .ebadge{background:rgba(255,255,255,.25);border-radius:99px;padding:0 6px;font-size:8px;font-weight:700;font-family:var(--mo)}
+.etab:not(.active) .ebadge{background:var(--rll);color:var(--rd)}
+.epanel{display:none}.epanel.active{display:block}
+.evgrid{display:grid;grid-template-columns:1.1fr 1fr;gap:12px}
+.drop-z{border:2px dashed var(--bd);border-radius:10px;padding:26px 20px;text-align:center;cursor:pointer;background:var(--sa);transition:all .2s;position:relative}
+.drop-z:hover,.drop-z.dov{border-color:var(--rg);background:var(--r50)}
+.drop-z input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.fq-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--sf);border:1px solid var(--bl);border-radius:7px;margin-bottom:5px}
+.fq-name{font-size:11px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fq-meta{font-size:9px;color:var(--mt)}
+.fq-rm{border:none;background:none;cursor:pointer;color:var(--mt);font-size:12px;flex-shrink:0}
+.fq-rm:hover{color:#EF4444}
+.evtbl{width:100%;border-collapse:collapse}
+.evtbl th{padding:7px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mt);border-bottom:2px solid var(--bl);text-align:left;background:var(--sa)}
+.evtbl td{padding:7px 10px;font-size:11px;border-bottom:1px solid var(--bl);vertical-align:middle}
+.evtbl tr:hover td{background:var(--sa)}
+.ev-fn{font-weight:600;color:var(--ink)}.ev-fn small{display:block;font-size:9px;font-weight:400;color:var(--mt)}
+.ev-chip{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.ec-en{background:#FFF7ED;color:#C05621}.ec-wr{background:#EFF6FF;color:#1D4ED8}
+.ec-ws{background:#F3E8FF;color:#6D28D9}.ec-eq{background:#D1FAE5;color:#065F46}
+.ec-cf{background:#FEF2F2;color:#B91C1C}.ec-bc{background:#EEF2FF;color:#3730A3}
+.ec-gi{background:var(--bl);color:var(--k2)}
+.ev-st{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:8px;font-weight:700}
+.st-pend{background:#FEF3C7;color:#92400E}.st-ver{background:#D1FAE5;color:#065F46}
+.st-rev{background:#EFF6FF;color:#1D4ED8}.st-drft{background:var(--bl);color:var(--k2)}
+.detov{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:flex-start;justify-content:flex-end}
+.detov.open{display:flex}
+.detpan{width:380px;height:100vh;background:var(--sf);box-shadow:-4px 0 20px rgba(0,0,0,.12);overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:10px}
+.detpan h3{font-size:13px;font-weight:700;margin-top:8px}
+.det-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--bl);font-size:11px}
+.det-lb{color:var(--mt);font-size:10px}.det-vl{font-weight:600;text-align:right}
+.evstat-bar{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.evstat{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;text-align:center}
+.evstat-n{font-size:22px;font-weight:800;font-family:var(--mo);color:var(--rd)}
+.evstat-l{font-size:8px;text-transform:uppercase;letter-spacing:.5px;color:var(--mt);font-weight:700;margin-top:2px}
+.ev-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;align-items:flex-end}
+.ev-filters select,.ev-filters input{padding:5px 8px;font-size:11px;border:1px solid var(--bd);border-radius:6px;font-family:var(--fn);background:var(--sf);outline:none}
+.ev-filters select:focus,.ev-filters input:focus{border-color:var(--rg)}
+.qlink-btn{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;background:var(--r50);border:1px solid var(--rll);border-radius:4px;font-size:8px;font-weight:700;color:var(--rm);cursor:pointer;font-family:var(--fn)}
+.qlink-btn:hover{background:var(--rll)}
+
+.toast{position:fixed;bottom:24px;right:24px;background:#1E3A14;color:#fff;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;font-family:var(--fn)}
+.toast.show{opacity:1}
+.toast.error{background:#B91C1C}
+.toast.success{background:#2E5A1E}
+
+.etab-bar{display:flex;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:3px;gap:3px;margin-bottom:14px}
+.etab{flex:1;padding:7px 8px;border:none;cursor:pointer;font-size:10px;font-weight:600;font-family:var(--fn);border-radius:7px;background:transparent;color:var(--k2);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+.etab:hover{background:var(--sa)}.etab.active{background:var(--rg);color:#fff}
+.etab .ebadge{background:rgba(255,255,255,.25);border-radius:99px;padding:0 5px;font-size:8px;font-weight:700;font-family:var(--mo)}
+.etab:not(.active) .ebadge{background:var(--rll);color:var(--rd)}
+.epanel{display:none}.epanel.active{display:block}
+.drop-z{border:2px dashed var(--bd);border-radius:10px;padding:24px 20px;text-align:center;cursor:pointer;background:var(--sa);transition:all .2s}
+.drop-z:hover,.drop-z.dov{border-color:var(--rg);background:var(--r50)}
+.fq-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--sf);border:1px solid var(--bl);border-radius:7px;margin-bottom:5px}
+.fq-name{font-size:11px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fq-meta{font-size:9px;color:var(--mt)}
+.fq-rm{border:none;background:none;cursor:pointer;color:var(--mt);font-size:12px;flex-shrink:0;padding:2px}
+.fq-rm:hover{color:#EF4444}
+.evtbl{width:100%;border-collapse:collapse}
+.evtbl th{padding:7px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--mt);border-bottom:2px solid var(--bl);text-align:left;background:var(--sa)}
+.evtbl td{padding:7px 10px;font-size:11px;border-bottom:1px solid var(--bl);vertical-align:middle}
+.evtbl tr:hover td{background:var(--sa)}
+.ev-fn{font-weight:600;color:var(--ink)}.ev-fn small{display:block;font-size:9px;font-weight:400;color:var(--mt)}
+.ev-chip{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:8px;font-weight:700;text-transform:uppercase}
+.ec-en{background:#FFF7ED;color:#C05621}.ec-wr{background:#EFF6FF;color:#1D4ED8}
+.ec-ws{background:#F3E8FF;color:#6D28D9}.ec-eq{background:#D1FAE5;color:#065F46}
+.ec-cf{background:#FEF2F2;color:#B91C1C}.ec-bc{background:#EEF2FF;color:#3730A3}
+.ec-gi{background:var(--bl);color:var(--k2)}.ec-rep{background:#FFF7ED;color:#92400E}.ec-obs{background:#EDF7E0;color:#2E5A1E}.ec-other{background:var(--bl);color:var(--k2)}
+.ev-st{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:8px;font-weight:700}
+.st-pend{background:#FEF3C7;color:#92400E}.st-ver{background:#D1FAE5;color:#065F46}.st-rev{background:#EFF6FF;color:#1D4ED8}
+.detov{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:flex-start;justify-content:flex-end}
+.detov.open{display:flex}
+.detpan{width:360px;height:100vh;background:var(--sf);box-shadow:-4px 0 20px rgba(0,0,0,.12);overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:8px}
+.det-row{display:flex;justify-content:space-between;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--bl);font-size:11px;gap:8px}
+.det-lb{color:var(--mt);font-size:10px;flex-shrink:0}.det-vl{font-weight:600;text-align:right}
+.evstat-bar{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.evstat{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;text-align:center}
+.evstat-n{font-size:22px;font-weight:800;font-family:var(--mo);color:var(--rd)}
+.evstat-l{font-size:8px;text-transform:uppercase;letter-spacing:.5px;color:var(--mt);font-weight:700;margin-top:2px}
+.ev-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;align-items:flex-end}
+.ev-filters select,.ev-filters input{padding:5px 8px;font-size:11px;border:1px solid var(--bd);border-radius:6px;font-family:var(--fn);background:var(--sf);outline:none}
+.ev-filters select:focus,.ev-filters input:focus{border-color:var(--rg)}
+.qlink-btn{display:inline-flex;align-items:center;padding:4px 10px;background:var(--r50);border:1px solid var(--rll);border-radius:4px;font-size:9px;font-weight:700;color:var(--rm);cursor:pointer;font-family:var(--fn);gap:3px}
+.qlink-btn:hover{background:var(--rll)}
+.toast{position:fixed;bottom:24px;right:24px;background:#1E3A14;color:#fff;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;font-family:var(--fn)}
+.toast.show{opacity:1}.toast.error{background:#B91C1C}.toast.success{background:#2E5A1E}
+</style></head><body>
+<header class="hdr"><div class="hdr-in"><div class="brand"><div class="blogo"><img src="data:image/jpeg;base64,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" alt="RUA"></div><div><div class="bt1">RUA Green Audit Tool</div><div class="bt2">Roshni Udyavar &amp; Associates &nbsp;&middot;&nbsp; ISO/IEC 17020:2012</div></div></div><div class="hdr-r"><div class="hpill">Score <strong id="hdrScore">0</strong><span style="font-size:9px;color:#A8D898">/99</span></div><div class="hchip">QF-RUA-20</div><div class="hchip2">SustaiNex</div></div></div></header>
+<nav class="sb">
+  <div style="margin-bottom:.5rem"><div class="sbst">Audit Steps</div>
+    <button class="sbi active" id="n1" onclick="gS('s1',this)"><span class="sbn">1</span><span>Client Setup</span></button>
+    <button class="sbi" id="n2" onclick="gS('s2',this)"><span class="sbn">2</span><span>Data Collection</span></button>
+    <button class="sbi" id="n3" onclick="gS('s3',this)"><span class="sbn">3</span><span>Assessment</span><span class="tag" style="background:#F3F4F6;color:#374151;margin-left:auto;font-size:7px" id="sb3pts">0/99</span></button>
+    <button class="sbi" id="n4" onclick="gS('s4',this)"><span class="sbn">4</span><span>Site Observation</span></button>
+    <button class="sbi" id="n5" onclick="gS('s5',this);rR()"><span class="sbn">5</span><span>Results &amp; Report</span></button>
+    <button class="sbi" id="n6" onclick="gS('s6',this)"><span class="sbn">6</span><span>Documents &amp; Export</span><span class="tag" style="background:#EEF2FF;color:#3730A3;margin-left:auto;font-size:7px" id="sb6cnt">0</span></button>
+  </div>
+  <div class="sbdiv"></div>
+  <div><div class="sbst">Domain Scores</div><div style="padding:0 .7rem" id="sbDoms"></div></div>
+  <div class="sbdiv"></div>
+  <div class="sbpw"><div class="sbpt">Progress: <span id="sbPTxt">0/99</span></div><div class="sbpb"><div class="sbpf" id="sbPBar" style="width:0%"></div></div></div>
+</nav>
+<main class="main">
+<section class="sec active" id="sec-s1">
+  <div class="wfb">
+    <div class="wfs active"><div class="wfn">1</div><div><div class="wfl">Client Setup</div><div class="wfs-s">QF/RUA/43</div></div></div>
+    <div class="wfs" onclick="gS('s2',document.getElementById('n2'))"><div class="wfn">2</div><div><div class="wfl">Data Collection</div></div></div>
+    <div class="wfs" onclick="gS('s3',document.getElementById('n3'))"><div class="wfn">3</div><div><div class="wfl">Assessment</div></div></div>
+    <div class="wfs" onclick="gS('s4',document.getElementById('n4'))"><div class="wfn">4</div><div><div class="wfl">Site Observation</div></div></div>
+    <div class="wfs" onclick="gS('s5',document.getElementById('n5'));rR()"><div class="wfn">5</div><div><div class="wfl">Results</div></div></div>
+    <div class="wfs" onclick="gS('s6',document.getElementById('n6'))"><div class="wfn">6</div><div><div class="wfl">Documents</div></div></div>
+  </div>
+  <div class="card"><div class="ch"><span class="ct">&#x1F4CB; Enquiry Details &nbsp;<span style="font-size:9px;font-weight:400;color:var(--mt)">QF/RUA/43</span></span><span class="tag tg">Client Intake</span></div><div class="cb">
+    <div class="fg">
+      <div><label class="fl">Coordinator Name</label><input class="fi" id="c_name" placeholder="Full name" oninput="syncInst()"></div>
+      <div><label class="fl">Email</label><input class="fi" id="c_email" type="email" placeholder="name@org.com" oninput="syncInst()"></div>
+      <div><label class="fl">Phone</label><input class="fi" id="c_phone" placeholder="+91 XXXXX XXXXX" oninput="syncInst()"></div>
+    </div><div class="fg">
+      <div><label class="fl">Designation</label><input class="fi" id="c_desig" oninput="syncInst()"></div>
+      <div><label class="fl">Institution / Company</label><input class="fi" id="c_inst" placeholder="Full legal name" oninput="syncInst()"></div>
+      <div><label class="fl">City, State</label><input class="fi" id="c_loc"></div>
+    </div><div class="fg">
+      <div><label class="fl">Address</label><input class="fi" id="c_addr" oninput="syncInst()"></div>
+      <div><label class="fl">PIN Code</label><input class="fi" id="c_pin" oninput="syncInst()"></div>
+      <div><label class="fl">Building Type</label><select class="fsel" id="c_btype"><option value="">-- Select --</option><option>Residential</option><option>Commercial</option><option>Factories and Industries</option><option>Educational Institutions</option><option>Hospitals and Healthcare</option><option>Government Offices</option></select></div>
+    </div><div class="fg">
+      <div><label class="fl">Audit ID (RUA assigns)</label><input class="fi" id="c_uid" placeholder="e.g. 02/GA/2025"></div>
+      <div><label class="fl">Audit Year</label><input class="fi" id="c_yr" placeholder="2024-25"></div>
+      <div><label class="fl">Issue Date</label><input class="fi" type="date" id="c_date"></div>
+    </div><div class="fg2">
+      <div><label class="fl">Green Building Rating Interest</label><div class="msw"><button class="msb" onclick="tMS(this)">IGBC</button><button class="msb" onclick="tMS(this)">LEED</button><button class="msb" onclick="tMS(this)">GRIHA</button><button class="msb" onclick="tMS(this)">ASSOCHAM GEM</button><button class="msb" onclick="tMS(this)">ECBC</button><button class="msb" onclick="tMS(this)">None</button></div></div>
+      <div><label class="fl">Webinar on Green Campus?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="wb-y" onclick="tYN2('wb-y','wb-n')">Yes</button><button class="yn-b" id="wb-n" onclick="tYN2('wb-n','wb-y')">No</button></div></div>
+    </div>
+  </div></div>
+  <div class="sf"><button class="btn bp" onclick="gS('s2',document.getElementById('n2'))">Proceed to Data Collection &#x2192;</button></div>
+</section>
+<section class="sec" id="sec-s2">
+  <div class="wfb">
+    <div class="wfs done" onclick="gS('s1',document.getElementById('n1'))"><div class="wfn">1</div><div><div class="wfl">Client Setup</div></div></div>
+    <div class="wfs active"><div class="wfn">2</div><div><div class="wfl">Data Collection</div><div class="wfs-s">QF/RUA/59</div></div></div>
+    <div class="wfs" onclick="gS('s3',document.getElementById('n3'))"><div class="wfn">3</div><div><div class="wfl">Assessment</div></div></div>
+    <div class="wfs" onclick="gS('s4',document.getElementById('n4'))"><div class="wfn">4</div><div><div class="wfl">Site Observation</div></div></div>
+    <div class="wfs" onclick="gS('s5',document.getElementById('n5'));rR()"><div class="wfn">5</div><div><div class="wfl">Results</div></div></div>
+    <div class="wfs" onclick="gS('s6',document.getElementById('n6'))"><div class="wfn">6</div><div><div class="wfl">Documents</div></div></div>
+  </div>
+  <div class="il">
+    <div class="inav"><div class="card" style="margin-bottom:0"><div class="ch" style="padding:8px 11px"><span style="font-size:10px;font-weight:700">QF/RUA/59 Sections</span></div>
+      <div style="padding:5px">
+        <button class="inn active" id="ig-gi" onclick="swS('gi',this)"><span class="iic">&#x1F3E2;</span><span>General Info</span><span class="iip">Q1-19</span></button>
+        <button class="inn" id="ig-en" onclick="swS('en',this)"><span class="iic">&#x26A1;</span><span>Energy</span><span class="iip">Q20-39</span></button>
+        <button class="inn" id="ig-wr" onclick="swS('wr',this)"><span class="iic">&#x1F4A7;</span><span>Water</span><span class="iip">Q40-59</span></button>
+        <button class="inn" id="ig-ws" onclick="swS('ws',this)"><span class="iic">&#x267B;</span><span>Waste</span><span class="iip">Q60-69</span></button>
+        <button class="inn" id="ig-eq" onclick="swS('eq',this)"><span class="iic">&#x1F33F;</span><span>Env. Quality</span><span class="iip">Q70-82</span></button>
+        <button class="inn" id="ig-cf" onclick="swS('cf',this)"><span class="iic">&#x1F321;</span><span>Carbon FP</span><span class="iip">Q83-88</span></button>
+        <button class="inn" id="ig-bc" onclick="swS('bc',this)"><span class="iic">&#x1F30D;</span><span>Beyond Campus</span><span class="iip">Q89-97</span></button>
+      </div></div></div>
+    <div>
+<div class="sp active" id="sp-gi"><div class="card"><div class="ch"><span class="ct">&#x1F3E2; GENERAL INFORMATION &nbsp;<span style="font-size:9px;font-weight:400;color:var(--mt)">Q1-Q19</span></span></div><div class="cb">
+  <div class="pb">&#x1F517; Q1-Q8 synced from Step 1. Edit there to update here.</div>
+  <div class="gh">Contact Details (Q1-Q5) — synced from Step 1</div>
+  <div class="fg">
+    <div><label class="fl">Q1 Email</label><input class="fi locked" id="gi_email" readonly></div>
+    <div><label class="fl">Q2 Coordinator Name</label><input class="fi locked" id="gi_name" readonly></div>
+    <div><label class="fl">Q3 Designation</label><input class="fi locked" id="gi_desig" readonly></div>
+  </div>
+  <div class="fg2">
+    <div><label class="fl">Q4 Email ID</label><input class="fi locked" id="gi_email2" readonly></div>
+    <div><label class="fl">Q5 Phone Number</label><input class="fi locked" id="gi_phone" readonly></div>
+  </div>
+  <div class="gh">Institution (Q6-Q8) — synced from Step 1</div>
+  <div class="fg">
+    <div><label class="fl">Q6 Institution / Company Name</label><input class="fi locked" id="d_inst" readonly></div>
+    <div><label class="fl">Q7 Address</label><input class="fi locked" id="d_addr" readonly></div>
+    <div><label class="fl">Q8 Postal / ZIP Code</label><input class="fi locked" id="d_pin" readonly></div>
+  </div>
+  <div class="gh">Campus Structure (Q9-Q10)</div>
+  <div class="fg2">
+    <div><label class="fl">Q09 Total Buildings for Audit</label><input class="fi" id="d_nb" type="number" oninput="sD('numBldg',this.value)"></div>
+    <div><label class="fl">Q10 Residential Facility?</label><select class="fsel" onchange="sD('residential',this.value)"><option value="">--</option><option value="yes">Yes</option><option value="no">No</option></select></div>
+  </div>
+  <div class="gh">Campus Areas (Q11-Q15) - used in auto-computations</div>
+  <div class="fg">
+    <div><label class="fl">Q11 Total Campus Area (sq.m.)</label><input class="fi" id="d_ca" type="number" oninput="sD('campusArea',this.value);cA()"><div class="fh">Denominator for green coverage %</div></div>
+    <div><label class="fl">Q12 Built-Up Area - Audit Scope (sq.m.)</label><input class="fi" id="d_bua" type="number" oninput="sD('buaAudit',this.value);cA()"><div class="fh">Denominator for EPI</div></div>
+    <div><label class="fl">Q13 Building Footprint (sq.m.)</label><input class="fi" id="d_fp" type="number" oninput="sD('footprint',this.value)"></div>
+  </div>
+  <div class="fg2">
+    <div><label class="fl">Q14 Terrace Area (sq.m.)</label><input class="fi" id="d_ta" type="number" oninput="sD('terraceArea',this.value)"></div>
+    <div><label class="fl">Q15 % Usable Terrace</label><input class="fi" id="d_tp" type="number" oninput="sD('terracePct',this.value)"></div>
+  </div>
+  <div class="gh">Occupancy (Q16)</div>
+  <div class="fg2"><div><label class="fl">Q16 Total Occupants</label><input class="fi" id="d_occ" type="number" oninput="sD('occupancy',this.value);cA()"><div class="fh">Used for GHG/person and water intensity</div></div></div>
+  <div class="gh">Documents (Q17-Q19)</div>
+  <div class="fg">
+    <div><label class="fl">Q17 Site Plan</label><select class="fsel" onchange="sD('siteplan',this.value)"><option value="">--</option><option value="up">Uploaded</option><option value="em">Email</option><option value="pe">Pending</option></select></div>
+    <div><label class="fl">Q18 Floor Plans</label><select class="fsel" onchange="sD('floorplans',this.value)"><option value="">--</option><option value="up">Uploaded</option><option value="em">Email</option><option value="pe">Pending</option></select></div>
+    <div><label class="fl">Q19 Elevations</label><select class="fsel" onchange="sD('elevations',this.value)"><option value="">--</option><option value="up">Uploaded</option><option value="em">Email</option><option value="pe">Pending</option></select></div>
+  </div>
+</div></div></div>
+<div class="sp" id="sp-en"><div class="card"><div class="ch"><span class="ct">&#x26A1; ENERGY MANAGEMENT &nbsp;<span style="font-size:9px;font-weight:400;color:var(--mt)">Q20-Q39</span></span><span class="tag to">29 pts</span></div><div class="cb">
+  <div class="gh">Utility and Consumption (Q20-Q22)</div>
+  <div class="fg">
+    <div><label class="fl">Q20 Electrical Utility / Discom</label><input class="fi" id="d_util" placeholder="e.g. MSEDCL, BESCOM" oninput="sD('utility',this.value)"></div>
+    <div><label class="fl">Q21 Connected Load (kW)</label><input class="fi" id="d_cl" type="number" oninput="sD('connLoad',this.value)"></div>
+    <div><label class="fl">Q22 Annual Electricity (kWh)</label><input class="fi" id="d_kwh" type="number" oninput="sD('annualKwh',this.value);cA()"></div>
+  </div>
+  <div id="epiRow" style="display:none" class="ar"><div><div class="af">EPI (feeds EN4)</div><div style="font-size:9px;color:var(--rg)" id="epiF"></div></div><div class="av" id="epiV">-</div><span class="tag tg">kWh/sqm/yr</span></div>
+  <div class="ib">&#x1F4CE; Q23 Electricity bills - 12 months scans to document vault.</div>
+  <div class="gh">Lighting Inventory (Q24-Q25)</div>
+  <div class="fg2">
+    <div><label class="fl">Q24 Total Light Fittings (all types)</label><input class="fi" id="d_tl" type="number" oninput="sD('totalLights',this.value);cA()"></div>
+    <div><label class="fl">Q25 LED Fittings ONLY</label><input class="fi" id="d_ll" type="number" oninput="sD('ledLights',this.value);cA()"></div>
+  </div>
+  <div id="ledRow" style="display:none" class="ar"><div><div class="af">LED% (feeds EN5)</div><div style="font-size:9px;color:var(--rg)" id="ledF"></div></div><div class="av" id="ledV">-</div><span class="tag tg">% LED</span></div>
+  <div class="gh">Fan Inventory (Q28-Q29)</div>
+  <div class="fg2">
+    <div><label class="fl">Q28 Total Fan Fittings (Ceiling/Table/Wall)</label><input class="fi" id="d_tf" type="number" oninput="sD('totalFans',this.value);cA()"></div>
+    <div><label class="fl">Q29 ONLY Fans with BLDC/BLDS system</label><input class="fi" id="d_bf" type="number" oninput="sD('bldcFans',this.value);cA()"><div class="fh">Brushless DC — RUA form uses "BLDS"</div></div>
+  </div>
+  <div id="bldcRow" style="display:none" class="ar"><div class="af" id="bldcF">BLDC% - feeds recommendation engine</div><div class="av" id="bldcV">-</div><span class="tag tg">% BLDC</span></div>
+  <div class="gh">Smart Controls (Q26-Q27-Q30)</div>
+  <div class="fg">
+    <div><label class="fl">Q26 Dimmable sensor lights?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_dim-y" onclick="dYN('dimmable','yes','d_dim-y','d_dim-n')">Yes</button><button class="yn-b" id="d_dim-n" onclick="dYN('dimmable','no','d_dim-n','d_dim-y')">No</button></div></div>
+    <div><label class="fl">Q27 Outdoor lighting on solar/timer?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_ot-y" onclick="dYN('outdoorTimer','yes','d_ot-y','d_ot-n')">Yes</button><button class="yn-b" id="d_ot-n" onclick="dYN('outdoorTimer','no','d_ot-n','d_ot-y')">No</button></div></div>
+    <div><label class="fl">Q30 Building Management System?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_bms-y" onclick="dYN('bms','yes','d_bms-y','d_bms-n')">Yes</button><button class="yn-b" id="d_bms-n" onclick="dYN('bms','no','d_bms-n','d_bms-y')">No</button></div></div>
+  </div>
+  <div class="gh">Sub-Metering (Q31-Q32)</div>
+  <div class="fg2">
+    <div><label class="fl">Q31 Electric loads sub-metered</label>
+      <div class="clg" id="d_esub"><div class="cli" onclick="tCL(this,'d_esub');cA()"><div class="clcb"></div>Lifts/Elevators</div><div class="cli" onclick="tCL(this,'d_esub');cA()"><div class="clcb"></div>Water Pumping</div><div class="cli" onclick="tCL(this,'d_esub');cA()"><div class="clcb"></div>Renewable Energy</div><div class="cli" onclick="tCL(this,'d_esub');cA()"><div class="clcb"></div>Exterior Lighting</div><div class="cli" onclick="tCL(this,'d_esub');cA()"><div class="clcb"></div>Common Areas</div></div>
+      <div id="esubR" style="display:none;margin-top:4px" class="ar"><div class="af" id="esubF"></div><div class="av" id="esubV">0</div><span class="tag tg">pts</span></div>
+    </div>
+    <div><label class="fl">Q32 Water connections sub-metered</label>
+      <div class="clg" id="d_wsub"><div class="cli" onclick="tCL(this,'d_wsub');cA()"><div class="clcb"></div>Domestic Water</div><div class="cli" onclick="tCL(this,'d_wsub');cA()"><div class="clcb"></div>Flushing Water</div><div class="cli" onclick="tCL(this,'d_wsub');cA()"><div class="clcb"></div>Irrigation Water</div><div class="cli" onclick="tCL(this,'d_wsub');cA()"><div class="clcb"></div>Municipal Supply</div><div class="cli" onclick="tCL(this,'d_wsub');cA()"><div class="clcb"></div>Borewell</div><div class="cli" onclick="tCL(this,'d_wsub');cA()"><div class="clcb"></div>Solar Hot Water</div></div>
+      <div id="wsubR" style="display:none;margin-top:4px" class="ar"><div class="af" id="wsubF"></div><div class="av" id="wsubV">0</div><span class="tag tg">pts</span></div>
+    </div>
+  </div>
+  <div class="gh">EV Infrastructure (Q33-Q34)</div>
+  <div class="fg2">
+    <div><label class="fl">Q33 EV parking with solar charging?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_ev-y" onclick="dYN('evCharging','yes','d_ev-y','d_ev-n')">Yes</button><button class="yn-b" id="d_ev-n" onclick="dYN('evCharging','no','d_ev-n','d_ev-y')">No</button></div></div>
+    <div><label class="fl">Q34 Solar water heater?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_shw-y" onclick="dYN('solarHW','yes','d_shw-y','d_shw-n')">Yes</button><button class="yn-b" id="d_shw-n" onclick="dYN('solarHW','no','d_shw-n','d_shw-y')">No</button></div></div>
+  </div>
+  <div class="gh">Renewable Energy — Solar PV (Q35-Q39) <span style="font-size:8px;font-weight:400;color:var(--mt)">Q36-Q39 appear after confirming Solar PV below</span></div>
+  <div><label class="fl">Q35 Solar PV panels installed on campus?</label>
+    <div class="yn-w" style="margin-top:4px;max-width:380px">
+      <button class="yn-b" id="d_spv-y" onclick="dYN('solarPV','yes','d_spv-y','d_spv-n');document.getElementById('sBlk').style.display='block'">&#x2705; Yes — show Q36-Q39</button>
+      <button class="yn-b" id="d_spv-n" onclick="dYN('solarPV','no','d_spv-n','d_spv-y');document.getElementById('sBlk').style.display='none'">No — skip to Water section</button>
+    </div>
+  </div>
+  <div id="sBlk" style="display:none;margin-top:12px;padding:12px;background:var(--r50);border-radius:10px;border:1px solid var(--rll)">
+    <div class="fh" style="margin-bottom:8px;color:var(--rm);font-weight:700">&#x2705; Solar PV confirmed — complete Q36-Q39 below</div>
+    <div class="fg2">
+      <div><label class="fl">Q36 Other source of renewable energy?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_oe-y" onclick="dYN('otherEnergy','yes','d_oe-y','d_oe-n')">Yes</button><button class="yn-b" id="d_oe-n" onclick="dYN('otherEnergy','no','d_oe-n','d_oe-y')">No</button></div><div class="fh">Wind, biomass, geothermal etc.</div></div>
+      <div><label class="fl">Q37 Solar energy actively used on campus?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_su-y" onclick="dYN('solarUsed','yes','d_su-y','d_su-n')">Yes</button><button class="yn-b" id="d_su-n" onclick="dYN('solarUsed','no','d_su-n','d_su-y')">No</button></div></div>
+    </div>
+    <div class="fg">
+      <div><label class="fl">Q38 Meter installed to track solar output?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_sm-y" onclick="dYN('solarMeter','yes','d_sm-y','d_sm-n')">Yes</button><button class="yn-b" id="d_sm-n" onclick="dYN('solarMeter','no','d_sm-n','d_sm-y')">No</button></div></div>
+      <div><label class="fl">Q39 Annual Maintenance Contract (AMC) for solar?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_samc-y" onclick="dYN('solarAMC','yes','d_samc-y','d_samc-n')">Yes</button><button class="yn-b" id="d_samc-n" onclick="dYN('solarAMC','no','d_samc-n','d_samc-y')">No</button></div></div>
+      <div><label class="fl">Q35b Solar-powered outdoor lighting?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_sol-y" onclick="dYN('solarOutdoor','yes','d_sol-y','d_sol-n')">Yes</button><button class="yn-b" id="d_sol-n" onclick="dYN('solarOutdoor','no','d_sol-n','d_sol-y')">No</button></div></div>
+    </div>
+  </div>
+</div></div></div>
+<div class="sp" id="sp-wr"><div class="card"><div class="ch"><span class="ct">&#x1F4A7; WATER MANAGEMENT &nbsp;<span style="font-size:9px;font-weight:400;color:var(--mt)">Q40-Q59</span></span><span class="tag tb">17 pts</span></div><div class="cb">
+  <div class="fg4"><div><label class="fl">Q40 UG Tank Capacity (L)</label><input class="fi" id="d_ugc" type="number" oninput="sD('ugCap',this.value)"></div><div><label class="fl">Q41 UG Tank Size (m3)</label><input class="fi" id="d_ugs" type="number" oninput="sD('ugSize',this.value)"></div><div><label class="fl">Q42 OH Tank Capacity (L)</label><input class="fi" id="d_ohc" type="number" oninput="sD('ohCap',this.value)"></div><div><label class="fl">Q43 OH Tank Size (m3)</label><input class="fi" id="d_ohs" type="number" oninput="sD('ohSize',this.value)"></div></div>
+  <div class="fg">
+    <div><label class="fl">Q44 Source of Water Supply</label><select class="fsel" onchange="sD('waterSrc',this.value)"><option value="">--</option><option value="mun">Municipal Supply</option><option value="bw">Borewell</option><option value="comb">Combination</option><option value="oth">Other</option></select></div>
+    <div><label class="fl">Q45 Water Meters Installed</label><input class="fi" id="d_wm" type="number" oninput="sD('waterMeters',this.value)"></div>
+    <div><label class="fl">Annual Water (KL/year from bills)</label><input class="fi" id="d_wkl" type="number" oninput="sD('annualWaterKL',this.value);cA()"><div class="fh">For WR6 water intensity scoring</div></div>
+  </div>
+  <div id="wiR" style="display:none" class="ar"><div><div class="af">Water/person/day (feeds WR6)</div><div style="font-size:9px;color:var(--rg)" id="wiF"></div></div><div class="av" id="wiV">-</div><span class="tag tg">L/p/day</span></div>
+  <div class="ib">&#x1F4CE; Q46 Water bills for past 12 months for each meter — scan copies to document vault.</div>
+  <div class="gh">Fixtures (Q47-Q51)</div>
+  <div class="fg2">
+    <div><label class="fl">Q47 Total Taps (audit area)</label><input class="fi" id="d_tt" type="number" oninput="sD('totalTaps',this.value);cA()"></div>
+    <div><label class="fl">Q48 Taps with Aerators ONLY</label><input class="fi" id="d_at" type="number" oninput="sD('aeratorTaps',this.value);cA()"></div>
+  </div>
+  <div id="aerR" style="display:none" class="ar"><div><div class="af">&#x2192; Aerator% auto-computed (feeds WR3b)</div><div id="aerF" style="font-size:9px;color:var(--rg)"></div></div><div class="av" id="aerV">-</div><span class="tag tg">%</span></div>
+  <div class="fg2" style="margin-top:8px">
+    <div><label class="fl">Q49 Total Flushing Tanks</label><input class="fi" id="d_flt" type="number" oninput="sD('totalFlush',this.value);cA()"></div>
+    <div><label class="fl">Q50 Dual Flush Tanks ONLY</label><input class="fi" id="d_dft" type="number" oninput="sD('dualFlush',this.value);cA()"></div>
+  </div>
+  <div id="dfR" style="display:none" class="ar"><div><div class="af">&#x2192; Dual Flush% auto-computed (feeds WR3a)</div><div id="dfF" style="font-size:9px;color:var(--rg)"></div></div><div class="av" id="dfV">-</div><span class="tag tg">%</span></div>
+  <div class="fg2" style="margin-top:8px">
+    <div><label class="fl">Q51 Total Water Coolers (audit area)</label><input class="fi" id="d_wco" type="number" oninput="sD('waterCoolers',this.value)"><div class="fh">Counted during site visit</div></div>
+  </div>
+  <div class="gh">Irrigation (Q52)</div>
+  <div><label class="fl">Q52 Types of water-saving irrigation used (select all)</label><div class="msw"><button class="msb" onclick="tMS(this);sD('irr_drip',this.classList.contains('sel')?'yes':'no')">Drip Irrigation</button><button class="msb" onclick="tMS(this);sD('irr_spr',this.classList.contains('sel')?'yes':'no')">Sprinkler Irrigation</button><button class="msb" onclick="tMS(this)">None</button></div><div style="margin-top:6px;display:flex;align-items:center;gap:7px"><span style="font-size:9px;color:var(--k2);font-weight:700">Other:</span><input class="fi" style="max-width:280px" id="d_irr_oth" placeholder="Specify other method" oninput="sD('irr_other',this.value)"></div></div>
+  <div class="gh">Wastewater (Q53-Q55)</div>
+  <div class="fg">
+    <div><label class="fl">Q53 Grey Water Treatment?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_gwt-y" onclick="dYN('gwt','yes','d_gwt-y','d_gwt-n')">Yes</button><button class="yn-b" id="d_gwt-n" onclick="dYN('gwt','no','d_gwt-n','d_gwt-y')">No</button></div></div>
+    <div><label class="fl">Q54 Sewage Treatment Plant?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_stp-y" onclick="dYN('stp','yes','d_stp-y','d_stp-n')">Yes</button><button class="yn-b" id="d_stp-n" onclick="dYN('stp','no','d_stp-n','d_stp-y')">No</button></div></div>
+    <div><label class="fl">Q55 AC drain water recycled?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_acd-y" onclick="dYN('acDrain','yes','d_acd-y','d_acd-n')">Yes</button><button class="yn-b" id="d_acd-n" onclick="dYN('acDrain','no','d_acd-n','d_acd-y')">No</button></div></div>
+  </div>
+  <div class="gh">Rainwater Harvesting (Q56-Q59)</div>
+  <div><label class="fl">Q56 RWH System? <span style="font-size:8px;color:var(--mt)">(No skips Q57-Q59)</span></label>
+    <div class="yn-w" style="margin-top:4px;max-width:300px">
+      <button class="yn-b" id="d_rwh-y" onclick="dYN('rwh','yes','d_rwh-y','d_rwh-n');document.getElementById('rwhBlk').style.display='block'">Yes</button>
+      <button class="yn-b" id="d_rwh-n" onclick="dYN('rwh','no','d_rwh-n','d_rwh-y');document.getElementById('rwhBlk').style.display='none'">No - skip</button>
+    </div>
+  </div>
+  <div id="rwhBlk" style="display:none;margin-top:10px"><div class="fg">
+    <div><label class="fl">Q57 Pipes connected to RWH?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_rp-y" onclick="dYN('rwhPipes','yes','d_rp-y','d_rp-n')">Yes</button><button class="yn-b" id="d_rp-n" onclick="dYN('rwhPipes','no','d_rp-n','d_rp-y')">No</button></div></div>
+    <div><label class="fl">Q58 What done with harvested water?</label><select class="fsel" onchange="sD('rwhUse',this.value)"><option value="">--</option><option value="tank">Stored in tank</option><option value="rech">Underground recharge</option><option value="both">Both</option></select></div>
+    <div><label class="fl">Q59 Collected water reused for any purpose?</label><div class="yn-w" style="margin-top:4px;max-width:300px"><button class="yn-b" id="d_rwr-y" onclick="dYN('rwhReuse','yes','d_rwr-y','d_rwr-n');document.getElementById('rwhReuseTxt').style.display='block'">Yes</button><button class="yn-b" id="d_rwr-n" onclick="dYN('rwhReuse','no','d_rwr-n','d_rwr-y');document.getElementById('rwhReuseTxt').style.display='none'">No</button></div><div id="rwhReuseTxt" style="display:none;margin-top:6px"><label class="fl">If yes, specify purpose (e.g. Cleaning/Landscaping/Flushing)</label><input class="fi" id="d_rwr_txt" placeholder="e.g. Landscaping and flushing" oninput="sD('rwhReuseWhere',this.value)"></div></div>
+  </div></div>
+</div></div></div>
+<div class="sp" id="sp-ws"><div class="card"><div class="ch"><span class="ct">&#x267B; WASTE MANAGEMENT &nbsp;<span style="font-size:9px;font-weight:400;color:var(--mt)">Q60-Q69</span></span><span class="tag" style="background:#F3E8FF;color:#6D28D9">15 pts</span></div><div class="cb">
+  <div class="fg2">
+    <div><label class="fl">Q60 Canteen in Campus?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_can-y" onclick="dYN('canteen','yes','d_can-y','d_can-n')">Yes</button><button class="yn-b" id="d_can-n" onclick="dYN('canteen','no','d_can-n','d_can-y')">No</button></div></div>
+    <div><label class="fl">Q61 Dry/wet bin on every floor?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_wb-y" onclick="dYN('wasteBins','yes','d_wb-y','d_wb-n')">Yes</button><button class="yn-b" id="d_wb-n" onclick="dYN('wasteBins','no','d_wb-n','d_wb-y')">No</button></div></div>
+  </div>
+  <div class="fg2">
+    <div><label class="fl">Q62 Organic waste composted?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_co-y" onclick="dYN('composting','yes','d_co-y','d_co-n')">Yes</button><button class="yn-b" id="d_co-n" onclick="dYN('composting','no','d_co-n','d_co-y')">No</button></div></div>
+    <div><label class="fl">Q63 Compost reused for landscaping?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_cr-y" onclick="dYN('compostReuse','yes','d_cr-y','d_cr-n')">Yes</button><button class="yn-b" id="d_cr-n" onclick="dYN('compostReuse','no','d_cr-n','d_cr-y')">No</button></div></div>
+  </div>
+  <div class="fg2">
+    <div><label class="fl">Q64 Dry waste recycled?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_dr-y" onclick="dYN('dryRecycle','yes','d_dr-y','d_dr-n')">Yes</button><button class="yn-b" id="d_dr-n" onclick="dYN('dryRecycle','no','d_dr-n','d_dr-y')">No</button></div></div>
+    <div><label class="fl">Q65 Recycled materials used?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_rm-y" onclick="dYN('recycledMats','yes','d_rm-y','d_rm-n')">Yes</button><button class="yn-b" id="d_rm-n" onclick="dYN('recycledMats','no','d_rm-n','d_rm-y')">No</button></div></div>
+  </div>
+  <div class="fg2">
+    <div><label class="fl">Q66 E-waste collected separately?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_ew-y" onclick="dYN('ewaste','yes','d_ew-y','d_ew-n')">Yes</button><button class="yn-b" id="d_ew-n" onclick="dYN('ewaste','no','d_ew-n','d_ew-y')">No</button></div></div>
+    <div><label class="fl">Q67 E-waste via PCB-registered agency?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_ea-y" onclick="dYN('ewasteAgency','yes','d_ea-y','d_ea-n')">Yes</button><button class="yn-b" id="d_ea-n" onclick="dYN('ewasteAgency','no','d_ea-n','d_ea-y')">No</button></div></div>
+  </div>
+  <div class="fg2">
+    <div><label class="fl">Q68 Medical waste collected separately?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_mw-y" onclick="dYN('medWaste','yes','d_mw-y','d_mw-n')">Yes</button><button class="yn-b" id="d_mw-n" onclick="dYN('medWaste','no','d_mw-n','d_mw-y')">No</button></div></div>
+  </div>
+  <div class="wb">&#x26A0;&#xFE0F; Medical waste via authorised agency is assessed in Step 3 Assessment (WS5b) as an on-site verification item.</div>
+  <div class="gh">Paperless Campus (Q69) — exact options from QF/RUA/59</div>
+  <div><label class="fl">Q69 College/organisation practices paperless process for (select all)</label>
+    <div class="clg" style="grid-template-columns:1fr 1fr;margin-top:5px" id="d_pl">
+      <div class="cli" onclick="tCL(this,'d_pl');cA()"><div class="clcb"></div>Admission Process</div>
+      <div class="cli" onclick="tCL(this,'d_pl');cA()"><div class="clcb"></div>Administration Process</div>
+      <div class="cli" onclick="tCL(this,'d_pl');cA()"><div class="clcb"></div>Examinations</div>
+      <div class="cli" onclick="tCL(this,'d_pl');cA()"><div class="clcb"></div>Attendance</div>
+      <div class="cli" onclick="tCL(this,'d_pl');cA()"><div class="clcb"></div>Presentations</div>
+    </div>
+    <div class="fh" style="margin-top:5px">Score: 1 pt per process, max 5 pts (each item = 1 pt in WS6 scoring)</div>
+  </div>
+</div></div></div>
+<div class="sp" id="sp-eq"><div class="card"><div class="ch"><span class="ct">&#x1F33F; ENVIRONMENTAL QUALITY &nbsp;<span style="font-size:9px;font-weight:400;color:var(--mt)">Q70-Q82</span></span><span class="tag" style="background:#D1FAE5;color:#065F46">23 pts</span></div><div class="cb">
+  <div class="gh">Green Spaces (Q70-Q71)</div>
+  <div class="fg2">
+    <div><label class="fl">Q70 Well-maintained Landscape Area (sq.m.)</label><input class="fi" id="d_la" type="number" oninput="sD('landscapeArea',this.value);cA()"><div class="fh">Green% = Q70 ÷ Q11 × 100</div></div>
+  </div>
+  <div id="gpR" style="display:none" class="ar"><div><div class="af">&#x2192; Green Coverage% auto-computed (feeds EQ1a)</div><div style="font-size:9px;color:var(--rg)" id="gpF"></div></div><div class="av" id="gpV">-</div><span class="tag tg">%</span></div>
+  <div class="fg2"><div><label class="fl">Q71 Innovative green cover (walls, library etc.)?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_gi-y" onclick="dYN('greenIdeas','yes','d_gi-y','d_gi-n')">Yes</button><button class="yn-b" id="d_gi-n" onclick="dYN('greenIdeas','no','d_gi-n','d_gi-y')">No</button></div></div></div>
+  <div class="gh">Flora and Fauna (Q72-Q75)</div>
+  <div class="fg2">
+    <div><label class="fl">Q72 Regular biodiversity mapping?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_bio-y" onclick="dYN('biodiversity','yes','d_bio-y','d_bio-n')">Yes</button><button class="yn-b" id="d_bio-n" onclick="dYN('biodiversity','no','d_bio-n','d_bio-y')">No</button></div></div>
+    <div><label class="fl">Q73 Butterfly/botanical/specific garden?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_gdn-y" onclick="dYN('garden','yes','d_gdn-y','d_gdn-n')">Yes</button><button class="yn-b" id="d_gdn-n" onclick="dYN('garden','no','d_gdn-n','d_gdn-y')">No</button></div></div>
+    <div><label class="fl">Q74 Trees/plants labelled?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_tn-y" onclick="dYN('treeNaming','yes','d_tn-y','d_tn-n')">Yes</button><button class="yn-b" id="d_tn-n" onclick="dYN('treeNaming','no','d_tn-n','d_tn-y')">No</button></div></div>
+    <div><label class="fl">Q75 QR code system for trees?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_qr-y" onclick="dYN('treeQR','yes','d_qr-y','d_qr-n')">Yes</button><button class="yn-b" id="d_qr-n" onclick="dYN('treeQR','no','d_qr-n','d_qr-y')">No</button></div></div>
+  </div>
+  <div class="gh">Facilities (Q76-Q78)</div>
+  <div class="fg">
+    <div><label class="fl">Q76 Provision of common room on campus (select all)</label><div class="msw"><button class="msb" onclick="tMS(this);updCR()">Male</button><button class="msb" onclick="tMS(this);updCR()">Female</button><button class="msb" onclick="tMS(this);updCR()">Other (Gender-Neutral)</button></div></div>
+    <div><label class="fl">Q77 Recreation facilities - select all</label><div class="msw"><button class="msb" onclick="tMS(this);updRF()">Gymnasium</button><button class="msb" onclick="tMS(this);updRF()">Indoor Games</button><button class="msb" onclick="tMS(this);updRF()">Library</button><button class="msb" onclick="tMS(this);updRF()">Other Activity</button><button class="msb" onclick="tMS(this);updRF()">None</button></div></div>
+    <div><label class="fl">Q78 Playground/outdoor game area?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_pg-y" onclick="dYN('playground','yes','d_pg-y','d_pg-n')">Yes</button><button class="yn-b" id="d_pg-n" onclick="dYN('playground','no','d_pg-n','d_pg-y')">No</button></div></div>
+  </div>
+  <div class="gh">Universal Design (Q79) - select ALL features present</div>
+  <div class="clg" style="grid-template-columns:1fr 1fr 1fr" id="d_ud">
+    <div class="cli" onclick="tCL(this,'d_ud');cA()"><div class="clcb"></div>Ramps at Entrance</div>
+    <div class="cli" onclick="tCL(this,'d_ud');cA()"><div class="clcb"></div>Hand Rails</div>
+    <div class="cli" onclick="tCL(this,'d_ud');cA()"><div class="clcb"></div>Anti-Skid Floor</div>
+    <div class="cli" onclick="tCL(this,'d_ud');cA()"><div class="clcb"></div>Braille/Audio in Lift</div>
+    <div class="cli" onclick="tCL(this,'d_ud');cA()"><div class="clcb"></div>Universal Toilets</div>
+    <div class="cli" onclick="tCL(this,'d_ud');cA()"><div class="clcb"></div>Universal Parking</div>
+  </div>
+  <div class="fh" style="margin-top:4px">EQ4a = access features (ramps+rails+anti-skid+Braille) | EQ4b = universal toilets | EQ4c = universal parking</div>
+  <div class="gh" style="margin-top:10px">Noise and Policy (Q80-Q81)</div>
+  <div class="fg2">
+    <div><label class="fl">Q80 Noise pollution measures taken?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_nm-y" onclick="dYN('noiseMeasures','yes','d_nm-y','d_nm-n')">Yes</button><button class="yn-b" id="d_nm-n" onclick="dYN('noiseMeasures','no','d_nm-n','d_nm-y')">No</button></div><div class="wb" style="margin-top:6px;font-size:10px">&#x26A0;&#xFE0F; EQ5a noise-within-limits requires on-site sound meter reading - enter in Assessment.</div></div>
+    <div><label class="fl">Q81 Formal environment/sustainability policy?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_ep-y" onclick="dYN('envPolicy','yes','d_ep-y','d_ep-n')">Yes</button><button class="yn-b" id="d_ep-n" onclick="dYN('envPolicy','no','d_ep-n','d_ep-y')">No</button></div></div>
+  </div>
+  <div class="ib">&#x1F4F8; Q82 Campus Photos/Videos - upload to document vault for QF/RUA/64 report.</div>
+</div></div></div>
+<div class="sp" id="sp-cf"><div class="card"><div class="ch"><span class="ct">&#x1F321; CARBON FOOT PRINT &nbsp;<span style="font-size:9px;font-weight:400;color:var(--mt)">Q83-Q88</span></span><span class="tag tr">6 pts</span></div><div class="cb">
+  <div><div class="fl" style="margin-bottom:6px">Data Source Mode</div>
+    <div class="cft"><button class="cftb ap" id="cfp-plat" onclick="setCFMode('platform')">&#x1F517; Platform Data (TerraCAP / SustaiNex)<br><span style="font-size:9px;font-weight:400;opacity:.85">Pre-filled from client platform account</span></button><button class="cftb" id="cfp-man" onclick="setCFMode('manual')">&#x270D; RUA Consulting Mode<br><span style="font-size:9px;font-weight:400;opacity:.85">Manual entry during field visit</span></button></div>
+  </div>
+  <div id="cf_pb" class="pb">&#x1F517; Carbon data loaded from TerraCAP platform. Review and correct if needed.</div>
+  <div id="cf_mb" class="ib" style="display:none">&#x270D; RUA Consulting Mode - enter data from site visit or client documents.</div>
+  <div class="gh">Transportation (Q83-Q86)</div>
+  <div class="fg">
+    <div><label class="fl">Q83 Avg. Four-Wheelers daily</label><input class="fi" id="d_c4" type="number" oninput="sD('cars',this.value);cA()"></div>
+    <div><label class="fl">Q84 Avg. Two-Wheelers daily</label><input class="fi" id="d_c2" type="number" oninput="sD('twowheelers',this.value);cA()"></div>
+    <div><label class="fl">Q85 Avg. Cycles daily</label><input class="fi" id="d_cy" type="number" oninput="sD('cycles',this.value);cA()"></div>
+  </div>
+  <div class="fg2">
+    <div><label class="fl">Q86 Avg. EVs daily</label><input class="fi" id="d_ev2" type="number" oninput="sD('evs',this.value);cA()"></div>
+    <div><label class="fl">% Using Public/Green Transport (CF4 scoring)</label><input class="fi" id="d_pt" type="number" oninput="sD('publicTransport',this.value);cA()"><div class="fh">Direct input for CF4. Estimate from Q83-Q86 if unknown.</div></div>
+  </div>
+  <div id="modalR" style="display:none" class="ar"><div class="af" id="modalF">Modal split composition</div></div>
+  <div class="gh">Combustion Fuels - Scope 1 (Q87-Q88)</div>
+  <div class="fg">
+    <div><label class="fl">Q87 LPG used annually (kg)</label><input class="fi" id="d_lpg" type="number" oninput="sD('lpg',this.value);cA()"></div>
+    <div><label class="fl">Q88 No. of DG Sets</label><input class="fi" id="d_dgn" type="number" oninput="sD('dgCount',this.value);cA()"></div>
+    <div><label class="fl">Q88b Total DG Capacity (kVA)</label><input class="fi" id="d_dgk" type="number" oninput="sD('dgKva',this.value);cA()"></div>
+  </div>
+  <div class="fg2">
+    <div><label class="fl">Q88c DG Running Hours/Year</label><input class="fi" id="d_dgh" type="number" oninput="sD('dgHours',this.value);cA()"></div>
+    <div><label class="fl">Q88d DG Specifications</label><input class="fi" id="d_dgs" placeholder="e.g. 1x62.5kVA Kirloskar" oninput="sD('dgSpecs',this.value)"></div>
+  </div>
+  <div style="margin-top:10px;padding:12px 14px;background:linear-gradient(135deg,#1E3A14,#1A3345);border-radius:10px;color:#fff">
+    <div style="font-size:8px;font-weight:700;color:#A8D898;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">Auto-Computed GHG - feeds CF3 Scoring</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px">
+      <div style="text-align:center"><div style="font-size:8px;color:#A8D898">Scope 2 (Elec.)</div><div id="ghg_s2" style="font-size:17px;font-weight:700;font-family:var(--mo)">-</div><div style="font-size:7px;color:#A8D898">tCO2e/yr</div></div>
+      <div style="text-align:center"><div style="font-size:8px;color:#A8D898">Scope 1 (LPG+DG)</div><div id="ghg_s1" style="font-size:17px;font-weight:700;font-family:var(--mo)">-</div><div style="font-size:7px;color:#A8D898">tCO2e/yr</div></div>
+      <div style="text-align:center"><div style="font-size:8px;color:#A8D898">Total GHG</div><div id="ghg_tot" style="font-size:17px;font-weight:700;font-family:var(--mo)">-</div><div style="font-size:7px;color:#A8D898">tCO2e/yr</div></div>
+      <div style="text-align:center"><div style="font-size:8px;color:#A8D898">Per Person/Year</div><div id="ghg_pp" style="font-size:17px;font-weight:700;font-family:var(--mo)">-</div><div style="font-size:7px;color:#A8D898">tCO2e</div></div>
+    </div>
+    <div style="font-size:7px;color:rgba(255,255,255,.45);margin-top:7px">Elec x 0.82 kgCO2e/kWh (CEF 2023) | LPG x 2.983 kgCO2e/kg | DG diesel x 2.68 kgCO2e/L</div>
+  </div>
+  <div class="gh" style="margin-top:12px">Carbon Offsets (CF1-CF2)</div>
+  <div class="fg2">
+    <div><label class="fl">CF1 Offset through technology?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_cf1-y" onclick="dYN('cfOffset1','yes','d_cf1-y','d_cf1-n')">Yes</button><button class="yn-b" id="d_cf1-n" onclick="dYN('cfOffset1','no','d_cf1-n','d_cf1-y')">No</button></div></div>
+    <div><label class="fl">CF2 Offset through tree plantation?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_cf2-y" onclick="dYN('cfOffset2','yes','d_cf2-y','d_cf2-n')">Yes</button><button class="yn-b" id="d_cf2-n" onclick="dYN('cfOffset2','no','d_cf2-n','d_cf2-y')">No</button></div></div>
+  </div>
+</div></div></div>
+<div class="sp" id="sp-bc"><div class="card"><div class="ch"><span class="ct">&#x1F30D; BEYOND THE CAMPUS &nbsp;<span style="font-size:9px;font-weight:400;color:var(--mt)">Q89-Q97</span></span><span class="tag" style="background:#EEF2FF;color:#3730A3">9 pts</span></div><div class="cb">
+  <div class="fg2">
+    <div><label class="fl">Q89 Eco-committees/green clubs?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_eco-y" onclick="dYN('ecoClub','yes','d_eco-y','d_eco-n')">Yes</button><button class="yn-b" id="d_eco-n" onclick="dYN('ecoClub','no','d_eco-n','d_eco-y')">No</button></div></div>
+  </div>
+  <div class="fg2">
+    <div><label class="fl">Q90 Activities towards environment-care within campus/year</label><div class="tw" style="margin-top:5px"><button class="tb2" onclick="sTiered('campusActs',0,this)">0 Activities (0pt)</button><button class="tb2" onclick="sTiered('campusActs',1,this)">1-6 Activities (1pt)</button><button class="tb2" onclick="sTiered('campusActs',2,this)">&gt;6 Activities (2pts)</button></div></div>
+    <div><label class="fl">Q91 Activities towards environment-care outside campus / community outreach/year</label><div class="tw" style="margin-top:5px"><button class="tb2" onclick="sTiered('outreachActs',0,this)">0 Activities (0pt)</button><button class="tb2" onclick="sTiered('outreachActs',1,this)">1-3 Activities (1pt)</button><button class="tb2" onclick="sTiered('outreachActs',2,this)">&gt;3 Activities (2pts)</button></div></div>
+  </div>
+  <div class="fg2">
+    <div><label class="fl">Q92 Stakeholders/trustees involved?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_stk-y" onclick="dYN('stakeholders','yes','d_stk-y','d_stk-n')">Yes</button><button class="yn-b" id="d_stk-n" onclick="dYN('stakeholders','no','d_stk-n','d_stk-y')">No</button></div></div>
+    <div><label class="fl">Q93 Students/employees involved?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_stu-y" onclick="dYN('students','yes','d_stu-y','d_stu-n')">Yes</button><button class="yn-b" id="d_stu-n" onclick="dYN('students','no','d_stu-n','d_stu-y')">No</button></div></div>
+  </div>
+  <div class="fg2">
+    <div><label class="fl">Q94 Regular FDP / Employee Training?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_fdp-y" onclick="dYN('fdp','yes','d_fdp-y','d_fdp-n')">Yes</button><button class="yn-b" id="d_fdp-n" onclick="dYN('fdp','no','d_fdp-n','d_fdp-y')">No</button></div></div>
+    <div><label class="fl">Q95 Green campus seminars?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b" id="d_sem-y" onclick="dYN('seminars','yes','d_sem-y','d_sem-n')">Yes</button><button class="yn-b" id="d_sem-n" onclick="dYN('seminars','no','d_sem-n','d_sem-y')">No</button></div></div>
+  </div>
+  <div class="gh">Green Building Rating Interest (Q96)</div>
+  <div><label class="fl">Q96 Interested in Green Building or Energy Efficient Rating? (select all)</label>
+    <div class="msw"><button class="msb" onclick="tMS(this)">IGBC</button><button class="msb" onclick="tMS(this)">LEED</button><button class="msb" onclick="tMS(this)">GRIHA</button><button class="msb" onclick="tMS(this)">ASSOCHAM GEM</button><button class="msb" onclick="tMS(this)">ECBC Compliant Building</button><button class="msb" onclick="tMS(this)">None</button></div>
+    <div class="fh" style="margin-top:5px">Also indicated in Step 1 Client Setup. Confirm here for report.</div>
+  </div>
+  <div class="gh">Previous Audit Records (Q97)</div>
+  <div class="ib">&#x1F4CE; Q97 Previous Audit Reports - attach to document vault for trend analysis.</div>
+  <div><label class="fl">Q97 Upload status</label><select class="fsel" style="max-width:260px" onchange="sD('prevAudit',this.value)"><option value="">--</option><option value="up">Uploaded</option><option value="em">Email</option><option value="none">No previous audit</option></select></div>
+</div></div></div>
+
+    </div></div><!-- end panels + inner-layout -->
+  <div class="sf"><button class="btn bo bsm" onclick="gS('s1',document.getElementById('n1'))">&#x2190; Back</button><button class="btn bp" onclick="gS('s3',document.getElementById('n3'))">Proceed to Assessment &#x2192;</button></div>
+</section>
+<section class="sec" id="sec-s3">
+  <div class="wfb">
+    <div class="wfs done" onclick="gS('s1',document.getElementById('n1'))"><div class="wfn">1</div><div><div class="wfl">Client Setup</div></div></div>
+    <div class="wfs done" onclick="gS('s2',document.getElementById('n2'))"><div class="wfn">2</div><div><div class="wfl">Data Collection</div></div></div>
+    <div class="wfs active"><div class="wfn">3</div><div><div class="wfl">Assessment</div><div class="wfs-s">QF-RUA-20 | 99 pts</div></div></div>
+    <div class="wfs" onclick="gS('s4',document.getElementById('n4'))"><div class="wfn">4</div><div><div class="wfl">Site Observation</div></div></div>
+    <div class="wfs" onclick="gS('s5',document.getElementById('n5'));rR()"><div class="wfn">5</div><div><div class="wfl">Results</div></div></div>
+    <div class="wfs" onclick="gS('s6',document.getElementById('n6'))"><div class="wfn">6</div><div><div class="wfl">Documents</div></div></div>
+  </div>
+  <div class="ib">&#x1F7E2; <strong>GREEN border = auto-filled</strong> from Step 2 | <span class="tag to" style="font-size:8px">FIELD MEAS.</span> items require on-site instrument reading</div>
+  <div class="il">
+    <div class="inav"><div class="card" style="margin-bottom:0"><div class="ch" style="padding:8px 11px"><span style="font-size:10px;font-weight:700">Domains</span><span style="font-size:9px;color:var(--mt)">QF-RUA-20</span></div><div style="padding:5px" id="aNav"></div></div></div>
+    <div id="aPanels"></div>
+  </div>
+  <div class="sf"><button class="btn bo bsm" onclick="gS('s2',document.getElementById('n2'))">&#x2190; Back</button><button class="btn bp" onclick="gS('s4',document.getElementById('n4'))">Site Observation &#x2192;</button></div>
+</section>
+<section class="sec" id="sec-s4">
+  <div class="wfb">
+    <div class="wfs done" onclick="gS('s1',document.getElementById('n1'))"><div class="wfn">1</div><div><div class="wfl">Client Setup</div></div></div>
+    <div class="wfs done" onclick="gS('s2',document.getElementById('n2'))"><div class="wfn">2</div><div><div class="wfl">Data Collection</div></div></div>
+    <div class="wfs done" onclick="gS('s3',document.getElementById('n3'))"><div class="wfn">3</div><div><div class="wfl">Assessment</div></div></div>
+    <div class="wfs active"><div class="wfn">4</div><div><div class="wfl">Site Observation</div><div class="wfs-s">QF/RUA/49</div></div></div>
+    <div class="wfs" onclick="gS('s5',document.getElementById('n5'));rR()"><div class="wfn">5</div><div><div class="wfl">Results</div></div></div>
+    <div class="wfs" onclick="gS('s6',document.getElementById('n6'))"><div class="wfn">6</div><div><div class="wfl">Documents</div></div></div>
+  </div>
+  <div class="card"><div class="ch"><span class="ct">&#x1F50D; Observation Report &nbsp;<span style="font-size:9px;font-weight:400;color:var(--mt)">QF/RUA/49</span></span><span class="tag tg">Site Visit</span></div><div class="cb">
+    <div class="fg"><div><label class="fl">Inspector (RUA)</label><input class="fi" id="oInsp" placeholder="Dr. Roshni U. Yehuda"></div><div><label class="fl">Accompanying Personnel</label><input class="fi" id="oWit" placeholder="Client coordinator"></div><div><label class="fl">Date of Inspection</label><input class="fi" type="date" id="oDate"></div></div>
+    <div class="fg2"><div><label class="fl">Location / Area</label><input class="fi" id="oLoc"></div><div><label class="fl">Purpose</label><input class="fi" id="oPurp" placeholder="Green Audit Site Visit"></div></div>
+  </div></div>
+  <div class="card"><div class="ch"><span class="ct">&#x1F4CB; Key Observations by Domain</span><span class="tag tg" id="obsCnt">0/18</span></div><div class="cb" id="obsBody"></div></div>
+  <div class="card"><div class="ch"><span class="ct">&#x270D;&#xFE0F; Sign-Off</span></div><div class="cb">
+    <div class="fg2"><div><label class="fl">Inspector Signature</label><input class="fi" id="sigI"></div><div><label class="fl">Witness Signature</label><input class="fi" id="sigW"></div></div>
+    <div style="font-size:11px;color:var(--k2);margin-bottom:8px">Reviewed: Dr S R Kashyap | Approved: Dr Roshni Yehuda | Issued: Dr S R Kashyap</div>
+    <button class="btn bp bsm" id="soBtn" onclick="signOff()">&#x2705; Confirm Site Sign-Off</button>
+    <span id="soSt" style="margin-left:10px;font-size:10px;color:var(--mt)"></span>
+  </div></div>
+  <div class="sf"><button class="btn bo bsm" onclick="gS('s3',document.getElementById('n3'))">&#x2190; Back</button><button class="btn bp" onclick="gS('s5',document.getElementById('n5'));rR()">View Results &#x2192;</button></div>
+</section>
+<section class="sec" id="sec-s5">
+  <div class="wfb">
+    <div class="wfs done" onclick="gS('s1',document.getElementById('n1'))"><div class="wfn">1</div><div><div class="wfl">Client Setup</div></div></div>
+    <div class="wfs done" onclick="gS('s2',document.getElementById('n2'))"><div class="wfn">2</div><div><div class="wfl">Data Collection</div></div></div>
+    <div class="wfs done" onclick="gS('s3',document.getElementById('n3'))"><div class="wfn">3</div><div><div class="wfl">Assessment</div></div></div>
+    <div class="wfs done" onclick="gS('s4',document.getElementById('n4'))"><div class="wfn">4</div><div><div class="wfl">Site Observation</div></div></div>
+    <div class="wfs active"><div class="wfn">5</div><div><div class="wfl">Results &amp; Report</div><div class="wfs-s">QF/RUA/64</div></div></div>
+    <div class="wfs" onclick="gS('s6',document.getElementById('n6'))"><div class="wfn">6</div><div><div class="wfl">Documents</div></div></div>
+  </div>
+  <div id="rHero"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+    <div class="card" style="margin-bottom:0"><div class="ch"><span class="ct">&#x1F4CA; Domain Breakdown</span></div><div class="cb" id="rDoms"></div></div>
+    <div class="card" style="margin-bottom:0"><div class="ch"><span class="ct">&#x1F578; Radar</span></div><div class="cb"><div class="cw"><canvas id="rdrChart"></canvas></div></div></div>
+  </div>
+  <div class="card"><div class="ch"><span class="ct">&#x1F4A1; Recommendations</span></div><div class="cb" id="rRecs"></div></div>
+  <div class="card"><div class="ch"><span class="ct">&#x2705; Report Readiness</span></div><div class="cb" id="rReady"></div></div>
+  <div class="sf"><button class="btn bs bsm" onclick="xCSV()">&#x2B07; Export CSV</button><button class="btn bp" onclick="window.print()">&#x1F5A8; Print</button></div>
+</section>
+
+
+<section class="sec" id="sec-s6">
+  <div class="wfb" style="overflow-x:auto">
+    <div class="wfs done" onclick="gS('s1',document.getElementById('n1'))"><div class="wfn">1</div><div><div class="wfl">Client Setup</div></div></div>
+    <div class="wfs done" onclick="gS('s2',document.getElementById('n2'))"><div class="wfn">2</div><div><div class="wfl">Data Collection</div></div></div>
+    <div class="wfs done" onclick="gS('s3',document.getElementById('n3'))"><div class="wfn">3</div><div><div class="wfl">Assessment</div></div></div>
+    <div class="wfs done" onclick="gS('s4',document.getElementById('n4'))"><div class="wfn">4</div><div><div class="wfl">Site Obs.</div></div></div>
+    <div class="wfs done" onclick="gS('s5',document.getElementById('n5'));rR()"><div class="wfn">5</div><div><div class="wfl">Results</div></div></div>
+    <div class="wfs active"><div class="wfn">6</div><div><div class="wfl">Documents &amp; Export</div><div class="wfs-s">Evidence Vault</div></div></div>
+  </div>
+
+  <!-- Tab bar — Import first (matching main dashboard order) -->
+  <div class="etab-bar">
+    <button class="etab active" id="et-import" onclick="eSwTab('import',this)">&#x1F4E5; Import Data</button>
+    <button class="etab" id="et-upload" onclick="eSwTab('upload',this)">&#x1F4CE; Upload Evidence <span class="ebadge" id="et-badge-upload">0</span></button>
+    <button class="etab" id="et-vault" onclick="eSwTab('vault',this)">&#x1F5C4; Evidence Vault <span class="ebadge" id="et-badge-vault">0</span></button>
+    <button class="etab" id="et-export" onclick="eSwTab('export',this)">&#x1F4E4; Export &amp; Report</button>
+  </div>
+
+  <!-- ── TAB 1: IMPORT DATA ──────────────────────────────────── -->
+  <div class="epanel active" id="ep-import">
+    <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:12px">
+      <div class="card"><div class="ch"><span class="ct">&#x1F4E5; Import Audit Data</span><span class="tag tg">JSON / CSV</span></div><div class="cb">
+        <div class="pb" style="margin-bottom:12px">Import a previously exported JSON session to restore a partial audit, or load a CSV data sheet.</div>
+        <div class="drop-z" id="impDropZone" onclick="document.getElementById('impFileInput').click()">
+          <input type="file" id="impFileInput" accept=".json,.csv" style="display:none" onchange="impHandleFile(this)">
+          <div style="font-size:28px;margin-bottom:6px">&#x2601;&#xFE0F;</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:2px">Click to upload or drag &amp; drop</div>
+          <div style="font-size:9px;color:var(--mt)">JSON (full session) or CSV (audit data) — exported from this tool</div>
+        </div>
+        <div style="margin-top:10px;display:flex;gap:7px;flex-wrap:wrap">
+          <button class="btn bp bsm" onclick="impLoadDemo()">&#x26A1; Load Demo Data (RJ College)</button>
+          <button class="btn bs bsm" onclick="impClear()">&#x1F5D1; Clear Session</button>
+        </div>
+        <div class="gh" style="margin-top:12px">Import History</div>
+        <div id="impHistory"><div style="font-size:10px;color:var(--mt);padding:8px 0">No imports in this session.</div></div>
+      </div></div>
+      <div>
+        <div class="card"><div class="ch"><span class="ct">&#x1F4CB; Format Guide</span></div><div class="cb" style="font-size:11px;color:var(--k2);line-height:1.7">
+          <div class="wb" style="margin-bottom:10px">&#x26A0;&#xFE0F; Import overwrites current session. Export first to save work.</div>
+          <div class="gh">JSON — Full Session (recommended)</div>
+          <div style="font-family:var(--mo);font-size:9px;background:var(--sa);padding:8px;border-radius:6px;border:1px solid var(--bl);margin-bottom:10px;line-height:1.8;overflow-x:auto">{"meta":{"inst":"College","yr":"2024-25"},<br>"D":{"annualKwh":85000,"occupancy":2500},<br>"A":{"EN1":2,"EN4":33.18,...},<br>"OBS":{"o1":"observed",...}}</div>
+          <div class="gh">CSV — Audit Data</div>
+          <div style="font-size:10px;color:var(--mt)">Columns: Domain, Q-ID, Value — matches the Export CSV format from the Export tab.</div>
+          <div class="gh" style="margin-top:10px">Demo Data</div>
+          <div style="font-size:10px;color:var(--k2)">Click <strong>Load Demo Data</strong> to pre-fill all fields with the RJ College audit (2023-24) for demonstration purposes.</div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 2: UPLOAD EVIDENCE ──────────────────────────────── -->
+  <div class="epanel" id="ep-upload">
+    <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:12px">
+      <div class="card"><div class="ch"><span class="ct">&#x1F4CE; Upload Evidence Files</span><span class="tag tg">QF/RUA/59+64</span></div><div class="cb">
+        <div class="drop-z" id="evDropZone" onclick="document.getElementById('evFileInput').click()">
+          <input type="file" id="evFileInput" accept=".pdf,.xlsx,.xls,.csv,.png,.jpg,.jpeg,.docx,.doc,.zip" multiple style="display:none" onchange="evHandleFiles(this.files)">
+          <div style="font-size:28px;margin-bottom:6px">&#x1F4C2;</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:2px">Click to select or drag files here</div>
+          <div style="font-size:9px;color:var(--mt)">PDF, Excel, CSV, Images, Word, ZIP &mdash; multiple files allowed</div>
+        </div>
+        <div id="evStagedQ" style="margin-top:8px"></div>
+        <div class="gh" style="margin-top:10px">Tag &amp; Classify</div>
+        <div class="fg2">
+          <div><label class="fl">Audit Domain *</label>
+            <select class="fsel" id="evCat" onchange="evRenderSubs()">
+              <option value="">— Select —</option>
+              <optgroup label="Data Collection (QF/RUA/59)">
+                <option value="gi">&#x1F3E2; General Info (Q1-Q19)</option>
+                <option value="en">&#x26A1; Energy (Q20-Q39)</option>
+                <option value="wr">&#x1F4A7; Water (Q40-Q59)</option>
+                <option value="ws">&#x267B; Waste (Q60-Q69)</option>
+                <option value="eq">&#x1F33F; Env. Quality (Q70-Q82)</option>
+                <option value="cf">&#x1F321; Carbon (Q83-Q88)</option>
+                <option value="bc">&#x1F30D; Beyond Campus (Q89-Q97)</option>
+              </optgroup>
+              <optgroup label="Report Documents">
+                <option value="rep">&#x1F4CB; Audit Report (QF/RUA/64)</option>
+                <option value="obs">&#x1F50D; Site Observation (QF/RUA/49)</option>
+                <option value="other">&#x1F4C1; Other</option>
+              </optgroup>
+            </select>
+          </div>
+          <div><label class="fl">Question / Sub-category</label>
+            <select class="fsel" id="evSub"><option value="">— Select domain first —</option></select>
+          </div>
+        </div>
+        <div class="fg2">
+          <div><label class="fl">Document Type *</label>
+            <select class="fsel" id="evDocType">
+              <option>Utility Bill / Invoice</option><option>Meter Reading Record</option>
+              <option>Lab Test Report (NABL)</option><option>Third-Party Audit Report</option>
+              <option>Government Certificate / NOC</option><option>Purchase Order / Receipt</option>
+              <option>Measurement Data Sheet</option><option>Policy Document</option>
+              <option>Training Record</option><option>Photograph / Site Image</option>
+              <option>AMC / Service Contract</option><option>Compliance Certificate</option>
+              <option>Other Supporting Document</option>
+            </select>
+          </div>
+          <div><label class="fl">Document Date</label><input type="date" class="fi" id="evDocDate"></div>
+        </div>
+        <div class="fg2">
+          <div><label class="fl">Audit Year</label><input class="fi" id="evPeriod" placeholder="2024-25"></div>
+          <div><label class="fl">Uploaded By</label><input class="fi" id="evUploader" placeholder="Inspector name"></div>
+        </div>
+        <div><label class="fl">Notes for Auditor</label>
+          <textarea class="fi" id="evNotes" rows="2" style="resize:none" placeholder="Describe the evidence, its relevance…"></textarea>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:7px;flex-wrap:wrap">
+          <button class="btn bp" onclick="evSubmit()">&#x1F4CE; Upload &amp; Tag</button>
+          <button class="btn bs" onclick="evClearForm()">Clear</button>
+        </div>
+      </div></div>
+      <div>
+        <div class="card"><div class="ch"><span class="ct">&#x26A1; Quick Upload by Q-Number</span></div><div class="cb">
+          <div style="font-size:10px;color:var(--k2);margin-bottom:8px">Click a Q-tag to pre-set the category and open file picker:</div>
+          <div style="display:flex;flex-wrap:wrap;gap:5px" id="qLinkPills"></div>
+        </div></div>
+        <div class="card"><div class="ch"><span class="ct">&#x1F4CB; Evidence Guidelines</span></div><div class="cb" style="font-size:10px;color:var(--k2);line-height:1.7">
+          <ul style="padding-left:1.1rem;display:flex;flex-direction:column;gap:2px">
+            <li>Upload <strong>original source documents</strong> — not edited</li>
+            <li>Electricity/Water bills: 12 consecutive months required</li>
+            <li>Lab reports must show <strong>NABL accreditation number</strong></li>
+            <li>RWH: engineer certificate + photographs of tank</li>
+            <li>IAQ: calibrated instrument printout (VOC, CO2, SPM)</li>
+            <li>DG: fuel logbook + AMC agreement</li>
+            <li>Name files clearly, e.g. <em>elec-bill-Oct-2024.pdf</em></li>
+          </ul>
+        </div></div>
+        <div class="card"><div class="ch"><span class="ct">&#x1F5C2; Domain Reference</span></div><div class="cb" id="evCatRef">
+          <div style="font-size:10px;color:var(--mt)">Select a domain above to see required evidence types.</div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TAB 3: EVIDENCE VAULT ──────────────────────────────── -->
+  <div class="epanel" id="ep-vault">
+    <div class="evstat-bar">
+      <div class="evstat"><div class="evstat-n" id="vs-total">0</div><div class="evstat-l">Total Files</div></div>
+      <div class="evstat"><div class="evstat-n" id="vs-verified" style="color:#065F46">0</div><div class="evstat-l">Verified</div></div>
+      <div class="evstat"><div class="evstat-n" id="vs-pending" style="color:#92400E">0</div><div class="evstat-l">Pending</div></div>
+      <div class="evstat"><div class="evstat-n" id="vs-cats" style="color:#3730A3">0</div><div class="evstat-l">Domains</div></div>
+    </div>
+    <div class="card"><div class="ch"><span class="ct">&#x1F50D; Evidence Repository</span>
+      <div style="display:flex;gap:5px">
+        <button class="btn bs bsm" onclick="evAddSampleRecords()">&#x2795; Add Sample Evidence</button>
+        <button class="btn bs bsm" onclick="expManifest()">&#x1F4CB; Export Manifest</button>
+      </div>
+    </div><div class="cb">
+      <div class="ev-filters">
+        <input id="evSrch" placeholder="&#x1F50D; Search filename, notes, Q-link…" oninput="evFilter()">
+        <select id="evFCat" onchange="evFilter()"><option value="">All Domains</option><option value="gi">General Info</option><option value="en">Energy</option><option value="wr">Water</option><option value="ws">Waste</option><option value="eq">Env. Quality</option><option value="cf">Carbon</option><option value="bc">Beyond Campus</option><option value="rep">Audit Report</option><option value="obs">Site Obs.</option><option value="other">Other</option></select>
+        <select id="evFSt" onchange="evFilter()"><option value="">All Statuses</option><option value="pending">Pending</option><option value="verified">Verified</option><option value="review">Under Review</option></select>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="evtbl">
+          <thead><tr><th>File</th><th>Domain</th><th>Q-Link</th><th>Doc Type</th><th>Date</th><th>By</th><th>Status</th><th></th></tr></thead>
+          <tbody id="evTBody"></tbody>
+        </table>
+        <div id="evEmpty" style="text-align:center;padding:32px;color:var(--mt)">
+          <div style="font-size:28px;margin-bottom:8px">&#x1F4C2;</div>
+          <div style="font-size:12px;font-weight:600">No evidence files yet</div>
+          <div style="font-size:10px;margin-top:3px">Upload files in the Upload Evidence tab, or click "Add Sample Evidence"</div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ── TAB 4: EXPORT & REPORT ──────────────────────────────── -->
+  <div class="epanel" id="ep-export">
+    <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:12px">
+      <div>
+        <div class="card"><div class="ch"><span class="ct">&#x1F4CA; Audit Summary</span></div><div class="cb">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+            <div style="text-align:center;padding:10px;background:var(--r50);border-radius:8px;border:1px solid var(--rll)"><div style="font-size:28px;font-weight:800;font-family:var(--mo);color:var(--rd)" id="expScore">0</div><div style="font-size:8px;color:var(--rg);text-transform:uppercase;letter-spacing:.5px">Score /99</div></div>
+            <div style="text-align:center;padding:10px;background:var(--sa);border-radius:8px;border:1px solid var(--bd)"><div style="font-size:13px;font-weight:700;color:var(--ink)" id="expBand">—</div><div style="font-size:8px;color:var(--mt);text-transform:uppercase;letter-spacing:.5px">Rating Band</div></div>
+            <div style="text-align:center;padding:10px;background:var(--sa);border-radius:8px;border:1px solid var(--bd)"><div style="font-size:11px;font-weight:700;color:var(--ink)" id="expInst" style="word-break:break-word">—</div><div style="font-size:8px;color:var(--mt);text-transform:uppercase;letter-spacing:.5px">Institution</div></div>
+          </div>
+        </div></div>
+        <div class="card"><div class="ch"><span class="ct">&#x1F4E4; Export Formats</span></div><div class="cb">
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <button class="btn bp" onclick="expReport()" style="justify-content:space-between"><span>&#x1F4CB; Generate Sample Report (QF/RUA/64)</span><span class="tag" style="background:rgba(255,255,255,.2);color:#fff;font-size:8px">HTML</span></button>
+            <button class="btn bo" onclick="xCSV()" style="justify-content:space-between"><span>&#x1F4CA; Export Audit Data</span><span class="tag tg" style="font-size:8px">CSV</span></button>
+            <button class="btn bo" onclick="expJSON()" style="justify-content:space-between"><span>&#x1F4C4; Export Full Session</span><span class="tag tb" style="font-size:8px">JSON</span></button>
+            <button class="btn bs" onclick="expManifest()" style="justify-content:space-between"><span>&#x1F5C2; Evidence Manifest</span><span class="tag" style="background:var(--bl);color:var(--k2);font-size:8px">CSV</span></button>
+            <button class="btn bs" onclick="window.print()" style="justify-content:space-between"><span>&#x1F5A8; Print Results Page</span><span class="tag" style="background:var(--bl);color:var(--k2);font-size:8px">PDF</span></button>
+          </div>
+        </div></div>
+        <div class="card"><div class="ch"><span class="ct">&#x2699; Export Configuration</span></div><div class="cb">
+          <div class="fg2">
+            <div><label class="fl">Include Assessment Scores?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b sy" id="exp_sc-y" onclick="tYN2('exp_sc-y','exp_sc-n')">Yes</button><button class="yn-b" id="exp_sc-n" onclick="tYN2('exp_sc-n','exp_sc-y')">No</button></div></div>
+            <div><label class="fl">Include Evidence Manifest?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b sy" id="exp_ev-y" onclick="tYN2('exp_ev-y','exp_ev-n')">Yes</button><button class="yn-b" id="exp_ev-n" onclick="tYN2('exp_ev-n','exp_ev-y')">No</button></div></div>
+          </div>
+          <div class="fg2" style="margin-top:0">
+            <div><label class="fl">Include Site Observations?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b sy" id="exp_ob-y" onclick="tYN2('exp_ob-y','exp_ob-n')">Yes</button><button class="yn-b" id="exp_ob-n" onclick="tYN2('exp_ob-n','exp_ob-y')">No</button></div></div>
+            <div><label class="fl">Include Raw Data (D/C)?</label><div class="yn-w" style="margin-top:4px"><button class="yn-b sy" id="exp_d-y" onclick="tYN2('exp_d-y','exp_d-n')">Yes</button><button class="yn-b" id="exp_d-n" onclick="tYN2('exp_d-n','exp_d-y')">No</button></div></div>
+          </div>
+        </div></div>
+      </div>
+      <div class="card"><div class="ch"><span class="ct">&#x1F4CB; Export Notes</span></div><div class="cb" style="font-size:11px;color:var(--k2);line-height:1.7">
+        <div class="gh">Sample Report (QF/RUA/64)</div>
+        <p>Generates a full-structure HTML audit report matching RUA's QF/RUA/64 template: Cover page, Preface, Executive Summary, domain analysis (Energy, Water, Waste, EQ, Carbon, Beyond Campus), Score table, and Recommendations. Populated from audit data entered in Steps 1–4.</p>
+        <div class="gh" style="margin-top:10px">Audit Data CSV</div>
+        <p>All 97 questions with entered values and assessment scores. Readable in Excel. Suitable for RUA internal records and NAAC submissions.</p>
+        <div class="gh" style="margin-top:10px">Full Session JSON</div>
+        <p>Complete machine-readable export: D{} raw data, C{} computed values, A{} assessment answers, OBS{} observations + evidence manifest. Use to restore session or push to TerraCAP platform.</p>
+        <div class="gh" style="margin-top:10px">Evidence Manifest CSV</div>
+        <p>All uploaded files with Q-number tags, document types, dates, and verification status — suitable for attaching to QF/RUA/64 audit report as Annexure.</p>
+      </div></div>
+    </div>
+  </div>
+
+  <!-- Evidence Detail Slide-over -->
+  <div class="detov" id="evDetOv" onclick="if(event.target===this)evDetClose()">
+    <div class="detpan">
+      <button onclick="evDetClose()" style="align-self:flex-end;border:none;background:none;cursor:pointer;font-size:16px;color:var(--mt);padding:0">&#x2715;</button>
+      <div style="text-align:center;margin-bottom:8px"><div id="evDetIcon" style="font-size:30px">&#x1F4C4;</div><div id="evDetName" style="font-size:13px;font-weight:700;color:var(--ink);margin-top:4px">—</div><div id="evDetStat" style="margin-top:4px"></div></div>
+      <div class="det-row"><span class="det-lb">Domain</span><span class="det-vl" id="evDetDom">—</span></div>
+      <div class="det-row"><span class="det-lb">Q-Link</span><span class="det-vl" id="evDetQlnk" style="font-size:10px;text-align:right;max-width:200px">—</span></div>
+      <div class="det-row"><span class="det-lb">Document Type</span><span class="det-vl" id="evDetDocT">—</span></div>
+      <div class="det-row"><span class="det-lb">Document Date</span><span class="det-vl" id="evDetDate">—</span></div>
+      <div class="det-row"><span class="det-lb">Period</span><span class="det-vl" id="evDetPer">—</span></div>
+      <div class="det-row"><span class="det-lb">Uploaded By</span><span class="det-vl" id="evDetBy">—</span></div>
+      <div class="det-row"><span class="det-lb">File Size</span><span class="det-vl" id="evDetSz">—</span></div>
+      <div style="padding:8px 0;font-size:10px;color:var(--mt);line-height:1.5" id="evDetNotes"></div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
+        <button class="btn bp bsm" onclick="evDetVerify()">&#x2705; Mark as Verified</button>
+        <button class="btn bs bsm" onclick="evDetRevise()">&#x1F501; Request Revision</button>
+        <button class="btn bsm" style="background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA;border-radius:9px;padding:4px 10px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--fn)" onclick="evDetDelete()">&#x1F5D1; Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Preview Modal -->
+  <div id="rptModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;overflow-y:auto;padding:20px">
+    <div style="max-width:860px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+      <div style="background:#1E3A14;padding:14px 20px;display:flex;justify-content:space-between;align-items:center">
+        <span style="color:#fff;font-weight:700;font-size:13px">&#x1F4CB; Green Audit Report Preview — QF/RUA/64</span>
+        <div style="display:flex;gap:8px">
+          <button onclick="window.open('about:blank').document.write(document.getElementById('rptContent').innerHTML);window.open('about:blank').print()" class="btn bs bsm">&#x1F5A8; Print</button>
+          <button onclick="document.getElementById('rptModal').style.display='none'" style="background:rgba(255,255,255,.15);border:none;color:#fff;cursor:pointer;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;font-family:var(--fn)">&#x2715; Close</button>
+        </div>
+      </div>
+      <div id="rptContent" style="padding:32px 40px;font-family:'Times New Roman',serif;color:#111;line-height:1.7"></div>
+    </div>
+  </div>
+
+  <div class="sf"><button class="btn bo bsm" onclick="gS('s5',document.getElementById('n5'));rR()">&#x2190; Results</button></div>
+</section>
+
+</main>
+<script>
+const D={},C={},A={},OBS={};
+let cfMode='platform',signedOff=false,rdrObj=null,curADom='EN';
+
+const DOMS=[
+  {id:'EN',icon:'&#x26A1;',name:'Energy',maxPts:29,col:'#F59E0B'},
+  {id:'WR',icon:'&#x1F4A7;',name:'Water',maxPts:17,col:'#3B82F6'},
+  {id:'WS',icon:'&#x267B;',name:'Waste',maxPts:15,col:'#8B5CF6'},
+  {id:'EQ',icon:'&#x1F33F;',name:'Env. Quality',maxPts:23,col:'#10B981'},
+  {id:'CF',icon:'&#x1F321;',name:'Carbon',maxPts:6,col:'#EF4444'},
+  {id:'BC',icon:'&#x1F30D;',name:'Beyond Campus',maxPts:9,col:'#6366F1'}
+];
+
+const AQS={
+ EN:[
+  {id:'EN1',g:'Lighting',l:'LPD compliance with ECBC (% spaces)',src:'measure',t:'pct',tiers:[{max:60,p:1,l:'0-60%'},{min:61,max:80,p:2,l:'61-80%'},{min:81,p:3,l:'>80%'}],mp:3,unit:'%'},
+  {id:'EN2',g:'Lighting',l:'LUX levels compliance with NBC (% spaces)',src:'measure',t:'pct',tiers:[{min:30,max:50,p:1,l:'30-50%'},{min:51,max:70,p:2,l:'51-70%'},{min:71,p:3,l:'>70%'}],mp:3,unit:'%'},
+  {id:'EN3',g:'Lighting',l:'Daylighting - % area naturally lit (ECBC)',src:'measure',t:'pct',tiers:[{min:40,max:49,p:1,l:'40-49%'},{min:50,max:59,p:2,l:'50-59%'},{min:60,p:3,l:'>=60%'}],mp:3,unit:'%'},
+  {id:'EN4t',g:'EPI',l:'Building conditioning type (needed for EPI scoring)',src:'manual',t:'sel2',opts:['Fully Air Conditioned (>60% AC)','Naturally Ventilated (<60% AC)'],mp:0},
+  {id:'EN4',g:'EPI',l:'Energy Performance Index (EPI)',src:'auto',dk:'epi',t:'epi',tiAC:[{max:29,p:3,l:'0-29'},{min:30,max:59,p:2,l:'30-59'},{min:60,p:1,l:'>60'}],tiNV:[{max:10,p:3,l:'0-10'},{min:11,max:30,p:2,l:'11-30'},{min:31,p:1,l:'>30'}],mp:3,unit:'kWh/sqm/yr'},
+  {id:'EN5',g:'Lighting',l:'LED fittings as % of total',src:'auto',dk:'ledPct',t:'pct',tiers:[{min:60,max:70,p:1,l:'60-70%'},{min:71,max:80,p:2,l:'71-80%'},{min:81,p:3,l:'>80%'}],mp:3,unit:'%'},
+  {id:'EN6',g:'Controls',l:'Dimmable sensor lights in common areas',src:'auto',dk:'dimmable',t:'yn',mp:1},
+  {id:'EN7',g:'Controls',l:'Outdoor lighting on solar/astronomical timer',src:'auto',dk:'outdoorTimer',t:'yn',mp:1},
+  {id:'EN8a',g:'Renewables',l:'Solar PV panels installed',src:'auto',dk:'solarPV',t:'yn',mp:1},
+  {id:'EN8b',g:'Renewables',l:'Other renewable energy source',src:'auto',dk:'otherEnergy',t:'yn',mp:1},
+  {id:'EN8c',g:'Renewables',l:'Solar/renewable energy actively used',src:'auto',dk:'solarUsed',t:'yn',mp:1},
+  {id:'EN8d',g:'Renewables',l:'Meter to track solar/renewable output',src:'auto',dk:'solarMeter',t:'yn',mp:1},
+  {id:'EN8e',g:'Renewables',l:'AMC for solar panels',src:'auto',dk:'solarAMC',t:'yn',mp:1},
+  {id:'EN8f',g:'Renewables',l:'Solar-powered outdoor lighting',src:'auto',dk:'solarOutdoor',t:'yn',mp:1},
+  {id:'EN8g',g:'Renewables',l:'Solar water heater installed',src:'auto',dk:'solarHW',t:'yn',mp:1},
+  {id:'EN9',g:'Metering',l:'Building Management System (BMS)',src:'auto',dk:'bms',t:'yn',mp:1},
+  {id:'EN10a',g:'Metering',l:'Electric sub-metering (no. of load types)',src:'auto',dk:'elecSubCount',t:'subm',sf:'elec',mp:3},
+  {id:'EN10b',g:'Metering',l:'Water sub-metering (no. of connection types)',src:'auto',dk:'waterSubCount',t:'subm',sf:'water',mp:3},
+  {id:'EN11',g:'Metering',l:'EV parking and charging with solar',src:'auto',dk:'evCharging',t:'yn',mp:1}
+ ],
+ WR:[
+  {id:'WR1a',g:'Quality',l:'pH of tap water 6.5-8.5 (CPCB standard)',src:'measure',t:'yn',mp:1},
+  {id:'WR1b',g:'Quality',l:'TDS of water 50-150 mg/L',src:'measure',t:'yn',mp:1},
+  {id:'WR2a',g:'RWH',l:'Down-take pipes connected to RWH tank',src:'auto',dk:'rwhPipes',t:'yn',mp:1},
+  {id:'WR2b',g:'RWH',l:'Rainwater stored or used for recharge',src:'auto',dk:'rwhUseYN',t:'yn',mp:1},
+  {id:'WR2c',g:'RWH',l:'Harvested water reused on campus',src:'auto',dk:'rwhReuse',t:'yn',mp:1},
+  {id:'WR3a',g:'Efficiency',l:'Dual flush % of total flushing tanks',src:'auto',dk:'dualFlushPct',t:'pct',tiers:[{max:30,p:0,l:'0-30%'},{min:31,max:60,p:1,l:'31-60%'},{min:61,p:2,l:'>60%'}],mp:2,unit:'%'},
+  {id:'WR3b',g:'Efficiency',l:'Tap aerators % of total taps',src:'auto',dk:'aeratorPct',t:'pct',tiers:[{max:30,p:0,l:'0-30%'},{min:31,max:60,p:1,l:'31-60%'},{min:61,p:2,l:'>60%'}],mp:2,unit:'%'},
+  {id:'WR4',g:'Irrigation',l:'Water-saving irrigation technology used',src:'auto',dk:'irrigation',t:'yn',mp:1},
+  {id:'WR5a',g:'Wastewater',l:'AC drain/cooler water recycled',src:'auto',dk:'acDrain',t:'yn',mp:1},
+  {id:'WR5b',g:'Wastewater',l:'Grey water treatment system (GWT)',src:'auto',dk:'gwt',t:'yn',mp:1},
+  {id:'WR5c',g:'Wastewater',l:'Sewage Treatment Plant (STP)',src:'auto',dk:'stp',t:'yn',mp:1},
+  {id:'WR5d',g:'Wastewater',l:'Treated water reused on campus',src:'manual',t:'yn',mp:1},
+  {id:'WR6',g:'Intensity',l:'Water usage per person vs NBC benchmark (45L/p/day)',src:'auto',dk:'waterIntPct',t:'pct',tiers:[{max:50,p:3,l:'<50%'},{min:51,max:80,p:2,l:'51-80%'},{min:81,max:100,p:1,l:'81-100%'},{min:101,p:0,l:'>100%'}],mp:3,unit:'% of NBC'}
+ ],
+ WS:[
+  {id:'WS1',g:'Segregation',l:'Dry/wet bin on every floor',src:'auto',dk:'wasteBins',t:'yn',mp:1},
+  {id:'WS2a',g:'Organic',l:'Organic waste composted on-site',src:'auto',dk:'composting',t:'yn',mp:1},
+  {id:'WS2b',g:'Organic',l:'Compost reused for landscaping',src:'auto',dk:'compostReuse',t:'yn',mp:1},
+  {id:'WS3a',g:'Recycling',l:'Paper/cardboard dry waste recycled',src:'auto',dk:'dryRecycle',t:'yn',mp:1},
+  {id:'WS3b',g:'Recycling',l:'Recycled materials used in premises',src:'auto',dk:'recycledMats',t:'yn',mp:1},
+  {id:'WS4a',g:'E-Waste',l:'E-waste collected separately',src:'auto',dk:'ewaste',t:'yn',mp:1},
+  {id:'WS4b',g:'E-Waste',l:'E-waste via PCB-registered agency',src:'auto',dk:'ewasteAgency',t:'yn',mp:1},
+  {id:'WS5a',g:'Medical',l:'Medical waste collected separately',src:'auto',dk:'medWaste',t:'yn',mp:1},
+  {id:'WS5b',g:'Medical',l:'Medical waste via authorised agency',src:'auto',dk:'medWasteAgency',t:'yn',mp:1},
+  {id:'WS6',g:'Paperless',l:'Paperless processes (count, max 5 pts)',src:'auto',dk:'paperlessCount',t:'count',mp:5}
+ ],
+ EQ:[
+  {id:'EQ1a',g:'Green Spaces',l:'Green space as % of campus area',src:'auto',dk:'greenPct',t:'pct',tiers:[{max:0,p:0,l:'None'},{min:1,max:15,p:1,l:'1-15%'},{min:16,p:2,l:'>15%'}],mp:2,unit:'%'},
+  {id:'EQ1b',g:'Green Spaces',l:'Innovative green cover ideas',src:'auto',dk:'greenIdeas',t:'yn',mp:1},
+  {id:'EQ2a',g:'Flora/Fauna',l:'Regular biodiversity mapping',src:'auto',dk:'biodiversity',t:'yn',mp:1},
+  {id:'EQ2b',g:'Flora/Fauna',l:'Butterfly/botanical/specific garden',src:'auto',dk:'garden',t:'yn',mp:1},
+  {id:'EQ2c',g:'Flora/Fauna',l:'Trees/plants named and labelled',src:'auto',dk:'treeNaming',t:'yn',mp:1},
+  {id:'EQ2d',g:'Flora/Fauna',l:'QR code scan for trees',src:'auto',dk:'treeQR',t:'yn',mp:1},
+  {id:'EQ3a',g:'Facilities',l:'Well-maintained common rooms',src:'auto',dk:'commonRoom',t:'yn',mp:1},
+  {id:'EQ3b',g:'Facilities',l:'Gymnasium/indoor recreation facility',src:'auto',dk:'recreationFac',t:'yn',mp:1},
+  {id:'EQ3c',g:'Facilities',l:'Playground/outdoor game area',src:'auto',dk:'playground',t:'yn',mp:1},
+  {id:'EQ4a',g:'Inclusivity',l:'Universal access features (ramps+rails+anti-skid+Braille)',src:'auto',dk:'uniAccess',t:'yn',mp:1},
+  {id:'EQ4b',g:'Inclusivity',l:'Universal toilets for differently-abled',src:'auto',dk:'uniToilets',t:'yn',mp:1},
+  {id:'EQ4c',g:'Inclusivity',l:'Universal parking area',src:'auto',dk:'uniParking',t:'yn',mp:1},
+  {id:'EQ5a',g:'Noise',l:'Noise levels within standard limits (measured)',src:'measure',t:'yn',mp:1},
+  {id:'EQ5b',g:'Noise',l:'Noise pollution measures taken',src:'auto',dk:'noiseMeasures',t:'yn',mp:1},
+  {id:'EQ6a',g:'IAQ',l:'VOC concentration (ppb)',src:'measure',t:'iaq',tiers:[{min:125,max:225,p:2,l:'125-225'},{min:0,max:124,p:1,l:'<125'},{min:226,p:0,l:'>225'}],mp:2,unit:'ppb'},
+  {id:'EQ6b',g:'IAQ',l:'SPM (microg/m3)',src:'measure',t:'iaq',tiers:[{min:0.1,max:15,p:2,l:'0.1-15'},{min:16,p:0,l:'>15'}],mp:2,unit:'ug/m3'},
+  {id:'EQ6c',g:'IAQ',l:'CO2 (ppm)',src:'measure',t:'iaq',tiers:[{min:350,max:700,p:2,l:'350-700'},{min:701,max:1000,p:1,l:'701-1000'},{min:1001,p:0,l:'>1000'}],mp:2,unit:'ppm'},
+  {id:'EQ7',g:'Policy',l:'General campus cleanliness (site observation)',src:'manual',t:'yn',mp:1},
+  {id:'EQ8',g:'Policy',l:'Formal environment/sustainability policy',src:'auto',dk:'envPolicy',t:'yn',mp:1}
+ ],
+ CF:[
+  {id:'CF1',g:'Offsets',l:'Carbon offset through technology (solar, EV, etc.)',src:'auto',dk:'cfOffset1',t:'yn',mp:1},
+  {id:'CF2',g:'Offsets',l:'Carbon offset through tree plantation',src:'auto',dk:'cfOffset2',t:'yn',mp:1},
+  {id:'CF3',g:'GHG',l:'Specific GHG <= 0.03 tCO2e/person/year',src:'auto',dk:'ghgPerson',t:'ghg',mp:1},
+  {id:'CF4',g:'Transport',l:'% using public/green transport',src:'auto',dk:'publicTransport',t:'pct',tiers:[{max:50,p:1,l:'<50%'},{min:51,max:80,p:2,l:'51-80%'},{min:81,p:3,l:'>80%'}],mp:3,unit:'%'}
+ ],
+ BC:[
+  {id:'BC1',g:'Activities',l:'Eco-committees/green clubs',src:'auto',dk:'ecoClub',t:'yn',mp:1},
+  {id:'BC2',g:'Activities',l:'Campus green activities/year',src:'auto',dk:'campusActs',t:'tiered',opts:['None','1-6 (1pt)','>6 (2pts)'],pts:[0,1,2],mp:2},
+  {id:'BC3',g:'Activities',l:'Community outreach/year',src:'auto',dk:'outreachActs',t:'tiered',opts:['None','1-3 (1pt)','>3 (2pts)'],pts:[0,1,2],mp:2},
+  {id:'BC4',g:'Engagement',l:'Stakeholder/trustee involvement',src:'auto',dk:'stakeholders',t:'yn',mp:1},
+  {id:'BC5',g:'Engagement',l:'Student/employee involvement',src:'auto',dk:'students',t:'yn',mp:1},
+  {id:'BC6',g:'Training',l:'Regular FDP/Employee Training',src:'auto',dk:'fdp',t:'yn',mp:1},
+  {id:'BC7',g:'Training',l:'Green campus seminars conducted',src:'auto',dk:'seminars',t:'yn',mp:1}
+ ]
+};
+
+const ALL_AQS=Object.values(AQS).flat();
+
+const OBS_ITEMS=[
+  {id:'o1',dom:'EN',l:'Energy meters/inverter display visible and functional'},
+  {id:'o2',dom:'EN',l:'Solar panels installed - inverter showing live generation'},
+  {id:'o3',dom:'EN',l:'LED lighting confirmed in classrooms and corridors'},
+  {id:'o4',dom:'WR',l:'RWH pipes/tank present and maintained'},
+  {id:'o5',dom:'WR',l:'STP/grey water unit present and operational'},
+  {id:'o6',dom:'WR',l:'Water meters at canteen, hostel, labs'},
+  {id:'o7',dom:'WR',l:'Aerator fittings and dual-flush confirmed in washrooms'},
+  {id:'o8',dom:'WS',l:'Segregated wet/dry bins on every floor'},
+  {id:'o9',dom:'WS',l:'Compost pit/vermicomposting unit active'},
+  {id:'o10',dom:'WS',l:'E-waste collection point designated and labelled'},
+  {id:'o11',dom:'EQ',l:'Green areas well-maintained - plants labelled'},
+  {id:'o12',dom:'EQ',l:'Butterfly/botanical/themed garden visible'},
+  {id:'o13',dom:'EQ',l:'QR code tree tags observed on campus'},
+  {id:'o14',dom:'EQ',l:'Universal access ramps, handrails, accessible toilets'},
+  {id:'o15',dom:'CF',l:'DG set fuel/maintenance log available'},
+  {id:'o16',dom:'CF',l:'EV charging or covered cycle parking functional'},
+  {id:'o17',dom:'BC',l:'Eco-club notice board/activity display visible'},
+  {id:'o18',dom:'BC',l:'Environment policy displayed prominently'}
+];
+
+const PLAT={cars:45,twowheelers:120,cycles:30,evs:8,publicTransport:68,lpg:480,dgCount:1,dgKva:62.5,dgHours:180,dgSpecs:'1x62.5kVA Kirloskar'};
+const PLAT_IDS={cars:'d_c4',twowheelers:'d_c2',cycles:'d_cy',evs:'d_ev2',publicTransport:'d_pt',lpg:'d_lpg',dgCount:'d_dgn',dgKva:'d_dgk',dgHours:'d_dgh',dgSpecs:'d_dgs'};
+
+// COMPUTATION
+function cA(){
+  const v=n=>{const x=parseFloat(n);return isNaN(x)?0:x;};
+  if(D.annualKwh&&D.buaAudit){C.epi=(v(D.annualKwh)/v(D.buaAudit)).toFixed(2);const r=document.getElementById('epiRow');if(r){r.style.display='flex';document.getElementById('epiV').textContent=C.epi;document.getElementById('epiF').textContent=D.annualKwh+' kWh / '+D.buaAudit+' sqm';}}
+  if(D.totalLights&&D.ledLights){C.ledPct=(v(D.ledLights)/v(D.totalLights)*100).toFixed(1);const r=document.getElementById('ledRow');if(r){r.style.display='flex';document.getElementById('ledV').textContent=C.ledPct+'%';document.getElementById('ledF').textContent=D.ledLights+'/'+D.totalLights+' fittings';}}
+  if(D.totalFans&&D.bldcFans){C.bldcPct=(v(D.bldcFans)/v(D.totalFans)*100).toFixed(1);const r=document.getElementById('bldcRow');if(r){r.style.display='flex';document.getElementById('bldcV').textContent=C.bldcPct+'%';document.getElementById('bldcF').textContent='BLDC '+D.bldcFans+'/'+D.totalFans+' fans | recommendation engine';}}
+  if(D.totalTaps&&D.aeratorTaps){C.aeratorPct=(v(D.aeratorTaps)/v(D.totalTaps)*100).toFixed(1);const r=document.getElementById('aerR');if(r){r.style.display='flex';document.getElementById('aerV').textContent=C.aeratorPct+'%';document.getElementById('aerF').textContent=D.aeratorTaps+'/'+D.totalTaps+' taps';}}
+  if(D.totalFlush&&D.dualFlush){C.dualFlushPct=(v(D.dualFlush)/v(D.totalFlush)*100).toFixed(1);const r=document.getElementById('dfR');if(r){r.style.display='flex';document.getElementById('dfV').textContent=C.dualFlushPct+'%';document.getElementById('dfF').textContent=D.dualFlush+'/'+D.totalFlush+' tanks';}}
+  if(D.landscapeArea&&D.campusArea){C.greenPct=(v(D.landscapeArea)/v(D.campusArea)*100).toFixed(1);const r=document.getElementById('gpR');if(r){r.style.display='flex';document.getElementById('gpV').textContent=C.greenPct+'%';document.getElementById('gpF').textContent=D.landscapeArea+'/'+D.campusArea+' sqm';}}
+  if(D.annualWaterKL&&D.occupancy){const lpd=v(D.annualWaterKL)/365/v(D.occupancy)*1000;C.waterLpd=lpd.toFixed(2);C.waterIntPct=(lpd/45*100).toFixed(1);const r=document.getElementById('wiR');if(r){r.style.display='flex';document.getElementById('wiV').textContent=C.waterLpd+' L';document.getElementById('wiF').textContent=C.waterLpd+'L/p/day = '+C.waterIntPct+'% of NBC 45L';}}
+  C.elecSubCount=document.querySelectorAll('#d_esub .cli.ck').length;
+  C.waterSubCount=document.querySelectorAll('#d_wsub .cli.ck').length;
+  const ec=C.elecSubCount,wc=C.waterSubCount;
+  const ep=ec>=5?3:ec>=4?2:0,wp=wc>=5?3:wc>=3?2:0;
+  if(ec>0){const r=document.getElementById('esubR');if(r){r.style.display='flex';document.getElementById('esubV').textContent=ep;document.getElementById('esubF').textContent=ec+'/5 types = '+ep+'pts';}}
+  if(wc>0){const r=document.getElementById('wsubR');if(r){r.style.display='flex';document.getElementById('wsubV').textContent=wp;document.getElementById('wsubF').textContent=wc+'/6 types = '+wp+'pts';}}
+  C.paperlessCount=document.querySelectorAll('#d_pl .cli.ck').length;
+  const udCk=[...document.querySelectorAll('#d_ud .cli.ck')].map(e=>e.textContent.trim());
+  C.uniAccess=['Ramps','Hand','Anti-Skid','Braille'].every(k=>udCk.some(c=>c.includes(k)))?'yes':'no';
+  C.uniToilets=udCk.some(c=>c.includes('Toilet'))?'yes':'no';
+  C.uniParking=udCk.some(c=>c.includes('Parking'))?'yes':'no';
+  C.irrigation=(D.irr_drip==='yes'||D.irr_spr==='yes')?'yes':'no';
+  C.rwhUseYN=D.rwhUse&&D.rwhUse!==''?'yes':'no';
+  if(D.annualKwh){const s2=v(D.annualKwh)*0.82/1000;const s1lpg=v(D.lpg)*2.983/1000;const s1dg=v(D.dgKva)*0.25*v(D.dgHours)*2.68/1000;const s1=s1lpg+s1dg;C.ghgTotal=s1+s2;C.ghgPerson=v(D.occupancy)>0?(C.ghgTotal/v(D.occupancy)).toFixed(4):'';document.getElementById('ghg_s2').textContent=s2.toFixed(2);document.getElementById('ghg_s1').textContent=s1.toFixed(2);document.getElementById('ghg_tot').textContent=C.ghgTotal.toFixed(2);document.getElementById('ghg_pp').textContent=C.ghgPerson||'-';}
+  if(D.cars||D.twowheelers){const tot=v(D.cars)+v(D.twowheelers)+v(D.cycles)+v(D.evs);const r=document.getElementById('modalR');if(r&&tot>0){r.style.display='flex';document.getElementById('modalF').textContent='4W:'+v(D.cars)+' 2W:'+v(D.twowheelers)+' Cycle:'+v(D.cycles)+' EV:'+v(D.evs)+' | Total:'+tot+' | Public%:'+(D.publicTransport||'?');}}
+  rAA();rH();
+}
+
+// SCORING
+function qSc(q){
+  const v=A[q.id];if(v===undefined||v===null||v==='')return 0;
+  if(q.t==='yn')return v==='yes'?q.mp:0;
+  if(q.t==='sel2')return 0;
+  if(q.t==='count')return Math.min(parseInt(v)||0,q.mp);
+  if(q.t==='tiered'){const i=parseInt(v);return isNaN(i)?0:(q.pts[i]||0);}
+  if(q.t==='subm'){if(q.sf==='elec'){const c=C.elecSubCount||0;return c>=5?3:c>=4?2:0;}const c=C.waterSubCount||0;return c>=5?3:c>=3?2:0;}
+  if(q.t==='ghg'){const n=parseFloat(v);return isNaN(n)?0:(n<=0.03?1:0);}
+  if(q.t==='epi'){const n=parseFloat(v);if(isNaN(n))return 0;const ti=A['EN4t']===0?q.tiAC:q.tiNV;for(const t of ti){if(n>=(t.min??-Infinity)&&n<=(t.max??Infinity))return t.p;}return 0;}
+  if(q.t==='pct'||q.t==='iaq'){const n=parseFloat(v);if(isNaN(n))return 0;for(const t of(q.tiers||[])){if(n>=(t.min??-Infinity)&&n<=(t.max??Infinity))return t.p;}return 0;}
+  return 0;
+}
+function dSc(d){return(AQS[d.id]||[]).reduce((s,q)=>s+qSc(q),0);}
+function total(){return DOMS.reduce((s,d)=>s+dSc(d),0);}
+
+// BUILD ASSESSMENT
+function initA(){
+  document.getElementById('aNav').innerHTML=DOMS.map(d=>`<button class="inn${d.id===curADom?' active':''}" id="an-${d.id}" onclick="swAD('${d.id}',this)"><span class="iic">${d.icon}</span><span>${d.name}</span><span class="iip" id="ap-${d.id}">0%</span><span class="ipts" id="apts-${d.id}">0/${d.maxPts}</span></button>`).join('');
+  document.getElementById('aPanels').innerHTML=DOMS.map(d=>{
+    const qs=AQS[d.id]||[];
+    const grps=[...new Set(qs.map(q=>q.g))];
+    let h=`<div class="dp${d.id===curADom?' active':''}" id="adp-${d.id}"><div class="card"><div class="ch"><span class="ct">${d.icon} ${d.name}</span><span class="tag" style="background:${d.col}22;color:${d.col}">Max ${d.maxPts} pts</span></div><div class="cb">`;
+    grps.forEach(g=>{h+=`<div class="gh">${g}</div>`;qs.filter(q=>q.g===g).forEach(q=>{h+=bAQ(q);});});
+    h+='</div></div></div>';return h;
+  }).join('');
+}
+
+function bAQ(q){
+  if(q.t==='sel2'){const v=A[q.id];return `<div class="qb" id="qb-${q.id}"><div class="qh"><span class="qn">${q.id}</span><span class="ql">${q.l}</span></div><div class="tw">${q.opts.map((o,i)=>`<button class="tb2${v===i?' sel':''}" onclick="sAS2('${q.id}',${i},this)">${o}</button>`).join('')}</div></div>`;}
+  const srcB=q.src==='auto'?'<span class="tag tg" style="font-size:7px">AUTO</span>':q.src==='measure'?'<span class="tag to" style="font-size:7px">FIELD MEAS.</span>':'';
+  const av=A[q.id];const ans=av!==undefined&&av!==null&&av!=='';
+  const cc=q.src==='auto'&&ans?' afau':q.src==='measure'&&ans?' measr':ans?' answered':'';
+  const sc=qSc(q);
+  let inp='';
+  if(q.t==='yn'){const yc=av==='yes'?' sy':'';const nc=av==='no'?' sn':'';inp=`<div class="yn-w"><button class="yn-b${yc}" id="ayb-${q.id}-y" onclick="sAYN('${q.id}','yes',this)">Yes (+${q.mp}pt)</button><button class="yn-b${nc}" id="ayb-${q.id}-n" onclick="sAYN('${q.id}','no',this)">No (0pt)</button></div>`;}
+  else if(q.t==='pct'||q.t==='iaq'){const td=(q.tiers||[]).map(t=>`${t.l}:${t.p}p`).join(' | ');const ro=q.src==='auto';inp=`<div class="nw"><input class="ni${ro?' au':''}" id="ani-${q.id}" type="number" step="0.1" value="${av||''}" ${ro?'readonly':''} oninput="sAPct('${q.id}',this.value)" placeholder="${ro?'Auto-computed':'Enter value'}"><span class="nu">${q.unit||'%'}</span><span class="nt">${td}</span></div>`;}
+  else if(q.t==='epi'){inp=`<div class="nw"><input class="ni au" id="ani-${q.id}" type="number" step="0.01" value="${av||''}" readonly placeholder="Auto-computed"><span class="nu">kWh/sqm/yr</span></div><div style="font-size:9px;color:var(--mt);margin-top:4px">AC: 0-29:3pts | 30-59:2pts | >60:1pt &nbsp; NV: 0-10:3pts | 11-30:2pts | >30:1pt</div>`;}
+  else if(q.t==='ghg'){inp=`<div class="nw"><input class="ni au" id="ani-${q.id}" type="number" step="0.0001" value="${av||''}" readonly placeholder="Auto-computed"><span class="nu">tCO2e/p/yr</span><span class="nt"><=0.03:1pt | >0.03:0pt</span></div>`;}
+  else if(q.t==='count'){inp=`<div class="nw"><input class="ni au" id="ani-${q.id}" type="number" value="${av||0}" readonly><span class="nu">processes (max ${q.mp}pts)</span></div>`;}
+  else if(q.t==='subm'){const cnt=q.sf==='elec'?(C.elecSubCount||0):(C.waterSubCount||0);inp=`<div class="nw"><input class="ni au" id="ani-${q.id}" type="number" value="${cnt}" readonly><span class="nu">of ${q.sf==='elec'?5:6} types metered</span><span class="nt">4+:2pts | 5+:3pts</span></div>`;}
+  else if(q.t==='tiered'){const ti=parseInt(av);inp=`<div class="tw">${q.opts.map((o,i)=>`<button class="tb2${ti===i?' sel':''}" onclick="sATiered('${q.id}',${i},this)">${o}</button>`).join('')}</div>`;}
+  return `<div class="qb${cc}" id="qb-${q.id}"><div class="qh"><span class="qn">${q.id}</span><span class="ql">${q.l}</span>${srcB}${q.mp>0?`<span class="qm">${q.mp}pt${q.mp>1?'s':''}</span>`:''}</div>${inp}<div id="qsd-${q.id}">${ans?`<div class="qsd"><span>Score</span><span class="qsv">${sc}/${q.mp}</span></div>`:''}</div></div>`;
+}
+
+function rAA(){
+  ALL_AQS.filter(q=>q.src==='auto').forEach(q=>{
+    let val=null;
+    if(q.t==='subm'){val=q.sf==='elec'?C.elecSubCount:C.waterSubCount;}
+    else if(q.dk){val=C[q.dk]!==undefined?C[q.dk]:(D[q.dk]!==undefined?D[q.dk]:null);}
+    if(val===null||val===undefined)return;
+    A[q.id]=val;
+    const card=document.getElementById('qb-'+q.id);if(!card)return;
+    if(q.t==='yn'){['y','n'].forEach(s=>{const b=document.getElementById(`ayb-${q.id}-${s}`);if(b){b.classList.remove('sy','sn');if((s==='y'&&val==='yes')||(s==='n'&&val==='no'))b.classList.add(s==='y'?'sy':'sn');}});card.classList.add('afau');}
+    else{const inp=document.getElementById('ani-'+q.id);if(inp)inp.value=val;card.classList.add('afau');if(q.t==='tiered'){const ti=parseInt(val);card.querySelectorAll('.tb2').forEach((b,i)=>b.classList.toggle('sel',i===ti));}}
+    const sd=document.getElementById('qsd-'+q.id);if(sd)sd.innerHTML=`<div class="qsd"><span>Score</span><span class="qsv">${qSc(q)}/${q.mp}</span></div>`;
+  });
+  rAN();
+}
+
+function rAN(){
+  DOMS.forEach(d=>{
+    const qs=AQS[d.id]||[];
+    const ans=qs.filter(q=>A[q.id]!==undefined&&A[q.id]!==null&&A[q.id]!=='').length;
+    const e1=document.getElementById('ap-'+d.id);const e2=document.getElementById('apts-'+d.id);
+    if(e1)e1.textContent=Math.round(ans/qs.length*100)+'%';if(e2)e2.textContent=dSc(d)+'/'+d.maxPts;
+  });
+}
+
+function rH(){
+  const sc=total();
+  document.getElementById('hdrScore').textContent=sc;
+  document.getElementById('sb3pts').textContent=sc+'/99';
+  document.getElementById('sbDoms').innerHTML=DOMS.map(d=>{const ds=dSc(d);const pct=Math.round(ds/d.maxPts*100);return `<div style="display:flex;align-items:center;gap:5px;padding:3px 0;border-bottom:1px solid var(--bl)"><span style="font-size:11px">${d.icon}</span><span style="font-size:9px;flex:1;color:var(--k2)">${d.name}</span><div style="width:40px;height:3px;background:var(--bl);border-radius:2px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${d.col}"></div></div><span style="font-size:8px;font-family:var(--mo);font-weight:700;color:${d.col}">${ds}/${d.maxPts}</span></div>`;}).join('');
+  const ans=ALL_AQS.filter(q=>A[q.id]!==undefined&&A[q.id]!==null&&A[q.id]!=='').length;
+  document.getElementById('sbPBar').style.width=Math.round(ans/ALL_AQS.length*100)+'%';
+  document.getElementById('sbPTxt').textContent=sc+'/99';
+}
+
+// NAVIGATION
+function gS(name,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sbi').forEach(b=>b.classList.remove('active'));
+  const s=document.getElementById('sec-'+name);if(s)s.classList.add('active');
+  if(el)el.classList.add('active');
+  if(name==='s3'){rAA();rAN();}
+  if(name==='s4')initObs();
+  window.scrollTo(0,0);
+}
+function swS(sec,btn){
+  document.querySelectorAll('#sec-s2 .sp').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#sec-s2 .inn').forEach(b=>b.classList.remove('active'));
+  const p=document.getElementById('sp-'+sec);if(p)p.classList.add('active');btn.classList.add('active');
+}
+function swAD(id,btn){
+  curADom=id;
+  document.querySelectorAll('#aPanels .dp').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#aNav .inn').forEach(b=>b.classList.remove('active'));
+  const p=document.getElementById('adp-'+id);if(p)p.classList.add('active');btn.classList.add('active');
+}
+
+// DATA HELPERS
+function sD(k,v){D[k]=v;}
+function dYN(key,val,onId,offId){
+  D[key]=val;C[key]=val;
+  const on=document.getElementById(onId);const off=document.getElementById(offId);
+  if(on){on.classList.remove('sy','sn');on.classList.add(val==='yes'?'sy':'sn');}
+  if(off){off.classList.remove('sy','sn');}
+  cA();
+}
+function tYN2(onId,offId){const on=document.getElementById(onId);const off=document.getElementById(offId);if(on)on.classList.toggle('sy');if(off)off.classList.remove('sy');}
+function tMS(btn){btn.classList.toggle('sel');}
+function tCL(el,grpId){el.classList.toggle('ck');const cb=el.querySelector('.clcb');if(cb)cb.textContent=el.classList.contains('ck')?'v':'';}
+function sTiered(key,idx,btn){D[key]=idx;C[key]=idx;const w=btn.closest('.tw');if(w)w.querySelectorAll('.tb2').forEach((b,i)=>b.classList.toggle('sel',i===idx));}
+function syncInst(){const map=[['c_inst','d_inst'],['c_addr','d_addr'],['c_pin','d_pin'],['c_name','gi_name'],['c_email','gi_email'],['c_email','gi_email2'],['c_phone','gi_phone'],['c_desig','gi_desig']];map.forEach(([s,t])=>{const sv=document.getElementById(s);const tv=document.getElementById(t);if(sv&&tv)tv.value=sv.value;});}
+function updCR(){const btns=[...document.querySelectorAll('#sp-eq .msw')][0]?.querySelectorAll('.msb')||[];C.commonRoom=[...btns].slice(0,3).some(b=>b.classList.contains('sel'))?'yes':'no';}
+function updRF(){const btns=[...document.querySelectorAll('#sp-eq .msw')][1]?.querySelectorAll('.msb')||[];C.recreationFac=[...btns].slice(0,4).some(b=>b.classList.contains('sel'))?'yes':'no';}
+
+// ASSESS EVENT HANDLERS
+function sAYN(qid,val,btn){A[qid]=val;const w=btn.closest('.yn-w');w?.querySelectorAll('.yn-b').forEach(b=>b.classList.remove('sy','sn'));btn.classList.add(val==='yes'?'sy':'sn');updQSD(qid);}
+function sAPct(qid,v){A[qid]=v;updQSD(qid);}
+function sAS2(qid,idx,btn){A[qid]=idx;const w=btn.closest('.tw');w?.querySelectorAll('.tb2').forEach((b,i)=>b.classList.toggle('sel',i===idx));if(A['EN4']!==undefined)updQSD('EN4');}
+function sATiered(qid,idx,btn){A[qid]=idx;const w=btn.closest('.tw');w?.querySelectorAll('.tb2').forEach((b,i)=>b.classList.toggle('sel',i===idx));updQSD(qid);}
+function updQSD(qid){const q=ALL_AQS.find(x=>x.id===qid);if(!q)return;const card=document.getElementById('qb-'+qid);if(card)card.classList.add('answered');const sd=document.getElementById('qsd-'+qid);if(sd)sd.innerHTML=`<div class="qsd"><span>Score</span><span class="qsv">${qSc(q)}/${q.mp}</span></div>`;rAN();rH();}
+
+// CARBON MODE
+function setCFMode(mode){
+  cfMode=mode;
+  document.getElementById('cfp-plat').className='cftb'+(mode==='platform'?' ap':'');
+  document.getElementById('cfp-man').className='cftb'+(mode==='manual'?' am':'');
+  document.getElementById('cf_pb').style.display=mode==='platform'?'block':'none';
+  document.getElementById('cf_mb').style.display=mode==='manual'?'block':'none';
+  Object.keys(PLAT_IDS).forEach(k=>{const el=document.getElementById(PLAT_IDS[k]);if(!el)return;if(mode==='platform'){el.value=PLAT[k];el.readOnly=true;el.classList.add('auto-inp');D[k]=String(PLAT[k]);}else{el.readOnly=false;el.classList.remove('auto-inp');}});
+  if(mode==='platform')cA();
+}
+
+// SITE OBSERVATION
+function initObs(){
+  const DM={EN:'&#x26A1;',WR:'&#x1F4A7;',WS:'&#x267B;',EQ:'&#x1F33F;',CF:'&#x1F321;',BC:'&#x1F30D;'};
+  document.getElementById('obsBody').innerHTML=OBS_ITEMS.map(o=>{const st=OBS[o.id]||'';return `<div class="ob-c${st?' '+st:''}" id="oc-${o.id}"><div style="display:flex;gap:7px;align-items:flex-start"><span>${DM[o.dom]||''}</span><span style="font-size:11px;font-weight:500;flex:1">${o.l} <span style="font-size:8px;color:var(--mt)">${o.dom}</span></span></div><div class="ob-bs"><button class="ob-b${st==='observed'?' aob':''}" onclick="setObs('${o.id}','observed',this)">Observed</button><button class="ob-b${st==='finding'?' afn':''}" onclick="setObs('${o.id}','finding',this)">Finding</button><button class="ob-b${st==='na'?' ana':''}" onclick="setObs('${o.id}','na',this)">N/A</button></div></div>`;}).join('');
+  updObsCnt();
+}
+function setObs(id,val,btn){OBS[id]=val;const c=document.getElementById('oc-'+id);if(!c)return;c.className='ob-c '+val;c.querySelectorAll('.ob-b').forEach(b=>b.classList.remove('aob','afn','ana'));btn.classList.add(val==='observed'?'aob':val==='finding'?'afn':'ana');updObsCnt();}
+function updObsCnt(){const el=document.getElementById('obsCnt');if(el)el.textContent=Object.keys(OBS).length+'/18';}
+function signOff(){signedOff=true;const b=document.getElementById('soBtn');if(b){b.textContent='Signed Off';b.disabled=true;}const s=document.getElementById('soSt');if(s)s.textContent='QF/RUA/49 complete';}
+
+// RESULTS
+function getBand(sc){
+  if(sc>=85)return{l:'Platinum Green',c:'#7EC228',bg:'#EDF7D4'};
+  if(sc>=70)return{l:'Gold Green',c:'#F59E0B',bg:'#FFF7ED'};
+  if(sc>=50)return{l:'Silver Green',c:'#3B82F6',bg:'#EFF6FF'};
+  if(sc>=30)return{l:'Bronze Green',c:'#6366F1',bg:'#F3E8FF'};
+  return{l:'Needs Improvement',c:'#EF4444',bg:'#FEF2F2'};
+}
+
+function rR(){
+  const sc=total();const band=getBand(sc);
+  const inst=document.getElementById('c_inst')?.value||'Institution';
+  const yr=document.getElementById('c_yr')?.value||'2024-25';
+  const uid=document.getElementById('c_uid')?.value||'-';
+  document.getElementById('rHero').innerHTML=`<div class="hero"><div><div class="hlbl">RUA Green Audit Score</div><div class="hbig">${sc}<span style="font-size:17px;font-weight:400;opacity:.6">/99</span></div><div style="margin-top:7px"><span class="bpill" style="background:${band.bg};color:${band.c}">* ${band.l}</span></div></div><div><div class="hlbl">Institution</div><div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:3px">${inst}</div><div style="font-size:10px;color:#A8D898">Audit Year: ${yr} | ID: ${uid}</div></div><div><div class="hlbl">Domain Highlights</div>${DOMS.map(d=>{const ds=dSc(d);const pct=Math.round(ds/d.maxPts*100);return `<div style="display:flex;align-items:center;gap:5px;margin-bottom:3px"><span style="font-size:9px">${d.icon}</span><div style="flex:1;height:3px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${d.col}"></div></div><span style="font-size:8px;font-family:var(--mo);color:#A8D898">${ds}/${d.maxPts}</span></div>`;}).join('')}</div></div>`;
+
+  document.getElementById('rDoms').innerHTML=DOMS.map(d=>{const ds=dSc(d);const pct=Math.round(ds/d.maxPts*100);const b=pct>=75?{t:'Good',c:'#065F46',bg:'#D1FAE5'}:pct>=50?{t:'Moderate',c:'#92400E',bg:'#FDE68A'}:{t:'Needs Work',c:'#991B1B',bg:'#FEE2E2'};return `<div class="dr"><span style="font-size:13px">${d.icon}</span><span style="font-size:10px;font-weight:600;width:110px;flex-shrink:0">${d.name}</span><div class="dbar"><div class="dbf" style="width:${pct}%;background:${d.col}"></div></div><span style="font-family:var(--mo);font-size:10px;font-weight:700;color:${d.col};min-width:36px">${ds}/${d.maxPts}</span><span class="dbd" style="background:${b.bg};color:${b.c}">${b.t}</span></div>`;}).join('');
+
+  if(rdrObj){rdrObj.destroy();rdrObj=null;}
+  const ctx=document.getElementById('rdrChart');
+  if(ctx)rdrObj=new Chart(ctx,{type:'radar',data:{labels:DOMS.map(d=>d.name),datasets:[{label:'Score %',data:DOMS.map(d=>Math.round(dSc(d)/d.maxPts*100)),backgroundColor:'rgba(126,194,40,.15)',borderColor:'#7EC228',borderWidth:2,pointBackgroundColor:DOMS.map(d=>d.col),pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:100,ticks:{stepSize:25,font:{size:8}},pointLabels:{font:{size:9}}}},plugins:{legend:{display:false}}}});
+
+  const RECS={EN:'Prioritise >80% LED conversion, install solar PV with AMC, deploy BMS. EPI reduction through daylighting and sub-metering offers quick wins.',WR:'Install STP with 100% treated water reuse, upgrade to dual-flush and aerator fittings, implement drip irrigation. Sub-meter all water points.',WS:'Implement 3-bin segregation on all floors, activate composting for canteen waste, formalise e-waste via PCB agency. Expand paperless processes.',EQ:'Increase green coverage above 15%, introduce QR-code tree tagging and biodiversity mapping. Conduct IAQ measurement (VOC, CO2, SPM). Complete universal access features.',CF:'Compute formal GHG inventory (Scope 1+2), set carbon reduction target, document tree plantation as offset. Track and improve modal split.',BC:'Form dedicated eco-club, increase campus activities above 6/year, expand community outreach. Conduct regular FDPs and green campus seminars.'};
+  const sorted=[...DOMS].map(d=>({...d,pct:Math.round(dSc(d)/d.maxPts*100)})).sort((a,b)=>a.pct-b.pct);
+  document.getElementById('rRecs').innerHTML=sorted.map(d=>`<div class="rc"><div class="rch"><span style="font-size:14px">${d.icon}</span><span style="font-size:11px;font-weight:700">${d.name}</span><span style="font-family:var(--mo);font-size:10px;font-weight:700;color:${d.col}">${d.pct}%</span><span style="font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;background:${d.pct>=75?'#D1FAE5':d.pct>=50?'#FDE68A':'#FEE2E2'};color:${d.pct>=75?'#065F46':d.pct>=50?'#92400E':'#991B1B'}">${d.pct>=75?'Good':d.pct>=50?'Moderate':'Priority'}</span><span style="font-size:9px;color:var(--rg);margin-left:auto">+${d.maxPts-dSc(DOMS.find(x=>x.id===d.id))} pts potential</span></div><div class="rcb">${RECS[d.id]||''}</div><div class="rcbr"><div class="rcbf" style="width:${d.pct}%;background:${d.col}"></div></div></div>`).join('');
+
+  const obsOk=Object.values(OBS).filter(s=>s==='observed').length;
+  const ansQ=ALL_AQS.filter(q=>A[q.id]!==undefined&&A[q.id]!==null&&A[q.id]!=='').length;
+  const checks=[
+    {l:'Client setup complete',d:inst!=='Institution'?'Institution and contact recorded':'Complete Step 1',p:inst!=='Institution',ico:'&#x1F3E2;'},
+    {l:`Questions answered: ${ansQ}/${ALL_AQS.length}`,d:ansQ>=ALL_AQS.length?'All answered':ALL_AQS.length-ansQ+' pending',p:ansQ>=Math.floor(ALL_AQS.length*.9),w:ansQ>=Math.floor(ALL_AQS.length*.7),ico:'&#x1F4DD;'},
+    {l:`Score: ${sc}/99 - ${band.l}`,d:sc>=70?'Strong performance':sc>=50?'Good baseline':'Follow priority actions',p:sc>=50,w:sc>=30,ico:'&#x1F4CA;'},
+    {l:'No domains below 33%',d:DOMS.filter(d=>Math.round(dSc(d)/d.maxPts*100)<33).length===0?'All above minimum':'Critical: '+DOMS.filter(d=>Math.round(dSc(d)/d.maxPts*100)<33).map(d=>d.name).join(', '),p:DOMS.filter(d=>Math.round(dSc(d)/d.maxPts*100)<33).length===0,ico:'&#x26A0;'},
+    {l:`Site observations: ${obsOk}/18`,d:obsOk>=14?'Good coverage':obsOk+' of 18 recorded',p:obsOk>=14,w:obsOk>=9,ico:'&#x1F50D;'},
+    {l:'Site visit signed off',d:signedOff?'QF/RUA/49 complete':'Complete sign-off in Step 4',p:signedOff,ico:'&#x2705;'},
+    {l:'Carbon data collected',d:D.annualKwh&&D.publicTransport?'Carbon data present':'Complete carbon section',p:!!(D.annualKwh&&D.publicTransport),ico:'&#x1F321;'}
+  ];
+  const pc=checks.filter(c=>c.p).length;
+  document.getElementById('rReady').innerHTML=checks.map(c=>{const cls=c.p?'pass':c.w?'warn':'fail';return `<div class="chk ${cls}"><span class="chki">${c.p?'&#x2705;':c.w?'&#x26A0;':'&#x274C;'}</span><div style="flex:1"><div class="chkl">${c.l}</div><div class="chkd">${c.d}</div></div><span style="font-size:14px;flex-shrink:0">${c.ico}</span></div>`;}).join('')+`<div style="margin-top:10px;padding:12px;background:linear-gradient(135deg,#1E3A14,#1A3345);border-radius:9px;text-align:center"><div style="font-size:8px;font-weight:700;color:#A8D898;text-transform:uppercase;letter-spacing:2px;margin-bottom:4px">Report Readiness</div><div style="font-size:34px;font-weight:800;color:#fff;font-family:var(--mo)">${Math.round(pc/checks.length*100)}%</div><div style="font-size:9px;color:#A8D898">${pc}/${checks.length} checks passed | QF/RUA/64</div></div>`;
+}
+
+// EXPORT CSV
+function xCSV(){
+  const inst=document.getElementById('c_inst')?.value||'Institution';
+  const rows=[['Domain','Q-ID','Question','Type','MaxPts','Value','Score']];
+  DOMS.forEach(d=>(AQS[d.id]||[]).forEach(q=>{const v=A[q.id]??'';rows.push([d.name,q.id,q.l,q.t,q.mp,v,qSc(q)]);}));
+  rows.push(['','TOTAL','RUA Green Audit Score','','99','',total()]);
+  const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='RUA_GreenAudit_'+inst.replace(/\s+/g,'_')+'.csv';a.click();
+}
+
+// INIT
+document.addEventListener('DOMContentLoaded',()=>{
+  initA();
+  setCFMode('platform');
+  rH();
+  initStep6();
+});
+
+// ═══════════════════════════════════════════════════════════════
+// STEP 6 — EVIDENCE, IMPORT, EXPORT  (ALL GLOBAL SCOPE)
+// ═══════════════════════════════════════════════════════════════
+var evRecords = [], evStaged = [], evDetId = null;
+
+var EV_CATS = {gi:'General Info (Q1-Q19)',en:'Energy (Q20-Q39)',wr:'Water (Q40-Q59)',ws:'Waste (Q60-Q69)',eq:'Env. Quality (Q70-Q82)',cf:'Carbon FP (Q83-Q88)',bc:'Beyond Campus (Q89-Q97)',rep:'Audit Report (QF/RUA/64)',obs:'Site Observation (QF/RUA/49)',other:'Other'};
+var EV_ICON  = {gi:'🏢',en:'⚡',wr:'💧',ws:'♻️',eq:'🌿',cf:'🌡️',bc:'🌍',rep:'📋',obs:'🔍',other:'📁'};
+var EV_SUBS  = {
+  gi:['Q1-Q8 Contact & Institution Details','Q9 Building Count','Q17 Site Plan','Q18 Floor Plans','Q19 Elevations'],
+  en:['Q22-Q23 Electricity Bills (12 months)','Q24-Q25 Lighting Inventory Count','Q28-Q29 Fan Inventory Count','Q31 Electric Sub-metering Record','Q32 Water Sub-metering Record','Q35-Q39 Solar PV Certificates & AMC','Q36 Other Renewable Energy Evidence'],
+  wr:['Q44-Q45 Water Source & Meter Details','Q46 Water Bills (12 months)','Q47-Q48 Tap & Aerator Count','Q49-Q50 Flush Tank Count','Q52 Irrigation System Photos/Certificate','Q53 Grey Water Treatment Certificate','Q54 STP Certificate & Operation Log','Q56-Q59 RWH Certificate & Photographs'],
+  ws:['Q62-Q63 Compost Pit Records / Photos','Q66-Q67 E-waste Manifest & Agency Certificate','Q68 Medical Waste Agency Certificate','Q69 Paperless Process Screenshots'],
+  eq:['Q70 Landscape Measurement Evidence','Q72 Biodiversity Mapping Report','Q75 QR Code Tree Tags Photograph','Q79 Universal Design Feature Photos','Q80 Noise Measurement Report (NABL)','Q82 Campus Photos / Videos'],
+  cf:['Q83-Q86 Vehicle Count Log / Survey Data','Q87 LPG Invoice / Annual Consumption Log','Q88 DG Set Fuel Log & AMC Contract','GHG Calculation Workbook'],
+  bc:['Q89 Eco-Club Registration / Activity Photos','Q90 Campus Green Activity Records','Q91 Community Outreach Certificates','Q94 FDP / Training Certificates','Q95 Seminar Records & Attendance','Q96 Green Building Rating Application','Q97 Previous Audit Reports'],
+  rep:['Full Audit Report QF/RUA/64','Executive Summary','Score Sheet QF-RUA-20'],
+  obs:['Site Visit Report QF/RUA/49','Field Photographs','Inspector Notes'],
+  other:['Miscellaneous Supporting Document']
+};
+var EV_CATREF = {
+  en:'Required: 12-month electricity bills, LED & fan inventory sheets, solar generation log, AMC certificate',
+  wr:'Required: 12-month water bills, RWH engineer certificate, STP compliance report, Lab reports (pH, TDS)',
+  ws:'Required: E-waste manifest & PCB-agency certificate, compost log, medical waste agency certificate',
+  eq:'Required: Biodiversity mapping report, IAQ printout (NABL-calibrated), campus photographs, noise meter report',
+  cf:'Required: LPG invoices or purchase receipts, DG fuel logbook, vehicle count survey data',
+  bc:'Required: Eco-club registration certificate, activity photos, training certificates, outreach records',
+  gi:'Required: Authorisation letter, site plan, all floor plans with door/window schedule, all elevations',
+  rep:'QF/RUA/64 full signed report, executive summary, score sheet',
+  obs:'QF/RUA/49 signed site observation report, field photographs',
+  other:'Any additional supporting document'
+};
+var EV_QLINKS = [
+  {q:'Q23',lbl:'Elec Bills',cat:'en',sub:'Q22-Q23 Electricity Bills (12 months)'},
+  {q:'Q46',lbl:'Water Bills',cat:'wr',sub:'Q46 Water Bills (12 months)'},
+  {q:'Q35',lbl:'Solar Cert',cat:'en',sub:'Q35-Q39 Solar PV Certificates & AMC'},
+  {q:'Q54',lbl:'STP Cert',cat:'wr',sub:'Q54 STP Certificate & Operation Log'},
+  {q:'Q56',lbl:'RWH Cert',cat:'wr',sub:'Q56-Q59 RWH Certificate & Photographs'},
+  {q:'Q67',lbl:'E-waste',cat:'ws',sub:'Q66-Q67 E-waste Manifest & Agency Certificate'},
+  {q:'Q80',lbl:'Noise Rpt',cat:'eq',sub:'Q80 Noise Measurement Report (NABL)'},
+  {q:'Q82',lbl:'Photos',cat:'eq',sub:'Q82 Campus Photos / Videos'},
+  {q:'Q88',lbl:'DG Log',cat:'cf',sub:'Q88 DG Set Fuel Log & AMC Contract'},
+  {q:'Q97',lbl:'Prev Audit',cat:'bc',sub:'Q97 Previous Audit Reports'}
+];
+
+// SAMPLE evidence records for demo
+var EV_SAMPLES = [
+  {id:'s1',filename:'electricity-bills-FY2024-25.pdf',icon:'📄',cat:'en',sub:'Q22-Q23 Electricity Bills (12 months)',docType:'Utility Bill / Invoice',period:'2024-25',uploader:'Dr. Roshni Yehuda',uploadDate:'2025-01-10',docDate:'2024-03-31',size:'2.4 MB',status:'verified',notes:'12 months MSEDCL bills Apr 2024–Mar 2025. Total 274,364 kWh.'},
+  {id:'s2',filename:'water-bills-FY2024-25.pdf',icon:'📄',cat:'wr',sub:'Q46 Water Bills (12 months)',docType:'Utility Bill / Invoice',period:'2024-25',uploader:'Dr. Roshni Yehuda',uploadDate:'2025-01-10',docDate:'2024-03-31',size:'1.8 MB',status:'verified',notes:'12 months municipal water bills. Avg 469 KL/month.'},
+  {id:'s3',filename:'solar-pv-amc-contract.pdf',icon:'📄',cat:'en',sub:'Q35-Q39 Solar PV Certificates & AMC',docType:'AMC / Service Contract',period:'2024-25',uploader:'Ar. Aditi Mane',uploadDate:'2025-01-12',docDate:'2024-04-01',size:'890 KB',status:'verified',notes:'AMC agreement for 34 rooftop solar PV panels (10 kWp). Valid Apr 2024–Mar 2025.'},
+  {id:'s4',filename:'ewaste-manifest-eincarnation.pdf',icon:'📄',cat:'ws',sub:'Q66-Q67 E-waste Manifest & Agency Certificate',docType:'Compliance Certificate',period:'2024-25',uploader:'Ar. Aditi Mane',uploadDate:'2025-01-12',docDate:'2024-06-15',size:'540 KB',status:'verified',notes:'E-waste manifest from E-Incarnation Recycling Pvt. Ltd. PCB-registered agency certificate included.'},
+  {id:'s5',filename:'rwh-engineer-certificate.pdf',icon:'📄',cat:'wr',sub:'Q56-Q59 RWH Certificate & Photographs',docType:'Government Certificate / NOC',period:'2024-25',uploader:'Dr. S.R. Kashyap',uploadDate:'2025-01-15',docDate:'2023-09-01',size:'320 KB',status:'review',notes:'RWH system installation certificate from licensed engineer. Tank capacity: 5000L UG.'},
+  {id:'s6',filename:'iaq-measurement-report-nabl.pdf',icon:'📄',cat:'eq',sub:'Q80 Noise Measurement Report (NABL)',docType:'Lab Test Report (NABL)',period:'2024-25',uploader:'Dr. S.R. Kashyap',uploadDate:'2025-01-15',docDate:'2024-11-20',size:'1.1 MB',status:'pending',notes:'IAQ measurement report: VOC, CO2, SPM measured in classrooms and common areas. NABL accreditation no. T-2178.'},
+  {id:'s7',filename:'campus-photographs-2024.zip',icon:'🗜️',cat:'eq',sub:'Q82 Campus Photos / Videos',docType:'Photograph / Site Image',period:'2024-25',uploader:'Ar. Aditi Mane',uploadDate:'2025-01-16',docDate:'2024-12-01',size:'45.2 MB',status:'pending',notes:'Site visit photographs: solar panels, RWH tank, compost pit, QR code trees, universal access ramps.'},
+];
+
+// ── TAB SWITCHER (must be global) ──────────────────────────────
+function eSwTab(id, btn) {
+  document.querySelectorAll('.epanel').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.etab').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('ep-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(id==='vault') { evFilter(); evUpdateStats(); }
+  if(id==='export') evRefreshExport();
+}
+
+// ── EVIDENCE UPLOAD ────────────────────────────────────────────
+function evHandleFiles(files) {
+  Array.from(files).forEach(function(f){if(!evStaged.find(function(s){return s.name===f.name;}))evStaged.push(f);});
+  evRenderStaged(); evUpdateStats();
+}
+function evRenderStaged() {
+  var q=document.getElementById('evStagedQ');if(!q)return;
+  if(evStaged.length===0){q.innerHTML='';return;}
+  q.innerHTML=evStaged.map(function(f,i){return '<div class="fq-item"><span style="font-size:14px">'+evIcon(f.name)+'</span><div class="fq-name">'+f.name+'<div class="fq-meta">'+evFmtBytes(f.size)+' &middot; Staged</div></div><button class="fq-rm" onclick="evRemoveStaged('+i+')">&#x2715;</button></div>';}).join('');
+}
+function evRemoveStaged(i){evStaged.splice(i,1);evRenderStaged();evUpdateStats();}
+
+function evRenderSubs() {
+  var cat=document.getElementById('evCat').value;
+  var sub=document.getElementById('evSub');
+  var opts=EV_SUBS[cat]||[];
+  sub.innerHTML=opts.length?opts.map(function(o){return '<option>'+o+'</option>';}).join(''):'<option value="">— Select domain first —</option>';
+  var ref=document.getElementById('evCatRef');
+  if(ref&&cat) ref.innerHTML='<div style="font-size:10px;color:var(--k2);line-height:1.7;padding:4px 0">'+( EV_ICON[cat]||'📁')+' <strong>'+(EV_CATS[cat]||cat)+'</strong><br><span style="color:var(--mt)">'+(EV_CATREF[cat]||'')+'</span></div>';
+  else if(ref) ref.innerHTML='<div style="font-size:10px;color:var(--mt)">Select a domain above to see required evidence types.</div>';
+}
+
+function evSubmit() {
+  var cat=document.getElementById('evCat').value;
+  var docType=document.getElementById('evDocType').value;
+  if(evStaged.length===0){showToast('⚠️ Please select at least one file','error');return;}
+  if(!cat){showToast('⚠️ Please select a domain category','error');return;}
+  var sub=document.getElementById('evSub').value||'—';
+  var period=document.getElementById('evPeriod').value||document.getElementById('c_yr')&&document.getElementById('c_yr').value||'2024-25';
+  var uploader=document.getElementById('evUploader').value||'RUA Inspector';
+  var notes=document.getElementById('evNotes').value;
+  var docDate=document.getElementById('evDocDate').value;
+  evStaged.forEach(function(f,i){
+    evRecords.unshift({id:'ev'+Date.now()+i,filename:f.name,icon:evIcon(f.name),cat:cat,sub:sub,docType:docType,period:period,uploader:uploader,uploadDate:new Date().toISOString().slice(0,10),docDate:docDate||new Date().toISOString().slice(0,10),size:evFmtBytes(f.size),status:'pending',notes:notes||'No description.'});
+  });
+  evUpdateStats(); showToast('📎 '+evStaged.length+' file(s) uploaded & tagged','success');
+  evStaged=[]; evRenderStaged(); evClearForm();
+}
+
+function evClearForm(){
+  evStaged=[]; evRenderStaged();
+  var ids=['evCat','evDocType'];
+  ids.forEach(function(id){var el=document.getElementById(id);if(el)el.selectedIndex=0;});
+  ['evDocDate','evNotes','evUploader'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  var fi=document.getElementById('evFileInput');if(fi)fi.value='';
+  var sub=document.getElementById('evSub');if(sub)sub.innerHTML='<option value="">— Select domain first —</option>';
+  evUpdateStats();
+}
+
+function evInitQuickLinks() {
+  var c=document.getElementById('qLinkPills');if(!c)return;
+  c.innerHTML=EV_QLINKS.map(function(l){return '<button class="qlink-btn" onclick="evQuickLink(\''+l.cat+'\',\''+l.sub.replace(/'/g,"\\'")+'\')">'+(EV_ICON[l.cat]||'')+'<span>'+l.q+'</span> '+l.lbl+'</button>';}).join('');
+}
+
+function evQuickLink(cat, sub) {
+  var cs=document.getElementById('evCat');if(cs){cs.value=cat;evRenderSubs();}
+  setTimeout(function(){
+    var ss=document.getElementById('evSub');
+    if(ss){Array.from(ss.options).forEach(function(o){if(o.text===sub)ss.value=o.value;});}
+  },50);
+  document.getElementById('evFileInput').click();
+}
+
+// ── EVIDENCE VAULT ─────────────────────────────────────────────
+function evAddSampleRecords() {
+  var existing=evRecords.map(function(r){return r.id;});
+  EV_SAMPLES.forEach(function(r){if(!existing.includes(r.id))evRecords.push(r);});
+  evFilter(); evUpdateStats();
+  showToast('✅ 7 sample evidence records added','success');
+}
+
+function evFilter() {
+  var srch=(document.getElementById('evSrch')&&document.getElementById('evSrch').value||'').toLowerCase();
+  var fcat=document.getElementById('evFCat')&&document.getElementById('evFCat').value||'';
+  var fst=document.getElementById('evFSt')&&document.getElementById('evFSt').value||'';
+  var filt=evRecords.filter(function(r){
+    if(fcat&&r.cat!==fcat)return false;
+    if(fst&&r.status!==fst)return false;
+    if(srch&&!r.filename.toLowerCase().includes(srch)&&!r.notes.toLowerCase().includes(srch)&&!r.sub.toLowerCase().includes(srch))return false;
+    return true;
+  });
+  evRenderTable(filt);
+}
+
+function evRenderTable(recs) {
+  var tb=document.getElementById('evTBody');
+  var em=document.getElementById('evEmpty');
+  if(!tb)return;
+  if(recs.length===0){tb.innerHTML='';if(em)em.style.display='block';return;}
+  if(em)em.style.display='none';
+  tb.innerHTML=recs.map(function(r){return '<tr>'+
+    '<td><div class="ev-fn">'+r.icon+' '+r.filename+'<small>'+r.size+' &middot; '+r.uploadDate+'</small></div></td>'+
+    '<td><span class="ev-chip ec-'+r.cat+'">'+(EV_ICON[r.cat]||'')+' '+(EV_CATS[r.cat]||r.cat).split(' ')[0]+'</span></td>'+
+    '<td style="font-size:9px;color:var(--mt);max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+r.sub+'">'+r.sub+'</td>'+
+    '<td style="font-size:10px">'+r.docType+'</td>'+
+    '<td style="font-size:9px;white-space:nowrap">'+r.docDate+'</td>'+
+    '<td style="font-size:10px">'+r.uploader+'</td>'+
+    '<td>'+evStBadge(r.status)+'</td>'+
+    '<td><button class="btn bs bsm" onclick="evDetOpen(\''+r.id+'\')">&#x1F50D;</button></td>'+
+  '</tr>';}).join('');
+}
+
+function evStBadge(st){var m={pending:'<span class="ev-st st-pend">⏳ Pending</span>',verified:'<span class="ev-st st-ver">✅ Verified</span>',review:'<span class="ev-st st-rev">👁 Review</span>'};return m[st]||st;}
+
+function evUpdateStats() {
+  var el=document.getElementById('et-badge-vault');if(el)el.textContent=evRecords.length;
+  var el2=document.getElementById('et-badge-upload');if(el2)el2.textContent=evStaged.length;
+  var sb=document.getElementById('sb6cnt');if(sb)sb.textContent=evRecords.length;
+  var stats={total:evRecords.length,verified:evRecords.filter(function(r){return r.status==='verified';}).length,pending:evRecords.filter(function(r){return r.status==='pending';}).length,cats:new Set(evRecords.map(function(r){return r.cat;})).size};
+  ['total','verified','pending','cats'].forEach(function(k){var el=document.getElementById('vs-'+k);if(el)el.textContent=stats[k];});
+}
+
+// ── DETAIL PANEL ───────────────────────────────────────────────
+function evDetOpen(id) {
+  var r=evRecords.find(function(e){return e.id===id;});if(!r)return; evDetId=id;
+  document.getElementById('evDetIcon').textContent=r.icon;
+  document.getElementById('evDetName').textContent=r.filename;
+  document.getElementById('evDetStat').innerHTML=evStBadge(r.status);
+  document.getElementById('evDetDom').textContent=(EV_ICON[r.cat]||'')+' '+(EV_CATS[r.cat]||r.cat);
+  document.getElementById('evDetQlnk').textContent=r.sub;
+  document.getElementById('evDetDocT').textContent=r.docType;
+  document.getElementById('evDetDate').textContent=r.docDate||'—';
+  document.getElementById('evDetPer').textContent=r.period;
+  document.getElementById('evDetBy').textContent=r.uploader;
+  document.getElementById('evDetSz').textContent=r.size;
+  document.getElementById('evDetNotes').textContent=r.notes;
+  document.getElementById('evDetOv').classList.add('open');
+}
+function evDetClose(){document.getElementById('evDetOv').classList.remove('open');}
+function evDetVerify(){if(evDetId){var r=evRecords.find(function(e){return e.id===evDetId;});if(r)r.status='verified';evFilter();evUpdateStats();}showToast('✅ Evidence verified');evDetClose();}
+function evDetRevise(){if(evDetId){var r=evRecords.find(function(e){return e.id===evDetId;});if(r)r.status='review';evFilter();evUpdateStats();}showToast('🔁 Revision requested');evDetClose();}
+function evDetDelete(){if(evDetId){evRecords=evRecords.filter(function(e){return e.id!==evDetId;});evFilter();evUpdateStats();}showToast('🗑️ Evidence deleted','error');evDetClose();}
+
+// ── IMPORT ─────────────────────────────────────────────────────
+function impHandleFile(input) {
+  if(!input.files||!input.files[0])return;
+  var f=input.files[0]; var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=JSON.parse(e.target.result);
+      if(data.D)Object.assign(D,data.D);
+      if(data.A)Object.assign(A,data.A);
+      if(data.OBS)Object.assign(OBS,data.OBS);
+      if(data.meta){
+        if(data.meta.inst){var el=document.getElementById('c_inst');if(el){el.value=data.meta.inst;syncInst();}}
+        if(data.meta.yr){var el=document.getElementById('c_yr');if(el)el.value=data.meta.yr;}
+      }
+      if(data.evidence)data.evidence.forEach(function(r){if(!evRecords.find(function(e){return e.filename===r.filename;}))evRecords.push(r);});
+      cA();rAA();rH();initObs();evUpdateStats();
+      showToast('📥 Session imported: '+f.name,'success');
+      impAddHistory(f.name, evFmtBytes(f.size), '✅ Imported');
+    }catch(err){showToast('❌ Invalid file — must be a JSON export from this tool','error');}
+  };
+  reader.readAsText(f);
+}
+
+function impLoadDemo() {
+  var demo={meta:{inst:'Ramniranjan Jhunjhunwala College',yr:'2023-24'},D:{annualKwh:274364,buaAudit:8270,campusArea:5000,occupancy:2500,totalLights:1263,ledLights:1035,totalFans:529,bldcFans:0,totalTaps:120,aeratorTaps:18,totalFlush:64,dualFlush:4,annualWaterKL:5628,landscapeArea:400,lpg:120,dgCount:0,dgKva:0,dgHours:0,publicTransport:72,cars:15,twowheelers:45,cycles:8,evs:2,utility:'Adani Electricity',solarPV:'yes',solarUsed:'yes',solarMeter:'yes',solarAMC:'yes',rwh:'yes',rwhPipes:'yes',rwhReuse:'yes',composting:'yes',dryRecycle:'yes',ewaste:'yes',ewasteAgency:'yes',biodiversity:'yes',treeNaming:'yes',treeQR:'yes',envPolicy:'yes',wasteBins:'yes',playground:'yes'},A:{EN1:2,EN2:1,EN3:3,EN4:33.18,EN5:2,EN6:0,EN7:0,EN8a:1,EN8b:0,EN8c:1,EN8d:1,EN8e:1,EN8f:0,EN8g:0,EN9:0,EN10a:2,EN10b:1,EN11:0,WR1a:1,WR1b:1,WR2a:1,WR2b:1,WR2c:1,WR3a:0,WR3b:0,WR4:0,WR5a:1,WR5b:0,WR5c:0,WR5d:1,WR6:3,WS1:1,WS2a:1,WS2b:1,WS3a:1,WS3b:0,WS4a:1,WS4b:1,WS5a:0,WS5b:0,WS6:2,EQ1a:1,EQ1b:1,EQ2a:1,EQ2b:1,EQ2c:1,EQ2d:1,EQ3a:1,EQ3b:1,EQ3c:1,EQ4a:1,EQ4b:1,EQ4c:0,EQ5a:1,EQ5b:1,EQ6a:2,EQ6b:2,EQ6c:2,EQ7:1,EQ8:1,CF1:1,CF2:1,CF3:1,CF4:2,BC1:1,BC2:2,BC3:1,BC4:1,BC5:1,BC6:1,BC7:1}};
+  if(demo.D){Object.assign(D,demo.D);}
+  if(demo.A){Object.assign(A,demo.A);}
+  var el=document.getElementById('c_inst');if(el){el.value='Ramniranjan Jhunjhunwala College';syncInst();}
+  var yr=document.getElementById('c_yr');if(yr)yr.value='2023-24';
+  var bt=document.getElementById('c_btype');if(bt)bt.value='Educational Institutions';
+  EV_SAMPLES.forEach(function(r){if(!evRecords.find(function(e){return e.id===r.id;}))evRecords.push(r);});
+  cA();rAA();rH();initObs();evUpdateStats();
+  showToast('⚡ Demo data loaded — RJ College 2023-24','success');
+  impAddHistory('demo-rjcollege-2023-24.json','48 KB','✅ Demo loaded');
+}
+
+function impClear(){
+  Object.keys(D).forEach(function(k){delete D[k];});
+  Object.keys(A).forEach(function(k){delete A[k];});
+  Object.keys(OBS).forEach(function(k){delete OBS[k];});
+  evRecords=[];evStaged=[];
+  cA();rAA();rH();evUpdateStats();
+  showToast('🗑️ Session cleared','error');
+}
+
+function impAddHistory(name, size, status) {
+  var h=document.getElementById('impHistory');if(!h)return;
+  var prev=h.innerHTML.includes('No imports')?'':h.innerHTML;
+  h.innerHTML='<div class="fq-item"><span>📊</span><div class="fq-name">'+name+'<div class="fq-meta">'+size+' &middot; '+new Date().toLocaleDateString('en-IN')+'</div></div><span style="font-size:9px;color:var(--rg);font-weight:700">'+status+'</span></div>'+prev;
+}
+
+// ── EXPORT ─────────────────────────────────────────────────────
+function evRefreshExport() {
+  var sc=total();var band=getBand(sc);
+  var es=document.getElementById('expScore');if(es)es.textContent=sc;
+  var eb=document.getElementById('expBand');if(eb){eb.textContent=band.l;eb.style.color=band.c;}
+  var ei=document.getElementById('expInst');if(ei)ei.textContent=document.getElementById('c_inst')&&document.getElementById('c_inst').value||'—';
+}
+
+function expJSON() {
+  var inst=document.getElementById('c_inst')&&document.getElementById('c_inst').value||'Audit';
+  var meta={inst:inst,yr:document.getElementById('c_yr')&&document.getElementById('c_yr').value||'',exportDate:new Date().toISOString(),score:total()};
+  var payload={meta:meta,D:D,C:C,A:A,OBS:OBS,evidence:evRecords.map(function(r){return {filename:r.filename,cat:r.cat,sub:r.sub,docType:r.docType,period:r.period,status:r.status,uploader:r.uploader,uploadDate:r.uploadDate};})};
+  var a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(payload,null,2));
+  a.download='RUA_Audit_'+inst.replace(/\s+/g,'_')+'.json';a.click();
+  showToast('📄 Full session exported as JSON');
+}
+
+function expManifest() {
+  if(evRecords.length===0){showToast('⚠️ No evidence files to export','error');return;}
+  var rows=[['#','Filename','Domain','Q-Link / Sub-category','Document Type','Document Date','Period','Uploaded By','Status']];
+  evRecords.forEach(function(r,i){rows.push([i+1,r.filename,EV_CATS[r.cat]||r.cat,r.sub,r.docType,r.docDate,r.period,r.uploader,r.status]);});
+  var csv=rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='Evidence_Manifest_RUA.csv';a.click();showToast('📋 Evidence manifest exported');
+}
+
+// ── SAMPLE REPORT GENERATOR (QF/RUA/64) ───────────────────────
+function expReport() {
+  var inst = (document.getElementById('c_inst')&&document.getElementById('c_inst').value)||'[Institution Name]';
+  var loc  = (document.getElementById('c_loc')&&document.getElementById('c_loc').value)||'[City, State]';
+  var yr   = (document.getElementById('c_yr')&&document.getElementById('c_yr').value)||'2024-25';
+  var uid  = (document.getElementById('c_uid')&&document.getElementById('c_uid').value)||'—';
+  var sc   = total();
+  var band = getBand(sc);
+  var bua  = D.buaAudit||'—';
+  var occ  = D.occupancy||'—';
+  var epi  = C.epi||'—';
+  var kwh  = D.annualKwh||'—';
+  var led  = C.ledPct||'—';
+  var lpd  = A.EN1||0;
+  var lux  = A.EN2||0;
+  var daylt= A.EN3||0;
+  var ghgTot= C.ghgTotal?(+C.ghgTotal).toFixed(2):'—';
+  var ghgPP = C.ghgPerson?(+C.ghgPerson).toFixed(4):'—';
+  var wInt = C.waterLpd||'—';
+  var pl   = C.paperlessCount||0;
+  var greenPct = C.greenPct||'—';
+
+  // Domain scores
+  var dscores = {};
+  DOMS.forEach(function(d){dscores[d.id]=dSc(d);});
+
+  var rpt = '<style>body{font-family:"Times New Roman",serif;color:#111;margin:0;padding:0;line-height:1.8}h1{font-size:18pt;color:#1E3A14;border-bottom:2px solid #1E3A14;padding-bottom:4px;margin-top:28px}h2{font-size:14pt;color:#2E5A1E;margin-top:20px}h3{font-size:12pt;color:#3E7A2A;margin-top:14px}p{margin:6px 0;font-size:11pt}table{width:100%;border-collapse:collapse;margin:12px 0;font-size:10pt}th{background:#1E3A14;color:#fff;padding:7px 10px;text-align:left}td{padding:6px 10px;border:1px solid #ccc}tr:nth-child(even)td{background:#f4f9f4}.score-box{background:linear-gradient(135deg,#1E3A14,#1A3345);color:#fff;padding:20px 28px;border-radius:10px;text-align:center;margin:16px 0}.score-big{font-size:52pt;font-weight:900;letter-spacing:-3px;font-family:monospace}.badge{display:inline-block;background:#7EC228;color:#fff;padding:4px 16px;border-radius:99px;font-size:12pt;font-weight:700;margin-top:6px}.cover{text-align:center;padding:60px 40px;border:3px solid #1E3A14;margin-bottom:30px;border-radius:4px}.cover-title{font-size:22pt;font-weight:900;color:#1E3A14;margin:12px 0}.cover-sub{font-size:14pt;color:#2E5A1E;margin:4px 0}.divider{border:none;border-top:1px solid #ccc;margin:20px 0}.section-lbl{background:#EDF7E0;border-left:4px solid #3E7A2A;padding:6px 12px;font-weight:700;font-size:11pt;margin:14px 0}.rec-item{padding:8px 12px;border-left:3px solid #7EC228;background:#f7fdf0;margin:6px 0;font-size:10.5pt}@media print{body{margin:0}}</style>';
+
+  // COVER PAGE
+  rpt += '<div class="cover">';
+  rpt += '<div style="font-size:10pt;letter-spacing:2px;color:#5B6E54;text-transform:uppercase;margin-bottom:8px">RUA Ecospaces LLP &nbsp;|&nbsp; ISO/IEC 17020:2012 Certified</div>';
+  rpt += '<div class="cover-title">GREEN AUDIT REPORT</div>';
+  rpt += '<div class="cover-sub">'+inst+'</div>';
+  rpt += '<div style="font-size:11pt;color:#5B6E54;margin:4px 0">'+loc+'</div>';
+  rpt += '<div style="margin:16px 0"><span style="background:#EDF7E0;border:1px solid #7EC228;border-radius:4px;padding:4px 14px;font-size:10pt;font-weight:700;color:#1E3A14">Audit Year: '+yr+'</span>&nbsp;&nbsp;<span style="background:#EEF2FF;border:1px solid #818CF8;border-radius:4px;padding:4px 14px;font-size:10pt;font-weight:700;color:#3730A3">Report ID: '+uid+'</span></div>';
+  rpt += '<div class="score-box"><div style="font-size:9pt;letter-spacing:2px;color:#A8D898;text-transform:uppercase;margin-bottom:4px">QF-RUA-20 Green Audit Score</div><div class="score-big">'+sc+'<span style="font-size:22pt;opacity:.6">/99</span></div><div class="badge">'+band.l+'</div></div>';
+  rpt += '<div style="font-size:9pt;color:#5B6E54;margin-top:12px">Audited by: Dr. Roshni U. Yehuda (CEO) &nbsp;|&nbsp; Dr. S. R. Kashyap (System Co-ordinator) &nbsp;|&nbsp; Ar. Aditi Mane (Green Building Analyst)</div>';
+  rpt += '</div>';
+
+  // PREFACE
+  rpt += '<h1>Preface</h1>';
+  rpt += '<p>A Green Audit is the first step to reducing a building\'s water, waste, energy, carbon footprint, and environmental impact. This audit has been conducted as per the QF-RUA-20 framework developed by Roshni Udyavar &amp; Associates / RUA Ecospaces LLP, covering six domains: Energy, Water, Waste, Environmental Quality, Carbon Footprint, and Beyond the Campus.</p>';
+  rpt += '<p>The methodology involves evaluation of the water, energy and waste consumption in the building or premises and then comparing these with the baseline numbers to evaluate the current performance. The audit provides recommendations for improvement and a pathway towards a greener, more sustainable campus.</p>';
+  rpt += '<p>This Green Audit Report is meant for academic and research purposes only. For legal issues, a separate study is required.</p>';
+  rpt += '<p><em>RUA Ecospaces LLP &mdash; Green Audit Team</em></p>';
+
+  // ABBREVIATIONS
+  rpt += '<h1>Abbreviations &amp; Units</h1>';
+  rpt += '<table><tr><th>Abbreviation</th><th>Full Form</th><th>Unit</th><th>Description</th></tr>';
+  var abbr = [['EPI','Energy Performance Index','kWh/m²/yr','Annual energy per built-up area'],['LPD','Lighting Power Density','W/m²','Max lighting power per unit area (ECBC)'],['LED','Light Emitting Diode','—','Energy-efficient light source'],['BLDC','Brushless Direct Current','—','Energy-efficient fan motor type'],['BUA','Built-Up Area','sq.m.','Total floor area of audited building'],['RWH','Rainwater Harvesting','—','System to capture and store rainwater'],['STP','Sewage Treatment Plant','—','On-site wastewater treatment system'],['NBC','National Building Code','—','IS: 875 building design standard'],['ECBC','Energy Conservation Building Code','—','BEE energy efficiency standard'],['GHG','Greenhouse Gas','tCO2e','Carbon dioxide equivalent emissions']];
+  abbr.forEach(function(a){rpt+='<tr><td><strong>'+a[0]+'</strong></td><td>'+a[1]+'</td><td>'+a[2]+'</td><td>'+a[3]+'</td></tr>';});
+  rpt += '</table>';
+
+  // EXECUTIVE SUMMARY
+  rpt += '<h1>I. Executive Summary &mdash; '+yr+'</h1>';
+  rpt += '<div class="section-lbl">Overall Score: '+sc+'/99 &mdash; '+band.l+'</div>';
+
+  rpt += '<table><tr><th>Domain</th><th>Score</th><th>Max</th><th>%</th><th>Status</th></tr>';
+  DOMS.forEach(function(d){
+    var ds=dSc(d);var pct=Math.round(ds/d.maxPts*100);
+    var st=pct>=75?'Good':pct>=50?'Moderate':'Needs Work';
+    rpt+='<tr><td>'+d.icon+' '+d.name+'</td><td><strong>'+ds+'</strong></td><td>'+d.maxPts+'</td><td>'+pct+'%</td><td>'+st+'</td></tr>';
+  });
+  rpt += '<tr style="background:#EDF7E0"><td><strong>TOTAL</strong></td><td><strong>'+sc+'</strong></td><td>99</td><td><strong>'+Math.round(sc/99*100)+'%</strong></td><td><strong>'+band.l+'</strong></td></tr>';
+  rpt += '</table>';
+
+  rpt += '<p>The Energy Performance Index (EPI) of the building is '+(epi!=='—'?epi+' kWh/sq.m./year':'not yet computed — enter annual kWh and BUA in Step 2')+'.</p>';
+  rpt += '<p>Total occupants: '+occ+' | Built-up area (audit scope): '+bua+' sq.m. | Audit Year: '+yr+'.</p>';
+  if(ghgTot!=='—') rpt += '<p>Total GHG footprint: <strong>'+ghgTot+' tCO2e/year</strong> ('+ghgPP+' tCO2e/person/year).</p>';
+
+  // INTRODUCTION
+  rpt += '<h1>II. Introduction</h1>';
+  rpt += '<h2>1.1 Objectives of the Green Audit</h2>';
+  rpt += '<p>The objectives of the green audit are as follows:</p>';
+  ['Quantify energy, water and waste consumption',
+   'Identify energy saving opportunities resulting in lowered energy bills and lower carbon footprint',
+   'Identify wastages in use and devise solutions such as smart/automated equipment to reduce consumption',
+   'Introduction of renewable energy to reduce operational energy cost (if required)',
+   'Introducing measures to reduce water consumption and optimise rainwater harvesting potential'
+  ].forEach(function(o){rpt+='<p style="margin-left:16px">&bull; '+o+'</p>';});
+
+  rpt += '<h2>1.2 Scope of Work</h2>';
+  var scopes={Energy:['Energy Efficiency','Renewable Energy','Metering and Electrical System'],Water:['Rainwater Harvesting','Water Efficient Equipment','Landscape Water Management','Wastewater Treatment','Water Usage'],Waste:['Waste Segregation','Organic Waste Treatment','Recycling of Waste','E-Waste Management','Paperless Campus'],'Env. Quality':['Green Spaces','Flora and Fauna','Universal Access','Amenities','Indoor Air Quality','Noise Pollution'],'Carbon Footprint':['Scope 1 & 2 CO₂ Emissions'],'Beyond Campus':['Stakeholder Involvement','Environment/Green Club','Inclusion in Curriculum']};
+  Object.keys(scopes).forEach(function(k){rpt+='<p><strong>'+k+':</strong> '+scopes[k].join(' &nbsp;&bull;&nbsp; ')+'</p>';});
+
+  rpt += '<h2>1.3 Understanding of the Audited Area</h2>';
+  rpt += '<p>The total built-up area of <strong>'+bua+' sq.m.</strong> is considered for this audit and has been evaluated based on existing architectural drawings, walk-through audits, and data provided by the institution. Total occupants: <strong>'+occ+'</strong>.</p>';
+
+  // METHODOLOGY
+  rpt += '<h1>III. Audit Methodology</h1>';
+  rpt += '<h2>2.1 Data Collection</h2>';
+  rpt += '<p>General data collection was carried out through the Green Audit Data Form (QF/RUA/59) covering '+97+' questions across seven sections. On-site inspection (QF/RUA/49) was conducted by the RUA audit team, followed by verification visits to ensure data accuracy.</p>';
+  rpt += '<h2>2.2 Instruments Used</h2>';
+  rpt += '<table><tr><th>#</th><th>Instrument</th><th>Parameter Measured</th><th>Standard</th></tr>';
+  [['1','Lux Meter','Illuminance (lux levels)','NBC 2016'],['2','Sound Level Meter','Noise pollution levels','CPCB norms'],['3','IAQ Monitor','VOC, CO₂, SPM','CPCB / WHO'],['4','Energy Meter','Electrical energy consumption','—'],['5','Water Flow Meter','Water consumption','NBC / CPWD'],['6','Thermal Hygrometer','Temperature & humidity','ASHRAE 55']].forEach(function(r){rpt+='<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td><td>'+r[3]+'</td></tr>';});
+  rpt += '</table>';
+
+  // ANALYSIS — ENERGY
+  rpt += '<h1>IV. Analysis and Benchmarking</h1>';
+  rpt += '<h2>3.1 Energy &mdash; Score: '+dscores.EN+'/29</h2>';
+  rpt += '<h3>3.1.1 Overall Energy Consumption</h3>';
+  rpt += '<p>Annual electricity consumed: <strong>'+(kwh!=='—'?Number(kwh).toLocaleString('en-IN')+' kWh':'— (enter data in Step 2)')+'</strong>. Energy Performance Index: <strong>'+epi+(epi!=='—'?' kWh/sq.m./year':'')+'</strong>.</p>';
+  rpt += '<h3>3.1.2 Lighting</h3>';
+  rpt += '<p>LED fixtures as % of total: <strong>'+(led!=='—'?led+'%':'—')+'</strong>. LPD compliance (ECBC): '+['Not assessed','<60% spaces','61-80% spaces','>80% spaces'][lpd]||'Not assessed'+'. Daylighting compliance: '+['Not assessed','<40%','40-59%','≥60% spaces'][daylt]||'Not assessed'+'.</p>';
+  rpt += '<h3>3.1.3 Renewable Energy</h3>';
+  rpt += '<p>Solar PV installed: <strong>'+(D.solarPV==='yes'?'Yes':'No')+'</strong>. '+(D.solarPV==='yes'?'Solar energy actively used: '+(D.solarUsed==='yes'?'Yes':'No')+'. Metering in place: '+(D.solarMeter==='yes'?'Yes':'No')+'. AMC in place: '+(D.solarAMC==='yes'?'Yes':'No')+'.':'')+'</p>';
+
+  // ANALYSIS — WATER
+  rpt += '<h2>3.2 Water &mdash; Score: '+dscores.WR+'/17</h2>';
+  rpt += '<p>Annual water consumption: <strong>'+(D.annualWaterKL?Number(D.annualWaterKL).toLocaleString('en-IN')+' KL/year':'—')+'</strong>. Water intensity: <strong>'+(wInt!=='—'?wInt+' L/person/day':'—')+'</strong> (NBC benchmark: 45 L/person/day).</p>';
+  rpt += '<p>RWH system: <strong>'+(D.rwh==='yes'?'Present':'Not present')+'</strong>. Grey Water Treatment: <strong>'+(D.gwt==='yes'?'Yes':'No')+'</strong>. STP: <strong>'+(D.stp==='yes'?'Yes':'No')+'</strong>. AC drain water recycled: <strong>'+(D.acDrain==='yes'?'Yes':'No')+'</strong>.</p>';
+
+  // ANALYSIS — WASTE
+  rpt += '<h2>3.3 Solid Waste &mdash; Score: '+dscores.WS+'/15</h2>';
+  rpt += '<p>Dry/wet segregation on each floor: <strong>'+(D.wasteBins==='yes'?'Yes':'No')+'</strong>. Organic waste composted: <strong>'+(D.composting==='yes'?'Yes':'No')+'</strong>. Dry waste recycled: <strong>'+(D.dryRecycle==='yes'?'Yes':'No')+'</strong>. E-waste via registered agency: <strong>'+(D.ewaste==='yes'&&D.ewasteAgency==='yes'?'Yes':'No')+'</strong>. Paperless processes: <strong>'+pl+'/5</strong>.</p>';
+
+  // ANALYSIS — EQ
+  rpt += '<h2>3.4 Environmental Quality &mdash; Score: '+dscores.EQ+'/23</h2>';
+  rpt += '<p>Green coverage: <strong>'+(greenPct!=='—'?greenPct+'%':'—')+'</strong> of campus area. Biodiversity mapping: <strong>'+(D.biodiversity==='yes'?'Yes':'No')+'</strong>. Trees named/labelled: <strong>'+(D.treeNaming==='yes'?'Yes':'No')+'</strong>. QR code tree system: <strong>'+(D.treeQR==='yes'?'Yes':'No')+'</strong>.</p>';
+  rpt += '<p>Universal design features: Ramps: '+((A.EQ4a===1||A.EQ4a==='yes')?'✓':'✗')+' | Universal toilets: '+((A.EQ4b===1||A.EQ4b==='yes')?'✓':'✗')+' | Universal parking: '+((A.EQ4c===1||A.EQ4c==='yes')?'✓':'✗')+'</p>';
+
+  // ANALYSIS — CF
+  rpt += '<h2>3.5 Carbon Footprint &mdash; Score: '+dscores.CF+'/6</h2>';
+  if(ghgTot!=='—'){
+    rpt += '<p>Total GHG emissions: <strong>'+ghgTot+' tCO2e/year</strong>. Per capita: <strong>'+ghgPP+' tCO2e/person/year</strong> (benchmark target: ≤0.03 tCO2e/person/year).</p>';
+  }
+  rpt += '<p>Carbon offset through technology (solar/EV): <strong>'+(D.cfOffset1==='yes'?'Yes':'No')+'</strong>. Carbon offset through tree plantation: <strong>'+(D.cfOffset2==='yes'?'Yes':'No')+'</strong>.</p>';
+  rpt += '<p>Public/green transport modal share: <strong>'+(D.publicTransport||'—')+'%</strong>.</p>';
+
+  // ANALYSIS — BC
+  rpt += '<h2>3.6 Beyond the Campus &mdash; Score: '+dscores.BC+'/9</h2>';
+  rpt += '<p>Eco-committees/green clubs: <strong>'+(D.ecoClub==='yes'?'Yes':'No')+'</strong>. Campus environment activities: <strong>'+(['0','1-6','>6'][C.campusActs||0]||'—')+'</strong> per year. Community outreach activities: <strong>'+(['0','1-3','>3'][C.outreachActs||0]||'—')+'</strong> per year. FDP/training conducted: <strong>'+(D.fdp==='yes'?'Yes':'No')+'</strong>. Green campus seminars: <strong>'+(D.seminars==='yes'?'Yes':'No')+'</strong>.</p>';
+
+  // SCORE TABLE
+  rpt += '<h1>V. Score Summary &mdash; QF-RUA-20</h1>';
+  rpt += '<table><tr><th>Domain</th><th>Score</th><th>Maximum</th><th>%</th><th>Rating</th></tr>';
+  DOMS.forEach(function(d){var ds=dSc(d);var pct=Math.round(ds/d.maxPts*100);var st=pct>=75?'Good':pct>=50?'Moderate':'Needs Work';rpt+='<tr><td>'+d.icon+' <strong>'+d.name+'</strong></td><td style="text-align:center"><strong>'+ds+'</strong></td><td style="text-align:center">'+d.maxPts+'</td><td style="text-align:center">'+pct+'%</td><td>'+st+'</td></tr>';});
+  rpt+='<tr style="background:#1E3A14;color:#fff"><td><strong>TOTAL</strong></td><td style="text-align:center"><strong>'+sc+'</strong></td><td style="text-align:center">99</td><td style="text-align:center"><strong>'+Math.round(sc/99*100)+'%</strong></td><td><strong>'+band.l+'</strong></td></tr>';
+  rpt += '</table>';
+
+  // RECOMMENDATIONS
+  rpt += '<h1>VI. Recommendations</h1>';
+  var recs = {EN:'Prioritise >80% LED conversion across all areas. Install solar PV with AMC, deploy BMS for automated control. Sub-meter all major electrical loads for granular consumption tracking. Reduce EPI through daylighting optimisation and fan replacement with BLDC/BLDS technology.',WR:'Install STP with 100% treated water reuse for flushing and irrigation. Upgrade all faucets to aerators and all flushing systems to dual-flush. Expand RWH tank capacity and implement drip irrigation. Sub-meter all water connection points.',WS:'Implement 3-bin segregation (dry/wet/hazardous) on every floor. Activate compost pit/vermicomposting for canteen organic waste. Formalise e-waste stream via PCB-registered agency. Expand paperless processes to all 5 eligible activities.',EQ:'Increase maintained green coverage above 15% of campus area. Complete universal access features (ramps, universal toilets, accessible parking). Install QR-code tree tagging system and conduct biodiversity mapping. Conduct IAQ measurement (VOC, CO₂, SPM) with NABL-certified instruments.',CF:'Compute formal GHG inventory (Scope 1 + 2). Set science-based carbon reduction target. Document tree plantation as offset measure. Promote and track modal shift towards public transport and cycling.',BC:'Form dedicated eco-club. Scale campus green activities above 6 per year. Expand community outreach above 3 per year. Conduct regular FDPs for faculty and administrative staff.'};
+  var sortedDoms=[...DOMS].sort(function(a,b){return Math.round(dSc(a)/a.maxPts*100)-Math.round(dSc(b)/b.maxPts*100);});
+  sortedDoms.forEach(function(d){var ds=dSc(d);var pct=Math.round(ds/d.maxPts*100);rpt+='<h3>'+d.icon+' '+d.name+' ('+ds+'/'+d.maxPts+' = '+pct+'%)</h3><div class="rec-item">'+recs[d.id]+'</div>';});
+
+  // EVIDENCE ANNEX
+  if(evRecords.length>0){
+    rpt += '<h1>Annexure: Evidence Files</h1>';
+    rpt += '<table><tr><th>#</th><th>Filename</th><th>Domain</th><th>Q-Link</th><th>Type</th><th>Date</th><th>Status</th></tr>';
+    evRecords.forEach(function(r,i){rpt+='<tr><td>'+(i+1)+'</td><td>'+r.filename+'</td><td>'+EV_CATS[r.cat]+'</td><td style="font-size:9pt">'+r.sub+'</td><td>'+r.docType+'</td><td>'+r.docDate+'</td><td>'+r.status+'</td></tr>';});
+    rpt += '</table>';
+  }
+
+  rpt += '<hr class="divider"><p style="text-align:center;font-size:9pt;color:#888">Report generated by RUA Green Audit Tool v2 &mdash; SustaiNex / TerraCAP &mdash; Hertzwave Innovations &mdash; '+new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})+'</p>';
+
+  document.getElementById('rptContent').innerHTML=rpt;
+  document.getElementById('rptModal').style.display='block';
+}
+
+// ── HELPERS ────────────────────────────────────────────────────
+function evIcon(name){var e=name.split('.').pop().toLowerCase();var m={pdf:'📄',xlsx:'📊',xls:'📊',csv:'📋',png:'🖼️',jpg:'🖼️',jpeg:'🖼️',docx:'📝',doc:'📝',zip:'🗜️'};return m[e]||'📁';}
+function evFmtBytes(b){if(b<1024)return b+' B';if(b<1048576)return (b/1024).toFixed(0)+' KB';return (b/1048576).toFixed(1)+' MB';}
+function showToast(msg,type){var t=document.getElementById('toast');if(!t)return;t.textContent=msg;t.className='toast show '+(type||'');clearTimeout(t._timer);t._timer=setTimeout(function(){t.classList.remove('show');},3200);}
+
+// ── STEP 6 INIT (call from DOMContentLoaded) ────────────────────
+function initStep6() {
+  var dd=document.getElementById('evDocDate');if(dd)dd.value=new Date().toISOString().slice(0,10);
+  evInitQuickLinks();
+  var cyr=document.getElementById('c_yr'),evP=document.getElementById('evPeriod');
+  if(cyr&&evP){evP.value=cyr.value;cyr.addEventListener('input',function(){evP.value=cyr.value;});}
+  // Drag and drop — evidence
+  var edz=document.getElementById('evDropZone');
+  if(edz){
+    edz.addEventListener('dragover',function(e){e.preventDefault();edz.classList.add('dov');});
+    edz.addEventListener('dragleave',function(){edz.classList.remove('dov');});
+    edz.addEventListener('drop',function(e){e.preventDefault();edz.classList.remove('dov');evHandleFiles(e.dataTransfer.files);});
+  }
+  // Drag and drop — import
+  var idz=document.getElementById('impDropZone');
+  if(idz){
+    idz.addEventListener('dragover',function(e){e.preventDefault();idz.classList.add('dov');});
+    idz.addEventListener('dragleave',function(){idz.classList.remove('dov');});
+    idz.addEventListener('drop',function(e){
+      e.preventDefault();idz.classList.remove('dov');
+      var fi=document.getElementById('impFileInput');
+      try{var dt=new DataTransfer();Array.from(e.dataTransfer.files).forEach(function(f){dt.items.add(f);});fi.files=dt.files;impHandleFile(fi);}catch(ex){showToast('Drop upload failed — please use click to select','error');}
+    });
+  }
+  evUpdateStats();
+}
+
+</script>
+<div id="toast" class="toast"></div></body></html>
