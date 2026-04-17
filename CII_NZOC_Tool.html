@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CII NZOC Tool — TerraCAP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0F1F17;--ink2:#3A4A42;--ink3:#6B7C73;--ink4:#9EACA5;
+  --surface:#F4F6F3;--surface2:#EAEDE8;--surface3:#DDE1DA;
+  --border:#D0D5CC;--border2:#B8BEB4;
+  --teal:#0D7A5A;--teal-l:#E0F5EC;--teal-m:#A8DEC9;--teal-d:#095C43;
+  --amber:#C47B0A;--amber-l:#FDF3DC;--amber-m:#F4C96A;
+  --red:#C0392B;--red-l:#FDECEC;--red-m:#F0A097;
+  --blue:#1A5276;--blue-l:#EBF2F9;
+  --purple:#6C3483;--purple-l:#F4ECF9;
+  --green:#1E8449;--green-l:#E9F7EF;
+  --white:#FFFFFF;--radius:6px;--radius-lg:10px;
+  --shadow:0 1px 3px rgba(15,31,23,.08),0 4px 12px rgba(15,31,23,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:14px;}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);min-height:100vh;padding-bottom:64px;padding-top:42px;}
+h1,h2,h3,h4{font-family:'Sora',sans-serif;font-weight:600;}
+.mono{font-family:'JetBrains Mono',monospace;}
+
+/* TOPBAR */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:200;background:var(--ink);color:#9DB8A8;height:42px;display:flex;align-items:center;padding:0 20px;gap:12px;font-family:'Sora',sans-serif;font-size:11px;letter-spacing:.3px;}
+.tb-logo{color:#fff;font-weight:700;font-size:13px;letter-spacing:-.3px;}
+.tb-sep{color:#2A3A32;}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:14px;}
+.sync-badge{display:flex;align-items:center;gap:5px;font-size:10px;padding:3px 9px;border-radius:20px;background:rgba(13,122,90,.2);color:#6ECAA3;cursor:pointer;border:1px solid rgba(13,122,90,.25);transition:background .15s;}
+.sync-badge:hover{background:rgba(13,122,90,.32);}
+.sync-dot{width:5px;height:5px;border-radius:50%;background:#6ECAA3;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+/* SITE HEADER */
+.site-hdr{background:var(--white);border-bottom:1px solid var(--border);padding:12px 20px;}
+.site-hdr-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:12px;}
+.site-name{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;color:var(--ink);}
+.site-sub{font-size:11px;color:var(--ink3);margin-top:2px;}
+.status-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;font-family:'Sora',sans-serif;white-space:nowrap;flex-shrink:0;}
+.sp-draft{background:var(--surface2);color:var(--ink3);border:1px solid var(--border2);}
+.sp-submitted{background:var(--blue-l);color:var(--blue);border:1px solid #A8C8E0;}
+.sp-review{background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-m);}
+.sp-verified{background:var(--green-l);color:var(--green);border:1px solid #A8DDB8;}
+.sp-locked{background:var(--ink);color:#9DB8A8;border:1px solid #2A3A32;}
+.sp-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+/* TABS */
+.tab-nav{display:flex;overflow-x:auto;scrollbar-width:none;margin-top:4px;}
+.tab-nav::-webkit-scrollbar{display:none;}
+.tab-btn{padding:8px 15px;font-size:12px;font-family:'Sora',sans-serif;font-weight:500;border:none;background:transparent;cursor:pointer;white-space:nowrap;color:var(--ink3);border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+.tab-btn:hover{color:var(--ink);}
+.tab-btn.active{color:var(--teal);border-bottom-color:var(--teal);}
+.tdot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-left:5px;vertical-align:middle;margin-top:-1px;}
+.tdot-ok{background:var(--teal);}
+.tdot-part{background:var(--amber);}
+.tdot-empty{background:var(--border2);}
+.tdot-warn{background:var(--red);}
+
+/* MAIN */
+.main{max-width:1100px;padding:16px 20px 0;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* CARD */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;margin-bottom:14px;box-shadow:var(--shadow);}
+.card-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--surface2);gap:12px;}
+.card-title{font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:var(--ink);}
+.card-sub{font-size:11px;color:var(--ink3);margin-top:2px;}
+.sec-hdr{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3);margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid var(--surface3);}
+
+/* BADGES */
+.bdg{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-family:'Sora',sans-serif;font-weight:600;padding:2px 7px;border-radius:20px;white-space:nowrap;letter-spacing:.1px;}
+.ba{background:var(--teal-l);color:var(--teal-d);}
+.bp{background:var(--purple-l);color:var(--purple);}
+.bm{background:var(--amber-l);color:var(--amber);}
+.bc{background:var(--green-l);color:var(--green);}
+.bpend{background:var(--surface2);color:var(--ink3);}
+.bprog{background:var(--amber-l);color:var(--amber);}
+.bok{background:var(--teal-l);color:var(--teal-d);}
+.bwarn{background:var(--red-l);color:var(--red);}
+
+/* FORM */
+.fg{display:flex;flex-direction:column;gap:4px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.fl{font-size:11px;font-family:'Sora',sans-serif;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.4px;}
+.fi,.fs,.fta{width:100%;padding:8px 10px;font-size:13px;font-family:'DM Sans',sans-serif;border:1px solid var(--border);border-radius:var(--radius);background:var(--white);color:var(--ink);transition:border-color .15s,box-shadow .15s;}
+.fi:focus,.fs:focus,.fta:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(13,122,90,.12);}
+.fi.af{background:var(--teal-l);border-color:var(--teal-m);}
+.fta{resize:vertical;min-height:60px;}
+
+/* DATA TABLE */
+.dt{width:100%;border-collapse:collapse;font-size:12px;}
+.dt th{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ink3);padding:6px 10px;text-align:left;border-bottom:1px solid var(--surface3);background:var(--surface);}
+.dt td{padding:7px 10px;border-bottom:1px solid var(--surface2);vertical-align:middle;color:var(--ink);}
+.dt tr:last-child td{border-bottom:none;}
+.dt tr:hover td{background:rgba(13,122,90,.025);}
+.dt .sub td{background:var(--surface);font-weight:600;font-family:'Sora',sans-serif;border-top:1px solid var(--surface3);}
+.dt .tot td{background:var(--ink);color:var(--white);font-weight:600;font-family:'Sora',sans-serif;}
+.dt .hi td{background:var(--teal-l);}
+.dt .pos td{background:var(--green-l);}
+.num{font-family:'JetBrains Mono',monospace;font-size:12px;text-align:right;}
+.ni{width:96px;padding:4px 8px;text-align:right;font-family:'JetBrains Mono',monospace;font-size:12px;border:1px solid var(--border);border-radius:4px;background:var(--white);color:var(--ink);}
+.ni:focus{outline:none;border-color:var(--teal);}
+.ni.af{background:var(--teal-l);border-color:var(--teal-m);}
+.ri{padding-left:26px !important;color:var(--ink2);}
+
+/* IMPORT */
+.drop-zone{border:2px dashed var(--teal-m);border-radius:var(--radius-lg);padding:32px 24px;text-align:center;background:var(--teal-l);cursor:pointer;transition:background .2s,border-color .2s;margin-bottom:16px;}
+.drop-zone:hover{background:#D0EFE5;border-color:var(--teal);}
+.file-queue{display:flex;flex-direction:column;gap:8px;}
+.fi-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--white);}
+.fi-icon{width:28px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px;}
+.fi-icon.pdf{background:var(--red-l);color:var(--red);}
+.fi-icon.xls{background:var(--green-l);color:var(--green);}
+.fi-body{flex:1;}
+.fi-name{font-size:12px;font-weight:500;color:var(--ink);}
+.fi-type{font-size:10px;color:var(--ink3);font-family:'Sora',sans-serif;margin-top:1px;}
+.pb{height:3px;background:var(--surface3);border-radius:2px;overflow:hidden;margin-top:5px;}
+.pbf{height:100%;border-radius:2px;background:var(--teal);transition:width .6s ease;}
+.mp{margin-top:6px;padding:7px 10px;background:var(--surface);border-radius:4px;font-size:11px;color:var(--ink2);display:none;}
+.mp.show{display:block;}
+.mp-row{display:flex;align-items:flex-start;gap:6px;padding:2px 0;}
+.ma{color:var(--teal);font-size:10px;margin-top:1px;flex-shrink:0;}
+
+/* MR1 */
+.crit-card{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:10px;}
+.crit-hdr{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface);cursor:pointer;transition:background .15s;}
+.crit-hdr:hover{background:var(--surface2);}
+.crit-ref{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;background:var(--teal-l);color:var(--teal-d);flex-shrink:0;}
+.crit-info{flex:1;}
+.crit-title{font-family:'Sora',sans-serif;font-size:13px;font-weight:600;}
+.crit-desc{font-size:11px;color:var(--ink3);margin-top:1px;}
+.crit-body{padding:14px;border-top:1px solid var(--surface2);}
+.ev-item{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--surface2);}
+.ev-item:last-child{border-bottom:none;}
+.ev-cb{width:16px;height:16px;border-radius:3px;border:1.5px solid var(--border2);cursor:pointer;flex-shrink:0;margin-top:1px;accent-color:var(--teal);}
+.ev-name{font-size:12px;color:var(--ink);flex:1;}
+.ev-req{font-size:10px;margin-top:1px;}
+.ev-req.req{color:var(--red);}
+.ev-req.opt{color:var(--ink3);}
+
+/* MR2 METRICS */
+.mr2-metrics{background:linear-gradient(135deg,#0F1F17 0%,#143020 100%);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:14px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;border:1px solid #1B3A2A;}
+.mm{text-align:center;padding:0 12px;border-right:1px solid rgba(255,255,255,.07);}
+.mm:last-child{border-right:none;}
+.mm-lbl{font-size:9px;color:#6A8A78;font-family:'Sora',sans-serif;letter-spacing:.6px;text-transform:uppercase;margin-bottom:4px;}
+.mm-val{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:500;color:#E8F5EE;}
+.mm-unit{font-size:9px;color:#4A6A58;margin-top:2px;}
+.mm-ratio .mm-val{font-size:32px;line-height:1;}
+.mm-ratio .mm-val.cert{color:#6ECAA3;}
+.mm-ratio .mm-val.part{color:#D4A843;}
+.mm-ratio .mm-val.lo{color:#556A5E;}
+.mm-cert-lbl{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+.mm-cert-lbl.cert{color:#6ECAA3;}
+.mm-cert-lbl.part{color:#C8A84A;}
+
+/* MR3 GATE */
+.gate-msg{background:var(--amber-l);border:1px solid var(--amber-m);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:var(--amber);display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+
+/* MR6 ALERT */
+.xp-alert{background:var(--red-l);border:1px solid var(--red-m);border-radius:var(--radius);padding:9px 14px;font-size:12px;color:var(--red);display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+
+/* GAUGE */
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:10px 0 0;}
+.gauge-val{font-family:'JetBrains Mono',monospace;font-size:44px;font-weight:500;color:var(--ink);text-align:center;margin-top:-8px;transition:color .5s;}
+.gauge-val.cert{color:var(--teal);}
+.gauge-sub{font-size:11px;color:var(--ink3);text-align:center;margin-top:3px;}
+
+/* LIFECYCLE */
+.lc-wrap{display:flex;align-items:center;gap:0;overflow-x:auto;padding:12px;background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);margin-bottom:16px;}
+.lc-step{display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 12px;position:relative;flex-shrink:0;}
+.lc-step:not(:last-child)::after{content:'›';position:absolute;right:-8px;top:11px;color:var(--border2);font-size:16px;}
+.lc-circ{width:26px;height:26px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;background:var(--white);color:var(--ink3);}
+.lc-circ.act{border-color:var(--teal);background:var(--teal-l);color:var(--teal);}
+.lc-circ.done{border-color:var(--teal);background:var(--teal);color:white;}
+.lc-lbl{font-size:9px;font-family:'Sora',sans-serif;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--ink3);text-align:center;}
+.lc-lbl.act{color:var(--teal-d);}
+.lc-lbl.done{color:var(--teal);}
+
+/* MODULE GRID */
+.mod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;}
+@media(max-width:700px){.mod-grid{grid-template-columns:repeat(2,1fr);}}
+.mod-card{padding:12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--white);cursor:pointer;transition:border-color .15s;}
+.mod-card.ok{border-color:var(--teal-m);background:var(--teal-l);}
+.mod-card.part{border-color:var(--amber-m);background:var(--amber-l);}
+.mod-card.warn{border-color:var(--red-m);background:var(--red-l);}
+.mod-card.empty{opacity:.6;}
+.mod-ref{font-family:'Sora',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3);margin-bottom:2px;}
+.mod-name{font-family:'Sora',sans-serif;font-size:11px;font-weight:600;color:var(--ink);}
+.mod-status{font-size:10px;margin-top:4px;}
+.mod-card.ok .mod-status{color:var(--teal);}
+.mod-card.part .mod-status{color:var(--amber);}
+.mod-card.warn .mod-status{color:var(--red);}
+.mod-card.empty .mod-status{color:var(--ink3);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius);font-size:12px;font-family:'Sora',sans-serif;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .15s;letter-spacing:.2px;}
+.btn-p{background:var(--teal);color:white;border-color:var(--teal);}
+.btn-p:hover{background:var(--teal-d);}
+.btn-s{background:var(--white);color:var(--ink);border-color:var(--border2);}
+.btn-s:hover{background:var(--surface);}
+.btn-g{background:transparent;color:var(--teal);border-color:var(--teal-m);}
+.btn-g:hover{background:var(--teal-l);}
+.btn-sm{padding:5px 10px;font-size:11px;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.add-row{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;font-size:12px;font-family:'Sora',sans-serif;font-weight:600;color:var(--teal);background:var(--teal-l);border:1px dashed var(--teal-m);border-radius:var(--radius);cursor:pointer;width:100%;margin-top:8px;transition:background .15s;}
+.add-row:hover{background:#C8E8DA;}
+
+/* FOOTER */
+.sfooter{position:fixed;bottom:0;left:0;right:0;background:var(--ink);border-top:1px solid #1B3A2A;height:52px;display:flex;align-items:center;padding:0 20px;gap:18px;z-index:100;}
+.sf-lbl{font-size:9px;color:#5A7A68;font-family:'Sora',sans-serif;text-transform:uppercase;letter-spacing:.7px;}
+.sf-ratio{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:500;transition:color .6s;}
+.sf-ratio.cert{color:#6ECAA3;}
+.sf-ratio.part{color:#D4A843;}
+.sf-ratio.lo{color:#3A5A48;}
+.sf-sep{width:1px;height:28px;background:#1B3A2A;}
+.sf-pbar{width:110px;height:4px;background:#1B3A2A;border-radius:2px;overflow:hidden;}
+.sf-pfill{height:100%;background:#4BAA82;border-radius:2px;transition:width .5s;}
+.sf-pct{font-family:'JetBrains Mono',monospace;font-size:12px;color:#7AA892;}
+.sf-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+
+/* MISC */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.alert-i{padding:9px 14px;border-radius:var(--radius);font-size:12px;display:flex;align-items:flex-start;gap:8px;}
+.al-teal{background:var(--teal-l);color:var(--teal-d);border:1px solid var(--teal-m);}
+.al-blue{background:var(--blue-l);color:var(--blue);border:1px solid #A8C8E0;}
+.al-amber{background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-m);}
+.tag{display:inline-block;font-size:10px;font-family:'Sora',sans-serif;font-weight:600;padding:2px 7px;border-radius:4px;}
+.t-s1{background:#E8F0F5;color:#1A5276;}
+.t-s2{background:var(--purple-l);color:var(--purple);}
+.t-s3{background:var(--surface2);color:var(--ink3);}
+.t-short{background:var(--teal-l);color:var(--teal-d);}
+.t-med{background:var(--amber-l);color:var(--amber);}
+.t-long{background:var(--purple-l);color:var(--purple);}
+.vbox{background:var(--blue-l);border:1px solid #B0CCE0;border-radius:var(--radius);padding:10px 14px;margin-top:12px;}
+.vbox-lbl{font-family:'Sora',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--blue);margin-bottom:6px;}
+.cmt{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;font-size:12px;margin-bottom:6px;}
+.cmt-meta{font-size:10px;color:var(--ink3);font-family:'Sora',sans-serif;margin-bottom:3px;}
+.sep{height:1px;background:var(--surface3);margin:12px 0;}
+/* SIDEBAR LAYOUT */
+.nz-layout{display:flex;}
+.nz-sidebar{width:240px;background:var(--white);border-right:1px solid var(--border);position:fixed;top:42px;bottom:52px;left:0;overflow-y:auto;z-index:100;flex-shrink:0;}
+.nz-content{flex:1;margin-left:240px;min-width:0;}
+.snav-site{padding:12px 16px 10px;border-bottom:1px solid var(--surface3);}
+.snav-tool-lbl{font-family:'Sora',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3);margin-bottom:3px;}
+.snav-site-name{font-family:'Sora',sans-serif;font-size:12px;font-weight:600;color:var(--ink);line-height:1.3;margin-bottom:2px;}
+.snav-site-sub{font-size:10px;color:var(--ink3);}
+.snav-sec{padding:8px 0 2px;}
+.snav-sec-lbl{font-family:'Sora',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3);padding:0 16px;display:block;margin-bottom:2px;}
+.snav-item{display:flex;align-items:center;gap:9px;padding:8px 14px 8px 13px;font-size:12px;font-family:'Sora',sans-serif;font-weight:500;color:var(--ink2);cursor:pointer;border-left:3px solid transparent;transition:background .12s,color .12s,border-color .12s;border-top:none;border-right:none;border-bottom:none;background:transparent;width:100%;text-align:left;}
+.snav-item:hover{background:var(--teal-l);color:var(--teal);}
+.snav-item.active{background:var(--teal-l);color:var(--teal);border-left-color:var(--teal);font-weight:600;}
+.snav-ico{width:16px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.snav-name{flex:1;}
+.snav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.snav-ok{background:var(--teal);}
+.snav-part{background:var(--amber);}
+.snav-mt{background:var(--border2);}
+.snav-warn{background:var(--red);}
+.snav-div{height:1px;background:var(--surface3);margin:4px 16px;}
+.snav-back{display:flex;align-items:center;gap:8px;padding:10px 16px;font-size:11px;color:var(--ink3);text-decoration:none;border-top:1px solid var(--surface3);margin-top:4px;transition:color .12s;}
+.snav-back:hover{color:var(--teal);}
+</style>
+</head>
+<body>
+<!-- TOPBAR -->
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+    <div style="width:34px;height:26px;background:rgba(255,255,255,.18);border-radius:5px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.22);">
+      <span style="font-family:'Sora',sans-serif;font-size:11px;font-weight:800;color:#fff;letter-spacing:-.2px">CII</span>
+    </div>
+    <div style="display:flex;flex-direction:column;line-height:1.2;">
+      <span style="font-family:'Sora',sans-serif;font-size:10px;font-weight:600;color:#C8DDD0">GreenCo</span>
+      <span style="font-family:'Sora',sans-serif;font-size:9px;color:#5A7A68">NZOC</span>
+    </div>
+  </div>
+  <div style="width:1px;height:20px;background:#2A3A32;flex-shrink:0;margin:0 4px;"></div>
+  <div style="position:absolute;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1;pointer-events:none;">
+    <div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:#fff;letter-spacing:.5px;">Terra<span style="color:#6ECAA3">CAP</span></div>
+    <div style="font-size:9px;color:rgba(255,255,255,.55);font-weight:400;letter-spacing:.3px;">powered by Hertzwave</div>
+  </div>
+  <div class="tb-right">
+    <div class="sync-badge" onclick="doSync()">
+      <div class="sync-dot"></div>
+      <span id="sync-lbl">Last synced today 09:14</span>
+    </div>
+    <span style="font-size:11px;color:#4A6A58">FY 2023-24 · Secunderabad Terminal</span>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="nz-layout">
+
+<!-- SIDEBAR -->
+<nav class="nz-sidebar">
+  <div class="snav-site">
+    <div class="snav-tool-lbl">CII NZOC Tool</div>
+    <div class="snav-site-name">Secunderabad Petroleum Terminal</div>
+    <div class="snav-site-sub">Sept 2023 – Aug 2024 · 4,182,531 KL</div>
+  </div>
+
+  <div class="snav-sec">
+    <span class="snav-sec-lbl">Application setup</span>
+    <button id="snav-setup" class="snav-item active" onclick="sw('setup',this)">
+      <span class="snav-ico">⚙</span>
+      <span class="snav-name">Setup</span>
+      <span class="snav-dot snav-ok"></span>
+    </button>
+    <button id="snav-import" class="snav-item" onclick="sw('import',this)">
+      <span class="snav-ico">⬆</span>
+      <span class="snav-name">Import &amp; Evidence</span>
+      <span class="snav-dot snav-mt" id="sd-import"></span>
+    </button>
+  </div>
+
+  <div class="snav-div"></div>
+
+  <div class="snav-sec">
+    <span class="snav-sec-lbl">Review modules</span>
+    <button id="snav-mr1" class="snav-item" onclick="sw('mr1',this)">
+      <span class="snav-ico">📋</span>
+      <span class="snav-name">MR1 — Policy</span>
+      <span class="snav-dot snav-part"></span>
+    </button>
+    <button id="snav-mr2" class="snav-item" onclick="sw('mr2',this)">
+      <span class="snav-ico">📊</span>
+      <span class="snav-name">MR2 — Inventory</span>
+      <span class="snav-dot snav-part"></span>
+    </button>
+    <button id="snav-mr3" class="snav-item" onclick="sw('mr3',this)">
+      <span class="snav-ico">🎯</span>
+      <span class="snav-name">MR3 — Targets</span>
+      <span class="snav-dot snav-mt"></span>
+    </button>
+    <button id="snav-mr45" class="snav-item" onclick="sw('mr45',this)">
+      <span class="snav-ico">⚡</span>
+      <span class="snav-name">MR4/5 — Mitigation</span>
+      <span class="snav-dot snav-part"></span>
+    </button>
+    <button id="snav-mr6" class="snav-item" onclick="sw('mr6',this)">
+      <span class="snav-ico">🔄</span>
+      <span class="snav-name">MR6 — Sustenance</span>
+      <span class="snav-dot snav-warn"></span>
+    </button>
+    <button id="snav-mr7" class="snav-item" onclick="sw('mr7',this)">
+      <span class="snav-ico">🌐</span>
+      <span class="snav-name">MR7 — Scope 3</span>
+      <span class="snav-dot snav-part"></span>
+    </button>
+  </div>
+
+  <div class="snav-div"></div>
+
+  <div class="snav-sec">
+    <span class="snav-sec-lbl">Output</span>
+    <button id="snav-score" class="snav-item" onclick="sw('score',this)">
+      <span class="snav-ico">🏅</span>
+      <span class="snav-name">Score &amp; Report</span>
+      <span class="snav-dot snav-mt" id="sd-score"></span>
+    </button>
+  </div>
+
+  <a href="hwcap_dashboard.html" class="snav-back">
+    <span style="font-size:11px">←</span> Back to TerraCAP
+  </a>
+</nav>
+
+<!-- CONTENT -->
+<div class="nz-content">
+
+<!-- SITE HEADER -->
+<div class="site-hdr">
+  <div class="site-hdr-top">
+    <div>
+      <div class="site-name">Secunderabad Petroleum Terminal</div>
+      <div class="site-sub">HPCL / BPCL · CII NZOC Application · Sept 2023 – Aug 2024 · Production: 4,182,531 KL</div>
+    </div>
+    <div id="app-status" class="status-pill sp-draft">
+      <div class="sp-dot"></div>
+      <span id="status-text">Draft</span>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ══════ SETUP ══════ -->
+<div id="tab-setup" class="tab-panel active">
+  <div class="card">
+    <div class="card-hdr">
+      <div><div class="card-title">Application context</div><div class="card-sub">Pre-populates headers and production denominators across all MR tabs</div></div>
+      <span class="bdg bok">Complete</span>
+    </div>
+    <div class="sec-hdr">Company &amp; site</div>
+    <div class="g2" style="margin-bottom:14px">
+      <div class="fg"><label class="fl">Company name</label><input class="fi af" value="HPCL / BPCL"></div>
+      <div class="fg"><label class="fl">Site / facility name</label><input class="fi af" value="Secunderabad Petroleum Terminal"></div>
+    </div>
+    <div class="sec-hdr">Reporting period</div>
+    <div class="g3" style="margin-bottom:14px">
+      <div class="fg"><label class="fl">Period type</label>
+        <select class="fs"><option>Last 12 months</option><option>FY (April–March)</option><option>CY (Jan–Dec)</option></select>
+      </div>
+      <div class="fg"><label class="fl">Current period</label><input class="fi af" value="Sept 2023 – Aug 2024"></div>
+      <div class="fg"><label class="fl">Prior year</label><input class="fi af" value="Sept 2022 – Aug 2023"></div>
+    </div>
+    <div class="sec-hdr">Production data</div>
+    <div class="g3" style="margin-bottom:14px">
+      <div class="fg"><label class="fl">Product name</label><input class="fi af" value="Petroleum Products (MS,HSD,SKO,ATF)"></div>
+      <div class="fg"><label class="fl">UOM</label><input class="fi af" value="KL"></div>
+      <div class="fg"><label class="fl">Quantity – current year</label><input class="fi af mono" value="4,182,531"></div>
+    </div>
+    <div class="g3">
+      <div class="fg"><label class="fl">Quantity – prior year</label><input class="fi af mono" value="3,890,873"></div>
+      <div class="fg"><label class="fl">CII application year</label><input class="fi af" value="2024–25"></div>
+      <div class="fg"><label class="fl">Verification month</label><input class="fi af" value="October 2024"></div>
+    </div>
+  </div>
+  <div class="alert-i al-teal">✓ All context fields complete. Date labels, period columns, and specific emission denominators propagated to all MR tabs.</div>
+</div>
+
+<!-- ══════ IMPORT ══════ -->
+<div id="tab-import" class="tab-panel">
+  <div class="card">
+    <div class="card-hdr">
+      <div><div class="card-title">Import &amp; Evidence hub</div><div class="card-sub">Drop evidence files — AI classifies, extracts, and maps to relevant MR fields before you confirm</div></div>
+      <button class="btn btn-p btn-sm" onclick="runScan()">▶ Run AI scan</button>
+    </div>
+    <div class="drop-zone" onclick="runScan()">
+      <div style="font-size:24px;margin-bottom:8px">⬆</div>
+      <div style="font-family:'Sora',sans-serif;font-weight:600;font-size:13px;color:var(--teal-d);margin-bottom:4px">Drop evidence files or click to browse</div>
+      <div style="font-size:11px;color:var(--ink3)">PDF, Excel, images · Multiple files per batch · Results map to MR fields for confirmation</div>
+    </div>
+    <div class="file-queue" id="fq">
+      <div class="fi-item">
+        <div class="fi-icon pdf">PDF</div>
+        <div class="fi-body">
+          <div class="fi-name">PPA_certificate_TPDDL_2024.pdf</div>
+          <div class="fi-type">Green Power Purchase Agreement</div>
+          <div class="pb"><div class="pbf" id="pb1" style="width:0"></div></div>
+          <div class="mp" id="mp1">
+            <div class="mp-row"><span class="ma">→</span><span>MR2 Avoided S2 · Green power purchase: <b>810,737 kWh</b> · EF 0.716 = <b>580.49 tCO₂e</b></span></div>
+            <div class="mp-row"><span class="ma">→</span><span>MR6 Sustenance · Contract expiry: <b>31 Dec 2025</b> · ⚠ 14 months remaining</span></div>
+          </div>
+        </div>
+        <span class="bdg bpend" id="st1">Queued</span>
+      </div>
+      <div class="fi-item">
+        <div class="fi-icon pdf">PDF</div>
+        <div class="fi-body">
+          <div class="fi-name">Biofuel_invoice_B100_FY2324.pdf</div>
+          <div class="fi-type">B-100 Biodiesel Purchase Invoice</div>
+          <div class="pb"><div class="pbf" id="pb2" style="width:0"></div></div>
+          <div class="mp" id="mp2">
+            <div class="mp-row"><span class="ma">→</span><span>MR2 Avoided S1 · B-100 DG sets: <b>8,389 L</b> × EF 2.64 = <b>22.15 tCO₂e</b></span></div>
+            <div class="mp-row"><span class="ma">→</span><span>MR2 Avoided S1 · B-100 vehicles: <b>3,000 L</b> × EF 2.64 = <b>7.92 tCO₂e</b></span></div>
+            <div class="mp-row"><span class="ma">→</span><span>MR6 Sustenance · Rolling biofuel supply contract confirmed</span></div>
+          </div>
+        </div>
+        <span class="bdg bpend" id="st2">Queued</span>
+      </div>
+      <div class="fi-item">
+        <div class="fi-icon pdf">PDF</div>
+        <div class="fi-body">
+          <div class="fi-name">Afforestation_certificate_2024.pdf</div>
+          <div class="fi-type">Carbon Sequestration Certificate</div>
+          <div class="pb"><div class="pbf" id="pb3" style="width:0"></div></div>
+          <div class="mp" id="mp3">
+            <div class="mp-row"><span class="ma">→</span><span>MR2 Sequestration · Raw: <b>356.68 tCO₂e</b> · 20% cap applied: <b>40.06 tCO₂e</b> (cap = 20% × 200.30)</span></div>
+            <div class="mp-row"><span class="ma">→</span><span>MR6 Sustenance · Annual survival monitoring report required</span></div>
+          </div>
+        </div>
+        <span class="bdg bpend" id="st3">Queued</span>
+      </div>
+      <div class="fi-item">
+        <div class="fi-icon pdf">PDF</div>
+        <div class="fi-body">
+          <div class="fi-name">Net_Zero_Policy_March2023_signed.pdf</div>
+          <div class="fi-type">Net Zero Policy Document</div>
+          <div class="pb"><div class="pbf" id="pb4" style="width:0"></div></div>
+          <div class="mp" id="mp4">
+            <div class="mp-row"><span class="ma">→</span><span>MR1 · Criterion 1.1 · Policy date: <b>March 2023</b> · Signatory: <b>GM Operations</b></span></div>
+            <div class="mp-row"><span class="ma">→</span><span>MR1 · Criterion 1.1 · Public commitment confirmed in document body</span></div>
+          </div>
+        </div>
+        <span class="bdg bpend" id="st4">Queued</span>
+      </div>
+      <div class="fi-item">
+        <div class="fi-icon xls">XLS</div>
+        <div class="fi-body">
+          <div class="fi-name">Logistics_freight_RTKM_FY2324.xlsx</div>
+          <div class="fi-type">Freight Transport Data (Category 4)</div>
+          <div class="pb"><div class="pbf" id="pb5" style="width:0"></div></div>
+          <div class="mp" id="mp5">
+            <div class="mp-row"><span class="ma">→</span><span>MR7 Cat 4 · Pipeline throughput: <b>4,182,531 KL</b> × 1.58 kg/KL = <b>6,608 tCO₂e</b></span></div>
+            <div class="mp-row"><span class="ma">→</span><span>MR7 Cat 4 · Ethanol trucks: <b>2,075,097 km</b> × 0.882 = <b>1,830 tCO₂e</b></span></div>
+            <div class="mp-row"><span class="ma">→</span><span>MR7 Cat 4 · Biodiesel trucks: <b>572,625 km</b> × 0.882 = <b>505 tCO₂e</b></span></div>
+          </div>
+        </div>
+        <span class="bdg bpend" id="st5">Queued</span>
+      </div>
+    </div>
+    <div id="scan-ok" class="alert-i al-teal" style="display:none;margin-top:12px">✓ <span id="scan-msg">5 documents scanned · 14 fields mapped · Cross-field consistency check passed · All mappings confirmed and applied to MR tabs</span></div>
+    <div id="scan-conflict" class="alert-i" style="display:none;margin-top:8px;background:var(--surface2);border:1px solid var(--border2);color:var(--ink2)">ℹ No contradictions detected between uploaded documents and existing inventory data (P2 consistency check passed)</div>
+  </div>
+</div>
+<!-- ══════ MR1 ══════ -->
+<div id="tab-mr1" class="tab-panel">
+  <div class="card">
+    <div class="card-hdr">
+      <div><div class="card-title">MR1 – Leadership &amp; Policy</div><div class="card-sub">Three criteria · Actions required, documentation needed, multi-evidence status per criterion</div></div>
+      <span class="bdg bprog">2 of 3 complete</span>
+    </div>
+
+    <div class="crit-card">
+      <div class="crit-hdr">
+        <div class="crit-ref">1.1</div>
+        <div class="crit-info">
+          <div class="crit-title">Net Zero Policy</div>
+          <div class="crit-desc">Leadership commitment demonstrated via approved, publicly committed Net Zero policy</div>
+        </div>
+        <span class="bdg bok">Complete</span>
+      </div>
+      <div class="crit-body">
+        <div class="sec-hdr">Actions required</div>
+        <p style="font-size:12px;color:var(--ink2);margin-bottom:10px">Develop a comprehensive Net Zero policy, obtain top management approval, include long-term strategies, and evidence public commitment.</p>
+        <div class="sec-hdr">Evidence checklist</div>
+        <div class="ev-item">
+          <input type="checkbox" class="ev-cb" checked>
+          <div style="flex:1"><div class="ev-name">Approved Net Zero Policy with top management signature</div><div class="ev-req req">Required</div></div>
+          <span class="bdg bp">AI scan</span>
+          <span style="font-size:10px;color:var(--teal);margin-left:6px">Net_Zero_Policy_March2023_signed.pdf</span>
+        </div>
+        <div class="ev-item">
+          <input type="checkbox" class="ev-cb" checked>
+          <div style="flex:1"><div class="ev-name">Signed public commitment document (press release, annual report, or website)</div><div class="ev-req req">Required</div></div>
+          <span class="bdg bp">AI scan</span>
+          <span style="font-size:10px;color:var(--teal);margin-left:6px">Confirmed in policy PDF</span>
+        </div>
+        <div class="ev-item">
+          <input type="checkbox" class="ev-cb" checked>
+          <div style="flex:1"><div class="ev-name">Communication materials showcasing public Net Zero commitment</div><div class="ev-req opt">Optional</div></div>
+          <span class="bdg bm">Manual</span>
+          <input class="fi" style="width:200px;padding:4px 8px;font-size:11px;margin-left:8px" placeholder="Add reference or attach">
+        </div>
+        <div class="fg" style="margin-top:10px"><label class="fl">Comments / Notes</label>
+          <textarea class="fta">Policy signed by GM Operations March 2023. Net Zero target 2035 for terminal operations stated.</textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="crit-card">
+      <div class="crit-hdr">
+        <div class="crit-ref">1.2</div>
+        <div class="crit-info">
+          <div class="crit-title">Leadership Involvement</div>
+          <div class="crit-desc">Leadership actively directs, resources, and monitors Net Zero progress</div>
+        </div>
+        <span class="bdg bok">Complete</span>
+      </div>
+      <div class="crit-body">
+        <div class="sec-hdr">Evidence checklist</div>
+        <div class="ev-item">
+          <input type="checkbox" class="ev-cb" checked>
+          <div style="flex:1"><div class="ev-name">Meeting minutes of periodic Net Zero leadership reviews</div><div class="ev-req req">Required</div></div>
+          <span class="bdg bm">Manual</span>
+          <span style="font-size:10px;color:var(--teal);margin-left:6px">Board_NZ_Review_Oct2023.pdf</span>
+        </div>
+        <div class="ev-item">
+          <input type="checkbox" class="ev-cb" checked>
+          <div style="flex:1"><div class="ev-name">Budget / resource allocation documents for Net Zero initiatives</div><div class="ev-req req">Required</div></div>
+          <span class="bdg bm">Manual</span>
+          <span style="font-size:10px;color:var(--teal);margin-left:6px">Capex_NZ_FY2324.pdf</span>
+        </div>
+        <div class="fg" style="margin-top:10px"><label class="fl">Comments / Notes</label>
+          <textarea class="fta">Quarterly NZ steering committee review chaired by GM. Budget ₹1.8 Cr allocated for FY24 decarbonisation projects.</textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="crit-card">
+      <div class="crit-hdr">
+        <div class="crit-ref">1.3</div>
+        <div class="crit-info">
+          <div class="crit-title">Net Zero Team</div>
+          <div class="crit-desc">Cross-functional team with clear roles set up for Net Zero initiatives</div>
+        </div>
+        <span class="bdg bprog">In progress</span>
+      </div>
+      <div class="crit-body">
+        <div class="sec-hdr">Evidence checklist</div>
+        <div class="ev-item">
+          <input type="checkbox" class="ev-cb" checked>
+          <div style="flex:1"><div class="ev-name">Organisation chart with Net Zero team roles and cross-functional representation</div><div class="ev-req req">Required</div></div>
+          <span class="bdg bm">Manual</span>
+          <span style="font-size:10px;color:var(--teal);margin-left:6px">NZ_OrgChart_2024.pdf</span>
+        </div>
+        <div class="ev-item">
+          <input type="checkbox" class="ev-cb">
+          <div style="flex:1"><div class="ev-name">Team training and competency certificates</div><div class="ev-req req">Required</div></div>
+          <span class="bdg bm">Manual</span>
+          <span style="font-size:10px;color:var(--red);margin-left:6px">⚠ Not uploaded</span>
+        </div>
+        <div class="fg" style="margin-top:10px"><label class="fl">Comments / Notes</label>
+          <textarea class="fta" placeholder="Add notes..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="vbox">
+      <div class="vbox-lbl">Verifier comments</div>
+      <div class="cmt"><div class="cmt-meta">CII Verifier · 12 Nov 2024</div>Criteria 1.1 and 1.2 accepted. Please upload training certificates for criterion 1.3 before verification visit.</div>
+      <textarea class="fta" placeholder="Applicant response..." style="margin-top:6px;font-size:12px"></textarea>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ MR2 ══════ -->
+<div id="tab-mr2" class="tab-panel">
+  <div class="mr2-metrics">
+    <div class="mm">
+      <div class="mm-lbl">Scope 1+2 gross</div>
+      <div class="mm-val" id="m-gross">200.3</div>
+      <div class="mm-unit">tCO₂e</div>
+    </div>
+    <div class="mm">
+      <div class="mm-lbl">Total avoided</div>
+      <div class="mm-val" id="m-avoid">799.98</div>
+      <div class="mm-unit">tCO₂e</div>
+    </div>
+    <div class="mm">
+      <div class="mm-lbl">Sequestration (capped)</div>
+      <div class="mm-val" id="m-seq">40.06</div>
+      <div class="mm-unit">tCO₂e</div>
+    </div>
+    <div class="mm mm-ratio">
+      <div class="mm-lbl">NZOC ratio</div>
+      <div class="mm-val cert" id="m-ratio">0.9998</div>
+      <div class="mm-cert-lbl cert" id="m-cert">Net Zero Certified</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <div><div class="card-title">MR2 – GHG Inventory</div><div class="card-sub">Scope 1 · Scope 2 · Avoided Emissions · Sequestration · Live NZOC ratio</div></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="bdg ba" style="font-size:9px">Last synced 09:14</span>
+        <button class="btn btn-g btn-sm" onclick="doSync()">↺ Refresh from TerraCAP</button>
+      </div>
+    </div>
+
+    <div class="sec-hdr">Scope 1 emissions — Sept 2023 – Aug 2024</div>
+    <table class="dt">
+      <thead><tr>
+        <th style="width:34%">Emission source</th>
+        <th style="width:10%">UOM</th>
+        <th style="width:12%" class="num">Quantity</th>
+        <th style="width:10%" class="num">EF</th>
+        <th style="width:13%" class="num">tCO₂e</th>
+        <th style="width:10%">Source</th>
+        <th style="width:11%">Evidence</th>
+      </tr></thead>
+      <tbody>
+        <tr><td colspan="7" style="padding:5px 10px;font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--ink3);background:var(--surface2)">Diesel consumption</td></tr>
+        <tr><td class="ri">DG sets</td><td>Litres</td><td class="num">4,332</td><td class="num">2.64</td><td class="num">11.44</td><td><span class="bdg ba">Auto</span></td><td style="font-size:10px;color:var(--ink3)">Fuel log</td></tr>
+        <tr><td class="ri">Fire engines</td><td>Litres</td><td class="num">37,872</td><td class="num">2.64</td><td class="num">100.00</td><td><span class="bdg ba">Auto</span></td><td style="font-size:10px;color:var(--ink3)">Fuel log</td></tr>
+        <tr><td class="ri">Company vehicles</td><td>Litres</td><td class="num">16,207</td><td class="num">2.64</td><td class="num">42.79</td><td><span class="bdg ba">Auto</span></td><td style="font-size:10px;color:var(--ink3)">Fuel log</td></tr>
+        <tr><td colspan="7" style="padding:5px 10px;font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--ink3);background:var(--surface2)">LPG consumption</td></tr>
+        <tr><td class="ri">LPG – canteen</td><td>kg</td><td class="num">1,634</td><td class="num">2.98</td><td class="num">4.87</td><td><span class="bdg ba">Auto</span></td><td style="font-size:10px;color:var(--ink3)">Utility log</td></tr>
+        <tr><td class="ri">LPG – process</td><td>kg</td><td class="num">0</td><td class="num">2.98</td><td class="num">—</td><td><span class="bdg ba">Auto</span></td><td></td></tr>
+        <tr><td>CO₂ – fire extinguisher refill</td><td>kg</td><td class="num">32.96</td><td class="num">1.00</td><td class="num">0.03</td><td><span class="bdg ba">Auto</span></td><td style="font-size:10px;color:var(--ink3)">Safety log</td></tr>
+        <tr><td>PNG consumption</td><td>SCM</td><td class="num">0</td><td class="num">2.16</td><td class="num">—</td><td><span class="bdg bm">Manual</span></td><td></td></tr>
+        <tr><td>Acetylene consumption</td><td>kg</td><td class="num">0</td><td class="num">—</td><td class="num">—</td><td><span class="bdg bm">Manual</span></td><td></td></tr>
+        <tr><td colspan="7" style="padding:5px 10px;font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--ink3);background:var(--surface2)">Refrigerants (GWP-weighted)</td></tr>
+        <tr><td class="ri">R-22 (GWP 1,716)</td><td>kg</td><td class="num">24</td><td class="num">1,716</td><td class="num">41.18</td><td><span class="bdg bm">Manual</span></td><td style="font-size:10px;color:var(--ink3)">Maintenance log</td></tr>
+        <tr><td class="ri">R-32 / R-134a / R-410a</td><td>kg</td><td class="num">0</td><td class="num">—</td><td class="num">—</td><td><span class="bdg bm">Manual</span></td><td></td></tr>
+        <tr><td>SF6 consumption</td><td>kg</td><td class="num">0</td><td class="num">—</td><td class="num">—</td><td><span class="bdg bm">Manual</span></td><td></td></tr>
+        <tr><td>Process emissions</td><td>kg</td><td class="num">0</td><td class="num">—</td><td class="num">—</td><td><span class="bdg bm">Manual</span></td><td></td></tr>
+        <tr class="sub"><td colspan="4" style="text-align:right">Total Scope 1 emissions</td><td class="num">200.31</td><td colspan="2"><span class="bdg bc">Auto-calc</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sec-hdr" style="margin-top:16px">Scope 2 emissions</div>
+    <table class="dt">
+      <thead><tr><th style="width:34%">Emission source</th><th>UOM</th><th class="num">Quantity</th><th class="num">EF</th><th class="num">tCO₂e</th><th>Source</th><th>Evidence</th></tr></thead>
+      <tbody>
+        <tr><td>Grid electricity (CEA factor 0.716 kgCO₂e/kWh)</td><td>kWh</td><td class="num">0</td><td class="num">0.716</td><td class="num">0.00</td><td><span class="bdg ba">Auto</span></td><td style="font-size:10px;color:var(--ink3)">DISCOM bill</td></tr>
+        <tr class="sub"><td colspan="4" style="text-align:right">Total Scope 2 emissions</td><td class="num">0.00</td><td colspan="2"><span class="bdg bc">Auto-calc</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sec-hdr" style="margin-top:16px">Avoided emissions — Scope 1</div>
+    <table class="dt">
+      <thead><tr><th style="width:34%">Source (fossil fuel replaced)</th><th>UOM</th><th class="num">Quantity</th><th class="num">Historic EF</th><th class="num" style="color:var(--green)">Avoided tCO₂e</th><th>Source</th><th>Evidence</th></tr></thead>
+      <tbody>
+        <tr class="pos"><td>B-100 biodiesel – DG sets (diesel EF used)</td><td>L</td><td class="num">8,389</td><td class="num">2.64</td><td class="num" style="color:var(--green)">22.15</td><td><span class="bdg bp">AI scan</span></td><td style="font-size:10px;color:var(--teal)">Biofuel_invoice.pdf</td></tr>
+        <tr class="pos"><td>B-100 biodiesel – vehicles (diesel EF used)</td><td>L</td><td class="num">3,000</td><td class="num">2.64</td><td class="num" style="color:var(--green)">7.92</td><td><span class="bdg bp">AI scan</span></td><td style="font-size:10px;color:var(--teal)">Biofuel_invoice.pdf</td></tr>
+        <tr class="sub"><td colspan="4" style="text-align:right">Total avoided – Scope 1</td><td class="num" style="color:var(--green)">30.07</td><td colspan="2"></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sec-hdr" style="margin-top:16px">Avoided emissions — Scope 2</div>
+    <table class="dt">
+      <thead><tr><th style="width:34%">RE source</th><th>UOM</th><th class="num">Quantity</th><th class="num">EF (grid)</th><th class="num" style="color:var(--green)">Avoided tCO₂e</th><th>Source</th><th>Evidence</th></tr></thead>
+      <tbody>
+        <tr class="pos"><td>Solar PV – onsite generation</td><td>kWh</td><td class="num">264,565</td><td class="num">0.716</td><td class="num" style="color:var(--green)">189.43</td><td><span class="bdg ba">Auto</span></td><td style="font-size:10px;color:var(--teal)">Solar meter</td></tr>
+        <tr class="pos"><td>Green power purchase (PPA – TPDDL)</td><td>kWh</td><td class="num">810,737</td><td class="num">0.716</td><td class="num" style="color:var(--green)">580.49</td><td><span class="bdg bp">AI scan</span></td><td style="font-size:10px;color:var(--teal)">PPA_certificate.pdf</td></tr>
+        <tr class="sub"><td colspan="4" style="text-align:right">Total avoided – Scope 2</td><td class="num" style="color:var(--green)">769.92</td><td colspan="2"></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sec-hdr" style="margin-top:16px">CO₂ sequestration</div>
+    <table class="dt">
+      <thead><tr><th>Sequestration source</th><th>UOM</th><th class="num">Raw tCO₂e</th><th class="num">Cap (20% of gross)</th><th class="num" style="color:var(--green)">Capped tCO₂e</th><th>Source</th><th>Evidence</th></tr></thead>
+      <tbody>
+        <tr class="pos"><td>Afforestation – site boundary</td><td>tCO₂e</td><td class="num">356.68</td><td class="num">40.06</td><td class="num" style="color:var(--green)">40.06</td><td><span class="bdg bp">AI scan</span></td><td style="font-size:10px;color:var(--teal)">Forest_cert.pdf</td></tr>
+        <tr><td style="font-size:11px;color:var(--ink3);font-style:italic" colspan="7">Cap rule: 20% × 200.31 tCO₂e (total gross) = 40.06 tCO₂e · Raw (356.68) exceeds cap → capped value applied</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sec-hdr" style="margin-top:16px">Summary of emissions</div>
+    <table class="dt">
+      <thead><tr><th>Category</th><th>UOM</th><th class="num">Sept 2022–Aug 2023</th><th class="num">Sept 2023–Aug 2024</th></tr></thead>
+      <tbody>
+        <tr><td>Scope 1 emissions</td><td>tCO₂e</td><td class="num">246.72</td><td class="num">200.31</td></tr>
+        <tr><td>Scope 2 emissions</td><td>tCO₂e</td><td class="num">767.66</td><td class="num">0.00</td></tr>
+        <tr><td>Avoided – Scope 1 (biofuels)</td><td>tCO₂e</td><td class="num">17.73</td><td class="num" style="color:var(--green)">30.07</td></tr>
+        <tr><td>Avoided – Scope 2 (RE)</td><td>tCO₂e</td><td class="num">157.95</td><td class="num" style="color:var(--green)">769.92</td></tr>
+        <tr><td>Total gross emissions (RE &amp; Non-RE basis)</td><td>tCO₂e</td><td class="num">1,190.06</td><td class="num">1,000.28</td></tr>
+        <tr><td>Total avoided emissions</td><td>tCO₂e</td><td class="num" style="color:var(--green)">175.68</td><td class="num" style="color:var(--green)">799.99</td></tr>
+        <tr><td>CO₂ sequestrated (raw)</td><td>tCO₂e</td><td class="num">356.68</td><td class="num">356.68</td></tr>
+        <tr><td>Cap on sequestration (20% of gross)</td><td>tCO₂e</td><td class="num">238.01</td><td class="num">40.06</td></tr>
+        <tr class="hi"><td style="font-weight:600">NZOC Ratio</td><td></td><td class="num mono" style="font-weight:600">0.3476</td><td class="num mono" style="font-weight:600;color:var(--teal)">0.9998 ✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<!-- ══════ MR3 ══════ -->
+<div id="tab-mr3" class="tab-panel">
+  <div id="mr3-gate" class="gate-msg">⚠ Baseline populated from MR2. Values below reflect current MR2 inventory. Complete all MR2 rows before finalising targets.</div>
+  <div class="card">
+    <div class="card-hdr">
+      <div><div class="card-title">MR3 – Reduction Targets</div><div class="card-sub">Baseline auto-populated from MR2 · Enter short / mid / long-term reduction targets and action plan</div></div>
+      <span class="bdg bprog">In progress</span>
+    </div>
+    <div class="sec-hdr">Baseline summary (auto-pulled from MR2)</div>
+    <table class="dt">
+      <thead><tr><th>Parameter</th><th>UOM</th><th class="num">Sept 2022–Aug 2023 (baseline)</th><th class="num">Sept 2023–Aug 2024</th></tr></thead>
+      <tbody>
+        <tr><td>Scope 1 emissions</td><td>tCO₂e</td><td class="num">246.72</td><td class="num">200.31</td></tr>
+        <tr><td>Scope 2 emissions</td><td>tCO₂e</td><td class="num">767.66</td><td class="num">0.00</td></tr>
+        <tr><td>Equivalent production</td><td>KL</td><td class="num">3,890,873</td><td class="num">4,182,531</td></tr>
+        <tr><td>Specific Scope 1 emission</td><td>kgCO₂e/KL</td><td class="num">0.0634</td><td class="num">0.0479</td></tr>
+        <tr><td>Specific Scope 2 emission</td><td>kgCO₂e/KL</td><td class="num">0.1973</td><td class="num">0.0000</td></tr>
+        <tr class="hi"><td style="font-weight:600">Specific operational emissions (S1+S2)</td><td>kgCO₂e/KL</td><td class="num" style="font-weight:600">0.2607</td><td class="num" style="font-weight:600">0.0479</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sec-hdr" style="margin-top:16px">Reduction targets</div>
+    <table class="dt">
+      <thead><tr><th>Parameter</th><th class="num">Baseline (Sept 2023–Aug 2024)</th><th class="num">Short-term % (Sept 2024–Aug 2025)</th><th class="num">Mid-term % (Sept 2025–Aug 2026)</th><th class="num">Long-term % (specify year)</th><th>Remarks</th></tr></thead>
+      <tbody>
+        <tr><td>Absolute Scope 1</td><td class="num">200.31</td><td><input class="ni" value="33.9"></td><td><input class="ni" value="71.3"></td><td><input class="ni" placeholder="%"></td><td><input class="fi" style="font-size:11px;padding:4px 8px" placeholder="Note"></td></tr>
+        <tr><td>Absolute Scope 2</td><td class="num">0.00</td><td><input class="ni" value="0.0"></td><td><input class="ni" value="0.0"></td><td><input class="ni" placeholder="%"></td><td><input class="fi" style="font-size:11px;padding:4px 8px" value="Already zero via green power"></td></tr>
+        <tr><td>Specific Scope 1</td><td class="num">0.0479</td><td><input class="ni" value="33.7"></td><td><input class="ni" value="71.3"></td><td><input class="ni" placeholder="%"></td><td><input class="fi" style="font-size:11px;padding:4px 8px" placeholder="Note"></td></tr>
+        <tr><td>Specific Scope 2</td><td class="num">0.0000</td><td><input class="ni" value="0.0"></td><td><input class="ni" value="0.0"></td><td><input class="ni" placeholder="%"></td><td><input class="fi" style="font-size:11px;padding:4px 8px" value="Already zero"></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sec-hdr" style="margin-top:14px">Target setting basis</div>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;padding:8px 0">
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" checked> Previous performance</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox"> Benchmarking</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox" checked> Potential identified</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer"><input type="checkbox"> Others</label>
+    </div>
+
+    <div class="sec-hdr" style="margin-top:14px">Future action plan</div>
+    <table class="dt" id="mr3-ap">
+      <thead><tr><th>Term</th><th>Project title</th><th>Scope</th><th class="num">Approx. GHG reduction (tCO₂e)</th><th>Financial approval</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag t-short">Short</span></td><td>TT fleet transition to EV (auction in progress)</td><td><span class="tag t-s1">Scope 1</span></td><td class="num">45.0</td><td>Approved</td></tr>
+        <tr><td><span class="tag t-short">Short</span></td><td>Fire engine fleet B-100 (OEM trial – 2 engines)</td><td><span class="tag t-s1">Scope 1</span></td><td class="num">25.0</td><td>Approved</td></tr>
+        <tr><td><span class="tag t-med">Medium</span></td><td>50% LPG canteen → induction cooking</td><td><span class="tag t-s1">Scope 1</span></td><td class="num">2.4</td><td>Feasibility in progress</td></tr>
+        <tr><td><span class="tag t-short">Short</span></td><td>DG-solar synchronisation (diesel offset)</td><td><span class="tag t-s1">Scope 1</span></td><td class="num">8.0</td><td>Budgeted – ongoing</td></tr>
+      </tbody>
+    </table>
+    <div class="add-row" onclick="addMR3Row()">+ Add action plan item</div>
+  </div>
+</div>
+
+<!-- ══════ MR4/5 ══════ -->
+<div id="tab-mr45" class="tab-panel">
+  <div class="card">
+    <div class="card-hdr">
+      <div><div class="card-title">MR4/5 – Mitigation Projects</div><div class="card-sub">Annual performance summary + project log with GHG reduction evidence</div></div>
+      <span class="bdg bprog">In progress</span>
+    </div>
+
+    <div class="sec-hdr">Annual emissions performance</div>
+    <table class="dt">
+      <thead><tr><th>Year</th><th class="num">Absolute S1 (tCO₂e)</th><th class="num">Absolute S2 (tCO₂e)</th><th class="num">S1+S2 (tCO₂e)</th><th class="num">Specific S1 (kgCO₂e/KL)</th><th class="num">Specific S2 (kgCO₂e/KL)</th><th class="num">Specific S1+S2</th></tr></thead>
+      <tbody>
+        <tr><td>Sept 2022 – Aug 2023</td><td class="num">246.72</td><td class="num">767.66</td><td class="num">1,014.38</td><td class="num">0.0634</td><td class="num">0.1973</td><td class="num">0.2607</td></tr>
+        <tr class="hi"><td>Sept 2023 – Aug 2024</td><td class="num">200.31</td><td class="num">0.00</td><td class="num">200.31</td><td class="num">0.0479</td><td class="num">0.0000</td><td class="num">0.0479</td></tr>
+        <tr class="sub"><td>Reduction</td><td class="num" style="color:var(--teal)">−18.8%</td><td class="num" style="color:var(--teal)">−100.0%</td><td class="num" style="color:var(--teal)">−80.3%</td><td class="num" style="color:var(--teal)">−24.4%</td><td class="num" style="color:var(--teal)">−100.0%</td><td class="num" style="color:var(--teal)">−81.6%</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sec-hdr" style="margin-top:16px">GHG mitigation project log</div>
+    <table class="dt" id="proj-table">
+      <thead><tr><th>Project description</th><th>Scope</th><th>Term</th><th class="num">GHG reduction (tCO₂e)</th><th class="num">% of total</th><th>Benefits</th><th>Financial approval</th><th>Evidence</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>TT fleet electrification – auction in progress for 8 EV tankers</td>
+          <td><span class="tag t-s1">Scope 1</span></td><td><span class="tag t-short">Short</span></td>
+          <td class="num">45.0</td><td class="num">22.5%</td>
+          <td style="font-size:11px">Fuel cost savings ~₹18L/yr</td>
+          <td style="font-size:11px">Approved</td>
+          <td><span class="bdg bm">Manual</span></td>
+        </tr>
+        <tr>
+          <td>Fire engine B-100 biodiesel trial (2 standby engines, OEM coordination)</td>
+          <td><span class="tag t-s1">Scope 1</span></td><td><span class="tag t-short">Short</span></td>
+          <td class="num">25.0</td><td class="num">12.5%</td>
+          <td style="font-size:11px">GHG reduction + no engine modification</td>
+          <td style="font-size:11px">Approved</td>
+          <td><span class="bdg bp">AI scan</span></td>
+        </tr>
+        <tr>
+          <td>DG-solar synchronisation with data logger integration</td>
+          <td><span class="tag t-s1">Scope 1</span></td><td><span class="tag t-short">Short</span></td>
+          <td class="num">8.0</td><td class="num">4.0%</td>
+          <td style="font-size:11px">Diesel offset + improved monitoring</td>
+          <td style="font-size:11px">Budgeted – ongoing</td>
+          <td><span class="bdg ba">Auto</span></td>
+        </tr>
+        <tr>
+          <td>Green power PPA extension for full site load coverage</td>
+          <td><span class="tag t-s2">Scope 2</span></td><td><span class="tag t-med">Medium</span></td>
+          <td class="num">580.5</td><td class="num">58.0%</td>
+          <td style="font-size:11px">Zero Scope 2 achieved for full load</td>
+          <td style="font-size:11px">Agreement in place</td>
+          <td><span class="bdg bp">AI scan</span></td>
+        </tr>
+        <tr>
+          <td>50% LPG canteen replacement with induction cooking</td>
+          <td><span class="tag t-s1">Scope 1</span></td><td><span class="tag t-med">Medium</span></td>
+          <td class="num">2.4</td><td class="num">1.2%</td>
+          <td style="font-size:11px">Feasibility trial in progress</td>
+          <td style="font-size:11px">Under evaluation</td>
+          <td><span class="bdg bm">Manual</span></td>
+        </tr>
+        <tr>
+          <td>AC system maintenance (preventive refrigerant leak control)</td>
+          <td><span class="tag t-s1">Scope 1</span></td><td><span class="tag t-short">Short</span></td>
+          <td class="num">4.0</td><td class="num">2.0%</td>
+          <td style="font-size:11px">R-22 leak reduction</td>
+          <td style="font-size:11px">Budgeted</td>
+          <td><span class="bdg bm">Manual</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="add-row" onclick="addProjRow()">+ Add mitigation project</div>
+  </div>
+</div>
+
+<!-- ══════ MR6 ══════ -->
+<div id="tab-mr6" class="tab-panel">
+  <div class="card">
+    <div class="card-hdr">
+      <div><div class="card-title">MR6 – Sustenance</div><div class="card-sub">Future-period targets · Contract continuity monitoring · AI expiry alerts</div></div>
+      <span class="bdg bwarn">1 expiry alert</span>
+    </div>
+
+    <div class="sec-hdr">Sustenance targets — future periods</div>
+    <table class="dt">
+      <thead><tr><th>Category</th><th>UOM</th><th class="num">Sept 2024–Aug 2025 (target)</th><th class="num">Sept 2025–Aug 2026 (target)</th></tr></thead>
+      <tbody>
+        <tr><td>Scope 1 emissions</td><td>tCO₂e</td><td><input class="ni" value="132.5"></td><td><input class="ni" value="57.5"></td></tr>
+        <tr><td>Scope 2 emissions</td><td>tCO₂e</td><td><input class="ni" value="0.0"></td><td><input class="ni" value="0.0"></td></tr>
+        <tr><td>Avoided S1 (target)</td><td>tCO₂e</td><td><input class="ni" value="50.0"></td><td><input class="ni" value="80.0"></td></tr>
+        <tr><td>Avoided S2 (target)</td><td>tCO₂e</td><td><input class="ni" value="769.9"></td><td><input class="ni" value="769.9"></td></tr>
+        <tr><td>CO₂ sequestration (capped)</td><td>tCO₂e</td><td><input class="ni" value="26.5"></td><td><input class="ni" value="11.5"></td></tr>
+        <tr class="hi"><td style="font-weight:600">NZOC Ratio (projected)</td><td></td><td class="num mono" style="font-weight:600;color:var(--teal)">1.10</td><td class="num mono" style="font-weight:600;color:var(--teal)">1.23</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sec-hdr" style="margin-top:16px">Continuity &amp; sustenance review</div>
+    <div class="xp-alert">⚠ PPA certificate (TPDDL) expires 31 Dec 2025 — 14 months from verification date. Upload renewal documentation before CII site visit.</div>
+    <table class="dt">
+      <thead><tr><th>Initiative</th><th>Review mechanism</th><th>Contract / validity period</th><th>Expiry alert</th><th>Supporting document</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Green power PPA (TPDDL)</td>
+          <td style="font-size:11px">Annual PPA review; counterparty confirmation letter</td>
+          <td class="num" style="font-size:11px">Valid · 31 Dec 2025</td>
+          <td><span class="bdg bwarn">⚠ 14 months</span></td>
+          <td style="font-size:10px;color:var(--teal)">PPA_certificate.pdf</td>
+          <td><span class="bdg bp">AI scan</span></td>
+        </tr>
+        <tr>
+          <td>B-100 biofuel supply</td>
+          <td style="font-size:11px">Quarterly purchase order review</td>
+          <td class="num" style="font-size:11px">Rolling contract</td>
+          <td><span class="bdg bok">No alert</span></td>
+          <td style="font-size:10px;color:var(--teal)">Biofuel_invoice.pdf</td>
+          <td><span class="bdg bp">AI scan</span></td>
+        </tr>
+        <tr>
+          <td>Onsite solar PV generation</td>
+          <td style="font-size:11px">Monthly generation meter review; TerraCAP auto-monitor</td>
+          <td class="num" style="font-size:11px">Permanent installation</td>
+          <td><span class="bdg bok">No alert</span></td>
+          <td style="font-size:10px;color:var(--teal)">Solar meter (live)</td>
+          <td><span class="bdg ba">Auto</span></td>
+        </tr>
+        <tr>
+          <td>Afforestation – site boundary plantation</td>
+          <td style="font-size:11px">Annual survival rate survey; third-party validation every 3 years</td>
+          <td class="num" style="font-size:11px">Annual monitoring</td>
+          <td><span class="bdg bok">No alert</span></td>
+          <td style="font-size:10px;color:var(--red)">Annual report pending upload</td>
+          <td><span class="bdg bm">Manual</span></td>
+        </tr>
+        <tr>
+          <td>DG-solar synchronisation</td>
+          <td style="font-size:11px">Monthly data logger review; diesel saving report quarterly</td>
+          <td class="num" style="font-size:11px">Ongoing – operational</td>
+          <td><span class="bdg bok">No alert</span></td>
+          <td style="font-size:10px;color:var(--teal)">Data logger (live)</td>
+          <td><span class="bdg ba">Auto</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="add-row">+ Add sustenance record</div>
+  </div>
+</div>
+
+<!-- ══════ MR7 ══════ -->
+<div id="tab-mr7" class="tab-panel">
+  <div class="card">
+    <div class="card-hdr">
+      <div><div class="card-title">MR7 – Scope 3 Emissions</div><div class="card-sub">Step 1: Screen categories · Step 2: Quantify screened-in categories only</div></div>
+      <span class="bdg bprog">2 categories selected</span>
+    </div>
+
+    <div class="sec-hdr">Step 1 — Category screening (GHG Protocol, 15 categories)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px">
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--white)"><input type="checkbox"> Cat 1 – Purchased goods &amp; services</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--white)"><input type="checkbox"> Cat 2 – Capital goods</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--white)"><input type="checkbox"> Cat 3 – Fuel &amp; energy activities</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;padding:6px 8px;border:1px solid var(--teal-m);border-radius:4px;cursor:pointer;background:var(--teal-l)"><input type="checkbox" checked> Cat 4 – Upstream transport &amp; distribution</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--white)"><input type="checkbox"> Cat 5 – Waste generated</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--white)"><input type="checkbox"> Cat 6 – Business travel</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;padding:6px 8px;border:1px solid var(--teal-m);border-radius:4px;cursor:pointer;background:var(--teal-l)"><input type="checkbox" checked> Cat 7 – Employee commuting</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--white)"><input type="checkbox"> Cat 8 – Upstream leased assets</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--white)"><input type="checkbox"> Cat 9 – Downstream transport</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--white)"><input type="checkbox"> Cat 10 – Processing of sold products</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--white)"><input type="checkbox"> Cat 11 – Use of sold products</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--white)"><input type="checkbox"> Cat 12 – End-of-life treatment</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--white)"><input type="checkbox"> Cat 13 – Downstream leased assets</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--white)"><input type="checkbox"> Cat 14 – Franchises</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;cursor:pointer;background:var(--white)"><input type="checkbox"> Cat 15 – Investments</label>
+    </div>
+
+    <div class="sec-hdr">Step 2 — Quantification (selected categories only)</div>
+    <table class="dt">
+      <thead><tr><th style="width:32%">Source</th><th>Category</th><th>UOM</th><th class="num">Quantity (Sep23–Aug24)</th><th class="num">EF</th><th class="num">tCO₂e</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td colspan="7" style="padding:5px 10px;font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--ink3);background:var(--surface2)">Category 4 – Upstream transport &amp; distribution</td></tr>
+        <tr><td class="ri">Pipeline throughput (petroleum products)</td><td><span class="tag t-s3">Cat 4</span></td><td>KL</td><td class="num">4,182,531</td><td class="num">1.58 kg/KL</td><td class="num">6,608</td><td><span class="bdg bp">AI scan</span></td></tr>
+        <tr><td class="ri">Truck – ethanol inbound</td><td><span class="tag t-s3">Cat 4</span></td><td>km</td><td class="num">2,075,097</td><td class="num">0.882 kg/km</td><td class="num">1,830</td><td><span class="bdg bp">AI scan</span></td></tr>
+        <tr><td class="ri">Truck – biodiesel inbound</td><td><span class="tag t-s3">Cat 4</span></td><td>km</td><td class="num">572,625</td><td class="num">0.882 kg/km</td><td class="num">505</td><td><span class="bdg bp">AI scan</span></td></tr>
+        <tr class="sub"><td colspan="5" style="text-align:right">Category 4 subtotal</td><td class="num">8,943</td><td></td></tr>
+        <tr><td colspan="7" style="padding:5px 10px;font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--ink3);background:var(--surface2)">Category 7 – Employee commuting</td></tr>
+        <tr><td class="ri">Bus fleet (18 routes, 93,340 km total)</td><td><span class="tag t-s3">Cat 7</span></td><td>km</td><td class="num">93,340</td><td class="num">0.529 kg/km</td><td class="num">49</td><td><span class="bdg bp">AI scan</span></td></tr>
+        <tr><td class="ri">Personal cars – diesel + petrol (37 routes)</td><td><span class="tag t-s3">Cat 7</span></td><td>km</td><td class="num">87,000</td><td class="num">0.183 kg/km</td><td class="num">16</td><td><span class="bdg bp">AI scan</span></td></tr>
+        <tr class="sub"><td colspan="5" style="text-align:right">Category 7 subtotal</td><td class="num">65</td><td></td></tr>
+        <tr class="sub"><td colspan="5" style="text-align:right">Total Scope 3 emissions</td><td class="num">9,008</td><td><span class="bdg bc">Auto-calc</span></td></tr>
+        <tr><td>Equivalent production</td><td></td><td>KL</td><td class="num">4,182,531</td><td></td><td></td><td></td></tr>
+        <tr class="hi"><td style="font-weight:600">Specific Scope 3 emission</td><td></td><td>kgCO₂e/KL</td><td></td><td></td><td class="num" style="font-weight:600">2.154</td><td><span class="bdg bc">Auto-calc</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="sec-hdr" style="margin-top:14px">Scope 3 mitigation projects</div>
+    <table class="dt">
+      <thead><tr><th>Project description</th><th>Category</th><th class="num">Approx. GHG reduction (tCO₂e)</th><th>Benefits</th></tr></thead>
+      <tbody>
+        <tr><td>Pipeline efficiency optimisation – reduce throughput losses</td><td><span class="tag t-s3">Cat 4</span></td><td class="num">150</td><td>Operational efficiency + emissions reduction</td></tr>
+        <tr><td>Employee bus fleet → CNG / EV transition</td><td><span class="tag t-s3">Cat 7</span></td><td class="num">30</td><td>Fuel cost + GHG reduction</td></tr>
+      </tbody>
+    </table>
+    <div class="add-row">+ Add Scope 3 mitigation project</div>
+
+    <div class="sec-hdr" style="margin-top:14px">Scope 3 future action plan</div>
+    <table class="dt">
+      <thead><tr><th>Term</th><th>Project title</th><th>Category</th><th class="num">Approx. GHG reduction (tCO₂e)</th><th>Financial approval</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag t-med">Medium</span></td><td>Pipeline efficiency audit and leak reduction programme</td><td><span class="tag t-s3">Cat 4</span></td><td class="num">150</td><td>Under evaluation</td></tr>
+        <tr><td><span class="tag t-med">Medium</span></td><td>Transition 4 bus routes to electric buses (BMTC coordination)</td><td><span class="tag t-s3">Cat 7</span></td><td class="num">20</td><td>Pending approval</td></tr>
+      </tbody>
+    </table>
+    <div class="add-row">+ Add Scope 3 action plan item</div>
+  </div>
+</div>
+<!-- ══════ SCORE ══════ -->
+<div id="tab-score" class="tab-panel">
+  <div class="lc-wrap">
+    <div class="lc-step"><div class="lc-circ done">✓</div><div class="lc-lbl done">Draft</div></div>
+    <div class="lc-step"><div class="lc-circ act">→</div><div class="lc-lbl act">Submit</div></div>
+    <div class="lc-step"><div class="lc-circ">·</div><div class="lc-lbl">Under Review</div></div>
+    <div class="lc-step"><div class="lc-circ">·</div><div class="lc-lbl">Clarification</div></div>
+    <div class="lc-step"><div class="lc-circ">·</div><div class="lc-lbl">Resubmit</div></div>
+    <div class="lc-step"><div class="lc-circ">·</div><div class="lc-lbl">Verified</div></div>
+    <div class="lc-step"><div class="lc-circ">·</div><div class="lc-lbl">Locked</div></div>
+  </div>
+
+  <div class="two-col" style="margin-bottom:14px">
+    <div class="card">
+      <div class="card-hdr"><div><div class="card-title">NZOC ratio</div><div class="card-sub">Sept 2023 – Aug 2024</div></div><span class="bdg bok">Certified</span></div>
+      <div class="gauge-wrap">
+        <svg width="200" height="110" viewBox="0 0 200 110">
+          <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#DDE1DA" stroke-width="12" stroke-linecap="round"/>
+          <path id="gauge-arc" d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#0D7A5A" stroke-width="12" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="0.25"/>
+          <text x="100" y="85" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="28" font-weight="500" fill="#0D7A5A">1.00</text>
+          <text x="100" y="104" text-anchor="middle" font-family="'Sora',sans-serif" font-size="9" font-weight="700" fill="#0D7A5A" letter-spacing="1">NET ZERO CERTIFIED</text>
+          <text x="18" y="114" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9EACA5">0</text>
+          <text x="182" y="114" text-anchor="middle" font-family="'Sora',sans-serif" font-size="8" fill="#9EACA5">1.5+</text>
+          <line x1="100" y1="20" x2="100" y2="32" stroke="#D0D5CC" stroke-width="1.5"/>
+          <text x="100" y="17" text-anchor="middle" font-family="'Sora',sans-serif" font-size="7" fill="#9EACA5">1.0</text>
+        </svg>
+      </div>
+      <div style="text-align:center;margin-top:-6px">
+        <div style="font-size:11px;color:var(--ink3)">NZOC = (799.99 + 40.06) ÷ 1,000.28</div>
+        <div style="font-size:11px;color:var(--ink3);margin-top:2px">Prior year ratio: <span class="mono">0.3476</span> · Improvement: <span style="color:var(--teal)">+0.6522</span></div>
+        <div style="font-size:11px;color:var(--ink3);margin-top:2px">Specific S1 emission: <span class="mono">0.0479 kgCO₂e/KL</span> (↓ 24.4% vs baseline)</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hdr"><div><div class="card-title">Module completion</div><div class="card-sub">7 of 9 modules assessed</div></div></div>
+      <div class="mod-grid">
+        <div class="mod-card ok"><div class="mod-ref">Setup</div><div class="mod-name">Context</div><div class="mod-status">✓ Complete</div></div>
+        <div class="mod-card ok"><div class="mod-ref">Import</div><div class="mod-name">Evidence hub</div><div class="mod-status">✓ 5 files scanned</div></div>
+        <div class="mod-card part"><div class="mod-ref">MR1</div><div class="mod-name">Policy</div><div class="mod-status">⚠ 1.3 pending</div></div>
+        <div class="mod-card ok"><div class="mod-ref">MR2</div><div class="mod-name">Inventory</div><div class="mod-status">✓ Ratio 0.9998</div></div>
+        <div class="mod-card part"><div class="mod-ref">MR3</div><div class="mod-name">Targets</div><div class="mod-status">⚠ Long-term %</div></div>
+        <div class="mod-card part"><div class="mod-ref">MR4/5</div><div class="mod-name">Mitigation</div><div class="mod-status">⚠ Photos pending</div></div>
+        <div class="mod-card warn"><div class="mod-ref">MR6</div><div class="mod-name">Sustenance</div><div class="mod-status">⚠ PPA expiry alert</div></div>
+        <div class="mod-card ok"><div class="mod-ref">MR7</div><div class="mod-name">Scope 3</div><div class="mod-status">✓ 2 categories</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr"><div><div class="card-title">Gaps to resolve before submission</div><div class="card-sub">3 items require attention</div></div></div>
+    <table class="dt">
+      <thead><tr><th>Module</th><th>Gap</th><th>Type</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td><span class="bdg bprog">MR1 – 1.3</span></td><td>Team training and competency certificates not uploaded</td><td>Missing evidence</td><td><button class="btn btn-g btn-sm" onclick="sw('mr1',null)">Go to MR1 ›</button></td></tr>
+        <tr><td><span class="bdg bprog">MR3</span></td><td>Long-term reduction targets not entered for Scope 1</td><td>Incomplete field</td><td><button class="btn btn-g btn-sm" onclick="sw('mr3',null)">Go to MR3 ›</button></td></tr>
+        <tr><td><span class="bdg bwarn">MR6</span></td><td>PPA expiry in 14 months — renewal documentation recommended before verification</td><td>Sustenance risk</td><td><button class="btn btn-g btn-sm" onclick="sw('mr6',null)">Go to MR6 ›</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr"><div><div class="card-title">Export &amp; submission</div></div></div>
+    <div class="two-col">
+      <div>
+        <div class="sec-hdr">Applicant actions</div>
+        <div class="btn-row">
+          <button class="btn btn-s" onclick="alert('Exporting CII NZOC workbook format...')">⬇ Export CII Excel template</button>
+          <button class="btn btn-s" onclick="alert('Generating PDF summary...')">⬇ Export PDF narrative</button>
+          <button class="btn btn-p" onclick="doSubmit()">Submit to CII zone dashboard ›</button>
+        </div>
+        <div style="font-size:11px;color:var(--ink3);margin-top:8px">Excel export reproduces exact CII workbook sheet structure and labels for verifier reference parity.</div>
+      </div>
+      <div>
+        <div class="sec-hdr">CII verifier view (zone authority)</div>
+        <div style="font-size:12px;color:var(--ink2);margin-bottom:8px">Once submitted, CII GBC sees this application in the zone dashboard with NZOC ratio, completion status, and all evidence documents.</div>
+        <div class="vbox">
+          <div class="vbox-lbl">Verifier comments</div>
+          <div class="cmt"><div class="cmt-meta">CII Verifier · Awaiting submission</div>Application not yet submitted. Complete open gaps above before submitting.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /nz-content -->
+</div><!-- /nz-layout -->
+
+<!-- STICKY FOOTER -->
+<div class="sfooter">
+  <div style="display:flex;flex-direction:column;gap:2px">
+    <div class="sf-lbl">NZOC ratio</div>
+    <div class="sf-ratio cert" id="sf-ratio">0.9998</div>
+  </div>
+  <div style="width:1px;height:28px;background:#1B3A2A"></div>
+  <div style="display:flex;flex-direction:column;gap:4px">
+    <div class="sf-lbl">Completion</div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="sf-pbar"><div class="sf-pfill" id="sf-fill" style="width:72%"></div></div>
+      <div class="sf-pct" id="sf-pct">72%</div>
+    </div>
+  </div>
+  <div style="width:1px;height:28px;background:#1B3A2A"></div>
+  <div style="display:flex;flex-direction:column;gap:2px">
+    <div class="sf-lbl">Status</div>
+    <div id="sf-status" style="font-size:11px;color:#9DB8A8;font-family:'Sora',sans-serif;font-weight:500">Draft</div>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <button class="btn btn-g btn-sm" style="border-color:#2A4A38;color:#7AA892" onclick="sw('score',null)">View score ›</button>
+    <button class="btn btn-sm" style="background:var(--teal);color:white;border-color:var(--teal)" onclick="doSubmit()">Submit to CII ›</button>
+  </div>
+</div>
+
+<script>
+// ── Tab switching ──
+function sw(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.snav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  var si = document.getElementById('snav-' + id);
+  if (si) si.classList.add('active');
+  if (id === 'mr2' && !mr2visited) {
+    mr2visited = true;
+    var lbl = document.getElementById('sync-lbl');
+    if (lbl) { lbl.textContent = 'Pulling data…'; setTimeout(function(){ lbl.textContent = 'Last synced just now'; }, 1000); }
+  }
+}
+
+// ── Import scan simulation ──
+var scanDone = false;
+function runScan() {
+  if (scanDone) return;
+  var files = [
+    {pb:'pb1',st:'st1',mp:'mp1'},
+    {pb:'pb2',st:'st2',mp:'mp2'},
+    {pb:'pb3',st:'st3',mp:'mp3'},
+    {pb:'pb4',st:'st4',mp:'mp4'},
+    {pb:'pb5',st:'st5',mp:'mp5'},
+  ];
+  files.forEach(function(f, i) {
+    setTimeout(function() {
+      var pb = document.getElementById(f.pb);
+      var st = document.getElementById(f.st);
+      var mp = document.getElementById(f.mp);
+      pb.style.width = '40%';
+      st.className = 'bdg bprog'; st.textContent = 'Scanning…';
+      setTimeout(function() {
+        pb.style.width = '100%';
+        st.className = 'bdg bok'; st.textContent = 'Mapped ✓';
+        mp.classList.add('show');
+        if (i === files.length - 1) {
+          setTimeout(function() {
+            document.getElementById('scan-ok').style.display = 'flex';
+            document.getElementById('scan-conflict').style.display = 'flex';
+            document.getElementById('td-import').className = 'tdot tdot-ok';
+            var sd = document.getElementById('sd-import');
+            if (sd) { sd.className = 'snav-dot snav-ok'; }
+            scanDone = true;
+          }, 400);
+        }
+      }, 700);
+    }, i * 900);
+  });
+}
+
+// ── Sync ──
+function doSync() {
+  var lbl = document.getElementById('sync-lbl');
+  lbl.textContent = 'Syncing…';
+  setTimeout(function() {
+    var now = new Date();
+    lbl.textContent = 'Last synced ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+  }, 1200);
+}
+
+// ── Submit workflow ──
+function doSubmit() {
+  var pill = document.getElementById('app-status');
+  var txt = document.getElementById('status-text');
+  var sfStatus = document.getElementById('sf-status');
+  pill.className = 'status-pill sp-submitted';
+  txt.textContent = 'Submitted';
+  sfStatus.textContent = 'Submitted';
+  sfStatus.style.color = '#7AA892';
+  document.getElementById('sf-fill').style.width = '85%';
+  document.getElementById('sf-pct').textContent = '85%';
+  document.getElementById('td-score').className = 'tdot tdot-part';
+  var sdScore = document.getElementById('sd-score');
+  if (sdScore) sdScore.className = 'snav-dot snav-part';
+  alert('Application submitted to CII zone dashboard. CII verifier will review within 5 working days.');
+}
+
+// ── MR3 add row ──
+function addMR3Row() {
+  var tb = document.getElementById('mr3-ap').querySelector('tbody');
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<td><select style="font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:4px"><option>Short</option><option>Medium</option><option>Long</option></select></td><td><input style="width:100%;font-size:11px;padding:4px 6px;border:1px solid var(--border);border-radius:4px" placeholder="Project title"></td><td><select style="font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:4px"><option>Scope 1</option><option>Scope 2</option></select></td><td><input class="ni" style="width:80px" placeholder="tCO₂e"></td><td><input style="width:100%;font-size:11px;padding:4px 6px;border:1px solid var(--border);border-radius:4px" placeholder="Status"></td>';
+  tb.appendChild(tr);
+}
+
+// ── MR4/5 add project ──
+function addProjRow() {
+  var tb = document.getElementById('proj-table').querySelector('tbody');
+  var tr = document.createElement('tr');
+  tr.innerHTML = '<td><input style="width:100%;font-size:11px;padding:4px 6px;border:1px solid var(--border);border-radius:4px" placeholder="Project description"></td><td><select style="font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:4px"><option>Scope 1</option><option>Scope 2</option></select></td><td><select style="font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:4px"><option>Short</option><option>Medium</option><option>Long</option></select></td><td><input class="ni" style="width:80px" placeholder="tCO₂e"></td><td class="num">—</td><td><input style="width:100%;font-size:11px;padding:4px 6px;border:1px solid var(--border);border-radius:4px" placeholder="Benefits"></td><td><input style="width:100%;font-size:11px;padding:4px 6px;border:1px solid var(--border);border-radius:4px" placeholder="Approval status"></td><td><span class="bdg bm">Manual</span></td>';
+  tb.appendChild(tr);
+}
+
+// ── Gauge animation on load ──
+window.addEventListener('load', function() {
+  var arc = document.getElementById('gauge-arc');
+  if (!arc) return;
+  var total = 251.2;
+  var ratio = 0.9998;
+  var capped = Math.min(ratio, 1.2) / 1.2;
+  var offset = total - (capped * total);
+  setTimeout(function() { arc.style.transition = 'stroke-dashoffset 1.4s ease'; arc.style.strokeDashoffset = offset; }, 300);
+});
+
+// ── Auto-pull: handled inside sw() ──
+var mr2visited = false;
+</script>
+</body>
+</html>
