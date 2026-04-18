@@ -2828,17 +2828,16 @@
           
           <div style="margin-bottom: 1.5rem;">
             <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Select Client to Benchmark</label>
-            <select style="width: 100%; max-width: 400px;">
-              <option>Alpha Manufacturing Ltd.</option>
-              <option>Beta Pharma Inc.</option>
-              <option>Gamma Tech Solutions</option>
-              <option>Delta Retail Corp</option>
-              <option>All Manufacturing Clients</option>
+            <select id="benchmarkClientSelect" style="width: 100%; max-width: 400px;" onchange="updateBenchmarkDisplay(this.value)">
+              <option value="alpha">Alpha Manufacturing Ltd.</option>
+              <option value="beta">Beta Pharma Inc.</option>
+              <option value="gamma">Gamma Tech Solutions</option>
+              <option value="delta">Delta Retail Corp</option>
             </select>
           </div>
 
           <div style="background: #f7fafc; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
-            <h4 style="margin-bottom: 1rem;">Alpha Manufacturing Ltd. - Benchmarking Results</h4>
+            <h4 id="bm-results-title" style="margin-bottom: 1rem;">Alpha Manufacturing Ltd. - Benchmarking Results</h4>
             
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
               <div style="position: relative;">
@@ -2849,8 +2848,8 @@
                   </span>
                 </div>
                 <div style="font-size: 0.875rem; color: #718096; margin-bottom: 0.5rem;">Emissions Intensity</div>
-                <div style="font-size: 1.5rem; font-weight: 700;">2.8 tCO₂e/unit</div>
-                <div style="font-size: 0.875rem; color: #e53e3e;">Industry Avg: 2.1 → 33% worse</div>
+                <div id="bm-ei-value" style="font-size: 1.5rem; font-weight: 700;">2.8 tCO₂e/unit</div>
+                <div id="bm-ei-compare" style="font-size: 0.875rem; color: #e53e3e;">Industry Avg: 2.1 → 33% worse</div>
               </div>
               <div style="position: relative;">
                 <div class="tooltip" style="top: 0; right: 0;">
@@ -2860,8 +2859,8 @@
                   </span>
                 </div>
                 <div style="font-size: 0.875rem; color: #718096; margin-bottom: 0.5rem;">Reduction Progress</div>
-                <div style="font-size: 1.5rem; font-weight: 700;">12%</div>
-                <div style="font-size: 0.875rem; color: #e53e3e;">Industry Avg: 18% ↓ 6pp behind</div>
+                <div id="bm-rp-value" style="font-size: 1.5rem; font-weight: 700;">12%</div>
+                <div id="bm-rp-compare" style="font-size: 0.875rem; color: #e53e3e;">Industry Avg: 18% ↓ 6pp behind</div>
               </div>
               <div style="position: relative;">
                 <div class="tooltip" style="top: 0; right: 0;">
@@ -2871,12 +2870,12 @@
                   </span>
                 </div>
                 <div style="font-size: 0.875rem; color: #718096; margin-bottom: 0.5rem;">Data Quality Score</div>
-                <div style="font-size: 1.5rem; font-weight: 700;">72%</div>
-                <div style="font-size: 0.875rem; color: #e53e3e;">Industry Avg: 85% ↓ 13pp below</div>
+                <div id="bm-dq-value" style="font-size: 1.5rem; font-weight: 700;">72%</div>
+                <div id="bm-dq-compare" style="font-size: 0.875rem; color: #e53e3e;">Industry Avg: 85% ↓ 13pp below</div>
               </div>
             </div>
 
-            <div style="background: white; padding: 1rem; border-radius: 6px; border-left: 4px solid #e53e3e;">
+            <div id="bm-ai-analysis" style="background: white; padding: 1rem; border-radius: 6px; border-left: 4px solid #e53e3e;">
               <strong>🤖 AI Analysis:</strong> Alpha is underperforming across all key metrics. Primary issues: incomplete Scope 3 data collection and aging equipment efficiency. Recommend: 1) Supplier engagement program to close data gaps, 2) Energy audit to identify equipment upgrades, 3) Monthly data quality reviews.
             </div>
           </div>
@@ -2936,15 +2935,15 @@
 
             <!-- Visual Position Indicator -->
             <div style="margin-top: 1.5rem; padding: 1.5rem; background: white; border-radius: 8px; border: 1px solid #e2e8f0;">
-              <h4 style="margin-bottom: 1rem; color: #2d3748;">📍 Alpha Manufacturing Position in Distribution</h4>
+              <h4 id="bm-position-title" style="margin-bottom: 1rem; color: #2d3748;">📍 Alpha Manufacturing Position in Distribution</h4>
               
               <div style="margin-bottom: 1.5rem;">
-                <div style="font-weight: 600; font-size: 0.875rem; color: #4a5568; margin-bottom: 0.5rem;">Emissions Intensity (2.8 tCO₂e/unit)</div>
+                <div id="bm-bar-ei-label" style="font-weight: 600; font-size: 0.875rem; color: #4a5568; margin-bottom: 0.5rem;">Emissions Intensity (2.8 tCO₂e/unit)</div>
                 <div style="position: relative; height: 40px; background: linear-gradient(to right, #48bb78 0%, #48bb78 10%, #e6f4ea 10%, #e6f4ea 25%, #fef5e7 25%, #fef5e7 50%, #fff5f5 50%, #fff5f5 75%, #fed7d7 75%, #fed7d7 90%, #e53e3e 90%, #e53e3e 100%); border-radius: 8px; margin-bottom: 0.5rem;">
-                  <div style="position: absolute; top: -8px; left: 76%; transform: translateX(-50%);">
+                  <div id="bm-bar-ei-arrow" style="position: absolute; top: -8px; left: 76%; transform: translateX(-50%);">
                     <div style="width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 12px solid #2d3748;"></div>
                   </div>
-                  <div style="position: absolute; top: 50%; left: 76%; transform: translate(-50%, -50%); background: #2d3748; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
+                  <div id="bm-bar-ei-tag" style="position: absolute; top: 50%; left: 76%; transform: translate(-50%, -50%); background: #2d3748; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
                     Alpha: 76th %ile
                   </div>
                 </div>
@@ -2958,12 +2957,12 @@
               </div>
 
               <div style="margin-bottom: 1.5rem;">
-                <div style="font-weight: 600; font-size: 0.875rem; color: #4a5568; margin-bottom: 0.5rem;">Reduction Progress (12%)</div>
+                <div id="bm-bar-rp-label" style="font-weight: 600; font-size: 0.875rem; color: #4a5568; margin-bottom: 0.5rem;">Reduction Progress (12%)</div>
                 <div style="position: relative; height: 40px; background: linear-gradient(to right, #48bb78 0%, #48bb78 10%, #e6f4ea 10%, #e6f4ea 25%, #fef5e7 25%, #fef5e7 50%, #fff5f5 50%, #fff5f5 75%, #fed7d7 75%, #fed7d7 90%, #e53e3e 90%, #e53e3e 100%); border-radius: 8px; margin-bottom: 0.5rem;">
-                  <div style="position: absolute; top: -8px; left: 72%; transform: translateX(-50%);">
+                  <div id="bm-bar-rp-arrow" style="position: absolute; top: -8px; left: 72%; transform: translateX(-50%);">
                     <div style="width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 12px solid #2d3748;"></div>
                   </div>
-                  <div style="position: absolute; top: 50%; left: 72%; transform: translate(-50%, -50%); background: #2d3748; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
+                  <div id="bm-bar-rp-tag" style="position: absolute; top: 50%; left: 72%; transform: translate(-50%, -50%); background: #2d3748; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
                     Alpha: 72nd %ile
                   </div>
                 </div>
@@ -2977,12 +2976,12 @@
               </div>
 
               <div>
-                <div style="font-weight: 600; font-size: 0.875rem; color: #4a5568; margin-bottom: 0.5rem;">Data Quality Score (72%)</div>
+                <div id="bm-bar-dq-label" style="font-weight: 600; font-size: 0.875rem; color: #4a5568; margin-bottom: 0.5rem;">Data Quality Score (72%)</div>
                 <div style="position: relative; height: 40px; background: linear-gradient(to right, #48bb78 0%, #48bb78 10%, #e6f4ea 10%, #e6f4ea 25%, #fef5e7 25%, #fef5e7 50%, #fff5f5 50%, #fff5f5 75%, #fed7d7 75%, #fed7d7 90%, #e53e3e 90%, #e53e3e 100%); border-radius: 8px; margin-bottom: 0.5rem;">
-                  <div style="position: absolute; top: -8px; left: 82%; transform: translateX(-50%);">
+                  <div id="bm-bar-dq-arrow" style="position: absolute; top: -8px; left: 82%; transform: translateX(-50%);">
                     <div style="width: 0; height: 0; border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 12px solid #2d3748;"></div>
                   </div>
-                  <div style="position: absolute; top: 50%; left: 82%; transform: translate(-50%, -50%); background: #2d3748; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
+                  <div id="bm-bar-dq-tag" style="position: absolute; top: 50%; left: 82%; transform: translate(-50%, -50%); background: #2d3748; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;">
                     Alpha: 82nd %ile
                   </div>
                 </div>
@@ -2995,7 +2994,7 @@
                 </div>
               </div>
 
-              <div style="margin-top: 1rem; padding: 1rem; background: #fff5f5; border-radius: 6px; border-left: 4px solid #e53e3e;">
+              <div id="bm-overall-assessment" style="margin-top: 1rem; padding: 1rem; background: #fff5f5; border-radius: 6px; border-left: 4px solid #e53e3e;">
                 <div style="font-size: 0.875rem; color: #742a2a;">
                   <strong>⚠️ Overall Assessment:</strong> Alpha Manufacturing is positioned in the <strong>bottom quartile</strong> across all three metrics. Immediate action required to improve competitive standing.
                 </div>
@@ -4574,6 +4573,163 @@
       closeExportDataModal();
     }
     
+    // ── Benchmarking per-client data ──────────────────────────────────────────
+    const benchmarkData = {
+      alpha: {
+        name: 'Alpha Manufacturing Ltd.',
+        shortName: 'Alpha Manufacturing',
+        eiValue: '2.8 tCO₂e/unit',
+        eiCompare: 'Industry Avg: 2.1 → 33% worse',
+        eiCompareColor: '#e53e3e',
+        rpValue: '12%',
+        rpCompare: 'Industry Avg: 18% ↓ 6pp behind',
+        rpCompareColor: '#e53e3e',
+        dqValue: '72%',
+        dqCompare: 'Industry Avg: 85% ↓ 13pp below',
+        dqCompareColor: '#e53e3e',
+        aiAnalysis: 'Alpha is underperforming across all key metrics. Primary issues: incomplete Scope 3 data collection and aging equipment efficiency. Recommend: 1) Supplier engagement program to close data gaps, 2) Energy audit to identify equipment upgrades, 3) Monthly data quality reviews.',
+        aiAnalysisBorder: '#e53e3e',
+        eiBarPct: 76, eiBarLabel: 'Alpha: 76th %ile',
+        rpBarPct: 72, rpBarLabel: 'Alpha: 72nd %ile',
+        dqBarPct: 82, dqBarLabel: 'Alpha: 82nd %ile',
+        barLabelEI: 'Emissions Intensity (2.8 tCO₂e/unit)',
+        barLabelRP: 'Reduction Progress (12%)',
+        barLabelDQ: 'Data Quality Score (72%)',
+        assessment: '⚠️ Overall Assessment: Alpha Manufacturing is positioned in the <strong>bottom quartile</strong> across all three metrics. Immediate action required to improve competitive standing.',
+        assessmentBg: '#fff5f5',
+        assessmentBorder: '#e53e3e',
+        assessmentColor: '#742a2a'
+      },
+      beta: {
+        name: 'Beta Pharma Inc.',
+        shortName: 'Beta Pharma',
+        eiValue: '1.4 tCO₂e/unit',
+        eiCompare: 'Industry Avg: 1.8 → 22% better',
+        eiCompareColor: '#48bb78',
+        rpValue: '27%',
+        rpCompare: 'Industry Avg: 18% ↑ 9pp ahead',
+        rpCompareColor: '#48bb78',
+        dqValue: '91%',
+        dqCompare: 'Industry Avg: 85% ↑ 6pp above',
+        dqCompareColor: '#48bb78',
+        aiAnalysis: 'Beta Pharma is a strong performer across all metrics. Excellent data quality and above-average reduction progress. Recommend: 1) Document and share best practices with peer clients, 2) Target net-zero roadmap by 2040, 3) Begin CDP disclosure to further signal leadership.',
+        aiAnalysisBorder: '#48bb78',
+        eiBarPct: 22, eiBarLabel: 'Beta: 22nd %ile',
+        rpBarPct: 15, rpBarLabel: 'Beta: 15th %ile',
+        dqBarPct: 14, dqBarLabel: 'Beta: 14th %ile',
+        barLabelEI: 'Emissions Intensity (1.4 tCO₂e/unit)',
+        barLabelRP: 'Reduction Progress (27%)',
+        barLabelDQ: 'Data Quality Score (91%)',
+        assessment: '✅ Overall Assessment: Beta Pharma is positioned in the <strong>top quartile</strong> across all three metrics. Focus on maintaining momentum and exploring advanced decarbonisation levers.',
+        assessmentBg: '#e6f4ea',
+        assessmentBorder: '#48bb78',
+        assessmentColor: '#22543d'
+      },
+      gamma: {
+        name: 'Gamma Tech Solutions',
+        shortName: 'Gamma Tech',
+        eiValue: '0.9 tCO₂e/unit',
+        eiCompare: 'Industry Avg: 1.1 → 18% better',
+        eiCompareColor: '#48bb78',
+        rpValue: '19%',
+        rpCompare: 'Industry Avg: 18% ↑ 1pp ahead',
+        rpCompareColor: '#48bb78',
+        dqValue: '84%',
+        dqCompare: 'Industry Avg: 85% ↓ 1pp below',
+        dqCompareColor: '#e53e3e',
+        aiAnalysis: 'Gamma Tech is performing solidly, particularly on emissions intensity. A minor data quality gap versus industry benchmark is the primary area to address. Recommend: 1) Tighten Scope 2 market-based data collection, 2) Automate monthly submissions to improve DQ score, 3) Consider setting a Science-Based Target.',
+        aiAnalysisBorder: '#ecc94b',
+        eiBarPct: 28, eiBarLabel: 'Gamma: 28th %ile',
+        rpBarPct: 42, rpBarLabel: 'Gamma: 42nd %ile',
+        dqBarPct: 55, dqBarLabel: 'Gamma: 55th %ile',
+        barLabelEI: 'Emissions Intensity (0.9 tCO₂e/unit)',
+        barLabelRP: 'Reduction Progress (19%)',
+        barLabelDQ: 'Data Quality Score (84%)',
+        assessment: '🟡 Overall Assessment: Gamma Tech is near the industry median. Good emissions intensity performance, with scope to improve data quality to break into the top quartile.',
+        assessmentBg: '#fef5e7',
+        assessmentBorder: '#ecc94b',
+        assessmentColor: '#975a16'
+      },
+      delta: {
+        name: 'Delta Retail Corp',
+        shortName: 'Delta Retail',
+        eiValue: '3.2 tCO₂e/unit',
+        eiCompare: 'Industry Avg: 2.4 → 33% worse',
+        eiCompareColor: '#e53e3e',
+        rpValue: '9%',
+        rpCompare: 'Industry Avg: 15% ↓ 6pp behind',
+        rpCompareColor: '#e53e3e',
+        dqValue: '68%',
+        dqCompare: 'Industry Avg: 80% ↓ 12pp below',
+        dqCompareColor: '#e53e3e',
+        aiAnalysis: 'Delta Retail requires urgent attention across all dimensions. High emissions intensity relative to peers and weak reduction trajectory. Recommend: 1) Immediate energy audit across all store locations, 2) Prioritise data completeness for Scope 1 & 2, 3) Engage logistics partners for Scope 3 Cat 4 data.',
+        aiAnalysisBorder: '#e53e3e',
+        eiBarPct: 85, eiBarLabel: 'Delta: 85th %ile',
+        rpBarPct: 80, rpBarLabel: 'Delta: 80th %ile',
+        dqBarPct: 88, dqBarLabel: 'Delta: 88th %ile',
+        barLabelEI: 'Emissions Intensity (3.2 tCO₂e/unit)',
+        barLabelRP: 'Reduction Progress (9%)',
+        barLabelDQ: 'Data Quality Score (68%)',
+        assessment: '🔴 Overall Assessment: Delta Retail is positioned in the <strong>bottom decile</strong> across all three metrics. An immediate intervention plan is required.',
+        assessmentBg: '#fff5f5',
+        assessmentBorder: '#e53e3e',
+        assessmentColor: '#742a2a'
+      }
+    };
+
+    function updateBenchmarkDisplay(clientKey) {
+      const d = benchmarkData[clientKey];
+      if (!d) return;
+
+      // Title & position heading
+      document.getElementById('bm-results-title').textContent = d.name + ' - Benchmarking Results';
+      document.getElementById('bm-position-title').textContent = '📍 ' + d.shortName + ' Position in Distribution';
+
+      // Metric values & comparisons
+      document.getElementById('bm-ei-value').textContent = d.eiValue;
+      document.getElementById('bm-ei-compare').textContent = d.eiCompare;
+      document.getElementById('bm-ei-compare').style.color = d.eiCompareColor;
+
+      document.getElementById('bm-rp-value').textContent = d.rpValue;
+      document.getElementById('bm-rp-compare').textContent = d.rpCompare;
+      document.getElementById('bm-rp-compare').style.color = d.rpCompareColor;
+
+      document.getElementById('bm-dq-value').textContent = d.dqValue;
+      document.getElementById('bm-dq-compare').textContent = d.dqCompare;
+      document.getElementById('bm-dq-compare').style.color = d.dqCompareColor;
+
+      // AI Analysis box
+      const aiBox = document.getElementById('bm-ai-analysis');
+      aiBox.style.borderLeftColor = d.aiAnalysisBorder;
+      aiBox.innerHTML = '<strong>🤖 AI Analysis:</strong> ' + d.aiAnalysis;
+
+      // Distribution bar labels
+      document.getElementById('bm-bar-ei-label').textContent = d.barLabelEI;
+      document.getElementById('bm-bar-rp-label').textContent = d.barLabelRP;
+      document.getElementById('bm-bar-dq-label').textContent = d.barLabelDQ;
+
+      // Emissions Intensity bar
+      document.getElementById('bm-bar-ei-arrow').style.left = d.eiBarPct + '%';
+      document.getElementById('bm-bar-ei-tag').style.left = d.eiBarPct + '%';
+      document.getElementById('bm-bar-ei-tag').textContent = d.eiBarLabel;
+
+      // Reduction Progress bar
+      document.getElementById('bm-bar-rp-arrow').style.left = d.rpBarPct + '%';
+      document.getElementById('bm-bar-rp-tag').style.left = d.rpBarPct + '%';
+      document.getElementById('bm-bar-rp-tag').textContent = d.rpBarLabel;
+
+      // Data Quality bar
+      document.getElementById('bm-bar-dq-arrow').style.left = d.dqBarPct + '%';
+      document.getElementById('bm-bar-dq-tag').style.left = d.dqBarPct + '%';
+      document.getElementById('bm-bar-dq-tag').textContent = d.dqBarLabel;
+
+      // Overall assessment
+      const assessment = document.getElementById('bm-overall-assessment');
+      assessment.style.background = d.assessmentBg;
+      assessment.style.borderLeftColor = d.assessmentBorder;
+      assessment.innerHTML = '<div style="font-size: 0.875rem; color: ' + d.assessmentColor + ';">' + d.assessment + '</div>';
+    }
+
     // Initialize with card view active on page load
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('cardViewBtn').classList.add('view-btn-active');
