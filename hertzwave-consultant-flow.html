@@ -818,7 +818,7 @@
       <!-- Client view: limited dashboard -->
       <div class="nav-section" data-role="client" style="display:none;">
         <div class="nav-section-title">My Overview</div>
-        <div class="nav-item active" onclick="showScreen('client-portal-preview')">
+        <div class="nav-item active" onclick="showScreen('client-dashboard')">
           <span class="nav-icon">📊</span>
           <span>My Dashboard</span>
         </div>
@@ -2510,61 +2510,61 @@
   let hwCurrentClientId = null; // tracks which client is open
 
   function toggleClientView(isClient) {
-    const thumb = document.getElementById('toggleThumb');
-    const track = document.getElementById('toggleTrack');
-    const label = document.getElementById('viewModeLabel');
-    const roleLabel = document.getElementById('headerRoleLabel');
-    const orgName = document.getElementById('headerOrgName');
+    const thumb    = document.getElementById('toggleThumb');
+    const track    = document.getElementById('toggleTrack');
+    const label    = document.getElementById('viewModeLabel');
+    const roleLabel= document.getElementById('headerRoleLabel');
+    const orgName  = document.getElementById('headerOrgName');
+    const banner   = document.getElementById('clientViewBanner');
+    const backBtn  = document.getElementById('cdash-back-btn');
 
     if (isClient) {
-      thumb.style.left = '18px';
+      thumb.style.left   = '18px';
       track.style.background = '#e07b39';
-      label.textContent = 'Client View';
+      label.textContent  = 'Client View';
       roleLabel.textContent = 'Client Portal Preview';
 
-      // If a client is already open in the dashboard, show their specific portal
+      // Show the portal banner, hide the "← Back to Clients" consultant button
+      if (banner)  { banner.style.display = 'flex'; }
+      if (backBtn) { backBtn.style.display = 'none'; }
+
+      // Ensure a client is loaded — default to alpha if none selected yet
+      if (!hwCurrentClientId) {
+        viewClient('alpha');
+      } else {
+        // Client dashboard already populated — just navigate there
+        showScreen('client-dashboard');
+      }
+
+      // Update header org name to match the open client
       if (hwCurrentClientId && clientDB[hwCurrentClientId]) {
-        const c = clientDB[hwCurrentClientId];
-        orgName.textContent = c.name;
-        // Update portal preview with this client's data
-        const pTitle = document.getElementById('cportal-title');
-        const pSub   = document.getElementById('cportal-sub');
-        const pEmit  = document.getElementById('cportal-emissions');
-        const pRed   = document.getElementById('cportal-reduction');
-        const pDq    = document.getElementById('cportal-dq');
-        if (pTitle) pTitle.textContent = c.name + ' — Sustainability Portal';
-        if (pSub)   pSub.textContent   = c.industry + ' | Carbon Footprint Overview';
-        if (pEmit)  pEmit.textContent  = c.total;
-        if (pRed)   pRed.textContent   = c.reduction;
-        if (pDq)    pDq.textContent    = c.dq;
+        orgName.textContent = clientDB[hwCurrentClientId].name;
       } else {
         orgName.textContent = 'Alpha Manufacturing Ltd.';
       }
+
     } else {
-      thumb.style.left = '2px';
+      thumb.style.left   = '2px';
       track.style.background = '#5a9e72';
-      label.textContent = 'Consultant View';
+      label.textContent  = 'Consultant View';
       roleLabel.textContent = 'Admin Portal';
       orgName.textContent = 'GreenPath Consulting';
+
+      // Hide banner, restore Back button
+      if (banner)  { banner.style.display = 'none'; }
+      if (backBtn) { backBtn.style.display = ''; }
+
+      // Return to the full client dashboard if one was open, else main dashboard
+      showScreen(hwCurrentClientId ? 'client-dashboard' : 'dashboard');
     }
 
     // Show/hide sidebar sections by role
     document.querySelectorAll('[data-role]').forEach(section => {
       const role = section.getAttribute('data-role');
-      if (isClient) {
-        section.style.display = (role === 'consultant') ? 'none' : 'block';
-      } else {
-        section.style.display = (role === 'client') ? 'none' : 'block';
-      }
+      section.style.display = isClient
+        ? (role === 'consultant' ? 'none' : 'block')
+        : (role === 'client'    ? 'none' : 'block');
     });
-
-    // Navigate: client view → their portal preview; consultant view → back to where they were
-    if (isClient) {
-      showScreen('client-portal-preview');
-    } else {
-      // Return to the client dashboard if one was open, else the main dashboard
-      showScreen(hwCurrentClientId ? 'client-dashboard' : 'dashboard');
-    }
   }
 
         // ── Period Lock Warning on Import/Export ────────────────────────
@@ -3976,8 +3976,18 @@
 
       <!-- ════════ CLIENT CARBON FOOTPRINT DASHBOARD ════════ -->
       <div id="client-dashboard" class="screen">
+
+        <!-- Client-view banner — only visible when toggle is ON -->
+        <div id="clientViewBanner" style="display:none; background:#e6f4ea; border:1px solid #9fd3a8; border-radius:10px; padding:0.65rem 1.25rem; margin-bottom:1rem; display:none; align-items:center; justify-content:space-between; font-size:0.875rem; color:#22543d;">
+          <div style="display:flex; align-items:center; gap:0.6rem;">
+            <span style="font-size:1.1rem;">👁️</span>
+            <span>You are previewing the <strong>client portal view</strong> — this is exactly what your client sees after login.</span>
+          </div>
+          <button class="btn btn-secondary" style="font-size:0.78rem; padding:0.3rem 0.75rem;" onclick="document.getElementById('clientViewToggle').checked=false; toggleClientView(false);">← Back to Consultant View</button>
+        </div>
+
         <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
-          <button class="btn btn-secondary" onclick="showScreen('clients')" style="padding: 0.5rem 1rem; font-size: 0.85rem;">← Back to Clients</button>
+          <button id="cdash-back-btn" class="btn btn-secondary" onclick="showScreen('clients')" style="padding: 0.5rem 1rem; font-size: 0.85rem;">← Back to Clients</button>
           <div>
             <h1 class="page-title" id="cdash-client-name">Client Dashboard</h1>
             <p class="page-subtitle" id="cdash-client-industry">Carbon Footprint Overview</p>
