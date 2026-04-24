@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TerraCAP — Carbon Market Compliance</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#0f7a60;--teal-l:#1d9e75;--teal-xl:#5dcaa5;--teal-pale:#e1f5ee;--teal-50:#f0faf5;
+  --blue:#185fa5;--blue-pale:#e6f1fb;--blue-50:#f2f8fe;
+  --amber:#ba7517;--amber-pale:#faeeda;--amber-50:#fdf6e8;
+  --coral:#993c1d;--coral-pale:#faece7;
+  --purple:#534ab7;--purple-pale:#eeedfe;
+  --green:#3b6d11;--green-pale:#eaf3de;
+  --red:#a32d2d;--red-pale:#fcebeb;
+  --ink:#0d1512;--body:#374151;--muted:#6b7280;--subtle:#9ca3af;
+  --border:#e5e7eb;--border-l:#f3f4f6;
+  --surface:#f9fafb;--white:#fff;
+  --sidebar-w:240px;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;-webkit-font-smoothing:antialiased}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--body);min-height:100vh;display:flex;flex-direction:column}
+#app{display:flex;flex:1;min-height:0}
+
+/* ══ SIDEBAR — workflow steps only ══ */
+#sidebar{
+  width:var(--sidebar-w);flex-shrink:0;background:var(--white);
+  border-right:1px solid var(--border);display:flex;flex-direction:column;
+  position:fixed;top:0;bottom:0;left:0;z-index:200;overflow-y:auto;
+  box-shadow:var(--sh)
+}
+.sb-brand{padding:16px 18px 14px;border-bottom:1px solid var(--border-l);flex-shrink:0;display:flex;align-items:center;gap:10px}
+.sb-brand .wm{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;color:var(--teal)}
+.sb-brand .mod{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace}
+.sb-facility{margin:10px 12px 0;padding:9px 12px;background:var(--teal-50);border:1px solid rgba(29,158,117,.2);border-radius:8px}
+.sb-facility .fc-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--teal);margin-bottom:2px}
+.sb-facility .fc-name{font-size:12px;font-weight:600;color:var(--ink);line-height:1.3}
+.sb-facility .fc-meta{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:1px}
+.sb-group{padding:12px 14px 3px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle)}
+.sb-item{display:flex;align-items:center;gap:9px;padding:7px 14px;cursor:pointer;border:none;background:transparent;width:100%;text-align:left;font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--muted);border-left:2.5px solid transparent;transition:all .12s}
+.sb-item:hover{background:var(--surface);color:var(--body)}
+.sb-item.active{background:var(--teal-50);color:var(--teal);font-weight:500;border-left-color:var(--teal-l)}
+.sb-item.sub{padding-left:26px;font-size:12px}
+.sb-step-num{width:18px;height:18px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:9px;flex-shrink:0;opacity:.7}
+.sb-item.active .sb-step-num{background:var(--teal-l);border-color:var(--teal-l);color:#fff;opacity:1}
+.sb-item.done .sb-step-num{background:var(--green);border-color:var(--green);color:#fff;opacity:1}
+.sb-done .sb-step-num::after{content:'✓'}
+.sb-badge{margin-left:auto;font-family:'DM Mono',monospace;font-size:9px;padding:1px 6px;border-radius:8px;background:var(--surface);color:var(--subtle)}
+.sb-item.active .sb-badge{background:var(--teal-pale);color:var(--teal)}
+.sb-div{height:1px;background:var(--border-l);margin:6px 10px}
+.sb-back{padding:10px 14px;margin-top:auto;border-top:1px solid var(--border-l)}
+.sb-back a{font-size:11.5px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:5px}
+.sb-back a:hover{color:var(--teal)}
+
+/* ══ MAIN ══ */
+#main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+#topbar{background:var(--white);border-bottom:1px solid var(--border);height:50px;display:flex;align-items:center;padding:0 24px;gap:12px;position:sticky;top:0;z-index:100;box-shadow:var(--sh);flex-shrink:0}
+.tb-crumb{font-family:'DM Mono',monospace;font-size:11px;color:var(--subtle);display:flex;align-items:center;gap:6px}
+.tb-crumb span{color:var(--body);font-weight:500}
+.tb-sp{flex:1}
+.tb-sub-badge{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;background:var(--surface);border:1px solid var(--border);font-size:12px;color:var(--muted)}
+.tb-dot{width:6px;height:6px;border-radius:50%}
+
+#content{flex:1;padding:24px 28px 52px;overflow-y:auto}
+.screen{display:none;animation:fi .18s ease}
+.screen.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* ══ PROGRESS BAR ══ */
+.prog{display:flex;gap:3px;margin-bottom:22px}
+.pip{height:3px;flex:1;border-radius:2px;background:var(--border)}
+.pip.done{background:var(--teal-l)}
+.pip.active{background:var(--teal-xl)}
+
+/* ══ PAGE HEADER ══ */
+.ph{margin-bottom:22px}
+.ph-row{display:flex;align-items:flex-start;gap:13px;margin-bottom:3px}
+.ph-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:17px}
+.page-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);line-height:1.2}
+.page-sub{font-size:13px;color:var(--muted);max-width:620px;line-height:1.6;margin-top:4px}
+
+/* ══ CARDS ══ */
+.card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 18px;box-shadow:var(--sh)}
+.card-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.card-sub{font-size:12px;color:var(--muted);line-height:1.55}
+.card.c-teal{border-left:3px solid var(--teal-l);border-radius:0 10px 10px 0}
+.card.c-amber{border-left:3px solid var(--amber);border-radius:0 10px 10px 0}
+.card.c-coral{border-left:3px solid var(--coral);border-radius:0 10px 10px 0}
+.card.c-green{border-left:3px solid var(--green);border-radius:0 10px 10px 0}
+.card.c-blue{border-left:3px solid var(--blue);border-radius:0 10px 10px 0}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+
+/* ══ STAT CARDS ══ */
+.stat{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:15px 17px;box-shadow:var(--sh);position:relative}
+.stat-label{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.stat-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;color:var(--ink);line-height:1}
+.stat-unit{font-size:11.5px;color:var(--muted);margin-top:3px}
+.stat-delta{font-size:11.5px;margin-top:4px}
+.pos{color:var(--teal)}.neg{color:var(--coral)}
+
+/* ══ TOOLTIPS ══ */
+.tip-wrap{position:relative;display:inline-flex;align-items:center;margin-left:4px;vertical-align:middle}
+.tip-btn{width:15px;height:15px;border-radius:50%;background:var(--surface);border:1px solid var(--border);color:var(--subtle);font-size:9px;cursor:help;font-weight:700;font-family:'DM Mono',monospace;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.tip-btn:hover{background:var(--blue-pale);border-color:var(--blue);color:var(--blue)}
+.tip-popup{display:none;position:absolute;left:20px;top:50%;transform:translateY(-50%);background:var(--ink);color:#fff;font-size:12px;line-height:1.55;font-family:'DM Sans',sans-serif;padding:10px 13px;border-radius:8px;width:260px;z-index:600;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.2);font-weight:400}
+.tip-popup.left{left:auto;right:20px}
+.tip-popup::before{content:'';position:absolute;left:-5px;top:50%;transform:translateY(-50%);border:5px solid transparent;border-left:0;border-right-color:var(--ink)}
+.tip-popup.left::before{left:auto;right:-5px;border-right:0;border-left-color:var(--ink)}
+.tip-wrap:hover .tip-popup{display:block}
+
+/* ══ RELATIONSHIP EXPLAINER ══ */
+.rel-box{background:var(--teal-50);border:1px solid rgba(29,158,117,.2);border-radius:10px;padding:14px 18px;margin-bottom:16px}
+.rel-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
+.rel-flow{display:flex;align-items:center;gap:0;flex-wrap:wrap}
+.rel-node{text-align:center;padding:8px 14px;border-radius:8px;flex-shrink:0}
+.rel-arrow{color:var(--teal-xl);font-size:18px;padding:0 8px;flex-shrink:0}
+.rn-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:800;line-height:1;margin-bottom:2px}
+.rn-label{font-size:10.5px;color:var(--muted)}
+.rel-formula{font-family:'DM Mono',monospace;font-size:11.5px;color:var(--teal);background:rgba(29,158,117,.08);padding:6px 12px;border-radius:6px;margin-top:10px}
+
+/* ══ NOTICE ══ */
+.notice{padding:11px 14px;border-radius:8px;font-size:12.5px;line-height:1.55;margin-bottom:14px;display:flex;gap:8px;align-items:flex-start}
+.nt{background:var(--teal-50);color:var(--teal);border:1px solid rgba(29,158,117,.2)}
+.na{background:var(--amber-50);color:#7c4a03;border:1px solid rgba(186,117,23,.25)}
+.nb{background:var(--blue-50);color:#1e40af;border:1px solid rgba(24,95,165,.2)}
+.nc{background:var(--coral-pale);color:var(--coral);border:1px solid rgba(153,60,29,.2)}
+.ni{flex-shrink:0;font-size:14px;margin-top:1px}
+.notice strong{font-weight:600}
+
+/* ══ FORMS ══ */
+.fs{margin-bottom:20px}
+.fs-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-l)}
+.fs-sub{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:14px}
+.fs-sub-title{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.field{margin-bottom:13px}
+.field-label{font-size:12.5px;font-weight:500;color:var(--body);margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.field-hint{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.45}
+.fi{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--white);outline:none;transition:border-color .15s,box-shadow .15s}
+.fi:focus{border-color:var(--teal-l);box-shadow:0 0 0 3px rgba(29,158,117,.1)}
+select.fi{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.fi-unit{display:flex;border-radius:7px;overflow:hidden;border:1px solid var(--border);transition:border-color .15s}
+.fi-unit:focus-within{border-color:var(--teal-l);box-shadow:0 0 0 3px rgba(29,158,117,.1)}
+.fi-unit input{flex:1;border:none;padding:8px 11px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);outline:none;background:var(--white)}
+.fi-unit .ul{background:var(--surface);padding:8px 11px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);border-left:1px solid var(--border);white-space:nowrap;display:flex;align-items:center}
+
+/* ══ BUTTONS ══ */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:7px;border:1px solid var(--border);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;transition:all .15s;background:var(--white);color:var(--body)}
+.btn:hover{background:var(--surface)}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--teal-l);color:#fff;border-color:var(--teal-l)}
+.btn.primary:hover{background:var(--teal)}
+.btn.secondary{background:var(--white);color:var(--teal);border-color:var(--teal-pale)}
+.btn.secondary:hover{background:var(--teal-50)}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--teal)}
+.btn-row{display:flex;align-items:center;gap:8px;margin-top:18px;padding-top:14px;border-top:1px solid var(--border-l)}
+
+/* ══ TAGS ══ */
+.tag{display:inline-flex;align-items:center;gap:3px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px}
+.t-teal{background:var(--teal-pale);color:var(--teal)}
+.t-blue{background:var(--blue-pale);color:var(--blue)}
+.t-amber{background:var(--amber-pale);color:var(--amber)}
+.t-coral{background:var(--coral-pale);color:var(--coral)}
+.t-green{background:var(--green-pale);color:var(--green)}
+.t-gray{background:var(--surface);color:var(--muted);border:1px solid var(--border)}
+.t-red{background:var(--red-pale);color:var(--red)}
+.regime-ccts{background:var(--teal-pale);color:var(--teal);font-family:'DM Mono',monospace;font-size:9.5px;font-weight:500;padding:2px 8px;border-radius:10px;display:inline-flex;align-items:center;gap:3px}
+.regime-pat{background:var(--amber-pale);color:var(--amber);font-family:'DM Mono',monospace;font-size:9.5px;font-weight:500;padding:2px 8px;border-radius:10px;display:inline-flex;align-items:center;gap:3px}
+
+/* ══ TABLES ══ */
+.tw{overflow-x:auto;border-radius:10px;border:1px solid var(--border);box-shadow:var(--sh)}
+table.tbl{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--white)}
+table.tbl thead tr{background:var(--surface)}
+table.tbl th{padding:9px 14px;text-align:left;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.06em;font-weight:500;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
+table.tbl td{padding:9px 14px;border-bottom:1px solid var(--border-l);vertical-align:middle}
+table.tbl tbody tr:last-child td{border-bottom:none}
+table.tbl tbody tr:hover td{background:var(--surface)}
+table.tbl tbody tr.tr-warn td{background:var(--amber-50)}
+table.tbl tbody tr.tr-ok td{background:var(--teal-50)}
+
+/* ══ GAUGE ══ */
+.gauge{margin:10px 0 4px}
+.gb{height:10px;background:var(--surface);border-radius:5px;position:relative;overflow:visible;border:1px solid var(--border)}
+.gf{height:100%;border-radius:5px}
+.gm{position:absolute;top:-4px;bottom:-4px;width:2.5px;background:var(--ink);border-radius:2px}
+.gl{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:5px}
+
+/* ══ PIPELINE ══ */
+.pipeline{display:flex;overflow-x:auto;border-radius:9px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--sh)}
+.pipe-step{flex:1;min-width:80px;padding:10px 14px;text-align:center;border-right:1px solid var(--border);font-family:'DM Mono',monospace;font-size:10px;background:var(--white)}
+.pipe-step:last-child{border-right:none}
+.ps-done{background:var(--teal-50)}.ps-active{background:var(--teal-l)}.ps-pending{background:var(--white)}
+.pipe-qty{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:800;display:block;margin-bottom:2px}
+.ps-done .pipe-qty{color:var(--teal)}.ps-active .pipe-qty{color:#fff}.ps-pending .pipe-qty{color:var(--muted)}
+.ps-done .pipe-label{color:var(--teal)}.ps-active .pipe-label{color:#fff;opacity:.9}.ps-pending .pipe-label{color:var(--subtle)}
+
+/* ══ HELP PANEL ══ */
+.help-panel{background:var(--blue-50);border:1px solid rgba(24,95,165,.2);border-radius:10px;padding:16px 18px;margin-bottom:16px}
+.hp-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.hp-body{font-size:12.5px;color:var(--body);line-height:1.65}
+.hp-body strong{font-weight:600;color:var(--ink)}
+
+/* ══ ACVA reserved ══ */
+.acva-box{border:2px dashed rgba(83,74,183,.3);border-radius:10px;padding:16px 18px;background:rgba(83,74,183,.02);position:relative}
+.acva-tag{position:absolute;top:-11px;left:14px;background:var(--surface);padding:0 10px;font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--purple)}
+
+/* ══ SECTOR BADGE ══ */
+.sector-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500}
+
+/* ══ ONLY-FOR BADGE ══ */
+.only-for{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;background:var(--teal-pale);color:var(--teal);border:1px solid rgba(29,158,117,.3)}
+
+.sec-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+hr{border:none;border-top:1px solid var(--border-l);margin:18px 0}
+
+@media(max-width:768px){
+  :root{--sidebar-w:0}#sidebar{transform:translateX(-100%)}
+  #main{margin-left:0}.g2,.g3,.g4{grid-template-columns:1fr}
+  #content{padding:14px 14px 40px}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ══ SIDEBAR — workflow steps only ══ -->
+<nav id="sidebar">
+  <div class="sb-brand">
+    <div>
+      <div class="wm">TerraCAP</div>
+      <div class="mod">Carbon Market Compliance</div>
+    </div>
+  </div>
+
+  <div class="sb-facility">
+    <div class="fc-label">Organisation</div>
+    <div class="fc-name">Bharathi Group Ltd</div>
+    <div class="fc-meta">7 facilities · CCTS + CBAM subscriber</div>
+  </div>
+
+  <div class="sb-group" style="margin-top:12px">Setup</div>
+  <button class="sb-item done sub" onclick="go('hub')">
+    <span class="sb-step-num">✓</span>Module hub</button>
+  <button class="sb-item sub" id="nav-setup" onclick="go('setup')">
+    <span class="sb-step-num">2</span>Facility categorisation<span class="sb-badge">Required</span></button>
+
+  <div class="sb-div"></div>
+  <div class="sb-group">India compliance <span style="font-family:'DM Mono',monospace;font-size:9px;padding:1px 5px;border-radius:4px;background:var(--teal-pale);color:var(--teal);margin-left:4px">CCTS · PAT</span></div>
+  <button class="sb-item sub" id="nav-allfac" onclick="go('allfac')">
+    <span class="sb-step-num">3</span>All DC facilities</button>
+  <button class="sb-item sub" id="nav-dashboard" onclick="go('dashboard')">
+    <span class="sb-step-num">4</span>Compliance dashboard</button>
+  <button class="sb-item sub" id="nav-data" onclick="go('data')">
+    <span class="sb-step-num">5</span>Energy &amp; production data</button>
+  <button class="sb-item sub" id="nav-filing" onclick="go('filing')">
+    <span class="sb-step-num">6</span>BEE filing pack</button>
+  <button class="sb-item sub" id="nav-verify" onclick="go('verify')">
+    <span class="sb-step-num">7</span>Verification handoff</button>
+
+  <div class="sb-div"></div>
+  <div class="sb-group">EU CBAM <span style="font-family:'DM Mono',monospace;font-size:9px;padding:1px 5px;border-radius:4px;background:var(--coral-pale);color:var(--coral);margin-left:4px">Quarterly</span></div>
+  <button class="sb-item sub" id="nav-cbam-ships" onclick="go('cbam-ships')">
+    <span class="sb-step-num">8</span>Shipment management</button>
+  <button class="sb-item sub" id="nav-cbam-decl" onclick="go('cbam-decl')">
+    <span class="sb-step-num">9</span>Quarterly declarations</button>
+
+  <div class="sb-div"></div>
+  <div class="sb-group">Certificates &amp; credits</div>
+  <button class="sb-item sub" id="nav-cert" onclick="go('cert')">
+    <span class="sb-step-num">10</span>Enterprise portfolio</button>
+  <button class="sb-item sub" id="nav-rev" onclick="go('rev')">
+    <span class="sb-step-num">11</span>Revenue modelling</button>
+
+  <div class="sb-back">
+    <a href="#">← Back to TerraCAP main menu</a>
+  </div>
+</nav>
+
+<!-- ══ MAIN ══ -->
+<div id="main">
+<div id="topbar">
+  <div class="tb-crumb">Carbon market compliance › <span id="bc">Module hub</span></div>
+  <div class="tb-sp"></div>
+  <div class="tb-sub-badge"><div class="tb-dot" style="background:var(--teal-l)"></div>India Compliance</div>
+  <div class="tb-sub-badge" style="margin-left:4px"><div class="tb-dot" style="background:var(--coral)"></div>EU CBAM</div>
+</div>
+<div id="content">
+
+<!-- ════ SCREEN 1: CMC HUB ════ -->
+<div class="screen active" id="s-hub">
+  <div class="ph">
+    <div class="ph-row">
+      <div class="ph-icon" style="background:var(--teal-pale)">⬡</div>
+      <div>
+        <div class="page-title">Carbon Market Compliance</div>
+        <div class="page-sub">Your compliance workspace for India CCTS/PAT and EU CBAM obligations. Each module activates based on your subscription. Start by categorising your facilities to identify which are Designated Consumers (DC) under BEE regulations.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="help-panel" style="background:var(--amber-50);border-color:rgba(186,117,23,.25)">
+    <div class="hp-title" style="color:var(--amber)">ℹ Non-Indian entities and CBAM-only access</div>
+    <div class="hp-body">The EU CBAM Reporter works as a standalone module for non-Indian entities, but requires a source of embedded GHG emissions data. <strong>For Indian facilities:</strong> data comes automatically from your India Compliance intensity calculations (recommended). <strong>For non-Indian facilities:</strong> TerraCAP v1 requires manual intensity entry or an API data source — this capability is in development. European facilities subject to EU ETS can use their ETS compliance data as the intensity source (EU ETS adapter is on the roadmap). Until then, non-Indian exporters can use EU default values or contact support for a data import template.</div>
+  </div>
+
+  <div class="g3" style="margin-bottom:20px">
+    <div class="card hoverable" style="border-top:3px solid var(--teal-l);cursor:pointer" onclick="go('setup')">
+      <div style="font-size:22px;margin-bottom:8px">🏭</div>
+      <div class="card-title">India Compliance</div>
+      <div class="card-sub" style="margin-bottom:12px">Annual CCTS / PAT regulated workflow for Designated Consumers. Intensity tracking, BEE filings, ACVA verification, and CCC portfolio management.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        <span class="tag t-teal">CCTS Active</span><span class="tag t-amber">PAT legacy</span><span class="tag t-teal">Annual</span>
+      </div>
+    </div>
+    <div class="card hoverable" style="border-top:3px solid var(--coral);cursor:pointer" onclick="go('cbam-ships')">
+      <div style="font-size:22px;margin-bottom:8px">🚢</div>
+      <div class="card-title">EU CBAM Reporter</div>
+      <div class="card-sub" style="margin-bottom:12px">Shipment-level embedded emissions for EU exports. Quarterly declaration packs per importer. Reads intensity from India Compliance (v1).</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        <span class="tag t-coral">Quarterly</span><span class="tag t-amber">€75.36/tCO₂</span>
+      </div>
+    </div>
+    <div class="card hoverable" style="border-top:3px solid var(--green);cursor:pointer" onclick="go('cert')">
+      <div style="font-size:22px;margin-bottom:8px">📈</div>
+      <div class="card-title">Certificates &amp; Credits</div>
+      <div class="card-sub" style="margin-bottom:12px">Enterprise portfolio across all CCC (CCTS) and ESCert (PAT) positions. CFO-facing view with revenue modelling and trading readiness.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        <span class="tag t-green">Cross-facility</span><span class="tag t-amber">CFO view</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-label">Where to start</div>
+  <div class="card">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--teal-50);border-radius:8px;border:1px solid rgba(29,158,117,.2)">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--teal-l);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;font-weight:600;flex-shrink:0">1</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--teal)">Categorise your facilities</div><div style="font-size:12px;color:var(--muted);margin-top:1px">Import from your organisation profile and identify which facilities are Designated Consumers (DCs) eligible for CCTS / PAT compliance.</div></div>
+        <button class="btn primary" style="font-size:12px" onclick="go('setup')">Start →</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border-radius:8px;border:1px solid var(--border)">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;font-weight:600;flex-shrink:0">2</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--muted)">Review compliance dashboard</div><div style="font-size:12px;color:var(--muted);margin-top:1px">See each DC facility's GHG intensity vs CCTS target, certificate position, and pending actions.</div></div>
+        <button class="btn" style="font-size:12px;opacity:.5" disabled>Locked</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border-radius:8px;border:1px solid var(--border)">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;font-weight:600;flex-shrink:0">3</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--muted)">Log CBAM shipments</div><div style="font-size:12px;color:var(--muted);margin-top:1px">Register EU-bound shipments for CBAM embedded emissions calculation.</div></div>
+        <button class="btn" style="font-size:12px;opacity:.5" disabled>Locked</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ SCREEN 2: FACILITY CATEGORISATION ════ -->
+<div class="screen" id="s-setup">
+  <div class="prog"><div class="pip done"></div><div class="pip active"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div>
+  <div class="ph">
+    <div class="page-title">Facility categorisation</div>
+    <div class="page-sub">TerraCAP has imported all facilities registered in your organisation profile. Review and confirm which are Designated Consumers (DCs) under BEE regulations. DC status is determined by sector and annual energy consumption threshold.</div>
+  </div>
+
+  <div class="help-panel">
+    <div class="hp-title">ℹ What is a Designated Consumer (DC)?</div>
+    <div class="hp-body">Under the Energy Conservation Act, any industrial plant whose annual energy consumption exceeds the notified threshold for its sector is a <strong>Designated Consumer</strong>. DCs must comply with CCTS (for notified sectors) or PAT (for transitioning sectors). Facilities below the threshold are not obligated — but can still participate in CBAM reporting if they export to the EU. TerraCAP automatically checks each facility's sector and consumption against BEE's notified thresholds and suggests DC status. You confirm or override.</div>
+  </div>
+
+  <div class="notice na"><span class="ni">⚠</span><div><strong>7 facilities imported from org profile.</strong> Annual energy consumption for 2 facilities is below DC threshold — they are shown as non-DC. Review and confirm DC status for all facilities before proceeding.</div></div>
+
+  <div class="tw">
+    <table class="tbl">
+      <thead><tr>
+        <th>Facility</th><th>Sector</th><th>Annual energy (MTOE)</th>
+        <th>DC threshold</th><th>TerraCAP suggestion</th><th>BEE DC ID</th><th>Confirm status</th>
+      </tr></thead>
+      <tbody>
+        <tr class="tr-ok">
+          <td><div style="font-weight:600;color:var(--ink)">Kadapa Plant</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Bharathi Cement Ltd</div></td>
+          <td>Cement</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">0.084 MTOE</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">≥0.03 MTOE</td>
+          <td><span class="tag t-teal">DC — CCTS</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">CEM-AP-0034</td>
+          <td><select class="fi" style="width:auto;font-size:12px;padding:4px 24px 4px 8px"><option selected>✓ Confirmed DC</option><option>Non-DC</option></select></td>
+        </tr>
+        <tr class="tr-ok">
+          <td><div style="font-weight:600;color:var(--ink)">Nalgonda Plant</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Bharathi Cement Ltd</div></td>
+          <td>Cement</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">0.112 MTOE</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">≥0.03 MTOE</td>
+          <td><span class="tag t-teal">DC — CCTS</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">CEM-TS-0019</td>
+          <td><select class="fi" style="width:auto;font-size:12px;padding:4px 24px 4px 8px"><option selected>✓ Confirmed DC</option><option>Non-DC</option></select></td>
+        </tr>
+        <tr class="tr-ok">
+          <td><div style="font-weight:600;color:var(--ink)">Chennai Textiles Unit</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Bharathi Textiles Pvt Ltd (subsidiary)</div></td>
+          <td>Textiles</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">0.046 MTOE</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">≥0.01 MTOE</td>
+          <td><span class="tag t-teal">DC — CCTS</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">TXT-TN-0022</td>
+          <td><select class="fi" style="width:auto;font-size:12px;padding:4px 24px 4px 8px"><option selected>✓ Confirmed DC</option><option>Non-DC</option></select></td>
+        </tr>
+        <tr class="tr-ok">
+          <td><div style="font-weight:600;color:var(--ink)">Vizag Rail Depot</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Bharathi Logistics Ltd (subsidiary)</div></td>
+          <td>Railways</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">0.031 MTOE</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">≥0.03 MTOE</td>
+          <td><span class="tag t-amber">DC — PAT</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">RWY-AP-0007</td>
+          <td><select class="fi" style="width:auto;font-size:12px;padding:4px 24px 4px 8px"><option selected>✓ Confirmed DC</option><option>Non-DC</option></select></td>
+        </tr>
+        <tr>
+          <td><div style="font-weight:600;color:var(--ink)">Hyderabad Office HQ</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Bharathi Group Ltd</div></td>
+          <td>Commercial</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">0.002 MTOE</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">N/A</td>
+          <td><span class="tag t-gray">Non-DC</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">—</td>
+          <td><select class="fi" style="width:auto;font-size:12px;padding:4px 24px 4px 8px"><option>Confirmed DC</option><option selected>✓ Non-DC</option></select></td>
+        </tr>
+        <tr>
+          <td><div style="font-weight:600;color:var(--ink)">Bengaluru R&amp;D Lab</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Bharathi Group Ltd</div></td>
+          <td>Research</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">0.0008 MTOE</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">N/A</td>
+          <td><span class="tag t-gray">Non-DC</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">—</td>
+          <td><select class="fi" style="width:auto;font-size:12px;padding:4px 24px 4px 8px"><option>Confirmed DC</option><option selected>✓ Non-DC</option></select></td>
+        </tr>
+        <tr class="tr-ok" style="background:var(--coral-pale)">
+          <td><div style="font-weight:600;color:var(--ink)">Kadapa Export Unit</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Bharathi Cement Ltd · EU exporter</div></td>
+          <td>Cement</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">0.071 MTOE</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">≥0.03 MTOE</td>
+          <td><span class="tag t-teal">DC — CCTS</span> <span class="tag t-coral" style="margin-left:3px">CBAM exposed</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">CEM-AP-0041</td>
+          <td><select class="fi" style="width:auto;font-size:12px;padding:4px 24px 4px 8px"><option selected>✓ Confirmed DC</option><option>Non-DC</option></select></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="notice nb" style="margin-top:12px"><span class="ni">ℹ</span><div style="font-size:12px"><strong>CBAM exposure flag:</strong> Facilities marked "CBAM exposed" export goods to the EU and have CBAM reporting obligations. Their CCTS intensity data will automatically feed the EU CBAM Reporter module — no additional data entry required.</div></div>
+  <div class="btn-row" style="border:none;padding-top:0;margin-top:4px">
+    <button class="btn primary" onclick="go('allfac')">Confirm categorisation &amp; proceed →</button>
+    <button class="btn ghost" onclick="go('hub')">← Back</button>
+  </div>
+</div>
+
+<!-- ════ SCREEN 3: ALL DC FACILITIES ════ -->
+<div class="screen" id="s-allfac">
+  <div class="prog"><div class="pip done"></div><div class="pip done"></div><div class="pip active"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div>
+  <div class="ph">
+    <div class="page-title">India Compliance — All DC Facilities</div>
+    <div class="page-sub">All Designated Consumer facilities in the Bharathi Group. 4 DCs confirmed — 3 under CCTS, 1 under PAT. Click any facility row to open its compliance dashboard.</div>
+  </div>
+
+  <div class="g4" style="margin-bottom:18px">
+    <div class="stat"><div class="stat-label">DC facilities</div><div class="stat-val">4</div><div class="stat-unit">3 CCTS · 1 PAT</div></div>
+    <div class="stat"><div class="stat-label">Net CCC position</div><div class="stat-val" style="color:var(--teal)">Surplus</div><div class="stat-unit">Over-performers: 3</div></div>
+    <div class="stat"><div class="stat-label">Filing deadline</div><div class="stat-val" style="font-size:16px;color:var(--amber)">70 days</div><div class="stat-unit">31 Jul 2026 · CCTS Year 1</div></div>
+    <div class="stat"><div class="stat-label">Actions pending</div><div class="stat-val" style="color:var(--coral)">3</div><div class="stat-unit">Conflicts · verifications</div></div>
+  </div>
+
+  <div class="tw">
+    <table class="tbl">
+      <thead><tr>
+        <th>Facility</th><th>Sector</th><th>Regime</th>
+        <th>GHG intensity (actual)</th><th>Target</th><th>vs target</th>
+        <th>CCC/ESCert</th><th>Status</th><th></th>
+      </tr></thead>
+      <tbody>
+        <tr style="cursor:pointer" onclick="go('dashboard')">
+          <td><div style="font-weight:600;color:var(--ink)">Kadapa Plant</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Bharathi Cement Ltd</div></td>
+          <td><span class="sector-tag" style="background:var(--teal-pale);color:var(--teal)">🏗 Cement</span></td>
+          <td><span class="regime-ccts">CCTS</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--teal)">0.701 tCO₂e/t</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">0.728 tCO₂e/t</td>
+          <td><span class="tag t-teal">−3.7% ✓</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--teal);font-weight:600">+18,360 CCC</td>
+          <td><span class="tag t-amber">Audit conflict</span></td>
+          <td><button class="btn secondary" style="font-size:11px;padding:5px 10px">Open →</button></td>
+        </tr>
+        <tr>
+          <td><div style="font-weight:600;color:var(--ink)">Nalgonda Plant</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Bharathi Cement Ltd</div></td>
+          <td><span class="sector-tag" style="background:var(--teal-pale);color:var(--teal)">🏗 Cement</span></td>
+          <td><span class="regime-ccts">CCTS</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--teal)">0.714 tCO₂e/t</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">0.728 tCO₂e/t</td>
+          <td><span class="tag t-teal">−1.9% ✓</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--teal);font-weight:600">+24,440 CCC</td>
+          <td><span class="tag t-amber">Pending ACVA</span></td>
+          <td><button class="btn" style="font-size:11px;padding:5px 10px">Open →</button></td>
+        </tr>
+        <tr>
+          <td><div style="font-weight:600;color:var(--ink)">Chennai Textiles Unit</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Bharathi Textiles Pvt Ltd (subsidiary)</div></td>
+          <td><span class="sector-tag" style="background:#fff0f6;color:#9d174d">🧵 Textiles</span></td>
+          <td><span class="regime-ccts">CCTS</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--coral)">0.842 tCO₂e/t</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">0.810 tCO₂e/t</td>
+          <td><span class="tag t-red">+3.9% deficit</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--coral);font-weight:600">−2,100 CCC</td>
+          <td><span class="tag t-coral">Must purchase</span></td>
+          <td><button class="btn" style="font-size:11px;padding:5px 10px">Open →</button></td>
+        </tr>
+        <tr>
+          <td><div style="font-weight:600;color:var(--ink)">Vizag Rail Depot</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Bharathi Logistics Ltd (subsidiary)</div></td>
+          <td><span class="sector-tag" style="background:#fff7ed;color:#92400e">🚂 Railways</span></td>
+          <td><span class="regime-pat">PAT</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--amber)">0.312 MTOE/t</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">0.326 MTOE/t</td>
+          <td><span class="tag t-teal">−4.1% ✓</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--amber);font-weight:600">+3,800 ESCert</td>
+          <td><span class="tag t-teal">Issued</span></td>
+          <td><button class="btn" style="font-size:11px;padding:5px 10px">Open →</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="notice nb" style="margin-top:10px"><span class="ni">ℹ</span><div style="font-size:12px">The <strong>Railways</strong> facility (Vizag) shows SEC (MTOE/tonne) because it is still on the PAT regime — not yet transitioned to CCTS. The PAT metric is Specific Energy Consumption, not GHG intensity. Both appear in this table so you can compare across your portfolio. Regime is policy-locked by BEE notification and cannot be changed by users.</div></div>
+  <div class="btn-row" style="border:none;padding-top:0;margin-top:6px">
+    <button class="btn primary" onclick="go('dashboard')">Open Kadapa Plant →</button>
+    <button class="btn ghost" onclick="go('setup')">← Back to facility setup</button>
+  </div>
+</div>
+
+<!-- ════ SCREEN 4: COMPLIANCE DASHBOARD ════ -->
+<div class="screen" id="s-dashboard">
+  <div class="prog"><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip active"></div><div class="pip"></div><div class="pip"></div></div>
+  <div class="ph">
+    <div class="ph-row">
+      <div>
+        <div class="page-title">Compliance Dashboard — Kadapa Plant</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap">
+          <span class="regime-ccts">⬤ CCTS Active</span>
+          <span style="font-size:12px;color:var(--muted)">Cement · BEE DC: CEM-AP-0034 · Baseline: FY2023–24 · Filing deadline: 31 Jul 2026</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Relationship explainer -->
+  <div class="rel-box">
+    <div class="rel-title">How the three compliance metrics connect</div>
+    <div class="rel-flow">
+      <div class="rel-node" style="background:rgba(29,158,117,.1)">
+        <div class="rn-val" style="color:var(--teal)">0.701</div>
+        <div class="rn-label">GHG intensity<br><span style="font-family:'DM Mono',monospace;font-size:9px">tCO₂e/t cement</span></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">From TerraCAP<br>Scope 1+2 data ↓</div>
+      </div>
+      <div class="rel-arrow">vs</div>
+      <div class="rel-node" style="background:rgba(0,0,0,.04)">
+        <div class="rn-val" style="color:var(--ink)">0.728</div>
+        <div class="rn-label">CCTS target<br><span style="font-family:'DM Mono',monospace;font-size:9px">tCO₂e/t cement</span></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">Set by BEE/MoEFCC<br>gazette notification</div>
+      </div>
+      <div class="rel-arrow">=</div>
+      <div class="rel-node" style="background:rgba(29,158,117,.1)">
+        <div class="rn-val" style="color:var(--teal)">18,360</div>
+        <div class="rn-label">CCC surplus<br><span style="font-family:'DM Mono',monospace;font-size:9px">Carbon Credit Certificates</span></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">Eligible for issuance<br>after ACVA sign-off</div>
+      </div>
+    </div>
+    <div class="rel-formula">CCC surplus = (target 0.728 − actual 0.701) × annual production 680,000t = 18,360 CCCs &nbsp;≈ ₹1.1–1.7 Cr</div>
+  </div>
+
+  <div class="g3" style="margin-bottom:16px">
+    <div class="stat" style="border-top:3px solid var(--teal-l)">
+      <div class="stat-label">GHG intensity (actual)
+        <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Calculated by TerraCAP from your Scope 1 (fuel combustion + calcination) and Scope 2 (grid electricity) emissions data already in the platform, divided by your annual cement production in tonnes. You do not need to re-enter your GHG data — TerraCAP reads it from your existing records.</div></button></span>
+      </div>
+      <div class="stat-val" style="color:var(--teal)">0.701</div>
+      <div class="stat-unit">tCO₂e / tonne cement</div>
+      <div class="stat-delta pos">↓ 3.7% below CCTS target</div>
+      <div style="font-size:10.5px;color:var(--teal);margin-top:5px;background:rgba(29,158,117,.08);padding:4px 8px;border-radius:5px;font-family:'DM Mono',monospace">Source: TerraCAP Scope 1+2 data</div>
+    </div>
+    <div class="stat" style="border-top:3px solid var(--border)">
+      <div class="stat-label">CCTS intensity target
+        <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">The maximum GHG intensity your facility is permitted to emit per tonne of cement under the CCTS regulation. This target is notified by the Ministry of Environment (MoEFCC) via gazette and loaded into TerraCAP automatically. Your target is set for your specific sub-sector (integrated cement plant, dry process).</div></button></span>
+      </div>
+      <div class="stat-val">0.728</div>
+      <div class="stat-unit">tCO₂e / tonne cement</div>
+      <div class="stat-delta" style="color:var(--muted)">Baseline (FY2023–24): 0.761</div>
+      <div style="font-size:10.5px;color:var(--muted);margin-top:5px;background:var(--surface);padding:4px 8px;border-radius:5px;font-family:'DM Mono',monospace">MoEFCC notification · Oct 2025</div>
+    </div>
+    <div class="stat" style="border-top:3px solid var(--teal-l)">
+      <div class="stat-label">Estimated CCC surplus
+        <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup left">Carbon Credit Certificates you will receive because your actual GHG intensity (0.701) is below the CCTS target (0.728). Formula: (0.728 − 0.701) × 680,000 tonnes = 18,360 CCCs. These can be banked or sold on exchanges (IEX, PXIL, HPX) at an estimated ₹600–900 per certificate. Final quantity confirmed only after ACVA verification.</div></button></span>
+      </div>
+      <div class="stat-val" style="color:var(--teal)">18,360</div>
+      <div class="stat-unit">Carbon Credit Certificates</div>
+      <div class="stat-delta pos">≈ ₹1.1–1.7 Cr revenue potential</div>
+      <div style="font-size:10.5px;color:var(--teal);margin-top:5px;background:rgba(29,158,117,.08);padding:4px 8px;border-radius:5px;font-family:'DM Mono',monospace">Pending ACVA verification</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="sec-label">Intensity vs CCTS target — FY2025–26</div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px">
+      <span>Best practice: 0.60</span>
+      <span style="color:var(--teal);font-weight:600">Actual: 0.701</span>
+      <span style="color:var(--ink);font-weight:600">▲ Target: 0.728</span>
+      <span>Baseline: 0.761</span>
+    </div>
+    <div class="gauge-bar gb"><div class="gf" style="width:50%;background:var(--teal-l)"></div><div class="gm" style="left:56%"></div></div>
+    <div class="gl"><span>0.60</span><span style="color:var(--teal)">▲ You are here (0.701)</span><span>Target 0.728 ▲</span><span>Baseline 0.761</span></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="sec-label">Actions required</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--amber-50);border-radius:7px;border:1px solid rgba(186,117,23,.2)">
+          <div style="font-size:12.5px;font-weight:500;color:#7c4a03">Resolve 2 audit data conflicts</div>
+          <button class="btn" style="font-size:11px;padding:4px 10px" onclick="go('data')">Review →</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface);border-radius:7px;border:1px solid var(--border)">
+          <div style="font-size:12.5px;color:var(--body)">Generate CCTS compliance report</div>
+          <button class="btn secondary" style="font-size:11px;padding:4px 10px" onclick="go('filing')">Open →</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface);border-radius:7px;border:1px solid var(--border)">
+          <div style="font-size:12.5px;color:var(--body)">Submit for ACVA verification</div>
+          <button class="btn secondary" style="font-size:11px;padding:4px 10px" onclick="go('verify')">Initiate →</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec-label">Compliance timeline</div>
+      <div style="display:flex;flex-direction:column;gap:5px;font-size:12.5px">
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">CCTS targets notified</span><span class="tag t-teal">Oct 2025 ✓</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">Baseline audit completed</span><span class="tag t-teal">Apr 2026 ✓</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">Compliance period close</span><span class="tag t-teal">31 Mar 2026 ✓</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">CCTS filing deadline</span><span class="tag t-amber">31 Jul 2026 · 70d</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">ACVA verification</span><span class="tag t-gray">Jun–Jul 2026</span></div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:var(--muted)">CCC issuance</span><span class="tag t-gray">After verification</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn primary" onclick="go('data')">Enter energy &amp; production data →</button>
+    <button class="btn ghost" onclick="go('allfac')">← All facilities</button>
+  </div>
+</div>
+
+<!-- ════ SCREEN 5: ENERGY & PRODUCTION DATA ════ -->
+<div class="screen" id="s-data">
+  <div class="prog"><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip active"></div><div class="pip"></div></div>
+  <div class="ph">
+    <div class="page-title">Energy &amp; production data</div>
+    <div class="page-sub">Enter or verify the annual energy, fuel, and production data for Kadapa Plant. TerraCAP pre-fills from your existing Scope 1/2 records — review, confirm or correct. The sector-specific fields below are required for the cement sector BEE Form 3 filing.</div>
+  </div>
+
+  <div class="notice nt"><span class="ni">✓</span><div><strong>Pre-filled from TerraCAP GHG module.</strong> Annual fuel and electricity data has been automatically imported from your existing Scope 1 and Scope 2 activity records. Review for accuracy. Fields highlighted in amber have variance flags from the audit sync.</div></div>
+  <div class="notice na" style="margin-top:-6px"><span class="ni">⚠</span><div><strong>2 conflicts flagged.</strong> Coal Mill #3 consumption and Raw Mill #2 operating hours exceed 15% year-on-year variance. Resolve before generating the filing pack.</div></div>
+
+  <div class="g2">
+    <div>
+      <div class="fs">
+        <div class="fs-title">Production output — FY2025–26</div>
+        <div class="field">
+          <div class="field-label">Annual cement production <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Total cement dispatched in the compliance year. Include OPC, PPC, and PSC, normalised to tonne-equivalent cement (tEC). tEC is the CCTS denominator — your GHG intensity is calculated as total tCO₂e ÷ this number.</div></button></span></div>
+          <div class="fi-unit"><input type="number" value="680000"><div class="ul">tonnes (tEC)</div></div>
+          <div class="field-hint">Auto-filled from production records. Confirm before proceeding.</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Clinker produced <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Clinker is the intermediate product from the kiln before grinding. BEE Form 3 requires specific heat consumption per tonne of clinker, so it must be reported separately from final cement output.</div></button></span></div>
+          <div class="fi-unit"><input type="number" value="612000"><div class="ul">tonnes</div></div>
+        </div>
+      </div>
+
+      <div class="fs">
+        <div class="fs-title">Fuel consumption — Scope 1</div>
+        <div class="field">
+          <div class="field-label">Coal consumed (all kilns) <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Total coal consumed in all rotary kilns for clinker production. This is your largest Scope 1 combustion emission source. BEE emission factor for coal: ~2.42 tCO₂/tonne (NCV basis).</div></button></span></div>
+          <div class="fi-unit"><input type="number" value="22200"><div class="ul">MT/year</div></div>
+        </div>
+        <div class="field">
+          <div class="field-label">Coal (raw &amp; cement mills) <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Coal consumed in raw material drying and cement grinding mills, reported separately from kiln coal to enable equipment-level BEE Form 2 reporting.</div></button></span></div>
+          <div class="notice na" style="margin-bottom:6px;font-size:12px"><span class="ni">⚠</span><div>Coal Mill #3 conflict: field 412 t/month vs prior 358 t/month (+15.1%). Confirm or revert.</div></div>
+          <div class="fi-unit"><input type="number" value="4944" style="background:#fdf6e8"><div class="ul">MT/year</div></div>
+          <div style="display:flex;gap:6px;margin-top:5px">
+            <button class="btn" style="font-size:11px;padding:4px 10px;color:var(--coral)">Revert to 4,296 MT</button>
+            <button class="btn primary" style="font-size:11px;padding:4px 10px">Confirm 4,944 MT ✓</button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-label">Pet coke consumed <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Petroleum coke used as supplementary kiln fuel. BEE EF for pet coke: ~3.14 tCO₂/tonne. Higher calorific value than coal but also higher carbon content.</div></button></span></div>
+          <div class="fi-unit"><input type="number" value="1820"><div class="ul">MT/year</div></div>
+        </div>
+      </div>
+
+      <div class="fs">
+        <div class="fs-title">Electricity — Scope 2</div>
+        <div class="field">
+          <div class="field-label">Grid electricity purchased <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Electricity drawn from the state grid (DISCOM). Scope 2 emission source. CEA grid emission factor for Andhra Pradesh: 0.82 tCO₂/MWh. Auto-filled from your utility bill records in TerraCAP.</div></button></span></div>
+          <div class="fi-unit"><input type="number" value="87500"><div class="ul">MWh/year</div></div>
+        </div>
+        <div class="field">
+          <div class="field-label">Captive power generated <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Electricity generated on-site. Counted separately for Scope 2 boundary purposes. Diesel captive: Scope 1 emission. Renewable captive: zero emission factor.</div></button></span></div>
+          <div class="fi-unit"><input type="number" value="12400"><div class="ul">MWh/year</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <!-- SECTOR-SPECIFIC FIELDS — Cement -->
+      <div class="fs">
+        <div class="fs-title" style="color:var(--teal)">
+          Sector-specific parameters — Cement
+          <span class="tip-wrap" style="margin-left:6px"><button class="tip-btn">?<div class="tip-popup left">These fields are required for the cement sector BEE Form 3 filing. They appear here because your facility is categorised as "Cement" in the facility setup. Other sectors (aluminium, textiles, etc.) have different field sets shown here.</div></button></span>
+        </div>
+        <div class="fs-sub">
+          <div class="fs-sub-title">🏗 Kiln parameters — BEE Form 3</div>
+          <div class="field">
+            <div class="field-label">Kiln type <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Rotary dry process kilns are the most efficient (700–800 kcal/kg clinker). Wet process and VSK kilns are less efficient. BEE uses kiln type to normalise intensity targets across different plant types.</div></button></span></div>
+            <select class="fi"><option selected>Rotary — dry process</option><option>Rotary — wet process</option><option>VSK (Vertical Shaft Kiln)</option></select>
+          </div>
+          <div class="field">
+            <div class="field-label">Kiln exit gas temperature — Form 3 mandatory <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Temperature of exhaust gas at the kiln exit. BEE Form 3 mandatory field. Higher temperature = more heat being wasted in flue gas. Industry benchmark: 280–350°C for modern preheater kilns. Lower = better heat recovery.</div></button></span></div>
+            <div class="fi-unit"><input type="number" value="318"><div class="ul">°C</div></div>
+          </div>
+          <div class="field">
+            <div class="field-label">Specific heat consumption (SHC) — Form 3 mandatory <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Thermal energy consumed per tonne of clinker. The single most important kiln efficiency metric. Benchmark: 700–800 kcal/kg for dry process. Drives the fuel combustion Scope 1 intensity calculation.</div></button></span></div>
+            <div class="fi-unit"><input type="number" value="742"><div class="ul">kcal/kg clinker</div></div>
+          </div>
+          <div class="field">
+            <div class="field-label">Specific power consumption (SPC) — Form 3 mandatory <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Total electrical energy per tonne of cement. Benchmark: 85–100 kWh/tonne. Auto-calculated from total power ÷ production, but must be confirmed by auditor for BEE Form 3.</div></button></span></div>
+            <div class="fi-unit"><input type="number" value="94.0"><div class="ul">kWh/t cement</div></div>
+            <div class="field-hint">Auto-calculated: 99,900 MWh ÷ 680,000 t = 94.0 kWh/t</div>
+          </div>
+        </div>
+
+        <div class="fs-sub" style="margin-top:10px">
+          <div class="fs-sub-title">🧱 Cement blend &amp; process emissions — Form 3</div>
+          <div class="field">
+            <div class="field-label">Clinker factor <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">The ratio of clinker to final cement (typically 0.70–0.95). Lower clinker factor = more fly ash or slag blended in = lower process emissions per tonne of cement. Critical for tEC (tonne-equivalent cement) conversion.</div></button></span></div>
+            <div class="fi-unit"><input type="number" value="0.90" step="0.01"><div class="ul">ratio</div></div>
+          </div>
+          <div class="field">
+            <div class="field-label">Fly ash / slag blended — Form 3 <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Percentage of fly ash or ground granulated blast furnace slag (GGBS) blended into cement. Higher blending reduces clinker factor and therefore calcination process emissions per tonne of output.</div></button></span></div>
+            <div class="fi-unit"><input type="number" value="10.0" step="0.1"><div class="ul">%</div></div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <div class="field-label">Calcination emission factor <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">CO₂ released from limestone (CaCO₃ → CaO + CO₂) during clinker production. This is a Scope 1 process emission — separate from fuel combustion and not captured in standard fuel EF lookups. IPCC default: 0.507 tCO₂/t clinker. Actual varies with limestone purity.</div></button></span></div>
+            <div class="fi-unit"><input type="number" value="0.511" step="0.001"><div class="ul">tCO₂/t clinker</div></div>
+            <div class="field-hint">Process emission — reported separately from combustion in GHG inventory. Not linked to fuel consumption.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card c-teal">
+        <div class="sec-label">Live intensity preview</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:22px;font-weight:800;color:var(--teal);font-family:'Plus Jakarta Sans',sans-serif">0.701 <span style="font-size:13px;font-weight:500">tCO₂e/tonne</span></div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">CCTS target: 0.728 · Headroom: 0.027</div>
+            <div style="font-size:11px;color:var(--teal);margin-top:3px;font-family:'DM Mono',monospace">Source: existing TerraCAP Scope 1+2 + sector fields above</div>
+          </div>
+          <span class="tag t-teal" style="font-size:12px;padding:5px 12px">18,360 CCCs eligible</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn primary" onclick="go('filing')">Save &amp; proceed to filing pack →</button>
+    <button class="btn ghost" onclick="go('dashboard')">← Back to dashboard</button>
+  </div>
+</div>
+
+<!-- ════ SCREEN 6: BEE FILING PACK ════ -->
+<div class="screen" id="s-filing">
+  <div class="prog"><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip active"></div></div>
+  <div class="ph">
+    <div class="ph-row">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <div class="page-title">BEE Filing Pack</div>
+          <span class="only-for">CCTS · PAT subscribers only</span>
+        </div>
+        <div class="page-sub">Auto-generated BEE annual return and CCTS compliance report. This screen is specific to India Compliance customers — CBAM-only customers do not file with BEE; they generate quarterly CBAM declarations instead (Step 9).</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notice na"><span class="ni">⚠</span><div><strong>1 conflict unresolved.</strong> Form 2 — Coal Mill #3 variance not yet confirmed. Resolve in the data entry screen before generating the final pack.</div></div>
+
+  <div class="g2">
+    <div>
+      <div class="sec-label">BEE annual return — form status</div>
+      <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;background:var(--white);border:1px solid var(--border);border-radius:8px">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--ink)">Form 1 — Plant-level energy &amp; production</div>
+            <div style="font-size:11.5px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:1px">Auto-populated · 22 asset records · totals verified</div>
+          </div>
+          <div style="display:flex;gap:6px"><span class="tag t-teal">Ready</span><button class="btn ghost" style="font-size:11px;padding:3px 8px">Preview</button></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;background:var(--amber-50);border:1px solid rgba(186,117,23,.2);border-radius:8px">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--ink)">Form 2 — Equipment-level energy parameters</div>
+            <div style="font-size:11.5px;color:var(--amber);font-family:'DM Mono',monospace;margin-top:1px">22 assets · 1 conflict pending · Coal Mill #3</div>
+          </div>
+          <div style="display:flex;gap:6px"><span class="tag t-amber">1 conflict</span><button class="btn" style="font-size:11px;padding:3px 8px" onclick="go('data')">Resolve</button></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;background:var(--teal-50);border:1px solid rgba(29,158,117,.2);border-radius:8px">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--ink)">Form 3 — Cement-specific <span style="font-size:11px;color:var(--teal)">(triggered: sector = cement)</span></div>
+            <div style="font-size:11.5px;color:var(--teal);font-family:'DM Mono',monospace;margin-top:1px">Kiln exit temp · SHC · SPC · clinker factor · calcination CO₂ ✓</div>
+          </div>
+          <div style="display:flex;gap:6px"><span class="tag t-teal">Ready</span><button class="btn ghost" style="font-size:11px;padding:3px 8px">Preview</button></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-label">CCTS compliance report</div>
+      <div class="card c-teal">
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:12.5px">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Compliance period</span><span style="font-weight:500">FY2025–26</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">GHG intensity (actual)</span><span style="font-weight:700;color:var(--teal)">0.701 tCO₂e/t cement</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">CCTS target</span><span style="font-weight:500">0.728 tCO₂e/t cement</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Performance</span><span class="tag t-teal">+3.7% below target</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Annual production</span><span style="font-weight:500">680,000 t cement</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">CCC surplus (est.)</span><span style="font-weight:700;color:var(--teal)">18,360 CCCs</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Filing deadline</span><span style="font-weight:500;color:var(--coral)">31 July 2026</span></div>
+        </div>
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(29,158,117,.2)">
+          <button class="btn primary" style="width:100%;justify-content:center">Generate compliance report PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn primary" onclick="go('verify')">Proceed to verification handoff →</button>
+    <button class="btn ghost" onclick="go('data')">← Back to data entry</button>
+  </div>
+</div>
+
+<!-- ════ SCREEN 7: VERIFICATION HANDOFF ════ -->
+<div class="screen" id="s-verify">
+  <div class="ph">
+    <div class="page-title">Verification handoff</div>
+    <div class="page-sub">Send the ISO 14064-2 MRV workpaper pack to your ACVA for independent verification. ACVA sign-off locks the GHG intensity figure and triggers CCC issuance from BEE/CERC.</div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="sec-label">MRV workpaper pack</div>
+      <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--white);border:1px solid var(--border);border-radius:8px"><div style="width:30px;height:30px;background:var(--teal-pale);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">📋</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--ink)">GHG inventory report FY2025–26</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">ISO 14064-1 · Scope 1+2 · 0.701 tCO₂e/t</div></div><span class="tag t-teal">Ready</span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--white);border:1px solid var(--border);border-radius:8px"><div style="width:30px;height:30px;background:var(--teal-pale);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">📷</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--ink)">Evidence archive — 94 photos, meter logs</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">GPS + timestamps · immutable on sync</div></div><span class="tag t-teal">Locked</span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--white);border:1px solid var(--border);border-radius:8px"><div style="width:30px;height:30px;background:var(--teal-pale);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">🔢</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--ink)">Intensity calculation workbook</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">BEE emission factors · IPCC AR6 GWPs</div></div><span class="tag t-teal">Ready</span></div>
+      </div>
+      <div class="card c-teal">
+        <div class="sec-label">Send to ACVA</div>
+        <div class="field"><div class="field-label">ACVA name</div><select class="fi"><option>Bureau Veritas — India</option><option>DNV GL</option><option>SGS India</option></select></div>
+        <div class="field" style="margin-bottom:0"><div class="field-label">Notes to verifier</div><textarea class="fi" rows="2" style="resize:none">Coal Mill #3 variance explained in evidence archive.</textarea></div>
+        <button class="btn primary" style="margin-top:12px;width:100%;justify-content:center">Send MRV pack to ACVA →</button>
+      </div>
+    </div>
+    <div>
+      <div class="acva-box">
+        <span class="acva-tag">ACVA portal — Phase 2/3 build</span>
+        <p style="font-size:12.5px;color:var(--body);margin-bottom:12px;line-height:1.55">Online verifier portal (where ACVAs log in, annotate evidence, and digitally sign off) is reserved for Phase 2/3. Phase 2 delivers the PDF workpaper bundle sent by email. Once ACVA returns a signed statement, mark verification complete below.</p>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="width:20px;height:20px;border-radius:50%;background:var(--purple-pale);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--purple);flex-shrink:0">1</span><span>ACVA reviews GHG inventory + evidence</span></div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="width:20px;height:20px;border-radius:50%;background:var(--purple-pale);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--purple);flex-shrink:0">2</span><span>ACVA returns signed verification statement</span></div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="width:20px;height:20px;border-radius:50%;background:var(--purple-pale);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--purple);flex-shrink:0">3</span><span>Mark verified → intensity locked → CCC issuance triggered</span></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <div class="sec-label">After verification — CCC issuance</div>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">Instrument</span><span class="tag t-teal">CCC — Carbon Credit Certificate</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">Quantity eligible</span><span style="font-weight:700;color:var(--teal)">18,360 CCCs</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:var(--muted)">Trading exchanges</span><span style="font-family:'DM Mono',monospace;font-size:11px">IEX · PXIL · HPX</span></div>
+        </div>
+        <button class="btn primary" style="width:100%;justify-content:center" onclick="go('cert')">View certificate portfolio →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ SCREEN 8: CBAM SHIPMENTS ════ -->
+<div class="screen" id="s-cbam-ships">
+  <div class="ph">
+    <div class="ph-row">
+      <div class="ph-icon" style="background:var(--coral-pale)">🚢</div>
+      <div>
+        <div class="page-title">EU CBAM — Shipment management</div>
+        <div class="page-sub">Log EU-bound shipments of CBAM-covered products. TerraCAP automatically calculates embedded tCO₂e using your facility's verified CCTS GHG intensity. Primary user: Export / Trade team.</div>
+      </div>
+    </div>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+      <span class="tag t-coral">€75.36/tCO₂ — CBAM price April 2026</span>
+      <span class="tag t-gray">Intensity source: India Compliance engine</span>
+    </div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="card">
+        <div class="sec-label">Add EU-bound shipment</div>
+        <div class="field"><div class="field-label">Facility <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Only facilities marked "CBAM exposed" in facility categorisation are shown. Their verified CCTS GHG intensity is used for embedded emissions calculation.</div></button></span></div><select class="fi"><option>Kadapa Export Unit (0.701 tCO₂e/t) — CBAM exposed</option><option>Kadapa Plant (0.701 tCO₂e/t)</option></select></div>
+        <div class="field"><div class="field-label">Product type</div><select class="fi"><option>Ordinary Portland Cement (OPC) — CN 2523.29</option><option>Blended Cement (PPC)</option><option>Clinker — CN 2523.10</option></select></div>
+        <div class="field"><div class="field-label">Shipment quantity <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Weight in tonnes. Used to calculate embedded emissions: quantity × facility GHG intensity = tCO₂e embedded in this shipment.</div></button></span></div><div class="fi-unit"><input type="number" value="5000"><div class="ul">tonnes</div></div></div>
+        <div class="field"><div class="field-label">Production period <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Calendar month of production. Used to apply the period-weighted average intensity to this shipment. If the plant's fuel mix varies month to month, the period affects the allocation.</div></button></span></div><select class="fi"><option>January 2026</option><option>February 2026</option><option>March 2026</option></select></div>
+        <div class="field"><div class="field-label">EU importer</div><select class="fi"><option>LafargeHolcim GmbH, Germany</option><option>Buzzi Unicem SpA, Italy</option><option>+ Add new importer</option></select></div>
+        <div class="card c-coral" style="margin-top:4px">
+          <div class="sec-label">Embedded emissions preview</div>
+          <div style="font-size:20px;font-weight:800;color:var(--coral);font-family:'Plus Jakarta Sans',sans-serif">3,505 tCO₂e</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">5,000t × 0.701 tCO₂e/t = 3,505 tCO₂e embedded</div>
+          <div style="font-size:13px;font-weight:600;color:var(--coral);margin-top:5px">≈ €264K CBAM exposure · 3,505 × €75.36</div>
+        </div>
+        <button class="btn primary" style="margin-top:12px;width:100%;justify-content:center">Add shipment →</button>
+      </div>
+    </div>
+    <div>
+      <div class="sec-label">Logged shipments — Q1 2026</div>
+      <div class="tw">
+        <table class="tbl">
+          <thead><tr><th>Importer</th><th>Product</th><th>Qty (t)</th><th>Embedded tCO₂e</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td style="font-weight:500">LafargeHolcim GmbH</td><td style="color:var(--muted)">OPC</td><td style="font-family:'DM Mono',monospace;font-size:11.5px">5,000</td><td style="font-family:'DM Mono',monospace;color:var(--coral);font-size:11.5px">3,505</td><td><span class="tag t-teal">Allocated</span></td></tr>
+            <tr><td style="font-weight:500">Buzzi Unicem SpA</td><td style="color:var(--muted)">Clinker</td><td style="font-family:'DM Mono',monospace;font-size:11.5px">8,200</td><td style="font-family:'DM Mono',monospace;color:var(--coral);font-size:11.5px">5,748</td><td><span class="tag t-teal">Allocated</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="notice nb" style="margin-top:10px"><span class="ni">ℹ</span><div style="font-size:12px"><strong>Allocation note:</strong> Annual facility intensity (0.701) is pro-rated by production period — not directly pushed to shipments. Monthly variations in fuel mix are captured in the period weighting.</div></div>
+      <button class="btn primary" style="margin-top:8px" onclick="go('cbam-decl')">View quarterly declaration →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ SCREEN 9: CBAM DECLARATIONS ════ -->
+<div class="screen" id="s-cbam-decl">
+  <div class="ph">
+    <div class="ph-row">
+      <div class="ph-icon" style="background:var(--coral-pale)">📑</div>
+      <div>
+        <div class="page-title">CBAM Quarterly Declarations</div>
+        <div class="page-sub">Quarterly data packs for EU importers. Each pack contains embedded tCO₂e per shipment for the quarter, formatted for the importer's CBAM declaration to the European Commission.</div>
+      </div>
+    </div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="sec-label">Q1 2026 — LafargeHolcim GmbH</div>
+      <div class="card c-coral">
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:12.5px;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Importer</span><span style="font-weight:500">LafargeHolcim GmbH, Germany</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Product (CN)</span><span style="font-family:'DM Mono',monospace;font-size:11px">OPC — 2523.29</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Facility intensity used</span><span style="font-family:'DM Mono',monospace;font-size:11.5px;color:var(--teal)">0.701 tCO₂e/t (period-weighted)</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Shipment quantity</span><span style="font-weight:500">5,000 t</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Embedded tCO₂e</span><span style="font-weight:700;color:var(--coral)">3,505 tCO₂e</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">CBAM price ref.</span><span style="font-family:'DM Mono',monospace;font-size:11px">€75.36/tCO₂</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">CBAM exposure</span><span style="font-weight:600;color:var(--coral)">≈ €264K</span></div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn primary" style="flex:1;justify-content:center">Download pack</button>
+          <button class="btn" style="flex:1;justify-content:center">Send to importer</button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-label">Declaration calendar 2026</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--amber-50);border:1px solid rgba(186,117,23,.2);border-radius:8px"><div><div style="font-weight:600;font-size:13px">Q1 (Jan–Mar)</div><div style="font-size:11.5px;color:var(--muted)">Due 31 Jan 2026</div></div><span class="tag t-amber">Draft</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--white);border:1px solid var(--border);border-radius:8px"><div><div style="font-weight:600;font-size:13px">Q2 (Apr–Jun)</div><div style="font-size:11.5px;color:var(--muted)">Due 30 Apr 2026</div></div><span class="tag t-gray">Not started</span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--white);border:1px solid var(--border);border-radius:8px"><div><div style="font-weight:600;font-size:13px">Q3 (Jul–Sep)</div><div style="font-size:11.5px;color:var(--muted)">Due 31 Jul 2026</div></div><span class="tag t-gray">Not started</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ SCREEN 10: CERTIFICATES PORTFOLIO ════ -->
+<div class="screen" id="s-cert">
+  <div class="ph">
+    <div class="ph-row">
+      <div class="ph-icon" style="background:var(--green-pale)">📈</div>
+      <div>
+        <div class="page-title">Certificates &amp; Credits — Enterprise Portfolio</div>
+        <div class="page-sub">Organisation-wide view of all carbon certificates across all DC facilities in the Bharathi Group. This is not limited to one facility — it aggregates CCC (from CCTS facilities) and ESCert (from PAT facilities) in one portfolio.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="help-panel">
+    <div class="hp-title">📖 How to read this portfolio</div>
+    <div class="hp-body">
+      <strong>Why are there different sectors here?</strong> The Bharathi Group owns facilities across cement and textiles (subsidiaries) and also has a railways logistics facility under PAT. This is an <em>organisation-level</em> view — all group entities with DC status appear here.<br><br>
+      <strong>CCC vs ESCert:</strong> CCC (Carbon Credit Certificates) are issued under CCTS — the new scheme. ESCert (Energy Saving Certificates) are issued under PAT — the legacy scheme. Both are real, tradeable certificates with financial value. Facilities on CCTS earn/owe CCCs; facilities on PAT earn/owe ESCerts.<br><br>
+      <strong>What does deficit mean?</strong> If a facility's actual GHG intensity exceeds the CCTS target, it must <em>purchase</em> certificates from over-performers. The Chennai Textiles Unit is currently in deficit — it emits more than its target allows.
+    </div>
+  </div>
+
+  <div class="g4" style="margin-bottom:14px">
+    <div class="stat" style="border-top:3px solid var(--teal-l)">
+      <div class="stat-label">CCC position (CCTS) <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup left">Net CCC position across all CCTS facilities. Positive = surplus (can sell). Negative = deficit (must purchase). Includes all 3 CCTS facilities in the group.</div></button></span></div>
+      <div class="stat-val" style="color:var(--teal)">+40,700</div>
+      <div class="stat-unit">Net CCC surplus</div>
+      <div class="stat-delta pos">42,800 eligible − 2,100 deficit</div>
+    </div>
+    <div class="stat" style="border-top:3px solid var(--amber)">
+      <div class="stat-label">ESCert position (PAT) <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup left">ESCerts from PAT-regime facilities (Vizag Rail Depot). ESCert and CCC are separate instruments — they cannot be cross-surrendered, but both have real market value.</div></button></span></div>
+      <div class="stat-val" style="color:var(--amber)">+3,800</div>
+      <div class="stat-unit">ESCert surplus · Vizag Rail</div>
+      <div class="stat-delta pos">Issued · IEX eligible</div>
+    </div>
+    <div class="stat" style="border-top:3px solid var(--green)">
+      <div class="stat-label">Est. total revenue</div>
+      <div class="stat-val">₹3.0–4.5Cr</div>
+      <div class="stat-unit">Net position at ₹600–900/CCC</div>
+    </div>
+    <div class="stat" style="border-top:3px solid var(--coral)">
+      <div class="stat-label">Action needed</div>
+      <div class="stat-val" style="color:var(--coral)">2</div>
+      <div class="stat-unit">1 deficit · 1 ACVA pending</div>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 14px;background:var(--white);border:1px solid var(--border);border-radius:8px;margin-bottom:12px">
+    <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.07em;text-transform:uppercase">Filter by</span>
+    <select class="fi" style="width:auto;padding:5px 28px 5px 10px;font-size:11.5px"><option>Instrument: All (CCC + ESCert)</option><option>CCC only (CCTS)</option><option>ESCert only (PAT)</option></select>
+    <select class="fi" style="width:auto;padding:5px 28px 5px 10px;font-size:11.5px"><option>Status: All</option><option>Surplus (eligible)</option><option>Deficit</option><option>Issued</option></select>
+    <select class="fi" style="width:auto;padding:5px 28px 5px 10px;font-size:11.5px"><option>Sector: All</option><option>Cement</option><option>Textiles</option><option>Railways</option></select>
+    <select class="fi" style="width:auto;padding:5px 28px 5px 10px;font-size:11.5px"><option>Entity: All group entities</option><option>Bharathi Cement Ltd</option><option>Bharathi Textiles Pvt Ltd</option><option>Bharathi Logistics Ltd</option></select>
+  </div>
+
+  <div class="tw">
+    <table class="tbl">
+      <thead><tr><th>Facility</th><th>Entity (subsidiary)</th><th>Sector</th><th>Regime</th><th>Instrument <span class="tip-wrap" style="vertical-align:middle"><button class="tip-btn" style="font-size:8px">?<div class="tip-popup">CCC = Carbon Credit Certificate, issued under CCTS (the new scheme). ESCert = Energy Saving Certificate, issued under PAT (legacy). Both are tradeable but on different exchanges and cannot be used interchangeably for compliance.</div></button></span></th><th style="text-align:right">Quantity</th><th>Status</th><th style="text-align:right">Est. value</th></tr></thead>
+      <tbody>
+        <tr><td style="font-weight:600;color:var(--ink)">Kadapa Plant</td><td style="font-size:12px;color:var(--muted)">Bharathi Cement Ltd</td><td><span class="sector-tag" style="background:var(--teal-pale);color:var(--teal);font-size:10px">Cement</span></td><td><span class="regime-ccts">CCTS</span></td><td><span class="tag t-teal">CCC</span></td><td style="text-align:right;font-weight:700;color:var(--teal);font-family:'DM Mono',monospace">+18,360</td><td><span class="tag t-teal">Eligible</span></td><td style="text-align:right;font-family:'DM Mono',monospace;font-size:11.5px;color:var(--teal)">₹1.1–1.7Cr</td></tr>
+        <tr style="background:var(--surface)"><td style="font-weight:600;color:var(--ink)">Nalgonda Plant</td><td style="font-size:12px;color:var(--muted)">Bharathi Cement Ltd</td><td><span class="sector-tag" style="background:var(--teal-pale);color:var(--teal);font-size:10px">Cement</span></td><td><span class="regime-ccts">CCTS</span></td><td><span class="tag t-teal">CCC</span></td><td style="text-align:right;font-weight:700;color:var(--teal);font-family:'DM Mono',monospace">+24,440</td><td><span class="tag t-amber">Pending ACVA</span></td><td style="text-align:right;font-family:'DM Mono',monospace;font-size:11.5px;color:var(--muted)">est. ₹1.5–2.2Cr</td></tr>
+        <tr><td style="font-weight:600;color:var(--ink)">Chennai Textiles</td><td style="font-size:12px;color:var(--muted)">Bharathi Textiles Pvt Ltd <span class="tag t-gray" style="font-size:9px">subsidiary</span></td><td><span class="sector-tag" style="background:#fff0f6;color:#9d174d;font-size:10px">Textiles</span></td><td><span class="regime-ccts">CCTS</span></td><td><span class="tag t-teal">CCC</span></td><td style="text-align:right;font-weight:700;color:var(--coral);font-family:'DM Mono',monospace">−2,100</td><td><span class="tag t-red">Deficit — must purchase</span></td><td style="text-align:right;font-family:'DM Mono',monospace;font-size:11.5px;color:var(--coral)">Buy ~₹1.3–1.9Cr</td></tr>
+        <tr style="background:var(--surface)"><td style="font-weight:600;color:var(--ink)">Vizag Rail Depot</td><td style="font-size:12px;color:var(--muted)">Bharathi Logistics Ltd <span class="tag t-gray" style="font-size:9px">subsidiary</span></td><td><span class="sector-tag" style="background:#fff7ed;color:#92400e;font-size:10px">Railways</span></td><td><span class="regime-pat">PAT</span></td><td><span class="tag t-amber">ESCert</span></td><td style="text-align:right;font-weight:700;color:var(--amber);font-family:'DM Mono',monospace">+3,800</td><td><span class="tag t-teal">Issued · IEX</span></td><td style="text-align:right;font-family:'DM Mono',monospace;font-size:11.5px;color:var(--muted)">IEX market rate</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="notice nb" style="margin-top:10px"><span class="ni">ℹ</span><div style="font-size:12px"><strong>Why does Chennai Textiles show a deficit?</strong> The textiles sector has a tighter CCTS intensity target relative to this plant's current efficiency level. Options: (1) purchase the 2,100 CCCs needed from over-performers on IEX/PXIL/HPX before the filing deadline, or (2) use the NetZero Modeller to model energy efficiency interventions that would bring the plant into surplus before next compliance year.</div></div>
+
+  <div class="btn-row" style="border:none;padding-top:0;margin-top:8px">
+    <button class="btn primary" onclick="go('rev')">View revenue modelling →</button>
+  </div>
+</div>
+
+<!-- ════ SCREEN 11: REVENUE MODELLING ════ -->
+<div class="screen" id="s-rev">
+  <div class="ph">
+    <div class="page-title">Revenue modelling</div>
+    <div class="page-sub">Financial scenarios for the Bharathi Group's certificate portfolio. Adjust the CCC price to model different market outcomes. The NetZero Modeller can prescribe interventions to expand surplus and close deficits.</div>
+  </div>
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="sec-label">CCC price scenario <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">CCC trading is expected to commence mid-2026 on IEX, PXIL, and HPX under CERC supervision. The ₹600–900/tonne range is an analyst estimate — actual market price will be determined by supply and demand at first trading. Drag the slider to model different scenarios.</div></button></span></div>
+      <div style="margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">₹600</span>
+          <input type="range" min="600" max="900" value="750" step="50" id="ps" oninput="updatePrice(this.value)" style="flex:1">
+          <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">₹900</span>
+        </div>
+        <div style="text-align:center;margin-top:4px;font-family:'DM Mono',monospace;font-size:12px;color:var(--teal)">Selected: <span id="pd">₹750</span>/tonne</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--surface);border-radius:7px"><div style="font-size:12px;color:var(--muted)">Conservative (₹600/t)</div><div style="font-weight:700;font-family:'DM Mono',monospace">₹2.44 Cr</div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--teal-50);border:1px solid rgba(29,158,117,.2);border-radius:7px"><div style="font-size:12px;font-weight:600;color:var(--teal)">Mid estimate (₹750/t)</div><div style="font-weight:800;color:var(--teal);font-size:16px;font-family:'Plus Jakarta Sans',sans-serif" id="mv">₹3.05 Cr</div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:var(--surface);border-radius:7px"><div style="font-size:12px;color:var(--muted)">Optimistic (₹900/t)</div><div style="font-weight:700;font-family:'DM Mono',monospace">₹3.66 Cr</div></div>
+      </div>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:10px;padding:8px 12px;background:var(--surface);border-radius:7px">Net 40,700 CCCs (surplus 42,800 − deficit 2,100). ESCert value (3,800) at IEX market rate additional.</div>
+    </div>
+    <div class="card c-green">
+      <div class="sec-label">NetZero Modeller — recommended interventions</div>
+      <p style="font-size:12.5px;color:var(--body);margin-bottom:10px">The MILP optimiser has identified 3 interventions across group facilities to expand CCC surplus and close the Chennai Textiles deficit:</p>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="padding:9px 12px;background:var(--green-pale);border-radius:7px;border:1px solid rgba(59,109,17,.2)"><div style="font-weight:600;color:var(--green);font-size:12.5px">Kadapa — kiln VFD + fuel switch</div><div style="font-size:12px;color:var(--muted);margin-top:2px">+4,100 CCCs · ₹1.4Cr capex · 1.8yr payback</div></div>
+        <div style="padding:9px 12px;background:var(--green-pale);border-radius:7px;border:1px solid rgba(59,109,17,.2)"><div style="font-weight:600;color:var(--green);font-size:12.5px">Chennai Textiles — steam trap audit + insulation</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Closes 2,100 CCC deficit · ₹0.4Cr capex · 0.9yr payback</div></div>
+        <div style="padding:9px 12px;background:var(--green-pale);border-radius:7px;border:1px solid rgba(59,109,17,.2)"><div style="font-weight:600;color:var(--green);font-size:12.5px">Nalgonda — waste heat recovery</div><div style="font-size:12px;color:var(--muted);margin-top:2px">+3,200 CCCs · ₹2.1Cr capex · 2.4yr payback</div></div>
+      </div>
+      <button class="btn primary" style="margin-top:12px;width:100%;justify-content:center">Open NetZero Modeller →</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+const crumbs={hub:'Module hub',setup:'Facility categorisation',allfac:'All DC facilities',dashboard:'Compliance dashboard — Kadapa Plant',data:'Energy & production data',filing:'BEE filing pack',verify:'Verification handoff','cbam-ships':'CBAM shipments','cbam-decl':'CBAM declarations',cert:'Certificates & credits',rev:'Revenue modelling'};
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  const s=document.getElementById('s-'+id);
+  if(s)s.classList.add('active');
+  const nb=document.getElementById('nav-'+id);
+  if(nb)nb.classList.add('active');
+  document.getElementById('bc').textContent=crumbs[id]||id;
+  document.getElementById('content').scrollTop=0;
+}
+function updatePrice(v){
+  document.getElementById('pd').textContent='₹'+v;
+  const net=((40700*parseInt(v))/10000000).toFixed(2);
+  document.getElementById('mv').textContent='₹'+net+' Cr';
+}
+go('hub');
+</script>
+</body>
+</html>
