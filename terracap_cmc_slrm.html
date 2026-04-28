@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TerraCAP — Carbon Market Compliance | SLR Metaliks Ltd</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#0f7a60;--teal-l:#1d9e75;--teal-xl:#5dcaa5;--teal-pale:#e1f5ee;--teal-50:#f0faf5;
+  --blue:#185fa5;--blue-pale:#e6f1fb;--blue-50:#f2f8fe;
+  --amber:#ba7517;--amber-pale:#faeeda;--amber-50:#fdf6e8;
+  --coral:#993c1d;--coral-pale:#faece7;
+  --purple:#534ab7;--purple-pale:#eeedfe;
+  --green:#3b6d11;--green-pale:#eaf3de;
+  --red:#a32d2d;--red-pale:#fcebeb;
+  --ink:#0d1512;--body:#374151;--muted:#6b7280;--subtle:#9ca3af;
+  --border:#e5e7eb;--border-l:#f3f4f6;
+  --surface:#f9fafb;--white:#fff;
+  --sidebar-w:244px;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;-webkit-font-smoothing:antialiased}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--body);min-height:100vh;display:flex;flex-direction:column}
+#app{display:flex;flex:1;min-height:0}
+
+/* SIDEBAR */
+#sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:200;overflow-y:auto;box-shadow:var(--sh)}
+.sb-brand{padding:14px 16px 12px;border-bottom:1px solid var(--border-l);flex-shrink:0}
+.sb-brand .wm{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;color:var(--teal)}
+.sb-brand .mod{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.02em}
+.sb-customer{margin:10px 12px 0;padding:10px 12px;background:linear-gradient(135deg,#f0faf5,#e8f4fd);border:1px solid rgba(29,158,117,.2);border-radius:8px}
+.sb-customer .cc-co{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:800;color:var(--ink);line-height:1.2}
+.sb-customer .cc-sub{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px}
+.sb-customer .cc-loc{font-size:11px;color:var(--teal);margin-top:4px;display:flex;align-items:center;gap:4px}
+.sb-group{padding:10px 14px 3px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle)}
+.sb-item{display:flex;align-items:center;gap:9px;padding:7px 14px;cursor:pointer;border:none;background:transparent;width:100%;text-align:left;font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--muted);border-left:2.5px solid transparent;transition:all .12s}
+.sb-item:hover{background:var(--surface);color:var(--body)}
+.sb-item.active{background:var(--teal-50);color:var(--teal);font-weight:500;border-left-color:var(--teal-l)}
+.sb-item.sub{padding-left:26px;font-size:12px}
+.sb-sn{width:18px;height:18px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:9px;flex-shrink:0;opacity:.7}
+.sb-item.active .sb-sn{background:var(--teal-l);border-color:var(--teal-l);color:#fff;opacity:1}
+.sb-badge{margin-left:auto;font-family:'DM Mono',monospace;font-size:9px;padding:1px 6px;border-radius:8px;background:var(--surface);color:var(--subtle)}
+.sb-item.active .sb-badge{background:var(--teal-pale);color:var(--teal)}
+.sb-div{height:1px;background:var(--border-l);margin:5px 10px}
+.pat-badge{background:var(--amber-pale);color:var(--amber);font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:8px}
+.sb-back{padding:10px 14px;margin-top:auto;border-top:1px solid var(--border-l)}
+.sb-back a{font-size:11.5px;color:var(--muted);text-decoration:none}
+.sb-back a:hover{color:var(--teal)}
+
+/* MAIN */
+#main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+#topbar{background:var(--white);border-bottom:1px solid var(--border);height:50px;display:flex;align-items:center;padding:0 24px;gap:12px;position:sticky;top:0;z-index:100;box-shadow:var(--sh);flex-shrink:0}
+.tb-crumb{font-family:'DM Mono',monospace;font-size:11px;color:var(--subtle);display:flex;align-items:center;gap:6px}
+.tb-crumb span{color:var(--body);font-weight:500}
+.tb-sp{flex:1}
+.tb-pill{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;font-size:11.5px;border:1px solid var(--border);background:var(--surface)}
+.tb-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+#content{flex:1;padding:22px 26px 52px;overflow-y:auto}
+.screen{display:none;animation:fi .18s ease}
+.screen.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* PROGRESS */
+.prog{display:flex;gap:3px;margin-bottom:20px}
+.pip{height:3px;flex:1;border-radius:2px;background:var(--border)}
+.pip.done{background:var(--teal-l)}.pip.active{background:var(--teal-xl)}
+
+/* PAGE HEADER */
+.ph{margin-bottom:20px}
+.page-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--ink);line-height:1.2;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--muted);max-width:640px;line-height:1.6}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 18px;box-shadow:var(--sh)}
+.card-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.card-sub{font-size:12px;color:var(--muted);line-height:1.55}
+.card.c-teal{border-left:3px solid var(--teal-l);border-radius:0 10px 10px 0}
+.card.c-amber{border-left:3px solid var(--amber);border-radius:0 10px 10px 0}
+.card.c-coral{border-left:3px solid var(--coral);border-radius:0 10px 10px 0}
+.card.c-green{border-left:3px solid var(--green);border-radius:0 10px 10px 0}
+.card.c-blue{border-left:3px solid var(--blue);border-radius:0 10px 10px 0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+
+/* STATS */
+.stat{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px;box-shadow:var(--sh);position:relative}
+.stat-label{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.stat-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:24px;font-weight:800;color:var(--ink);line-height:1}
+.stat-unit{font-size:11.5px;color:var(--muted);margin-top:3px}
+.stat-delta{font-size:11.5px;margin-top:4px}
+.pos{color:var(--teal)}.neg{color:var(--coral)}
+
+/* TOOLTIPS */
+.tip-wrap{position:relative;display:inline-flex;align-items:center;margin-left:4px;vertical-align:middle}
+.tip-btn{width:15px;height:15px;border-radius:50%;background:var(--surface);border:1px solid var(--border);color:var(--subtle);font-size:9px;cursor:help;font-weight:700;font-family:'DM Mono',monospace;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.tip-btn:hover{background:var(--blue-pale);border-color:var(--blue);color:var(--blue)}
+.tip-popup{display:none;position:absolute;left:20px;top:50%;transform:translateY(-50%);background:var(--ink);color:#fff;font-size:12px;line-height:1.55;font-family:'DM Sans',sans-serif;padding:10px 13px;border-radius:8px;width:260px;z-index:600;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.tip-popup.left{left:auto;right:20px}
+.tip-popup::before{content:'';position:absolute;left:-5px;top:50%;transform:translateY(-50%);border:5px solid transparent;border-left:0;border-right-color:var(--ink)}
+.tip-popup.left::before{left:auto;right:-5px;border-right:0;border-left-color:var(--ink)}
+.tip-wrap:hover .tip-popup{display:block}
+
+/* NOTICES */
+.notice{padding:11px 14px;border-radius:8px;font-size:12.5px;line-height:1.55;margin-bottom:14px;display:flex;gap:8px;align-items:flex-start}
+.nt{background:var(--teal-50);color:var(--teal);border:1px solid rgba(29,158,117,.2)}
+.na{background:var(--amber-50);color:#7c4a03;border:1px solid rgba(186,117,23,.25)}
+.nb{background:var(--blue-50);color:#1e40af;border:1px solid rgba(24,95,165,.2)}
+.nc{background:var(--coral-pale);color:var(--coral);border:1px solid rgba(153,60,29,.2)}
+.ni{flex-shrink:0;font-size:14px;margin-top:1px}
+.notice strong{font-weight:600}
+
+/* FORMS */
+.fs{margin-bottom:18px}
+.fs-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border-l)}
+.fs-sub{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-bottom:12px}
+.fs-sub-title{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
+.field{margin-bottom:13px}
+.field-label{font-size:12.5px;font-weight:500;color:var(--body);margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.field-hint{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.45}
+.fi{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--white);outline:none;transition:border-color .15s,box-shadow .15s}
+.fi:focus{border-color:var(--teal-l);box-shadow:0 0 0 3px rgba(29,158,117,.1)}
+select.fi{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.fi-unit{display:flex;border-radius:7px;overflow:hidden;border:1px solid var(--border);transition:border-color .15s}
+.fi-unit:focus-within{border-color:var(--teal-l);box-shadow:0 0 0 3px rgba(29,158,117,.1)}
+.fi-unit input{flex:1;border:none;padding:8px 11px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);outline:none;background:var(--white)}
+.fi-unit .ul{background:var(--surface);padding:8px 11px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);border-left:1px solid var(--border);white-space:nowrap;display:flex;align-items:center}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:7px;border:1px solid var(--border);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;transition:all .15s;background:var(--white);color:var(--body)}
+.btn:hover{background:var(--surface)}.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--teal-l);color:#fff;border-color:var(--teal-l)}.btn.primary:hover{background:var(--teal)}
+.btn.secondary{background:var(--white);color:var(--teal);border-color:var(--teal-pale)}.btn.secondary:hover{background:var(--teal-50)}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--teal)}
+.btn-row{display:flex;align-items:center;gap:8px;margin-top:18px;padding-top:14px;border-top:1px solid var(--border-l)}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;gap:3px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px}
+.t-teal{background:var(--teal-pale);color:var(--teal)}.t-blue{background:var(--blue-pale);color:var(--blue)}
+.t-amber{background:var(--amber-pale);color:var(--amber)}.t-coral{background:var(--coral-pale);color:var(--coral)}
+.t-green{background:var(--green-pale);color:var(--green)}.t-gray{background:var(--surface);color:var(--muted);border:1px solid var(--border)}
+.t-red{background:var(--red-pale);color:var(--red)}.t-purple{background:var(--purple-pale);color:var(--purple)}
+.regime-pat{background:var(--amber-pale);color:var(--amber);font-family:'DM Mono',monospace;font-size:9.5px;font-weight:500;padding:2px 8px;border-radius:10px;display:inline-flex;align-items:center;gap:3px}
+.regime-ccts{background:var(--teal-pale);color:var(--teal);font-family:'DM Mono',monospace;font-size:9.5px;font-weight:500;padding:2px 8px;border-radius:10px;display:inline-flex;align-items:center;gap:3px}
+
+/* GREEN STEEL BADGE */
+.gs-badge{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:20px;font-family:'Plus Jakarta Sans',sans-serif;font-weight:800}
+.gs-4star{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);color:#1b5e20;border:1px solid #81c784}
+.gs-3star{background:linear-gradient(135deg,#fff8e1,#ffecb3);color:#e65100;border:1px solid #ffca28}
+.gs-stars{font-size:16px}
+
+/* TABLES */
+.tw{overflow-x:auto;border-radius:10px;border:1px solid var(--border);box-shadow:var(--sh)}
+table.tbl{width:100%;border-collapse:collapse;font-size:12.5px;background:var(--white)}
+table.tbl thead tr{background:var(--surface)}
+table.tbl th{padding:9px 14px;text-align:left;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.06em;font-weight:500;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap}
+table.tbl td{padding:9px 14px;border-bottom:1px solid var(--border-l);vertical-align:middle}
+table.tbl tbody tr:last-child td{border-bottom:none}
+table.tbl tbody tr:hover td{background:var(--surface)}
+table.tbl tbody tr.tr-ok td{background:var(--teal-50)}
+table.tbl tbody tr.tr-pat td{background:var(--amber-50)}
+
+/* GAUGE */
+.gb{height:10px;background:var(--surface);border-radius:5px;position:relative;overflow:visible;border:1px solid var(--border)}
+.gf{height:100%;border-radius:5px}.gm{position:absolute;top:-4px;bottom:-4px;width:2.5px;background:var(--ink);border-radius:2px}
+.gl{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:5px}
+
+/* RELATIONSHIP BOX */
+.rel-box{background:var(--amber-50);border:1px solid rgba(186,117,23,.2);border-radius:10px;padding:14px 18px;margin-bottom:16px}
+.rel-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);margin-bottom:10px}
+.rel-flow{display:flex;align-items:center;gap:0;flex-wrap:wrap}
+.rel-node{text-align:center;padding:8px 14px;border-radius:8px;flex-shrink:0}
+.rel-arrow{color:var(--amber-pale);font-size:18px;padding:0 8px;flex-shrink:0}
+.rn-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:800;line-height:1;margin-bottom:2px}
+.rn-label{font-size:10.5px;color:var(--muted)}
+.rel-formula{font-family:'DM Mono',monospace;font-size:11.5px;color:var(--amber);background:rgba(186,117,23,.08);padding:6px 12px;border-radius:6px;margin-top:10px}
+
+/* HELP PANEL */
+.help-panel{border-radius:10px;padding:14px 18px;margin-bottom:14px}
+.hp-teal{background:var(--teal-50);border:1px solid rgba(29,158,117,.2)}
+.hp-blue{background:var(--blue-50);border:1px solid rgba(24,95,165,.2)}
+.hp-amber{background:var(--amber-50);border:1px solid rgba(186,117,23,.2)}
+.hp-title{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.hp-teal .hp-title{color:var(--teal)}.hp-blue .hp-title{color:var(--blue)}.hp-amber .hp-title{color:var(--amber)}
+.hp-body{font-size:12.5px;color:var(--body);line-height:1.65}
+.hp-body strong{font-weight:600;color:var(--ink)}
+
+/* PIPELINE */
+.pipeline{display:flex;border-radius:9px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--sh)}
+.pipe-step{flex:1;min-width:80px;padding:10px 12px;text-align:center;border-right:1px solid var(--border);font-family:'DM Mono',monospace;font-size:10px}
+.pipe-step:last-child{border-right:none}
+.ps-done{background:var(--teal-50)}.ps-active{background:var(--teal-l)}.ps-pending{background:var(--white)}
+.pipe-qty{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:800;display:block;margin-bottom:2px}
+.ps-done .pipe-qty{color:var(--teal)}.ps-active .pipe-qty{color:#fff}.ps-pending .pipe-qty{color:var(--muted)}
+.ps-done .pipe-label{color:var(--teal)}.ps-active .pipe-label{color:#fff;opacity:.9}.ps-pending .pipe-label{color:var(--subtle)}
+
+/* ACVA */
+.acva-box{border:2px dashed rgba(83,74,183,.3);border-radius:10px;padding:16px 18px;background:rgba(83,74,183,.02);position:relative}
+.acva-tag{position:absolute;top:-11px;left:14px;background:var(--surface);padding:0 10px;font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--purple)}
+
+.sec-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.only-for{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;background:var(--amber-pale);color:var(--amber);border:1px solid rgba(186,117,23,.3)}
+hr{border:none;border-top:1px solid var(--border-l);margin:16px 0}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sb-brand">
+    <div class="wm">TerraCAP</div>
+    <div class="mod">Carbon Market Compliance</div>
+  </div>
+  <div class="sb-customer">
+    <div class="cc-co">SLR Metaliks Ltd</div>
+    <div class="cc-sub">Alloy &amp; Engineering Steel · 0.32 MTPA</div>
+    <div class="cc-loc">📍 Hospet, Karnataka · BEE DC: STL-KA-0089</div>
+  </div>
+  <div class="sb-group" style="margin-top:10px">Setup</div>
+  <button class="sb-item sub done" onclick="go('hub')"><span class="sb-sn">✓</span>Module hub</button>
+  <button class="sb-item sub" id="nav-setup" onclick="go('setup')"><span class="sb-sn">2</span>Facility categorisation<span class="sb-badge">Required</span></button>
+  <div class="sb-div"></div>
+  <div class="sb-group">India compliance <span class="pat-badge" style="margin-left:4px">PAT Active</span></div>
+  <button class="sb-item sub" id="nav-allfac" onclick="go('allfac')"><span class="sb-sn">3</span>DC facilities</button>
+  <button class="sb-item sub" id="nav-dashboard" onclick="go('dashboard')"><span class="sb-sn">4</span>Compliance dashboard</button>
+  <button class="sb-item sub" id="nav-data" onclick="go('data')"><span class="sb-sn">5</span>Energy &amp; production data</button>
+  <button class="sb-item sub" id="nav-filing" onclick="go('filing')"><span class="sb-sn">6</span>PAT filing pack</button>
+  <button class="sb-item sub" id="nav-greensteel" onclick="go('greensteel')"><span class="sb-sn">★</span>Green Steel rating<span class="sb-badge">New</span></button>
+  <button class="sb-item sub" id="nav-verify" onclick="go('verify')"><span class="sb-sn">7</span>Verification handoff</button>
+  <div class="sb-div"></div>
+  <div class="sb-group">EU CBAM <span style="font-family:'DM Mono',monospace;font-size:9px;padding:1px 5px;border-radius:4px;background:var(--coral-pale);color:var(--coral);margin-left:4px">OEM supply chain</span></div>
+  <button class="sb-item sub" id="nav-cbam" onclick="go('cbam')"><span class="sb-sn">8</span>CBAM supply chain tool</button>
+  <div class="sb-div"></div>
+  <div class="sb-group">Certificates &amp; credits</div>
+  <button class="sb-item sub" id="nav-cert" onclick="go('cert')"><span class="sb-sn">9</span>ESCert portfolio</button>
+  <button class="sb-item sub" id="nav-rev" onclick="go('rev')"><span class="sb-sn">10</span>Revenue &amp; CCTS roadmap</button>
+  <div class="sb-back"><a href="#">← Back to TerraCAP main menu</a></div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+<div id="topbar">
+  <div class="tb-crumb">Carbon market compliance › <span id="bc">Module hub</span></div>
+  <div class="tb-sp"></div>
+  <div class="tb-pill"><div class="tb-dot" style="background:var(--amber)"></div><span style="color:var(--amber);font-weight:500;font-size:11px">PAT Active</span></div>
+  <div class="tb-pill" style="margin-left:4px"><div class="tb-dot" style="background:var(--green)"></div><span style="color:var(--green);font-weight:500;font-size:11px">★★★★ Green Steel</span></div>
+</div>
+<div id="content">
+
+<!-- ═══ SCREEN 1: HUB ═══ -->
+<div class="screen active" id="s-hub">
+  <div class="ph">
+    <div class="page-title">SLR Metaliks — Carbon Market Compliance</div>
+    <div class="page-sub">Your integrated compliance workspace for India PAT/CCTS obligations, EU CBAM supply chain transparency, and Green Steel certification. Built around your Hospet plant's BF-EOF production route and 60% renewable energy position.</div>
+  </div>
+
+  <div class="help-panel hp-teal">
+    <div class="hp-title">🏭 SLRM profile loaded — three immediate opportunities</div>
+    <div class="hp-body">
+      <strong>1. PAT compliance now:</strong> Your Hospet plant is a Designated Consumer under BEE. TerraCAP manages your SEC calculation, annual PAT return, and ESCert tracking today.<br><br>
+      <strong>2. Green Steel certification:</strong> Your 60% renewable energy consumption and EOF technology likely qualify you for a <strong>4-star Green Steel rating</strong> — a direct commercial advantage with automotive OEM customers.<br><br>
+      <strong>3. CCTS transition readiness:</strong> Iron &amp; Steel will transition from PAT to CCTS. TerraCAP builds your baseline now so the regime flip is automatic — no data re-entry, no migration.
+    </div>
+  </div>
+
+  <div class="g3" style="margin-bottom:20px">
+    <div class="card" style="border-top:3px solid var(--amber);cursor:pointer" onclick="go('setup')">
+      <div style="font-size:22px;margin-bottom:8px">⚙</div>
+      <div class="card-title">India PAT Compliance</div>
+      <div class="card-sub" style="margin-bottom:12px">SEC tracking, BEE annual PAD filing, and ESCert management for your Hospet steel plant. Auto-builds CCTS baseline in parallel so you're ready when BEE notifies Iron &amp; Steel.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px"><span class="tag t-amber">PAT Active now</span><span class="tag t-teal">CCTS-ready baseline</span></div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--green);cursor:pointer" onclick="go('greensteel')">
+      <div style="font-size:22px;margin-bottom:8px">🌿</div>
+      <div class="card-title">Green Steel Rating</div>
+      <div class="card-sub" style="margin-bottom:12px">Your EOF technology and 60% RE consumption likely qualify you for a <strong>4-star Green Steel rating</strong>. TerraCAP computes your tCO₂e/tfs and shows your star rating against Steel Ministry thresholds.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px"><span class="gs-badge gs-4star" style="font-size:12px;padding:4px 10px"><span class="gs-stars">★★★★</span>4-star eligible</span></div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--coral);cursor:pointer" onclick="go('cbam')">
+      <div style="font-size:22px;margin-bottom:8px">🚢</div>
+      <div class="card-title">CBAM Supply Chain Tool</div>
+      <div class="card-sub" style="margin-bottom:12px">Your automotive OEM customers (Maruti, Tata, Hyundai) export vehicles to the EU and face CBAM on their steel content. TerraCAP generates your embedded carbon data for their CBAM declarations.</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px"><span class="tag t-coral">OEM supply chain</span><span class="tag t-amber">€75.36/tCO₂ CBAM price</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-label">Getting started — recommended sequence</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--teal-50);border-radius:8px;border:1px solid rgba(29,158,117,.2)">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--teal-l);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;font-weight:600;flex-shrink:0">1</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600;color:var(--teal)">Confirm Hospet plant as a BEE Designated Consumer</div><div style="font-size:12px;color:var(--muted);margin-top:1px">Import from your organisation profile and verify DC status, BEE ID, and sector classification.</div></div>
+        <button class="btn primary" style="font-size:12px" onclick="go('setup')">Start →</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border-radius:8px;border:1px solid var(--border)">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;flex-shrink:0">2</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--muted)">Enter BF-EOF energy and production data for PAT compliance</div></div>
+        <button class="btn" style="font-size:12px;opacity:.5" disabled>Locked</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface);border-radius:8px;border:1px solid var(--border)">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--border);color:var(--muted);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;flex-shrink:0">3</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--muted)">View your Green Steel star rating and share with OEM customers</div></div>
+        <button class="btn" style="font-size:12px;opacity:.5" disabled>Locked</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 2: FACILITY CATEGORISATION ═══ -->
+<div class="screen" id="s-setup">
+  <div class="prog"><div class="pip done"></div><div class="pip active"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div></div>
+  <div class="ph">
+    <div class="page-title">Facility categorisation</div>
+    <div class="page-sub">Facilities imported from your SLR Metaliks organisation profile. TerraCAP checks each facility's sector and annual energy consumption against BEE DC thresholds. Confirm Hospet plant as your primary DC before proceeding.</div>
+  </div>
+  <div class="help-panel hp-amber">
+    <div class="hp-title">⚙ What is a Designated Consumer (DC)?</div>
+    <div class="hp-body">Any industrial plant consuming energy above BEE's notified threshold for its sector is a <strong>Designated Consumer</strong> and must comply with PAT (and eventually CCTS). For Iron &amp; Steel, the threshold is <strong>30,000 TOE per year</strong>. At 0.32 MTPA with a blast furnace, SLRM Hospet is well above this threshold at an estimated 84,000+ TOE/year. Facilities below the threshold are non-DC but can still participate in Green Steel certification and CBAM reporting.</div>
+  </div>
+  <div class="tw">
+    <table class="tbl">
+      <thead><tr><th>Facility</th><th>Type</th><th>Annual energy (TOE)</th><th>DC threshold</th><th>TerraCAP suggestion</th><th>BEE DC ID</th><th>Confirm</th></tr></thead>
+      <tbody>
+        <tr class="tr-pat">
+          <td><div style="font-weight:600;color:var(--ink)">SLRM Hospet Plant</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Primary steelmaking · BF–EOF–CCM</div></td>
+          <td style="color:var(--muted)">Iron &amp; Steel</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">~84,000 TOE</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">≥30,000 TOE</td>
+          <td><span class="tag t-amber">DC — PAT Active</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">STL-KA-0089</td>
+          <td><select class="fi" style="width:auto;font-size:12px;padding:4px 24px 4px 8px"><option selected>✓ Confirmed DC</option><option>Non-DC</option></select></td>
+        </tr>
+        <tr>
+          <td><div style="font-weight:600;color:var(--ink)">SLRM Bright Bar Unit</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Downstream · peeling, cold drawing, grinding</div></td>
+          <td style="color:var(--muted)">Iron &amp; Steel</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">~9,200 TOE</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">≥30,000 TOE</td>
+          <td><span class="tag t-gray">Non-DC</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">—</td>
+          <td><select class="fi" style="width:auto;font-size:12px;padding:4px 24px 4px 8px"><option>Confirmed DC</option><option selected>✓ Non-DC</option></select></td>
+        </tr>
+        <tr>
+          <td><div style="font-weight:600;color:var(--ink)">SLRM Wind Farm — Uttarakhand</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">19.8 MW group captive wind generation</div></td>
+          <td style="color:var(--muted)">Renewable generation</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">N/A (generator)</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">N/A</td>
+          <td><span class="tag t-teal">RE asset — Scope 2 offset</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">—</td>
+          <td><select class="fi" style="width:auto;font-size:12px;padding:4px 24px 4px 8px"><option>DC</option><option selected>✓ RE asset</option></select></td>
+        </tr>
+        <tr>
+          <td><div style="font-weight:600;color:var(--ink)">SLR Corporate Office — Hospet</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Admin · R&amp;D · Marketing</div></td>
+          <td style="color:var(--muted)">Commercial</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">&lt;500 TOE</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">N/A</td>
+          <td><span class="tag t-gray">Non-DC</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px">—</td>
+          <td><select class="fi" style="width:auto;font-size:12px;padding:4px 24px 4px 8px"><option>DC</option><option selected>✓ Non-DC</option></select></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="notice nt" style="margin-top:10px"><span class="ni">✓</span><div style="font-size:12px"><strong>Wind farm included as RE asset.</strong> Your 19.8 MW group captive wind generation at Uttarakhand is linked to the Hospet plant. TerraCAP credits ~20% of total electricity imports as zero-emission captive renewable, reducing your Scope 2 GHG intensity and improving your Green Steel rating.</div></div>
+  <div class="btn-row" style="border:none;padding-top:0;margin-top:8px">
+    <button class="btn primary" onclick="go('allfac')">Confirm &amp; proceed →</button>
+    <button class="btn ghost" onclick="go('hub')">← Back</button>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 3: DC FACILITIES ═══ -->
+<div class="screen" id="s-allfac">
+  <div class="prog"><div class="pip done"></div><div class="pip done"></div><div class="pip active"></div><div class="pip"></div><div class="pip"></div></div>
+  <div class="ph">
+    <div class="page-title">India Compliance — SLRM Hospet Plant</div>
+    <div class="page-sub">Your confirmed DC facility under BEE PAT regime. Iron &amp; Steel is currently on PAT — CCTS notification is pending. TerraCAP shows the PAT compliance view today and builds the CCTS baseline in parallel.</div>
+  </div>
+  <div class="g4" style="margin-bottom:16px">
+    <div class="stat"><div class="stat-label">DC status</div><div class="stat-val" style="font-size:16px;color:var(--amber)">PAT Active</div><div class="stat-unit">Iron &amp; Steel · Cycle VII</div></div>
+    <div class="stat"><div class="stat-label">SEC vs target</div><div class="stat-val" style="color:var(--teal)">−5.1%</div><div class="stat-unit">Below PAT target</div></div>
+    <div class="stat"><div class="stat-label">ESCert position</div><div class="stat-val" style="color:var(--teal)">+8,400</div><div class="stat-unit">Energy Saving Certificates</div></div>
+    <div class="stat"><div class="stat-label">Green Steel rating</div><div class="stat-val" style="color:var(--green);font-size:20px">★★★★</div><div class="stat-unit">4-star · 1.92 tCO₂e/tfs</div></div>
+  </div>
+  <div class="tw" style="margin-bottom:12px">
+    <table class="tbl">
+      <thead><tr><th>Facility</th><th>Production route</th><th>Regime</th><th>SEC actual</th><th>PAT target</th><th>vs target</th><th>ESCert</th><th>Green Steel</th><th></th></tr></thead>
+      <tbody>
+        <tr class="tr-pat" style="cursor:pointer" onclick="go('dashboard')">
+          <td><div style="font-weight:600;color:var(--ink)">SLRM Hospet Plant</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">0.32 MTPA · BEE DC: STL-KA-0089</div></td>
+          <td style="font-size:12px;color:var(--muted)">Sinter–PCI–BF–EOF–LRF–CCM</td>
+          <td><span class="regime-pat">PAT</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--teal)">0.517 TOE/t</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">0.545 TOE/t</td>
+          <td><span class="tag t-teal">−5.1% ✓</span></td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--teal);font-weight:600">+8,400</td>
+          <td><span class="gs-badge gs-4star" style="font-size:10px;padding:3px 8px"><span class="gs-stars">★★★★</span> 4-star</span></td>
+          <td><button class="btn secondary" style="font-size:11px;padding:5px 10px">Open →</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="notice nb"><span class="ni">ℹ</span><div style="font-size:12px"><strong>PAT vs CCTS:</strong> The SEC metric (TOE per tonne of liquid steel) shown above is the PAT compliance metric. TerraCAP is simultaneously computing your GHG intensity (tCO₂e/tonne) in the background — this becomes your CCTS metric when BEE notifies Iron &amp; Steel under CCTS. No re-entry of data will be required.</div></div>
+  <div class="btn-row" style="border:none;padding-top:0;margin-top:0">
+    <button class="btn primary" onclick="go('dashboard')">Open Hospet Plant compliance →</button>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 4: COMPLIANCE DASHBOARD ═══ -->
+<div class="screen" id="s-dashboard">
+  <div class="prog"><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip active"></div><div class="pip"></div></div>
+  <div class="ph">
+    <div class="page-title">Compliance Dashboard — SLRM Hospet</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap">
+      <span class="regime-pat">⬤ PAT Active · Cycle VII</span>
+      <span style="font-size:12px;color:var(--muted)">Iron &amp; Steel · BEE DC: STL-KA-0089 · Baseline: PAT Cycle VII</span>
+      <span class="gs-badge gs-4star" style="font-size:11px;padding:3px 10px"><span class="gs-stars">★★★★</span> Green Steel 4-star</span>
+    </div>
+  </div>
+
+  <div class="rel-box">
+    <div class="rel-title" style="color:var(--amber)">How your three PAT metrics connect</div>
+    <div class="rel-flow">
+      <div class="rel-node" style="background:rgba(186,117,23,.1)">
+        <div class="rn-val" style="color:var(--amber)">0.517</div>
+        <div class="rn-label">SEC actual<br><span style="font-family:'DM Mono',monospace;font-size:9px">TOE / tonne liquid steel</span></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">From TerraCAP<br>energy + production data</div>
+      </div>
+      <div class="rel-arrow">vs</div>
+      <div class="rel-node" style="background:rgba(0,0,0,.04)">
+        <div class="rn-val" style="color:var(--ink)">0.545</div>
+        <div class="rn-label">PAT target<br><span style="font-family:'DM Mono',monospace;font-size:9px">TOE / tonne liquid steel</span></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">Set by BEE<br>PAT Cycle VII</div>
+      </div>
+      <div class="rel-arrow">=</div>
+      <div class="rel-node" style="background:rgba(59,109,17,.1)">
+        <div class="rn-val" style="color:var(--green)">8,400</div>
+        <div class="rn-label">ESCert surplus<br><span style="font-family:'DM Mono',monospace;font-size:9px">Energy Saving Certificates</span></div>
+        <div style="font-size:10px;color:var(--muted);margin-top:3px">Tradeable on<br>IEX / PXIL</div>
+      </div>
+    </div>
+    <div class="rel-formula" style="color:var(--amber);background:rgba(186,117,23,.08)">ESCert surplus = (target 0.545 − actual 0.517) × annual production 300,000t = 8,400 ESCerts &nbsp;≈ ₹0.5–0.75 Cr</div>
+  </div>
+
+  <div class="g3" style="margin-bottom:16px">
+    <div class="stat" style="border-top:3px solid var(--amber)">
+      <div class="stat-label">SEC actual (PAT metric) <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Specific Energy Consumption — total energy consumed (in TOE) divided by tonnes of liquid steel produced. This is the PAT compliance metric for Iron &amp; Steel. TerraCAP computes this from your BF coal/coke, EOF electricity, and production tonnage data already in the system.</div></button></span></div>
+      <div class="stat-val" style="color:var(--teal)">0.517</div>
+      <div class="stat-unit">TOE / tonne liquid steel</div>
+      <div class="stat-delta pos">↓ 5.1% below PAT target</div>
+      <div style="font-size:10.5px;color:var(--teal);margin-top:5px;background:rgba(29,158,117,.08);padding:4px 8px;border-radius:5px;font-family:'DM Mono',monospace">Source: TerraCAP energy records</div>
+    </div>
+    <div class="stat" style="border-top:3px solid var(--border)">
+      <div class="stat-label">BEE PAT target <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Your SEC target set by BEE for PAT Cycle VII. This is the maximum energy you are permitted to consume per tonne of liquid steel output. Under-shooting this target earns ESCerts; over-shooting means you must purchase them.</div></button></span></div>
+      <div class="stat-val">0.545</div>
+      <div class="stat-unit">TOE / tonne liquid steel</div>
+      <div class="stat-delta" style="color:var(--muted)">BEE PAT Cycle VII notification</div>
+      <div style="font-size:10.5px;color:var(--muted);margin-top:5px;background:var(--surface);padding:4px 8px;border-radius:5px;font-family:'DM Mono',monospace">Baseline: 0.573 TOE/t (prior cycle)</div>
+    </div>
+    <div class="stat" style="border-top:3px solid var(--green)">
+      <div class="stat-label">GHG intensity (CCTS-ready) <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup left">TerraCAP computes your GHG intensity in tCO₂e per tonne of finished steel — the metric that CCTS will use when Iron &amp; Steel is notified. Your 60% renewable energy and EOF technology give you a strong 1.92 tCO₂e/tfs, qualifying for 4-star Green Steel. This number will become your CCTS compliance metric — no re-entry needed.</div></button></span></div>
+      <div class="stat-val" style="color:var(--green)">1.92</div>
+      <div class="stat-unit">tCO₂e / tonne finished steel</div>
+      <div class="stat-delta pos">★★★★ 4-star Green Steel</div>
+      <div style="font-size:10.5px;color:var(--green);margin-top:5px;background:rgba(59,109,17,.08);padding:4px 8px;border-radius:5px;font-family:'DM Mono',monospace">Threshold: &lt;2.0 = 4-star ✓</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="sec-label">What's driving your strong SEC performance</div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:12.5px">
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">Production route</span><span style="font-weight:500">BF–EOF (energy optimising)</span></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">PCI injection rate</span><span style="font-weight:500;color:var(--teal)">10 MT/hr · reduces coke consumption</span></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">BFG captive power</span><span style="font-weight:500;color:var(--teal)">6 MW · waste gas recovery</span></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">Wind power (group captive)</span><span style="font-weight:500;color:var(--teal)">19.8 MW · ~20% of total imports</span></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:var(--muted)">Total RE share</span><span style="font-weight:600;color:var(--teal)">60% of total energy imports</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec-label">Actions required</div>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--amber-50);border-radius:7px;border:1px solid rgba(186,117,23,.2)">
+          <div style="font-size:12.5px;font-weight:500;color:#7c4a03">Complete BF coke rate data entry</div>
+          <button class="btn" style="font-size:11px;padding:4px 10px" onclick="go('data')">Enter →</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface);border-radius:7px;border:1px solid var(--border)">
+          <div style="font-size:12.5px;color:var(--body)">Generate PAT PAD filing</div>
+          <button class="btn secondary" style="font-size:11px;padding:4px 10px" onclick="go('filing')">Open →</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--green-pale);border-radius:7px;border:1px solid rgba(59,109,17,.2)">
+          <div style="font-size:12.5px;color:var(--green);font-weight:500">View &amp; share Green Steel certificate</div>
+          <button class="btn" style="font-size:11px;padding:4px 10px;background:var(--green-pale);color:var(--green);border-color:rgba(59,109,17,.3)" onclick="go('greensteel')">View ★ →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn primary" onclick="go('data')">Enter energy &amp; production data →</button>
+    <button class="btn ghost" onclick="go('allfac')">← All facilities</button>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 5: ENERGY & PRODUCTION DATA ═══ -->
+<div class="screen" id="s-data">
+  <div class="prog"><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip done"></div><div class="pip active"></div></div>
+  <div class="ph">
+    <div class="page-title">Energy &amp; production data — SLRM Hospet</div>
+    <div class="page-sub">Steel-specific energy and production fields for your BF–EOF–CCM route. TerraCAP pre-fills from your existing records. The sector-specific steel parameters below are required for PAT SEC calculation and BEE Form 2/3 filing.</div>
+  </div>
+  <div class="notice nt"><span class="ni">✓</span><div><strong>Pre-filled from TerraCAP GHG module.</strong> Fuel consumption, electricity, and production records have been auto-imported from your existing Scope 1 and Scope 2 activity data. Review steel-specific fields below.</div></div>
+
+  <div class="g2">
+    <div>
+      <div class="fs">
+        <div class="fs-title">Production output</div>
+        <div class="field">
+          <div class="field-label">Liquid steel produced <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">PAT uses liquid steel (from EOF/BOF tapping) as the output denominator. CCTS will use tonne of finished steel (TFS). TerraCAP tracks both — LTS for PAT SEC, TFS for GHG intensity and Green Steel rating.</div></button></span></div>
+          <div class="fi-unit"><input type="number" value="320000"><div class="ul">tonnes TLS/year</div></div>
+        </div>
+        <div class="field">
+          <div class="field-label">Finished steel (rolled) <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Output from the rolling mill — used for Green Steel rating (tCO₂e per tonne of finished steel, TFS) and for CBAM embedded emissions calculation when your steel enters automotive OEM supply chains.</div></button></span></div>
+          <div class="fi-unit"><input type="number" value="298000"><div class="ul">tonnes TFS/year</div></div>
+          <div class="field-hint">Used for Green Steel rating. Conversion loss from TLS to TFS ~6.8%.</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Hot metal from BF <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Hot metal (pig iron) produced by the mini blast furnace and tapped to the EOF. Used to back-calculate specific coke rate and PCI consumption per tonne of hot metal — key BEE Form 2 fields.</div></button></span></div>
+          <div class="fi-unit"><input type="number" value="276000"><div class="ul">tonnes HM/year</div></div>
+        </div>
+      </div>
+
+      <div class="fs">
+        <div class="fs-title">Fuel &amp; coke inputs — Scope 1</div>
+        <div class="field">
+          <div class="field-label">Coke consumed (BF) <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Metallurgical coke charged into the blast furnace as primary reductant and fuel. Your PCI system injects coal to partially replace coke. Coke emission factor: ~3.1 tCO₂/tonne. Lower coke rate = lower intensity.</div></button></span></div>
+          <div class="fi-unit"><input type="number" value="96600"><div class="ul">MT/year</div></div>
+          <div class="field-hint">Specific coke rate: ~350 kg/t HM (BF) — auto-calculated</div>
+        </div>
+        <div class="field">
+          <div class="field-label">PCI coal injection <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Pulverised Coal Injection at 10 MT/hr system capacity. PCI partially replaces coke in the BF, improving efficiency. Each kg of PCI coal replaces ~0.85 kg of coke. Your PCI injection rate is a key PAT efficiency lever.</div></button></span></div>
+          <div class="fi-unit"><input type="number" value="41400"><div class="ul">MT/year</div></div>
+          <div class="field-hint">~150 kg PCI / t HM — within BEE benchmark range</div>
+        </div>
+        <div class="field">
+          <div class="field-label">EOF oxygen injection <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Oxygen blown into the Energy Optimising Furnace for post-combustion and refining. EOF uses both electric arc and oxygen — unlike a conventional BOF (oxygen only) or EAF (electric only). This hybrid approach is more energy-efficient for high hot-metal charges.</div></button></span></div>
+          <div class="fi-unit"><input type="number" value="22400"><div class="ul">Nm³ × 1000/year</div></div>
+        </div>
+        <div class="field">
+          <div class="field-label">Sinter plant coal &amp; coke breeze <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Fuel used in the 25 m² sinter machine to agglomerate iron ore fines before charging into the BF. Sinter plant is a significant energy consumer and Scope 1 emission source, reported separately in BEE Form 2.</div></button></span></div>
+          <div class="fi-unit"><input type="number" value="18600"><div class="ul">MT/year</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="fs">
+        <div class="fs-title">Electricity — Scope 2</div>
+        <div class="field">
+          <div class="field-label">Grid electricity purchased <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Electricity drawn from the Karnataka state grid (BESCOM). Grid emission factor: 0.82 tCO₂/MWh (CEA, FY2024–25). This is your primary Scope 2 source. Auto-filled from your utility bills in TerraCAP.</div></button></span></div>
+          <div class="fi-unit"><input type="number" value="148000"><div class="ul">MWh/year</div></div>
+        </div>
+        <div class="field">
+          <div class="field-label">BFG captive power generated <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Your 6 MW captive power plant runs on blast furnace gas (BFG) — a waste gas from the blast furnace that would otherwise be flared. Using BFG for power generation is a best-practice energy recovery measure and counts as zero additional fossil fuel consumption in the energy balance.</div></button></span></div>
+          <div class="fi-unit"><input type="number" value="42000"><div class="ul">MWh/year</div></div>
+          <div class="field-hint">BFG is a recovery fuel — emission already counted in BF coke/coal above. Zero additional emission factor.</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Wind power (group captive) <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Your 19.8 MW wind farm in Uttarakhand under the group captive model. Approximately 20% of total energy imports. Emission factor: 0 tCO₂/MWh. This is your largest Green Steel advantage — 60% total RE share gives you a significantly lower Scope 2 intensity than the steel sector average.</div></button></span></div>
+          <div class="fi-unit"><input type="number" value="38000"><div class="ul">MWh/year</div></div>
+          <div class="field-hint">19.8 MW wind · group captive · zero emission factor ✓</div>
+        </div>
+        <div class="field">
+          <div class="field-label">Total RE share (auto-computed) <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Percentage of your total energy imports from renewable sources. At 60%, SLRM is significantly above the steel industry average (~12%). This drives your 4-star Green Steel rating and will be a key differentiator under CCTS when GHG intensity targets are set.</div></button></span></div>
+          <div class="fi-unit" style="pointer-events:none;opacity:.8"><input type="text" value="60% RE" style="font-weight:600;color:var(--teal)"><div class="ul" style="color:var(--teal)">of total imports</div></div>
+        </div>
+      </div>
+
+      <!-- Steel-specific parameters -->
+      <div class="fs">
+        <div class="fs-title" style="color:var(--amber)">Steel-specific parameters — BEE Form 2/3 <span class="tip-wrap" style="margin-left:6px"><button class="tip-btn">?<div class="tip-popup left">These fields are sector-specific to Iron &amp; Steel. They appear because your facility is classified as Iron &amp; Steel in the facility setup. Cement, textiles, and other sectors would show different fields.</div></button></span></div>
+        <div class="fs-sub">
+          <div class="fs-sub-title">⚙ Blast furnace parameters</div>
+          <div class="field">
+            <div class="field-label">BF working volume <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Your mini blast furnace is 262 m³ working volume — this classifies as a Mini Blast Furnace (MBF). BEE benchmarks productivity at 3.0 MT/m³/day. Reported in Form 2 to establish capacity utilisation context.</div></button></span></div>
+            <div class="fi-unit"><input type="number" value="262"><div class="ul">m³ (MBF)</div></div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <div class="field-label">Sinter usage (% of BF charge) <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Percentage of iron-bearing burden in the BF that is sinter vs lump ore vs pellets. Higher sinter usage improves BF productivity and coke rate. Your target of 70% sinter is typical for MBF operations.</div></button></span></div>
+            <div class="fi-unit"><input type="number" value="70"><div class="ul">% sinter charge</div></div>
+          </div>
+        </div>
+        <div class="fs-sub">
+          <div class="fs-sub-title">⚡ EOF parameters (Energy Optimising Furnace)</div>
+          <div class="field">
+            <div class="field-label">Hot metal ratio in EOF charge <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Percentage of hot metal (vs scrap or DRI) in the EOF charge. SLRM uses ~80–85% hot metal with ~10% DRI and plant return scrap. High HM ratio produces virgin steel with low tramp elements — essential for your automotive and bearing grade alloy steels.</div></button></span></div>
+            <div class="fi-unit"><input type="number" value="83"><div class="ul">% hot metal</div></div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <div class="field-label">Scrap ratio <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Higher scrap use would lower GHG intensity significantly (EAF scrap route: 0.4–0.6 tCO₂/t vs BF route: 2.0–2.5 tCO₂/t). Your 10% scrap + 7% DRI is typical for alloy grade production that requires virgin iron for cleanliness. The Green Steel rating accounts for this technical constraint.</div></button></span></div>
+            <div class="fi-unit"><input type="number" value="10"><div class="ul">% scrap + DRI</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card c-teal">
+        <div class="sec-label">Live PAT &amp; Green Steel preview</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div>
+            <div style="font-size:18px;font-weight:800;color:var(--amber);font-family:'Plus Jakarta Sans',sans-serif">SEC 0.517 <span style="font-size:12px;font-weight:500">TOE/t liquid steel</span></div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">PAT target: 0.545 · Headroom: 0.028</div>
+          </div>
+          <span class="tag t-teal" style="font-size:12px;padding:4px 12px">+8,400 ESCerts</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:18px;font-weight:800;color:var(--green);font-family:'Plus Jakarta Sans',sans-serif">1.92 <span style="font-size:12px;font-weight:500">tCO₂e/tfs</span></div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Driven by 60% RE · EOF efficiency · BFG recovery</div>
+          </div>
+          <span class="gs-badge gs-4star" style="font-size:11px;padding:4px 12px"><span class="gs-stars">★★★★</span> 4-star Green Steel</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn primary" onclick="go('filing')">Save &amp; proceed to PAT filing →</button>
+    <button class="btn ghost" onclick="go('dashboard')">← Dashboard</button>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 6: PAT FILING PACK ═══ -->
+<div class="screen" id="s-filing">
+  <div class="ph">
+    <div class="ph-row" style="display:flex;align-items:flex-start;gap:12px">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <div class="page-title">PAT Filing Pack</div>
+          <span class="only-for">PAT / CCTS subscribers · India Compliance only</span>
+        </div>
+        <div class="page-sub">Auto-generated BEE annual energy return and Performance Assessment Document (PAD) for SLRM Hospet. CBAM customers do not file with BEE — they generate quarterly CBAM declarations instead.</div>
+      </div>
+    </div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="sec-label">BEE annual return — form status</div>
+      <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;background:var(--white);border:1px solid var(--border);border-radius:8px">
+          <div><div style="font-size:13px;font-weight:600;color:var(--ink)">Form 1 — Plant-level energy &amp; production</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:1px">BF + EOF + sinter plant totals · 320,000 t liquid steel</div></div>
+          <div style="display:flex;gap:6px"><span class="tag t-teal">Ready</span><button class="btn ghost" style="font-size:11px;padding:3px 8px">Preview</button></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;background:var(--amber-50);border:1px solid rgba(186,117,23,.2);border-radius:8px">
+          <div><div style="font-size:13px;font-weight:600;color:var(--ink)">Form 2 — Equipment-level energy</div><div style="font-size:11px;color:var(--amber);font-family:'DM Mono',monospace;margin-top:1px">BF coke rate · PCI rate · EOF power · sinter coal · pending confirmation</div></div>
+          <div style="display:flex;gap:6px"><span class="tag t-amber">Pending</span><button class="btn" style="font-size:11px;padding:3px 8px" onclick="go('data')">Complete</button></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 14px;background:var(--teal-50);border:1px solid rgba(29,158,117,.2);border-radius:8px">
+          <div><div style="font-size:13px;font-weight:600;color:var(--ink)">Form 3 — Steel-specific <span style="font-size:11px;color:var(--teal)">(triggered: sector = Iron &amp; Steel)</span></div><div style="font-size:11px;color:var(--teal);font-family:'DM Mono',monospace;margin-top:1px">Specific coke rate · PCI rate · BF volume · EOF hot metal ratio ✓</div></div>
+          <div style="display:flex;gap:6px"><span class="tag t-teal">Ready</span><button class="btn ghost" style="font-size:11px;padding:3px 8px">Preview</button></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-label">Performance Assessment Document (PAD)</div>
+      <div class="card c-amber">
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:12.5px;margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Compliance cycle</span><span style="font-weight:500">PAT Cycle VII</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">SEC actual</span><span style="font-weight:700;color:var(--teal)">0.517 TOE/t liquid steel</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">PAT target</span><span style="font-weight:500">0.545 TOE/t</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Performance</span><span class="tag t-teal">Over-performer — 5.1% below target</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Annual production</span><span style="font-weight:500">320,000 t liquid steel</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">ESCert eligible</span><span style="font-weight:700;color:var(--teal)">8,400 ESCerts</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Also being built</span><span class="tag t-green">CCTS baseline (auto-parallel)</span></div>
+        </div>
+        <button class="btn primary" style="width:100%;justify-content:center">Generate PAD &amp; annual return PDF</button>
+      </div>
+      <div class="notice nt" style="margin-top:10px"><span class="ni">★</span><div style="font-size:12px"><strong>CCTS baseline auto-built.</strong> TerraCAP is computing your GHG intensity baseline (1.92 tCO₂e/tfs) in parallel with the PAT filing. When BEE notifies Iron &amp; Steel under CCTS, your FY2025–26 data becomes your CCTS baseline year automatically.</div></div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn primary" onclick="go('greensteel')">View Green Steel rating →</button>
+    <button class="btn ghost" onclick="go('data')">← Back to data</button>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 7: GREEN STEEL ═══ -->
+<div class="screen" id="s-greensteel">
+  <div class="ph">
+    <div class="page-title">Green Steel Rating — SLRM Hospet</div>
+    <div class="page-sub">India's Steel Ministry Green Steel taxonomy classifies your plant based on GHG intensity per tonne of finished steel. TerraCAP computes this from the same data used for PAT compliance — no additional data entry required.</div>
+  </div>
+
+  <div class="help-panel hp-teal">
+    <div class="hp-title">🌿 What this means commercially for SLRM</div>
+    <div class="hp-body">
+      Your automotive and engineering OEM customers (Maruti, Tata Motors, Hyundai India, bearing manufacturers) are under growing pressure from their own buyers and investors to reduce Scope 3 supply chain emissions. A <strong>4-star Green Steel certificate</strong> from TerraCAP lets you:<br><br>
+      → Respond to OEM supplier qualification questionnaires with a verified number<br>
+      → Differentiate from competitors still in the conventional steel (&gt;2.2 tCO₂e/tfs) category<br>
+      → Support your EU-exporting OEM customers' CBAM documentation<br>
+      → Command a green premium as voluntary green steel markets develop in India
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:24px;background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border-radius:12px;border:1px solid rgba(59,109,17,.2);margin-bottom:20px">
+    <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:8px">SLR Metaliks — SLRM Hospet Plant · FY2025–26</div>
+    <div class="gs-badge gs-4star" style="font-size:22px;padding:12px 28px;margin-bottom:10px">
+      <span class="gs-stars" style="font-size:24px">★★★★</span> 4-Star Green Steel
+    </div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:32px;font-weight:800;color:var(--green)">1.92 tCO₂e/tfs</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:4px">tCO₂e per tonne of finished steel · Gate-to-gate · Scope 1 + 2</div>
+    <div style="font-size:12px;color:var(--green);margin-top:8px">✓ Below 2.0 threshold · 4-star eligible under Steel Ministry taxonomy</div>
+  </div>
+
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="sec-label">Steel Ministry Green Steel thresholds</div>
+      <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden">
+        <div style="display:grid;grid-template-columns:80px 1fr 100px;background:var(--ink)">
+          <div style="padding:8px 12px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.6)">Rating</div>
+          <div style="padding:8px 12px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.6)">GHG intensity (tCO₂e/tfs)</div>
+          <div style="padding:8px 12px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.6)">Status</div>
+        </div>
+        <div style="display:grid;grid-template-columns:80px 1fr 100px;background:#f1f8e9;border-bottom:1px solid var(--border)">
+          <div style="padding:8px 12px;font-size:15px">★★★★★</div>
+          <div style="padding:8px 12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--green)">Below 1.6 tCO₂e/tfs</div>
+          <div style="padding:8px 12px"><span class="tag t-gray">Next target</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:80px 1fr 100px;background:#e8f5e9;border-bottom:1px solid var(--border)">
+          <div style="padding:8px 12px;font-size:15px">★★★★</div>
+          <div style="padding:8px 12px;font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:var(--green)">1.6 – 2.0 tCO₂e/tfs &nbsp;← SLRM: 1.92</div>
+          <div style="padding:8px 12px"><span class="tag t-teal">✓ SLRM now</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:80px 1fr 100px;border-bottom:1px solid var(--border)">
+          <div style="padding:8px 12px;font-size:15px">★★★</div>
+          <div style="padding:8px 12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">2.0 – 2.2 tCO₂e/tfs</div>
+          <div style="padding:8px 12px"><span class="tag t-gray">Below you</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:80px 1fr 100px;background:#fff8f8">
+          <div style="padding:8px 12px;font-size:15px;color:var(--muted)">—</div>
+          <div style="padding:8px 12px;font-family:'DM Mono',monospace;font-size:12px;color:var(--coral)">Above 2.2 tCO₂e/tfs · not eligible</div>
+          <div style="padding:8px 12px"><span class="tag t-coral">Industry avg</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="sec-label">What drives your 4-star rating</div>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:12.5px">
+          <div style="padding:6px 10px;background:var(--green-pale);border-radius:6px;color:var(--green)"><strong>60% renewable energy</strong> — largest single factor. Each MWh of wind power replaces 0.82 tCO₂ of grid electricity.</div>
+          <div style="padding:6px 10px;background:var(--green-pale);border-radius:6px;color:var(--green)"><strong>BFG captive power</strong> — 6 MW from waste blast furnace gas reduces external electricity draw.</div>
+          <div style="padding:6px 10px;background:var(--green-pale);border-radius:6px;color:var(--green)"><strong>PCI injection</strong> — reduces coke consumption per tonne of hot metal, lowering Scope 1 combustion.</div>
+          <div style="padding:6px 10px;background:var(--teal-50);border-radius:6px;color:var(--teal)"><strong>Path to 5-star (below 1.6):</strong> Increase wind/solar share above 80% RE. Gap = 0.32 tCO₂e/tfs. NetZero Modeller can prescribe the intervention mix.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn primary" style="flex:1;justify-content:center">Download Green Steel certificate</button>
+        <button class="btn secondary" style="flex:1;justify-content:center">Share with OEM customers</button>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn primary" onclick="go('cbam')">EU CBAM supply chain tool →</button>
+    <button class="btn ghost" onclick="go('filing')">← Filing pack</button>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 8: CBAM SUPPLY CHAIN ═══ -->
+<div class="screen" id="s-cbam">
+  <div class="ph">
+    <div class="page-title">EU CBAM — Supply chain transparency for OEM customers</div>
+    <div class="page-sub">Your automotive and engineering OEM customers export products to Europe and face CBAM on the steel embedded in their goods. TerraCAP generates your embedded carbon data from the same records used for PAT compliance — no extra data collection needed.</div>
+  </div>
+  <div class="help-panel hp-amber">
+    <div class="hp-title">🚢 How CBAM affects SLRM even without direct EU exports</div>
+    <div class="hp-body">
+      SLRM's alloy steel goes into automotive components, bearings, and engineering parts — many of which are exported to Europe by your OEM customers. <strong>When CBAM extends to downstream steel products</strong> (European Commission plans for 2026–27), your OEM customers will need to prove the embedded carbon in the steel they used. They will ask SLRM for this number.<br><br>
+      <strong>Current CBAM price: €75.36/tCO₂</strong> · Your 1.92 tCO₂e/tfs × current price = <strong>€144.7/tonne of steel CBAM cost</strong> for EU importers using Indian industry average values (2.6 tCO₂e/tfs = €196/t). Your proven 4-star Green Steel number reduces this by <strong>€51/tonne</strong> — a significant commercial advantage.
+    </div>
+  </div>
+  <div class="g2">
+    <div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="sec-label">Register OEM supply relationship</div>
+        <div class="field"><div class="field-label">OEM customer <span class="tip-wrap"><button class="tip-btn">?<div class="tip-popup">Enter the automotive or engineering OEM who buys your steel and exports finished goods to the EU. TerraCAP will generate a product carbon data sheet (PCDS) for each OEM showing embedded tCO₂e per tonne of SLRM steel in their supply chain.</div></button></span></div>
+          <select class="fi"><option>Maruti Suzuki India Ltd</option><option>Tata Motors Ltd</option><option>Hyundai Motor India Ltd</option><option>SKF India Ltd (bearings)</option><option>Timken India Ltd (bearings)</option><option>+ Add OEM customer</option></select></div>
+        <div class="field"><div class="field-label">Steel grade / product supplied</div>
+          <select class="fi"><option>Engineering steel — forging grade</option><option>Bearing steel (52100)</option><option>Spring steel</option><option>Cold heading steel</option><option>Micro alloy steel</option></select></div>
+        <div class="field"><div class="field-label">Annual supply volume</div>
+          <div class="fi-unit"><input type="number" value="12500"><div class="ul">tonnes/year</div></div></div>
+        <div class="card c-teal" style="margin-top:4px">
+          <div class="sec-label">Embedded carbon data sheet (preview)</div>
+          <div style="font-size:12.5px;display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Steel supplier</span><span style="font-weight:600">SLR Metaliks · SLRM Hospet</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">GHG intensity</span><span style="font-weight:700;color:var(--teal)">1.92 tCO₂e / tonne steel</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Green Steel rating</span><span class="gs-badge gs-4star" style="font-size:10px;padding:2px 8px"><span>★★★★</span> 4-star</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Industry average (India)</span><span style="color:var(--coral)">~2.6 tCO₂e/t (not rated)</span></div>
+            <div style="display:flex;justify-content:space-between;padding-top:5px;border-top:1px solid var(--border-l)"><span style="color:var(--muted)">CBAM saving vs avg</span><span style="font-weight:700;color:var(--teal)">€51/tonne for your OEM</span></div>
+          </div>
+          <button class="btn primary" style="margin-top:10px;width:100%;justify-content:center">Generate &amp; share data sheet with OEM</button>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="sec-label">CBAM cost comparison — SLRM vs industry average</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="padding:12px 14px;background:var(--green-pale);border-radius:8px;border:1px solid rgba(59,109,17,.2)">
+            <div style="font-size:12px;color:var(--green);font-weight:600;margin-bottom:3px">SLRM Hospet — verified 1.92 tCO₂e/tfs</div>
+            <div style="font-size:20px;font-weight:800;color:var(--green);font-family:'Plus Jakarta Sans',sans-serif">€144.7 / tonne</div>
+            <div style="font-size:11.5px;color:var(--muted);margin-top:2px">1.92 × €75.36 · 4-star Green Steel</div>
+          </div>
+          <div style="padding:12px 14px;background:var(--red-pale);border-radius:8px;border:1px solid rgba(163,45,45,.2)">
+            <div style="font-size:12px;color:var(--red);font-weight:600;margin-bottom:3px">India steel industry average (unrated)</div>
+            <div style="font-size:20px;font-weight:800;color:var(--red);font-family:'Plus Jakarta Sans',sans-serif">€195.9 / tonne</div>
+            <div style="font-size:11.5px;color:var(--muted);margin-top:2px">~2.6 × €75.36 · default value applied</div>
+          </div>
+          <div style="padding:10px 14px;background:var(--teal-50);border-radius:8px;text-align:center">
+            <div style="font-size:12px;color:var(--teal);font-weight:600">SLRM advantage to EU importer</div>
+            <div style="font-size:22px;font-weight:800;color:var(--teal);font-family:'Plus Jakarta Sans',sans-serif">€51.2 / tonne</div>
+            <div style="font-size:11.5px;color:var(--muted)">On 12,500t supply = €640,000 annual saving for your OEM</div>
+          </div>
+        </div>
+      </div>
+      <div class="notice nb"><span class="ni">ℹ</span><div style="font-size:12px"><strong>CBAM extension to downstream products</strong> is currently under European Commission review (expected 2026–27). Auto components, bearings, and engineering goods are in scope. When this passes, SLRM's verified Green Steel data will become mandatory procurement information for EU-exporting OEMs.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SCREEN 9: CERTIFICATES ═══ -->
+<div class="screen" id="s-cert">
+  <div class="ph">
+    <div class="page-title">ESCert portfolio — SLR Metaliks</div>
+    <div class="page-sub">Your Energy Saving Certificate position from PAT Cycle VII compliance. ESCerts are tradeable on IEX and PXIL. When Iron &amp; Steel transitions to CCTS, this view will show Carbon Credit Certificates (CCCs) with the same portfolio structure.</div>
+  </div>
+  <div class="g4" style="margin-bottom:16px">
+    <div class="stat" style="border-top:3px solid var(--teal)">
+      <div class="stat-label">ESCert surplus</div><div class="stat-val" style="color:var(--teal)">8,400</div>
+      <div class="stat-unit">Energy Saving Certificates</div><div class="stat-delta pos">Over-performer ✓</div>
+    </div>
+    <div class="stat" style="border-top:3px solid var(--green)">
+      <div class="stat-label">Est. trading value</div><div class="stat-val">₹0.5–0.7Cr</div>
+      <div class="stat-unit">At IEX market rate</div><div class="stat-delta pos">PAT Cycle VII</div>
+    </div>
+    <div class="stat" style="border-top:3px solid var(--blue)">
+      <div class="stat-label">CCTS CCC projection</div><div class="stat-val" style="color:var(--blue)">~60,000</div>
+      <div class="stat-unit">CCCs on CCTS notification</div><div class="stat-delta" style="color:var(--muted)">At 1.92 vs est. target ~2.2</div>
+    </div>
+    <div class="stat" style="border-top:3px solid var(--green)">
+      <div class="stat-label">CCTS revenue (est.)</div><div class="stat-val" style="color:var(--green)">₹3.6–5.4Cr</div>
+      <div class="stat-unit">At ₹600–900/CCC</div><div class="stat-delta pos">When notified</div>
+    </div>
+  </div>
+  <div class="pipeline" style="margin-bottom:16px">
+    <div class="pipe-step ps-done"><span class="pipe-qty">8,400</span><span class="pipe-label">Eligible</span></div>
+    <div class="pipe-step ps-active"><span class="pipe-qty">—</span><span class="pipe-label">Issued</span></div>
+    <div class="pipe-step ps-pending"><span class="pipe-qty">—</span><span class="pipe-label">Banked</span></div>
+    <div class="pipe-step ps-pending"><span class="pipe-qty">—</span><span class="pipe-label">Traded</span></div>
+    <div class="pipe-step ps-pending"><span class="pipe-qty">—</span><span class="pipe-label">Surrendered</span></div>
+  </div>
+  <div class="notice nt"><span class="ni">✓</span><div style="font-size:12px"><strong>ESCerts eligible for issuance</strong> after ACVA verification sign-off. Tradeable on IEX and PXIL under BEE/CERC rules. When Iron &amp; Steel transitions to CCTS, the portfolio switches to CCC — same lifecycle states, same screen, no transition friction for SLRM.</div></div>
+</div>
+
+<!-- ═══ SCREEN 10: REVENUE & CCTS ROADMAP ═══ -->
+<div class="screen" id="s-rev">
+  <div class="ph">
+    <div class="page-title">Revenue modelling &amp; CCTS roadmap</div>
+    <div class="page-sub">Financial value of SLRM's compliance position — today under PAT, and projected under CCTS when Iron &amp; Steel is notified. Your strong GHG intensity position (1.92 tCO₂e/tfs) translates directly into significant certificate revenue under CCTS.</div>
+  </div>
+  <div class="g2" style="margin-bottom:16px">
+    <div class="card">
+      <div class="sec-label">PAT ESCert value — today</div>
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:12.5px;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">ESCert surplus</span><span style="font-weight:700;color:var(--teal)">8,400 ESCerts</span></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">IEX market rate (est.)</span><span>₹600–850/ESCert</span></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:var(--muted)">Revenue estimate</span><span style="font-weight:700;color:var(--teal)">₹0.50–0.71 Cr</span></div>
+      </div>
+      <div class="sec-label" style="margin-top:8px">CCTS projection — when notified (est. FY2027–28)</div>
+      <div style="margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+          <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">₹600</span>
+          <input type="range" min="600" max="900" value="750" step="50" id="ps" oninput="updateP(this.value)" style="flex:1">
+          <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">₹900</span>
+        </div>
+        <div style="text-align:center;font-family:'DM Mono',monospace;font-size:12px;color:var(--teal)">CCC price: <span id="pd">₹750</span>/tonne</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--surface);border-radius:7px"><span style="font-size:12px;color:var(--muted)">Conservative (₹600/t)</span><span style="font-family:'DM Mono',monospace;font-weight:700">₹3.60 Cr</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--teal-50);border:1px solid rgba(29,158,117,.2);border-radius:7px"><span style="font-size:12px;font-weight:600;color:var(--teal)">Mid (₹750/t)</span><span style="font-weight:800;color:var(--teal);font-size:16px;font-family:'Plus Jakarta Sans',sans-serif" id="mv">₹4.50 Cr</span></div>
+        <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--surface);border-radius:7px"><span style="font-size:12px;color:var(--muted)">Optimistic (₹900/t)</span><span style="font-family:'DM Mono',monospace;font-weight:700">₹5.40 Cr</span></div>
+      </div>
+      <div style="font-size:11.5px;color:var(--muted);margin-top:8px;padding:8px 12px;background:var(--surface);border-radius:7px">Based on 60,000 CCCs at 1.92 vs estimated CCTS target ~2.2 tCO₂e/tfs × 300,000 t production</div>
+    </div>
+    <div>
+      <div class="card c-green" style="margin-bottom:12px">
+        <div class="sec-label">Path to 5-star Green Steel — NetZero Modeller</div>
+        <p style="font-size:12.5px;color:var(--body);margin-bottom:10px">Current gap to 5-star (below 1.6 tCO₂e/tfs): <strong>0.32 tCO₂e/tfs</strong>. The NetZero MILP optimiser identifies two capital interventions to close this gap and increase CCC revenue:</p>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
+          <div style="padding:9px 12px;background:var(--green-pale);border-radius:7px;border:1px solid rgba(59,109,17,.2)"><div style="font-weight:600;color:var(--green);font-size:12.5px">Increase RE share to 80%+ (solar + wind)</div><div style="font-size:12px;color:var(--muted);margin-top:2px">−0.22 tCO₂e/tfs · ₹8–12Cr capex · 4.2yr payback via CCCs</div></div>
+          <div style="padding:9px 12px;background:var(--green-pale);border-radius:7px;border:1px solid rgba(59,109,17,.2)"><div style="font-weight:600;color:var(--green);font-size:12.5px">Increase PCI rate to 200 kg/t HM</div><div style="font-size:12px;color:var(--muted);margin-top:2px">−0.10 tCO₂e/tfs · ₹1.5Cr capex · 1.8yr payback</div></div>
+        </div>
+        <button class="btn primary" style="width:100%;justify-content:center">Open NetZero Modeller →</button>
+      </div>
+      <div class="card">
+        <div class="sec-label">CCTS transition timeline for Iron &amp; Steel</div>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:12.5px">
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">PAT Cycle VII active</span><span class="tag t-amber">Now → FY2026–27</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">BEE CCTS target notification</span><span class="tag t-gray">Expected FY2026–27</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">TerraCAP regime flip</span><span class="tag t-teal">Automatic — no migration</span></div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0"><span style="color:var(--muted)">First CCC issuance (est.)</span><span class="tag t-green">FY2027–28 → ₹3.6–5.4Cr</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+const crumbs={hub:'Module hub',setup:'Facility categorisation',allfac:'DC facilities',dashboard:'Compliance dashboard',data:'Energy & production data',filing:'PAT filing pack',greensteel:'Green Steel rating',cbam:'CBAM supply chain',cert:'ESCert portfolio',rev:'Revenue & CCTS roadmap'};
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  const s=document.getElementById('s-'+id); if(s)s.classList.add('active');
+  const nb=document.getElementById('nav-'+id); if(nb)nb.classList.add('active');
+  document.getElementById('bc').textContent=crumbs[id]||id;
+  document.getElementById('content').scrollTop=0;
+}
+function updateP(v){
+  document.getElementById('pd').textContent='₹'+v;
+  document.getElementById('mv').textContent='₹'+(60000*parseInt(v)/10000000).toFixed(2)+' Cr';
+}
+go('hub');
+</script>
+</body>
+</html>
