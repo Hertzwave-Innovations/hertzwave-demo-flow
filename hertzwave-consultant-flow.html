@@ -784,6 +784,178 @@
       #import-export .export-options, #import-export .columns-info { grid-template-columns:1fr; }
       #import-export .form-row { grid-template-columns:1fr; }
     }
+
+    /* ── Tenant Config Nav: hide/show sections dynamically ── */
+    .nav-section[data-tool] { display: none; }
+    .nav-section[data-tool].tc-visible { display: block; }
+
+    /* ── Assessment Tool Type Badge ── */
+    .tool-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: 4px;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.03em;
+    }
+    .tb-green-audit  { background: #C6F6D5; color: #22543D; }
+    .tb-nzoc         { background: #BEE3F8; color: #2C5282; }
+    .tb-ccts         { background: #FED7D7; color: #742A2A; }
+    .tb-pat          { background: #FEFCBF; color: #744210; }
+    .tb-materiality  { background: #E9D8FD; color: #553C9A; }
+    .tb-igbc         { background: #C6F6D5; color: #276749; }
+    .tb-greenco      { background: #D1FAE5; color: #065F46; }
+
+    /* ── Assessment Tab Bar (inside Audit Clients screen) ── */
+    .assess-tab-bar {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      background: white; border: 1px solid #e2e8f0;
+      border-radius: 10px; padding: 5px; margin-bottom: 1.25rem;
+    }
+    .assess-tab {
+      flex: 1; min-width: 80px;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      padding: 7px 10px; border: none; border-radius: 7px;
+      background: transparent; font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem; font-weight: 600; color: #718096;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .assess-tab:hover { background: #f1f5f9; color: #4a7c59; }
+    .assess-tab.active { background: #4a7c59; color: white; }
+    .assess-tab .at-count {
+      background: rgba(255,255,255,0.25);
+      border-radius: 99px; padding: 0 6px; font-size: 0.68rem; font-weight: 700;
+    }
+    .assess-tab:not(.active) .at-count { background: #e2e8f0; color: #4a5568; }
+
+    /* ── RUA Green Audit — Client Slot Counter Banner ── */
+    .rua-slot-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 1.25rem;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .rua-slot-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+      color: #2d3748;
+    }
+    .rua-slot-pips {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+    .rua-pip {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      background: #4a7c59;
+    }
+    .rua-pip.empty {
+      background: #e2e8f0;
+    }
+    .rua-slot-label {
+      font-weight: 600;
+      color: #1a202c;
+      font-size: 0.875rem;
+    }
+    .rua-slot-sub {
+      font-size: 0.78rem;
+      color: #718096;
+    }
+    .rua-slot-cta {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #4a7c59;
+      border: 1.5px solid #4a7c59;
+      background: white;
+      padding: 0.4rem 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .rua-slot-cta:hover { background: #e6f4ea; }
+
+    /* ── RUA Green Audit — Stage Badge ── */
+    .ga-stage {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.65rem;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .ga-stage-setup    { background: #edf2f7; color: #4a5568; }
+    .ga-stage-data     { background: #ebf8ff; color: #2b6cb0; }
+    .ga-stage-assess   { background: #fef5e7; color: #975a16; }
+    .ga-stage-observe  { background: #f3e8ff; color: #6d28d9; }
+    .ga-stage-done     { background: #c6f6d5; color: #22543d; }
+    .ga-stage-verified { background: #4a7c59; color: #fff; }
+
+    /* ── RUA Green Audit — Overview Screen ── */
+    .rua-audit-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.825rem;
+      color: #718096;
+      margin-bottom: 1.25rem;
+      cursor: pointer;
+    }
+    .rua-audit-breadcrumb:hover { color: #4a7c59; }
+    .rua-audit-breadcrumb strong { color: #2d3748; }
+    .rua-audit-client-bar {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .rua-audit-step-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .rua-audit-step-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    .rua-step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .rua-step-done  { background: #4a7c59; color: white; }
+    .rua-step-active { background: #ecc94b; color: #744210; }
+    .rua-step-pending { background: #e2e8f0; color: #718096; }
+    .rua-step-title { font-weight: 600; font-size: 0.875rem; color: #1a202c; margin-bottom: 0.25rem; }
+    .rua-step-sub   { font-size: 0.78rem; color: #718096; }
   </style>
 </head>
 <body>
@@ -824,7 +996,9 @@
         </div>
       </div>
 
-      <div class="nav-section" data-role="consultant">
+      <!-- CLIENTS section — GHG portfolio. Hidden if tenant ghqLicence:false.
+           DEV NOTE: visibility controlled by initTenantConfig() on load. -->
+      <div class="nav-section" data-role="consultant" id="nav-clients-section">
         <div class="nav-section-title">Clients</div>
         <div class="nav-item" onclick="showScreen('clients')">
           <span class="nav-icon">👥</span>
@@ -837,6 +1011,22 @@
         <div class="nav-item" onclick="showScreen('client-assignment')">
           <span class="nav-icon">🔄</span>
           <span>Client Assignment</span>
+        </div>
+      </div>
+
+      <!-- ASSESSMENTS section — non-GHG tools (Green Audit, NZOC, CCTS, PAT…).
+           DEV NOTE: Rendered by initTenantConfig() from TENANT_CONFIG.assessmentTools.
+           Hidden entirely if tenant has no assessment tools subscribed.
+           id="nav-assess-section" is the mount point. -->
+      <div class="nav-section" data-role="consultant" id="nav-assess-section" style="display:none;">
+        <div class="nav-section-title" id="nav-assess-title">Assessments</div>
+        <div class="nav-item" id="nav-audit-clients" onclick="showScreen('audit-clients')">
+          <span class="nav-icon">📋</span>
+          <span id="nav-audit-clients-label">Audit Clients</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('add-assessment-client')">
+          <span class="nav-icon">➕</span>
+          <span>Add Assessment Client</span>
         </div>
       </div>
 
@@ -1037,15 +1227,19 @@
         </div>
       </div>
 
-      <!-- Screen 2: All Clients -->
+      <!-- Screen 2: All Clients — GHG Portfolio
+           DEV NOTE: This screen is the standard GHG emissions portfolio view.
+           Present for all tenants with ghqLicence:true in TENANT_CONFIG.
+           Hidden via initTenantConfig() for pure-assessment tenants (e.g. RUA).
+           Client cards call viewClient(id) which populates the client-dashboard screen. -->
       <div id="clients" class="screen">
         <h1 class="page-title">Client Portfolio</h1>
-        <p class="page-subtitle">Manage and monitor all client accounts</p>
+        <p class="page-subtitle">Monitor GHG emissions and performance across all client accounts</p>
 
         <div class="controls-bar">
           <div class="search-box">
             <span class="search-icon">🔍</span>
-            <input type="text" placeholder="Search clients...">
+            <input type="text" placeholder="Search clients…">
           </div>
           <select>
             <option>All Status</option>
@@ -1058,15 +1252,16 @@
             <option>Manufacturing</option>
             <option>Technology</option>
             <option>Healthcare</option>
+            <option>Retail</option>
           </select>
-          <div style="margin-left: auto; display: flex; gap: 0.5rem;">
-            <button id="cardViewBtn" class="btn btn-secondary" onclick="switchView('card')">📇 Card</button>
+          <div style="margin-left:auto; display:flex; gap:0.5rem;">
+            <button id="cardViewBtn" class="btn btn-secondary view-btn-active" onclick="switchView('card')">📇 Card</button>
             <button id="listViewBtn" class="btn btn-secondary" onclick="switchView('list')">📋 List</button>
           </div>
         </div>
 
         <div id="clientContainer" class="client-grid">
-          <!-- Client Card 1 -->
+
           <div class="client-card status-critical" onclick="viewClient('alpha')">
             <div class="client-header">
               <div>
@@ -1076,33 +1271,18 @@
               <span class="status-indicator status-critical">Critical</span>
             </div>
             <div class="client-metrics">
-              <div class="metric">
-                <span class="metric-label">Total Emissions</span>
-                <span class="metric-value">145K tCO₂e</span>
-              </div>
-              <div class="metric">
-                <span class="metric-label">Reduction</span>
-                <span class="metric-value">8%</span>
-              </div>
-              <div class="metric">
-                <span class="metric-label">Consultant</span>
-                <span class="metric-value">Priya Sharma</span>
-              </div>
-              <div class="metric">
-                <span class="metric-label">Data Quality</span>
-                <span class="metric-value">72%</span>
-              </div>
+              <div class="metric"><span class="metric-label">Total Emissions</span><span class="metric-value">145K tCO₂e</span></div>
+              <div class="metric"><span class="metric-label">Reduction</span><span class="metric-value">8%</span></div>
+              <div class="metric"><span class="metric-label">Consultant</span><span class="metric-value">Priya Sharma</span></div>
+              <div class="metric"><span class="metric-label">Data Quality</span><span class="metric-value">72%</span></div>
             </div>
-            <div class="ai-insight">
-              🤖 <strong>Alert:</strong> Data quality below threshold. Missing Scope 3 data for last 2 quarters.
-            </div>
+            <div class="ai-insight">🤖 <strong>Alert:</strong> Data quality below threshold. Missing Scope 3 data for last 2 quarters.</div>
             <div style="display:flex; gap:0.5rem; margin-top:0.75rem;" onclick="event.stopPropagation()">
               <button class="btn btn-secondary" style="flex:1; font-size:0.75rem; padding:0.4rem 0.5rem;" onclick="viewClient('alpha')">📋 Manage Data</button>
-              <button class="btn btn-primary" style="flex:1; font-size:0.75rem; padding:0.4rem 0.5rem;" onclick="openSingleClientReport('Alpha Manufacturing Ltd', 'alpha')">📄 Generate Report</button>
+              <button class="btn btn-primary"   style="flex:1; font-size:0.75rem; padding:0.4rem 0.5rem;" onclick="openSingleClientReport('Alpha Manufacturing Ltd','alpha')">📄 Generate Report</button>
             </div>
           </div>
 
-          <!-- Client Card 2 -->
           <div class="client-card status-warning" onclick="viewClient('beta')">
             <div class="client-header">
               <div>
@@ -1112,29 +1292,14 @@
               <span class="status-indicator status-warning">Warning</span>
             </div>
             <div class="client-metrics">
-              <div class="metric">
-                <span class="metric-label">Total Emissions</span>
-                <span class="metric-value">23K tCO₂e</span>
-              </div>
-              <div class="metric">
-                <span class="metric-label">Reduction</span>
-                <span class="metric-value">28%</span>
-              </div>
-              <div class="metric">
-                <span class="metric-label">Consultant</span>
-                <span class="metric-value">Rahul Mehta</span>
-              </div>
-              <div class="metric">
-                <span class="metric-label">Data Quality</span>
-                <span class="metric-value">88%</span>
-              </div>
+              <div class="metric"><span class="metric-label">Total Emissions</span><span class="metric-value">23K tCO₂e</span></div>
+              <div class="metric"><span class="metric-label">Reduction</span><span class="metric-value">28%</span></div>
+              <div class="metric"><span class="metric-label">Consultant</span><span class="metric-value">Rahul Mehta</span></div>
+              <div class="metric"><span class="metric-label">Data Quality</span><span class="metric-value">88%</span></div>
             </div>
-            <div class="ai-insight">
-              🤖 <strong>Insight:</strong> Good progress but reduction rate slowing. Consider implementing energy efficiency upgrades.
-            </div>
+            <div class="ai-insight">🤖 <strong>Insight:</strong> Good progress but reduction rate slowing. Consider energy efficiency upgrades.</div>
           </div>
 
-          <!-- Client Card 3 -->
           <div class="client-card status-good" onclick="viewClient('gamma')">
             <div class="client-header">
               <div>
@@ -1144,29 +1309,14 @@
               <span class="status-indicator status-good">Good</span>
             </div>
             <div class="client-metrics">
-              <div class="metric">
-                <span class="metric-label">Total Emissions</span>
-                <span class="metric-value">12.5K tCO₂e</span>
-              </div>
-              <div class="metric">
-                <span class="metric-label">Reduction</span>
-                <span class="metric-value">18%</span>
-              </div>
-              <div class="metric">
-                <span class="metric-label">Consultant</span>
-                <span class="metric-value">Anjali Gupta</span>
-              </div>
-              <div class="metric">
-                <span class="metric-label">Data Quality</span>
-                <span class="metric-value">95%</span>
-              </div>
+              <div class="metric"><span class="metric-label">Total Emissions</span><span class="metric-value">12.5K tCO₂e</span></div>
+              <div class="metric"><span class="metric-label">Reduction</span><span class="metric-value">18%</span></div>
+              <div class="metric"><span class="metric-label">Consultant</span><span class="metric-value">Anjali Gupta</span></div>
+              <div class="metric"><span class="metric-label">Data Quality</span><span class="metric-value">95%</span></div>
             </div>
-            <div class="ai-insight">
-              ✅ <strong>Excellent:</strong> On track to meet 2030 targets. Data quality exceptional.
-            </div>
+            <div class="ai-insight">✅ <strong>Excellent:</strong> On track to meet 2030 targets. Data quality exceptional.</div>
           </div>
 
-          <!-- Client Card 4 -->
           <div class="client-card status-good" onclick="viewClient('delta')">
             <div class="client-header">
               <div>
@@ -1176,60 +1326,318 @@
               <span class="status-indicator status-good">Good</span>
             </div>
             <div class="client-metrics">
-              <div class="metric">
-                <span class="metric-label">Total Emissions</span>
-                <span class="metric-value">8.9K tCO₂e</span>
-              </div>
-              <div class="metric">
-                <span class="metric-label">Reduction</span>
-                <span class="metric-value">22%</span>
-              </div>
-              <div class="metric">
-                <span class="metric-label">Consultant</span>
-                <span class="metric-value">Vikram Singh</span>
-              </div>
-              <div class="metric">
-                <span class="metric-label">Data Quality</span>
-                <span class="metric-value">91%</span>
-              </div>
+              <div class="metric"><span class="metric-label">Total Emissions</span><span class="metric-value">8.9K tCO₂e</span></div>
+              <div class="metric"><span class="metric-label">Reduction</span><span class="metric-value">22%</span></div>
+              <div class="metric"><span class="metric-label">Consultant</span><span class="metric-value">Vikram Singh</span></div>
+              <div class="metric"><span class="metric-label">Data Quality</span><span class="metric-value">91%</span></div>
             </div>
-            <div class="ai-insight">
-              📈 <strong>Trending Up:</strong> Consistent quarterly improvements. Consider case study for retail sector.
+            <div class="ai-insight">📈 <strong>Trending Up:</strong> Consistent quarterly improvements. Consider case study for retail sector.</div>
+          </div>
+
+        </div>
+      </div><!-- end #clients -->
+
+      <!-- ══════════════════════════════════════════════════════════════════
+           AUDIT CLIENTS — Generic Assessment Hub
+           ══════════════════════════════════════════════════════════════════
+           DEV NOTE: This screen is the single hub for ALL non-GHG assessment
+           tools a consultant tenant has subscribed to — Green Audit, NZOC,
+           CCTS, PAT, Materiality Scoping, IGBC, GreenCo, etc.
+
+           HOW IT WORKS:
+           • The tab bar is built from TENANT_CONFIG.assessmentTools by
+             renderAssessmentTabs(). If only one tool exists, the tab bar
+             is hidden and the label defaults to that tool's name.
+           • Clicking a tab calls filterAssessmentClients(toolId).
+           • Client cards are rendered from assessmentClientDB[], filtered
+             by toolId. Each card calls openAssessmentClient(clientId).
+           • The slot banner counts ALL assessment slots across all tools.
+
+           TENANT BEHAVIOUR EXAMPLES:
+           RUA  → 1 tool (Green Audit), no tab bar, title = "Green Audit Clients"
+           CII  → 1 tool (NZOC), no tab bar, title = "NZOC Clients"
+           Firm → N tools, full tab bar shown
+
+           ADD NEW TOOL: Add entry to TENANT_CONFIG.assessmentTools and add
+           sample records to assessmentClientDB with matching toolId.
+           ═════════════════════════════════════════════════════════════════= -->
+      <div id="audit-clients" class="screen">
+        <h1 class="page-title" id="assess-screen-title">Assessment Clients</h1>
+        <p class="page-subtitle" id="assess-screen-sub">Manage all certification and assessment engagements</p>
+
+        <!-- Slot Banner -->
+        <div class="rua-slot-banner">
+          <div class="rua-slot-info">
+            <div class="rua-slot-pips" id="assess-slot-pips"></div>
+            <div>
+              <div class="rua-slot-label" id="assess-slot-label">— of — slots used</div>
+              <div class="rua-slot-sub" id="assess-slot-sub">Consultant Pack</div>
+            </div>
+          </div>
+          <button class="rua-slot-cta"
+            onclick="alert('Redirecting to Hertzwave billing portal to purchase an Extension Pack (+10 assessment clients)…')">
+            + Buy Extension Pack
+          </button>
+        </div>
+
+        <!-- Assessment Tool Tab Bar — built by renderAssessmentTabs() -->
+        <div class="assess-tab-bar" id="assess-tab-bar" style="display:none;"></div>
+
+        <!-- Controls -->
+        <div class="controls-bar">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="assessSearch" placeholder="Search by name, ID, sector…"
+              oninput="filterAssessmentClients(currentAssessTab)">
+          </div>
+          <select id="assessStageFilter" onchange="filterAssessmentClients(currentAssessTab)">
+            <option value="">All Stages</option>
+            <option>Onboarding</option>
+            <option>Data Collection</option>
+            <option>Assessment</option>
+            <option>Verification</option>
+            <option>Certified</option>
+          </select>
+          <div style="margin-left:auto; display:flex; gap:0.5rem;">
+            <button class="btn btn-secondary" onclick="showScreen('add-assessment-client')">➕ Add Client</button>
+          </div>
+        </div>
+
+        <!-- Card Grid — populated by renderAssessmentClients() -->
+        <div id="assessClientGrid" class="client-grid"></div>
+
+      </div><!-- end #audit-clients -->
+
+      <!-- ASSESSMENT CLIENT DETAIL VIEW
+           DEV NOTE: Populated by openAssessmentClient(clientId). Generic layout —
+           steps and metrics driven by data in assessmentClientDB.
+           "Open Tool →" button calls openAssessmentTool(client) which routes
+           to the correct tool file based on client.toolId. -->
+      <div id="audit-client-view" class="screen">
+
+        <div class="rua-audit-breadcrumb" onclick="showScreen('audit-clients')">
+          ← <strong id="acv-breadcrumb-tool">Assessment Clients</strong>
+          &nbsp;/&nbsp; <span id="acv-breadcrumb-name" style="color:#4a7c59;">—</span>
+        </div>
+
+        <div class="rua-audit-client-bar">
+          <div>
+            <div style="font-size:1.375rem; font-weight:700; color:#1a202c; margin-bottom:0.25rem;"
+                 id="acv-client-name">—</div>
+            <div style="font-size:0.875rem; color:#718096;" id="acv-client-meta">—</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:1.5rem; flex-wrap:wrap;">
+            <div style="text-align:center;">
+              <div style="font-size:0.7rem; font-weight:700; color:#a0aec0; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px;">Assessment</div>
+              <div id="acv-tool-badge">—</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:0.7rem; font-weight:700; color:#a0aec0; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px;">Ref ID</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-weight:700; font-size:0.95rem; color:#2d3748;"
+                   id="acv-ref-id">—</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:0.7rem; font-weight:700; color:#a0aec0; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px;">Stage</div>
+              <div id="acv-stage-badge">—</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:0.7rem; font-weight:700; color:#a0aec0; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:4px;" id="acv-score-label">Score</div>
+              <div style="font-weight:700; font-size:1.1rem; color:#4a7c59;" id="acv-score">—</div>
+            </div>
+            <button class="btn btn-primary" id="acv-open-btn" onclick="openAssessmentTool()"
+                    style="white-space:nowrap; font-size:0.9rem;">Open Tool →</button>
+          </div>
+        </div>
+
+        <h3 style="font-weight:700; font-size:1rem; color:#1a202c; margin-bottom:0.75rem;">Assessment Progress</h3>
+        <div class="rua-audit-step-grid" id="acv-steps-grid"></div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-top:0.5rem;">
+          <div class="card" style="margin-bottom:0;">
+            <h3 style="margin-bottom:1rem; font-size:1rem;">📋 Consultant Notes</h3>
+            <textarea id="acv-notes"
+              style="width:100%; min-height:130px; padding:0.75rem; border:1px solid #e2e8f0;
+                     border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.875rem;
+                     resize:vertical; color:#2d3748;"
+              placeholder="Internal notes, observations, follow-up items…"></textarea>
+            <div style="margin-top:0.75rem; display:flex; justify-content:flex-end;">
+              <button class="btn btn-secondary" style="font-size:0.8rem; padding:0.4rem 0.9rem;"
+                onclick="alert('✅ Notes saved for ' + document.getElementById('acv-ref-id').textContent)">
+                Save Notes
+              </button>
+            </div>
+          </div>
+          <div class="card" style="margin-bottom:0;">
+            <h3 style="margin-bottom:1rem; font-size:1rem;">⚡ Quick Actions</h3>
+            <div style="display:flex; flex-direction:column; gap:0.75rem;">
+              <button class="btn btn-primary" onclick="openAssessmentTool()" id="acv-action-open">Open Tool →</button>
+              <button class="btn btn-secondary"
+                onclick="alert('📧 Reminder sent to client coordinator.')">📧 Send Reminder</button>
+              <button class="btn btn-secondary"
+                onclick="alert('📄 Generating certificate PDF…')">📄 Generate Certificate</button>
+              <button class="btn btn-secondary" onclick="showScreen('audit-clients')">← Back to Client List</button>
             </div>
           </div>
         </div>
-      </div>
+      </div><!-- end #audit-client-view -->
 
-      <!-- Screen 3: Add Client -->
-      <div id="add-client" class="screen">
-        <h1 class="page-title">Add New Client</h1>
-        <p class="page-subtitle">Onboard a new client to your portfolio</p>
+      <!-- Add Assessment Client — generic onboarding form
+           DEV NOTE: Tool selector drives which additional fields appear.
+           In single-tool tenants (RUA, CII), the tool selector is pre-set
+           and hidden. Assessment Ref ID auto-suggested by backend. -->
+      <div id="add-assessment-client" class="screen">
+        <h1 class="page-title">Add Assessment Client</h1>
+        <p class="page-subtitle">Onboard a new client for a certification or assessment engagement</p>
 
         <div class="card">
-          <h3 style="margin-bottom: 1.5rem;">Client Information</h3>
+          <h3 style="margin-bottom:1.5rem;">Client Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Organisation / Institution Name*</label>
+              <input type="text" placeholder="e.g., Indira Gandhi Memorial Hospital">
+            </div>
+            <div class="form-group">
+              <label>Sector / Building Type*</label>
+              <select>
+                <option value="">Select…</option>
+                <option>Educational Institution</option>
+                <option>Residential</option>
+                <option>Commercial</option>
+                <option>Hospitals and Healthcare</option>
+                <option>Government Offices</option>
+                <option>Manufacturing</option>
+                <option>Energy & Utilities</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>City, State</label>
+              <input type="text" placeholder="e.g., Hyderabad, Telangana">
+            </div>
+            <div class="form-group">
+              <label>Coordinator Name*</label>
+              <input type="text" placeholder="Primary contact name">
+            </div>
+            <div class="form-group">
+              <label>Coordinator Email*</label>
+              <input type="email" placeholder="coordinator@org.com">
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="tel" placeholder="+91 98765 43210">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:0.5rem;">Assessment Setup</h3>
+          <p style="color:#718096; font-size:0.875rem; margin-bottom:1.5rem;">
+            Select the assessment tool and assign a reference ID. Fields below adapt to the selected tool.
+          </p>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Assessment Tool*</label>
+              <!-- DEV NOTE: Options rendered from TENANT_CONFIG.assessmentTools.
+                   Single-tool tenants: this select is pre-set and hidden. -->
+              <select id="addAssessToolSelect" onchange="onAddAssessToolChange()">
+                <option value="">Select tool…</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Assessment Ref ID*</label>
+              <!-- DEV NOTE: Prefix comes from tool config (e.g. QF/RUA/, NZOC/CII/).
+                   Backend auto-suggests next sequential ID. -->
+              <input type="text" id="addAssessRefId" placeholder="Auto-assigned on save">
+              <small style="color:#718096; font-size:0.78rem; margin-top:4px; display:block;"
+                     id="addAssessRefHint">Select a tool to see the ID format</small>
+            </div>
+            <div class="form-group">
+              <label>Assessment Year*</label>
+              <input type="text" placeholder="e.g., 2024-25">
+            </div>
+            <div class="form-group">
+              <label>Issue Date</label>
+              <input type="date">
+            </div>
+            <div class="form-group full-width">
+              <label>Notes / Special Requirements</label>
+              <textarea placeholder="Any specific requirements for this engagement…"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="margin-bottom:0.5rem;">Client Portal Access</h3>
+          <p style="color:#718096; font-size:0.875rem; margin-bottom:1rem;">
+            On save, the coordinator email receives a login invitation scoped to the
+            relevant assessment tool steps only. The consultant retains full access.
+          </p>
+          <div class="info-box info" style="font-size:0.875rem;">
+            📧 Login invitation sent automatically on save.
+          </div>
+        </div>
+
+        <div style="display:flex; gap:1rem; justify-content:flex-end; margin-top:0.5rem;">
+          <button class="btn btn-secondary" onclick="showScreen('audit-clients')">Cancel</button>
+          <button class="btn btn-primary"
+            onclick="alert('✅ Assessment client onboarded!\n\nRef ID assigned and login invitation sent.')">
+            Save &amp; Provision Access
+          </button>
+        </div>
+      </div><!-- end #add-assessment-client -->
+
+      <!-- Screen 3: Add Client — RUA Green Audit Onboarding -->
+      <!-- DEV NOTE: RUA consultant fills this form to onboard a new audit client.
+           Fields in the "Green Audit Setup" section directly pre-populate Step 1
+           (Client Setup / Enquiry Details) in rua-greenaudit.html when the
+           consultant opens that client's Green Audit Tool.
+           The Audit ID assigned here is the unique key linking this record to the
+           Green Audit Tool session.
+           After saving, the system provisions client login credentials and sends
+           an access email. Client can then log in and complete Steps 2–4. -->
+      <div id="add-client" class="screen">
+        <h1 class="page-title">Add New Client</h1>
+        <p class="page-subtitle">Onboard a new client to your RUA Green Audit portfolio</p>
+
+        <div class="card">
+          <h3 style="margin-bottom: 1.5rem;">Client Contact Information</h3>
           
           <div class="form-grid">
             <div class="form-group">
-              <label>Company Name*</label>
-              <input type="text" placeholder="e.g., Acme Manufacturing Ltd." required>
+              <label>Institution / Company Name*</label>
+              <input type="text" placeholder="e.g., St. Joseph's College" required>
             </div>
             
             <div class="form-group">
-              <label>Industry Sector*</label>
+              <label>Building Type*</label>
+              <!-- DEV NOTE: maps to c_btype in rua-greenaudit.html Step 1 -->
               <select>
-                <option value="">Select industry...</option>
-                <option>Manufacturing</option>
-                <option>Technology</option>
-                <option>Healthcare</option>
-                <option>Retail</option>
-                <option>Financial Services</option>
-                <option>Energy & Utilities</option>
-                <option>Transportation & Logistics</option>
+                <option value="">Select building type…</option>
+                <option>Residential</option>
+                <option>Commercial</option>
+                <option>Factories and Industries</option>
+                <option>Educational Institutions</option>
+                <option>Hospitals and Healthcare</option>
+                <option>Government Offices</option>
               </select>
             </div>
             
             <div class="form-group">
-              <label>Country/Region*</label>
+              <label>City, State</label>
+              <input type="text" placeholder="e.g., Bengaluru, Karnataka">
+            </div>
+
+            <div class="form-group">
+              <label>Full Address</label>
+              <input type="text" placeholder="Street address, locality">
+            </div>
+
+            <div class="form-group">
+              <label>PIN Code</label>
+              <input type="text" placeholder="e.g., 560001">
+            </div>
+
+            <div class="form-group">
+              <label>Country/Region</label>
               <select>
                 <option>India</option>
                 <option>United States</option>
@@ -1238,47 +1646,109 @@
                 <option>Singapore</option>
               </select>
             </div>
-            
+
             <div class="form-group">
-              <label>Number of Facilities</label>
-              <input type="number" placeholder="e.g., 5" min="1">
+              <label>Coordinator Name*</label>
+              <!-- DEV NOTE: maps to c_name in rua-greenaudit.html Step 1 -->
+              <input type="text" placeholder="Primary contact full name" required>
             </div>
             
             <div class="form-group">
-              <label>Primary Contact Name*</label>
-              <input type="text" placeholder="e.g., Rajesh Kumar" required>
-            </div>
-            
-            <div class="form-group">
-              <label>Contact Email*</label>
-              <input type="email" placeholder="contact@company.com" required>
+              <label>Coordinator Email*</label>
+              <!-- DEV NOTE: used for client login provisioning + maps to c_email -->
+              <input type="email" placeholder="coordinator@institution.com" required>
             </div>
 
             <div class="form-group">
-              <label>Phone Number</label>
+              <label>Coordinator Phone</label>
               <input type="tel" placeholder="+91 98765 43210">
             </div>
 
             <div class="form-group">
-              <label>Assign to Consultant</label>
+              <label>Designation</label>
+              <input type="text" placeholder="e.g., Facilities Manager">
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Green Audit Setup (maps to Step 1 of rua-greenaudit.html) ── -->
+        <div class="card">
+          <h3 style="margin-bottom: 0.5rem;">Green Audit Setup</h3>
+          <p style="color:#718096; font-size:0.875rem; margin-bottom:1.5rem;">
+            These fields pre-populate <strong>Step 1 (Client Setup)</strong> in the Green Audit Tool.
+            Once saved, the client will not be able to edit these — contact your RUA coordinator to update.
+          </p>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Audit ID (RUA assigns)*</label>
+              <!-- DEV NOTE: maps to c_uid in rua-greenaudit.html. Must be unique.
+                   Format: QF/RUA/[sequential number]. Backend auto-suggests next ID. -->
+              <input type="text" placeholder="e.g., QF/RUA/47" required>
+              <small style="color:#718096; font-size:0.78rem; margin-top:4px; display:block;">Suggested next ID: QF/RUA/48</small>
+            </div>
+
+            <div class="form-group">
+              <label>Audit Year*</label>
+              <!-- DEV NOTE: maps to c_yr in rua-greenaudit.html -->
+              <input type="text" placeholder="e.g., 2024-25" required>
+            </div>
+
+            <div class="form-group">
+              <label>Issue Date</label>
+              <!-- DEV NOTE: maps to c_date in rua-greenaudit.html -->
+              <input type="date">
+            </div>
+
+            <div class="form-group">
+              <label>Green Building Rating Interest</label>
+              <!-- DEV NOTE: maps to the multi-select rating buttons in Step 1.
+                   Store as comma-separated string. Options: IGBC, LEED, GRIHA,
+                   ASSOCHAM GEM, ECBC, None -->
               <select>
-                <option value="">Select consultant...</option>
-                <option>Rahul Mehta (5 clients - 65% capacity) ✓ Available</option>
-                <option>Anjali Gupta (6 clients - 78% capacity) ✓ Available</option>
-                <option>Meera Patel (4 clients - 52% capacity) ✓ Available</option>
+                <option value="">Select if known…</option>
+                <option>IGBC</option>
+                <option>LEED</option>
+                <option>GRIHA</option>
+                <option>ASSOCHAM GEM</option>
+                <option>ECBC</option>
+                <option>None / Not decided</option>
               </select>
             </div>
-            
+
+            <div class="form-group">
+              <label>Webinar on Green Campus?</label>
+              <select>
+                <option value="">Select…</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+            </div>
+
             <div class="form-group full-width">
               <label>Notes / Special Requirements</label>
-              <textarea placeholder="Any specific requirements or notes about this client..."></textarea>
+              <textarea placeholder="Any specific requirements for this audit engagement…"></textarea>
             </div>
           </div>
-          
-          <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 2rem;">
-            <button class="btn btn-secondary" onclick="showScreen('clients')">Cancel</button>
-            <button class="btn btn-primary" onclick="alert('✅ Client added successfully!')">Save Client</button>
+        </div>
+
+        <!-- ── Client Portal Access ── -->
+        <div class="card">
+          <h3 style="margin-bottom:0.5rem;">Client Portal Access</h3>
+          <p style="color:#718096; font-size:0.875rem; margin-bottom:1.25rem;">
+            On save, the system will provision login credentials for the client's coordinator email and
+            grant access to Steps 2–4 of the Green Audit Tool. The consultant retains access to all 6 steps.
+          </p>
+          <div class="info-box info" style="font-size:0.875rem;">
+            📧 A login invitation will be automatically sent to the coordinator email address on save.
           </div>
+        </div>
+          
+        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 0.5rem;">
+          <button class="btn btn-secondary" onclick="showScreen('clients')">Cancel</button>
+          <button class="btn btn-primary" onclick="alert('✅ Client onboarded successfully!\n\nAudit ID assigned and login invitation sent to coordinator email.\n\nThe client now appears in your Green Audit client list.')">
+            Save &amp; Provision Access
+          </button>
         </div>
       </div>
 
@@ -4102,9 +4572,10 @@
           </div>
         </div>
       </div>
+      <!-- end client-dashboard screen -->
 
-    </div>
-  </div>
+    </div><!-- end .main-content -->
+  </div><!-- end .container -->
 
   <!-- Add Consultant Modal -->
   <div id="addConsultantModal" class="modal">
@@ -4730,6 +5201,670 @@
   </div>
 
   <script>
+
+    // ══════════════════════════════════════════════════════════════════════
+    // TENANT CONFIGURATION
+    // ══════════════════════════════════════════════════════════════════════
+    // DEV NOTE: This object is the single source of truth for what a
+    // consulting tenant has subscribed to. In production, fetch from API
+    // on login and merge into this structure.
+    //
+    // To simulate different tenants, change the ACTIVE_TENANT value:
+    //   'greenpath' → full-suite consultant (GHG + Green Audit + NZOC + CCTS)
+    //   'rua'       → RUA (Green Audit only, no GHG dashboard)
+    //   'cii'       → CII (NZOC only, no GHG dashboard)
+    //
+    // HOW IT DRIVES THE UI:
+    //   • ghqLicence:true  → "All Clients" (GHG) nav item visible
+    //   • ghqLicence:false → "All Clients" hidden; dashboard goes to audit-clients
+    //   • assessmentTools  → builds Assessments nav section + tab bar
+    //   • maxAssessmentClients → slot cap in banner
+    // ══════════════════════════════════════════════════════════════════════
+
+    const ACTIVE_TENANT = 'greenpath'; // ← change to 'rua' or 'cii' to simulate
+
+    const TENANT_PROFILES = {
+
+      // ── Full-suite consulting firm (demo default) ──────────────────────
+      // Shows All Clients (GHG) + all assessment tools with tab bar.
+      greenpath: {
+        id: 'greenpath', name: 'GreenPath Consulting',
+        ghqLicence: true,
+        maxAssessmentClients: 15,
+        slotUsed: 9,
+        assessmentTools: [
+          { id: 'green-audit', label: 'Green Audit', icon: '🌿',
+            toolFile: 'rua-greenaudit.html', refPrefix: 'QF/RUA/',
+            navLabel: 'Green Audit Clients' },
+          { id: 'nzoc', label: 'NZOC', icon: '🎯',
+            toolFile: 'nzoc-tool.html', refPrefix: 'NZOC/CII/',
+            navLabel: 'NZOC Clients' },
+          { id: 'ccts', label: 'CCTS', icon: '🏭',
+            toolFile: 'ccts-tool.html', refPrefix: 'CCTS/HW/',
+            navLabel: 'CCTS Clients' },
+          { id: 'pat', label: 'PAT', icon: '⚡',
+            toolFile: 'pat-tool.html', refPrefix: 'PAT/HW/',
+            navLabel: 'PAT Clients' },
+          { id: 'materiality', label: 'Materiality', icon: '🔍',
+            toolFile: 'materiality-tool.html', refPrefix: 'MAT/HW/',
+            navLabel: 'Materiality Clients' },
+        ],
+      },
+
+      // ── RUA: Green Audit only, no GHG dashboard ───────────────────────
+      rua: {
+        id: 'rua', name: 'RUA',
+        ghqLicence: false,
+        maxAssessmentClients: 10,
+        slotUsed: 4,
+        assessmentTools: [
+          { id: 'green-audit', label: 'Green Audit', icon: '🌿',
+            toolFile: 'rua-greenaudit.html', refPrefix: 'QF/RUA/',
+            navLabel: 'Green Audit Clients' },
+        ],
+      },
+
+      // ── CII: NZOC only, no GHG dashboard ─────────────────────────────
+      cii: {
+        id: 'cii', name: 'CII',
+        ghqLicence: false,
+        maxAssessmentClients: 25,
+        slotUsed: 2,
+        assessmentTools: [
+          { id: 'nzoc', label: 'NZOC', icon: '🎯',
+            toolFile: 'nzoc-tool.html', refPrefix: 'NZOC/CII/',
+            navLabel: 'NZOC Clients' },
+        ],
+      },
+
+      // ── Energy Consulting firm: PAT + CCTS ────────────────────────────
+      energyfirm: {
+        id: 'energyfirm', name: 'Apex Energy Consultants',
+        ghqLicence: true,
+        maxAssessmentClients: 20,
+        slotUsed: 6,
+        assessmentTools: [
+          { id: 'pat', label: 'PAT', icon: '⚡',
+            toolFile: 'pat-tool.html', refPrefix: 'PAT/HW/',
+            navLabel: 'PAT Clients' },
+          { id: 'ccts', label: 'CCTS', icon: '🏭',
+            toolFile: 'ccts-tool.html', refPrefix: 'CCTS/HW/',
+            navLabel: 'CCTS Clients' },
+        ],
+      },
+    };
+
+    // Active tenant object (resolved once)
+    const TC = TENANT_PROFILES[ACTIVE_TENANT] || TENANT_PROFILES.greenpath;
+
+    // ── Assessment Client Database ────────────────────────────────────────
+    // DEV NOTE: In production, fetched from API filtered by tenantId.
+    // Each record: id, toolId (matches TENANT_CONFIG tool id), name,
+    // sector, city, refId, year, stage, stageClass, statusClass,
+    // scoreLabel, scoreValue, lastActivity, insight, metrics[], steps[].
+    // metrics[] → [{label, value}] shown on card (4 items)
+    // steps[]   → [{num, title, sub, state}] for detail view
+
+    const assessmentClientDB = {
+
+      // ── Green Audit clients ──────────────────────────────────────────
+      stjoseph: {
+        toolId: 'green-audit',
+        name: "St. Joseph's College", sector: 'Educational Institution', city: 'Bengaluru',
+        refId: 'QF/RUA/43', year: '2024-25',
+        stage: 'Assessment', stageClass: 'ga-stage-assess', statusClass: 'status-warning',
+        scoreLabel: 'Score', scoreValue: '68 / 100',
+        lastActivity: 'Apr 22, 2025',
+        insight: '📋 <strong>Pending:</strong> Q83–Q88 Carbon Footprint section not yet submitted.',
+        metrics: [
+          { label: 'Ref ID',        value: 'QF/RUA/43'   },
+          { label: 'Building Type', value: 'Educational'  },
+          { label: 'Score',         value: '68 / 100'     },
+          { label: 'Last Activity', value: 'Apr 22, 2025' },
+        ],
+        steps: [
+          { num:1, title:'Client Setup',     sub:'Pre-filled by RUA',                         state:'done'    },
+          { num:2, title:'Data Collection',  sub:'76 of 97 questions answered',               state:'done'    },
+          { num:3, title:'Assessment',       sub:'Carbon FP section pending (Q83–Q88)',        state:'active'  },
+          { num:4, title:'Site Observation', sub:'Scheduled: May 3, 2025',                    state:'pending' },
+          { num:5, title:'Results',          sub:'Score calculated after Step 4',             state:'pending' },
+          { num:6, title:'Documents',        sub:'Certificate issued after verification',     state:'pending' },
+        ],
+      },
+
+      globalacademy: {
+        toolId: 'green-audit',
+        name: 'Global Academy of Technology', sector: 'Educational Institution', city: 'Mysuru',
+        refId: 'QF/RUA/44', year: '2024-25',
+        stage: 'Data Collection', stageClass: 'ga-stage-data', statusClass: 'status-warning',
+        scoreLabel: 'Score', scoreValue: '— Pending',
+        lastActivity: 'Apr 20, 2025',
+        insight: '⏳ <strong>Awaiting client:</strong> Energy and Water sections (Q20–Q59) incomplete.',
+        metrics: [
+          { label: 'Ref ID',        value: 'QF/RUA/44'   },
+          { label: 'Building Type', value: 'Educational'  },
+          { label: 'Score',         value: '— Pending'    },
+          { label: 'Last Activity', value: 'Apr 20, 2025' },
+        ],
+        steps: [
+          { num:1, title:'Client Setup',     sub:'Pre-filled by RUA',                         state:'done'    },
+          { num:2, title:'Data Collection',  sub:'Energy & Water sections incomplete',        state:'active'  },
+          { num:3, title:'Assessment',       sub:'Awaiting Data Collection',                  state:'pending' },
+          { num:4, title:'Site Observation', sub:'Not yet scheduled',                         state:'pending' },
+          { num:5, title:'Results',          sub:'Score calculated after Step 4',             state:'pending' },
+          { num:6, title:'Documents',        sub:'Certificate issued after verification',     state:'pending' },
+        ],
+      },
+
+      sunrisebiz: {
+        toolId: 'green-audit',
+        name: 'Sunrise Business Park', sector: 'Commercial', city: 'Bengaluru',
+        refId: 'QF/RUA/45', year: '2023-24',
+        stage: 'Verified', stageClass: 'ga-stage-verified', statusClass: 'status-good',
+        scoreLabel: 'Score', scoreValue: '82 / 100',
+        lastActivity: 'Apr 18, 2025',
+        insight: '✅ <strong>Complete:</strong> Certificate issued. Score: 82/100 (Green 4-Star).',
+        metrics: [
+          { label: 'Ref ID',        value: 'QF/RUA/45'   },
+          { label: 'Building Type', value: 'Commercial'   },
+          { label: 'Score',         value: '82 / 100'     },
+          { label: 'Last Activity', value: 'Apr 18, 2025' },
+        ],
+        steps: [
+          { num:1, title:'Client Setup',     sub:'Complete',                                  state:'done' },
+          { num:2, title:'Data Collection',  sub:'97 / 97 answered',                         state:'done' },
+          { num:3, title:'Assessment',       sub:'Domain scores locked',                      state:'done' },
+          { num:4, title:'Site Observation', sub:'Completed Apr 8, 2025',                    state:'done' },
+          { num:5, title:'Results',          sub:'82/100 — Green 4-Star',                    state:'done' },
+          { num:6, title:'Documents',        sub:'Certificate issued Apr 18, 2025',           state:'done' },
+        ],
+      },
+
+      heritageheights: {
+        toolId: 'green-audit',
+        name: 'Heritage Heights Society', sector: 'Residential', city: 'Bengaluru',
+        refId: 'QF/RUA/46', year: '2024-25',
+        stage: 'Onboarding', stageClass: 'ga-stage-setup', statusClass: 'status-critical',
+        scoreLabel: 'Score', scoreValue: '— Not Started',
+        lastActivity: 'Apr 24, 2025',
+        insight: '🆕 <strong>New:</strong> Onboarded. Awaiting client login activation.',
+        metrics: [
+          { label: 'Ref ID',        value: 'QF/RUA/46'   },
+          { label: 'Building Type', value: 'Residential'  },
+          { label: 'Score',         value: '— Not Started'},
+          { label: 'Last Activity', value: 'Apr 24, 2025' },
+        ],
+        steps: [
+          { num:1, title:'Client Setup',     sub:'Pre-filled — awaiting client activation',  state:'active'  },
+          { num:2, title:'Data Collection',  sub:'Client login not yet activated',            state:'pending' },
+          { num:3, title:'Assessment',       sub:'Awaiting Data Collection',                  state:'pending' },
+          { num:4, title:'Site Observation', sub:'Not yet scheduled',                         state:'pending' },
+          { num:5, title:'Results',          sub:'Score calculated after Step 4',             state:'pending' },
+          { num:6, title:'Documents',        sub:'Certificate issued after verification',     state:'pending' },
+        ],
+      },
+
+      // ── NZOC clients ─────────────────────────────────────────────────
+      // DEV NOTE: NZOC steps reflect CII's Net Zero Operations Certification
+      // pathway. Stage labels differ from Green Audit but the card/view
+      // structure is identical. toolFile points to nzoc-tool.html (TBD).
+      cipla: {
+        toolId: 'nzoc',
+        name: 'Cipla Ltd — Goa Plant', sector: 'Pharmaceuticals', city: 'Panaji, Goa',
+        refId: 'NZOC/CII/001', year: '2024-25',
+        stage: 'Pathway Planning', stageClass: 'ga-stage-assess', statusClass: 'status-warning',
+        scoreLabel: 'Pathway Score', scoreValue: '62 / 100',
+        lastActivity: 'Apr 25, 2025',
+        insight: '🎯 <strong>In progress:</strong> Net-zero target year set to 2040. Scope 2 roadmap pending.',
+        metrics: [
+          { label: 'Ref ID',         value: 'NZOC/CII/001' },
+          { label: 'Sector',         value: 'Pharma'        },
+          { label: 'Target Year',    value: '2040'          },
+          { label: 'Last Activity',  value: 'Apr 25, 2025'  },
+        ],
+        steps: [
+          { num:1, title:'Baseline Assessment',  sub:'GHG inventory verified — FY2023-24',   state:'done'    },
+          { num:2, title:'Pathway Planning',     sub:'Scope 2 decarbonisation plan pending', state:'active'  },
+          { num:3, title:'Implementation Plan',  sub:'Awaiting Pathway Planning sign-off',   state:'pending' },
+          { num:4, title:'Progress Monitoring',  sub:'Quarterly check-ins not yet started',  state:'pending' },
+          { num:5, title:'Verification',         sub:'Third-party audit — scheduled 2026',   state:'pending' },
+          { num:6, title:'NZOC Certificate',     sub:'Issued after successful verification', state:'pending' },
+        ],
+      },
+
+      tatapower: {
+        toolId: 'nzoc',
+        name: 'Tata Power — Solar Division', sector: 'Energy & Utilities', city: 'Mumbai',
+        refId: 'NZOC/CII/002', year: '2024-25',
+        stage: 'Implementation', stageClass: 'ga-stage-data', statusClass: 'status-good',
+        scoreLabel: 'Pathway Score', scoreValue: '81 / 100',
+        lastActivity: 'Apr 23, 2025',
+        insight: '✅ <strong>On track:</strong> 81% pathway score. Implementation milestones met for Q1.',
+        metrics: [
+          { label: 'Ref ID',        value: 'NZOC/CII/002' },
+          { label: 'Sector',        value: 'Energy'        },
+          { label: 'Target Year',   value: '2035'          },
+          { label: 'Last Activity', value: 'Apr 23, 2025'  },
+        ],
+        steps: [
+          { num:1, title:'Baseline Assessment', sub:'Verified — FY2023-24',                 state:'done'   },
+          { num:2, title:'Pathway Planning',    sub:'Approved — Mar 2025',                  state:'done'   },
+          { num:3, title:'Implementation',      sub:'Q1 milestones met — ongoing',          state:'active' },
+          { num:4, title:'Progress Monitoring', sub:'Quarterly tracking active',            state:'active' },
+          { num:5, title:'Verification',        sub:'Scheduled Q4 2025',                   state:'pending'},
+          { num:6, title:'NZOC Certificate',    sub:'Expected Jan 2026',                   state:'pending'},
+        ],
+      },
+
+      // ── CCTS clients ─────────────────────────────────────────────────
+      // DEV NOTE: CCTS = Carbon Credit Trading Scheme. Steps reflect the
+      // MRV cycle: Project Registration → Baseline → Monitoring →
+      // Verification → Issuance → Trading.
+      rinfra: {
+        toolId: 'ccts',
+        name: 'Reliance Industries — Jamnagar', sector: 'Petrochemicals', city: 'Jamnagar, Gujarat',
+        refId: 'CCTS/HW/001', year: '2024-25',
+        stage: 'Verification', stageClass: 'ga-stage-assess', statusClass: 'status-warning',
+        scoreLabel: 'Credits (tCO₂e)', scoreValue: '~12,400',
+        lastActivity: 'Apr 21, 2025',
+        insight: '🏭 <strong>Verification in progress:</strong> Third-party verifier engaged. Report expected May 15.',
+        metrics: [
+          { label: 'Ref ID',          value: 'CCTS/HW/001'  },
+          { label: 'Sector',          value: 'Petrochemicals'},
+          { label: 'Est. Credits',    value: '~12,400 tCO₂e' },
+          { label: 'Last Activity',   value: 'Apr 21, 2025'  },
+        ],
+        steps: [
+          { num:1, title:'Project Registration', sub:'Approved — BEE Registry',              state:'done'    },
+          { num:2, title:'Baseline Setting',     sub:'Baseline period: FY2022-23',           state:'done'    },
+          { num:3, title:'Monitoring',           sub:'FY2024-25 monitoring data collected',  state:'done'    },
+          { num:4, title:'Verification (MRV)',   sub:'Third-party audit in progress',        state:'active'  },
+          { num:5, title:'Credit Issuance',      sub:'Awaiting verification clearance',      state:'pending' },
+          { num:6, title:'Trading / Retirement', sub:'Credits to be listed on exchange',     state:'pending' },
+        ],
+      },
+
+      // ── PAT clients ───────────────────────────────────────────────────
+      // DEV NOTE: PAT = Perform Achieve Trade scheme (BEE, India).
+      // Steps: Baseline Audit → Target Setting → Implementation →
+      // Monitoring → BEE Assessment → PAT Certificate / ESCert Trading.
+      // scoreLabel = 'Energy Savings', scoreValue = mtoe achieved vs target.
+      jsw: {
+        toolId: 'pat',
+        name: 'JSW Steel — Vijayanagar', sector: 'Steel Manufacturing', city: 'Bellary, Karnataka',
+        refId: 'PAT/HW/001', year: '2024-25',
+        stage: 'Monitoring', stageClass: 'ga-stage-data', statusClass: 'status-good',
+        scoreLabel: 'Energy Savings', scoreValue: '0.38 mtoe',
+        lastActivity: 'Apr 26, 2025',
+        insight: '⚡ <strong>On track:</strong> 0.38 mtoe savings vs 0.42 mtoe PAT cycle target. Q4 data being compiled.',
+        metrics: [
+          { label: 'Ref ID',         value: 'PAT/HW/001'     },
+          { label: 'Sector',         value: 'Steel'           },
+          { label: 'Energy Savings', value: '0.38 / 0.42 mtoe'},
+          { label: 'Last Activity',  value: 'Apr 26, 2025'    },
+        ],
+        steps: [
+          { num:1, title:'Baseline Energy Audit',  sub:'BEE-accredited audit completed FY22', state:'done'    },
+          { num:2, title:'Target Setting',         sub:'0.42 mtoe PAT Cycle VI target set',   state:'done'    },
+          { num:3, title:'Implementation',         sub:'Waste heat recovery + VFD installed', state:'done'    },
+          { num:4, title:'Monitoring & Reporting', sub:'Q4 FY2025 data compilation ongoing',  state:'active'  },
+          { num:5, title:'BEE Assessment',         sub:'Scheduled: June 2025',                state:'pending' },
+          { num:6, title:'ESCert / Certificate',   sub:'Issued after BEE verification',       state:'pending' },
+        ],
+      },
+
+      hindalco: {
+        toolId: 'pat',
+        name: 'Hindalco — Renukoot Smelter', sector: 'Aluminium', city: 'Renukoot, UP',
+        refId: 'PAT/HW/002', year: '2024-25',
+        stage: 'BEE Assessment', stageClass: 'ga-stage-assess', statusClass: 'status-warning',
+        scoreLabel: 'Energy Savings', scoreValue: '0.21 mtoe',
+        lastActivity: 'Apr 22, 2025',
+        insight: '⚠️ <strong>Below target:</strong> 0.21 mtoe vs 0.29 mtoe target. Energy intensity review recommended before BEE assessment.',
+        metrics: [
+          { label: 'Ref ID',         value: 'PAT/HW/002'     },
+          { label: 'Sector',         value: 'Aluminium'       },
+          { label: 'Energy Savings', value: '0.21 / 0.29 mtoe'},
+          { label: 'Last Activity',  value: 'Apr 22, 2025'    },
+        ],
+        steps: [
+          { num:1, title:'Baseline Energy Audit',  sub:'FY2022-23 baseline confirmed',        state:'done'    },
+          { num:2, title:'Target Setting',         sub:'0.29 mtoe target — PAT Cycle VI',     state:'done'    },
+          { num:3, title:'Implementation',         sub:'Pot modernisation partially complete', state:'done'    },
+          { num:4, title:'Monitoring & Reporting', sub:'Full year data submitted to BEE',     state:'done'    },
+          { num:5, title:'BEE Assessment',         sub:'BEE review meeting: May 8, 2025',     state:'active'  },
+          { num:6, title:'ESCert / Certificate',   sub:'Awaiting BEE outcome',                state:'pending' },
+        ],
+      },
+
+      // ── Materiality Scoping clients ────────────────────────────────────
+      // DEV NOTE: Materiality = Double Materiality / BRSR Materiality
+      // assessment for ESG reporting. Steps: Stakeholder Mapping →
+      // Issue Identification → Survey / Scoring → Matrix Validation →
+      // Board Sign-off → Report Integration.
+      // scoreLabel = 'Material Topics', scoreValue = N confirmed topics.
+      infosys: {
+        toolId: 'materiality',
+        name: 'Infosys Ltd — Corporate ESG', sector: 'Information Technology', city: 'Bengaluru',
+        refId: 'MAT/HW/001', year: '2024-25',
+        stage: 'Matrix Validation', stageClass: 'ga-stage-assess', statusClass: 'status-good',
+        scoreLabel: 'Material Topics', scoreValue: '18 confirmed',
+        lastActivity: 'Apr 24, 2025',
+        insight: '✅ <strong>Near complete:</strong> 18 material topics confirmed. Board review scheduled May 5.',
+        metrics: [
+          { label: 'Ref ID',          value: 'MAT/HW/001'     },
+          { label: 'Sector',          value: 'IT Services'     },
+          { label: 'Material Topics', value: '18 confirmed'    },
+          { label: 'Last Activity',   value: 'Apr 24, 2025'    },
+        ],
+        steps: [
+          { num:1, title:'Stakeholder Mapping',  sub:'42 stakeholder groups identified',      state:'done'    },
+          { num:2, title:'Issue Identification', sub:'32 ESG issues scoped against GRI/BRSR', state:'done'    },
+          { num:3, title:'Survey & Scoring',     sub:'Internal + external survey completed',  state:'done'    },
+          { num:4, title:'Matrix Validation',    sub:'Materiality matrix under review',       state:'active'  },
+          { num:5, title:'Board Sign-off',       sub:'Scheduled: May 5, 2025',               state:'pending' },
+          { num:6, title:'Report Integration',   sub:'Topics integrated into BRSR/GRI report',state:'pending' },
+        ],
+      },
+
+      mahindra: {
+        toolId: 'materiality',
+        name: 'Mahindra & Mahindra — ESG', sector: 'Automotive', city: 'Mumbai',
+        refId: 'MAT/HW/002', year: '2024-25',
+        stage: 'Survey & Scoring', stageClass: 'ga-stage-data', statusClass: 'status-warning',
+        scoreLabel: 'Material Topics', scoreValue: '— Pending',
+        lastActivity: 'Apr 19, 2025',
+        insight: '📋 <strong>Survey open:</strong> External stakeholder survey closes Apr 30. 68% response rate so far.',
+        metrics: [
+          { label: 'Ref ID',          value: 'MAT/HW/002'     },
+          { label: 'Sector',          value: 'Automotive'      },
+          { label: 'Survey Response', value: '68% of target'   },
+          { label: 'Last Activity',   value: 'Apr 19, 2025'    },
+        ],
+        steps: [
+          { num:1, title:'Stakeholder Mapping',  sub:'38 stakeholder groups identified',      state:'done'    },
+          { num:2, title:'Issue Identification', sub:'28 ESG issues scoped',                  state:'done'    },
+          { num:3, title:'Survey & Scoring',     sub:'External survey open — closes Apr 30',  state:'active'  },
+          { num:4, title:'Matrix Validation',    sub:'Awaiting survey completion',            state:'pending' },
+          { num:5, title:'Board Sign-off',       sub:'Targeted: June 2025',                  state:'pending' },
+          { num:6, title:'Report Integration',   sub:'BRSR + GRI integration planned',        state:'pending' },
+        ],
+      },
+    };
+
+    // Track currently active assessment tab and open client
+    let currentAssessTab = 'all';
+    let currentAssessClientId = '';
+
+    // ── initTenantConfig() ────────────────────────────────────────────────
+    // Runs on DOMContentLoaded. Reads TC and:
+    //  1. Shows/hides All Clients nav based on ghqLicence
+    //  2. Shows Assessments nav if any tools exist; sets label
+    //  3. Populates Add Assessment Client tool selector
+    function initTenantConfig() {
+      // 0. Update header to reflect active tenant
+      const headerOrg = document.getElementById('headerOrgName');
+      if (headerOrg) headerOrg.textContent = TC.name;
+
+      // 1. GHG All Clients nav
+      const navClients = document.getElementById('nav-clients-section');
+      if (navClients) navClients.style.display = TC.ghqLicence ? '' : 'none';
+
+      // 2. Assessments nav
+      const navAssess = document.getElementById('nav-assess-section');
+      if (TC.assessmentTools.length > 0) {
+        navAssess.style.display = '';
+        // Single tool: use tool's name as section title and nav label
+        if (TC.assessmentTools.length === 1) {
+          const t = TC.assessmentTools[0];
+          document.getElementById('nav-assess-title').textContent = t.label;
+          document.getElementById('nav-audit-clients-label').textContent = t.navLabel;
+        }
+      }
+
+      // 3. Populate Add Assessment Client tool selector
+      const toolSel = document.getElementById('addAssessToolSelect');
+      if (toolSel) {
+        TC.assessmentTools.forEach(t => {
+          const o = document.createElement('option');
+          o.value = t.id; o.textContent = t.icon + ' ' + t.label;
+          toolSel.appendChild(o);
+        });
+        // If single tool, pre-select and hide
+        if (TC.assessmentTools.length === 1) {
+          toolSel.value = TC.assessmentTools[0].id;
+          toolSel.closest('.form-group').style.display = 'none';
+          onAddAssessToolChange();
+        }
+      }
+
+      // 4. Init assessment screen (slot banner + tabs)
+      initAssessmentScreen();
+
+      // 5. If no GHG licence, make audit-clients the default nav highlight
+      if (!TC.ghqLicence && TC.assessmentTools.length > 0) {
+        document.querySelector('.nav-item.active')?.classList.remove('active');
+      }
+    }
+
+    // ── initAssessmentScreen() ────────────────────────────────────────────
+    // Builds the slot banner and tab bar in the Audit Clients screen.
+    function initAssessmentScreen() {
+      // Slot banner
+      const pips = document.getElementById('assess-slot-pips');
+      if (pips) {
+        pips.innerHTML = '';
+        for (let i = 0; i < TC.maxAssessmentClients; i++) {
+          const d = document.createElement('div');
+          d.className = 'rua-pip' + (i < TC.slotUsed ? '' : ' empty');
+          pips.appendChild(d);
+        }
+      }
+      const slotLabel = document.getElementById('assess-slot-label');
+      const slotSub   = document.getElementById('assess-slot-sub');
+      if (slotLabel) slotLabel.textContent =
+        TC.slotUsed + ' of ' + TC.maxAssessmentClients + ' client slots used';
+      if (slotSub) slotSub.textContent =
+        TC.name + ' Consultant Pack · ' + (TC.maxAssessmentClients - TC.slotUsed) + ' slots remaining';
+
+      // Adapt screen title & subtitle
+      const title = document.getElementById('assess-screen-title');
+      const sub   = document.getElementById('assess-screen-sub');
+      if (TC.assessmentTools.length === 1) {
+        const t = TC.assessmentTools[0];
+        if (title) title.textContent = t.navLabel;
+        if (sub)   sub.textContent   = 'Manage all ' + t.label + ' engagements for ' + TC.name;
+      } else {
+        if (title) title.textContent = 'Assessment Clients';
+        if (sub)   sub.textContent   = 'Manage certification and assessment engagements across all tools';
+      }
+
+      // Tab bar — only shown for multi-tool tenants
+      const tabBar = document.getElementById('assess-tab-bar');
+      if (!tabBar) return;
+      if (TC.assessmentTools.length <= 1) {
+        tabBar.style.display = 'none';
+        renderAssessmentClients('all');
+        return;
+      }
+      tabBar.style.display = 'flex';
+
+      // Count clients per tool
+      const counts = { all: 0 };
+      TC.assessmentTools.forEach(t => { counts[t.id] = 0; });
+      Object.values(assessmentClientDB).forEach(c => {
+        if (counts[c.toolId] !== undefined) counts[c.toolId]++;
+        counts.all++;
+      });
+
+      // Build tabs: All + one per tool
+      const allTab = { id: 'all', label: 'All', icon: '📋' };
+      [allTab, ...TC.assessmentTools].forEach(t => {
+        const btn = document.createElement('button');
+        btn.className = 'assess-tab' + (t.id === 'all' ? ' active' : '');
+        btn.dataset.tab = t.id;
+        btn.innerHTML = t.icon + ' ' + t.label +
+          ' <span class="at-count">' + (counts[t.id] || 0) + '</span>';
+        btn.onclick = () => {
+          tabBar.querySelectorAll('.assess-tab').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentAssessTab = t.id;
+          renderAssessmentClients(t.id);
+        };
+        tabBar.appendChild(btn);
+      });
+
+      renderAssessmentClients('all');
+    }
+
+    // ── renderAssessmentClients(toolFilter) ───────────────────────────────
+    // Renders client cards into #assessClientGrid, filtered by toolId.
+    // Called by tab clicks and search/stage filter.
+    function renderAssessmentClients(toolFilter) {
+      const grid     = document.getElementById('assessClientGrid');
+      const search   = (document.getElementById('assessSearch')?.value || '').toLowerCase();
+      const stageF   = (document.getElementById('assessStageFilter')?.value || '');
+      if (!grid) return;
+
+      const toolMap = {};
+      TC.assessmentTools.forEach(t => { toolMap[t.id] = t; });
+
+      const clients = Object.entries(assessmentClientDB).filter(([id, c]) => {
+        if (toolFilter !== 'all' && c.toolId !== toolFilter) return false;
+        // Only show tools the tenant is subscribed to
+        if (!toolMap[c.toolId]) return false;
+        if (stageF && c.stage !== stageF) return false;
+        if (search && !(c.name + c.refId + c.sector + c.city).toLowerCase().includes(search)) return false;
+        return true;
+      });
+
+      if (clients.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem; color:#718096;">' +
+          '<div style="font-size:2.5rem; margin-bottom:1rem;">📋</div>' +
+          '<div style="font-weight:600;">No clients found</div>' +
+          '<div style="font-size:0.875rem; margin-top:0.5rem;">Try adjusting your filters or add a new assessment client.</div>' +
+          '</div>';
+        return;
+      }
+
+      grid.innerHTML = clients.map(([id, c]) => {
+        const tool    = toolMap[c.toolId];
+        const toolBadge = '<span class="tool-badge tb-' + c.toolId + '">' +
+          tool.icon + ' ' + tool.label + '</span>';
+        const metrics = c.metrics.map(m =>
+          '<div class="metric"><span class="metric-label">' + m.label + '</span>' +
+          '<span class="metric-value" style="font-size:0.95rem;">' + m.value + '</span></div>'
+        ).join('');
+        return '<div class="client-card ' + c.statusClass + '" onclick="openAssessmentClient(\'' + id + '\')">' +
+          '<div class="client-header"><div>' +
+            '<div class="client-name">' + c.name + '</div>' +
+            '<div class="client-industry">' + c.sector + ' · ' + c.city + '</div>' +
+          '</div>' +
+          '<span class="ga-stage ' + c.stageClass + '">' + c.stage + '</span></div>' +
+          '<div style="margin-bottom:0.75rem;">' + toolBadge + '</div>' +
+          '<div class="client-metrics">' + metrics + '</div>' +
+          '<div class="ai-insight">' + c.insight + '</div>' +
+          '<div style="display:flex; gap:0.5rem; margin-top:0.75rem;" onclick="event.stopPropagation()">' +
+            '<button class="btn btn-primary" style="flex:1; font-size:0.8rem; padding:0.5rem;" ' +
+              'onclick="openAssessmentClient(\'' + id + '\')">' +
+              tool.icon + ' Open ' + tool.label + ' →</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    // ── filterAssessmentClients() ─────────────────────────────────────────
+    // Called by search input and stage filter; re-renders with current tab.
+    function filterAssessmentClients(tab) {
+      renderAssessmentClients(tab || currentAssessTab);
+    }
+
+    // ── openAssessmentClient(clientId) ────────────────────────────────────
+    // Populates audit-client-view and navigates to it.
+    function openAssessmentClient(clientId) {
+      const c = assessmentClientDB[clientId];
+      if (!c) return;
+      currentAssessClientId = clientId;
+
+      const toolMap = {};
+      TC.assessmentTools.forEach(t => { toolMap[t.id] = t; });
+      const tool = toolMap[c.toolId] || { label: c.toolId, icon: '📋' };
+
+      // Breadcrumb
+      document.getElementById('acv-breadcrumb-tool').textContent =
+        TC.assessmentTools.length > 1 ? 'Assessment Clients' : tool.navLabel || tool.label + ' Clients';
+      document.getElementById('acv-breadcrumb-name').textContent = c.name;
+
+      // Context bar
+      document.getElementById('acv-client-name').textContent = c.name;
+      document.getElementById('acv-client-meta').textContent =
+        c.sector + ' · ' + c.city + ' · ' + c.year;
+      document.getElementById('acv-tool-badge').innerHTML =
+        '<span class="tool-badge tb-' + c.toolId + '">' + tool.icon + ' ' + tool.label + '</span>';
+      document.getElementById('acv-ref-id').textContent = c.refId;
+      document.getElementById('acv-stage-badge').innerHTML =
+        '<span class="ga-stage ' + c.stageClass + '">' + c.stage + '</span>';
+      document.getElementById('acv-score-label').textContent = c.scoreLabel;
+      document.getElementById('acv-score').textContent = c.scoreValue;
+
+      // Update open buttons label
+      const openLabel = tool.icon + ' Open ' + tool.label + ' →';
+      document.getElementById('acv-open-btn').textContent = openLabel;
+      document.getElementById('acv-action-open').textContent = openLabel;
+
+      // Step grid
+      const grid = document.getElementById('acv-steps-grid');
+      grid.innerHTML = c.steps.map(s => {
+        const nc = s.state === 'done' ? 'rua-step-done'
+                 : s.state === 'active' ? 'rua-step-active' : 'rua-step-pending';
+        const icon = s.state === 'done' ? '✓' : s.state === 'active' ? '→' : String(s.num);
+        return '<div class="rua-audit-step-card">' +
+          '<div class="rua-step-num ' + nc + '">' + icon + '</div>' +
+          '<div><div class="rua-step-title">Step ' + s.num + ': ' + s.title + '</div>' +
+          '<div class="rua-step-sub">' + s.sub + '</div></div></div>';
+      }).join('');
+
+      // Clear notes
+      const notes = document.getElementById('acv-notes');
+      if (notes) notes.value = '';
+
+      showScreen('audit-client-view');
+      window.scrollTo(0, 0);
+    }
+
+    // ── openAssessmentTool() ──────────────────────────────────────────────
+    // Opens the tool file for the currently viewed assessment client.
+    function openAssessmentTool() {
+      const c = assessmentClientDB[currentAssessClientId];
+      if (!c) return;
+      const toolMap = {};
+      TC.assessmentTools.forEach(t => { toolMap[t.id] = t; });
+      const tool = toolMap[c.toolId];
+      if (!tool) return;
+      window.open(tool.toolFile + '?refId=' + encodeURIComponent(c.refId), '_blank');
+    }
+
+    // ── onAddAssessToolChange() ───────────────────────────────────────────
+    // Updates the ref ID hint in Add Assessment Client when tool is changed.
+    function onAddAssessToolChange() {
+      const sel   = document.getElementById('addAssessToolSelect');
+      const hint  = document.getElementById('addAssessRefHint');
+      const input = document.getElementById('addAssessRefId');
+      if (!sel || !hint) return;
+      const toolMap = {};
+      TC.assessmentTools.forEach(t => { toolMap[t.id] = t; });
+      const tool = toolMap[sel.value];
+      if (tool) {
+        const nextNum = String(Object.values(assessmentClientDB)
+          .filter(c => c.toolId === tool.id).length + 1).padStart(3, '0');
+        hint.textContent = 'Format: ' + tool.refPrefix + 'NNN  ·  Suggested next: ' + tool.refPrefix + nextNum;
+        if (input) input.placeholder = tool.refPrefix + nextNum;
+      } else {
+        hint.textContent = 'Select a tool to see the ID format';
+        if (input) input.placeholder = 'Auto-assigned on save';
+      }
+    }
+
     function showScreen(screenId) {
       document.querySelectorAll('.screen').forEach(screen => {
         screen.classList.remove('active');
@@ -4871,7 +6006,12 @@
 
       window.scrollTo(0, 0);
     }
-    
+
+    // ── openGreenAudit(clientId) ─────────────────────────────────────────
+    // Alias: routes straight into the generic assessment client view.
+    // Called by any legacy button still referencing openGreenAudit().
+    function openGreenAudit(clientId) { openAssessmentClient(clientId); }
+
     function openAddConsultantModal() {
       document.getElementById('addConsultantModal').classList.add('active');
     }
@@ -5174,7 +6314,9 @@
 
     // Initialize with card view active on page load
     document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('cardViewBtn').classList.add('view-btn-active');
+      const cvb = document.getElementById('cardViewBtn');
+      if (cvb) cvb.classList.add('view-btn-active');
+      initTenantConfig();
     });
   </script>
 
