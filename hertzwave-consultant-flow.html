@@ -956,6 +956,50 @@
     .rua-step-pending { background: #e2e8f0; color: #718096; }
     .rua-step-title { font-weight: 600; font-size: 0.875rem; color: #1a202c; margin-bottom: 0.25rem; }
     .rua-step-sub   { font-size: 0.78rem; color: #718096; }
+
+    /* ── Client Hub: unified tab bar ── */
+    .hub-tab-bar {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      background: white; border: 1px solid #e2e8f0;
+      border-radius: 10px; padding: 5px; margin-bottom: 1.25rem;
+    }
+    .hub-tab {
+      display: flex; align-items: center; gap: 6px;
+      padding: 0.5rem 1rem; border: none; border-radius: 7px;
+      background: transparent; cursor: pointer;
+      font-size: 0.85rem; font-weight: 600; color: #4a5568;
+      transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+      white-space: nowrap;
+    }
+    .hub-tab:hover { background: #f7fafc; }
+    .hub-tab.active { background: #4a7c59; color: white; }
+    .hub-tab .ht-count {
+      background: rgba(0,0,0,0.1); border-radius: 10px;
+      padding: 1px 7px; font-size: 0.72rem; font-weight: 700;
+    }
+    .hub-tab.active .ht-count { background: rgba(255,255,255,0.25); }
+
+    /* ── Client Hub: list view table ── */
+    .client-list-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid #e2e8f0; }
+    .client-list-table {
+      width: 100%; border-collapse: collapse;
+      background: white; font-size: 0.875rem; min-width: 700px;
+    }
+    .client-list-table th {
+      background: #f7fafc; padding: 0.7rem 1rem; text-align: left;
+      font-size: 0.71rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; color: #718096;
+      border-bottom: 1px solid #e2e8f0; white-space: nowrap;
+    }
+    .client-list-table td {
+      padding: 0.85rem 1rem; border-bottom: 1px solid #f0f4f8;
+      color: #2d3748; vertical-align: middle;
+    }
+    .client-list-table tbody tr:last-child td { border-bottom: none; }
+    .client-list-table tbody tr:hover td { background: #f9fffe; cursor: pointer; }
+    .cl-name  { font-weight: 600; color: #1a202c; font-size: 0.9rem; }
+    .cl-sub   { font-size: 0.78rem; color: #718096; margin-top: 1px; }
+    .cl-mono  { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: #4a5568; }
   </style>
 </head>
 <body>
@@ -996,38 +1040,23 @@
         </div>
       </div>
 
-      <!-- CLIENTS section — GHG portfolio. Hidden if tenant ghqLicence:false.
-           DEV NOTE: visibility controlled by initTenantConfig() on load. -->
+      <!-- CLIENTS section — single nav item to unified client hub.
+           DEV NOTE: initTenantConfig() builds tabs inside client-hub from TC.
+           If ghqLicence:false, Carbon tab is hidden. If no assessmentTools,
+           assessment tabs are hidden. The nav item is always visible. -->
       <div class="nav-section" data-role="consultant" id="nav-clients-section">
         <div class="nav-section-title">Clients</div>
-        <div class="nav-item" onclick="showScreen('clients')">
+        <div class="nav-item" id="nav-client-hub" onclick="showScreen('client-hub')">
           <span class="nav-icon">👥</span>
           <span>All Clients</span>
         </div>
-        <div class="nav-item" onclick="showScreen('add-client')">
-          <span class="nav-icon">➕</span>
-          <span>Add New Client</span>
-        </div>
-        <div class="nav-item" onclick="showScreen('client-assignment')">
-          <span class="nav-icon">🔄</span>
-          <span>Client Assignment</span>
-        </div>
       </div>
 
-      <!-- ASSESSMENTS section — non-GHG tools (Green Audit, NZOC, CCTS, PAT…).
-           DEV NOTE: Rendered by initTenantConfig() from TENANT_CONFIG.assessmentTools.
-           Hidden entirely if tenant has no assessment tools subscribed.
-           id="nav-assess-section" is the mount point. -->
-      <div class="nav-section" data-role="consultant" id="nav-assess-section" style="display:none;">
-        <div class="nav-section-title" id="nav-assess-title">Assessments</div>
-        <div class="nav-item" id="nav-audit-clients" onclick="showScreen('audit-clients')">
-          <span class="nav-icon">📋</span>
-          <span id="nav-audit-clients-label">Audit Clients</span>
-        </div>
-        <div class="nav-item" onclick="showScreen('add-assessment-client')">
-          <span class="nav-icon">➕</span>
-          <span>Add Assessment Client</span>
-        </div>
+      <!-- nav-assess-section kept as empty mount for JS compat; no visible items -->
+      <div id="nav-assess-section" style="display:none;">
+        <span id="nav-assess-title"></span>
+        <span id="nav-audit-clients"></span>
+        <span id="nav-audit-clients-label"></span>
       </div>
 
       <div class="nav-section" data-role="consultant">
@@ -1092,7 +1121,7 @@
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-label">Total Clients</div>
-            <div class="stat-value">42</div>
+            <div class="stat-value" id="dash-total-clients">—</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Active Consultants</div>
@@ -1232,181 +1261,80 @@
            Present for all tenants with ghqLicence:true in TENANT_CONFIG.
            Hidden via initTenantConfig() for pure-assessment tenants (e.g. RUA).
            Client cards call viewClient(id) which populates the client-dashboard screen. -->
-      <div id="clients" class="screen">
-        <h1 class="page-title">Client Portfolio</h1>
-        <p class="page-subtitle">Monitor GHG emissions and performance across all client accounts</p>
-
-        <div class="controls-bar">
-          <div class="search-box">
-            <span class="search-icon">🔍</span>
-            <input type="text" placeholder="Search clients…">
-          </div>
-          <select>
-            <option>All Status</option>
-            <option>Good</option>
-            <option>Warning</option>
-            <option>Critical</option>
-          </select>
-          <select>
-            <option>All Industries</option>
-            <option>Manufacturing</option>
-            <option>Technology</option>
-            <option>Healthcare</option>
-            <option>Retail</option>
-          </select>
-          <div style="margin-left:auto; display:flex; gap:0.5rem;">
-            <button id="cardViewBtn" class="btn btn-secondary view-btn-active" onclick="switchView('card')">📇 Card</button>
-            <button id="listViewBtn" class="btn btn-secondary" onclick="switchView('list')">📋 List</button>
-          </div>
-        </div>
-
-        <div id="clientContainer" class="client-grid">
-
-          <div class="client-card status-critical" onclick="viewClient('alpha')">
-            <div class="client-header">
-              <div>
-                <div class="client-name">Alpha Manufacturing Ltd</div>
-                <div class="client-industry">Manufacturing</div>
-              </div>
-              <span class="status-indicator status-critical">Critical</span>
-            </div>
-            <div class="client-metrics">
-              <div class="metric"><span class="metric-label">Total Emissions</span><span class="metric-value">145K tCO₂e</span></div>
-              <div class="metric"><span class="metric-label">Reduction</span><span class="metric-value">8%</span></div>
-              <div class="metric"><span class="metric-label">Consultant</span><span class="metric-value">Priya Sharma</span></div>
-              <div class="metric"><span class="metric-label">Data Quality</span><span class="metric-value">72%</span></div>
-            </div>
-            <div class="ai-insight">🤖 <strong>Alert:</strong> Data quality below threshold. Missing Scope 3 data for last 2 quarters.</div>
-            <div style="display:flex; gap:0.5rem; margin-top:0.75rem;" onclick="event.stopPropagation()">
-              <button class="btn btn-secondary" style="flex:1; font-size:0.75rem; padding:0.4rem 0.5rem;" onclick="viewClient('alpha')">📋 Manage Data</button>
-              <button class="btn btn-primary"   style="flex:1; font-size:0.75rem; padding:0.4rem 0.5rem;" onclick="openSingleClientReport('Alpha Manufacturing Ltd','alpha')">📄 Generate Report</button>
-            </div>
-          </div>
-
-          <div class="client-card status-warning" onclick="viewClient('beta')">
-            <div class="client-header">
-              <div>
-                <div class="client-name">Beta Pharma Inc.</div>
-                <div class="client-industry">Healthcare</div>
-              </div>
-              <span class="status-indicator status-warning">Warning</span>
-            </div>
-            <div class="client-metrics">
-              <div class="metric"><span class="metric-label">Total Emissions</span><span class="metric-value">23K tCO₂e</span></div>
-              <div class="metric"><span class="metric-label">Reduction</span><span class="metric-value">28%</span></div>
-              <div class="metric"><span class="metric-label">Consultant</span><span class="metric-value">Rahul Mehta</span></div>
-              <div class="metric"><span class="metric-label">Data Quality</span><span class="metric-value">88%</span></div>
-            </div>
-            <div class="ai-insight">🤖 <strong>Insight:</strong> Good progress but reduction rate slowing. Consider energy efficiency upgrades.</div>
-          </div>
-
-          <div class="client-card status-good" onclick="viewClient('gamma')">
-            <div class="client-header">
-              <div>
-                <div class="client-name">Gamma Tech Solutions</div>
-                <div class="client-industry">Technology</div>
-              </div>
-              <span class="status-indicator status-good">Good</span>
-            </div>
-            <div class="client-metrics">
-              <div class="metric"><span class="metric-label">Total Emissions</span><span class="metric-value">12.5K tCO₂e</span></div>
-              <div class="metric"><span class="metric-label">Reduction</span><span class="metric-value">18%</span></div>
-              <div class="metric"><span class="metric-label">Consultant</span><span class="metric-value">Anjali Gupta</span></div>
-              <div class="metric"><span class="metric-label">Data Quality</span><span class="metric-value">95%</span></div>
-            </div>
-            <div class="ai-insight">✅ <strong>Excellent:</strong> On track to meet 2030 targets. Data quality exceptional.</div>
-          </div>
-
-          <div class="client-card status-good" onclick="viewClient('delta')">
-            <div class="client-header">
-              <div>
-                <div class="client-name">Delta Retail Corp</div>
-                <div class="client-industry">Retail</div>
-              </div>
-              <span class="status-indicator status-good">Good</span>
-            </div>
-            <div class="client-metrics">
-              <div class="metric"><span class="metric-label">Total Emissions</span><span class="metric-value">8.9K tCO₂e</span></div>
-              <div class="metric"><span class="metric-label">Reduction</span><span class="metric-value">22%</span></div>
-              <div class="metric"><span class="metric-label">Consultant</span><span class="metric-value">Vikram Singh</span></div>
-              <div class="metric"><span class="metric-label">Data Quality</span><span class="metric-value">91%</span></div>
-            </div>
-            <div class="ai-insight">📈 <strong>Trending Up:</strong> Consistent quarterly improvements. Consider case study for retail sector.</div>
-          </div>
-
-        </div>
-      </div><!-- end #clients -->
-
       <!-- ══════════════════════════════════════════════════════════════════
-           AUDIT CLIENTS — Generic Assessment Hub
+           CLIENT HUB — Unified client monitoring screen
            ══════════════════════════════════════════════════════════════════
-           DEV NOTE: This screen is the single hub for ALL non-GHG assessment
-           tools a consultant tenant has subscribed to — Green Audit, NZOC,
-           CCTS, PAT, Materiality Scoping, IGBC, GreenCo, etc.
+           DEV NOTE: Single screen for all client types. Tab bar built by
+           initHubTabs() from TC. Carbon tab shown only if ghqLicence:true.
+           Assessment tabs shown per TC.assessmentTools subscriptions.
 
-           HOW IT WORKS:
-           • The tab bar is built from TENANT_CONFIG.assessmentTools by
-             renderAssessmentTabs(). If only one tool exists, the tab bar
-             is hidden and the label defaults to that tool's name.
-           • Clicking a tab calls filterAssessmentClients(toolId).
-           • Client cards are rendered from assessmentClientDB[], filtered
-             by toolId. Each card calls openAssessmentClient(clientId).
-           • The slot banner counts ALL assessment slots across all tools.
+           Default tab: Carbon (if available), else first assessment tool.
+           Default view: List (table). Card view available via toggle.
 
-           TENANT BEHAVIOUR EXAMPLES:
-           RUA  → 1 tool (Green Audit), no tab bar, title = "Green Audit Clients"
-           CII  → 1 tool (NZOC), no tab bar, title = "NZOC Clients"
-           Firm → N tools, full tab bar shown
+           TENANT BEHAVIOUR:
+             greenpath → Carbon + Green Audit + NZOC + CCTS + PAT + Materiality
+             rua       → Green Audit only (no Carbon tab)
+             cii       → NZOC only (no Carbon tab)
+             energyfirm→ Carbon + PAT + CCTS
 
-           ADD NEW TOOL: Add entry to TENANT_CONFIG.assessmentTools and add
-           sample records to assessmentClientDB with matching toolId.
+           Client registration / add-client is admin-only (Org Profile tab).
+           No Add Client button shown here.
            ═════════════════════════════════════════════════════════════════= -->
-      <div id="audit-clients" class="screen">
-        <h1 class="page-title" id="assess-screen-title">Assessment Clients</h1>
-        <p class="page-subtitle" id="assess-screen-sub">Manage all certification and assessment engagements</p>
+      <div id="client-hub" class="screen">
+        <h1 class="page-title">Clients</h1>
+        <p class="page-subtitle" id="hub-subtitle">Monitor all client accounts and assessment engagements</p>
 
-        <!-- Slot Banner -->
+        <!-- Slot Banner — total slots across all subscriptions -->
         <div class="rua-slot-banner">
           <div class="rua-slot-info">
-            <div class="rua-slot-pips" id="assess-slot-pips"></div>
+            <div class="rua-slot-pips" id="hub-slot-pips"></div>
             <div>
-              <div class="rua-slot-label" id="assess-slot-label">— of — slots used</div>
-              <div class="rua-slot-sub" id="assess-slot-sub">Consultant Pack</div>
+              <div class="rua-slot-label" id="hub-slot-label">— of — slots used</div>
+              <div class="rua-slot-sub" id="hub-slot-sub">Consultant Pack</div>
             </div>
           </div>
           <button class="rua-slot-cta"
-            onclick="alert('Redirecting to Hertzwave billing portal to purchase an Extension Pack (+10 assessment clients)…')">
-            + Buy Extension Pack
+            onclick="alert('Redirecting to Hertzwave billing portal to purchase an Extension Pack (+10 clients)…')">
+            + Buy Extension Pack (+10)
           </button>
         </div>
 
-        <!-- Assessment Tool Tab Bar — built by renderAssessmentTabs() -->
-        <div class="assess-tab-bar" id="assess-tab-bar" style="display:none;"></div>
+        <!-- Unified Tab Bar — built by initHubTabs() -->
+        <div class="hub-tab-bar" id="hub-tab-bar"></div>
 
-        <!-- Controls -->
+        <!-- Controls: search + stage filter + card/list toggle -->
         <div class="controls-bar">
           <div class="search-box">
             <span class="search-icon">🔍</span>
-            <input type="text" id="assessSearch" placeholder="Search by name, ID, sector…"
-              oninput="filterAssessmentClients(currentAssessTab)">
+            <input type="text" id="hubSearch" placeholder="Search by name, ID, sector, city…"
+              oninput="renderHub()">
           </div>
-          <select id="assessStageFilter" onchange="filterAssessmentClients(currentAssessTab)">
+          <select id="hubStageFilter" onchange="renderHub()">
             <option value="">All Stages</option>
-            <option>Onboarding</option>
             <option>Data Collection</option>
             <option>Assessment</option>
             <option>Verification</option>
             <option>Certified</option>
+            <option>Monitoring</option>
           </select>
           <div style="margin-left:auto; display:flex; gap:0.5rem;">
-            <button class="btn btn-secondary" onclick="showScreen('add-assessment-client')">➕ Add Client</button>
+            <button id="hubListBtn"  class="btn btn-secondary view-btn-active" onclick="setHubView('list')">📋 List</button>
+            <button id="hubCardBtn"  class="btn btn-secondary"                 onclick="setHubView('card')">📇 Card</button>
           </div>
         </div>
 
-        <!-- Card Grid — populated by renderAssessmentClients() -->
-        <div id="assessClientGrid" class="client-grid"></div>
+        <!-- Content area — populated by renderHub() -->
+        <div id="hub-content"></div>
 
-      </div><!-- end #audit-clients -->
+      </div><!-- end #client-hub -->
+
+      <!-- Legacy screen stubs — kept for any remaining JS refs but never navigated to directly -->
+      <div id="clients"       class="screen" style="display:none!important;"></div>
+
+      <!-- audit-clients stub — content merged into client-hub above.
+           Kept so any JS call to showScreen('client-hub') still resolves.
+           DEV NOTE: redirect all references to showScreen('client-hub'). -->
+      <div id="audit-clients" class="screen" style="display:none!important;"></div>
 
       <!-- ASSESSMENT CLIENT DETAIL VIEW
            DEV NOTE: Populated by openAssessmentClient(clientId). Generic layout —
@@ -1415,8 +1343,8 @@
            to the correct tool file based on client.toolId. -->
       <div id="audit-client-view" class="screen">
 
-        <div class="rua-audit-breadcrumb" onclick="showScreen('audit-clients')">
-          ← <strong id="acv-breadcrumb-tool">Assessment Clients</strong>
+        <div class="rua-audit-breadcrumb" onclick="showScreen('client-hub')">
+          ← <strong id="acv-breadcrumb-tool">Clients</strong>
           &nbsp;/&nbsp; <span id="acv-breadcrumb-name" style="color:#4a7c59;">—</span>
         </div>
 
@@ -1475,7 +1403,7 @@
                 onclick="alert('📧 Reminder sent to client coordinator.')">📧 Send Reminder</button>
               <button class="btn btn-secondary"
                 onclick="alert('📄 Generating certificate PDF…')">📄 Generate Certificate</button>
-              <button class="btn btn-secondary" onclick="showScreen('audit-clients')">← Back to Client List</button>
+              <button class="btn btn-secondary" onclick="showScreen('client-hub')">← Back to Client List</button>
             </div>
           </div>
         </div>
@@ -1577,7 +1505,7 @@
         </div>
 
         <div style="display:flex; gap:1rem; justify-content:flex-end; margin-top:0.5rem;">
-          <button class="btn btn-secondary" onclick="showScreen('audit-clients')">Cancel</button>
+          <button class="btn btn-secondary" onclick="showScreen('client-hub')">Cancel</button>
           <button class="btn btn-primary"
             onclick="alert('✅ Assessment client onboarded!\n\nRef ID assigned and login invitation sent.')">
             Save &amp; Provision Access
@@ -1745,7 +1673,7 @@
         </div>
           
         <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 0.5rem;">
-          <button class="btn btn-secondary" onclick="showScreen('clients')">Cancel</button>
+          <button class="btn btn-secondary" onclick="showScreen('client-hub')">Cancel</button>
           <button class="btn btn-primary" onclick="alert('✅ Client onboarded successfully!\n\nAudit ID assigned and login invitation sent to coordinator email.\n\nThe client now appears in your Green Audit client list.')">
             Save &amp; Provision Access
           </button>
@@ -4457,7 +4385,7 @@
         </div>
 
         <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
-          <button id="cdash-back-btn" class="btn btn-secondary" onclick="showScreen('clients')" style="padding: 0.5rem 1rem; font-size: 0.85rem;">← Back to Clients</button>
+          <button id="cdash-back-btn" class="btn btn-secondary" onclick="showScreen('client-hub')" style="padding: 0.5rem 1rem; font-size: 0.85rem;">← Back to Clients</button>
           <div>
             <h1 class="page-title" id="cdash-client-name">Client Dashboard</h1>
             <p class="page-subtitle" id="cdash-client-industry">Carbon Footprint Overview</p>
@@ -5230,8 +5158,8 @@
       greenpath: {
         id: 'greenpath', name: 'GreenPath Consulting',
         ghqLicence: true,
-        maxAssessmentClients: 15,
-        slotUsed: 9,
+        maxAssessmentClients: 10,
+        slotUsed: 15, // 4 GHG + 4 green-audit + 2 nzoc + 1 ccts + 2 pat + 2 materiality
         assessmentTools: [
           { id: 'green-audit', label: 'Green Audit', icon: '🌿',
             toolFile: 'rua-greenaudit.html', refPrefix: 'QF/RUA/',
@@ -5593,8 +5521,10 @@
     };
 
     // Track currently active assessment tab and open client
-    let currentAssessTab = 'all';
+    let currentAssessTab      = 'all';
     let currentAssessClientId = '';
+    let currentHubTab         = 'carbon'; // set by initHubTabs()
+    let currentHubView        = 'list';   // 'list' | 'card'
 
     // ── initTenantConfig() ────────────────────────────────────────────────
     // Runs on DOMContentLoaded. Reads TC and:
@@ -5602,27 +5532,15 @@
     //  2. Shows Assessments nav if any tools exist; sets label
     //  3. Populates Add Assessment Client tool selector
     function initTenantConfig() {
-      // 0. Update header to reflect active tenant
+      // 0. Header org name
       const headerOrg = document.getElementById('headerOrgName');
       if (headerOrg) headerOrg.textContent = TC.name;
 
-      // 1. GHG All Clients nav
+      // 1. Stub elements kept for JS compat — no-ops
       const navClients = document.getElementById('nav-clients-section');
-      if (navClients) navClients.style.display = TC.ghqLicence ? '' : 'none';
+      if (navClients) navClients.style.display = '';
 
-      // 2. Assessments nav
-      const navAssess = document.getElementById('nav-assess-section');
-      if (TC.assessmentTools.length > 0) {
-        navAssess.style.display = '';
-        // Single tool: use tool's name as section title and nav label
-        if (TC.assessmentTools.length === 1) {
-          const t = TC.assessmentTools[0];
-          document.getElementById('nav-assess-title').textContent = t.label;
-          document.getElementById('nav-audit-clients-label').textContent = t.navLabel;
-        }
-      }
-
-      // 3. Populate Add Assessment Client tool selector
+      // 2. Populate legacy addAssessToolSelect if it still exists
       const toolSel = document.getElementById('addAssessToolSelect');
       if (toolSel) {
         TC.assessmentTools.forEach(t => {
@@ -5630,7 +5548,6 @@
           o.value = t.id; o.textContent = t.icon + ' ' + t.label;
           toolSel.appendChild(o);
         });
-        // If single tool, pre-select and hide
         if (TC.assessmentTools.length === 1) {
           toolSel.value = TC.assessmentTools[0].id;
           toolSel.closest('.form-group').style.display = 'none';
@@ -5638,119 +5555,282 @@
         }
       }
 
-      // 4. Init assessment screen (slot banner + tabs)
-      initAssessmentScreen();
+      // 3. Build hub
+      initHubTabs();
 
-      // 5. If no GHG licence, make audit-clients the default nav highlight
-      if (!TC.ghqLicence && TC.assessmentTools.length > 0) {
-        document.querySelector('.nav-item.active')?.classList.remove('active');
+      // 4. Update dashboard Total Clients stat from actual data
+      const dashTotal = document.getElementById('dash-total-clients');
+      if (dashTotal) {
+        const toolIds = new Set(TC.assessmentTools.map(t => t.id));
+        const assessCount = Object.values(assessmentClientDB)
+          .filter(c => toolIds.has(c.toolId)).length;
+        const ghgCount = TC.ghqLicence ? Object.keys(clientDB).length : 0;
+        dashTotal.textContent = ghgCount + assessCount;
       }
     }
 
-    // ── initAssessmentScreen() ────────────────────────────────────────────
-    // Builds the slot banner and tab bar in the Audit Clients screen.
-    function initAssessmentScreen() {
+    // ── initHubTabs() ─────────────────────────────────────────────────────
+    // Builds the hub tab bar from TC, sets default tab and slot banner.
+    // Called once on page load from initTenantConfig().
+    //
+    // TAB ORDER: Carbon first (if ghqLicence), then assessment tools.
+    // DEFAULT TAB: carbon (if available), else first assessment tool.
+    // DEFAULT VIEW: list.
+    function initHubTabs() {
       // Slot banner
-      const pips = document.getElementById('assess-slot-pips');
+      const pips = document.getElementById('hub-slot-pips');
       if (pips) {
+        // Compute total clients from actual data — GHG + assessment
+        const toolIds = new Set(TC.assessmentTools.map(t => t.id));
+        const assessCount = Object.values(assessmentClientDB)
+          .filter(c => toolIds.has(c.toolId)).length;
+        const ghgCount = TC.ghqLicence ? Object.keys(clientDB).length : 0;
+        const totalClients = ghgCount + assessCount;
+
+        // Effective cap: next multiple of 10 at or above totalClients, min 10
+        const effectiveCap = Math.max(10, Math.ceil(totalClients / 10) * 10);
+
         pips.innerHTML = '';
-        for (let i = 0; i < TC.maxAssessmentClients; i++) {
+        for (let i = 0; i < effectiveCap; i++) {
           const d = document.createElement('div');
-          d.className = 'rua-pip' + (i < TC.slotUsed ? '' : ' empty');
+          d.className = 'rua-pip' + (i < totalClients ? '' : ' empty');
           pips.appendChild(d);
         }
-      }
-      const slotLabel = document.getElementById('assess-slot-label');
-      const slotSub   = document.getElementById('assess-slot-sub');
-      if (slotLabel) slotLabel.textContent =
-        TC.slotUsed + ' of ' + TC.maxAssessmentClients + ' client slots used';
-      if (slotSub) slotSub.textContent =
-        TC.name + ' Consultant Pack · ' + (TC.maxAssessmentClients - TC.slotUsed) + ' slots remaining';
-
-      // Adapt screen title & subtitle
-      const title = document.getElementById('assess-screen-title');
-      const sub   = document.getElementById('assess-screen-sub');
-      if (TC.assessmentTools.length === 1) {
-        const t = TC.assessmentTools[0];
-        if (title) title.textContent = t.navLabel;
-        if (sub)   sub.textContent   = 'Manage all ' + t.label + ' engagements for ' + TC.name;
-      } else {
-        if (title) title.textContent = 'Assessment Clients';
-        if (sub)   sub.textContent   = 'Manage certification and assessment engagements across all tools';
+        document.getElementById('hub-slot-label').textContent =
+          totalClients + ' of ' + effectiveCap + ' client slots used';
+        document.getElementById('hub-slot-sub').textContent =
+          TC.name + ' Consultant Pack · ' + (effectiveCap - totalClients) + ' slots remaining';
       }
 
-      // Tab bar — only shown for multi-tool tenants
-      const tabBar = document.getElementById('assess-tab-bar');
+      // Build tabs
+      const tabBar = document.getElementById('hub-tab-bar');
       if (!tabBar) return;
-      if (TC.assessmentTools.length <= 1) {
-        tabBar.style.display = 'none';
-        renderAssessmentClients('all');
-        return;
-      }
-      tabBar.style.display = 'flex';
+      tabBar.innerHTML = '';
 
-      // Count clients per tool
-      const counts = { all: 0 };
-      TC.assessmentTools.forEach(t => { counts[t.id] = 0; });
+      const tabs = [];
+
+      // Carbon tab — only if GHG licence
+      if (TC.ghqLicence) {
+        tabs.push({ id: 'carbon', label: 'Carbon Dashboard', icon: '📊',
+          count: Object.keys(clientDB).length });
+      }
+
+      // Assessment tool tabs
+      const assessCounts = {};
+      TC.assessmentTools.forEach(t => { assessCounts[t.id] = 0; });
       Object.values(assessmentClientDB).forEach(c => {
-        if (counts[c.toolId] !== undefined) counts[c.toolId]++;
-        counts.all++;
+        if (assessCounts[c.toolId] !== undefined) assessCounts[c.toolId]++;
+      });
+      TC.assessmentTools.forEach(t => {
+        tabs.push({ id: t.id, label: t.label, icon: t.icon,
+          count: assessCounts[t.id] || 0 });
       });
 
-      // Build tabs: All + one per tool
-      const allTab = { id: 'all', label: 'All', icon: '📋' };
-      [allTab, ...TC.assessmentTools].forEach(t => {
+      // Render tab buttons
+      tabs.forEach((t, idx) => {
         const btn = document.createElement('button');
-        btn.className = 'assess-tab' + (t.id === 'all' ? ' active' : '');
+        btn.className = 'hub-tab' + (idx === 0 ? ' active' : '');
         btn.dataset.tab = t.id;
         btn.innerHTML = t.icon + ' ' + t.label +
-          ' <span class="at-count">' + (counts[t.id] || 0) + '</span>';
-        btn.onclick = () => {
-          tabBar.querySelectorAll('.assess-tab').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          currentAssessTab = t.id;
-          renderAssessmentClients(t.id);
-        };
+          ' <span class="ht-count">' + t.count + '</span>';
+        btn.onclick = () => switchHubTab(t.id);
         tabBar.appendChild(btn);
       });
 
-      renderAssessmentClients('all');
+      // Set default
+      currentHubTab = tabs.length > 0 ? tabs[0].id : 'carbon';
+      currentHubView = 'list';
+      renderHub();
     }
 
-    // ── renderAssessmentClients(toolFilter) ───────────────────────────────
-    // Renders client cards into #assessClientGrid, filtered by toolId.
-    // Called by tab clicks and search/stage filter.
-    function renderAssessmentClients(toolFilter) {
-      const grid     = document.getElementById('assessClientGrid');
-      const search   = (document.getElementById('assessSearch')?.value || '').toLowerCase();
-      const stageF   = (document.getElementById('assessStageFilter')?.value || '');
-      if (!grid) return;
+    // ── switchHubTab(tabId) ───────────────────────────────────────────────
+    function switchHubTab(tabId) {
+      currentHubTab = tabId;
+      document.querySelectorAll('#hub-tab-bar .hub-tab').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === tabId);
+      });
+      renderHub();
+    }
 
+    // ── setHubView(view) ──────────────────────────────────────────────────
+    function setHubView(view) {
+      currentHubView = view;
+      const listBtn = document.getElementById('hubListBtn');
+      const cardBtn = document.getElementById('hubCardBtn');
+      if (listBtn) listBtn.classList.toggle('view-btn-active', view === 'list');
+      if (cardBtn) cardBtn.classList.toggle('view-btn-active', view === 'card');
+      renderHub();
+    }
+
+    // ── renderHub() ───────────────────────────────────────────────────────
+    // Master render. Reads currentHubTab + currentHubView and draws content.
+    function renderHub() {
+      const content = document.getElementById('hub-content');
+      if (!content) return;
+      if (currentHubTab === 'carbon') {
+        currentHubView === 'list' ? renderCarbonList(content) : renderCarbonCards(content);
+      } else {
+        currentHubView === 'list'
+          ? renderAssessmentList(content, currentHubTab)
+          : renderAssessmentCards(content, currentHubTab);
+      }
+    }
+
+    // ── renderCarbonList(el) ──────────────────────────────────────────────
+    // List (table) view for Carbon / GHG clients.
+    // Columns: Client | Industry | Scope 1 | Scope 2 | Scope 3 | Total | Reduction | Data Quality | Status | Actions
+    function renderCarbonList(el) {
+      const search = (document.getElementById('hubSearch')?.value || '').toLowerCase();
+      const rows = Object.entries(clientDB).filter(([id, c]) => {
+        if (search && !(c.name + c.industry).toLowerCase().includes(search)) return false;
+        return true;
+      });
+
+      if (rows.length === 0) {
+        el.innerHTML = emptyState('No GHG clients match your search.');
+        return;
+      }
+
+      el.innerHTML = '<div class="client-list-wrap"><table class="client-list-table">' +
+        '<thead><tr>' +
+          '<th>Client</th><th>Industry</th>' +
+          '<th>Scope 1</th><th>Scope 2</th><th>Scope 3</th>' +
+          '<th>Total tCO₂e</th><th>Reduction</th>' +
+          '<th>Data Quality</th><th>Status</th><th>Actions</th>' +
+        '</tr></thead><tbody>' +
+        rows.map(([id, c]) => {
+          const statusColors = { good:'#22543d', warning:'#975a16', critical:'#822727' };
+          const statusBg     = { good:'#c6f6d5', warning:'#fef5e7', critical:'#fed7d7' };
+          const sc = (c.status || 'good').toLowerCase();
+          return '<tr onclick="viewClient(\'' + id + '\')">' +
+            '<td><div class="cl-name">' + c.name + '</div></td>' +
+            '<td><span style="color:#718096;">' + c.industry + '</span></td>' +
+            '<td>' + (c.scope1 || '—') + '</td>' +
+            '<td>' + (c.scope2 || '—') + '</td>' +
+            '<td>' + (c.scope3 || '—') + '</td>' +
+            '<td><strong>' + (c.totalEmissions || '—') + '</strong></td>' +
+            '<td style="color:#4a7c59; font-weight:600;">' + (c.reduction || '—') + '</td>' +
+            '<td>' + (c.dataQuality || '—') + '</td>' +
+            '<td><span style="background:' + (statusBg[sc]||'#edf2f7') + '; color:' + (statusColors[sc]||'#4a5568') +
+              '; padding:3px 10px; border-radius:12px; font-size:0.75rem; font-weight:700; text-transform:uppercase;">' +
+              (c.status || '—') + '</span></td>' +
+            '<td onclick="event.stopPropagation()" style="white-space:nowrap;">' +
+              '<button class="btn btn-secondary" style="font-size:0.75rem; padding:0.3rem 0.6rem; margin-right:4px;" ' +
+                'onclick="viewClient(\'' + id + '\')">📋 View</button>' +
+              '<button class="btn btn-primary" style="font-size:0.75rem; padding:0.3rem 0.6rem;" ' +
+                'onclick="openSingleClientReport(\'' + c.name + '\',\'' + id + '\')">📄 Report</button>' +
+            '</td>' +
+          '</tr>';
+        }).join('') +
+        '</tbody></table></div>';
+    }
+
+    // ── renderCarbonCards(el) ─────────────────────────────────────────────
+    // Card view for Carbon / GHG clients.
+    function renderCarbonCards(el) {
+      const search = (document.getElementById('hubSearch')?.value || '').toLowerCase();
+      const rows = Object.entries(clientDB).filter(([id, c]) =>
+        !search || (c.name + c.industry).toLowerCase().includes(search));
+
+      if (rows.length === 0) { el.innerHTML = emptyState('No GHG clients found.'); return; }
+
+      el.innerHTML = '<div class="client-grid">' + rows.map(([id, c]) => {
+        const sc = (c.status || 'good').toLowerCase();
+        return '<div class="client-card status-' + sc + '" onclick="viewClient(\'' + id + '\')">' +
+          '<div class="client-header"><div>' +
+            '<div class="client-name">' + c.name + '</div>' +
+            '<div class="client-industry">' + c.industry + '</div>' +
+          '</div><span class="status-indicator status-' + sc + '">' + (c.status || '') + '</span></div>' +
+          '<div class="client-metrics">' +
+            '<div class="metric"><span class="metric-label">Total Emissions</span><span class="metric-value">' + (c.totalEmissions||'—') + '</span></div>' +
+            '<div class="metric"><span class="metric-label">Reduction</span><span class="metric-value">' + (c.reduction||'—') + '</span></div>' +
+            '<div class="metric"><span class="metric-label">Data Quality</span><span class="metric-value">' + (c.dataQuality||'—') + '</span></div>' +
+          '</div>' +
+          '<div class="ai-insight">' + (c.insight||'') + '</div>' +
+          '<div style="display:flex; gap:0.5rem; margin-top:0.75rem;" onclick="event.stopPropagation()">' +
+            '<button class="btn btn-secondary" style="flex:1; font-size:0.75rem; padding:0.4rem 0.5rem;" onclick="viewClient(\'' + id + '\')">📋 Manage Data</button>' +
+            '<button class="btn btn-primary"   style="flex:1; font-size:0.75rem; padding:0.4rem 0.5rem;" onclick="openSingleClientReport(\'' + c.name + '\',\'' + id + '\')">📄 Report</button>' +
+          '</div></div>';
+      }).join('') + '</div>';
+    }
+
+    // ── renderAssessmentList(el, toolFilter) ──────────────────────────────
+    // List (table) view for assessment tool clients.
+    // Columns adapt per tool type.
+    function renderAssessmentList(el, toolFilter) {
+      const search  = (document.getElementById('hubSearch')?.value || '').toLowerCase();
+      const stageF  = (document.getElementById('hubStageFilter')?.value || '');
       const toolMap = {};
       TC.assessmentTools.forEach(t => { toolMap[t.id] = t; });
 
-      const clients = Object.entries(assessmentClientDB).filter(([id, c]) => {
+      const rows = Object.entries(assessmentClientDB).filter(([id, c]) => {
         if (toolFilter !== 'all' && c.toolId !== toolFilter) return false;
-        // Only show tools the tenant is subscribed to
         if (!toolMap[c.toolId]) return false;
         if (stageF && c.stage !== stageF) return false;
         if (search && !(c.name + c.refId + c.sector + c.city).toLowerCase().includes(search)) return false;
         return true;
       });
 
-      if (clients.length === 0) {
-        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem; color:#718096;">' +
-          '<div style="font-size:2.5rem; margin-bottom:1rem;">📋</div>' +
-          '<div style="font-weight:600;">No clients found</div>' +
-          '<div style="font-size:0.875rem; margin-top:0.5rem;">Try adjusting your filters or add a new assessment client.</div>' +
-          '</div>';
-        return;
-      }
+      if (rows.length === 0) { el.innerHTML = emptyState('No clients found. Try adjusting filters.'); return; }
 
-      grid.innerHTML = clients.map(([id, c]) => {
+      // Column headers differ by tool; use first row's tool as guide if single tool filtered
+      const sampleTool = toolFilter !== 'all' ? toolFilter : (rows[0]?.[1]?.toolId);
+      const scoreCol = {
+        'green-audit': 'Score / 100',
+        'nzoc':        'NZOC Stage',
+        'ccts':        'Est. Credits',
+        'pat':         'Energy Savings',
+        'materiality': 'Material Topics',
+      }[sampleTool] || 'Score / Value';
+
+      // Show Tool column only for All tab (multi-tool)
+      const showToolCol = toolFilter === 'all' && TC.assessmentTools.length > 1;
+
+      el.innerHTML = '<div class="client-list-wrap"><table class="client-list-table"><thead><tr>' +
+        '<th>Client</th>' +
+        (showToolCol ? '<th>Tool</th>' : '') +
+        '<th>Ref ID</th><th>Stage</th><th>' + scoreCol + '</th>' +
+        '<th>Last Activity</th><th>Actions</th>' +
+        '</tr></thead><tbody>' +
+        rows.map(([id, c]) => {
+          const tool = toolMap[c.toolId] || { icon:'📋', label: c.toolId };
+          return '<tr onclick="openAssessmentClient(\'' + id + '\')">' +
+            '<td><div class="cl-name">' + c.name + '</div>' +
+              '<div class="cl-sub">' + c.sector + ' · ' + c.city + '</div></td>' +
+            (showToolCol ? '<td><span class="tool-badge tb-' + c.toolId + '">' + tool.icon + ' ' + tool.label + '</span></td>' : '') +
+            '<td><span class="cl-mono">' + c.refId + '</span></td>' +
+            '<td><span class="ga-stage ' + c.stageClass + '">' + c.stage + '</span></td>' +
+            '<td>' + c.scoreValue + '</td>' +
+            '<td style="color:#718096; font-size:0.82rem;">' + c.lastActivity + '</td>' +
+            '<td onclick="event.stopPropagation()">' +
+              '<button class="btn btn-primary" style="font-size:0.75rem; padding:0.3rem 0.7rem; white-space:nowrap;" ' +
+                'onclick="openAssessmentClient(\'' + id + '\')">' + tool.icon + ' Open →</button>' +
+            '</td>' +
+          '</tr>';
+        }).join('') +
+        '</tbody></table></div>';
+    }
+
+    // ── renderAssessmentCards(el, toolFilter) ─────────────────────────────
+    // Card view for assessment tool clients (was renderAssessmentClients).
+    function renderAssessmentCards(el, toolFilter) {
+      const search  = (document.getElementById('hubSearch')?.value || '').toLowerCase();
+      const stageF  = (document.getElementById('hubStageFilter')?.value || '');
+      const toolMap = {};
+      TC.assessmentTools.forEach(t => { toolMap[t.id] = t; });
+
+      const clients = Object.entries(assessmentClientDB).filter(([id, c]) => {
+        if (toolFilter !== 'all' && c.toolId !== toolFilter) return false;
+        if (!toolMap[c.toolId]) return false;
+        if (stageF && c.stage !== stageF) return false;
+        if (search && !(c.name + c.refId + c.sector + c.city).toLowerCase().includes(search)) return false;
+        return true;
+      });
+
+      if (clients.length === 0) { el.innerHTML = emptyState('No clients found.'); return; }
+
+      el.innerHTML = '<div class="client-grid">' + clients.map(([id, c]) => {
         const tool    = toolMap[c.toolId];
-        const toolBadge = '<span class="tool-badge tb-' + c.toolId + '">' +
-          tool.icon + ' ' + tool.label + '</span>';
         const metrics = c.metrics.map(m =>
           '<div class="metric"><span class="metric-label">' + m.label + '</span>' +
           '<span class="metric-value" style="font-size:0.95rem;">' + m.value + '</span></div>'
@@ -5759,25 +5839,30 @@
           '<div class="client-header"><div>' +
             '<div class="client-name">' + c.name + '</div>' +
             '<div class="client-industry">' + c.sector + ' · ' + c.city + '</div>' +
-          '</div>' +
-          '<span class="ga-stage ' + c.stageClass + '">' + c.stage + '</span></div>' +
-          '<div style="margin-bottom:0.75rem;">' + toolBadge + '</div>' +
+          '</div><span class="ga-stage ' + c.stageClass + '">' + c.stage + '</span></div>' +
+          '<div style="margin-bottom:0.75rem;"><span class="tool-badge tb-' + c.toolId + '">' +
+            tool.icon + ' ' + tool.label + '</span></div>' +
           '<div class="client-metrics">' + metrics + '</div>' +
           '<div class="ai-insight">' + c.insight + '</div>' +
           '<div style="display:flex; gap:0.5rem; margin-top:0.75rem;" onclick="event.stopPropagation()">' +
             '<button class="btn btn-primary" style="flex:1; font-size:0.8rem; padding:0.5rem;" ' +
               'onclick="openAssessmentClient(\'' + id + '\')">' +
               tool.icon + ' Open ' + tool.label + ' →</button>' +
-          '</div>' +
-        '</div>';
-      }).join('');
+          '</div></div>';
+      }).join('') + '</div>';
     }
 
-    // ── filterAssessmentClients() ─────────────────────────────────────────
-    // Called by search input and stage filter; re-renders with current tab.
-    function filterAssessmentClients(tab) {
-      renderAssessmentClients(tab || currentAssessTab);
+    // ── emptyState(msg) ───────────────────────────────────────────────────
+    function emptyState(msg) {
+      return '<div style="text-align:center; padding:3rem; color:#718096;">' +
+        '<div style="font-size:2.5rem; margin-bottom:1rem;">📋</div>' +
+        '<div style="font-weight:600; margin-bottom:0.5rem;">' + msg + '</div></div>';
     }
+
+    // Legacy stubs — kept so any remaining old calls don't throw errors
+    function initAssessmentScreen() { initHubTabs(); }
+    function renderAssessmentClients(f) { renderAssessmentCards(document.getElementById('hub-content'), f); }
+    function filterAssessmentClients(t) { currentHubTab = t || currentHubTab; renderHub(); }
 
     // ── openAssessmentClient(clientId) ────────────────────────────────────
     // Populates audit-client-view and navigates to it.
@@ -5957,6 +6042,16 @@
         ]
       }
     };
+
+    // Field aliases so renderCarbonList/Cards can use consistent field names
+    // (clientDB uses shorthand: total, dq; renderers use totalEmissions, dataQuality)
+    Object.entries(clientDB).forEach(([id, c]) => {
+      c.totalEmissions = c.total ? c.total + ' tCO₂e' : '—';
+      c.dataQuality    = c.dq || '—';
+      c.scope1 = c.scope1 || '—'; c.scope2 = c.scope2 || '—'; c.scope3 = c.scope3 || '—';
+      // Short insight for card view (strip HTML for card tile)
+      if (!c.insight) c.insight = '';
+    });
 
     function viewClient(clientId) {
       const c = clientDB[clientId];
@@ -6330,10 +6425,13 @@
       assessment.innerHTML = '<div style="font-size: 0.875rem; color: ' + d.assessmentColor + ';">' + d.assessment + '</div>';
     }
 
-    // Initialize with card view active on page load
+    // Initialize on page load
     document.addEventListener('DOMContentLoaded', () => {
-      const cvb = document.getElementById('cardViewBtn');
-      if (cvb) cvb.classList.add('view-btn-active');
+      // Field aliases for clientDB (run after clientDB is defined above)
+      Object.entries(clientDB).forEach(([id, c]) => {
+        c.totalEmissions = c.total ? c.total + ' tCO₂e' : '—';
+        c.dataQuality    = c.dq || '—';
+      });
       initTenantConfig();
     });
   </script>
