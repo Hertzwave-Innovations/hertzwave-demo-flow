@@ -31,6 +31,58 @@ body{font-family:var(--fn);background:var(--bg);color:var(--ink);line-height:1.5
 .sbpt{font-size:8px;color:var(--mt);font-family:var(--mo)}
 .sbst{padding:0 1rem .4rem;font-size:.63rem;font-weight:700;color:#5B6E54;text-transform:uppercase;letter-spacing:.5px}
 .main{max-width:1060px;margin:0 auto;padding:18px 20px 60px;margin-left:230px;margin-top:60px}
+
+/* ── RUA: Client Context Bar ── */
+/* DEV NOTE: This bar sits at the very top of .main (above all sections).
+   It is always visible regardless of which audit step is active.
+   In production, clientName, auditId and auditYear are read from the URL
+   query param ?auditId=QF/RUA/43 and fetched from the session API on load.
+   Example: rua-greenaudit.html?auditId=QF%2FRUA%2F43
+   The "← Back to Client List" link should navigate back to the consultant
+   module's rua-green-audit-view screen (or history.back() if opened via
+   openFullAuditForm() in the consultant module). */
+.rua-ctx-bar{
+  background:#fff;
+  border:1px solid #DDE4DD;
+  border-radius:10px;
+  padding:10px 16px;
+  margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.rua-ctx-back{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:11px;
+  font-weight:600;
+  color:#3E7A2A;
+  text-decoration:none;
+  cursor:pointer;
+  border:none;
+  background:none;
+  font-family:var(--fn);
+  padding:0;
+}
+.rua-ctx-back:hover{color:#1E3A14;}
+.rua-ctx-info{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.rua-ctx-name{font-size:13px;font-weight:700;color:#111;}
+.rua-ctx-chip{
+  background:#EDF5E8;
+  border:1px solid #C8E8A0;
+  border-radius:5px;
+  padding:2px 8px;
+  font-size:9px;
+  font-weight:700;
+  color:#2E5A1E;
+  font-family:var(--mo);
+  letter-spacing:.5px;
+  text-transform:uppercase;
+}
+.rua-ctx-meta{font-size:10px;color:#5B6E54;}
 .sec{display:none}.sec.active{display:block}
 @keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .wfb{display:flex;background:var(--sf);border-radius:12px;border:1px solid var(--bd);padding:4px;margin-bottom:16px;overflow-x:auto}
@@ -226,6 +278,45 @@ body{font-family:var(--fn);background:var(--bg);color:var(--ink);line-height:1.5
   <div class="sbpw"><div class="sbpt">Progress: <span id="sbPTxt">0/99</span></div><div class="sbpb"><div class="sbpf" id="sbPBar" style="width:0%"></div></div></div>
 </nav>
 <main class="main">
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     RUA CLIENT CONTEXT BAR
+     ══════════════════════════════════════════════════════════════════════
+     DEV NOTE: This bar is always visible across all 6 audit steps.
+     It tells both the RUA consultant and the logged-in client coordinator
+     which institution's audit is currently open.
+
+     CONSULTANT VIEW (all 6 steps visible):
+       - "← Back to Client List" navigates to rua-green-audit-view screen
+         in the consultant module. Use history.back() if opened via
+         openFullAuditForm(), or window.opener to send a postMessage.
+
+     CLIENT VIEW (Steps 2–4 only):
+       - Hide the "← Back to Client List" link (clients have no access
+         to the consultant client list).
+       - Show only the institution name + Audit ID.
+
+     POPULATION: In production, read ?auditId= from URL, fetch session
+     data from API, and populate rua-ctx-name, rua-ctx-auditid, rua-ctx-year.
+     For prototype, these are hardcoded to QF/RUA/43.
+     ═════════════════════════════════════════════════════════════════════= -->
+<div class="rua-ctx-bar" id="rua-ctx-bar">
+  <!-- Back link — hide for client login role -->
+  <button class="rua-ctx-back" onclick="window.close()" title="Close this tab to return to the consultant audit view">
+    ← Back to Client List
+  </button>
+  <!-- Client info — centre -->
+  <div class="rua-ctx-info">
+    <span class="rua-ctx-name" id="rua-ctx-name">St. Joseph's College</span>
+    <span class="rua-ctx-chip" id="rua-ctx-auditid">QF/RUA/43</span>
+    <span class="rua-ctx-meta" id="rua-ctx-year">Audit Year: 2024-25 &nbsp;·&nbsp; Educational Institution &nbsp;·&nbsp; Bengaluru</span>
+  </div>
+  <!-- Stage pill — right -->
+  <span class="rua-ctx-chip" id="rua-ctx-stage" style="background:#FEF3C7; border-color:#FDE68A; color:#78350F;">
+    Stage: Assessment
+  </span>
+</div>
+
 <section class="sec active" id="sec-s1">
   <div class="wfb">
     <div class="wfs active"><div class="wfn">1</div><div><div class="wfl">Client Setup</div><div class="wfs-s">QF/RUA/43</div></div></div>
@@ -236,6 +327,18 @@ body{font-family:var(--fn);background:var(--bg);color:var(--ink);line-height:1.5
     <div class="wfs" onclick="gS('s6',document.getElementById('n6'))"><div class="wfn">6</div><div><div class="wfl">Documents</div></div></div>
   </div>
   <div class="card"><div class="ch"><span class="ct">&#x1F4CB; Enquiry Details &nbsp;<span style="font-size:9px;font-weight:400;color:var(--mt)">QF/RUA/43</span></span><span class="tag tg">Client Intake</span></div><div class="cb">
+    <!-- DEV NOTE: Step 1 is filled by the RUA consultant during client onboarding
+         via the "Add New Client" form in the Consultant Module (hertzwave-consultant-flow.html).
+         Fields here are pre-populated from that record and locked for the client.
+         The consultant can edit them by returning to the consultant module's
+         Add/Edit Client form and saving; changes sync here on next load.
+         The client coordinator login cannot edit Step 1 fields.
+         In the prototype all fields remain editable for demo purposes. -->
+    <div class="pb" style="margin-bottom:12px;">
+      &#x1F512; <strong>Pre-filled by RUA consultant.</strong>
+      These details were entered during client onboarding. If any information needs to be updated,
+      contact your RUA audit coordinator — clients cannot edit Step 1 directly.
+    </div>
     <div class="fg">
       <div><label class="fl">Coordinator Name</label><input class="fi" id="c_name" placeholder="Full name" oninput="syncInst()"></div>
       <div><label class="fl">Email</label><input class="fi" id="c_email" type="email" placeholder="name@org.com" oninput="syncInst()"></div>
@@ -1706,6 +1809,53 @@ function initStep6() {
   }
   evUpdateStats();
 }
+
+// ── RUA Context Bar: Read auditId from URL query param ────────────────
+// DEV NOTE: When the consultant clicks "Open Full Audit Form →" in the
+// consultant module, it calls:
+//   window.open('rua-greenaudit.html?auditId=' + encodeURIComponent(auditId), '_blank')
+//
+// This block reads that param on page load and updates the context bar.
+// In production, the auditId is used to fetch full client record from API.
+//
+// Demo data is hardcoded for 4 sample clients (matching ruaClientDB in
+// hertzwave-consultant-flow.html). If auditId is not in URL or not found
+// in the map, the bar shows the default values already in the HTML.
+//
+// CLIENT ROLE: If the logged-in role is 'client' (not 'consultant'),
+// hide '.rua-ctx-back' button and Steps 1, 5, 6 nav items.
+// This role check should be done server-side; JS is a prototype convenience.
+
+(function() {
+  var auditMeta = {
+    'QF/RUA/43': { name:"St. Joseph's College",    year:'2024-25', type:'Educational Institution', city:'Bengaluru', stage:'Assessment' },
+    'QF/RUA/44': { name:'Global Academy of Tech',  year:'2024-25', type:'Educational Institution', city:'Mysuru',    stage:'Data Collection' },
+    'QF/RUA/45': { name:'Sunrise Business Park',   year:'2023-24', type:'Commercial',              city:'Bengaluru', stage:'Verified' },
+    'QF/RUA/46': { name:'Heritage Heights Society', year:'2024-25', type:'Residential',             city:'Bengaluru', stage:'Client Setup' }
+  };
+
+  var params = new URLSearchParams(window.location.search);
+  var auditId = params.get('auditId');
+  if (!auditId) return; // no param — use default HTML values
+
+  var meta = auditMeta[auditId];
+  if (!meta) return; // unknown auditId — use default HTML values
+
+  // Update context bar elements
+  var nameEl  = document.getElementById('rua-ctx-name');
+  var idEl    = document.getElementById('rua-ctx-auditid');
+  var yearEl  = document.getElementById('rua-ctx-year');
+  var stageEl = document.getElementById('rua-ctx-stage');
+
+  if (nameEl)  nameEl.textContent  = meta.name;
+  if (idEl)    idEl.textContent    = auditId;
+  if (yearEl)  yearEl.textContent  =
+    'Audit Year: ' + meta.year + '  ·  ' + meta.type + '  ·  ' + meta.city;
+  if (stageEl) stageEl.textContent = 'Stage: ' + meta.stage;
+
+  // Update page title
+  document.title = auditId + ' — ' + meta.name + ' — RUA Green Audit';
+})();
 
 </script>
 <div id="toast" class="toast"></div></body></html>
