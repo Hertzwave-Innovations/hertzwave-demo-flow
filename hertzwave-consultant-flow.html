@@ -5237,7 +5237,7 @@
             toolFile: 'rua-greenaudit.html', refPrefix: 'QF/RUA/',
             navLabel: 'Green Audit Clients' },
           { id: 'nzoc', label: 'NZOC', icon: '🎯',
-            toolFile: 'nzoc-tool.html', refPrefix: 'NZOC/CII/',
+            toolFile: 'CII_NZOC-Tool.html', refPrefix: 'NZOC/CII/',
             navLabel: 'NZOC Clients' },
           { id: 'ccts', label: 'CCTS', icon: '🏭',
             toolFile: 'ccts-tool.html', refPrefix: 'CCTS/HW/',
@@ -5272,7 +5272,7 @@
         slotUsed: 2,
         assessmentTools: [
           { id: 'nzoc', label: 'NZOC', icon: '🎯',
-            toolFile: 'nzoc-tool.html', refPrefix: 'NZOC/CII/',
+            toolFile: 'CII_NZOC-Tool.html', refPrefix: 'NZOC/CII/',
             navLabel: 'NZOC Clients' },
         ],
       },
@@ -5407,7 +5407,7 @@
       // ── NZOC clients ─────────────────────────────────────────────────
       // DEV NOTE: NZOC steps reflect CII's Net Zero Operations Certification
       // pathway. Stage labels differ from Green Audit but the card/view
-      // structure is identical. toolFile points to nzoc-tool.html (TBD).
+      // structure is identical. toolFile points to CII_NZOC-Tool.html.
       cipla: {
         toolId: 'nzoc',
         name: 'Cipla Ltd — Goa Plant', sector: 'Pharmaceuticals', city: 'Panaji, Goa',
@@ -5833,7 +5833,17 @@
     }
 
     // ── openAssessmentTool() ──────────────────────────────────────────────
-    // Opens the tool file for the currently viewed assessment client.
+    // Opens the correct tool file for the currently viewed assessment client.
+    //
+    // ROUTING RULES:
+    //   nzoc        → CII_NZOC-Tool.html?refId=...
+    //   ccts        → terracap_cmc_selector.html?refId=...
+    //                 The selector lets the user choose between
+    //                 terracap_cmc_bharti.html and terracap_cmc_slrm.html.
+    //                 The refId is passed through so the selector can
+    //                 pre-identify the client.
+    //   green-audit → rua-greenaudit.html?refId=...
+    //   all others  → toolFile + ?refId=...
     function openAssessmentTool() {
       const c = assessmentClientDB[currentAssessClientId];
       if (!c) return;
@@ -5841,7 +5851,15 @@
       TC.assessmentTools.forEach(t => { toolMap[t.id] = t; });
       const tool = toolMap[c.toolId];
       if (!tool) return;
-      window.open(tool.toolFile + '?refId=' + encodeURIComponent(c.refId), '_blank');
+
+      let url;
+      if (c.toolId === 'ccts') {
+        // Route through selector; selector passes chosen variant + refId onward
+        url = 'terracap_cmc_selector.html?refId=' + encodeURIComponent(c.refId);
+      } else {
+        url = tool.toolFile + '?refId=' + encodeURIComponent(c.refId);
+      }
+      window.open(url, '_blank');
     }
 
     // ── onAddAssessToolChange() ───────────────────────────────────────────
