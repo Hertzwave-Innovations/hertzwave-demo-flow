@@ -1050,6 +1050,10 @@
           <span class="nav-icon">👥</span>
           <span>All Clients</span>
         </div>
+        <div class="nav-item" onclick="showScreen('add-client')">
+          <span class="nav-icon">➕</span>
+          <span>Add New Client</span>
+        </div>
       </div>
 
       <!-- nav-assess-section kept as empty mount for JS compat; no visible items -->
@@ -1513,168 +1517,276 @@
         </div>
       </div><!-- end #add-assessment-client -->
 
-      <!-- Screen 3: Add Client — RUA Green Audit Onboarding -->
-      <!-- DEV NOTE: RUA consultant fills this form to onboard a new audit client.
-           Fields in the "Green Audit Setup" section directly pre-populate Step 1
-           (Client Setup / Enquiry Details) in rua-greenaudit.html when the
-           consultant opens that client's Green Audit Tool.
-           The Audit ID assigned here is the unique key linking this record to the
-           Green Audit Tool session.
-           After saving, the system provisions client login credentials and sends
-           an access email. Client can then log in and complete Steps 2–4. -->
+      <!-- Screen 3: Add New Client (generic — all tenants) -->
+      <!-- DEV NOTE: This is an admin-level action. In production, visibility of
+           this screen is restricted to users with the 'consulting_admin' role.
+           Client ID is a free-form reference assigned by the consulting admin
+           (e.g. internal CRM code, account number). It is displayed in the
+           client card and dashboard header for cross-referencing.
+           Client Logo is stored as a base64 blob (max 2MB) or as a CDN URL
+           after upload; displayed in the client's GHG dashboard header and
+           assessment tool context bar. -->
       <div id="add-client" class="screen">
         <h1 class="page-title">Add New Client</h1>
-        <p class="page-subtitle">Onboard a new client to your RUA Green Audit portfolio</p>
+        <p class="page-subtitle">Register a new client account. Admin-only action.</p>
 
+        <!-- ── Card 1: Client Identity ── -->
         <div class="card">
-          <h3 style="margin-bottom: 1.5rem;">Client Contact Information</h3>
-          
+          <h3 style="margin-bottom:1.5rem;">Client Identity</h3>
           <div class="form-grid">
+
             <div class="form-group">
-              <label>Institution / Company Name*</label>
-              <input type="text" placeholder="e.g., St. Joseph's College" required>
+              <label>Company / Organisation Name *</label>
+              <input type="text" placeholder="e.g., Tata Power — Mundra Plant" required>
             </div>
-            
+
             <div class="form-group">
-              <label>Building Type*</label>
-              <!-- DEV NOTE: maps to c_btype in rua-greenaudit.html Step 1 -->
+              <label>
+                Client ID
+                <span style="font-size:0.78rem; font-weight:400; color:#718096; margin-left:6px;">
+                  (assigned by consulting admin)
+                </span>
+              </label>
+              <!-- DEV NOTE: Free-form reference code. No uniqueness enforced at
+                   frontend; backend should warn on duplicate within tenant.
+                   Examples: CRM account number, internal code, legacy ref. -->
+              <input type="text" id="clientIdInput" placeholder="e.g., TP-MND-001 or ACC-2025-047"
+                oninput="previewClientId(this.value)">
+              <small style="color:#718096; font-size:0.78rem; margin-top:4px; display:block;"
+                id="clientIdPreview">Will appear on dashboards and reports as a reference tag.</small>
+            </div>
+
+            <div class="form-group">
+              <label>Industry / Sector *</label>
               <select>
-                <option value="">Select building type…</option>
-                <option>Residential</option>
-                <option>Commercial</option>
-                <option>Factories and Industries</option>
-                <option>Educational Institutions</option>
-                <option>Hospitals and Healthcare</option>
-                <option>Government Offices</option>
+                <option value="">Select sector…</option>
+                <option>Power Generation</option>
+                <option>Cement Manufacturing</option>
+                <option>Steel Manufacturing</option>
+                <option>Petrochemicals &amp; Refining</option>
+                <option>Pharmaceuticals</option>
+                <option>Information Technology</option>
+                <option>Automotive</option>
+                <option>Textile &amp; Apparel</option>
+                <option>Food &amp; Beverages</option>
+                <option>Educational Institution</option>
+                <option>Healthcare &amp; Hospitals</option>
+                <option>Real Estate &amp; Construction</option>
+                <option>Retail</option>
+                <option>Financial Services</option>
+                <option>Government / PSU</option>
+                <option>Other</option>
               </select>
             </div>
-            
+
             <div class="form-group">
-              <label>City, State</label>
-              <input type="text" placeholder="e.g., Bengaluru, Karnataka">
+              <label>Organisation Type</label>
+              <select>
+                <option>Private Limited</option>
+                <option>Public Limited</option>
+                <option>PSU / Government</option>
+                <option>Partnership / LLP</option>
+                <option>NGO / Trust</option>
+                <option>Educational Institution</option>
+                <option>Other</option>
+              </select>
             </div>
 
             <div class="form-group">
-              <label>Full Address</label>
-              <input type="text" placeholder="Street address, locality">
+              <label>City</label>
+              <input type="text" placeholder="e.g., Mundra">
+            </div>
+
+            <div class="form-group">
+              <label>State</label>
+              <input type="text" placeholder="e.g., Gujarat">
             </div>
 
             <div class="form-group">
               <label>PIN Code</label>
-              <input type="text" placeholder="e.g., 560001">
+              <input type="text" placeholder="e.g., 370421">
             </div>
 
             <div class="form-group">
-              <label>Country/Region</label>
+              <label>Country</label>
               <select>
                 <option>India</option>
                 <option>United States</option>
                 <option>United Kingdom</option>
                 <option>Germany</option>
                 <option>Singapore</option>
+                <option>UAE</option>
               </select>
             </div>
 
-            <div class="form-group">
-              <label>Coordinator Name*</label>
-              <!-- DEV NOTE: maps to c_name in rua-greenaudit.html Step 1 -->
-              <input type="text" placeholder="Primary contact full name" required>
+          </div>
+        </div>
+
+        <!-- ── Card 2: Client Logo ── -->
+        <div class="card">
+          <h3 style="margin-bottom:0.5rem;">Client Logo</h3>
+          <p style="color:#718096; font-size:0.875rem; margin-bottom:1.25rem;">
+            Displayed in the client's GHG dashboard header, assessment tool context bar, and generated reports.
+            PNG or SVG preferred for best quality. Maximum file size: <strong>2 MB</strong>.
+          </p>
+
+          <!-- Logo drop zone -->
+          <div id="logoDropZone"
+            style="border:2px dashed #cbd5e0; border-radius:10px; padding:2rem; text-align:center;
+                   cursor:pointer; transition:border-color .2s; background:#fafafa;"
+            onclick="document.getElementById('logoFileInput').click()"
+            ondragover="event.preventDefault(); this.style.borderColor='#4a7c59';"
+            ondragleave="this.style.borderColor='#cbd5e0';"
+            ondrop="handleLogoDrop(event)">
+            <div id="logoPreviewWrap" style="display:none; margin-bottom:1rem;">
+              <img id="logoPreview" src="" alt="Logo preview"
+                style="max-height:80px; max-width:240px; object-fit:contain; border-radius:6px;">
             </div>
-            
+            <div id="logoPlaceholder">
+              <div style="font-size:2rem; margin-bottom:0.5rem;">🖼️</div>
+              <div style="font-weight:600; color:#4a5568; margin-bottom:0.25rem;">
+                Click to upload or drag &amp; drop
+              </div>
+              <div style="font-size:0.82rem; color:#a0aec0;">PNG, JPG, SVG · Max 2 MB</div>
+            </div>
+            <div id="logoFileInfo" style="display:none; font-size:0.82rem; color:#4a7c59; margin-top:0.5rem;"></div>
+          </div>
+
+          <input type="file" id="logoFileInput" accept="image/png,image/jpeg,image/svg+xml"
+            style="display:none;" onchange="handleLogoSelect(this)">
+
+          <div id="logoError" style="display:none; margin-top:0.75rem; padding:0.6rem 0.9rem;
+            background:#fed7d7; border-radius:6px; color:#742a2a; font-size:0.875rem;">
+          </div>
+
+          <div id="logoClearBtn" style="display:none; margin-top:0.75rem;">
+            <button class="btn btn-secondary" style="font-size:0.8rem; padding:0.35rem 0.8rem;"
+              onclick="clearLogo()">✕ Remove Logo</button>
+          </div>
+        </div>
+
+        <!-- ── Card 3: Primary Contact ── -->
+        <div class="card">
+          <h3 style="margin-bottom:1.5rem;">Primary Contact</h3>
+          <div class="form-grid">
+
             <div class="form-group">
-              <label>Coordinator Email*</label>
-              <!-- DEV NOTE: used for client login provisioning + maps to c_email -->
-              <input type="email" placeholder="coordinator@institution.com" required>
+              <label>Contact Name *</label>
+              <input type="text" placeholder="Full name" required>
             </div>
 
             <div class="form-group">
-              <label>Coordinator Phone</label>
+              <label>Email Address *</label>
+              <!-- DEV NOTE: Used for client portal login provisioning -->
+              <input type="email" placeholder="contact@company.com" required>
+            </div>
+
+            <div class="form-group">
+              <label>Phone Number</label>
               <input type="tel" placeholder="+91 98765 43210">
             </div>
 
             <div class="form-group">
               <label>Designation</label>
-              <input type="text" placeholder="e.g., Facilities Manager">
+              <input type="text" placeholder="e.g., Head of Sustainability">
             </div>
+
           </div>
         </div>
 
-        <!-- ── Green Audit Setup (maps to Step 1 of rua-greenaudit.html) ── -->
+        <!-- ── Card 4: Subscriptions ── -->
         <div class="card">
-          <h3 style="margin-bottom: 0.5rem;">Green Audit Setup</h3>
-          <p style="color:#718096; font-size:0.875rem; margin-bottom:1.5rem;">
-            These fields pre-populate <strong>Step 1 (Client Setup)</strong> in the Green Audit Tool.
-            Once saved, the client will not be able to edit these — contact your RUA coordinator to update.
+          <h3 style="margin-bottom:0.5rem;">Tools &amp; Subscriptions</h3>
+          <p style="color:#718096; font-size:0.875rem; margin-bottom:1.25rem;">
+            Select which TerraCAP tools this client will access. Determines which tabs appear in their portal.
           </p>
-
           <div class="form-grid">
             <div class="form-group">
-              <label>Audit ID (RUA assigns)*</label>
-              <!-- DEV NOTE: maps to c_uid in rua-greenaudit.html. Must be unique.
-                   Format: QF/RUA/[sequential number]. Backend auto-suggests next ID. -->
-              <input type="text" placeholder="e.g., QF/RUA/47" required>
-              <small style="color:#718096; font-size:0.78rem; margin-top:4px; display:block;">Suggested next ID: QF/RUA/48</small>
-            </div>
-
-            <div class="form-group">
-              <label>Audit Year*</label>
-              <!-- DEV NOTE: maps to c_yr in rua-greenaudit.html -->
-              <input type="text" placeholder="e.g., 2024-25" required>
-            </div>
-
-            <div class="form-group">
-              <label>Issue Date</label>
-              <!-- DEV NOTE: maps to c_date in rua-greenaudit.html -->
-              <input type="date">
-            </div>
-
-            <div class="form-group">
-              <label>Green Building Rating Interest</label>
-              <!-- DEV NOTE: maps to the multi-select rating buttons in Step 1.
-                   Store as comma-separated string. Options: IGBC, LEED, GRIHA,
-                   ASSOCHAM GEM, ECBC, None -->
+              <label>GHG / Carbon Dashboard</label>
               <select>
-                <option value="">Select if known…</option>
-                <option>IGBC</option>
-                <option>LEED</option>
-                <option>GRIHA</option>
-                <option>ASSOCHAM GEM</option>
-                <option>ECBC</option>
-                <option>None / Not decided</option>
+                <option value="yes">Enabled</option>
+                <option value="no">Disabled</option>
               </select>
             </div>
-
-            <div class="form-group">
-              <label>Webinar on Green Campus?</label>
-              <select>
-                <option value="">Select…</option>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-              </select>
-            </div>
-
             <div class="form-group full-width">
-              <label>Notes / Special Requirements</label>
-              <textarea placeholder="Any specific requirements for this audit engagement…"></textarea>
+              <label>Assessment Tools
+                <span style="font-size:0.78rem; font-weight:400; color:#718096; margin-left:6px;">Select all that apply</span>
+              </label>
+              <!-- DEV NOTE: Each checked tool creates a separate subscription record
+                   against this client in the backend. The client's portal tab bar
+                   and the consultant's hub tab count are derived from this list.
+                   New tools can be added here by extending TENANT_PROFILES.assessmentTools. -->
+              <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:0.5rem; margin-top:0.5rem;
+                          border:1px solid #e2e8f0; border-radius:8px; padding:1rem; background:#fafafa;">
+                <label style="display:flex; align-items:center; gap:0.6rem; font-weight:400; cursor:pointer; padding:0.35rem 0.5rem; border-radius:6px; transition:background .15s;"
+                  onmouseover="this.style.background='#edf2f7'" onmouseout="this.style.background='transparent'">
+                  <input type="checkbox" value="greenco" style="width:15px; height:15px; cursor:pointer; accent-color:#4a7c59;">
+                  🏅 GreenCo (CII)
+                </label>
+                <label style="display:flex; align-items:center; gap:0.6rem; font-weight:400; cursor:pointer; padding:0.35rem 0.5rem; border-radius:6px; transition:background .15s;"
+                  onmouseover="this.style.background='#edf2f7'" onmouseout="this.style.background='transparent'">
+                  <input type="checkbox" value="green-audit-rua" style="width:15px; height:15px; cursor:pointer; accent-color:#4a7c59;">
+                  🌿 RUA Green Audit
+                </label>
+                <label style="display:flex; align-items:center; gap:0.6rem; font-weight:400; cursor:pointer; padding:0.35rem 0.5rem; border-radius:6px; transition:background .15s;"
+                  onmouseover="this.style.background='#edf2f7'" onmouseout="this.style.background='transparent'">
+                  <input type="checkbox" value="green-audit-naac" style="width:15px; height:15px; cursor:pointer; accent-color:#4a7c59;">
+                  🎓 NAAC Green Audit
+                </label>
+                <label style="display:flex; align-items:center; gap:0.6rem; font-weight:400; cursor:pointer; padding:0.35rem 0.5rem; border-radius:6px; transition:background .15s;"
+                  onmouseover="this.style.background='#edf2f7'" onmouseout="this.style.background='transparent'">
+                  <input type="checkbox" value="nzoc" style="width:15px; height:15px; cursor:pointer; accent-color:#4a7c59;">
+                  🎯 CII NZOC
+                </label>
+                <label style="display:flex; align-items:center; gap:0.6rem; font-weight:400; cursor:pointer; padding:0.35rem 0.5rem; border-radius:6px; transition:background .15s;"
+                  onmouseover="this.style.background='#edf2f7'" onmouseout="this.style.background='transparent'">
+                  <input type="checkbox" value="pat-ccts" style="width:15px; height:15px; cursor:pointer; accent-color:#4a7c59;">
+                  ⚡ PAT / CCTS (BEE)
+                </label>
+                <label style="display:flex; align-items:center; gap:0.6rem; font-weight:400; cursor:pointer; padding:0.35rem 0.5rem; border-radius:6px; transition:background .15s;"
+                  onmouseover="this.style.background='#edf2f7'" onmouseout="this.style.background='transparent'">
+                  <input type="checkbox" value="materiality" style="width:15px; height:15px; cursor:pointer; accent-color:#4a7c59;">
+                  🔍 Materiality Scoping
+                </label>
+                <label style="display:flex; align-items:center; gap:0.6rem; font-weight:400; cursor:pointer; padding:0.35rem 0.5rem; border-radius:6px; transition:background .15s;"
+                  onmouseover="this.style.background='#edf2f7'" onmouseout="this.style.background='transparent'">
+                  <input type="checkbox" value="lca" style="width:15px; height:15px; cursor:pointer; accent-color:#4a7c59;">
+                  🔬 LCA (Life Cycle Assessment)
+                </label>
+                <label style="display:flex; align-items:center; gap:0.6rem; font-weight:400; cursor:pointer; padding:0.35rem 0.5rem; border-radius:6px; transition:background .15s;"
+                  onmouseover="this.style.background='#edf2f7'" onmouseout="this.style.background='transparent'">
+                  <input type="checkbox" value="ui-greenmetric" style="width:15px; height:15px; cursor:pointer; accent-color:#4a7c59;">
+                  🏫 UI GreenMetric
+                </label>
+                <label style="display:flex; align-items:center; gap:0.6rem; font-weight:400; cursor:pointer; padding:0.35rem 0.5rem; border-radius:6px; transition:background .15s;"
+                  onmouseover="this.style.background='#edf2f7'" onmouseout="this.style.background='transparent'">
+                  <input type="checkbox" value="cbam" style="width:15px; height:15px; cursor:pointer; accent-color:#4a7c59;">
+                  🌐 CBAM (EU Carbon Border)
+                </label>
+              </div>
+              <small style="color:#718096; font-size:0.78rem; margin-top:6px; display:block;">
+                Each selected tool will appear as a tab in the client's portal and the consultant's hub view.
+                New tools can be added by the platform admin as they become available.
+              </small>
             </div>
+            <div class="form-group">
+              <label>Engagement Year</label>
+              <input type="text" placeholder="e.g., 2024-25">
+            </div>
+            <div class="form-group">
+              <label>Notes</label>
+              <input type="text" placeholder="Internal notes for this client…">
+            </div>
+          </div>
+          <div class="info-box info" style="font-size:0.875rem; margin-top:0.25rem;">
+            📧 A login invitation will be sent to the primary contact email on save.
           </div>
         </div>
 
-        <!-- ── Client Portal Access ── -->
-        <div class="card">
-          <h3 style="margin-bottom:0.5rem;">Client Portal Access</h3>
-          <p style="color:#718096; font-size:0.875rem; margin-bottom:1.25rem;">
-            On save, the system will provision login credentials for the client's coordinator email and
-            grant access to Steps 2–4 of the Green Audit Tool. The consultant retains access to all 6 steps.
-          </p>
-          <div class="info-box info" style="font-size:0.875rem;">
-            📧 A login invitation will be automatically sent to the coordinator email address on save.
-          </div>
-        </div>
-          
-        <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 0.5rem;">
+        <div style="display:flex; gap:1rem; justify-content:flex-end; margin-top:0.5rem;">
           <button class="btn btn-secondary" onclick="showScreen('client-hub')">Cancel</button>
-          <button class="btn btn-primary" onclick="alert('✅ Client onboarded successfully!\n\nAudit ID assigned and login invitation sent to coordinator email.\n\nThe client now appears in your Green Audit client list.')">
+          <button class="btn btn-primary"
+            onclick="alert('✅ Client registered successfully!\n\nClient ID and login invitation sent to primary contact.\nThe client will appear in the All Clients hub.')">
             Save &amp; Provision Access
           </button>
         </div>
@@ -6185,6 +6297,74 @@
     // Alias: routes straight into the generic assessment client view.
     // Called by any legacy button still referencing openGreenAudit().
     function openGreenAudit(clientId) { openAssessmentClient(clientId); }
+
+    // ── Add Client: Logo upload handlers ─────────────────────────────────
+    // DEV NOTE: Logo is validated client-side (type + size) before preview.
+    // On form save, base64 data URI is sent to backend or uploaded separately
+    // to CDN; the returned URL is stored against the client record.
+    // Max size enforced: 2 MB (2,097,152 bytes). Accepted: PNG, JPG, SVG.
+
+    function handleLogoSelect(input) {
+      if (input.files && input.files[0]) processLogoFile(input.files[0]);
+    }
+
+    function handleLogoDrop(event) {
+      event.preventDefault();
+      document.getElementById('logoDropZone').style.borderColor = '#cbd5e0';
+      const file = event.dataTransfer.files[0];
+      if (file) processLogoFile(file);
+    }
+
+    function processLogoFile(file) {
+      const errorEl   = document.getElementById('logoError');
+      const previewEl = document.getElementById('logoPreview');
+      const wrapEl    = document.getElementById('logoPreviewWrap');
+      const infoEl    = document.getElementById('logoFileInfo');
+      const phEl      = document.getElementById('logoPlaceholder');
+      const clearBtn  = document.getElementById('logoClearBtn');
+
+      errorEl.style.display = 'none';
+
+      const allowed = ['image/png','image/jpeg','image/svg+xml'];
+      if (!allowed.includes(file.type)) {
+        errorEl.textContent = '⚠️ Unsupported file type. Please upload PNG, JPG, or SVG.';
+        errorEl.style.display = 'block'; return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        errorEl.textContent = '⚠️ File exceeds 2 MB limit (' + (file.size / 1024 / 1024).toFixed(2) + ' MB). Please compress or resize the image.';
+        errorEl.style.display = 'block'; return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        previewEl.src = e.target.result;
+        wrapEl.style.display = 'block';
+        phEl.style.display   = 'none';
+        infoEl.style.display = 'block';
+        infoEl.textContent   = '✅ ' + file.name + ' · ' + (file.size / 1024).toFixed(1) + ' KB';
+        clearBtn.style.display = 'block';
+        document.getElementById('logoDropZone').style.borderColor = '#4a7c59';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearLogo() {
+      document.getElementById('logoPreview').src = '';
+      document.getElementById('logoPreviewWrap').style.display = 'none';
+      document.getElementById('logoPlaceholder').style.display = 'block';
+      document.getElementById('logoFileInfo').style.display    = 'none';
+      document.getElementById('logoClearBtn').style.display    = 'none';
+      document.getElementById('logoError').style.display       = 'none';
+      document.getElementById('logoFileInput').value           = '';
+      document.getElementById('logoDropZone').style.borderColor = '#cbd5e0';
+    }
+
+    function previewClientId(val) {
+      const el = document.getElementById('clientIdPreview');
+      if (el) el.textContent = val
+        ? 'Reference tag preview: [' + val + ']'
+        : 'Will appear on dashboards and reports as a reference tag.';
+    }
 
     function openAddConsultantModal() {
       document.getElementById('addConsultantModal').classList.add('active');
