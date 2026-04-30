@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GreenCo Dashboard — TerraCAP</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; background:#f5f5f5; color:#333; }
+
+/* ── Consultant context bar ── */
+.ctx-bar {
+  background:#fff; border-bottom:1px solid #DDE4DD;
+  padding:8px 2rem; display:flex; align-items:center;
+  justify-content:space-between; gap:1rem; flex-wrap:wrap;
+  position:fixed; top:0; left:0; right:0; z-index:200; height:42px;
+}
+.ctx-back { font-size:11px; font-weight:600; color:#3d7f6f; border:none; background:none; cursor:pointer; font-family:inherit; }
+.ctx-back:hover { color:#2d5f4f; }
+.ctx-chips { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.ctx-name  { font-size:13px; font-weight:700; color:#111; }
+.ctx-chip  { background:#EDF5E8; border:1px solid #C8E8A0; border-radius:5px; padding:2px 8px; font-size:10px; font-weight:700; color:#2E5A1E; font-family:'JetBrains Mono',monospace; letter-spacing:.5px; }
+.ctx-stage { background:#FEF3C7; border:1px solid #FDE68A; color:#78350F; }
+
+/* ── Header ── */
+.header {
+  background:linear-gradient(135deg,#2d5f4f 0%,#3d7f6f 100%);
+  color:white; padding:1rem 2rem;
+  display:flex; justify-content:space-between; align-items:center;
+  box-shadow:0 2px 4px rgba(0,0,0,.1);
+  position:fixed; top:42px; left:0; right:0; z-index:100;
+}
+.logo { font-size:1.3rem; font-weight:300; letter-spacing:.3em; }
+.user-info { background:rgba(255,255,255,.2); padding:.4rem .9rem; border-radius:20px; font-size:.85rem; }
+
+/* ── Layout ── */
+.container { display:flex; margin-top:112px; min-height:calc(100vh - 112px); }
+.sidebar {
+  width:230px; background:white; border-right:1px solid #e0e0e0;
+  padding:1.5rem 0; position:fixed; left:0; top:112px; bottom:0;
+  overflow-y:auto; z-index:50;
+}
+.nav-item { padding:.85rem 1.5rem; cursor:pointer; transition:all .3s; border-left:3px solid transparent; font-size:.9rem; }
+.nav-item:hover { background:#f5f5f5; }
+.nav-item.active { background:#e8f5f1; border-left-color:#3d7f6f; color:#2d5f4f; font-weight:600; }
+.main-content { margin-left:230px; flex:1; padding:2rem; background:#f5f5f5; min-height:calc(100vh - 112px); }
+
+/* ── Page sections ── */
+.page-section { display:none; }
+.page-section.active { display:block; }
+
+/* ── Incomplete notice banner ── */
+.incomplete-banner {
+  background:#fff8e1; border:1px solid #ffe082; border-radius:10px;
+  padding:1rem 1.25rem; margin-bottom:1.5rem;
+  display:flex; align-items:flex-start; gap:.75rem; font-size:.875rem;
+}
+.incomplete-banner strong { color:#e65100; }
+
+/* ── Dashboard header ── */
+.dashboard-header { margin-bottom:1.5rem; }
+.dashboard-header h1 { color:#2d5f4f; font-size:1.75rem; margin-bottom:.35rem; }
+.dashboard-header p { color:#666; font-size:.95rem; }
+
+/* ── Score card ── */
+.score-card {
+  background:linear-gradient(135deg,#fffbea 0%,#fff8dc 100%);
+  border:2px solid #ffd700; border-radius:12px;
+  text-align:center; padding:2rem; margin-bottom:1.5rem;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+.score-badge {
+  display:inline-block;
+  background:linear-gradient(135deg,#ffd700 0%,#ffed4e 100%);
+  color:#333; padding:.75rem 2rem; border-radius:50px;
+  font-size:2.25rem; font-weight:700;
+  box-shadow:0 4px 12px rgba(255,215,0,.3); margin:1rem 0;
+}
+.score-pending {
+  background:linear-gradient(135deg,#e0e0e0 0%,#f5f5f5 100%);
+  color:#757575;
+}
+.rating-stars { font-size:1.75rem; color:#ffd700; margin:.5rem 0; }
+.score-meta { display:flex; justify-content:center; gap:2rem; flex-wrap:wrap; margin-top:1rem; }
+.score-meta-item { text-align:center; }
+.score-meta-item .val { font-size:1.4rem; font-weight:700; color:#2d5f4f; }
+.score-meta-item .lbl { font-size:.82rem; color:#666; margin-top:2px; }
+
+/* ── Filters ── */
+.filter-section {
+  background:white; border-radius:12px; padding:1.25rem; margin-bottom:1.5rem;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+.filter-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin-bottom:.75rem; }
+.filter-group { display:flex; flex-direction:column; gap:.4rem; }
+.filter-label { font-weight:600; color:#2d5f4f; font-size:.85rem; }
+.filter-select { padding:.6rem; border:2px solid #e0e0e0; border-radius:8px; font-size:.85rem; cursor:pointer; }
+.filter-select:focus { outline:none; border-color:#3d7f6f; }
+.apply-btn {
+  background:linear-gradient(135deg,#3d7f6f,#2d5f4f); color:white;
+  border:none; padding:.65rem 1.25rem; border-radius:8px;
+  font-weight:600; cursor:pointer; font-size:.875rem; font-family:inherit;
+}
+
+/* ── KPI grid ── */
+.metrics-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1.25rem; margin-bottom:1.5rem; }
+.kpi-card {
+  background:white; border-radius:12px; padding:1.25rem;
+  box-shadow:0 4px 12px rgba(0,0,0,.08); border-left:5px solid #3d7f6f;
+}
+.kpi-card.energy  { border-left-color:#ff6b6b; }
+.kpi-card.water   { border-left-color:#4ecdc4; }
+.kpi-card.material{ border-left-color:#ffa502; }
+.kpi-card.waste   { border-left-color:#95e1d3; }
+.kpi-card.ghg     { border-left-color:#20bf6b; }
+.kpi-card.renew   { border-left-color:#ffd32a; }
+.kpi-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.75rem; }
+.kpi-icon { font-size:1.75rem; }
+.kpi-status { padding:.2rem .65rem; border-radius:12px; font-size:.72rem; font-weight:700; }
+.kpi-status.excellent { background:#d4edda; color:#155724; }
+.kpi-status.good      { background:#fff3cd; color:#856404; }
+.kpi-status.attention { background:#f8d7da; color:#721c24; }
+.kpi-status.pending   { background:#e9ecef; color:#495057; }
+.kpi-value { font-size:1.8rem; font-weight:700; color:#2d5f4f; margin-bottom:.35rem; }
+.kpi-label { font-size:.88rem; color:#666; margin-bottom:.35rem; }
+.kpi-change { font-size:.85rem; font-weight:600; }
+.kpi-change.positive { color:#20bf6b; }
+.kpi-change.negative { color:#ff6b6b; }
+.kpi-detail { background:#f8f9fa; border-radius:6px; padding:.6rem .75rem; margin-top:.75rem; font-size:.82rem; }
+.kpi-row { display:flex; justify-content:space-between; margin-bottom:3px; }
+.kpi-row:last-child { margin-bottom:0; }
+
+/* ── Parameter cards ── */
+.parameter-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.25rem; margin-bottom:1.5rem; }
+.param-card {
+  background:white; border-radius:12px; padding:1.25rem;
+  box-shadow:0 4px 12px rgba(0,0,0,.08); border-left:4px solid #ccc;
+  transition:transform .2s;
+}
+.param-card:hover { transform:translateY(-3px); }
+.param-card.p1 { border-left-color:#ff6b6b; }
+.param-card.p2 { border-left-color:#ffa502; }
+.param-card.p3 { border-left-color:#4ecdc4; }
+.param-card.p4 { border-left-color:#95e1d3; }
+.param-card.p5 { border-left-color:#20bf6b; }
+.param-card.p6 { border-left-color:#a8e6db; }
+.param-card.p7 { border-left-color:#fd79a8; }
+.param-card.p8 { border-left-color:#fdcb6e; }
+.param-card.p9 { border-left-color:#6c5ce7; }
+.param-card.p10{ border-left-color:#0984e3; }
+.param-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.75rem; }
+.param-name { font-size:.95rem; font-weight:600; color:#2d5f4f; }
+.param-score { font-size:1.4rem; font-weight:700; }
+.param-progress { width:100%; height:7px; background:#e0e0e0; border-radius:4px; overflow:hidden; margin:.75rem 0; }
+.param-fill { height:100%; border-radius:4px; }
+.p1 .param-fill { background:linear-gradient(90deg,#ff6b6b,#ff8787); }
+.p2 .param-fill { background:linear-gradient(90deg,#ffa502,#ffb632); }
+.p3 .param-fill { background:linear-gradient(90deg,#4ecdc4,#6edbd0); }
+.p4 .param-fill { background:linear-gradient(90deg,#95e1d3,#a8e6db); }
+.p5 .param-fill { background:linear-gradient(90deg,#20bf6b,#3dd78d); }
+.p6 .param-fill { background:linear-gradient(90deg,#a8e6db,#c4f0e8); }
+.p7 .param-fill { background:linear-gradient(90deg,#fd79a8,#ff9ac1); }
+.p8 .param-fill { background:linear-gradient(90deg,#fdcb6e,#fdd98b); }
+.p9 .param-fill { background:linear-gradient(90deg,#6c5ce7,#8777ed); }
+.p10 .param-fill{ background:linear-gradient(90deg,#0984e3,#2d9cdb); }
+.param-status { display:inline-block; padding:.2rem .6rem; border-radius:10px; font-size:.78rem; font-weight:600; }
+.param-status.completed   { background:#d4edda; color:#155724; }
+.param-status.in-progress { background:#fff3cd; color:#856404; }
+.param-status.pending     { background:#f8d7da; color:#721c24; }
+.param-note { font-size:.8rem; color:#888; margin-top:.5rem; font-style:italic; }
+
+/* ── Chart containers ── */
+.chart-container {
+  background:white; border-radius:12px; padding:1.5rem;
+  margin-bottom:1.5rem; box-shadow:0 4px 12px rgba(0,0,0,.08);
+}
+.chart-title   { font-size:1.15rem; font-weight:600; color:#2d5f4f; margin-bottom:.25rem; }
+.chart-subtitle{ font-size:.85rem; color:#666; margin-bottom:1.25rem; }
+.charts-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(480px,1fr)); gap:1.5rem; margin-bottom:1.5rem; }
+.chart-card { background:white; border:1px solid #e0e0e0; border-radius:12px; padding:1.25rem; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+.canvas-wrap { position:relative; height:260px; }
+
+/* ── Consumption cards ── */
+.consumption-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:1.25rem; margin-bottom:1.5rem; }
+.cons-card { background:white; border-radius:12px; padding:1.25rem; box-shadow:0 4px 12px rgba(0,0,0,.08); }
+.cons-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.75rem; }
+.cons-title { font-size:1rem; font-weight:600; color:#2d5f4f; }
+.cons-value { font-size:1.75rem; font-weight:700; color:#2d5f4f; margin-bottom:.35rem; }
+.cons-change { font-size:.85rem; margin-bottom:.75rem; }
+.cons-change.pos { color:#20bf6b; }
+.cons-change.neg { color:#ff6b6b; }
+
+/* ── Trend section ── */
+.trend-table { width:100%; border-collapse:collapse; font-size:.875rem; }
+.trend-table th { background:#f0f7f4; padding:.7rem 1rem; text-align:left; font-weight:600; color:#2d5f4f; border-bottom:2px solid #e0e0e0; }
+.trend-table td { padding:.7rem 1rem; border-bottom:1px solid #f0f0f0; }
+.trend-table tr:last-child td { border-bottom:none; }
+.trend-table tr:hover td { background:#f9fffe; }
+.badge { display:inline-block; padding:.2rem .6rem; border-radius:10px; font-size:.75rem; font-weight:700; }
+.badge-green { background:#c6f6d5; color:#22543d; }
+.badge-yellow{ background:#fef9c3; color:#854d0e; }
+.badge-red   { background:#fee2e2; color:#991b1b; }
+.badge-grey  { background:#f3f4f6; color:#6b7280; }
+
+/* ── Buttons ── */
+.btn-primary-small { background:linear-gradient(135deg,#3d7f6f,#2d5f4f); color:white; border:none; padding:.45rem .9rem; border-radius:6px; font-size:.82rem; font-weight:600; cursor:pointer; font-family:inherit; }
+.btn-secondary-small { background:white; color:#3d7f6f; border:2px solid #3d7f6f; padding:.45rem .9rem; border-radius:6px; font-size:.82rem; font-weight:600; cursor:pointer; font-family:inherit; }
+.btn-secondary-small:hover { background:#e8f5f1; }
+</style>
+</head>
+<body>
+
+<!-- Consultant Context Bar -->
+<div class="ctx-bar" id="ctxBar">
+  <button class="ctx-back" onclick="window.close()">← Back to Client List</button>
+  <div class="ctx-chips">
+    <span class="ctx-name" id="ctxName">—</span>
+    <span class="ctx-chip" id="ctxRefId">—</span>
+    <span class="ctx-chip" id="ctxYear">—</span>
+    <span class="ctx-chip ctx-stage" id="ctxStage">—</span>
+  </div>
+  <span id="ctxScore" style="font-weight:700; font-size:.9rem; color:#2d5f4f;">—</span>
+</div>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo">TERRACAP</div>
+  <div class="user-info" id="headerUserInfo">GreenCo Assessment</div>
+</div>
+
+<div class="container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="nav-item active" onclick="showPage('dashboard',this)">📊 Dashboard</div>
+    <div class="nav-item" onclick="showPage('consumption',this)">📈 Consumption Tracking</div>
+    <div class="nav-item" onclick="showPage('parameters',this)">✅ 10 GreenCo Parameters</div>
+    <div class="nav-item" onclick="showPage('trends',this)">📉 Performance Trends</div>
+    <div class="nav-item" onclick="showPage('reports',this)">📄 Reports &amp; Analytics</div>
+  </div>
+
+  <div class="main-content">
+
+    <!-- ══════════ DASHBOARD PAGE ══════════ -->
+    <div id="dashboard-page" class="page-section active">
+
+      <div class="dashboard-header">
+        <h1 id="dash-title">🏆 GreenCo Certification Dashboard</h1>
+        <p id="dash-subtitle">Real-time monitoring and performance tracking for environmental excellence</p>
+      </div>
+
+      <!-- Incomplete banner — shown only for UltraTech -->
+      <div class="incomplete-banner" id="incompleteBanner" style="display:none;">
+        ⚠️ &nbsp;<div>
+          <strong>Data incomplete — score cannot be finalised.</strong>
+          The following sections are pending client submission:
+          <strong id="incompleteSections">—</strong>.
+          Complete all sections to unlock Domain Scoring.
+          <br><span style="color:#888; font-size:.82rem; margin-top:4px; display:block;">Consultant action: Send reminder to client coordinator.</span>
+        </div>
+      </div>
+
+      <!-- Score card -->
+      <div class="score-card">
+        <h2 style="color:#2d5f4f; font-size:1.25rem;" id="scoreCardTitle">Overall GreenCo Score — FY 2024-25</h2>
+        <div class="score-badge" id="scoreBadge">—</div>
+        <div class="rating-stars" id="ratingStars"></div>
+        <div class="score-meta" id="scoreMeta"></div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-section">
+        <div class="filter-grid">
+          <div class="filter-group">
+            <label class="filter-label">View Type</label>
+            <select class="filter-select" id="viewType" onchange="renderDashView()">
+              <option value="summary">Summary View</option>
+              <option value="detailed">Detailed Breakdown</option>
+              <option value="comparison">Benchmark Comparison</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Period</label>
+            <select class="filter-select">
+              <option>Q4 2024-25</option>
+              <option selected>FY 2024-25</option>
+              <option>FY 2023-24</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Benchmark</label>
+            <select class="filter-select" id="benchmarkType" onchange="renderDashView()">
+              <option value="industry">Industry Average</option>
+              <option value="sector">Sector Best</option>
+              <option value="peer">Peer Companies</option>
+            </select>
+          </div>
+        </div>
+        <button class="apply-btn" onclick="renderDashView()">Apply Filters</button>
+      </div>
+
+      <div id="dashViewContainer"></div>
+    </div><!-- end dashboard-page -->
+
+    <!-- ══════════ CONSUMPTION TRACKING PAGE ══════════ -->
+    <div id="consumption-page" class="page-section">
+      <div class="dashboard-header">
+        <h1>📊 Consumption Tracking</h1>
+        <p>Monitor and analyse resource consumption across all facilities</p>
+      </div>
+      <div class="consumption-grid" id="consumptionGrid"></div>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3 class="chart-title">⚡ Energy Consumption Trend</h3>
+          <p class="chart-subtitle" id="energyChartSub">Monthly energy intensity — FY 2024-25</p>
+          <div class="canvas-wrap"><canvas id="energyChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">💧 Water Consumption Breakdown</h3>
+          <p class="chart-subtitle">Consumption by end-use category</p>
+          <div class="canvas-wrap"><canvas id="waterChart"></canvas></div>
+        </div>
+      </div>
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3 class="chart-title">🏭 GHG Emissions Profile</h3>
+          <p class="chart-subtitle">Scope 1 and Scope 2 emissions — quarterly</p>
+          <div class="canvas-wrap"><canvas id="ghgChart"></canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3 class="chart-title">♻️ Waste Management Mix</h3>
+          <p class="chart-subtitle">Waste by disposition method</p>
+          <div class="canvas-wrap"><canvas id="wasteChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ PARAMETERS PAGE ══════════ -->
+    <div id="parameters-page" class="page-section">
+      <div class="dashboard-header">
+        <h1>✅ 10 GreenCo Parameters</h1>
+        <p>CII GreenCo v3 parameter-wise scoring and status</p>
+      </div>
+      <div id="incompleteBanner2" style="display:none;" class="incomplete-banner">
+        ⚠️ &nbsp;<div><strong>Parameters with pending data are shown below.</strong> Scores for incomplete parameters cannot be finalised until all sub-questions are submitted by the client.</div>
+      </div>
+      <div class="parameter-grid" id="paramGrid"></div>
+    </div>
+
+    <!-- ══════════ TRENDS PAGE ══════════ -->
+    <div id="trends-page" class="page-section">
+      <div class="dashboard-header">
+        <h1>📉 Performance Trends</h1>
+        <p>3-year historical performance vs GreenCo thresholds</p>
+      </div>
+      <div class="chart-container">
+        <h3 class="chart-title">GreenCo Score Progression</h3>
+        <p class="chart-subtitle">Year-on-year score trajectory and band thresholds</p>
+        <div class="canvas-wrap" style="height:300px;"><canvas id="scoreProgressChart"></canvas></div>
+      </div>
+      <div class="chart-container">
+        <h3 class="chart-title">Multi-metric Intensity Trend</h3>
+        <p class="chart-subtitle">Normalised intensity indices (FY23 = 100)</p>
+        <div class="canvas-wrap" style="height:280px;"><canvas id="intensityChart"></canvas></div>
+      </div>
+      <div class="chart-container">
+        <h3 class="chart-title">Year-on-Year KPI Summary</h3>
+        <div id="kpiTable"></div>
+      </div>
+    </div>
+
+    <!-- ══════════ REPORTS PAGE ══════════ -->
+    <div id="reports-page" class="page-section">
+      <div class="dashboard-header">
+        <h1>📄 Reports &amp; Analytics</h1>
+        <p>Generate comprehensive GreenCo assessment reports</p>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.25rem;">
+        <div style="background:white; border-radius:12px; padding:1.5rem; box-shadow:0 4px 12px rgba(0,0,0,.08);">
+          <div style="font-size:2.5rem; margin-bottom:1rem;">📋</div>
+          <div style="font-size:1.05rem; font-weight:600; color:#2d5f4f; margin-bottom:.5rem;">Executive Summary Report</div>
+          <div style="font-size:.875rem; color:#666; margin-bottom:1rem;">25-page report covering score summary, parameter analysis, and strategic roadmap.</div>
+          <div style="display:flex; gap:.5rem;">
+            <button class="btn-primary-small" onclick="alert('Generating Executive Summary PDF…')">Generate PDF</button>
+          </div>
+        </div>
+        <div style="background:white; border-radius:12px; padding:1.5rem; box-shadow:0 4px 12px rgba(0,0,0,.08);">
+          <div style="font-size:2.5rem; margin-bottom:1rem;">🎯</div>
+          <div style="font-size:1.05rem; font-weight:600; color:#2d5f4f; margin-bottom:.5rem;">Detailed Assessment Report</div>
+          <div style="font-size:.875rem; color:#666; margin-bottom:1rem;">Full parameter-by-parameter breakdown with evidence documentation (30+ pages).</div>
+          <div style="display:flex; gap:.5rem;">
+            <button class="btn-primary-small" onclick="alert('Generating Detailed Assessment PDF…')">Generate PDF</button>
+          </div>
+        </div>
+        <div style="background:white; border-radius:12px; padding:1.5rem; box-shadow:0 4px 12px rgba(0,0,0,.08);">
+          <div style="font-size:2.5rem; margin-bottom:1rem;">📊</div>
+          <div style="font-size:1.05rem; font-weight:600; color:#2d5f4f; margin-bottom:.5rem;">Benchmark Comparison Report</div>
+          <div style="font-size:.875rem; color:#666; margin-bottom:1rem;">Sector-level peer benchmarking and competitive positioning analysis.</div>
+          <div style="display:flex; gap:.5rem;">
+            <button class="btn-primary-small" onclick="alert('Generating Benchmark Report PDF…')">Generate PDF</button>
+          </div>
+        </div>
+        <div style="background:white; border-radius:12px; padding:1.5rem; box-shadow:0 4px 12px rgba(0,0,0,.08);">
+          <div style="font-size:2.5rem; margin-bottom:1rem;">🏛️</div>
+          <div style="font-size:1.05rem; font-weight:600; color:#2d5f4f; margin-bottom:.5rem;">CII-GBC Submission Package</div>
+          <div style="font-size:.875rem; color:#666; margin-bottom:1rem;">Formatted package for CII desk review: auditor deck (50 slides) + evidence bundle.</div>
+          <div style="display:flex; gap:.5rem;">
+            <button class="btn-primary-small" onclick="alert('Preparing CII submission package…')">Download Package</button>
+          </div>
+        </div>
+        <div style="background:white; border-radius:12px; padding:1.5rem; box-shadow:0 4px 12px rgba(0,0,0,.08);">
+          <div style="font-size:2.5rem; margin-bottom:1rem;">🗺️</div>
+          <div style="font-size:1.05rem; font-weight:600; color:#2d5f4f; margin-bottom:.5rem;">Platinum Roadmap</div>
+          <div style="font-size:.875rem; color:#666; margin-bottom:1rem;">Gap analysis and prioritised action plan with effort/impact scoring to reach Platinum.</div>
+          <div style="display:flex; gap:.5rem;">
+            <button class="btn-primary-small" onclick="alert('Generating Platinum Roadmap…')">Generate PDF</button>
+          </div>
+        </div>
+        <div style="background:white; border-radius:12px; padding:1.5rem; box-shadow:0 4px 12px rgba(0,0,0,.08);">
+          <div style="font-size:2.5rem; margin-bottom:1rem;">📤</div>
+          <div style="font-size:1.05rem; font-weight:600; color:#2d5f4f; margin-bottom:.5rem;">Data Export</div>
+          <div style="font-size:.875rem; color:#666; margin-bottom:1rem;">Export all assessment data in CSV, Excel or JSON for external use or audit trail.</div>
+          <div style="display:flex; gap:.5rem;">
+            <button class="btn-primary-small" onclick="alert('Exporting data…')">Export CSV</button>
+            <button class="btn-secondary-small" onclick="alert('Exporting Excel…')">Excel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end main-content -->
+</div><!-- end container -->
+
+<script>
+// ══════════════════════════════════════════════════════════════════════════
+// CLIENT DATA
+// ══════════════════════════════════════════════════════════════════════════
+// DEV NOTE: In production, this data is fetched from the TerraCAP API
+// using ?refId= URL param. Each client has sector-appropriate metrics.
+// Production unit normalisers:
+//   Power plant   → MWh generated
+//   Cement plant  → MT clinker / MT cement
+// ══════════════════════════════════════════════════════════════════════════
+
+const CLIENTS = {
+
+  // ── Tata Power — Mundra (GCO/HW/001) ────────────────────────────────
+  // Mundra Ultra Mega Power Project: 4,620 MW coal-based thermal plant,
+  // Gujarat coast. Also has a 40 MW captive solar facility.
+  // GreenCo score: 74/100 · Gold band (≥60 <75)
+  'GCO/HW/001': {
+    refId:      'GCO/HW/001',
+    name:       'Tata Power — Mundra Plant',
+    sector:     'Power Generation',
+    city:       'Mundra, Gujarat',
+    year:       'FY 2024-25',
+    stage:      'Domain Scoring',
+    score:      74,
+    band:       'Gold',
+    stars:      '★★★★',
+    toNext:     '1 pt to Platinum',
+    incomplete: false,
+    incompleteSections: [],
+
+    // Score card meta
+    scoreMeta: [
+      { val:'+6.2%',   lbl:'vs Last Year'        },
+      { val:'1 pt',    lbl:'To Platinum (75)'     },
+      { val:'8/10',    lbl:'Parameters Complete'  },
+    ],
+
+    // Dashboard KPI cards
+    kpis: [
+      { cls:'energy',  icon:'⚡', status:'excellent', statusLbl:'Excellent',
+        value:'-5.8%', label:'Energy Intensity CAGR (GJ/MWh)',
+        change:'↓ Net heat rate CAGR FY23–FY25',
+        rows:[['FY 2022-23','2,450 kcal/kWh'],['FY 2024-25','2,312 kcal/kWh']] },
+      { cls:'water',   icon:'💧', status:'attention', statusLbl:'Needs Work',
+        value:'-2.1%', label:'Water Intensity CAGR (KL/MWh)',
+        change:'↓ Limited by once-through cooling design',
+        rows:[['FY 2022-23','3.41 KL/MWh'],['FY 2024-25','3.27 KL/MWh']] },
+      { cls:'ghg',     icon:'🏭', status:'good', statusLbl:'Good',
+        value:'-4.2%', label:'GHG Intensity CAGR (tCO₂e/MWh)',
+        change:'↓ Improved heat rate + 10.8% renewable blend',
+        rows:[['FY 2022-23','1.012 tCO₂e/MWh'],['FY 2024-25','0.935 tCO₂e/MWh']] },
+      { cls:'renew',   icon:'☀️', status:'good', statusLbl:'Good',
+        value:'10.8%', label:'Renewable Energy Share',
+        change:'↑ 40 MW solar + wind PPAs added FY25',
+        rows:[['Installed Renewable','450 MW (solar+wind)'],['Target FY27','18% RE share']] },
+      { cls:'material',icon:'♻️', status:'excellent', statusLbl:'Excellent',
+        value:'100%',  label:'Fly Ash Utilisation',
+        change:'↑ All fly ash sold to cement/brick sector',
+        rows:[['Fly Ash Generated','6.2 MT'],['Ash Utilised','6.2 MT (100%)']] },
+      { cls:'waste',   icon:'🗑️', status:'good', statusLbl:'Good',
+        value:'93.4%', label:'Waste Recycling Rate',
+        change:'↑ +2.1 pp vs FY24',
+        rows:[['Total Waste','1,240 MT'],['Recycled/Reused','1,158 MT']] },
+    ],
+
+    // 10 GreenCo Parameters
+    params: [
+      { cls:'p1',  name:'Energy Conservation & Efficiency', score:8.2,  max:10, pct:82, status:'completed',   statusLbl:'Complete',     note:'Strong heat rate improvement programme; VFD retrofits on BFPs complete.' },
+      { cls:'p2',  name:'Renewable Energy',                 score:6.1,  max:10, pct:61, status:'completed',   statusLbl:'Complete',     note:'10.8% RE share achieved; below Gold threshold of 12%. PPA under negotiation.' },
+      { cls:'p3',  name:'Water Conservation',               score:6.8,  max:10, pct:68, status:'completed',   statusLbl:'Complete',     note:'Once-through cooling constrains intensity. ZLD for township achieved.' },
+      { cls:'p4',  name:'Waste Management',                 score:7.8,  max:10, pct:78, status:'completed',   statusLbl:'Complete',     note:'100% fly ash utilisation; hazardous waste co-processed with cement kilns.' },
+      { cls:'p5',  name:'GHG Emission Reduction',           score:7.6,  max:10, pct:76, status:'completed',   statusLbl:'Complete',     note:'GHG intensity CAGR of -4.2% vs target -3.5%. SBTi submission planned.' },
+      { cls:'p6',  name:'Pollution Prevention',             score:8.4,  max:10, pct:84, status:'completed',   statusLbl:'Complete',     note:'SPM <50 mg/Nm³ across all stacks; SOx control system operational.' },
+      { cls:'p7',  name:'Green Supply Chain',               score:5.6,  max:10, pct:56, status:'completed',   statusLbl:'Complete',     note:'38% of vendors screened. Target 60% by FY26 for Platinum.' },
+      { cls:'p8',  name:'Product Stewardship',              score:7.2,  max:10, pct:72, status:'completed',   statusLbl:'Complete',     note:'Clean energy transition roadmap published. EV fleet for township.' },
+      { cls:'p9',  name:'Biodiversity & Green Cover',       score:6.4,  max:10, pct:64, status:'completed',   statusLbl:'Complete',     note:'22 ha green belt. Mangrove restoration programme (coastal site).' },
+      { cls:'p10', name:'Beyond Compliance',                score:6.0,  max:10, pct:60, status:'in-progress', statusLbl:'In Progress',  note:'ISO 14001 certified. TCFD report drafted. Social sustainability score pending.' },
+    ],
+
+    // Consumption tracking data
+    consumption: [
+      { icon:'⚡', title:'Total Energy Consumed',  value:'1,38,420 TJ',  change:'↓ 3.4% vs FY24', pos:true,  sub:'Net heat rate: 2,312 kcal/kWh' },
+      { icon:'💧', title:'Water Consumption',       value:'1,51,240 KL/day', change:'↓ 2.1% vs FY24', pos:true, sub:'Sea water + Township: 3.27 KL/MWh' },
+      { icon:'🏭', title:'GHG Emissions (Scope 1+2)', value:'28.4 MT CO₂e', change:'↓ 4.2% intensity', pos:true, sub:'0.935 tCO₂e/MWh net generated' },
+      { icon:'♻️', title:'Fly Ash Generated',       value:'6.2 MT',       change:'↑ 100% utilised',  pos:true,  sub:'Sold to cement & brick sector' },
+    ],
+
+    // Energy chart data (monthly net heat rate, kcal/kWh)
+    energyData: [2445,2430,2420,2412,2408,2400,2395,2388,2381,2375,2368,2312],
+    energyLabel: 'Net Heat Rate (kcal/kWh)',
+
+    // Water doughnut
+    waterLabels: ['Cooling Tower','Ash Handling','Township & DM Plant','Boiler Feed','Misc'],
+    waterData:   [68, 18, 7, 5, 2],
+
+    // GHG quarterly (MT CO₂e)
+    ghgLabels: ['Q1 FY24','Q2 FY24','Q3 FY24','Q4 FY24','Q1 FY25','Q2 FY25','Q3 FY25','Q4 FY25'],
+    ghgScope1: [7.6,7.4,7.2,7.1,7.0,6.9,6.8,6.7],
+    ghgScope2: [0.55,0.52,0.50,0.48,0.46,0.44,0.42,0.40],
+
+    // Waste doughnut
+    wasteLabels: ['Fly Ash Sold','Bottom Ash Reused','Oily Waste Co-proc.','Landfill (inert)'],
+    wasteData:   [78, 15, 5, 2],
+
+    // Trend table
+    trendRows: [
+      ['Energy Intensity', '2,450 kcal/kWh', '2,385 kcal/kWh', '2,312 kcal/kWh', '-5.8% CAGR', 'badge-green'],
+      ['GHG Intensity',    '1.012 tCO₂e/MWh','0.972 tCO₂e/MWh','0.935 tCO₂e/MWh','-4.2% CAGR','badge-green'],
+      ['Water Intensity',  '3.41 KL/MWh',    '3.34 KL/MWh',    '3.27 KL/MWh',    '-2.1% CAGR','badge-yellow'],
+      ['Renewable Share',  '6.2%',            '8.5%',           '10.8%',          '+4.6 pp',   'badge-green'],
+      ['Fly Ash Utilise.', '95.0%',           '98.0%',          '100.0%',         '+5 pp',     'badge-green'],
+      ['Waste Recycling',  '88.1%',           '91.3%',          '93.4%',          '+5.3 pp',   'badge-green'],
+      ['GreenCo Score',    '58 / 100',        '68 / 100',       '74 / 100',       '+16 pts',   'badge-green'],
+    ],
+    scoreHistory: [58, 68, 74],
+    benchmarks: {
+      industry: { energy:2580, water:3.8,  ghg:1.05 },
+      sector:   { energy:2180, water:2.9,  ghg:0.82 },
+      peer:     { energy:2420, water:3.4,  ghg:0.96 },
+    },
+    benchmarkUnit: { energy:'kcal/kWh', water:'KL/MWh', ghg:'tCO₂e/MWh' },
+    yourValues:    { energy:2312, water:3.27, ghg:0.935 },
+  },
+
+  // ── UltraTech Cement — Gulbarga (GCO/HW/002) ─────────────────────────
+  // Gulbarga Integrated Cement Plant: 3.2 MTPA capacity.
+  // Incomplete: Biodiversity (Q41-Q55) and Waste sub-section (Q31-Q40) pending.
+  // Score cannot be finalised until complete.
+  'GCO/HW/002': {
+    refId:      'GCO/HW/002',
+    name:       'UltraTech Cement — Gulbarga',
+    sector:     'Cement Manufacturing',
+    city:       'Gulbarga, Karnataka',
+    year:       'FY 2024-25',
+    stage:      'Data Ingestion',
+    score:      null,
+    band:       'Pending',
+    stars:      '',
+    toNext:     '',
+    incomplete: true,
+    incompleteSections: ['Biodiversity & Green Cover (Q41–Q55)', 'Waste Management sub-section (Q31–Q40)'],
+
+    scoreMeta: [
+      { val:'6 / 10',     lbl:'Parameters Scored'   },
+      { val:'2 pending',  lbl:'Sections Incomplete'  },
+      { val:'~62–68',     lbl:'Projected Range'      },
+    ],
+
+    kpis: [
+      { cls:'energy',  icon:'⚡', status:'excellent', statusLbl:'Excellent',
+        value:'-4.1%', label:'Energy Intensity CAGR (GJ/MT cement)',
+        change:'↓ Waste heat recovery + AFR co-processing',
+        rows:[['FY 2022-23','3.62 GJ/MT'],['FY 2024-25','3.34 GJ/MT']] },
+      { cls:'water',   icon:'💧', status:'excellent', statusLbl:'Excellent',
+        value:'-6.3%', label:'Water Intensity CAGR (KL/MT cement)',
+        change:'↓ Closed loop cooling + ZLD achieved',
+        rows:[['FY 2022-23','0.241 KL/MT'],['FY 2024-25','0.212 KL/MT']] },
+      { cls:'ghg',     icon:'🏭', status:'good', statusLbl:'Good',
+        value:'-3.8%', label:'GHG Intensity CAGR (tCO₂e/MT clinker)',
+        change:'↓ Clinker factor reduction + green power',
+        rows:[['FY 2022-23','0.812 tCO₂e/MT'],['FY 2024-25','0.748 tCO₂e/MT']] },
+      { cls:'renew',   icon:'☀️', status:'good', statusLbl:'Good',
+        value:'18.2%', label:'Renewable Energy Share',
+        change:'↑ 42 MW rooftop solar + green tariff PPA',
+        rows:[['Green Power','18.2% of total consumption'],['Target FY26','22%']] },
+      { cls:'material',icon:'♻️', status:'good', statusLbl:'Good',
+        value:'32.4%', label:'AFR (Alternative Fuel) Substitution',
+        change:'↑ Municipal waste + tyre-derived fuel',
+        rows:[['AFR Mix','Municipal waste, TDF, biomass'],['TSR Target','38% by FY26']] },
+      { cls:'waste',   icon:'🗑️', status:'pending', statusLbl:'Pending',
+        value:'—',     label:'Waste Recycling Rate',
+        change:'⏳ Q31–Q40 not yet submitted by client',
+        rows:[['Status','Awaiting client submission'],['Expected','Approx. 88–92%']] },
+    ],
+
+    params: [
+      { cls:'p1',  name:'Energy Conservation & Efficiency', score:8.4,  max:10, pct:84, status:'completed',   statusLbl:'Complete',     note:'WHR system generates 14 MW; specific heat consumption 710 kcal/kg clinker.' },
+      { cls:'p2',  name:'Renewable Energy',                 score:7.3,  max:10, pct:73, status:'completed',   statusLbl:'Complete',     note:'18.2% RE share via solar + green tariff. On track for Gold RE threshold.' },
+      { cls:'p3',  name:'Water Conservation',               score:8.8,  max:10, pct:88, status:'completed',   statusLbl:'Complete',     note:'ZLD achieved. 0.212 KL/MT — well below sector average of 0.35 KL/MT.' },
+      { cls:'p4',  name:'Waste Management',                 score:null, max:10, pct:0,  status:'pending',     statusLbl:'Data Pending', note:'Q31–Q40 (Waste sub-section) not yet submitted. Score cannot be calculated.' },
+      { cls:'p5',  name:'GHG Emission Reduction',           score:7.8,  max:10, pct:78, status:'completed',   statusLbl:'Complete',     note:'GHG intensity CAGR -3.8%. Clinker factor reduced to 0.72 through blended cement.' },
+      { cls:'p6',  name:'Pollution Prevention',             score:7.5,  max:10, pct:75, status:'completed',   statusLbl:'Complete',     note:'CEMS installed on all stacks. SPM <30 mg/Nm³; NOx <600 mg/Nm³.' },
+      { cls:'p7',  name:'Green Supply Chain',               score:5.8,  max:10, pct:58, status:'completed',   statusLbl:'Complete',     note:'42% of suppliers assessed for ESG. Limestone quarry rehabilitation ongoing.' },
+      { cls:'p8',  name:'Product Stewardship',              score:7.0,  max:10, pct:70, status:'completed',   statusLbl:'Complete',     note:'PPC & PSC blended cement reduces embodied carbon. LEED-certified project supply.' },
+      { cls:'p9',  name:'Biodiversity & Green Cover',       score:null, max:10, pct:0,  status:'pending',     statusLbl:'Data Pending', note:'Q41–Q55 (Biodiversity section) not yet submitted. Mine rehabilitation data pending.' },
+      { cls:'p10', name:'Beyond Compliance',                score:5.5,  max:10, pct:55, status:'in-progress', statusLbl:'In Progress',  note:'ISO 14001 & 50001 certified. TCFD disclosure in progress. Community water projects.' },
+    ],
+
+    consumption: [
+      { icon:'⚡', title:'Specific Energy Consumption', value:'3.34 GJ/MT',    change:'↓ 4.1% intensity vs FY24', pos:true,  sub:'WHR + AFR co-processing contribution' },
+      { icon:'💧', title:'Specific Water Consumption',  value:'0.212 KL/MT',   change:'↓ 6.3% intensity vs FY24', pos:true,  sub:'ZLD achieved; zero freshwater discharge' },
+      { icon:'🏭', title:'GHG Intensity',               value:'0.748 tCO₂e/MT',change:'↓ 3.8% CAGR FY23–FY25',   pos:true,  sub:'Clinker factor 0.72 (blended cement)' },
+      { icon:'⚙️', title:'AFR Thermal Substitution',   value:'32.4% TSR',      change:'↑ +8.2 pp vs FY24',        pos:true,  sub:'Municipal waste, TDF, agricultural waste' },
+    ],
+
+    energyData: [3.68, 3.62, 3.56, 3.51, 3.47, 3.44, 3.42, 3.40, 3.38, 3.36, 3.34, 3.34],
+    energyLabel: 'Specific Energy Consumption (GJ/MT)',
+
+    waterLabels: ['Process & Kiln Cooling','Raw Mill Circuits','Township & Domestic','Dust Suppression','Recirculated (saved)'],
+    waterData:   [38, 22, 12, 8, 20],
+
+    ghgLabels: ['Q1 FY24','Q2 FY24','Q3 FY24','Q4 FY24','Q1 FY25','Q2 FY25','Q3 FY25','Q4 FY25'],
+    ghgScope1: [0.685,0.678,0.672,0.665,0.660,0.655,0.650,0.645],
+    ghgScope2: [0.115,0.112,0.108,0.105,0.102,0.100,0.098,0.095],
+
+    wasteLabels: ['Fly Ash Sold','Kiln Dust Reused','Pending (Q31–Q40)','Other Waste'],
+    wasteData:   [55, 30, 10, 5],
+
+    trendRows: [
+      ['Energy Intensity',  '3.62 GJ/MT',      '3.48 GJ/MT',       '3.34 GJ/MT',       '-4.1% CAGR',  'badge-green'],
+      ['GHG Intensity',     '0.812 tCO₂e/MT',  '0.779 tCO₂e/MT',   '0.748 tCO₂e/MT',   '-3.8% CAGR',  'badge-green'],
+      ['Water Intensity',   '0.241 KL/MT',      '0.226 KL/MT',      '0.212 KL/MT',      '-6.3% CAGR',  'badge-green'],
+      ['Renewable Share',   '10.5%',            '14.8%',            '18.2%',            '+7.7 pp',     'badge-green'],
+      ['AFR (TSR)',          '18.0%',            '26.2%',            '32.4%',            '+14.4 pp',    'badge-green'],
+      ['Waste Mgmt.',       '—',               '—',               'Pending',          '—',           'badge-grey'],
+      ['GreenCo Score',     '52 / 100',         '58 / 100',         'Pending',          '+6 pts',      'badge-yellow'],
+    ],
+    scoreHistory: [52, 58, null],
+    benchmarks: {
+      industry: { energy:3.85, water:0.35,  ghg:0.82  },
+      sector:   { energy:3.20, water:0.19,  ghg:0.70  },
+      peer:     { energy:3.60, water:0.28,  ghg:0.77  },
+    },
+    benchmarkUnit: { energy:'GJ/MT', water:'KL/MT', ghg:'tCO₂e/MT' },
+    yourValues:    { energy:3.34, water:0.212, ghg:0.748 },
+  },
+};
+
+// ══════════════════════════════════════════════════════════════════════════
+// INIT — read URL param and render
+// ══════════════════════════════════════════════════════════════════════════
+let CLIENT, chartInstances = {};
+
+function init() {
+  const params  = new URLSearchParams(window.location.search);
+  const refId   = params.get('refId') || 'GCO/HW/001';
+  CLIENT        = CLIENTS[refId] || CLIENTS['GCO/HW/001'];
+
+  // Context bar
+  document.getElementById('ctxName').textContent   = CLIENT.name;
+  document.getElementById('ctxRefId').textContent  = CLIENT.refId;
+  document.getElementById('ctxYear').textContent   = CLIENT.year;
+  document.getElementById('ctxStage').textContent  = 'Stage: ' + CLIENT.stage;
+  document.getElementById('ctxScore').textContent  = CLIENT.score ? CLIENT.score + '/100 · ' + CLIENT.band : 'Score Pending';
+  document.getElementById('headerUserInfo').textContent = 'GreenCo · ' + CLIENT.name;
+  document.title = CLIENT.refId + ' — ' + CLIENT.name + ' — GreenCo';
+
+  // Incomplete banners
+  if (CLIENT.incomplete) {
+    const sections = CLIENT.incompleteSections.join('; ');
+    const b1 = document.getElementById('incompleteBanner');
+    b1.style.display = 'flex';
+    document.getElementById('incompleteSections').textContent = sections;
+    document.getElementById('incompleteBanner2').style.display = 'flex';
+  }
+
+  renderScoreCard();
+  renderDashView();
+  renderConsumption();
+  renderParameters();
+  renderTrends();
+}
+
+// ── Score card ────────────────────────────────────────────────────────────
+function renderScoreCard() {
+  const badge = document.getElementById('scoreBadge');
+  if (CLIENT.score) {
+    badge.textContent = CLIENT.score + ' / 100';
+    badge.classList.remove('score-pending');
+    document.getElementById('ratingStars').textContent = CLIENT.stars + ' ' + CLIENT.band + ' Rating';
+  } else {
+    badge.textContent = 'Score Pending';
+    badge.classList.add('score-pending');
+    document.getElementById('ratingStars').textContent = '⚠️ Incomplete data — 2 sections outstanding';
+  }
+  const meta = document.getElementById('scoreMeta');
+  meta.innerHTML = CLIENT.scoreMeta.map(m =>
+    '<div class="score-meta-item"><div class="val">' + m.val + '</div><div class="lbl">' + m.lbl + '</div></div>'
+  ).join('');
+}
+
+// ── Dashboard view renderer ───────────────────────────────────────────────
+function renderDashView() {
+  const view = document.getElementById('viewType')?.value || 'summary';
+  const container = document.getElementById('dashViewContainer');
+  destroyCharts(['dashEnergy','dashWater','dashRadar']);
+
+  if (view === 'summary')    container.innerHTML = renderSummaryHTML();
+  else if (view === 'detailed')   container.innerHTML = renderDetailedHTML();
+  else if (view === 'comparison') container.innerHTML = renderComparisonHTML();
+
+  setTimeout(() => {
+    if (view === 'summary')    initSummaryCharts();
+    else if (view === 'detailed') initRadarChart();
+  }, 80);
+}
+
+function renderSummaryHTML() {
+  const kpiHTML = CLIENT.kpis.map(k =>
+    '<div class="kpi-card ' + k.cls + '">' +
+      '<div class="kpi-header"><div class="kpi-icon">' + k.icon + '</div>' +
+      '<div class="kpi-status ' + k.status + '">' + k.statusLbl + '</div></div>' +
+      '<div class="kpi-value">' + k.value + '</div>' +
+      '<div class="kpi-label">' + k.label + '</div>' +
+      '<div class="kpi-change positive">' + k.change + '</div>' +
+      '<div class="kpi-detail">' + k.rows.map(r =>
+        '<div class="kpi-row"><span>' + r[0] + '</span><span style="font-weight:600;">' + r[1] + '</span></div>'
+      ).join('') + '</div>' +
+    '</div>'
+  ).join('');
+  return '<div class="metrics-grid">' + kpiHTML + '</div>' +
+    '<div class="charts-grid">' +
+      '<div class="chart-card"><h3 class="chart-title">⚡ Energy Intensity Trend</h3>' +
+        '<p class="chart-subtitle">Monthly — FY 2024-25</p>' +
+        '<div class="canvas-wrap"><canvas id="dashEnergy"></canvas></div></div>' +
+      '<div class="chart-card"><h3 class="chart-title">💧 Water Use Breakdown</h3>' +
+        '<p class="chart-subtitle">By end-use category (%)</p>' +
+        '<div class="canvas-wrap"><canvas id="dashWater"></canvas></div></div>' +
+    '</div>';
+}
+
+function initSummaryCharts() {
+  const ec = document.getElementById('dashEnergy');
+  if (ec) chartInstances.dashEnergy = new Chart(ec, {
+    type:'line',
+    data:{ labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
+      datasets:[{ label:CLIENT.energyLabel, data:CLIENT.energyData,
+        borderColor:'#ff6b6b', backgroundColor:'rgba(255,107,107,.1)', tension:.4, fill:true }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' }}}
+  });
+
+  const wc = document.getElementById('dashWater');
+  if (wc) chartInstances.dashWater = new Chart(wc, {
+    type:'doughnut',
+    data:{ labels:CLIENT.waterLabels,
+      datasets:[{ data:CLIENT.waterData,
+        backgroundColor:['#4ecdc4','#45b7b8','#3ca8a4','#339990','#2d8a80']}]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' }}}
+  });
+}
+
+function renderDetailedHTML() {
+  const paramHTML = CLIENT.params.map(p => {
+    const scoreText = p.score !== null ? p.score.toFixed(1) + '/10' : '—';
+    const pctStyle  = p.score !== null ? p.pct + '%' : '0%';
+    const scoreColor = p.score === null ? '#aaa' : p.score >= 7.5 ? '#20bf6b' : p.score >= 5.5 ? '#ffa502' : '#ff6b6b';
+    return '<div class="param-card ' + p.cls + '">' +
+      '<div class="param-header">' +
+        '<div class="param-name">' + p.name + '</div>' +
+        '<div class="param-score" style="color:' + scoreColor + '">' + scoreText + '</div>' +
+      '</div>' +
+      '<div class="param-progress"><div class="param-fill" style="width:' + pctStyle + ';"></div></div>' +
+      '<span class="param-status ' + p.status + '">' + p.statusLbl + '</span>' +
+      '<div class="param-note">' + p.note + '</div>' +
+    '</div>';
+  }).join('');
+  return '<div class="parameter-grid">' + paramHTML + '</div>';
+}
+
+function renderComparisonHTML() {
+  const bType = document.getElementById('benchmarkType')?.value || 'industry';
+  const bData = CLIENT.benchmarks[bType];
+  const bLabels = { industry:'Industry Average', sector:'Sector Best Practice', peer:'Peer Companies Average' };
+  const metrics = [
+    { key:'energy', label:'Energy Intensity', unit:CLIENT.benchmarkUnit.energy },
+    { key:'water',  label:'Water Intensity',  unit:CLIENT.benchmarkUnit.water  },
+    { key:'ghg',    label:'GHG Intensity',    unit:CLIENT.benchmarkUnit.ghg    },
+  ];
+  const rows = metrics.map(m => {
+    const yours = CLIENT.yourValues[m.key];
+    const bench = bData[m.key];
+    const pctYou = Math.min((yours / Math.max(yours, bench)) * 100, 100);
+    const pctBen = Math.min((bench / Math.max(yours, bench)) * 100, 100);
+    const better = yours < bench;
+    return '<div style="margin-bottom:1.5rem;">' +
+      '<div style="font-weight:600; color:#2d5f4f; margin-bottom:.5rem;">' + m.label + ' (' + m.unit + ')</div>' +
+      '<div style="display:flex; align-items:center; gap:.75rem; margin-bottom:.35rem;">' +
+        '<div style="width:80px; font-size:.82rem; color:#333;">You</div>' +
+        '<div style="flex:1; background:#e0e0e0; border-radius:4px; height:22px;">' +
+          '<div style="width:' + pctYou + '%; background:linear-gradient(90deg,#3d7f6f,#2d5f4f); height:100%; border-radius:4px; display:flex; align-items:center; padding-left:8px; color:white; font-size:.8rem; font-weight:600;">' + yours + '</div>' +
+        '</div>' +
+        '<div style="font-size:.82rem; color:' + (better?'#20bf6b':'#ff6b6b') + '; font-weight:700; white-space:nowrap;">' +
+          (better ? '✓ ' + ((bench-yours)/bench*100).toFixed(1) + '% better' : '▲ ' + ((yours-bench)/bench*100).toFixed(1) + '% above') +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex; align-items:center; gap:.75rem;">' +
+        '<div style="width:80px; font-size:.82rem; color:#666;">' + bLabels[bType] + '</div>' +
+        '<div style="flex:1; background:#e0e0e0; border-radius:4px; height:22px;">' +
+          '<div style="width:' + pctBen + '%; background:linear-gradient(90deg,#ccc,#bbb); height:100%; border-radius:4px; display:flex; align-items:center; padding-left:8px; color:#333; font-size:.8rem;">' + bench + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  return '<div class="chart-container"><h3 class="chart-title">Benchmark: ' + bLabels[bType] + '</h3>' +
+    '<p class="chart-subtitle">Lower is better for intensity metrics</p>' + rows + '</div>';
+}
+
+// ── Radar chart (detailed view) ───────────────────────────────────────────
+function initRadarChart() {
+  const el = document.getElementById('radarCanvas');
+  if (!el) return;
+  const scored = CLIENT.params.filter(p => p.score !== null);
+  chartInstances.dashRadar = new Chart(el, {
+    type:'radar',
+    data:{ labels:scored.map(p => p.name.split(' ').slice(0,2).join(' ')),
+      datasets:[{ label:'Score/10', data:scored.map(p => p.score),
+        backgroundColor:'rgba(61,127,111,.2)', borderColor:'#3d7f6f', borderWidth:2, pointBackgroundColor:'#3d7f6f' },
+      { label:'Max/10', data:scored.map(() => 10),
+        backgroundColor:'rgba(200,200,200,.1)', borderColor:'#ccc', borderWidth:1, borderDash:[5,5] }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      scales:{ r:{ min:0, max:10, ticks:{ stepSize:2 }, grid:{ color:'rgba(0,0,0,.1)' }}},
+      plugins:{ legend:{ position:'bottom' }}}
+  });
+}
+
+// ── Consumption page ──────────────────────────────────────────────────────
+function renderConsumption() {
+  document.getElementById('consumptionGrid').innerHTML = CLIENT.consumption.map(c =>
+    '<div class="cons-card">' +
+      '<div class="cons-header"><div class="cons-title">' + c.icon + ' ' + c.title + '</div></div>' +
+      '<div class="cons-value">' + c.value + '</div>' +
+      '<div class="cons-change ' + (c.pos ? 'pos' : 'neg') + '">' + c.change + '</div>' +
+      '<div style="font-size:.82rem; color:#888;">' + c.sub + '</div>' +
+    '</div>'
+  ).join('');
+
+  setTimeout(() => {
+    destroyCharts(['energyChart','waterChart','ghgChart','wasteChart']);
+
+    const ec = document.getElementById('energyChart');
+    if (ec) new Chart(ec, {
+      type:'line',
+      data:{ labels:['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'],
+        datasets:[{ label:CLIENT.energyLabel, data:CLIENT.energyData,
+          borderColor:'#ff6b6b', backgroundColor:'rgba(255,107,107,.1)', tension:.4, fill:true }]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' }}}
+    });
+
+    const wc = document.getElementById('waterChart');
+    if (wc) new Chart(wc, {
+      type:'doughnut',
+      data:{ labels:CLIENT.waterLabels,
+        datasets:[{ data:CLIENT.waterData,
+          backgroundColor:['#4ecdc4','#45b7b8','#3ca8a4','#339990','#2d8a80']}]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' }}}
+    });
+
+    const gc = document.getElementById('ghgChart');
+    if (gc) new Chart(gc, {
+      type:'bar',
+      data:{ labels:CLIENT.ghgLabels,
+        datasets:[
+          { label:'Scope 1', data:CLIENT.ghgScope1, backgroundColor:'rgba(255,107,107,.7)' },
+          { label:'Scope 2', data:CLIENT.ghgScope2, backgroundColor:'rgba(78,205,196,.7)' },
+        ]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' }},
+        scales:{ x:{ stacked:true }, y:{ stacked:true }}}
+    });
+
+    const wac = document.getElementById('wasteChart');
+    if (wac) new Chart(wac, {
+      type:'doughnut',
+      data:{ labels:CLIENT.wasteLabels,
+        datasets:[{ data:CLIENT.wasteData,
+          backgroundColor:['#95e1d3','#4ecdc4','#ff6b6b','#ffa502']}]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' }}}
+    });
+  }, 80);
+}
+
+// ── Parameters page ───────────────────────────────────────────────────────
+function renderParameters() {
+  document.getElementById('paramGrid').innerHTML = CLIENT.params.map(p => {
+    const scoreText  = p.score !== null ? p.score.toFixed(1) + '/10' : '—';
+    const pctStyle   = p.score !== null ? p.pct + '%' : '0%';
+    const scoreColor = p.score === null ? '#aaa' : p.score >= 7.5 ? '#20bf6b' : p.score >= 5.5 ? '#ffa502' : '#ff6b6b';
+    return '<div class="param-card ' + p.cls + '">' +
+      '<div class="param-header">' +
+        '<div class="param-name">' + p.name + '</div>' +
+        '<div class="param-score" style="color:' + scoreColor + '">' + scoreText + '</div>' +
+      '</div>' +
+      '<div class="param-progress"><div class="param-fill" style="width:' + pctStyle + ';"></div></div>' +
+      '<span class="param-status ' + p.status + '">' + p.statusLbl + '</span>' +
+      '<div class="param-note">' + p.note + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ── Trends page ───────────────────────────────────────────────────────────
+function renderTrends() {
+  setTimeout(() => {
+    destroyCharts(['scoreProgressChart','intensityChart']);
+
+    // Score progression
+    const sc = document.getElementById('scoreProgressChart');
+    if (sc) new Chart(sc, {
+      type:'bar',
+      data:{ labels:['FY 2022-23','FY 2023-24','FY 2024-25'],
+        datasets:[
+          { label:'GreenCo Score', data:CLIENT.scoreHistory, backgroundColor:['rgba(61,127,111,.5)','rgba(61,127,111,.7)','rgba(61,127,111,.9)'], borderColor:'#2d5f4f', borderWidth:2, borderRadius:6 },
+          { type:'line', label:'Bronze (40)', data:[40,40,40], borderColor:'#cd7f32', borderDash:[4,4], borderWidth:2, pointRadius:0, backgroundColor:'transparent' },
+          { type:'line', label:'Silver (60)', data:[60,60,60], borderColor:'#aaa',    borderDash:[4,4], borderWidth:2, pointRadius:0, backgroundColor:'transparent' },
+          { type:'line', label:'Gold (75)',   data:[75,75,75], borderColor:'#ffd700', borderDash:[4,4], borderWidth:2, pointRadius:0, backgroundColor:'transparent' },
+          { type:'line', label:'Platinum (90)',data:[90,90,90], borderColor:'#b9f2ff',borderDash:[4,4], borderWidth:2, pointRadius:0, backgroundColor:'transparent' },
+        ]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' }},
+        scales:{ y:{ min:0, max:100 }}}
+    });
+
+    // Intensity index (base=100 at FY23)
+    const ic = document.getElementById('intensityChart');
+    if (ic) new Chart(ic, {
+      type:'line',
+      data:{ labels:['FY 2022-23','FY 2023-24','FY 2024-25'],
+        datasets:[
+          { label:'Energy Intensity Index', data:[100, 96, 92], borderColor:'#ff6b6b', backgroundColor:'rgba(255,107,107,.1)', tension:.3, fill:true },
+          { label:'Water Intensity Index',  data:[100, 94, 88], borderColor:'#4ecdc4', backgroundColor:'rgba(78,205,196,.1)', tension:.3, fill:true },
+          { label:'GHG Intensity Index',    data:[100, 96, 92], borderColor:'#20bf6b', backgroundColor:'rgba(32,191,107,.1)', tension:.3, fill:true },
+        ]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ position:'bottom' }},
+        scales:{ y:{ min:75, max:105, title:{ display:true, text:'Index (FY23 = 100)' }}}}
+    });
+  }, 80);
+
+  // KPI table
+  document.getElementById('kpiTable').innerHTML =
+    '<table class="trend-table"><thead><tr>' +
+      '<th>KPI</th><th>FY 2022-23</th><th>FY 2023-24</th><th>FY 2024-25</th><th>CAGR / Change</th>' +
+    '</tr></thead><tbody>' +
+    CLIENT.trendRows.map(r =>
+      '<tr><td><strong>' + r[0] + '</strong></td>' +
+      '<td>' + r[1] + '</td><td>' + r[2] + '</td>' +
+      '<td><strong>' + r[3] + '</strong></td>' +
+      '<td><span class="badge ' + r[5] + '">' + r[4] + '</span></td></tr>'
+    ).join('') +
+    '</tbody></table>';
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────
+function showPage(name, el) {
+  document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+  document.getElementById(name + '-page').classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+// ── Chart cleanup ─────────────────────────────────────────────────────────
+function destroyCharts(ids) {
+  ids.forEach(id => {
+    if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+    const el = document.getElementById(id);
+    if (el) { const parent = el.parentNode; el.remove(); const nc = document.createElement('canvas'); nc.id = id; parent.appendChild(nc); }
+  });
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────
+window.onload = init;
+</script>
+</body>
+</html>

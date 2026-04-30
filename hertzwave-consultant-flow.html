@@ -5159,7 +5159,7 @@
         id: 'greenpath', name: 'GreenPath Consulting',
         ghqLicence: true,
         maxAssessmentClients: 10,
-        slotUsed: 15, // 4 GHG + 4 green-audit + 2 nzoc + 1 ccts + 2 pat + 2 materiality
+        slotUsed: 17, // 4 GHG + 4 green-audit + 2 nzoc + 1 ccts + 2 pat + 2 materiality + 2 greenco
         assessmentTools: [
           { id: 'green-audit', label: 'Green Audit', icon: '🌿',
             toolFile: 'rua-greenaudit.html', refPrefix: 'QF/RUA/',
@@ -5176,6 +5176,9 @@
           { id: 'materiality', label: 'Materiality', icon: '🔍',
             toolFile: 'materiality-tool.html', refPrefix: 'MAT/HW/',
             navLabel: 'Materiality Clients' },
+          { id: 'greenco', label: 'GreenCo', icon: '🏅',
+            toolFile: 'terracap-greenco.html', refPrefix: 'GCO/HW/',
+            navLabel: 'GreenCo Clients' },
         ],
       },
 
@@ -5516,6 +5519,64 @@
           { num:4, title:'Matrix Validation',    sub:'Awaiting survey completion',            state:'pending' },
           { num:5, title:'Board Sign-off',       sub:'Targeted: June 2025',                  state:'pending' },
           { num:6, title:'Report Integration',   sub:'BRSR + GRI integration planned',        state:'pending' },
+        ],
+      },
+
+      // ── GreenCo clients ───────────────────────────────────────────────
+      // DEV NOTE: GreenCo = CII GreenCo v3 certification. Data is ingested
+      // via TerraCAP forms and scored against 5 domains: Energy, Water,
+      // Material, Emissions, Biodiversity.
+      // Scoring bands: Bronze (<40), Silver (40–59), Gold (60–74),
+      //                Platinum (75–89), GreenCo Champion (≥90).
+      // Steps: Self-Assessment → Data Ingestion → Domain Scoring →
+      //        Desk Review (CII) → Site Audit (CII) → Certification.
+      // scoreLabel = 'GreenCo Score', scoreValue = N / 100 + band.
+      // toolFile: terracap-greenco.html (existing TerraCAP module).
+      tatapower: {
+        toolId: 'greenco',
+        name: 'Tata Power — Mundra Plant', sector: 'Power Generation', city: 'Mundra, Gujarat',
+        refId: 'GCO/HW/001', year: '2024-25',
+        stage: 'Domain Scoring', stageClass: 'ga-stage-assess', statusClass: 'status-good',
+        scoreLabel: 'GreenCo Score', scoreValue: '74 / 100 · Gold',
+        lastActivity: 'Apr 25, 2025',
+        insight: '🏅 <strong>Gold band reached:</strong> 74/100 with strong Energy (82%) and Emissions (78%) domain scores. Water domain (61%) has improvement headroom before Platinum.',
+        metrics: [
+          { label: 'Ref ID',         value: 'GCO/HW/001'     },
+          { label: 'Sector',         value: 'Power Generation' },
+          { label: 'GreenCo Score',  value: '74 / 100 · Gold' },
+          { label: 'Last Activity',  value: 'Apr 25, 2025'    },
+        ],
+        steps: [
+          { num:1, title:'Self-Assessment',   sub:'All 5 domain questionnaires completed',       state:'done'    },
+          { num:2, title:'Data Ingestion',    sub:'Energy, Water, Emissions data verified',      state:'done'    },
+          { num:3, title:'Domain Scoring',    sub:'Score: 74/100 · Gold band confirmed',         state:'active'  },
+          { num:4, title:'Desk Review (CII)', sub:'Submission to CII pending consultant sign-off',state:'pending' },
+          { num:5, title:'Site Audit (CII)',  sub:'CII auditor visit to be scheduled',           state:'pending' },
+          { num:6, title:'Certification',     sub:'Gold certificate issued after site audit',    state:'pending' },
+        ],
+      },
+
+      ultratech: {
+        toolId: 'greenco',
+        name: 'UltraTech Cement — Gulbarga', sector: 'Cement Manufacturing', city: 'Gulbarga, Karnataka',
+        refId: 'GCO/HW/002', year: '2024-25',
+        stage: 'Data Ingestion', stageClass: 'ga-stage-data', statusClass: 'status-warning',
+        scoreLabel: 'GreenCo Score', scoreValue: '— Scoring in progress',
+        lastActivity: 'Apr 21, 2025',
+        insight: '⚠️ <strong>Data gaps:</strong> Biodiversity domain (Q41–Q55) and Waste sub-section incomplete. Score cannot be finalised until all sections are submitted.',
+        metrics: [
+          { label: 'Ref ID',         value: 'GCO/HW/002'          },
+          { label: 'Sector',         value: 'Cement'               },
+          { label: 'GreenCo Score',  value: '— Pending completion' },
+          { label: 'Last Activity',  value: 'Apr 21, 2025'         },
+        ],
+        steps: [
+          { num:1, title:'Self-Assessment',   sub:'Energy & Emissions sections complete',         state:'done'    },
+          { num:2, title:'Data Ingestion',    sub:'Biodiversity + Waste sections pending client', state:'active'  },
+          { num:3, title:'Domain Scoring',    sub:'Awaiting complete data ingestion',             state:'pending' },
+          { num:4, title:'Desk Review (CII)', sub:'Not yet submitted',                            state:'pending' },
+          { num:5, title:'Site Audit (CII)',  sub:'Not yet scheduled',                            state:'pending' },
+          { num:6, title:'Certification',     sub:'Pending all prior steps',                      state:'pending' },
         ],
       },
     };
