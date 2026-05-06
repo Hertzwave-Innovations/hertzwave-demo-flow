@@ -326,6 +326,18 @@
   .status-dot.active     { background:#48BB78; }
   .status-dot.inactive   { background:#cbd5e0; }
 
+  /* ── SIDEBAR TENANT CONTEXT PANEL ── */
+  .sidebar-tenant-ctx {
+    margin:0 12px 8px; padding:10px 12px;
+    background:#fffbeb; border:1px solid #F6AD55; border-radius:var(--radius-sm);
+    display:none;
+  }
+  .sidebar-tenant-ctx-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:#92400e; margin-bottom:4px; }
+  .sidebar-tenant-ctx-name { font-size:12px; font-weight:700; color:#78350f; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sidebar-tenant-ctx-pills { display:flex; gap:5px; flex-wrap:wrap; }
+  .sidebar-tenant-ctx-back { display:flex; align-items:center; gap:4px; margin-top:8px; font-size:11px; font-weight:600; color:#92400e; cursor:pointer; background:#fff; border:1px solid #F6AD55; border-radius:10px; padding:3px 8px; width:fit-content; }
+  .sidebar-tenant-ctx-back:hover { background:#fef3c7; }
+
   /* ── MODAL ── */
   .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:500; display:none; align-items:center; justify-content:center; }
   .modal-overlay.open { display:flex; }
@@ -338,11 +350,86 @@
   .form-field input, .form-field select { width:100%; padding:7px 11px; border:1px solid var(--stroke); border-radius:var(--radius-sm); font-family:var(--font); font-size:13px; color:var(--ink); background:#fff; }
   .form-field input:focus, .form-field select:focus { outline:none; border-color:var(--hz-primary); }
   .form-section-label { grid-column:1/-1; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:var(--subtle); padding-top:8px; border-top:1px solid var(--stroke); margin-top:4px; }
-  /* addon checkboxes */
+  /* ── TENANT DETAIL PANEL (slide-in within roster view) ── */
+  .tenant-detail-panel {
+    display:none; border:2px solid #F6AD55; border-radius:var(--radius);
+    background:#fffdf7; margin-top:16px; overflow:hidden;
+    animation:fadeIn 0.2s ease;
+  }
+  .tenant-detail-panel.open { display:block; }
+  .tdp-header {
+    display:flex; align-items:center; justify-content:space-between;
+    background:#fffbeb; padding:14px 20px; border-bottom:1px solid #fde68a;
+  }
+  .tdp-title { font-size:15px; font-weight:700; color:#78350f; }
+  .tdp-meta  { font-size:12px; color:#92400e; margin-top:2px; }
+  .tdp-pills { display:flex; gap:6px; align-items:center; }
+  .tdp-close { background:none; border:1px solid #F6AD55; color:#92400e; padding:4px 10px; border-radius:14px; font-size:11px; font-weight:600; cursor:pointer; }
+  .tdp-close:hover { background:#fef3c7; }
+  .tdp-body { padding:18px 20px; }
+  .tdp-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:16px; }
+  .tdp-kpi { background:#fff; border:1px solid var(--stroke); border-radius:var(--radius-sm); padding:12px 14px; }
+  .tdp-kpi-label { font-size:10px; font-weight:700; color:var(--subtle); text-transform:uppercase; letter-spacing:0.6px; margin-bottom:4px; }
+  .tdp-kpi-val { font-size:20px; font-weight:700; color:var(--ink); }
+  .tdp-kpi-unit { font-size:11px; color:var(--subtle); font-weight:400; }
+  .tdp-section-title { font-size:12px; font-weight:700; color:var(--subtle); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:8px; margin-top:14px; }
+  .tdp-fw-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+  .tdp-fw-item { display:flex; align-items:center; justify-content:space-between; background:#fff; border:1px solid var(--stroke); border-radius:var(--radius-sm); padding:8px 12px; font-size:12px; }
+  .tdp-actions { display:flex; gap:8px; padding-top:12px; border-top:1px solid var(--stroke); }
+  .readonly-notice { background:#fff3cd; border:1px solid #fde68a; border-radius:6px; padding:6px 12px; font-size:11px; color:#92400e; margin-bottom:12px; display:flex; gap:6px; align-items:center; }
+
   .addon-grid { grid-column:1/-1; display:grid; grid-template-columns:1fr 1fr; gap:8px; }
   .addon-item { display:flex; align-items:center; gap:8px; padding:8px 12px; border:1px solid var(--stroke); border-radius:var(--radius-sm); cursor:pointer; transition:border-color 0.15s; font-size:12px; color:var(--ink); }
   .addon-item:has(input:checked) { border-color:var(--hz-primary); background:var(--hz-primary-50); color:var(--hz-primary); }
   .addon-item input { cursor:pointer; accent-color:var(--hz-primary); }
+
+  /* ── SCOPE TAB BUTTONS ── */
+  .scope-tab-btn {
+    padding:9px 18px; border:none; background:#fff; font-family:var(--font);
+    font-size:12px; font-weight:600; color:var(--subtle); cursor:pointer;
+    border-right:1px solid var(--stroke); transition:all 0.15s;
+  }
+  .scope-tab-btn:last-child { border-right:none; }
+  .scope-tab-btn:hover { background:var(--hz-primary-50); color:var(--hz-primary); }
+  .scope-tab-btn.active { background:var(--hz-primary); color:#fff; }
+
+  /* ── DOSSIER INLINE VIEWER ── */
+  .dossier-overlay {
+    display:none; position:fixed; inset:0; z-index:700;
+    background:rgba(0,0,0,0.6); align-items:flex-start; justify-content:center;
+    padding:20px;
+  }
+  .dossier-overlay.open { display:flex; }
+  .dossier-frame-wrap {
+    background:#fff; border-radius:var(--radius); overflow:hidden;
+    width:100%; max-width:980px; height:calc(100vh - 40px);
+    display:flex; flex-direction:column;
+    box-shadow:0 24px 80px rgba(0,0,0,0.3);
+  }
+  .dossier-bar {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 20px; background:var(--hz-dark); flex-shrink:0;
+  }
+  .dossier-bar-title { font-size:14px; font-weight:700; color:#fff; }
+  .dossier-bar-sub   { font-size:11px; color:rgba(255,255,255,0.6); margin-top:1px; }
+  .dossier-bar-actions { display:flex; gap:10px; align-items:center; }
+  .dossier-close { background:rgba(255,255,255,0.15); border:none; color:#fff; padding:6px 14px; border-radius:16px; cursor:pointer; font-size:12px; font-weight:600; font-family:var(--font); }
+  .dossier-close:hover { background:rgba(255,255,255,0.25); }
+  .dossier-print { background:var(--hz-primary); border:none; color:#fff; padding:6px 14px; border-radius:16px; cursor:pointer; font-size:12px; font-weight:600; font-family:var(--font); }
+  .dossier-print:hover { background:var(--hz-primary-700); }
+  .dossier-iframe { flex:1; border:none; width:100%; }
+
+  /* ── TOOLTIPS ── */
+  .tip-wrap { position:relative; display:inline-flex; align-items:center; gap:4px; }
+  .tip-icon { display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; background:#E9F1EC; color:var(--hz-primary); border-radius:50%; font-size:10px; font-weight:700; cursor:help; flex-shrink:0; }
+  .tip-box {
+    display:none; position:fixed; z-index:600;
+    background:#2F4F3F; color:#fff; border-radius:8px; padding:10px 14px;
+    font-size:12px; line-height:1.6; width:300px;
+    box-shadow:0 4px 16px rgba(0,0,0,0.25);
+    pointer-events:none;
+  }
+  .tip-wrap:hover .tip-box { display:block; }
 </style>
 </head>
 <body>
@@ -421,9 +508,20 @@
 
   <!-- SIDEBAR -->
   <div class="sidebar">
+    <!-- Tenant context indicator — visible only during drill-down -->
+    <div class="sidebar-tenant-ctx" id="sidebarTenantCtx">
+      <div class="sidebar-tenant-ctx-label">Viewing tenant</div>
+      <div class="sidebar-tenant-ctx-name" id="sidebarTenantName">—</div>
+      <div class="sidebar-tenant-ctx-pills">
+        <span class="pill pill-amber" style="font-size:10px">Read-only</span>
+        <span class="pill pill-blue" style="font-size:10px">Tenant scope</span>
+      </div>
+      <div class="sidebar-tenant-ctx-back" onclick="exitTenantContext()">← Back to Zone</div>
+    </div>
     <div style="margin-bottom:6px">
       <div class="sidebar-label">Zone Management <span class="new-tag">New</span></div>
       <div class="sidebar-item active" onclick="showView('overview')"><span>📊</span> Zone Overview</div>
+      <div class="sidebar-item" onclick="showView('zonedata')"><span>📝</span> Zone Data Entry</div>
       <div class="sidebar-item" onclick="showView('tenants')"><span>🏭</span> Tenant List <span class="s-badge live">14</span></div>
       <div class="sidebar-item" onclick="showView('scope3')"><span>🔗</span> Scope 3 Detail <span class="s-badge new">New</span></div>
       <div class="sidebar-item" onclick="showView('compliance')"><span>📋</span> Zone Compliance</div>
@@ -517,12 +615,12 @@
           </div>
           <div class="kpi" style="--accent:#0f766e">
             <div class="kpi-icon">∑</div>
-            <div class="kpi-label">Zone Authority Total</div>
+            <div class="kpi-label">Own Inventory Total</div>
             <div class="kpi-val">5,970<span>tCO₂e</span></div>
             <div class="kpi-delta down">↓ 6.8% vs FY 2023–24</div>
             <div class="kpi-s3-rows">
-              <div class="kpi-s3-row"><span>S1 + S2 + S3 upstream</span><strong>5,970</strong></div>
-              <div class="kpi-s3-row cat13"><span>Cat 13 incl. in own S3 disclosure</span><strong>81,250</strong></div>
+              <div class="kpi-s3-row"><span>S1 + S2 + S3 upstream only</span><strong>5,970</strong></div>
+              <div class="kpi-s3-row cat13"><span>Cat 13 (own S3 — not in zone total)</span><strong>81,250</strong></div>
             </div>
           </div>
         </div>
@@ -558,6 +656,7 @@
             <div class="kpi-s3-rows">
               <div class="kpi-s3-row"><span>Authority upstream S3</span><strong>920</strong></div>
               <div class="kpi-s3-row"><span>Tenant S3 (all cats)</span><strong>3,840</strong></div>
+              <div class="kpi-s3-row" style="font-size:10px;font-style:italic;color:#92400e"><span>Cat 13 not included — see Own Inventory</span></div>
             </div>
           </div>
           <!-- Zone Total — icon changed from ✅ to ∑ per tester -->
@@ -784,7 +883,7 @@
             <tr><th>Tenant</th><th>Sector</th><th>Add-ons</th><th>Scope 1 tCO₂e</th><th>Scope 2 tCO₂e</th><th>Scope 3 tCO₂e</th><th>Cat 13 tCO₂e</th><th>Submission</th><th>Status</th><th>DQS</th><th></th></tr>
           </thead>
           <tbody>
-            <tr class="clickable" onclick="enterTenantContext('Bharat Biotech')">
+            <tr class="clickable" onclick="openTenantDetail('Bharat Biotech')">
               <td><strong>Bharat Biotech</strong><div style="font-size:11px;color:var(--subtle)">Unit 4 · Block C</div></td>
               <td>Vaccines / Biologics</td>
               <td><span title="GreenCo opted" style="cursor:default">🌿</span></td>
@@ -793,34 +892,34 @@
               <td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td>
               <td><strong style="color:#4A7C59">94%</strong></td>
               <td style="display:flex;gap:4px;padding-top:8px">
-                <button class="drill-btn" onclick="event.stopPropagation();enterTenantContext('Bharat Biotech')">View →</button>
+                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('Bharat Biotech')">View →</button>
                 <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openModal('modal-edit')">Edit</button>
               </td>
             </tr>
-            <tr class="clickable" onclick="enterTenantContext('Aurobindo API Unit')">
+            <tr class="clickable" onclick="openTenantDetail('Aurobindo API Unit')">
               <td><strong>Aurobindo API Unit</strong><div style="font-size:11px;color:var(--subtle)">Unit 2 · Block A</div></td>
               <td>API Pharma</td><td>—</td><td>4,680</td><td>10,930</td><td>720</td><td>15,610</td>
               <td><span class="pill pill-green">✓ Complete</span></td>
               <td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td>
               <td><strong style="color:#d97706">72%</strong></td>
               <td style="display:flex;gap:4px;padding-top:8px">
-                <button class="drill-btn" onclick="event.stopPropagation();enterTenantContext('Aurobindo API Unit')">View →</button>
+                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('Aurobindo API Unit')">View →</button>
                 <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openModal('modal-edit')">Edit</button>
               </td>
             </tr>
-            <tr class="clickable" onclick="enterTenantContext('Divi\'s Laboratories')">
+            <tr class="clickable" onclick="openTenantDetail('Divi\'s Laboratories')">
               <td><strong>Divi's Laboratories</strong><div style="font-size:11px;color:var(--subtle)">Unit 7 · Block B</div></td>
               <td>API Pharma</td><td><span title="GreenCo opted">🌿</span> <span title="CBAM opted">🚢</span></td><td>3,720</td><td>8,680</td><td>938</td><td>12,400</td>
               <td><span class="pill pill-green">✓ Complete</span></td>
               <td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td>
               <td><strong style="color:#4A7C59">91%</strong></td>
               <td style="display:flex;gap:4px;padding-top:8px">
-                <button class="drill-btn" onclick="event.stopPropagation();enterTenantContext('Divi\'s Laboratories')">View →</button>
+                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('Divi\'s Laboratories')">View →</button>
                 <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openModal('modal-edit')">Edit</button>
               </td>
             </tr>
             <!-- Q4 pending row — amber bg, show Q1–Q3 partial figures -->
-            <tr class="partial clickable" onclick="enterTenantContext('Poly Medicure')">
+            <tr class="partial clickable" onclick="openTenantDetail('Poly Medicure')">
               <td><strong>Poly Medicure</strong><div style="font-size:11px;color:#92400e">Unit 1 · Block A · Q4 not submitted</div></td>
               <td>Medical Devices</td><td>—</td>
               <td style="color:#d97706">~2,510 <span style="font-size:10px">(Q1–Q3)</span></td>
@@ -830,23 +929,23 @@
               <td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td>
               <td><strong style="color:#d97706">78%</strong></td>
               <td style="display:flex;gap:4px;padding-top:8px">
-                <button class="drill-btn" onclick="event.stopPropagation();enterTenantContext('Poly Medicure')">View →</button>
+                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('Poly Medicure')">View →</button>
                 <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openModal('modal-edit')">Edit</button>
               </td>
             </tr>
-            <tr class="clickable" onclick="enterTenantContext('HLL Lifecare')">
+            <tr class="clickable" onclick="openTenantDetail('HLL Lifecare')">
               <td><strong>HLL Lifecare</strong><div style="font-size:11px;color:var(--subtle)">Unit 5 · Block C</div></td>
               <td>Medical Supplies</td><td>—</td><td>2,040</td><td>4,770</td><td>480</td><td>6,810</td>
               <td><span class="pill pill-green">✓ Complete</span></td>
               <td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td>
               <td><strong style="color:#4A7C59">88%</strong></td>
               <td style="display:flex;gap:4px;padding-top:8px">
-                <button class="drill-btn" onclick="event.stopPropagation();enterTenantContext('HLL Lifecare')">View →</button>
+                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('HLL Lifecare')">View →</button>
                 <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();">Edit</button>
               </td>
             </tr>
             <!-- Q4 pending -->
-            <tr class="partial clickable" onclick="enterTenantContext('SciGen MedTech')">
+            <tr class="partial clickable" onclick="openTenantDetail('SciGen MedTech')">
               <td><strong>SciGen MedTech</strong><div style="font-size:11px;color:#92400e">Unit 3 · Block B · Q4 not submitted</div></td>
               <td>Biologics</td><td><span title="GreenCo opted">🌿</span></td>
               <td style="color:#d97706">~1,180</td><td style="color:#d97706">~2,740</td><td>—</td><td style="color:#d97706">~3,920</td>
@@ -854,7 +953,7 @@
               <td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td>
               <td><strong style="color:#d97706">65%</strong></td>
               <td style="display:flex;gap:4px;padding-top:8px">
-                <button class="drill-btn" onclick="event.stopPropagation();enterTenantContext('SciGen MedTech')">View →</button>
+                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('SciGen MedTech')">View →</button>
                 <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();">Edit</button>
               </td>
             </tr>
@@ -875,14 +974,98 @@
           </div>
           <div style="font-size:11px;color:var(--subtle)">🌿 GreenCo &nbsp; 🚢 CBAM</div>
         </div>
+
+        <!-- ── TENANT DETAIL PANEL (opens inline on row click) ── -->
+        <div class="tenant-detail-panel" id="tenantDetailPanel">
+          <div class="tdp-header">
+            <div>
+              <div class="tdp-title" id="tdpName">—</div>
+              <div class="tdp-meta" id="tdpMeta">—</div>
+            </div>
+            <div class="tdp-pills">
+              <span class="pill pill-amber" style="font-size:10px">Read-only view</span>
+              <span class="pill pill-green" id="tdpStatus" style="font-size:10px">Active</span>
+              <button class="tdp-close" onclick="closeTenantPanel()">✕ Close</button>
+            </div>
+          </div>
+          <div class="tdp-body">
+            <div class="readonly-notice">
+              🔒 You are viewing this tenant's data in read-only mode. Zone managers cannot edit tenant emissions data — only the tenant's own users can do so. You can edit tenant profile details via the Edit button below.
+            </div>
+            <!-- GHG KPIs -->
+            <div class="tdp-section-title">FY 2024–25 Emissions</div>
+            <div class="tdp-grid">
+              <div class="tdp-kpi"><div class="tdp-kpi-label">Scope 1</div><div class="tdp-kpi-val" id="tdpS1">—<span class="tdp-kpi-unit"> tCO₂e</span></div></div>
+              <div class="tdp-kpi"><div class="tdp-kpi-label">Scope 2</div><div class="tdp-kpi-val" id="tdpS2">—<span class="tdp-kpi-unit"> tCO₂e</span></div></div>
+              <div class="tdp-kpi"><div class="tdp-kpi-label">Scope 3</div><div class="tdp-kpi-val" id="tdpS3">—<span class="tdp-kpi-unit"> tCO₂e</span></div></div>
+              <div class="tdp-kpi" style="border-color:#F6AD55"><div class="tdp-kpi-label">Cat 13 contribution</div><div class="tdp-kpi-val" id="tdpCat13" style="color:#92400e">—<span class="tdp-kpi-unit"> tCO₂e</span></div></div>
+              <div class="tdp-kpi"><div class="tdp-kpi-label">Data Quality Score</div><div class="tdp-kpi-val" id="tdpDqs">—<span class="tdp-kpi-unit">%</span></div></div>
+              <div class="tdp-kpi"><div class="tdp-kpi-label">Submission Status</div><div class="tdp-kpi-val" id="tdpSubmission" style="font-size:13px;line-height:1.4">—</div></div>
+            </div>
+            <!-- Framework coverage -->
+            <div class="tdp-section-title">Framework Coverage</div>
+            <div class="tdp-fw-grid" id="tdpFwGrid"></div>
+            <!-- Submission history -->
+            <div class="tdp-section-title">Recent Submissions</div>
+            <table class="data-table" style="margin-bottom:0;font-size:12px">
+              <thead><tr><th>Quarter</th><th>Scope 1 tCO₂e</th><th>Scope 2 tCO₂e</th><th>Submitted</th><th>DQS</th></tr></thead>
+              <tbody id="tdpHistory"></tbody>
+            </table>
+            <div class="tdp-actions">
+              <button class="btn btn-outline btn-sm" onclick="openModal('modal-edit')">✏️ Edit Tenant Profile</button>
+              <button class="btn btn-outline btn-sm" onclick="openModal('modal-formv')">📋 Generate Form V</button>
+              <button class="btn btn-outline btn-sm" onclick="openModal('modal-appcb')">📄 Generate Form 5</button>
+              <button class="btn btn-danger btn-sm" style="margin-left:auto" onclick="if(confirm('Deboard tenant?'))closeTenantPanel()">Deboard</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- ══════════════════════════════════════════ -->
+    <!-- VIEW: ZONE DATA ENTRY (redirect)           -->
+    <!-- ══════════════════════════════════════════ -->
+    <div id="view-zonedata" class="view">
+      <div class="view-header">
+        <div class="view-title">Zone Data Entry</div>
+        <div class="view-sub">Enter and manage AMTZ Zone Authority's own Scope 1, 2, and 3 emissions data — DG sets, DISCOM meters, upstream Scope 3, and more. Opens in the shared data management module consistent with the rest of the platform.</div>
+      </div>
+      <div class="card" style="text-align:center;padding:48px 32px">
+        <div style="font-size:48px;margin-bottom:16px">📥</div>
+        <div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:8px">Zone Authority Data Entry</div>
+        <div style="font-size:13px;color:var(--subtle);max-width:480px;margin:0 auto 24px;line-height:1.7">
+          Data entry for the AMTZ Zone Authority's own Scope 1, 2, and 3 inventory uses the same import and manual entry module as all other accounts on the platform. This keeps the experience consistent and all data in one place.
+        </div>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:28px">
+          <div style="background:#F6F7F4;border-radius:var(--radius-sm);padding:14px 20px;text-align:left;min-width:200px">
+            <div style="font-size:11px;font-weight:700;color:var(--subtle);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Scope 1 — Direct</div>
+            <div style="font-size:12px;color:var(--ink);line-height:1.6">DG sets · Admin fleet · Boilers · Fire suppression gas</div>
+          </div>
+          <div style="background:#F6F7F4;border-radius:var(--radius-sm);padding:14px 20px;text-align:left;min-width:200px">
+            <div style="font-size:11px;font-weight:700;color:var(--subtle);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Scope 2 — Grid</div>
+            <div style="font-size:12px;color:var(--ink);line-height:1.6">DISCOM meters · Common area lighting · EV charging bays</div>
+          </div>
+          <div style="background:#F6F7F4;border-radius:var(--radius-sm);padding:14px 20px;text-align:left;min-width:200px">
+            <div style="font-size:11px;font-weight:700;color:var(--subtle);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Scope 3 — Upstream</div>
+            <div style="font-size:12px;color:var(--ink);line-height:1.6">Purchased services · Travel · Waste · Capital goods · Cat 13 (auto)</div>
+          </div>
+        </div>
+        <a href="import-export.html" class="btn btn-primary" style="font-size:14px;padding:10px 28px;text-decoration:none">
+          Open Data Entry Module →
+        </a>
+        <div style="margin-top:14px;font-size:12px;color:var(--subtle)">
+          Opens <code style="background:#F6F7F4;padding:2px 6px;border-radius:4px;font-size:11px">import-export.html</code> · Use your browser's Back button to return to the Zone Dashboard
+        </div>
+      </div>
+    </div>
+
+        <!-- ══════════════════════════════════════════ -->
     <!-- VIEW: ZONE COMPLIANCE                      -->
     <!-- ══════════════════════════════════════════ -->
     <div id="view-compliance" class="view">
-      <div class="view-header"><div class="view-title">Zone Compliance</div><div class="view-sub">Framework status across all zone-level regulatory and voluntary programmes</div></div>
+      <div class="view-header"><div class="view-title">Zone Compliance</div>
+        <div class="view-sub">Framework status for AMTZ MedTech Zone. Applicable frameworks are configured in <span style="color:var(--hz-primary);font-weight:600;cursor:pointer" onclick="showView('orgprofile')">Zone Configuration → Registered Frameworks</span>. This screen shows status only — to add or remove frameworks, update Zone Configuration.</div>
+      </div>
       <div class="grid-2">
         <div class="card">
           <div class="card-title">Active Frameworks</div>
@@ -913,30 +1096,149 @@
     <!-- VIEW: ZONE REPORTS                         -->
     <!-- ══════════════════════════════════════════ -->
     <div id="view-reports" class="view">
-      <div class="view-header"><div class="view-title">Zone Reports</div><div class="view-sub">Generate and export zone-level consolidated ESG reports</div></div>
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-title">Available Reports</div>
-          <div class="fw-row"><div><div class="fw-name">Zone GHG Inventory — Zone Authority Own Entity</div><div class="fw-sub">S1+S2+S3 incl. Cat 13 · GHG Protocol · FY 2024–25</div></div><div style="display:flex;gap:8px"><span class="pill pill-green">Ready</span><button class="fw-action">Export PDF</button></div></div>
-          <div class="fw-row"><div><div class="fw-name">Zone Consolidated GHG Report</div><div class="fw-sub">Zone Authority + all tenants · Cat 13 excluded · FY 2024–25</div></div><div style="display:flex;gap:8px"><span class="pill pill-amber">Provisional</span><button class="fw-action">Export</button></div></div>
-          <div class="fw-row"><div><div class="fw-name">Scope 3 Detailed Breakdown</div><div class="fw-sub">Cat 13 + upstream · both formats</div></div><div style="display:flex;gap:8px"><span class="pill pill-amber">Provisional</span><button class="fw-action" onclick="showView('scope3')">View →</button></div></div>
-          <div class="fw-row"><div><div class="fw-name">CII GreenCo Zone Application Pack</div><div class="fw-sub">3 opted tenants · Evidence bundle</div></div><div style="display:flex;gap:8px"><span class="pill pill-amber">72% ready</span><button class="fw-action">Continue</button></div></div>
-          <div class="fw-row"><div><div class="fw-name">CCTS Credit Project Dossier</div><div class="fw-sub">1,240 tCO₂e · MRV documentation · BEE format</div></div><div style="display:flex;gap:8px"><span class="pill pill-green">Ready</span><button class="fw-action">Export</button></div></div>
-          <div class="fw-row"><div><div class="fw-name">Auditor Evidence Package (ISAE 3410)</div><div class="fw-sub">Complete audit trail · ZIP bundle</div></div><div style="display:flex;gap:8px"><span class="pill pill-green">Ready</span><button class="fw-action">Export ZIP</button></div></div>
+      <div class="view-header">
+        <div class="view-title">Zone Reports</div>
+        <div class="view-sub">Select a report type to generate it. Every report has a <strong>Generate</strong> button — click it to configure options and produce a PDF or export. Previously generated reports appear in the history table below. Frameworks shown are determined by your <span style="color:var(--hz-primary);cursor:pointer;font-weight:600" onclick="showView('orgprofile')">Zone Configuration → Registered Frameworks</span>.</div>
+      </div>
+
+      <!-- ── SECTION 1: OWN INVENTORY ── -->
+      <div style="margin-bottom:8px;padding:7px 14px;background:#ccfbf1;border-left:3px solid #0f766e;border-radius:var(--radius-sm);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#134e4a">
+        🏛 &nbsp;AMTZ Own Inventory Reports — AMTZ Zone Authority as reporting entity
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">
+        <!-- Card -->
+        <div class="card" style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:20px">📊</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink)">Own GHG Inventory</div>
+          <div style="font-size:12px;color:var(--subtle);line-height:1.5;flex:1">AMTZ's own Scope 1, 2, Scope 3 upstream, and Cat 13 disclosure. GHG Protocol format. Suitable for ESG disclosures and audit submission.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto">
+            <span class="pill pill-green">Data ready</span>
+            <button class="btn btn-primary btn-sm" onclick="alert('Opening Own GHG Inventory generator...\n\nIn production: opens report config modal with year, format (PDF/Excel), and scope selection.')">Generate →</button>
+          </div>
         </div>
-        <div class="card">
-          <div class="card-title">Report History</div>
-          <table class="data-table" style="font-size:12px">
-            <thead><tr><th>Report</th><th>Period</th><th>Generated</th><th>By</th></tr></thead>
-            <tbody>
-              <tr><td>Zone GHG Own Entity</td><td>FY 2023–24</td><td>15 Jun 2024</td><td>Zone Admin</td></tr>
-              <tr><td>Zone Consolidated</td><td>FY 2023–24</td><td>15 Jun 2024</td><td>Zone Admin</td></tr>
-              <tr><td>GreenCo Zone Pack</td><td>FY 2023–24</td><td>10 Jul 2024</td><td>Zone Admin</td></tr>
-              <tr><td>CCTS Dossier</td><td>FY 2022–23</td><td>8 Apr 2023</td><td>Zone Admin</td></tr>
-              <tr><td>Auditor Bundle</td><td>FY 2023–24</td><td>20 Jun 2024</td><td>Mr. Parthasarathi</td></tr>
-            </tbody>
-          </table>
+        <div class="card" style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:20px">🔗</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink)">Scope 3 Cat 13 Detail</div>
+          <div style="font-size:12px;color:var(--subtle);line-height:1.5;flex:1">Downstream Leased Assets breakdown — tenant-by-tenant S1+S2 contributing to AMTZ's Cat 13. Includes provisional flag until all tenants submit.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto">
+            <span class="pill pill-amber">Provisional — 2 pending</span>
+            <button class="btn btn-primary btn-sm" onclick="showView('scope3')">View detail →</button>
+          </div>
         </div>
+        <div class="card" style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:20px">📋</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink)">AMTZ BRSR Section</div>
+          <div style="font-size:12px;color:var(--subtle);line-height:1.5;flex:1">Section A (General) and Section C (Environment) for AMTZ zone authority as a reporting entity. Energy, emissions, water, waste disclosures.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto">
+            <span class="pill pill-blue">Available</span>
+            <button class="btn btn-primary btn-sm" onclick="alert('Opening BRSR generator...\n\nSelect year and SEBI format version.')">Generate →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SECTION 2: ZONE CONSOLIDATED ── -->
+      <div style="margin-bottom:8px;padding:7px 14px;background:var(--hz-primary-50);border-left:3px solid var(--hz-primary);border-radius:var(--radius-sm);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--hz-primary-700)">
+        🌍 &nbsp;Zone Consolidated Reports — AMTZ Zone Authority + all active tenants · Cat 13 excluded
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">
+        <div class="card" style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:20px">🌍</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink)">Zone Consolidated GHG</div>
+          <div style="font-size:12px;color:var(--subtle);line-height:1.5;flex:1">Zone Authority + all tenants combined. Scope 1+2+3 upstream. Cat 13 excluded to avoid double-counting. The primary zone-level GHG disclosure.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto">
+            <span class="pill pill-amber">Provisional — 2 pending</span>
+            <button class="btn btn-primary btn-sm" onclick="alert('Opening Zone Consolidated GHG generator...\n\nSelect year, boundary note, and export format.')">Generate →</button>
+          </div>
+        </div>
+        <div class="card" style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:20px">🔍</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink)">Auditor Evidence Package</div>
+          <div style="font-size:12px;color:var(--subtle);line-height:1.5;flex:1">ISAE 3410 audit trail — data lineage, emission factors, calculation methodology, and supporting documents. ZIP bundle for third-party GHG verifier.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto">
+            <span class="pill pill-green">Ready</span>
+            <button class="btn btn-primary btn-sm" onclick="alert('Preparing auditor ZIP bundle...')">Generate ZIP →</button>
+          </div>
+        </div>
+        <div class="card" style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:20px">📈</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink)">Zone Scope 3 Breakdown</div>
+          <div style="font-size:12px;color:var(--subtle);line-height:1.5;flex:1">Detailed Scope 3 by GHG Protocol category. Zone Authority upstream + all tenant S3 aggregated. Per-tenant coverage matrix included.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto">
+            <span class="pill pill-amber">Provisional</span>
+            <button class="btn btn-primary btn-sm" onclick="showView('scope3')">View detail →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SECTION 3: FRAMEWORK & REGULATORY ── -->
+      <div style="margin-bottom:8px;padding:7px 14px;background:#eff6ff;border-left:3px solid #4299E1;border-radius:var(--radius-sm);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#1e40af">
+        📋 &nbsp;Framework &amp; Regulatory Packs — based on registered frameworks in Zone Configuration
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px">
+        <div class="card" style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:20px">🌿</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink)">CII GreenCo Zone Pack</div>
+          <div style="font-size:12px;color:var(--subtle);line-height:1.5;flex:1">All 10 parameter scores, evidence documents, and zone average summary. Submitted to CII for zone-level GreenCo certification. 3 tenants opted in.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto">
+            <span class="pill pill-amber">72% ready — 3 gaps</span>
+            <button class="btn btn-primary btn-sm" onclick="alert('Opening GreenCo pack generator...\n\nShows which of the 10 parameters have evidence gaps before generating.')">Generate →</button>
+          </div>
+        </div>
+          <div class="card" style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:20px">💳</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink)">CCTS Credit Project Dossier</div>
+          <div style="font-size:12px;color:var(--subtle);line-height:1.5;flex:1">A formal submission to BEE's Carbon Credit Trading Scheme confirming that AMTZ has reduced or avoided 1,020 tCO₂e of emissions eligible for carbon credits. The dossier contains: (1) a project description of what emission reduction activity was done, (2) measurement data proving how many tonnes were actually saved, and (3) a monitoring report showing how those savings were tracked. AMTZ acts as the zone sub-registrar, meaning it submits on behalf of tenants who generated the reductions.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto">
+            <span class="pill pill-green">Ready</span>
+            <button class="btn btn-primary btn-sm" onclick="openDossier()">View Dossier →</button>
+          </div>
+        </div>
+        <div class="card" style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:20px">🚢</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink)">EU CBAM Zone Attestation</div>
+          <div style="font-size:12px;color:var(--subtle);line-height:1.5;flex:1">Product Carbon Footprint per tonne for 2 opted tenants. XML format for EU importer submission. Shows gap status for remaining eligible tenants.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto">
+            <span class="pill pill-amber">Partial — 2 of 7 ready</span>
+            <button class="btn btn-primary btn-sm" onclick="alert('Opening CBAM generator...\n\nShows per-product PCF completeness before XML export.')">Generate →</button>
+          </div>
+        </div>
+        <div class="card" style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:20px">🌊</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink)">APPCB Form V — Annual Env. Statement</div>
+          <div style="font-size:12px;color:var(--subtle);line-height:1.5;flex:1">Rule 14 · Per tenant · Due 30 Sep each year. Parts A, D, E auto-filled from TerraCAP. Water and criteria pollutants require manual input.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto">
+            <span class="pill pill-teal">~65% auto-filled</span>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-formv')">Generate →</button>
+          </div>
+        </div>
+        <div class="card" style="display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:20px">☣️</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink)">APPCB Form 5 — Hazardous Waste</div>
+          <div style="font-size:12px;color:var(--subtle);line-height:1.5;flex:1">Hazardous &amp; Other Wastes (M&amp;TM) Rules · As required · For tenants importing/exporting hazardous waste for recovery or recycling. Facility details auto-filled.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:auto">
+            <span class="pill pill-teal">Facility auto-filled</span>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-appcb')">Generate →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── GENERATED REPORTS HISTORY ── -->
+      <div style="margin-bottom:8px;padding:7px 14px;background:#F6F7F4;border-left:3px solid var(--stroke);border-radius:var(--radius-sm);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--subtle)">
+        📁 &nbsp;Previously Generated Reports
+      </div>
+      <div class="card">
+        <table class="data-table" style="font-size:12px">
+          <thead><tr><th>Report</th><th>Type</th><th>Period</th><th>Generated</th><th>By</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>AMTZ Own GHG Inventory</td><td><span class="pill pill-teal" style="font-size:10px">Own Inventory</span></td><td>FY 2023–24</td><td>15 Jun 2024</td><td>Zone Admin</td><td><button class="drill-btn">Download</button></td></tr>
+            <tr><td>Zone Consolidated GHG</td><td><span class="pill pill-green" style="font-size:10px">Zone Consol.</span></td><td>FY 2023–24</td><td>15 Jun 2024</td><td>Zone Admin</td><td><button class="drill-btn">Download</button></td></tr>
+            <tr><td>GreenCo Zone Pack</td><td><span class="pill pill-blue" style="font-size:10px">Framework</span></td><td>FY 2023–24</td><td>10 Jul 2024</td><td>Zone Admin</td><td><button class="drill-btn">Download</button></td></tr>
+            <tr><td>CCTS Dossier</td><td><span class="pill pill-blue" style="font-size:10px">Framework</span></td><td>FY 2022–23</td><td>8 Apr 2023</td><td>Zone Admin</td><td><button class="drill-btn">Download</button></td></tr>
+            <tr><td>APPCB Form V — Bharat Biotech</td><td><span class="pill pill-blue" style="font-size:10px">Regulatory</span></td><td>FY 2023–24</td><td>28 Sep 2024</td><td>Zone Admin</td><td><button class="drill-btn">Download</button></td></tr>
+            <tr><td>APPCB Form 5 — Bharat Biotech</td><td><span class="pill pill-blue" style="font-size:10px">Regulatory</span></td><td>FY 2023–24</td><td>20 Jan 2024</td><td>Zone Admin</td><td><button class="drill-btn">Download</button></td></tr>
+            <tr><td>Auditor Bundle</td><td><span class="pill pill-teal" style="font-size:10px">Own Inventory</span></td><td>FY 2023–24</td><td>20 Jun 2024</td><td>Mr. Parthasarathi</td><td><button class="drill-btn">Download</button></td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -944,18 +1246,90 @@
     <!-- VIEW: INTEGRATIONS                         -->
     <!-- ══════════════════════════════════════════ -->
     <div id="view-integrations" class="view">
-      <div class="view-header"><div class="view-title">Integrations &amp; Data Connectors</div><div class="view-sub">Zone-level API connections · All credentials in AWS Secrets Manager · ap-south-1 (Mumbai) data residency</div></div>
+      <div class="view-header">
+        <div class="view-title">Integrations &amp; Data Connectors</div>
+        <div class="view-sub">This screen shows the data pipelines that feed TerraCAP automatically — so that zone authority and tenant staff spend less time entering data manually. Each connector pulls data from an external system and maps it to the correct GHG scope and category. Green = live and pulling data. Amber = partially working or needs attention. Purple = not yet connected (Phase 2). All API credentials are stored in AWS Secrets Manager (ap-south-1, Mumbai) and are never visible in the UI.</div>
+      </div>
+
+      <div class="alert blue" style="margin-bottom:16px">
+        <span class="alert-icon">ℹ️</span>
+        <div><strong>How data enters TerraCAP:</strong> There are three routes — (1) automatic pull via these connectors, (2) CSV upload via Zone Data Entry or individual tenant dashboards, and (3) direct manual entry in the data entry forms. Connectors are the preferred route as they eliminate manual errors. Where a connector shows an issue, the system falls back to CSV/manual and flags the gap in the bell alerts.</div>
+      </div>
+
       <div class="card">
         <table class="data-table">
-          <thead><tr><th>Connector</th><th>Type</th><th>Data Flow</th><th>Status</th><th>Last Sync</th></tr></thead>
+          <thead><tr><th>Connector</th><th>What it does</th><th>GHG Mapping</th><th>Status</th><th>Last Sync</th><th>Action</th></tr></thead>
           <tbody>
-            <tr><td><strong>DISCOM / AP-TRANSCO</strong></td><td>API / CSV fallback</td><td>kWh per meter → Scope 2</td><td><span class="pill pill-amber">⚠ 9/12 meters</span></td><td>22 Mar 2025</td></tr>
-            <tr><td><strong>GSTN (e-Way Bill)</strong></td><td>API — tenant consent</td><td>Procurement → Scope 3 Cat 1</td><td><span class="pill pill-green">Active</span></td><td>31 Mar 2025</td></tr>
-            <tr><td><strong>CCTS India Registry</strong></td><td>API</td><td>Credit issuance / retirement</td><td><span class="pill pill-green">Active</span></td><td>30 Mar 2025</td></tr>
-            <tr><td><strong>EU CBAM Portal</strong></td><td>XML export</td><td>PCF per product → CBAM declaration</td><td><span class="pill pill-blue">Manual export</span></td><td>15 Feb 2025</td></tr>
-            <tr><td><strong>Cat 13 Auto-Aggregator</strong></td><td>Internal event trigger</td><td>Tenant submission → Cat 13 recalc → Row A S3 update</td><td><span class="pill pill-green">Active</span></td><td>Real-time</td></tr>
-            <tr><td><strong>BMS / SCADA Feed</strong></td><td>MQTT</td><td>Real-time energy → auto Scope 2</td><td><span class="pill pill-purple">Phase 2</span></td><td>—</td></tr>
-            <tr><td><strong>TerraCAP REST API</strong></td><td>Outbound</td><td>Zone totals queryable externally</td><td><span class="pill pill-green">Live</span></td><td>Real-time</td></tr>
+            <tr>
+              <td><strong>DISCOM / AP-TRANSCO</strong><div style="font-size:11px;color:var(--subtle)">API pull · monthly meter readings</div></td>
+              <td style="font-size:12px">Fetches kWh consumed per utility meter number from the AP electricity board. Each meter is mapped to a zone asset or tenant unit in Zone Data Entry.</td>
+              <td style="font-size:12px">→ Scope 2 (location-based)<br>Emission factor: CEA grid intensity, AP region</td>
+              <td><span class="pill pill-amber">⚠ 9 / 12 meters active</span></td>
+              <td>22 Mar 2025</td>
+              <td><button class="drill-btn" onclick="alert('Opens DISCOM meter management — add meter numbers, assign to asset, trigger manual sync or CSV upload for offline meters.')">Manage Meters</button></td>
+            </tr>
+            <tr>
+              <td><strong>GSTN / e-Way Bill API</strong><div style="font-size:11px;color:var(--subtle)">API pull · tenant consent required per tenant</div></td>
+              <td style="font-size:12px">Pulls procurement transaction data from the GST e-Way Bill system with tenant consent. Maps goods categories to emission factors for purchased goods and services.</td>
+              <td style="font-size:12px">→ Scope 3 Cat 1 (purchased goods &amp; services) per tenant</td>
+              <td><span class="pill pill-green">Active — 10 tenants consented</span></td>
+              <td>31 Mar 2025</td>
+              <td><button class="drill-btn" onclick="alert('Shows consent status per tenant. Pending tenants can be sent a consent request from here.')">View Consents</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="tip-wrap">
+                  <strong>CCTS India Registry</strong>
+                  <span class="tip-icon">?</span>
+                  <div class="tip-box"><strong>How to set up:</strong> AMTZ must first register as a zone sub-registrar with BEE (Bureau of Energy Efficiency) at <em>ccts.beeindia.gov.in</em>. Once approved, BEE issues a sub-registrar ID and API credentials. Enter those credentials in Zone Configuration → CCTS Sub-Registrar Settings. TerraCAP then connects automatically to sync credit balances.</div>
+                </div>
+                <div style="font-size:11px;color:var(--subtle)">BEE API · AMTZ as sub-registrar</div>
+              </td>
+              <td style="font-size:12px">Synchronises carbon credit project status, issuance, and retirement with BEE's central CCTS registry. AMTZ operates as zone sub-registrar — this connector keeps credit balances live.</td>
+              <td style="font-size:12px">→ Zone Credit Balance · Credit retirement offset</td>
+              <td><span class="pill pill-green">Active</span></td>
+              <td>30 Mar 2025</td>
+              <td><button class="drill-btn" onclick="alert('View credit ledger and registry sync log.')">View Ledger</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div class="tip-wrap">
+                  <strong>EU CBAM Portal</strong>
+                  <span class="tip-icon">?</span>
+                  <div class="tip-box"><strong>How to set up:</strong> No API from the EU side — CBAM works as a structured XML export only. Setup in TerraCAP: (1) Mark tenants as CBAM-opted in their profile, (2) ensure those tenants enter production volume and process data for each product exported to EU, (3) TerraCAP calculates the Product Carbon Footprint per tonne and generates the XML file. The EU importer uses that XML to declare embedded emissions to their national authority.</div>
+                </div>
+                <div style="font-size:11px;color:var(--subtle)">XML export · manual trigger</div>
+              </td>
+              <td style="font-size:12px">Generates product carbon footprint (PCF) data per tonne of goods exported to EU, formatted as the CBAM XML declaration file required by EU importers. Not a live API — triggered on demand.</td>
+              <td style="font-size:12px">→ PCF per product per opted tenant</td>
+              <td><span class="pill pill-blue">Manual export</span></td>
+              <td>15 Feb 2025</td>
+              <td><button class="drill-btn" onclick="alert('Opens CBAM XML export wizard — select tenant, product, period.')">Export XML</button></td>
+            </tr>
+            <tr>
+              <td><strong>Cat 13 Auto-Aggregator</strong><div style="font-size:11px;color:var(--subtle)">Internal event trigger · no external API</div></td>
+              <td style="font-size:12px">This is an internal TerraCAP trigger, not an external connector. Whenever any tenant submits Scope 1 or Scope 2 data, this recalculates AMTZ's Cat 13 total automatically. No action needed — it runs silently in the background.</td>
+              <td style="font-size:12px">→ AMTZ Scope 3 Cat 13 (Own Inventory Row A)</td>
+              <td><span class="pill pill-green">Active — real-time</span></td>
+              <td>Real-time</td>
+              <td><button class="drill-btn" onclick="showView('scope3')">View Cat 13</button></td>
+            </tr>
+            <tr>
+              <td><strong>BMS / SCADA Feed</strong><div style="font-size:11px;color:var(--subtle)">MQTT · Phase 2 — not yet connected</div></td>
+              <td style="font-size:12px">When connected (Phase 2), this will pull real-time energy consumption from Building Management Systems and SCADA controllers across zone common areas, updating Scope 2 continuously rather than monthly.</td>
+              <td style="font-size:12px">→ Scope 2 (real-time, replaces DISCOM monthly)</td>
+              <td><span class="pill pill-purple">Phase 2</span></td>
+              <td>—</td>
+              <td><button class="drill-btn" onclick="alert('BMS integration requires Phase 2 scoping. Contact Hertzwave to initiate.')">Request →</button></td>
+            </tr>
+            <tr>
+              <td><strong>TerraCAP REST API (Outbound)</strong><div style="font-size:11px;color:var(--subtle)">API endpoint · available to AMTZ IT systems</div></td>
+              <td style="font-size:12px">Exposes zone-level aggregated data (total emissions by scope, tenant count, compliance status) as a REST API endpoint so AMTZ's own IT systems or dashboards can query TerraCAP directly.</td>
+              <td style="font-size:12px">Read-only · Zone aggregate data · JWT authenticated</td>
+              <td><span class="pill pill-green">Live</span></td>
+              <td>Real-time</td>
+              <td><button class="drill-btn" onclick="alert('View API documentation and generate access token.')">API Docs</button></td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -965,7 +1339,7 @@
     <!-- VIEW: ZONE CONFIGURATION                   -->
     <!-- ══════════════════════════════════════════ -->
     <div id="view-orgprofile" class="view">
-      <div class="view-header"><div class="view-title">Zone Configuration</div><div class="view-sub">Zone metadata, GHG reporting boundary, Cat 13 disclosure settings</div></div>
+      <div class="view-header"><div class="view-title">Zone Configuration</div><div class="view-sub">Zone metadata, GHG reporting boundary, registered frameworks, and Cat 13 disclosure settings. Frameworks selected here drive the Zone Compliance screen and determine which reports are available.</div></div>
       <div class="grid-2">
         <div class="card">
           <div class="card-title">Zone Identity</div>
@@ -974,6 +1348,10 @@
             <div class="form-field"><label>Zone Type</label><select><option selected>Industrial Zone (SEZ)</option><option>Academic Campus</option><option>Commercial Complex</option></select></div>
             <div class="form-field"><label>Zone Admin Authority</label><input value="Andhra Pradesh MedTech Zone Authority"></div>
             <div class="form-field"><label>Zone CTO Contact</label><input value="Mr. Suraj, suraj@amtz.in"></div>
+            <div class="form-field">
+              <label>Applicable SPCB <span style="font-weight:400;color:var(--subtle)">(derived from zone registration state)</span></label>
+              <input value="APPCB — Andhra Pradesh Pollution Control Board" readonly style="background:#F6F7F4;color:var(--subtle)">
+            </div>
           </div>
         </div>
         <div class="card">
@@ -986,6 +1364,33 @@
           </div>
         </div>
       </div>
+
+      <!-- Registered Frameworks — drives Compliance screen and Reports availability -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="section-hdr">
+          <div>
+            <div class="section-hdr-title">Registered Frameworks</div>
+            <div class="section-hdr-sub">Select frameworks applicable to AMTZ MedTech Zone. These choices drive the Zone Compliance screen and determine which framework report packs are available in Zone Reports.</div>
+          </div>
+          <span class="pill pill-green">6 selected</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+          <label class="addon-item"><input type="checkbox" checked> 🌿 &nbsp;CII GreenCo — Zone Application</label>
+          <label class="addon-item"><input type="checkbox" checked> 💳 &nbsp;CCTS India — Sub-Registrar</label>
+          <label class="addon-item"><input type="checkbox" checked> ⚡ &nbsp;BEE PAT Scheme</label>
+          <label class="addon-item"><input type="checkbox" checked> 🚢 &nbsp;EU CBAM — Zone Attestation</label>
+          <label class="addon-item"><input type="checkbox" checked> 🏛 &nbsp;GHG Protocol — Cat 13 Disclosure</label>
+          <label class="addon-item"><input type="checkbox" checked> 🌊 &nbsp;MoEFCC / CPCB — Form V (APPCB)</label>
+          <label class="addon-item"><input type="checkbox"> 🌍 &nbsp;GRI Standards (Zone-level)</label>
+          <label class="addon-item"><input type="checkbox"> 📊 &nbsp;BRSR — Zone Consolidated</label>
+          <label class="addon-item"><input type="checkbox"> 🔬 &nbsp;IGBC Green Factory</label>
+        </div>
+        <div class="alert blue" style="margin-bottom:0;font-size:12px">
+          <span class="alert-icon">ℹ️</span>
+          <div>Framework selections here are set once at zone registration and updated as needed. The Zone Compliance screen reflects these selections. Add a framework here first before tracking it in compliance.</div>
+        </div>
+      </div>
+
       <div class="card">
         <div class="section-hdr"><div><div class="section-hdr-title">CCTS Sub-Registrar Settings</div></div><span class="pill pill-green">Registered</span></div>
         <div class="form-grid">
@@ -1003,6 +1408,269 @@
 
   </div><!-- /main -->
 </div><!-- /layout -->
+
+<!-- ════ MODAL: FORM V — ANNUAL ENVIRONMENT STATEMENT ════ -->
+<div class="modal-overlay" id="modal-formv" onclick="closeModal('modal-formv')">
+  <div class="modal" onclick="event.stopPropagation()" style="width:640px">
+    <div class="modal-header">
+      <div class="modal-title">Form V — Annual Environment Statement</div>
+      <button class="modal-close" onclick="closeModal('modal-formv')">✕</button>
+    </div>
+    <div class="alert blue" style="margin-bottom:14px;font-size:12px">
+      <span class="alert-icon">🏛</span>
+      <div><strong>APPCB — Andhra Pradesh Pollution Control Board (auto-detected from zone registration)</strong><br>Rule 14 · Environment Protection Rules 1986 · Due 30 September every year · Addressed to Member Secretary, APPCB, Vijayawada. Fields marked <span style="color:#4A7C59;font-weight:700">●</span> are auto-filled from TerraCAP data. Fields marked <span style="color:#d97706;font-weight:700">○</span> require manual entry.</div>
+    </div>
+
+    <!-- Tenant selector -->
+    <div class="form-field" style="margin-bottom:14px">
+      <label>Select Tenant <span style="font-weight:400;color:var(--subtle)">(one Form V per tenant per year)</span></label>
+      <select id="formvTenantSelect" onchange="updateFormVTenant(this.value)">
+        <option value="">— Select tenant —</option>
+        <option value="bharat">Bharat Biotech (Unit 4 · Block C)</option>
+        <option value="aurobindo">Aurobindo API Unit (Unit 2 · Block A)</option>
+        <option value="divis">Divi's Laboratories (Unit 7 · Block B)</option>
+        <option value="hll">HLL Lifecare (Unit 5 · Block C)</option>
+        <option value="esic">ESIC Diagnostics (Unit 9 · Block D)</option>
+      </select>
+    </div>
+
+    <!-- PART A -->
+    <div style="background:#F6F7F4;border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--subtle);margin-bottom:10px">Part A — Facility Identity</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label><span style="color:#4A7C59">●</span> Owner / Occupier Name</label>
+          <input id="fv_name" value="— select tenant above —" readonly style="background:#fff;color:var(--subtle)">
+        </div>
+        <div class="form-field">
+          <label><span style="color:#4A7C59">●</span> Facility Address</label>
+          <input id="fv_addr" value="— select tenant above —" readonly style="background:#fff;color:var(--subtle)">
+        </div>
+        <div class="form-field">
+          <label><span style="color:#d97706">○</span> Industry Category — STC Code</label>
+          <input id="fv_stc" placeholder="e.g. 2423 (Pharmaceutical)">
+        </div>
+        <div class="form-field">
+          <label><span style="color:#d97706">○</span> Production Capacity &amp; Units</label>
+          <input id="fv_cap" placeholder="e.g. 50 MT/year vaccines">
+        </div>
+        <div class="form-field">
+          <label><span style="color:#4A7C59">●</span> Year of Establishment</label>
+          <input id="fv_estab" value="—" readonly style="background:#fff;color:var(--subtle)">
+        </div>
+        <div class="form-field">
+          <label><span style="color:#4A7C59">●</span> Date of Last Statement</label>
+          <input id="fv_lastdate" value="—" readonly style="background:#fff;color:var(--subtle)">
+        </div>
+      </div>
+    </div>
+
+    <!-- PART B -->
+    <div style="background:#F6F7F4;border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--subtle);margin-bottom:10px">Part B — Water &amp; Raw Material Consumption</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label><span style="color:#d97706">○</span> Process Water (m³/day)</label>
+          <input placeholder="e.g. 45" type="number">
+        </div>
+        <div class="form-field">
+          <label><span style="color:#d97706">○</span> Cooling Water (m³/day)</label>
+          <input placeholder="e.g. 120" type="number">
+        </div>
+        <div class="form-field">
+          <label><span style="color:#d97706">○</span> Domestic Water (m³/day)</label>
+          <input placeholder="e.g. 12" type="number">
+        </div>
+        <div class="form-field">
+          <label><span style="color:#4A7C59">●</span> Key Raw Material (from S3 Cat 1)</label>
+          <input value="Fermentation media, glass vials, aluminium caps" readonly style="background:#fff;color:var(--subtle)">
+        </div>
+      </div>
+      <div class="alert amber" style="margin-top:8px;margin-bottom:0;font-size:11px"><span class="alert-icon">⚠️</span><div>Water consumption is not currently captured in TerraCAP. Add a water metering input to the tenant data collection form to auto-fill Part B in future cycles.</div></div>
+    </div>
+
+    <!-- PART C -->
+    <div style="background:#F6F7F4;border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--subtle);margin-bottom:10px">Part C — Pollution Discharged to Environment</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label><span style="color:#d97706">○</span> Water discharge (mass/day)</label>
+          <input placeholder="e.g. Nil — treated water used for gardening">
+        </div>
+        <div class="form-field">
+          <label><span style="color:#d97706">○</span> Air emissions — pollutants</label>
+          <input placeholder="Refer Monthly AAQM reports to APPCB">
+        </div>
+        <div class="form-field" style="grid-column:1/-1">
+          <label><span style="color:#4A7C59">●</span> CO₂ from combustion (Scope 1 — derived)</label>
+          <input value="5,530 tCO₂e / year (1,240 MT CO₂e from DG sets and boilers)" readonly style="background:#fff;color:var(--subtle)">
+        </div>
+      </div>
+      <div class="alert amber" style="margin-top:8px;margin-bottom:0;font-size:11px"><span class="alert-icon">⚠️</span><div>NOₓ, SOₓ, and PM data from stack monitoring are outside TerraCAP's GHG scope. Reference your Monthly Ambient Air Quality Monitoring (AAQM) reports submitted to APPCB for Part C air section — as per the Vedanta VGCB precedent.</div></div>
+    </div>
+
+    <!-- PARTS D + E -->
+    <div style="background:#F6F7F4;border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--subtle);margin-bottom:10px">Parts D &amp; E — Hazardous &amp; Solid Wastes <span style="font-weight:400;font-style:italic;text-transform:none;letter-spacing:0">(auto-filled from TerraCAP Scope 3 Cat 5)</span></div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label><span style="color:#4A7C59">●</span> Hazardous waste from process (MT) — prior FY</label>
+          <input value="4.2 MT" readonly style="background:#fff;color:var(--subtle)">
+        </div>
+        <div class="form-field">
+          <label><span style="color:#4A7C59">●</span> Hazardous waste from process (MT) — current FY</label>
+          <input value="3.8 MT" readonly style="background:#fff;color:var(--subtle)">
+        </div>
+        <div class="form-field">
+          <label><span style="color:#4A7C59">●</span> Solid waste from process (Kg) — prior FY</label>
+          <input value="12,400 Kg" readonly style="background:#fff;color:var(--subtle)">
+        </div>
+        <div class="form-field">
+          <label><span style="color:#4A7C59">●</span> Solid waste from process (Kg) — current FY</label>
+          <input value="11,200 Kg" readonly style="background:#fff;color:var(--subtle)">
+        </div>
+        <div class="form-field">
+          <label><span style="color:#4A7C59">●</span> Quantity recycled / re-utilised (Kg)</label>
+          <input value="3,200 Kg (sold to PCB-authorised recyclers)" readonly style="background:#fff;color:var(--subtle)">
+        </div>
+        <div class="form-field">
+          <label><span style="color:#d97706">○</span> From pollution control facility</label>
+          <input placeholder="e.g. Nil / Not applicable">
+        </div>
+      </div>
+    </div>
+
+    <!-- PARTS F G H I -->
+    <div style="background:#F6F7F4;border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:var(--subtle);margin-bottom:10px">Parts F–I — Narrative Sections <span style="font-weight:400;font-style:italic;text-transform:none;letter-spacing:0">(manual — tenant to complete)</span></div>
+      <div style="display:grid;gap:10px">
+        <div class="form-field">
+          <label><span style="color:#d97706">○</span> Part F — Characterisation and disposal practice for hazardous &amp; solid wastes</label>
+          <input placeholder="e.g. Spent solvents sold to PCB-authorised recyclers; biomedical waste via authorised CBWTF">
+        </div>
+        <div class="form-field">
+          <label><span style="color:#d97706">○</span> Part G — Impact of abatement measures on natural resources and cost of production</label>
+          <input placeholder="e.g. ETP upgrade reduced effluent load; LED retrofit reduced energy cost by ₹12L">
+        </div>
+        <div class="form-field">
+          <label><span style="color:#d97706">○</span> Part H — Additional measures / investment proposals</label>
+          <input placeholder="e.g. Solar rooftop 500 kWp planned for FY 2025–26">
+        </div>
+        <div class="form-field">
+          <label><span style="color:#d97706">○</span> Part I — Any other particulars for improving environment quality</label>
+          <input placeholder="e.g. Participating in AMTZ zone-level GreenCo application">
+        </div>
+      </div>
+    </div>
+
+    <!-- Coverage summary -->
+    <div style="background:var(--hz-primary-50);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;margin-bottom:14px">
+      <strong style="color:var(--hz-primary)">TerraCAP auto-fill coverage for this Form V:</strong>
+      <span style="color:#4A7C59;font-weight:700"> ● Parts A, D, E fully auto-filled.</span>
+      <span style="color:#d97706;font-weight:700"> ○ Parts B (water), C (criteria pollutants), F–I require manual input.</span>
+      Adding a water metering input to tenant data collection in a future release would bring auto-fill to ~75%.
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeModal('modal-formv')">Cancel</button>
+      <button class="btn btn-outline">Preview Draft</button>
+      <button class="btn btn-primary">Export Submission PDF →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ MODAL: APPCB FORM 5 GENERATOR ════ -->
+<div class="modal-overlay" id="modal-appcb" onclick="closeModal('modal-appcb')">
+  <div class="modal" onclick="event.stopPropagation()" style="width:580px">
+    <div class="modal-header">
+      <div class="modal-title">APPCB Form 5 — Hazardous Waste Import/Export</div>
+      <button class="modal-close" onclick="closeModal('modal-appcb')">✕</button>
+    </div>
+    <div class="alert blue" style="margin-bottom:14px;font-size:12px">
+      <span class="alert-icon">🏛</span>
+      <div><strong>State PCB auto-detected from zone registration: APPCB (Andhra Pradesh)</strong> — no manual selection required. Fields pre-filled from TerraCAP. Complete the remaining fields and export a submission-ready PDF.</div>
+    </div>
+    <div class="form-grid">
+      <div class="form-section-label">Select Tenant</div>
+      <div class="form-field" style="grid-column:1/-1">
+        <label>Tenant applying for import/export authorisation</label>
+        <select id="form5TenantSelect" onchange="updateForm5Tenant(this.value)">
+          <option value="">— Select tenant —</option>
+          <option value="bharat">Bharat Biotech (Unit 4 · Block C)</option>
+          <option value="aurobindo">Aurobindo API Unit (Unit 2 · Block A)</option>
+          <option value="divis">Divi's Laboratories (Unit 7 · Block B)</option>
+          <option value="hll">HLL Lifecare (Unit 5 · Block C)</option>
+        </select>
+      </div>
+
+      <div class="form-section-label">Form 5 Fields — Pre-filled from TerraCAP</div>
+      <div class="form-field">
+        <label><span style="color:#4A7C59">●</span> Facility Name (India)</label>
+        <input id="f5_name" value="— select tenant above —" readonly style="background:#fff;color:var(--subtle)">
+      </div>
+      <div class="form-field">
+        <label><span style="color:#4A7C59">●</span> Facility Address</label>
+        <input id="f5_addr" value="— select tenant above —" readonly style="background:#fff;color:var(--subtle)">
+      </div>
+      <div class="form-field">
+        <label><span style="color:#4A7C59">●</span> Contact Person</label>
+        <input id="f5_contact" value="—" readonly style="background:#fff;color:var(--subtle)">
+      </div>
+      <div class="form-field">
+        <label><span style="color:#4A7C59">●</span> Contact Email / Tel</label>
+        <input id="f5_email" value="—" readonly style="background:#fff;color:var(--subtle)">
+      </div>
+
+      <div class="form-section-label">Waste Details — Complete Manually</div>
+      <div class="form-field">
+        <label>Waste Description</label>
+        <input placeholder="e.g. Spent organic solvent waste">
+      </div>
+      <div class="form-field">
+        <label>Basel Convention No.</label>
+        <input placeholder="e.g. Y6, Y8, Y42">
+      </div>
+      <div class="form-field">
+        <label>Quantity (MT per year)</label>
+        <input placeholder="e.g. 12.5" type="number">
+      </div>
+      <div class="form-field">
+        <label>Movement Type</label>
+        <select><option>Single movement</option><option>Multiple movements</option></select>
+      </div>
+      <div class="form-field">
+        <label>Physical Characteristics</label>
+        <input placeholder="e.g. Liquid, flammable">
+      </div>
+      <div class="form-field">
+        <label>Import / Export</label>
+        <select><option>Import for recycling</option><option>Import for co-processing</option><option>Export for recovery</option></select>
+      </div>
+      <div class="form-field">
+        <label>Importer/Exporter (outside India)</label>
+        <input placeholder="Company name and country">
+      </div>
+      <div class="form-field">
+        <label>Port of Entry / Exit</label>
+        <input placeholder="e.g. Visakhapatnam Port">
+      </div>
+      <div class="form-field" style="grid-column:1/-1">
+        <label>Prior Informed Consent obtained (Schedule III A waste)?</label>
+        <select><option>N/A — not Schedule III A</option><option>Yes — PIC obtained</option><option>No — in process</option></select>
+      </div>
+
+      <!-- TerraCAP data note -->
+      <div style="grid-column:1/-1;background:#F6F7F4;border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:var(--subtle)">
+        <strong style="color:var(--ink)">TerraCAP auto-fills:</strong> Facility name, address, contact details, Consent to Operate number, and historical waste quantities from Scope 3 Category 5 waste data. The chemical composition detail and Basel number must be entered manually as these are not captured in GHG accounting data.
+      </div>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-outline" onclick="closeModal('modal-appcb')">Cancel</button>
+      <button class="btn btn-outline">Preview Form</button>
+      <button class="btn btn-primary">Export Submission PDF →</button>
+    </div>
+  </div>
+</div>
 
 <!-- ════ MODAL: ONBOARD TENANT ════ -->
 <div class="modal-overlay" id="modal-onboard" onclick="closeModal('modal-onboard')">
@@ -1115,7 +1783,7 @@
     toggle.classList.toggle('open');
   }
 
-  /* ── VIEW SWITCHER ── */
+  /* ── VIEW SWITCHER — clears tenant context banner on zone nav ── */
   function showView(id) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
@@ -1124,18 +1792,127 @@
       if (item.getAttribute('onclick')?.includes("'" + id + "'")) item.classList.add('active');
     });
     document.getElementById('mainContent').scrollTo(0, 0);
+    // Fix (ii): close tenant detail panel and clear context banner when navigating away
+    if (id !== 'tenants') {
+      document.getElementById('tenantDetailPanel')?.classList.remove('open');
+    }
+    // Clear context banner and sidebar when navigating to any zone-level view
+    const zoneMgmtViews = ['overview','zonedata','tenants','scope3','compliance','reports','integrations','orgprofile'];
+    if (zoneMgmtViews.includes(id)) {
+      document.getElementById('contextBanner').classList.remove('active');
+      document.getElementById('sidebarTenantCtx').style.display = 'none';
+    }
   }
 
-  /* ── TENANT CONTEXT ── */
-  function enterTenantContext(name) {
-    document.getElementById('contextTenantName').textContent = name;
-    document.getElementById('contextBanner').classList.add('active');
-    setTimeout(() => alert('Tenant context: ' + name + '\n\nIn production: reloads in read-only mode.\nAll write controls disabled.\nQuery param: ?tenant_context=<org_id>'), 100);
+  /* ── TENANT DETAIL PANEL (fix i) — inline within Tenant List view ── */
+  const TENANT_DATA = {
+    'Bharat Biotech':     { meta:'Unit 4 · Block C · Vaccines / Biologics', s1:'5,530', s2:'12,890', s3:'1,083', cat13:'18,420', dqs:'94%', sub:'✓ Complete', fw:['BRSR','GreenCo 🌿','CBAM 🚢'], hist:[['Q1','1,340','3,180','Apr 2024','94%'],['Q2','1,390','3,220','Jul 2024','93%'],['Q3','1,400','3,240','Oct 2024','95%'],['Q4','1,400','3,250','Jan 2025','94%']] },
+    'Aurobindo API Unit': { meta:'Unit 2 · Block A · API Pharma', s1:'4,680', s2:'10,930', s3:'720', cat13:'15,610', dqs:'72%', sub:'✓ Complete', fw:['BRSR','CBAM 🚢'], hist:[['Q1','1,100','2,600','Apr 2024','74%'],['Q2','1,200','2,800','Jul 2024','71%'],['Q3','1,180','2,700','Oct 2024','70%'],['Q4','1,200','2,830','Jan 2025','72%']] },
+    "Divi's Laboratories": { meta:"Unit 7 · Block B · API Pharma", s1:'3,720', s2:'8,680', s3:'938', cat13:'12,400', dqs:'91%', sub:'✓ Complete', fw:['BRSR','GreenCo 🌿','CBAM 🚢'], hist:[['Q1','900','2,100','Apr 2024','91%'],['Q2','940','2,200','Jul 2024','90%'],['Q3','940','2,180','Oct 2024','92%'],['Q4','940','2,200','Jan 2025','91%']] },
+    'Poly Medicure':       { meta:'Unit 1 · Block A · Medical Devices', s1:'~2,510', s2:'~5,870', s3:'~290', cat13:'~8,380', dqs:'78%', sub:'⏳ Q4 Pending', fw:['BRSR'], hist:[['Q1','610','1,430','Apr 2024','79%'],['Q2','640','1,480','Jul 2024','78%'],['Q3','660','1,480','Oct 2024','77%'],['Q4','—','—','Not submitted','—']] },
+    'HLL Lifecare':        { meta:'Unit 5 · Block C · Medical Supplies', s1:'2,040', s2:'4,770', s3:'480', cat13:'6,810', dqs:'88%', sub:'✓ Complete', fw:['BRSR','GreenCo 🌿'], hist:[['Q1','490','1,150','Apr 2024','88%'],['Q2','510','1,200','Jul 2024','88%'],['Q3','520','1,210','Oct 2024','89%'],['Q4','520','1,210','Jan 2025','87%']] },
+    'SciGen MedTech':      { meta:'Unit 3 · Block B · Biologics', s1:'~1,180', s2:'~2,740', s3:'—', cat13:'~3,920', dqs:'65%', sub:'⏳ Q4 Pending', fw:['GreenCo 🌿'], hist:[['Q1','280','650','Apr 2024','66%'],['Q2','300','690','Jul 2024','65%'],['Q3','300','680','Oct 2024','64%'],['Q4','—','—','Not submitted','—']] },
+  };
+
+  function openTenantDetail(name) {
+    const d = TENANT_DATA[name] || { meta:'—', s1:'—', s2:'—', s3:'—', cat13:'—', dqs:'—', sub:'—', fw:[], hist:[] };
+    document.getElementById('tdpName').textContent = name;
+    document.getElementById('tdpMeta').textContent = d.meta;
+    document.getElementById('tdpS1').innerHTML = d.s1 + '<span class="tdp-kpi-unit"> tCO₂e</span>';
+    document.getElementById('tdpS2').innerHTML = d.s2 + '<span class="tdp-kpi-unit"> tCO₂e</span>';
+    document.getElementById('tdpS3').innerHTML = d.s3 + '<span class="tdp-kpi-unit"> tCO₂e</span>';
+    document.getElementById('tdpCat13').innerHTML = d.cat13 + '<span class="tdp-kpi-unit"> tCO₂e</span>';
+    document.getElementById('tdpDqs').innerHTML = d.dqs + '';
+    document.getElementById('tdpSubmission').textContent = d.sub;
+    // Framework pills
+    const fg = document.getElementById('tdpFwGrid');
+    fg.innerHTML = d.fw.length ? d.fw.map(f => `<div class="tdp-fw-item"><span>${f}</span><span class="pill pill-green" style="font-size:10px">Active</span></div>`).join('') : '<div style="font-size:12px;color:var(--subtle);grid-column:1/-1">No framework add-ons selected</div>';
+    // History
+    const tb = document.getElementById('tdpHistory');
+    tb.innerHTML = d.hist.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td></tr>`).join('');
+    // Show panel and scroll to it
+    const panel = document.getElementById('tenantDetailPanel');
+    panel.classList.add('open');
+    setTimeout(() => panel.scrollIntoView({ behavior:'smooth', block:'nearest' }), 50);
   }
-  function exitTenantContext() {
-    document.getElementById('contextBanner').classList.remove('active');
-    showView('overview');
+
+  function closeTenantPanel() {
+    document.getElementById('tenantDetailPanel').classList.remove('open');
   }
+
+  /* ── ZONE DATA TABS ── */
+  function showDataTab(tab) {
+    ['s1','s2','s3'].forEach(t => {
+      document.getElementById('datatab-' + t).style.display = t === tab ? 'block' : 'none';
+      const btn = document.getElementById('tab-' + t);
+      if (btn) btn.classList.toggle('active', t === tab);
+    });
+  }
+
+  /* ── FORM V + FORM 5 TENANT DATA ── */
+  const FORM_TENANT_DATA = {
+    bharat:   { name:'Bharat Biotech Ltd.', addr:'Unit 4, Block C, AMTZ, Visakhapatnam - 530031', contact:'Ramesh Kumar', email:'esg@bharatbiotech.com', estab:'2018', last:'28 Sep 2023' },
+    aurobindo:{ name:'Aurobindo Pharma Ltd. — API Unit', addr:'Unit 2, Block A, AMTZ, Visakhapatnam - 530031', contact:'Priya Nair', email:'sustainability@aurobindo.com', estab:'2019', last:'29 Sep 2023' },
+    divis:    { name:"Divi's Laboratories Ltd.", addr:'Unit 7, Block B, AMTZ, Visakhapatnam - 530031', contact:'Suresh Reddy', email:'ehs@divislabs.com', estab:'2020', last:'30 Sep 2023' },
+    hll:      { name:'HLL Lifecare Ltd.', addr:'Unit 5, Block C, AMTZ, Visakhapatnam - 530031', contact:'Anand Menon', email:'csr@lifecare.gov.in', estab:'2021', last:'28 Sep 2023' },
+    esic:     { name:'ESIC Diagnostics Ltd.', addr:'Unit 9, Block D, AMTZ, Visakhapatnam - 530031', contact:'T. Krishnaswamy', email:'admin@esicdiag.in', estab:'2021', last:'27 Sep 2023' },
+  };
+
+  function updateFormVTenant(val) {
+    const d = FORM_TENANT_DATA[val];
+    if (!d) return;
+    document.getElementById('fv_name').value    = d.name;
+    document.getElementById('fv_addr').value    = d.addr;
+    document.getElementById('fv_estab').value   = d.estab;
+    document.getElementById('fv_lastdate').value = d.last;
+  }
+
+  function updateForm5Tenant(val) {
+    const d = FORM_TENANT_DATA[val];
+    if (!d) return;
+    document.getElementById('f5_name').value    = d.name;
+    document.getElementById('f5_addr').value    = d.addr;
+    document.getElementById('f5_contact').value = d.contact;
+    document.getElementById('f5_email').value   = d.email;
+  }
+
+  /* ── TOOLTIP POSITIONING — avoids sidebar and viewport edges ── */
+  document.querySelectorAll('.tip-wrap').forEach(wrap => {
+    const box = wrap.querySelector('.tip-box');
+    if (!box) return;
+    wrap.addEventListener('mouseenter', () => {
+      const r = wrap.getBoundingClientRect();
+      // Position below the icon by default, shifted right of the icon
+      let top  = r.bottom + 8;
+      let left = r.left;
+      // If box would overflow bottom of viewport, flip above
+      if (top + 160 > window.innerHeight) top = r.top - 160;
+      // Ensure left doesn't go off right edge
+      if (left + 310 > window.innerWidth) left = window.innerWidth - 320;
+      // Ensure left is at least 10px from left edge (sidebar)
+      if (left < 270) left = 270;
+      box.style.top  = top  + 'px';
+      box.style.left = left + 'px';
+    });
+  });
+
+  /* ── DOSSIER INLINE VIEWER ── */
+  function openDossier() {
+    document.getElementById('dossierOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDossier(e) {
+    if (e && e.target !== document.getElementById('dossierOverlay')) return;
+    document.getElementById('dossierOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.getElementById('dossierOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+      document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+    }
+  });
 
   /* ── MODALS ── */
   function openModal(id)  { document.getElementById(id)?.classList.add('open'); }
@@ -1144,5 +1921,22 @@
     if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
   });
 </script>
+<!-- ════ CCTS DOSSIER INLINE VIEWER ════ -->
+<div class="dossier-overlay" id="dossierOverlay" onclick="closeDossier(event)">
+  <div class="dossier-frame-wrap" onclick="event.stopPropagation()">
+    <div class="dossier-bar">
+      <div>
+        <div class="dossier-bar-title">CCTS Credit Project Dossier · AMTZ MedTech Zone</div>
+        <div class="dossier-bar-sub">Illustrative example · Series 1 · FY 2023–24 · 1,020 tCO₂e registered</div>
+      </div>
+      <div class="dossier-bar-actions">
+        <button class="dossier-print" onclick="document.getElementById('dossierIframe').contentWindow.print()">🖨 Print / Save PDF</button>
+        <button class="dossier-close" onclick="closeDossier()">✕ Close</button>
+      </div>
+    </div>
+    <iframe id="dossierIframe" class="dossier-iframe" src="AMTZ_CCTS_Dossier_Demo.html"></iframe>
+  </div>
+</div>
+
 </body>
 </html>

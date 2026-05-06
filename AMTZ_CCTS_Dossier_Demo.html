@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CCTS Credit Project Dossier · AMTZ MedTech Zone</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --hz: #4A7C59; --hz-50: #E9F1EC; --hz-dark: #2F4F3F;
+    --ink: #22302A; --subtle: #5B6E64; --bg: #F6F7F4;
+    --stroke: #E5E9E6; --amber: #92400e; --amber-bg: #fffbeb;
+    --font: 'Outfit', system-ui, sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:var(--font); background:#fff; color:var(--ink); line-height:1.6; }
+
+  /* PRINT */
+  @media print {
+    .no-print { display:none !important; }
+    body { background:#fff; }
+    .page-break { page-break-before:always; }
+  }
+
+  /* ── COVER ── */
+  .cover {
+    background:var(--hz-dark); color:#fff; padding:60px 72px 48px;
+    min-height:100vh; display:flex; flex-direction:column;
+    justify-content:space-between;
+  }
+  .cover-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:80px; }
+  .cover-logo { display:flex; align-items:center; gap:14px; }
+  .cover-logo-mark { width:44px; height:44px; background:rgba(255,255,255,0.18); border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px; }
+  .cover-logo-name { font-size:22px; font-weight:700; letter-spacing:0.5px; }
+  .cover-logo-sub  { font-size:12px; color:rgba(255,255,255,0.65); margin-top:2px; }
+  .cover-badge { background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25); padding:6px 16px; border-radius:20px; font-size:12px; font-weight:600; color:rgba(255,255,255,0.85); letter-spacing:0.5px; }
+  .cover-body { flex:1; display:flex; flex-direction:column; justify-content:center; }
+  .cover-label { font-size:13px; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.55); margin-bottom:16px; }
+  .cover-title { font-size:44px; font-weight:700; line-height:1.15; margin-bottom:12px; }
+  .cover-sub { font-size:20px; color:rgba(255,255,255,0.7); margin-bottom:48px; }
+  .cover-meta { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; border-top:1px solid rgba(255,255,255,0.15); padding-top:32px; }
+  .cover-meta-item label { display:block; font-size:10px; letter-spacing:1.2px; text-transform:uppercase; color:rgba(255,255,255,0.45); margin-bottom:6px; }
+  .cover-meta-item strong { font-size:15px; }
+  .cover-bottom { border-top:1px solid rgba(255,255,255,0.12); padding-top:20px; font-size:12px; color:rgba(255,255,255,0.4); display:flex; justify-content:space-between; }
+
+  /* ── BODY PAGES ── */
+  .page { max-width:900px; margin:0 auto; padding:56px 72px; }
+  .section-title {
+    font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+    color:var(--hz); margin-bottom:6px; padding-bottom:6px;
+    border-bottom:2px solid var(--hz);
+  }
+  h1 { font-size:28px; font-weight:700; color:var(--hz-dark); margin-bottom:6px; }
+  h2 { font-size:20px; font-weight:700; color:var(--hz-dark); margin-top:36px; margin-bottom:12px; }
+  h3 { font-size:15px; font-weight:700; color:var(--ink); margin-top:20px; margin-bottom:8px; }
+  p  { font-size:14px; color:var(--ink); margin-bottom:12px; line-height:1.7; }
+  .lead { font-size:16px; color:var(--subtle); margin-bottom:24px; line-height:1.7; }
+
+  /* ── TABLES ── */
+  table { width:100%; border-collapse:collapse; font-size:13px; margin-bottom:20px; }
+  th { background:var(--hz-50); color:var(--hz-dark); font-weight:700; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; padding:10px 14px; text-align:left; border-bottom:2px solid var(--hz); }
+  td { padding:10px 14px; border-bottom:1px solid var(--stroke); vertical-align:top; }
+  tr:last-child td { border-bottom:none; }
+  .total-row td { background:var(--hz-50); font-weight:700; }
+  .subtotal-row td { background:#F6F7F4; font-weight:600; }
+
+  /* ── INFO BOX ── */
+  .info-box { background:var(--hz-50); border-left:4px solid var(--hz); border-radius:8px; padding:16px 20px; margin-bottom:20px; font-size:13px; line-height:1.7; }
+  .warn-box { background:#fffbeb; border-left:4px solid #F6AD55; border-radius:8px; padding:16px 20px; margin-bottom:20px; font-size:13px; line-height:1.7; color:#92400e; }
+  .action-box { background:#fff3cd; border:1px solid #fde68a; border-radius:8px; padding:16px 20px; margin-bottom:20px; }
+  .action-box-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.6px; color:#92400e; margin-bottom:8px; }
+  .action-item { display:flex; gap:10px; margin-bottom:8px; font-size:13px; }
+  .action-num { background:#92400e; color:#fff; width:20px; height:20px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0; margin-top:1px; }
+
+  /* ── STATUS PILLS ── */
+  .pill { display:inline-flex; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:700; }
+  .pill-green  { background:#dcfce7; color:#166534; }
+  .pill-amber  { background:#fef3c7; color:#92400e; }
+  .pill-blue   { background:#dbeafe; color:#1e40af; }
+  .pill-red    { background:#fee2e2; color:#b91c1c; }
+  .pill-grey   { background:#f3f4f6; color:#374151; }
+
+  /* ── DIVIDER ── */
+  .divider { border:none; border-top:1px solid var(--stroke); margin:32px 0; }
+
+  /* ── CREDIT SUMMARY BOX ── */
+  .credit-summary {
+    display:grid; grid-template-columns:1fr 1fr 1fr 1fr;
+    gap:16px; margin:24px 0;
+  }
+  .credit-tile { text-align:center; background:var(--hz-50); border-radius:10px; padding:20px 14px; }
+  .credit-tile-val { font-size:28px; font-weight:700; color:var(--hz-dark); line-height:1; margin-bottom:4px; }
+  .credit-tile-unit { font-size:11px; color:var(--hz); font-weight:600; margin-bottom:6px; }
+  .credit-tile-label { font-size:11px; color:var(--subtle); }
+
+  /* ── TIMELINE ── */
+  .timeline { margin:20px 0; }
+  .tl-item { display:flex; gap:16px; margin-bottom:20px; }
+  .tl-dot-wrap { display:flex; flex-direction:column; align-items:center; flex-shrink:0; }
+  .tl-dot { width:14px; height:14px; border-radius:50%; background:var(--hz); flex-shrink:0; }
+  .tl-dot.done   { background:var(--hz); }
+  .tl-dot.active { background:#F6AD55; }
+  .tl-dot.todo   { background:var(--stroke); border:2px solid var(--hz); background:#fff; }
+  .tl-line { width:2px; background:var(--stroke); flex:1; margin-top:4px; }
+  .tl-content { padding-bottom:8px; }
+  .tl-date { font-size:11px; color:var(--subtle); margin-bottom:3px; font-weight:600; }
+  .tl-title { font-size:14px; font-weight:700; color:var(--ink); margin-bottom:3px; }
+  .tl-desc { font-size:13px; color:var(--subtle); }
+
+  /* ── PRINT BUTTON ── */
+  .print-bar {
+    position:fixed; top:0; left:0; right:0;
+    background:var(--hz-dark); color:#fff; padding:12px 32px;
+    display:flex; align-items:center; justify-content:space-between;
+    z-index:100; font-size:13px;
+  }
+  .print-btn { background:var(--hz); color:#fff; border:none; padding:7px 20px; border-radius:20px; cursor:pointer; font-size:13px; font-weight:600; font-family:var(--font); }
+  .print-btn:hover { background:#355b3f; }
+  body { padding-top:50px; }
+  @media print { body { padding-top:0; } }
+</style>
+</head>
+<body>
+
+<!-- PRINT BAR -->
+<div class="print-bar no-print">
+  <span>🌿 AMTZ MedTech Zone · CCTS Credit Project Dossier · Demo version · May 2026</span>
+  <button class="print-btn" onclick="window.print()">🖨 Print / Save PDF</button>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- COVER PAGE                              -->
+<!-- ════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-top">
+    <div class="cover-logo">
+      <div class="cover-logo-mark">TC</div>
+      <div>
+        <div class="cover-logo-name">TerraCAP</div>
+        <div class="cover-logo-sub">Hertzwave Carbon Accounting Platform</div>
+      </div>
+    </div>
+    <div class="cover-badge">CCTS India · BEE Format</div>
+  </div>
+
+  <div class="cover-body">
+    <div style="display:inline-block;background:rgba(246,173,85,0.25);border:1px solid rgba(246,173,85,0.6);color:#fef3c7;font-size:11px;font-weight:700;padding:4px 14px;border-radius:14px;letter-spacing:1px;margin-bottom:14px;text-transform:uppercase">Illustrative Example · All project data is indicative · To be replaced with AMTZ actual activities</div>
+  <div class="cover-label">Carbon Credit Trading Scheme India</div>
+    <div class="cover-title">Credit Project Dossier</div>
+    <div class="cover-sub">AMTZ MedTech Zone — Visakhapatnam, Andhra Pradesh</div>
+
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <label>Project Proponent</label>
+        <strong>Andhra Pradesh MedTech Zone Authority (AMTZ)</strong>
+      </div>
+      <div class="cover-meta-item">
+        <label>Credits Registered</label>
+        <strong>1,020 tCO₂e (Series 1)</strong>
+      </div>
+      <div class="cover-meta-item">
+        <label>Project Period</label>
+        <strong>FY 2023–24 · Apr 2023 – Mar 2024</strong>
+      </div>
+      <div class="cover-meta-item">
+        <label>Sub-Registrar ID</label>
+        <strong>CCTS-SR-AP-2024-0041</strong>
+      </div>
+      <div class="cover-meta-item">
+        <label>Project Type</label>
+        <strong>Industrial Zone · Energy Efficiency + Renewable Energy</strong>
+      </div>
+      <div class="cover-meta-item">
+        <label>Document Version</label>
+        <strong>v1.0 · 15 April 2025</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="cover-bottom">
+    <span>Confidential · Prepared by AMTZ Zone Authority using TerraCAP / Hertzwave Innovations Pvt. Ltd.</span>
+    <span>Submitted to BEE CCTS Registry · India</span>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 1: EXECUTIVE SUMMARY           -->
+<!-- ════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-title">Section 1</div>
+  <h1>Executive Summary</h1>
+  <p class="lead">This dossier presents AMTZ MedTech Zone's first credit project submission under the Carbon Credit Trading Scheme (CCTS) India, administered by the Bureau of Energy Efficiency (BEE) under the Ministry of Power.</p>
+
+  <div class="credit-summary">
+    <div class="credit-tile">
+      <div class="credit-tile-val">1,020</div>
+      <div class="credit-tile-unit">tCO₂e</div>
+      <div class="credit-tile-label">Total credits registered (Series 1)</div>
+    </div>
+    <div class="credit-tile">
+      <div class="credit-tile-val">756</div>
+      <div class="credit-tile-unit">tCO₂e</div>
+      <div class="credit-tile-label">From rooftop solar (1.2 MWp)</div>
+    </div>
+    <div class="credit-tile">
+      <div class="credit-tile-val">264</div>
+      <div class="credit-tile-unit">tCO₂e</div>
+      <div class="credit-tile-label">From LED + HVAC efficiency upgrade</div>
+    </div>
+    <div class="credit-tile">
+      <div class="credit-tile-val">264</div>
+      <div class="credit-tile-unit">tCO₂e</div>
+      <div class="credit-tile-label">Already retired (3 tenants)</div>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <strong>What this dossier is and what it does:</strong><br>
+    CCTS India requires any entity registering carbon credits to submit a formal project dossier showing (a) what activity generated the emission reductions, (b) how the reductions were measured, and (c) that the credits have not been claimed anywhere else. This dossier covers AMTZ's zone-level activities for FY 2023–24. Credits registered here can be traded on the Indian Carbon Market (ICM) or retired to offset the carbon footprint of AMTZ or its tenants.
+  </div>
+
+  <h2>Project at a Glance</h2>
+  <table>
+    <tr><th>Item</th><th>Details</th></tr>
+    <tr><td>Project name</td><td>AMTZ MedTech Zone — Zone-Level Energy Transition Project, Phase 1</td></tr>
+    <tr><td>Location</td><td>AMTZ MedTech Zone, Genome Valley, Visakhapatnam, Andhra Pradesh — 530031</td></tr>
+    <tr><td>Project proponent</td><td>Andhra Pradesh MedTech Zone Authority (AMTZ), a Special Purpose Vehicle under Govt. of Andhra Pradesh</td></tr>
+    <tr><td>CCTS category</td><td>Category 2 — Industrial Energy Efficiency and Renewable Energy</td></tr>
+    <tr><td>Crediting period</td><td>FY 2023–24 (1 April 2023 to 31 March 2024) · Renewable annually</td></tr>
+    <tr><td>Sub-registrar</td><td>AMTZ Zone Authority · CCTS-SR-AP-2024-0041</td></tr>
+    <tr><td>Third-party verifier</td><td>TERI (The Energy and Resources Institute) · Verification certificate ref: TERI/CCTS/2024/AP/0041</td></tr>
+    <tr><td>Status</td><td><span class="pill pill-green">1,240 tCO₂e Registered</span> &nbsp; <span class="pill pill-amber">920 tCO₂e Available for trade</span> &nbsp; <span class="pill pill-grey">320 tCO₂e Retired</span></td></tr>
+  </table>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 2: PROJECT DESCRIPTION         -->
+<!-- ════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-title">Section 2</div>
+  <h1>Project Description</h1>
+  <p class="lead">AMTZ undertook two distinct emission reduction activities during FY 2023–24, both within the zone's common infrastructure boundary under its operational control.</p>
+
+  <h2>Activity 1 — Rooftop Solar Installation (1.2 MWp)</h2>
+  <p>AMTZ commissioned a 1.2 megawatt-peak (MWp) rooftop solar photovoltaic system across Zone Blocks A, B, and C during Q2 FY 2023–24. The system was installed by Tata Power Solar Systems Ltd. and commissioned on 18 August 2023. The solar output feeds the zone's common area infrastructure (lighting, HVAC, DISCOM meters for shared services) under an intra-zone energy sharing arrangement approved by APERC.</p>
+
+  <table>
+    <tr><th>Parameter</th><th>Value</th></tr>
+    <tr><td>Installed capacity</td><td>1,200 kWp (1.2 MWp)</td></tr>
+    <tr><td>Location</td><td>Block A rooftop (480 kWp) · Block B rooftop (420 kWp) · Block C rooftop (300 kWp)</td></tr>
+    <tr><td>Commissioning date</td><td>18 August 2023</td></tr>
+    <tr><td>FY 2023–24 generation</td><td>1,056,000 kWh (Aug 2023 – Mar 2024, 7.5 months)</td></tr>
+    <tr><td>Grid electricity displaced</td><td>1,056,000 kWh</td></tr>
+    <tr><td>Emission factor (AP grid, CEA FY24)</td><td>0.716 kgCO₂e / kWh</td></tr>
+    <tr><td>Emission reduction</td><td><strong>919 tCO₂e</strong> (rounded to 920 for registration)</td></tr>
+    <tr><td>Additionality basis</td><td>Project would not be financially viable without carbon credit revenue; IRR without credits = 9.2% vs. WACC of 12%</td></tr>
+    <tr><td>Permanence / non-reversal</td><td>Grid-connected system; generation is metered and verified by APEPDCL monthly</td></tr>
+  </table>
+
+  <h2>Activity 2 — LED Lighting + HVAC Optimisation</h2>
+  <p>AMTZ replaced all sodium vapour and metal halide fixtures in common areas, streets, and car parks with LED luminaires (Phase 1: 2,840 fittings). Simultaneously, the zone's central HVAC plant serving shared corridors and the Zone Admin Building was retrofitted with variable frequency drives (VFDs) on all chiller compressors. Both measures were implemented between April and June 2023.</p>
+
+  <table>
+    <tr><th>Parameter</th><th>LED Lighting</th><th>HVAC VFD Retrofit</th></tr>
+    <tr><td>Scope</td><td>2,840 fittings · zone common areas, streets, car parks</td><td>6 chiller compressors · Zone Admin Building + shared corridors</td></tr>
+    <tr><td>Implementation date</td><td>Apr – Jun 2023</td><td>Apr – May 2023</td></tr>
+    <tr><td>Annual kWh saved</td><td>246,000 kWh</td><td>122,000 kWh</td></tr>
+    <tr><td>FY 2023–24 kWh saved (full year)</td><td>246,000 kWh</td><td>122,000 kWh</td></tr>
+    <tr><td>Emission factor (AP grid)</td><td colspan="2">0.716 kgCO₂e / kWh</td></tr>
+    <tr><td>Emission reduction</td><td><strong>214 tCO₂e</strong></td><td><strong>106 tCO₂e</strong></td></tr>
+    <tr><td>Combined Activity 2 total</td><td colspan="2"><strong>264 tCO₂e</strong></td></tr>
+  </table>
+
+  <div class="info-box">
+    <strong>Why these two activities qualify under CCTS:</strong><br>
+    CCTS India recognises emission reductions from (i) renewable energy generation displacing grid electricity, and (ii) energy efficiency improvements in industrial and commercial settings. Both activities result in a measurable, verifiable reduction in grid electricity consumption, which reduces the CO₂ emissions associated with AP-TRANSCO power supply to the zone. The emission factor used is the CEA national/state grid emission factor for FY 2023–24, as mandated by BEE CCTS methodology.
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 3: MONITORING REPORT           -->
+<!-- ════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-title">Section 3</div>
+  <h1>Monitoring Report</h1>
+  <p class="lead">This section demonstrates how the emission reductions were measured during the crediting period. All generation and consumption data was sourced from metered readings, not estimates.</p>
+
+  <h2>3.1 Data Sources and Metering</h2>
+  <table>
+    <tr><th>Data point</th><th>Source</th><th>Meter / Reference</th><th>Frequency</th></tr>
+    <tr><td>Solar generation (kWh)</td><td>SMA Sunny Tripower inverter logger + APEPDCL meter</td><td>AP-VIZ-SOLAR-001 to 003</td><td>15-minute intervals · Monthly APEPDCL bill</td></tr>
+    <tr><td>Pre-retrofit lighting consumption</td><td>Baseline audit by TERI (Mar 2023)</td><td>TERI Audit Report · Ref TERl/EE/2023/AP/019</td><td>Baseline (one-time)</td></tr>
+    <tr><td>Post-retrofit lighting consumption</td><td>Smart energy meters installed at each distribution board</td><td>DB-A1 through DB-C8</td><td>Monthly</td></tr>
+    <tr><td>Pre-retrofit HVAC consumption</td><td>Baseline audit by TERI (Mar 2023)</td><td>TERI Audit Report · Ref TERl/EE/2023/AP/019</td><td>Baseline (one-time)</td></tr>
+    <tr><td>Post-retrofit HVAC consumption</td><td>Honeywell BMS energy monitoring module</td><td>BMS-HVAC-ZONE-01</td><td>Monthly</td></tr>
+    <tr><td>Grid emission factor</td><td>CEA CO₂ Baseline Database for Indian Power Sector FY 2023–24</td><td>AP state grid · 0.716 kgCO₂e/kWh</td><td>Annual (CEA published)</td></tr>
+  </table>
+
+  <h2>3.2 Quarterly Generation and Savings Data</h2>
+  <table>
+    <tr><th>Quarter</th><th>Solar Gen. kWh</th><th>LED Saving kWh</th><th>HVAC Saving kWh</th><th>Total kWh</th><th>tCO₂e Reduced</th></tr>
+    <tr><td>Q1 FY24 (Apr–Jun 23)</td><td>—<br><small style="color:#888">system not yet commissioned</small></td><td>61,500</td><td>30,500</td><td>92,000</td><td>80.0</td></tr>
+    <tr><td>Q2 FY24 (Jul–Sep 23)</td><td>192,000<br><small style="color:#888">commissioned 18 Aug; partial quarter</small></td><td>61,500</td><td>30,500</td><td>284,000</td><td>247.1</td></tr>
+    <tr><td>Q3 FY24 (Oct–Dec 23)</td><td>298,000</td><td>61,500</td><td>30,500</td><td>390,000</td><td>279.2</td></tr>
+    <tr><td>Q4 FY24 (Jan–Mar 24)</td><td>566,000</td><td>61,500</td><td>30,500</td><td>658,000</td><td>471.1</td></tr>
+    <tr class="total-row"><td>FY 2023–24 Total</td><td>1,056,000</td><td>246,000</td><td>122,000</td><td>1,424,000</td><td>1,019.5</td></tr>
+    <tr><td colspan="5" style="font-size:12px;color:#5B6E64;font-style:italic">Rounded to nearest whole tCO₂e per BEE CCTS methodology → 1,019.5 rounded to</td><td><strong>1,020 tCO₂e registered</strong></td></tr>
+  </table>
+
+  <div class="warn-box">
+    <strong>Note on Q2 partial commissioning:</strong> The solar system was commissioned on 18 August 2023. Only 43 days of Q2 generation are counted (18 Aug – 30 Sep). Full-quarter generation would have been approximately 300,000 kWh; actual metered generation for the 43-day period was 192,000 kWh, which is consistent with the system's CUF of ~21% for the Visakhapatnam location. TERI's verification report confirms this calculation.
+  </div>
+
+  <h2>3.3 Third-Party Verification Summary</h2>
+  <p>TERI conducted an on-site verification visit on 12–14 March 2025. Their scope of work included: physical inspection of solar installations and meter seals, cross-checking inverter logs against APEPDCL billing records, validation of baseline energy audit methodology, review of LED and HVAC as-built documentation, and recalculation of emission reductions using CEA emission factors.</p>
+
+  <table>
+    <tr><th>Verification finding</th><th>TERI conclusion</th></tr>
+    <tr><td>Solar generation data accuracy</td><td>✅ Confirmed · 99.2% correlation between inverter logs and APEPDCL bills</td></tr>
+    <tr><td>LED energy saving methodology</td><td>✅ Confirmed · Baseline audit methodology consistent with BEE CCTS guidance</td></tr>
+    <tr><td>HVAC VFD saving methodology</td><td>✅ Confirmed · BMS data validated against sub-meter readings</td></tr>
+    <tr><td>Double-counting check</td><td>✅ No overlap with I-REC certificates, RPO obligations, or PAT cycle claims</td></tr>
+    <tr><td>Additionality</td><td>✅ Confirmed · Financial analysis reviewed; project would not have proceeded without CCTS revenue</td></tr>
+    <tr><td>Overall emission reduction</td><td>✅ Verified at 1,019.5 tCO₂e · Registered as 1,020 tCO₂e per BEE rounding guidance</td></tr>
+  </table>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 4: CREDIT LEDGER               -->
+<!-- ════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-title">Section 4</div>
+  <h1>Credit Ledger</h1>
+
+  <h2>4.1 Issuance</h2>
+  <table>
+    <tr><th>Series</th><th>tCO₂e issued</th><th>Issue date</th><th>Validity</th><th>Registry reference</th></tr>
+    <tr><td>Series 1 · FY 2023–24</td><td><strong>1,020</strong></td><td>22 April 2025</td><td>Valid until 21 April 2030</td><td>CCTS-IN-AP-0041-2024-S1-001 to 1020</td></tr>
+  </table>
+
+  <h2>4.2 Retirement Register</h2>
+  <p>Credits retired as of the date of this dossier. Retired credits are permanently cancelled from the registry and may be used to offset the carbon footprint of the retiring entity.</p>
+  <table>
+    <tr><th>Retiring entity</th><th>tCO₂e retired</th><th>Retirement date</th><th>Purpose</th><th>Registry ref</th></tr>
+    <tr><td>Bharat Biotech Ltd.</td><td>115</td><td>10 May 2025</td><td>Offset FY 2023–24 Scope 2 residual</td><td>CCTS-RET-AP-0041-2025-001</td></tr>
+    <tr><td>Divi's Laboratories Ltd.</td><td>90</td><td>10 May 2025</td><td>Offset FY 2023–24 Scope 2 residual</td><td>CCTS-RET-AP-0041-2025-002</td></tr>
+    <tr><td>HLL Lifecare Ltd.</td><td>59</td><td>12 May 2025</td><td>Offset FY 2023–24 Scope 2 residual</td><td>CCTS-RET-AP-0041-2025-003</td></tr>
+    <tr class="subtotal-row"><td><strong>Total retired</strong></td><td><strong>264</strong></td><td></td><td></td><td></td></tr>
+  </table>
+
+  <h2>4.3 Available for Trade</h2>
+  <div class="info-box" style="display:flex;align-items:center;gap:24px">
+    <div style="text-align:center;flex-shrink:0">
+      <div style="font-size:40px;font-weight:700;color:var(--hz-dark)">756</div>
+      <div style="font-size:13px;color:var(--hz);font-weight:600">tCO₂e available</div>
+    </div>
+    <div>
+      <strong>1,020 registered − 264 retired = 756 tCO₂e available for trading on the Indian Carbon Market (ICM).</strong><br><br>
+      These credits can be: (a) sold on the ICM exchange to entities with compliance obligations, (b) retired by AMTZ or any tenant against their own Scope 2 footprint, or (c) carried forward to the next crediting period (subject to BEE carry-forward rules, maximum 2 years).
+    </div>
+  </div>
+
+  <h2>4.4 Estimated Credit Value</h2>
+  <table>
+    <tr><th>Scenario</th><th>Price per tCO₂e</th><th>Value of 920 credits</th><th>Basis</th></tr>
+    <tr><td>Conservative</td><td>₹ 200</td><td>₹ 1,51,200</td><td>Current ICM floor price estimate</td></tr>
+    <tr><td>Mid</td><td>₹ 400</td><td>₹ 3,02,400</td><td>Expected ICM price FY 2025–26</td></tr>
+    <tr><td>Optimistic</td><td>₹ 700</td><td>₹ 5,29,200</td><td>Voluntary market comparable (ACCU, VCS)</td></tr>
+    <tr class="info-box" style="background:var(--hz-50)"><td colspan="4" style="font-size:12px;color:var(--subtle);font-style:italic">Note: The Indian Carbon Market (ICM) is still nascent. The first ICM auction (late 2023) cleared at approximately ₹148/tCO₂e. The conservative scenario (₹200) is near-term realistic; mid and optimistic reflect expected price appreciation as compliance obligations scale. AMTZ should obtain a broker quote before listing credits.</td></tr>
+  </table>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 5: NEXT STEPS FOR AMTZ         -->
+<!-- ════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-title">Section 5</div>
+  <h1>What AMTZ Needs to Do Next</h1>
+  <p class="lead">This section lays out the concrete actions AMTZ Zone Authority needs to take to maximise value from its CCTS sub-registrar status and progress to the next crediting cycle.</p>
+
+  <h2>5.1 Immediate Actions (within 60 days)</h2>
+
+  <div class="action-box">
+    <div class="action-box-title">⚡ Trade or retire the 920 available credits</div>
+    <div class="action-item"><div class="action-num">1</div><div>Contact BEE-empanelled brokers or access the ICM exchange portal (when live) to list the 920 available credits for sale. Alternatively, offer credits to zone tenants at a negotiated price for their own Scope 2 offset disclosures. Revenue from credit sales can offset the cost of TerraCAP platform fees and future efficiency investments.</div></div>
+    <div class="action-item"><div class="action-num">2</div><div>If any additional tenant wants to retire credits against their FY 2023–24 footprint (Aurobindo, Wipro GE, etc.) — initiate the retirement request through TerraCAP's Carbon Credits module, which connects to the BEE CCTS registry directly.</div></div>
+  </div>
+
+  <div class="action-box">
+    <div class="action-box-title">📋 Register FY 2024–25 as Series 2</div>
+    <div class="action-item"><div class="action-num">3</div><div>The solar system operated for the full FY 2024–25 (vs. 7.5 months in FY 2023–24). Estimated Series 2 generation: ~1,690,000 kWh from solar alone, yielding approximately 1,208 tCO₂e — before adding the LED and HVAC savings again (~264 tCO₂e). Total Series 2 estimate: ~1,472 tCO₂e. Initiate TERI verification for FY 2024–25 data no later than June 2025 to meet the 30 September 2025 registry submission deadline.</div></div>
+    <div class="action-item"><div class="action-num">4</div><div>TerraCAP has already captured the FY 2024–25 solar generation data (from the DISCOM API) and LED/HVAC consumption data (from smart meters). The monitoring report for Series 2 can be auto-generated from TerraCAP's Zone Data Export — share this data pack with TERI to reduce their verification time and cost.</div></div>
+  </div>
+
+  <h2>5.2 Medium-Term Actions (FY 2025–26)</h2>
+
+  <div class="action-box">
+    <div class="action-box-title">🌿 Expand the project boundary to include tenant activities</div>
+    <div class="action-item"><div class="action-num">5</div><div>As zone sub-registrar, AMTZ can register emission reductions achieved by individual tenants — not just zone common infrastructure. For example, if Bharat Biotech installs an ETP heat recovery system or Divi's switches to green hydrogen, those reductions can be registered under the AMTZ sub-registrar umbrella. Each tenant would sign a Letter of Authorisation (LoA) delegating credit rights to AMTZ. This significantly expands the credit volume and positions AMTZ as a genuine carbon market aggregator for the MedTech sector.</div></div>
+    <div class="action-item"><div class="action-num">6</div><div>Approach 3–4 tenants with high Scope 1 (process combustion) or Scope 2 (high-intensity operations) to identify feasible efficiency or fuel-switch projects. TerraCAP's NetZero Pathfinder module can model the credit-generation potential of different abatement options before investment decisions are made.</div></div>
+  </div>
+
+  <div class="action-box">
+    <div class="action-box-title">🔌 Phase 2 — BMS integration to automate monitoring data</div>
+    <div class="action-item"><div class="action-num">7</div><div>Currently, solar generation and lighting/HVAC data is collected monthly from meters. Phase 2 of TerraCAP's integration roadmap connects the zone's BMS (Building Management System) via MQTT, providing real-time energy monitoring. This eliminates manual data collection for monitoring reports and reduces verification time and cost from the current ~2 weeks to approximately 3 days per year.</div></div>
+  </div>
+
+  <h2>5.3 Registry and Compliance Calendar</h2>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot-wrap"><div class="tl-dot done"></div><div class="tl-line"></div></div>
+      <div class="tl-content">
+        <div class="tl-date">April 2025</div>
+        <div class="tl-title">✅ Series 1 registered — 1,240 tCO₂e</div>
+        <div class="tl-desc">CCTS registry ref: CCTS-IN-AP-0041-2024-S1. TERI verification complete. 320 tCO₂e retired by 3 tenants.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot-wrap"><div class="tl-dot active"></div><div class="tl-line"></div></div>
+      <div class="tl-content">
+        <div class="tl-date">May – Jun 2025</div>
+        <div class="tl-title">🟡 Trade or retire remaining 920 tCO₂e</div>
+        <div class="tl-desc">List on ICM exchange or offer to tenants. Initiate TERI engagement for FY 2024–25 verification.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot-wrap"><div class="tl-dot todo"></div><div class="tl-line"></div></div>
+      <div class="tl-content">
+        <div class="tl-date">Jul – Sep 2025</div>
+        <div class="tl-title">Series 2 verification — FY 2024–25 data</div>
+        <div class="tl-desc">TERI on-site visit. Export TerraCAP monitoring data pack to reduce verification effort. Target: ~1,472 tCO₂e estimated.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot-wrap"><div class="tl-dot todo"></div><div class="tl-line"></div></div>
+      <div class="tl-content">
+        <div class="tl-date">30 Sep 2025</div>
+        <div class="tl-title">Series 2 dossier submission deadline</div>
+        <div class="tl-desc">Submit to BEE registry via CCTS sub-registrar portal. TerraCAP generates the dossier PDF automatically from monitoring data.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot-wrap"><div class="tl-dot todo"></div></div>
+      <div class="tl-content">
+        <div class="tl-date">FY 2025–26</div>
+        <div class="tl-title">Expand to tenant emission reductions</div>
+        <div class="tl-desc">Identify 3–4 tenants with abatement projects. Sign LoAs. Register under AMTZ sub-registrar umbrella. Potential: 500–1,000 additional tCO₂e.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <h2>5.4 Value Summary for AMTZ Leadership</h2>
+  <table>
+    <tr><th>Item</th><th>FY 2023–24 (Series 1)</th><th>FY 2024–25 (Series 2 est.)</th></tr>
+    <tr><td>Credits registered (tCO₂e)</td><td>1,240</td><td>~1,790</td></tr>
+    <tr><td>Credits available for trade</td><td>920</td><td>~1,790 (assuming no early retirements)</td></tr>
+    <tr><td>Estimated revenue at ₹400/tCO₂e</td><td>₹ 3,68,000</td><td>₹ 7,16,000</td></tr>
+    <tr><td>Verification cost (TERI estimate)</td><td>₹ 1,80,000</td><td>₹ 1,20,000 (reduced with TerraCAP data pack)</td></tr>
+    <tr><td>Net benefit</td><td>₹ 1,88,000</td><td>₹ 5,96,000</td></tr>
+    <tr class="total-row"><td>Two-year cumulative net</td><td colspan="2"><strong>₹ 5,91,200 — covers TerraCAP zone license + 5 tenant onboardings</strong></td></tr>
+  </table>
+
+  <div class="info-box">
+    <strong>The commercial insight for AMTZ:</strong> At mid-market credit prices, the CCTS revenue from just two crediting cycles essentially pays for the TerraCAP zone license and a significant portion of tenant onboarding fees. As AMTZ scales to tenant abatement projects, the credit revenue grows further, making TerraCAP a self-funding sustainability infrastructure investment — not a cost centre.
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- SECTION 6: SUPPORTING DOCUMENTS LIST   -->
+<!-- ════════════════════════════════════════ -->
+<div class="page page-break">
+  <div class="section-title">Section 6</div>
+  <h1>Supporting Documents</h1>
+  <p>The following documents form part of this dossier and are available on request from AMTZ Zone Authority or from TerraCAP's document repository.</p>
+
+  <table>
+    <tr><th>#</th><th>Document</th><th>Reference</th><th>Status</th></tr>
+    <tr><td>1</td><td>TERI Energy Audit Report — Baseline (FY 2022–23)</td><td>TERI/EE/2023/AP/019</td><td><span class="pill pill-green">Available</span></td></tr>
+    <tr><td>2</td><td>TERI Third-Party Verification Report — Series 1</td><td>TERI/CCTS/2024/AP/0041</td><td><span class="pill pill-green">Available</span></td></tr>
+    <tr><td>3</td><td>Tata Power Solar — Installation and commissioning certificate</td><td>TPS/AMTZ/2023/VIZ/001</td><td><span class="pill pill-green">Available</span></td></tr>
+    <tr><td>4</td><td>APEPDCL metered generation data — Aug 2023 to Mar 2024</td><td>Monthly billing records</td><td><span class="pill pill-green">Available</span></td></tr>
+    <tr><td>5</td><td>Smart meter data exports — LED distribution boards DB-A1 to DB-C8</td><td>TerraCAP Zone Data Export</td><td><span class="pill pill-green">Available</span></td></tr>
+    <tr><td>6</td><td>Honeywell BMS HVAC energy logs — Apr 2023 to Mar 2024</td><td>BMS-HVAC-ZONE-01 export</td><td><span class="pill pill-green">Available</span></td></tr>
+    <tr><td>7</td><td>CEA CO₂ Baseline Database — FY 2023–24 (AP grid)</td><td>CEA published · 0.716 kgCO₂e/kWh</td><td><span class="pill pill-green">Public</span></td></tr>
+    <tr><td>8</td><td>BEE CCTS sub-registrar registration certificate</td><td>CCTS-SR-AP-2024-0041</td><td><span class="pill pill-green">Available</span></td></tr>
+    <tr><td>9</td><td>APERC intra-zone energy sharing approval</td><td>APERC/TR/2023/089</td><td><span class="pill pill-green">Available</span></td></tr>
+    <tr><td>10</td><td>Credit retirement certificates — 3 tenants</td><td>CCTS-RET-AP-0041-2025-001/002/003</td><td><span class="pill pill-green">Available</span></td></tr>
+    <tr><td>11</td><td>BEE CCTS registry confirmation — Series 1 issuance</td><td>CCTS-IN-AP-0041-2024-S1</td><td><span class="pill pill-green">Available</span></td></tr>
+    <tr><td>12</td><td>TerraCAP Zone GHG Inventory — FY 2023–24</td><td>TerraCAP export · AMTZ-GHG-FY24</td><td><span class="pill pill-green">Available</span></td></tr>
+  </table>
+
+  <hr class="divider">
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:32px">
+    <div>
+      <h3>Prepared by</h3>
+      <p style="font-size:13px;line-height:2">
+        <strong>AMTZ Zone Authority</strong><br>
+        Andhra Pradesh MedTech Zone, Genome Valley<br>
+        Visakhapatnam — 530031<br>
+        Contact: Mr. Suraj · suraj@amtz.in<br>
+        Date: 15 April 2025
+      </p>
+      <div style="border-top:1px solid var(--stroke);padding-top:12px;margin-top:24px;font-size:12px;color:var(--subtle)">
+        Authorised signatory<br>
+        <strong style="color:var(--ink)">Chief Executive Officer, AMTZ</strong>
+      </div>
+    </div>
+    <div>
+      <h3>Verified by</h3>
+      <p style="font-size:13px;line-height:2">
+        <strong>The Energy and Resources Institute (TERI)</strong><br>
+        Darbari Seth Block, India Habitat Centre<br>
+        Lodhi Road, New Delhi — 110003<br>
+        Verification ref: TERI/CCTS/2024/AP/0041<br>
+        Date: 10 April 2025
+      </p>
+      <div style="border-top:1px solid var(--stroke);padding-top:12px;margin-top:24px;font-size:12px;color:var(--subtle)">
+        Lead Verifier<br>
+        <strong style="color:var(--ink)">Senior Fellow, Energy Economy Division, TERI</strong>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <p style="font-size:12px;color:var(--subtle);text-align:center;line-height:1.7">
+    This dossier was prepared using TerraCAP, the Hertzwave Carbon Accounting Platform. Emission calculations follow GHG Protocol Corporate Standard and BEE CCTS Methodology v1.2. This is a demonstration document prepared for AMTZ stakeholder review · May 2026 · Hertzwave Innovations Pvt. Ltd.
+  </p>
+</div>
+
+</body>
+</html>
