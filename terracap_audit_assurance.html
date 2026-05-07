@@ -293,12 +293,14 @@
             <div class="nav-section-title">Active Audit</div>
             <div class="nav-item" data-screen="queries" onclick="go('queries')"><div class="nav-icon">💬</div> Auditor Queries<span class="nav-badge nav-badge-red">3</span></div>
             <div class="nav-item" data-screen="findings" onclick="go('findings')"><div class="nav-icon">⚠️</div> Findings & Responses<span class="nav-badge nav-badge-amber">2</span></div>
+            <div class="nav-item" data-screen="pbc" onclick="go('pbc')"><div class="nav-icon">📋</div> PBC / Evidence Requests<span class="nav-badge nav-badge-amber">4</span></div>
             <div class="nav-item" data-screen="timeline" onclick="go('timeline')"><div class="nav-icon">📅</div> Activity Timeline</div>
         </div>
 
         <div class="nav-section">
             <div class="nav-section-title">Deliverables</div>
             <div class="nav-item" data-screen="deliverables" onclick="go('deliverables')"><div class="nav-icon">📄</div> Reports & Sign-off</div>
+            <div class="nav-item" data-screen="closeout" onclick="go('closeout')"><div class="nav-icon">📦</div> Engagement Close-out</div>
         </div>
 
     </nav>
@@ -558,14 +560,37 @@
                             </tbody>
                         </table>
 
+                        <div style="margin-bottom:1.25rem;">
+                            <div style="font-size:0.88rem; font-weight:700; color:var(--subtle); margin-bottom:0.75rem; text-transform:uppercase; letter-spacing:0.04em;">Engagement Activation Stages</div>
+                            <div style="display:flex; gap:0.5rem; align-items:stretch;">
+                                <div style="flex:1; padding:1rem; border-radius:10px; border:2px solid var(--success); background:#F0FFF4;">
+                                    <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--success); margin-bottom:0.3rem;">Stage 1 — Completed</div>
+                                    <div style="font-weight:700; font-size:0.9rem; color:var(--ink);">✓ Engagement Created</div>
+                                    <div style="font-size:0.78rem; color:var(--subtle); margin-top:0.25rem;">Scope, firm, and team details confirmed and recorded.</div>
+                                </div>
+                                <div style="display:flex; align-items:center; color:var(--subtle); font-size:1.2rem;">→</div>
+                                <div style="flex:1; padding:1rem; border-radius:10px; border:2px solid var(--warning); background:#FFFBEB;">
+                                    <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#B7791F; margin-bottom:0.3rem;">Stage 2 — Pending</div>
+                                    <div style="font-weight:700; font-size:0.9rem; color:var(--ink);">⏳ Independence Declaration</div>
+                                    <div style="font-size:0.78rem; color:var(--subtle); margin-top:0.25rem;">The audit firm must formally declare independence before access is granted. Platform Admin notified.</div>
+                                </div>
+                                <div style="display:flex; align-items:center; color:var(--subtle); font-size:1.2rem;">→</div>
+                                <div style="flex:1; padding:1rem; border-radius:10px; border:2px solid var(--stroke); background:var(--bg); opacity:0.6;">
+                                    <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--subtle); margin-bottom:0.3rem;">Stage 3 — Locked</div>
+                                    <div style="font-weight:700; font-size:0.9rem; color:var(--ink);">🔐 Credentials Provisioned</div>
+                                    <div style="font-size:0.78rem; color:var(--subtle); margin-top:0.25rem;">Activated only after independence is confirmed. Auditors then access TerraAudit with read-only permissions.</div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div style="padding:1rem; background:#FFFBEB; border:1px solid #F6E05E; border-radius:8px;">
-                            <div style="font-weight:600; font-size:0.88rem; color:#744210; margin-bottom:0.3rem;">🔐 Next Step: Credential Provisioning</div>
-                            <div style="font-size:0.82rem; color:#744210;">After you confirm, the Platform Admin will be notified to create <strong>Auditor role</strong> credentials for each team member via the Administration → User Management module. Auditor accounts will only have access to the <strong>TerraAudit</strong> workspace — all other platform modules remain inaccessible.</div>
+                            <div style="font-weight:600; font-size:0.88rem; color:#744210; margin-bottom:0.3rem;">🔐 What Happens After You Confirm</div>
+                            <div style="font-size:0.82rem; color:#744210;">The engagement is created in <strong>Pending Independence</strong> status. The Platform Admin receives a notification to prepare auditor user accounts. However, <strong>credentials will only be activated after the audit firm submits a signed Independence Declaration</strong> — either via platform or uploaded document — preventing premature data access.</div>
                         </div>
                     </div>
                     <div class="card-footer">
                         <button class="btn btn-ghost" onclick="wizardBack(4)">← Back</button>
-                        <button class="btn btn-success" onclick="provisionCredentials()">✓ Confirm & Create Engagement</button>
+                        <button class="btn btn-success" onclick="provisionCredentials()">Create Engagement (Pending Independence)</button>
                     </div>
                 </div>
             </div>
@@ -604,25 +629,25 @@
             <div class="card">
                 <div class="card-header"><div class="card-title">ESG Categories Shared with Auditor</div><button class="btn btn-sm btn-secondary" onclick="openModal('modal-modify-access')">Modify Access</button></div>
                 <div class="card-body">
-                    <div class="esg-grid">
+                    <div class="esg-grid" id="access-display-grid">
                         <div>
                             <div class="esg-col-title env">Environmental (E)</div>
-                            <div class="esg-item"><span class="tag tag-green" style="font-size:0.72rem;">✓ Shared</span> GHG Emissions</div>
-                            <div class="esg-item"><span class="tag tag-green" style="font-size:0.72rem;">✓ Shared</span> Water Management</div>
-                            <div class="esg-item"><span class="tag tag-green" style="font-size:0.72rem;">✓ Shared</span> Waste Management</div>
-                            <div class="esg-item" style="opacity:0.45;"><span class="tag tag-gray" style="font-size:0.72rem;">Not shared</span> Air Quality</div>
-                            <div class="esg-item" style="opacity:0.45;"><span class="tag tag-gray" style="font-size:0.72rem;">Not shared</span> Biodiversity & Land Use</div>
-                            <div class="esg-item" style="opacity:0.45;"><span class="tag tag-gray" style="font-size:0.72rem;">Not shared</span> Climate Resilience</div>
+                            <div class="esg-item" data-key="ghg"><span class="access-tag tag tag-green" style="font-size:0.72rem;">✓ Shared</span> <span class="access-label">GHG Emissions</span></div>
+                            <div class="esg-item" data-key="water"><span class="access-tag tag tag-green" style="font-size:0.72rem;">✓ Shared</span> <span class="access-label">Water Management</span></div>
+                            <div class="esg-item" data-key="waste"><span class="access-tag tag tag-green" style="font-size:0.72rem;">✓ Shared</span> <span class="access-label">Waste Management</span></div>
+                            <div class="esg-item" data-key="air" style="opacity:0.45;"><span class="access-tag tag tag-gray" style="font-size:0.72rem;">Not shared</span> <span class="access-label">Air Quality</span></div>
+                            <div class="esg-item" data-key="bio" style="opacity:0.45;"><span class="access-tag tag tag-gray" style="font-size:0.72rem;">Not shared</span> <span class="access-label">Biodiversity &amp; Land Use</span></div>
+                            <div class="esg-item" data-key="climate" style="opacity:0.45;"><span class="access-tag tag tag-gray" style="font-size:0.72rem;">Not shared</span> <span class="access-label">Climate Resilience</span></div>
                         </div>
                         <div>
                             <div class="esg-col-title soc">Social (S)</div>
-                            <div class="esg-item" style="opacity:0.45;"><span class="tag tag-gray" style="font-size:0.72rem;">Not shared</span> Health & Safety</div>
-                            <div class="esg-item" style="opacity:0.45;"><span class="tag tag-gray" style="font-size:0.72rem;">Not shared</span> Diversity, Equity & Inclusion</div>
-                            <div class="esg-item" style="opacity:0.45;"><span class="tag tag-gray" style="font-size:0.72rem;">Not shared</span> Community Engagement</div>
+                            <div class="esg-item" data-key="hns" style="opacity:0.45;"><span class="access-tag tag tag-gray" style="font-size:0.72rem;">Not shared</span> <span class="access-label">Health &amp; Safety</span></div>
+                            <div class="esg-item" data-key="dei" style="opacity:0.45;"><span class="access-tag tag tag-gray" style="font-size:0.72rem;">Not shared</span> <span class="access-label">Diversity, Equity &amp; Inclusion</span></div>
+                            <div class="esg-item" data-key="comm" style="opacity:0.45;"><span class="access-tag tag tag-gray" style="font-size:0.72rem;">Not shared</span> <span class="access-label">Community Engagement</span></div>
                         </div>
                         <div>
                             <div class="esg-col-title gov">Governance (G)</div>
-                            <div class="esg-item" style="opacity:0.45;"><span class="tag tag-gray" style="font-size:0.72rem;">Not shared</span> Ethics & Compliance</div>
+                            <div class="esg-item" data-key="ethics" style="opacity:0.45;"><span class="access-tag tag tag-gray" style="font-size:0.72rem;">Not shared</span> <span class="access-label">Ethics &amp; Compliance</span></div>
                         </div>
                     </div>
                 </div>
@@ -717,13 +742,251 @@
             <div class="card">
                 <div class="card-header"><div class="card-title">Audit Reports (from Auditor)</div></div>
                 <div class="card-body">
+                    <div class="info-box" style="margin-bottom:1.25rem;">
+                        <div class="info-box-title">📤 How Reports Arrive Here</div>
+                        <div class="info-box-text">Reports are drafted and finalized by the audit team inside <strong>TerraAudit</strong> (the auditor's private workspace). When the auditor finalizes a report and marks it "Ready to Share," TerraCAP pushes it into this screen automatically — so you only see reports the auditor has explicitly released for your review. Draft reports are visible to you but marked clearly as drafts awaiting the auditor's final sign-off. You can preview each report and provide management acknowledgement but cannot edit the auditor's content.</div>
+                    </div>
                     <table class="data-table">
-                        <thead><tr><th>Report</th><th>Description</th><th>Status</th><th></th></tr></thead>
+                        <thead><tr><th>Report</th><th>Description</th><th>Source</th><th>Pushed On</th><th>Status</th><th></th></tr></thead>
                         <tbody>
-                            <tr><td><strong>Limited Assurance Statement</strong></td><td>ISAE 3410 compliant assurance opinion on GHG emissions</td><td><span class="tag tag-amber">Draft</span></td><td><button class="btn btn-sm btn-secondary" onclick="openModal('modal-rpt-assurance')">Preview Draft</button></td></tr>
-                            <tr><td><strong>Management Letter</strong></td><td>Findings, recommendations, and improvement opportunities</td><td><span class="tag tag-amber">Draft</span></td><td><button class="btn btn-sm btn-secondary" onclick="openModal('modal-rpt-mgmt')">Preview Draft</button></td></tr>
-                            <tr><td><strong>BRSR Core Verification Report</strong></td><td>Framework-specific indicator verification for SEBI BRSR</td><td><span class="tag tag-amber">Draft</span></td><td><button class="btn btn-sm btn-secondary" onclick="openModal('modal-rpt-brsr')">Preview Draft</button></td></tr>
-                            <tr><td><strong>Audit Summary Dashboard (PDF)</strong></td><td>Visual summary of engagement metrics and KPIs</td><td><span class="tag tag-green">Auto-generated</span></td><td><button class="btn btn-sm btn-ghost">Download</button></td></tr>
+                            <tr><td><strong>Limited Assurance Statement</strong></td><td>ISAE 3410 compliant assurance opinion on GHG emissions</td><td><span class="tag tag-teal" style="font-size:0.7rem;">TerraAudit</span></td><td style="font-family:'JetBrains Mono'; font-size:0.8rem; color:var(--subtle);">Feb 10, 2025</td><td><span class="tag tag-amber">Draft</span></td><td><button class="btn btn-sm btn-secondary" onclick="openModal('modal-rpt-assurance')">Preview Draft</button></td></tr>
+                            <tr><td><strong>Management Letter</strong></td><td>Findings, recommendations, and improvement opportunities</td><td><span class="tag tag-teal" style="font-size:0.7rem;">TerraAudit</span></td><td style="font-family:'JetBrains Mono'; font-size:0.8rem; color:var(--subtle);">Feb 10, 2025</td><td><span class="tag tag-amber">Draft</span></td><td><button class="btn btn-sm btn-secondary" onclick="openModal('modal-rpt-mgmt')">Preview Draft</button></td></tr>
+                            <tr><td><strong>BRSR Core Verification Report</strong></td><td>Framework-specific indicator verification for SEBI BRSR</td><td><span class="tag tag-teal" style="font-size:0.7rem;">TerraAudit</span></td><td style="font-family:'JetBrains Mono'; font-size:0.8rem; color:var(--subtle);">Feb 12, 2025</td><td><span class="tag tag-amber">Draft</span></td><td><button class="btn btn-sm btn-secondary" onclick="openModal('modal-rpt-brsr')">Preview Draft</button></td></tr>
+                            <tr><td><strong>Audit Summary Dashboard (PDF)</strong></td><td>Visual summary of engagement metrics and KPIs</td><td><span class="tag tag-blue" style="font-size:0.7rem;">Auto-generated</span></td><td style="font-family:'JetBrains Mono'; font-size:0.8rem; color:var(--subtle);">Feb 12, 2025</td><td><span class="tag tag-green">Available</span></td><td><button class="btn btn-sm btn-ghost">Download</button></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- ==================== PBC / EVIDENCE REQUESTS ==================== -->
+        <div class="screen" id="screen-pbc">
+            <div class="page-header"><div class="page-title">PBC / Evidence Requests</div><div class="page-subtitle">Provided-By-Client tracker — all documents requested by the auditor, due dates, and current status</div></div>
+
+            <div class="info-box">
+                <div class="info-box-title">📋 About This Tracker</div>
+                <div class="info-box-text">This is your single reference for everything the auditor has asked for. Each request is raised in TerraAudit and appears here automatically. Upload responses directly against each item — the auditor sees the upload in real time. Overdue items are flagged and escalated to the Activity Timeline.</div>
+            </div>
+
+            <div class="metrics-row" style="grid-template-columns:repeat(4,1fr); margin-bottom:1.5rem;">
+                <div class="metric-card"><div class="metric-label">Total Requests</div><div class="metric-value">12</div><div class="metric-sub">across all categories</div></div>
+                <div class="metric-card"><div class="metric-label">Received</div><div class="metric-value" style="color:#22543D;">8</div><div class="metric-sub"><span class="tag tag-green">67%</span></div></div>
+                <div class="metric-card"><div class="metric-label">Outstanding</div><div class="metric-value" style="color:#9B2C2C;">4</div><div class="metric-sub"><span class="tag tag-red">Pending</span></div></div>
+                <div class="metric-card"><div class="metric-label">Overdue</div><div class="metric-value" style="color:#744210;">2</div><div class="metric-sub"><span class="tag tag-amber">Past due date</span></div></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Request List</div>
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <select class="form-select" style="padding:0.4rem 0.7rem; font-size:0.82rem; width:auto;">
+                            <option>All Categories</option>
+                            <option>Scope 1</option>
+                            <option>Scope 2</option>
+                            <option>Scope 3</option>
+                            <option>Policy &amp; Process</option>
+                        </select>
+                        <select class="form-select" style="padding:0.4rem 0.7rem; font-size:0.82rem; width:auto;">
+                            <option>All Statuses</option>
+                            <option>Outstanding</option>
+                            <option>Received</option>
+                            <option>Overdue</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <table class="data-table">
+                        <thead><tr><th>Ref</th><th>Document / Data Requested</th><th>Category</th><th>Requested By</th><th>Requested On</th><th>Due Date</th><th>Status</th><th></th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-family:'JetBrains Mono'; font-weight:600; font-size:0.8rem;">PBC-001</td>
+                                <td><div style="font-weight:600; font-size:0.88rem;">Carbon Accounting Policy v2.1</div><div style="font-size:0.75rem; color:var(--subtle);">Current organizational policy document for GHG quantification methodology</div></td>
+                                <td><span class="tag tag-gray">Policy</span></td>
+                                <td style="font-size:0.82rem;">Sarah Mitchell</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem; color:var(--subtle);">Jan 08</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem;">Jan 12</td>
+                                <td><span class="tag tag-green">✓ Received</span></td>
+                                <td><button class="btn btn-sm btn-ghost">View</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-family:'JetBrains Mono'; font-weight:600; font-size:0.8rem;">PBC-002</td>
+                                <td><div style="font-weight:600; font-size:0.88rem;">BESCOM Electricity Bills — Apr–Oct 2024</div><div style="font-size:0.75rem; color:var(--subtle);">All 5 facilities, monthly utility bills from BESCOM</div></td>
+                                <td><span class="tag tag-blue">Scope 2</span></td>
+                                <td style="font-size:0.82rem;">Sarah Mitchell</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem; color:var(--subtle);">Jan 10</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem;">Jan 22</td>
+                                <td><span class="tag tag-green">✓ Received</span></td>
+                                <td><button class="btn btn-sm btn-ghost">View</button></td>
+                            </tr>
+                            <tr style="background:#FFFBEB;">
+                                <td style="font-family:'JetBrains Mono'; font-weight:600; font-size:0.8rem;">PBC-003</td>
+                                <td><div style="font-weight:600; font-size:0.88rem;">BESCOM Electricity Bills — Nov &amp; Dec 2024</div><div style="font-size:0.75rem; color:var(--subtle);">Missing bills for 2 months across all 5 facilities</div></td>
+                                <td><span class="tag tag-blue">Scope 2</span></td>
+                                <td style="font-size:0.82rem;">Sarah Mitchell</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem; color:var(--subtle);">Jan 20</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem; color:#9B2C2C; font-weight:600;">Feb 03 ⚠</td>
+                                <td><span class="tag tag-red">Overdue</span></td>
+                                <td><button class="btn btn-sm btn-primary">Upload Now</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-family:'JetBrains Mono'; font-weight:600; font-size:0.8rem;">PBC-004</td>
+                                <td><div style="font-weight:600; font-size:0.88rem;">Fleet Fuel Purchase Records — FY 2024-25</div><div style="font-size:0.75rem; color:var(--subtle);">All 85 fleet vehicles; fuel card data or purchase invoices</div></td>
+                                <td><span class="tag tag-amber">Scope 1</span></td>
+                                <td style="font-size:0.82rem;">Sarah Mitchell</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem; color:var(--subtle);">Jan 10</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem;">Jan 25</td>
+                                <td><span class="tag tag-green">✓ Received</span></td>
+                                <td><button class="btn btn-sm btn-ghost">View</button></td>
+                            </tr>
+                            <tr style="background:#FFFBEB;">
+                                <td style="font-family:'JetBrains Mono'; font-weight:600; font-size:0.8rem;">PBC-005</td>
+                                <td><div style="font-weight:600; font-size:0.88rem;">Refrigerant Maintenance &amp; Top-up Logs — FY 2024-25</div><div style="font-size:0.75rem; color:var(--subtle);">HVAC service logs showing R-410A top-up quantities per site</div></td>
+                                <td><span class="tag tag-amber">Scope 1</span></td>
+                                <td style="font-size:0.82rem;">Sarah Mitchell</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem; color:var(--subtle);">Feb 01</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem; color:#9B2C2C; font-weight:600;">Feb 12 ⚠</td>
+                                <td><span class="tag tag-red">Overdue</span></td>
+                                <td><button class="btn btn-sm btn-primary">Upload Now</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-family:'JetBrains Mono'; font-weight:600; font-size:0.8rem;">PBC-006</td>
+                                <td><div style="font-weight:600; font-size:0.88rem;">Business Travel Expense Data — FY 2024-25</div><div style="font-size:0.75rem; color:var(--subtle);">SAP travel module export — air, rail, taxi, hotel</div></td>
+                                <td><span class="tag tag-green">Scope 3</span></td>
+                                <td style="font-size:0.82rem;">Sarah Mitchell</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem; color:var(--subtle);">Nov 02</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem;">Nov 15</td>
+                                <td><span class="tag tag-green">✓ Received</span></td>
+                                <td><button class="btn btn-sm btn-ghost">View</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-family:'JetBrains Mono'; font-weight:600; font-size:0.8rem;">PBC-007</td>
+                                <td><div style="font-weight:600; font-size:0.88rem;">Rail Travel Expense Records — FY 2024-25</div><div style="font-size:0.75rem; color:var(--subtle);">Missing from initial submission. Linked to Finding F-002.</div></td>
+                                <td><span class="tag tag-green">Scope 3</span></td>
+                                <td style="font-size:0.82rem;">Sarah Mitchell</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem; color:var(--subtle);">Feb 05</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem;">Feb 18</td>
+                                <td><span class="tag tag-amber">In Progress</span></td>
+                                <td><button class="btn btn-sm btn-primary">Upload</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-family:'JetBrains Mono'; font-weight:600; font-size:0.8rem;">PBC-008</td>
+                                <td><div style="font-weight:600; font-size:0.88rem;">Supplier Spend Data — Top 20 Suppliers</div><div style="font-size:0.75rem; color:var(--subtle);">Procurement spend by commodity category, FY 2024-25</div></td>
+                                <td><span class="tag tag-green">Scope 3</span></td>
+                                <td style="font-size:0.82rem;">Vikram Desai</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem; color:var(--subtle);">Jan 15</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem;">Jan 30</td>
+                                <td><span class="tag tag-green">✓ Received</span></td>
+                                <td><button class="btn btn-sm btn-ghost">View</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-family:'JetBrains Mono'; font-weight:600; font-size:0.8rem;">PBC-009</td>
+                                <td><div style="font-weight:600; font-size:0.88rem;">Emission Factor Documentation</div><div style="font-size:0.75rem; color:var(--subtle);">Source references and version dates for all EFs used in TerraCAP</div></td>
+                                <td><span class="tag tag-gray">Methodology</span></td>
+                                <td style="font-size:0.82rem;">Sarah Mitchell</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem; color:var(--subtle);">Jan 08</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem;">Jan 20</td>
+                                <td><span class="tag tag-green">✓ Received</span></td>
+                                <td><button class="btn btn-sm btn-ghost">View</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-family:'JetBrains Mono'; font-weight:600; font-size:0.8rem;">PBC-010</td>
+                                <td><div style="font-weight:600; font-size:0.88rem;">Organisational Boundary Chart (FY 2024-25)</div><div style="font-size:0.75rem; color:var(--subtle);">Entity hierarchy, legal ownership, and operational control mapping</div></td>
+                                <td><span class="tag tag-gray">Governance</span></td>
+                                <td style="font-size:0.82rem;">Sarah Mitchell</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem; color:var(--subtle);">Jan 05</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem;">Jan 15</td>
+                                <td><span class="tag tag-green">✓ Received</span></td>
+                                <td><button class="btn btn-sm btn-ghost">View</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-family:'JetBrains Mono'; font-weight:600; font-size:0.8rem;">PBC-011</td>
+                                <td><div style="font-weight:600; font-size:0.88rem;">Prior Year GHG Statements (FY 2022-23, FY 2023-24)</div><div style="font-size:0.75rem; color:var(--subtle);">For trend analysis and year-on-year consistency check</div></td>
+                                <td><span class="tag tag-gray">Historical</span></td>
+                                <td style="font-size:0.82rem;">Vikram Desai</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem; color:var(--subtle);">Jan 10</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem;">Jan 20</td>
+                                <td><span class="tag tag-green">✓ Received</span></td>
+                                <td><button class="btn btn-sm btn-ghost">View</button></td>
+                            </tr>
+                            <tr>
+                                <td style="font-family:'JetBrains Mono'; font-weight:600; font-size:0.8rem;">PBC-012</td>
+                                <td><div style="font-weight:600; font-size:0.88rem;">Generator Capacity Spec Sheets — Site 3 DG Sets</div><div style="font-size:0.75rem; color:var(--subtle);">Rated capacity documentation to investigate F-001 anomaly</div></td>
+                                <td><span class="tag tag-amber">Scope 1</span></td>
+                                <td style="font-size:0.82rem;">Sarah Mitchell</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem; color:var(--subtle);">Feb 08</td>
+                                <td style="font-family:'JetBrains Mono'; font-size:0.78rem;">Feb 14</td>
+                                <td><span class="tag tag-amber">Pending</span></td>
+                                <td><button class="btn btn-sm btn-primary">Upload</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- ==================== ENGAGEMENT CLOSE-OUT ==================== -->
+        <div class="screen" id="screen-closeout">
+            <div class="page-header"><div class="page-title">Engagement Close-out</div><div class="page-subtitle">Formal close-out after opinion issuance — archive, retention, issue log resolution, and final handoff</div></div>
+
+            <div class="info-box" style="background:#FFF0F0; border-color:#FEB2B2;">
+                <div class="info-box-title" style="color:#9B2C2C;">🔒 Close-out is Gated on Opinion Issuance</div>
+                <div class="info-box-text" style="color:#742A2A;">This section becomes active only after the Assurance Opinion has been formally issued by the engagement partner. Close-out cannot be initiated while any Critical or Major findings are unresolved or while the sign-off checklist is incomplete.</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><div class="card-title">Close-out Checklist</div><span class="tag tag-amber">0 of 8 complete</span></div>
+                <div class="card-body">
+                    <div style="display:flex; flex-direction:column; gap:0.85rem;">
+                        <div style="display:flex; align-items:flex-start; gap:0.75rem; padding:0.85rem; border:1px solid var(--stroke); border-radius:8px; opacity:0.55;">
+                            <input type="checkbox" disabled style="margin-top:0.2rem; accent-color:var(--hz-primary); width:16px; height:16px;">
+                            <div><div style="font-weight:600; font-size:0.92rem;">Assurance opinion formally issued and date-stamped</div><div style="font-size:0.78rem; color:var(--subtle);">Signed final copy of the Assurance Statement received from the engagement partner</div></div>
+                        </div>
+                        <div style="display:flex; align-items:flex-start; gap:0.75rem; padding:0.85rem; border:1px solid var(--stroke); border-radius:8px; opacity:0.55;">
+                            <input type="checkbox" disabled style="margin-top:0.2rem; accent-color:var(--hz-primary); width:16px; height:16px;">
+                            <div><div style="font-weight:600; font-size:0.92rem;">All findings closed, noted, or formally carried forward</div><div style="font-size:0.78rem; color:var(--subtle);">Critical and Major findings resolved with management sign-off; Minor/Observations recorded in issue log</div></div>
+                        </div>
+                        <div style="display:flex; align-items:flex-start; gap:0.75rem; padding:0.85rem; border:1px solid var(--stroke); border-radius:8px; opacity:0.55;">
+                            <input type="checkbox" disabled style="margin-top:0.2rem; accent-color:var(--hz-primary); width:16px; height:16px;">
+                            <div><div style="font-weight:600; font-size:0.92rem;">Management Representation Letter archived</div><div style="font-size:0.78rem; color:var(--subtle);">Signed copy stored in the engagement record and exported to document management</div></div>
+                        </div>
+                        <div style="display:flex; align-items:flex-start; gap:0.75rem; padding:0.85rem; border:1px solid var(--stroke); border-radius:8px; opacity:0.55;">
+                            <input type="checkbox" disabled style="margin-top:0.2rem; accent-color:var(--hz-primary); width:16px; height:16px;">
+                            <div><div style="font-weight:600; font-size:0.92rem;">All auditor queries closed or formally resolved</div><div style="font-size:0.78rem; color:var(--subtle);">No queries in "Open" or "Overdue" state</div></div>
+                        </div>
+                        <div style="display:flex; align-items:flex-start; gap:0.75rem; padding:0.85rem; border:1px solid var(--stroke); border-radius:8px; opacity:0.55;">
+                            <input type="checkbox" disabled style="margin-top:0.2rem; accent-color:var(--hz-primary); width:16px; height:16px;">
+                            <div><div style="font-weight:600; font-size:0.92rem;">PBC list fully accounted for</div><div style="font-size:0.78rem; color:var(--subtle);">All outstanding requests either received, formally waived, or documented as scope limitation</div></div>
+                        </div>
+                        <div style="display:flex; align-items:flex-start; gap:0.75rem; padding:0.85rem; border:1px solid var(--stroke); border-radius:8px; opacity:0.55;">
+                            <input type="checkbox" disabled style="margin-top:0.2rem; accent-color:var(--hz-primary); width:16px; height:16px;">
+                            <div><div style="font-weight:600; font-size:0.92rem;">Engagement data retention policy applied</div><div style="font-size:0.78rem; color:var(--subtle);">All documents archived per 7-year retention requirement; access permissions locked post-close</div></div>
+                        </div>
+                        <div style="display:flex; align-items:flex-start; gap:0.75rem; padding:0.85rem; border:1px solid var(--stroke); border-radius:8px; opacity:0.55;">
+                            <input type="checkbox" disabled style="margin-top:0.2rem; accent-color:var(--hz-primary); width:16px; height:16px;">
+                            <div><div style="font-weight:600; font-size:0.92rem;">Auditor TerraAudit access revoked</div><div style="font-size:0.78rem; color:var(--subtle);">All auditor user accounts deactivated; access log exported and archived</div></div>
+                        </div>
+                        <div style="display:flex; align-items:flex-start; gap:0.75rem; padding:0.85rem; border:1px solid var(--stroke); border-radius:8px; opacity:0.55;">
+                            <input type="checkbox" disabled style="margin-top:0.2rem; accent-color:var(--hz-primary); width:16px; height:16px;">
+                            <div><div style="font-weight:600; font-size:0.92rem;">Final deliverables packaged and transmitted to Board / Regulator</div><div style="font-size:0.78rem; color:var(--subtle);">Assurance Statement, BRSR Verification Report, and Management Letter submitted to relevant stakeholders</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><div class="card-title">Retention &amp; Archive Record</div></div>
+                <div class="card-body">
+                    <table class="data-table">
+                        <thead><tr><th>Record Type</th><th>Contents</th><th>Retention Period</th><th>Archive Status</th></tr></thead>
+                        <tbody>
+                            <tr><td class="fw-600">Engagement File</td><td>Scope, terms, team, access log, timeline</td><td>7 years</td><td><span class="tag tag-amber">Pending close-out</span></td></tr>
+                            <tr><td class="fw-600">Evidence Documents</td><td>All PBC items, invoices, logs, policies</td><td>7 years</td><td><span class="tag tag-amber">Pending close-out</span></td></tr>
+                            <tr><td class="fw-600">Findings & Responses</td><td>F-001 to F-005 with management responses</td><td>7 years</td><td><span class="tag tag-amber">Pending close-out</span></td></tr>
+                            <tr><td class="fw-600">Assurance Reports</td><td>Final signed Assurance Statement, Mgmt Letter, BRSR Report</td><td>Permanent</td><td><span class="tag tag-amber">Pending close-out</span></td></tr>
+                            <tr><td class="fw-600">Auditor Access Log</td><td>All login events, data views, downloads by audit team</td><td>7 years</td><td><span class="tag tag-amber">Pending close-out</span></td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -773,22 +1036,22 @@
                 <div class="esg-grid">
                     <div>
                         <div class="esg-col-title env">Environmental (E)</div>
-                        <div class="esg-item required"><input type="checkbox" checked disabled> GHG Emissions <span class="req-tag">Required</span></div>
-                        <div class="esg-item"><input type="checkbox" checked> Water Management</div>
-                        <div class="esg-item"><input type="checkbox" checked> Waste Management</div>
-                        <div class="esg-item"><input type="checkbox"> Air Quality</div>
-                        <div class="esg-item"><input type="checkbox"> Biodiversity & Land Use</div>
-                        <div class="esg-item"><input type="checkbox"> Climate Resilience</div>
+                        <div class="esg-item required"><input type="checkbox" data-key="ghg" id="mac-ghg" checked disabled> GHG Emissions <span class="req-tag">Required</span></div>
+                        <div class="esg-item"><input type="checkbox" data-key="water" id="mac-water" checked> Water Management</div>
+                        <div class="esg-item"><input type="checkbox" data-key="waste" id="mac-waste" checked> Waste Management</div>
+                        <div class="esg-item"><input type="checkbox" data-key="air" id="mac-air"> Air Quality</div>
+                        <div class="esg-item"><input type="checkbox" data-key="bio" id="mac-bio"> Biodiversity &amp; Land Use</div>
+                        <div class="esg-item"><input type="checkbox" data-key="climate" id="mac-climate"> Climate Resilience</div>
                     </div>
                     <div>
                         <div class="esg-col-title soc">Social (S)</div>
-                        <div class="esg-item"><input type="checkbox"> Health & Safety</div>
-                        <div class="esg-item"><input type="checkbox"> Diversity, Equity & Inclusion</div>
-                        <div class="esg-item"><input type="checkbox"> Community Engagement</div>
+                        <div class="esg-item"><input type="checkbox" data-key="hns" id="mac-hns"> Health &amp; Safety</div>
+                        <div class="esg-item"><input type="checkbox" data-key="dei" id="mac-dei"> Diversity, Equity &amp; Inclusion</div>
+                        <div class="esg-item"><input type="checkbox" data-key="comm" id="mac-comm"> Community Engagement</div>
                     </div>
                     <div>
                         <div class="esg-col-title gov">Governance (G)</div>
-                        <div class="esg-item"><input type="checkbox"> Ethics & Compliance</div>
+                        <div class="esg-item"><input type="checkbox" data-key="ethics" id="mac-ethics"> Ethics &amp; Compliance</div>
                     </div>
                 </div>
             </div>
@@ -813,7 +1076,7 @@
                 </div>
             </div>
         </div>
-        <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-modify-access')">Cancel</button><button class="btn btn-primary" onclick="closeModal('modal-modify-access'); toast('Access scope updated — auditor notified')">Save Changes</button></div>
+        <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-modify-access')">Cancel</button><button class="btn btn-primary" onclick="saveAccessChanges()">Save Changes</button></div>
     </div>
 </div>
 
@@ -1024,11 +1287,40 @@
     }
 
     function provisionCredentials() {
-        toast('Engagement created successfully! Audit team details sent to Platform Admin for credential provisioning.');
+        toast('Engagement created. Platform Admin notified — credentials will activate after independence declaration is received.');
         setTimeout(() => go('overview'), 1500);
     }
 
     // Firm selector
+    function saveAccessChanges() {
+        // For each checkbox in the modal, read its data-key and update the matching display item
+        const modal = document.getElementById('modal-modify-access');
+        const checkboxes = modal.querySelectorAll('input[type="checkbox"][data-key]');
+        const displayGrid = document.getElementById('access-display-grid');
+        if (!displayGrid) { closeModal('modal-modify-access'); return; }
+
+        let sharedCount = 0;
+        checkboxes.forEach(cb => {
+            const key = cb.getAttribute('data-key');
+            const displayItem = displayGrid.querySelector('.esg-item[data-key="' + key + '"]');
+            if (!displayItem) return;
+            const tag = displayItem.querySelector('.access-tag');
+            if (!tag) return;
+            if (cb.checked) {
+                tag.className = 'access-tag tag tag-green';
+                tag.textContent = '✓ Shared';
+                displayItem.style.opacity = '1';
+                sharedCount++;
+            } else {
+                tag.className = 'access-tag tag tag-gray';
+                tag.textContent = 'Not shared';
+                displayItem.style.opacity = '0.45';
+            }
+        });
+        closeModal('modal-modify-access');
+        toast('Access scope updated — ' + sharedCount + ' categories now shared with auditor. Changes are live in TerraAudit.');
+    }
+
     function toggleNewFirm(sel) {
         document.getElementById('new-firm-fields').style.display = sel.value === 'new' ? 'block' : 'none';
     }
