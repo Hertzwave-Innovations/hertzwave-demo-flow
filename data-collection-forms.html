@@ -682,6 +682,31 @@
 
                 @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .anim-in { animation: fadeUp .3s ease forwards; }
+
+        /* ── CAT 11 INFO / REDIRECT BANNERS ── */
+        .cat11-info-banner {
+            display: flex; align-items: flex-start; gap: 10px;
+            padding: 0.85rem 1.1rem;
+            border-radius: var(--radius-md);
+            font-size: 0.82rem; line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        .cat11-warn {
+            background: #fff8f0;
+            border: 1.5px solid #f6ad55;
+            color: #7b4a0a;
+        }
+        .cat11-info {
+            background: #ebf8ff;
+            border: 1.5px solid #90cdf4;
+            color: #1a4f72;
+        }
+        .cat11-placeholder {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
     </style>
 </head>
 <body>
@@ -1681,21 +1706,7 @@ const FF = {
               options: ['A — Upstream Fuels (WTT)','B — Upstream Electricity (T&D + Generation Fuel)','C — Upstream Steam & Heat','D — Upstream Cooling'] },
         ]},
     ]},
-    '3.4': { perEntrySupplier: true, sections: [
-        { label: 'Transport Mode', fields: [
-            { name: 'Primary Inbound Mode', hint: 'Dominant mode for upstream transport', unit: '', type: 'select',
-              options: ['Road — Light Duty Truck','Road — Medium Duty Truck','Road — Heavy Duty Truck','Road — Refrigerated Truck','Rail — Diesel Freight','Rail — Electric Freight','Air — Domestic Cargo','Air — International Cargo','Sea — Container Ship','Sea — Bulk Carrier','Sea — Tanker','Sea — Coastal Barge','Pipeline','Intermodal (Road + Rail)','Intermodal (Road + Sea)','Other'] },
-        ]},
-        { label: 'Activity Data', fields: [
-            { name: 'Inbound Freight (tonne-km)', hint: 'Weight × distance; preferred method', unit: 'tonne-km', type: 'number' },
-            { name: 'Inbound Freight (Spend-Based)', hint: 'Total logistics cost if tonne-km unavailable', unit: '₹ Lakhs', type: 'number' },
-        ]},
-        { label: 'Additional Transport Legs', fields: [
-            { name: 'Secondary Transport Mode', hint: 'If multi-modal legs used', unit: '', type: 'select',
-              options: ['Not Applicable','Road','Rail','Sea','Air','Other'] },
-            { name: 'Secondary Mode (tonne-km)', hint: 'Freight volume on secondary mode', unit: 'tonne-km', type: 'number' },
-        ]},
-    ]},
+    '3.4': '__cat4__',
     '3.5': { sections: [
         { groupHeader: '🗑️ Stream 1 — Municipal Solid Waste (MSW)' },
         { label: 'MSW — Landfill Treatment', fields: [
@@ -1834,20 +1845,7 @@ const FF = {
             { name: 'Number of Leased Locations', hint: 'Count of leased premises', unit: 'Nos', type: 'number' },
         ]},
     ]},
-    '3.9': { perEntrySupplier: true, sections: [
-        { label: 'Outbound Transport Mode', fields: [
-            { name: 'Primary Outbound Mode', hint: 'Dominant mode for product distribution', unit: '', type: 'select',
-              options: ['Road — Light Duty Delivery Van','Road — Medium Duty Truck','Road — Heavy Duty Truck','Road — Refrigerated Truck','Rail — Diesel Freight','Rail — Electric Freight','Air — Domestic Cargo','Air — International Cargo','Sea — Container Ship','Sea — Bulk Carrier','Sea — Coastal Shipping','Courier / Last-Mile (Petrol)','Courier / Last-Mile (EV)','Intermodal','Pipeline','Other'] },
-        ]},
-        { label: 'Outbound Freight Activity', fields: [
-            { name: 'Outbound Freight (tonne-km)', hint: 'Weight × distance for all outbound legs', unit: 'tonne-km', type: 'number' },
-            { name: 'Outbound Logistics Spend (₹)', hint: 'If tonne-km data unavailable', unit: '₹ Lakhs', type: 'number' },
-        ]},
-        { label: 'Retail / Warehousing (Operated by Third Parties)', fields: [
-            { name: 'Third-Party Warehouse Energy', hint: 'Energy in distributor-operated warehouses', unit: 'kWh', type: 'number' },
-            { name: 'Retail Store Electricity (Third-Party)', hint: 'Energy at point-of-sale not operated by company', unit: 'kWh', type: 'number' },
-        ]},
-    ]},
+    '3.9': '__cat9__',
     '3.10': { sections: [
         { label: 'Sold Products Requiring Further Processing', fields: [
             { name: 'Processing Type', hint: 'How customers further process your products', unit: '', type: 'select',
@@ -1862,24 +1860,7 @@ const FF = {
             { name: 'Data Source / Basis', hint: 'Industry average / supplier data / LCA', unit: '', type: 'select', options: ['Industry Average EF','Supplier/Customer Data','LCA Study','Engineering Estimate','Not Applicable'] },
         ]},
     ]},
-    '3.11': { sections: [
-        { label: 'Product Category (Use-Phase)', fields: [
-            { name: 'Product Type', hint: 'Category of sold product for use-phase calculation', unit: '', type: 'select',
-              options: ['Energy-Consuming Product (Appliances, Electronics, Machinery)','Fuel-Based Product (Gasoline, Diesel, Gas)','Product Containing GHGs (Refrigerants, Aerosols)','Product Releasing GHGs in Use (Chemicals, Solvents)','Product Requiring Heating / Cooling in Use','Non-Energy Consumer Product','Industrial Intermediate (Cat 10 applies instead)','Other'] },
-        ]},
-        { label: 'Use-Phase Activity', fields: [
-            { name: 'Units of Product Sold (Period)', hint: 'Volume of product sold this reporting period', unit: 'Units', type: 'number' },
-            { name: 'Expected Product Lifetime', hint: 'Average useful life of product in service', unit: 'Years', type: 'number' },
-        ]},
-        { label: 'Energy / Fuel Consumed in Use', fields: [
-            { name: 'Energy Consumption per Unit per Year', hint: 'Annual use-phase energy', unit: 'kWh/unit/yr', type: 'number' },
-            { name: 'Fuel Consumed per Unit per Year', hint: 'For fuel-based products', unit: 'Litres/unit/yr', type: 'number' },
-        ]},
-        { label: 'GHG Released in Use', fields: [
-            { name: 'GHG Content per Unit (if product contains GHG)', hint: 'Refrigerant charge per product', unit: 'Kg/unit', type: 'number' },
-            { name: 'Category 11 Emissions (tCO₂e)', hint: 'Enter if already calculated', unit: 'tCO₂e', type: 'number' },
-        ]},
-    ]},
+    '3.11': '__cat11__',
     '3.12': { sections: [
         { label: 'Product EOL Category', fields: [
             { name: 'Product Category', hint: 'Type of product reaching end-of-life', unit: '', type: 'select',
@@ -2445,6 +2426,10 @@ function supplierStripHTML(codePh) {
 
 function buildFormFields(subId) {
     const body = document.getElementById('formPanelBody');
+    // Dedicated renderers for categories with conditional fields
+    if (subId === '3.4')  { renderCat4(body);  return; }
+    if (subId === '3.9')  { renderCat9(body);  return; }
+    if (subId === '3.11') { renderCat11(body); return; }
     const def = FF[subId];
     if (!def) {
         body.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);">Form fields for this sub-category are being configured.</div>';
@@ -2580,6 +2565,604 @@ function switchEntryMethod(subId, method) {
     body.querySelectorAll('.method-cost').forEach(el => el.classList.toggle('method-hidden', method !== 'cost'));
 }
 
+// ═══════════════════ CAT 4 — UPSTREAM TRANSPORTATION ═══════════════════
+
+function renderCat4(body) {
+    const sel = "width:100%;padding:0.6rem 0.75rem;border:1px solid var(--stroke);border-radius:var(--radius-sm);font-family:inherit;font-size:0.85rem;color:var(--ink);background:#fff;";
+    const roadFuelOptions = `
+        <option value="">Select fuel type...</option>
+        <option value="diesel">Diesel (HSD) — Default</option>
+        <option value="cng">CNG (Compressed Natural Gas)</option>
+        <option value="lng">LNG (Liquefied Natural Gas)</option>
+        <option value="petrol">Petrol / Gasoline</option>
+        <option value="ev">Electric (Zero-emission)</option>
+        <option value="hybrid">Hybrid (Diesel-Electric)</option>
+        <option value="biodiesel">Biodiesel B20</option>
+        <option value="other">Other (specify in Notes)</option>`;
+
+    body.innerHTML = `
+    <!-- ── Transport Mode ── -->
+    <div class="form-section-label">Transport Mode</div>
+    <div class="field-row" style="margin-bottom:1rem;">
+        <div class="field-group">
+            <label class="field-label">Primary Inbound Mode</label>
+            <span class="field-hint">Dominant mode for upstream / inbound transport</span>
+            <div class="input-wrap">
+                <select id="cat4-primary-mode" onchange="updateCat4PrimaryFuel(this.value)" style="${sel}">
+                    <option value="">Select...</option>
+                    <option>Road — Light Duty Truck</option>
+                    <option>Road — Medium Duty Truck</option>
+                    <option>Road — Heavy Duty Truck</option>
+                    <option>Road — Refrigerated Truck</option>
+                    <option>Rail — Diesel Freight</option>
+                    <option>Rail — Electric Freight</option>
+                    <option>Air — Domestic Cargo</option>
+                    <option>Air — International Cargo</option>
+                    <option>Sea — Container Ship</option>
+                    <option>Sea — Bulk Carrier</option>
+                    <option>Sea — Tanker</option>
+                    <option>Sea — Coastal Barge</option>
+                    <option>Pipeline</option>
+                    <option>Intermodal (Road + Rail)</option>
+                    <option>Intermodal (Road + Sea)</option>
+                    <option>Other</option>
+                </select>
+            </div>
+        </div>
+        <div class="field-group" id="cat4-primary-fuel-wrap" style="display:none;">
+            <label class="field-label">Road Vehicle Fuel Type</label>
+            <span class="field-hint">Required for tonne-km EF lookup — defaults to Diesel if unknown</span>
+            <div class="input-wrap">
+                <select style="${sel}">${roadFuelOptions}</select>
+            </div>
+        </div>
+    </div>
+    ${supplierStripHTML('TRANS')}
+
+    <!-- ── Activity Data ── -->
+    <div class="form-section-label">Activity Data</div>
+    <div class="field-row" style="margin-bottom:1rem;">
+        <div class="field-group">
+            <label class="field-label">Inbound Freight (tonne-km)</label>
+            <span class="field-hint">Weight × distance — preferred calculation method</span>
+            <div class="input-wrap">
+                <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                <span class="unit">tonne-km</span>
+            </div>
+        </div>
+        <div class="field-group">
+            <label class="field-label">Inbound Freight (Spend-Based)</label>
+            <span class="field-hint">Total logistics cost if tonne-km data is unavailable</span>
+            <div class="input-wrap">
+                <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                <span class="unit">₹ Lakhs</span>
+            </div>
+        </div>
+    </div>
+    ${supplierStripHTML('ACTIV')}
+
+    <!-- ── Additional Transport Legs ── -->
+    <div class="form-section-label">Additional Transport Legs</div>
+    <div class="field-row" style="margin-bottom:0.25rem;">
+        <div class="field-group">
+            <label class="field-label">Secondary Transport Mode</label>
+            <span class="field-hint">If multi-modal legs are used for the same shipment</span>
+            <div class="input-wrap">
+                <select id="cat4-secondary-mode" onchange="updateCat4SecondaryFuel(this.value)" style="${sel}">
+                    <option value="">Select...</option>
+                    <option value="na">Not Applicable</option>
+                    <option value="road">Road</option>
+                    <option value="rail">Rail</option>
+                    <option value="sea">Sea</option>
+                    <option value="air">Air</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+        </div>
+        <div class="field-group">
+            <label class="field-label">Secondary Mode (tonne-km)</label>
+            <span class="field-hint">Freight volume on the secondary mode leg</span>
+            <div class="input-wrap">
+                <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                <span class="unit">tonne-km</span>
+            </div>
+        </div>
+    </div>
+    <div class="field-row" id="cat4-secondary-fuel-row" style="display:none;margin-bottom:1rem;">
+        <div class="field-group">
+            <label class="field-label">Secondary Road — Vehicle Fuel Type</label>
+            <span class="field-hint">Required for tonne-km EF lookup on the road leg</span>
+            <div class="input-wrap">
+                <select style="${sel}">${roadFuelOptions}</select>
+            </div>
+        </div>
+        <div class="field-group"></div>
+    </div>
+
+    <!-- ── Notes ── -->
+    <div class="field-row-1" style="margin-top:0.5rem;">
+        <div class="field-group">
+            <label class="field-label">Notes & Methodology</label>
+            <textarea class="form-textarea" placeholder="Calculation methodology, emission factors, data sources, carrier details, measurement uncertainties..."></textarea>
+        </div>
+    </div>`;
+
+    body.classList.add('anim-in');
+    setTimeout(() => body.classList.remove('anim-in'), 350);
+}
+
+function updateCat4PrimaryFuel(val) {
+    const el = document.getElementById('cat4-primary-fuel-wrap');
+    if (!el) return;
+    const isRoad = val.startsWith('Road') || val.startsWith('Intermodal');
+    el.style.display = isRoad ? 'flex' : 'none';
+    el.style.flexDirection = 'column';
+}
+
+function updateCat4SecondaryFuel(val) {
+    const el = document.getElementById('cat4-secondary-fuel-row');
+    if (!el) return;
+    el.style.display = val === 'road' ? 'grid' : 'none';
+}
+
+// ═══════════════════ CAT 9 — DOWNSTREAM TRANSPORTATION ═══════════════════
+
+function renderCat9(body) {
+    const sel = "width:100%;padding:0.6rem 0.75rem;border:1px solid var(--stroke);border-radius:var(--radius-sm);font-family:inherit;font-size:0.85rem;color:var(--ink);background:#fff;";
+    const roadFuelOptions = `
+        <option value="">Select fuel type...</option>
+        <option value="diesel">Diesel (HSD) — Default</option>
+        <option value="cng">CNG (Compressed Natural Gas)</option>
+        <option value="lng">LNG (Liquefied Natural Gas)</option>
+        <option value="petrol">Petrol / Gasoline</option>
+        <option value="ev">Electric (Zero-emission)</option>
+        <option value="hybrid">Hybrid (Diesel-Electric)</option>
+        <option value="biodiesel">Biodiesel B20</option>
+        <option value="other">Other (specify in Notes)</option>`;
+
+    body.innerHTML = `
+    <!-- ── Outbound Transport Mode ── -->
+    <div class="form-section-label">Outbound Transport Mode</div>
+    <div class="field-row" style="margin-bottom:1rem;">
+        <div class="field-group">
+            <label class="field-label">Primary Outbound Mode</label>
+            <span class="field-hint">Dominant mode for product distribution to customers</span>
+            <div class="input-wrap">
+                <select id="cat9-primary-mode" onchange="updateCat9PrimaryFuel(this.value)" style="${sel}">
+                    <option value="">Select...</option>
+                    <option value="ldt">Road — Light Duty Delivery Van</option>
+                    <option value="mdt">Road — Medium Duty Truck</option>
+                    <option value="hdt">Road — Heavy Duty Truck</option>
+                    <option value="ref">Road — Refrigerated Truck</option>
+                    <option value="rail-d">Rail — Diesel Freight</option>
+                    <option value="rail-e">Rail — Electric Freight</option>
+                    <option value="air-d">Air — Domestic Cargo</option>
+                    <option value="air-i">Air — International Cargo</option>
+                    <option value="sea-c">Sea — Container Ship</option>
+                    <option value="sea-b">Sea — Bulk Carrier</option>
+                    <option value="sea-s">Sea — Coastal Shipping</option>
+                    <option value="courier-petrol">Courier / Last-Mile (Petrol)</option>
+                    <option value="courier-ev">Courier / Last-Mile (EV)</option>
+                    <option value="intermodal">Intermodal</option>
+                    <option value="pipeline">Pipeline</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+        </div>
+        <div class="field-group" id="cat9-primary-fuel-wrap" style="display:none;">
+            <label class="field-label">Road Vehicle Fuel Type</label>
+            <span class="field-hint">Required for tonne-km EF lookup — defaults to Diesel if unknown</span>
+            <div class="input-wrap">
+                <select style="${sel}">${roadFuelOptions}</select>
+            </div>
+        </div>
+    </div>
+    ${supplierStripHTML('TRANS')}
+
+    <!-- ── Outbound Freight Activity ── -->
+    <div class="form-section-label">Outbound Freight Activity</div>
+    <div class="field-row" style="margin-bottom:1rem;">
+        <div class="field-group">
+            <label class="field-label">Outbound Freight (tonne-km)</label>
+            <span class="field-hint">Weight × distance for all outbound legs — preferred method</span>
+            <div class="input-wrap">
+                <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                <span class="unit">tonne-km</span>
+            </div>
+        </div>
+        <div class="field-group">
+            <label class="field-label">Outbound Logistics Spend</label>
+            <span class="field-hint">Total freight cost if tonne-km data is unavailable</span>
+            <div class="input-wrap">
+                <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                <span class="unit">₹ Lakhs</span>
+            </div>
+        </div>
+    </div>
+    ${supplierStripHTML('FREIG')}
+
+    <!-- ── Retail / Warehousing ── -->
+    <div class="form-section-label">Retail / Warehousing (Operated by Third Parties)</div>
+    <div class="field-row" style="margin-bottom:1rem;">
+        <div class="field-group">
+            <label class="field-label">Third-Party Warehouse Energy</label>
+            <span class="field-hint">Energy consumed in distributor-operated warehouses</span>
+            <div class="input-wrap">
+                <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                <span class="unit">kWh</span>
+            </div>
+        </div>
+        <div class="field-group">
+            <label class="field-label">Retail Store Electricity (Third-Party)</label>
+            <span class="field-hint">Energy at point-of-sale not operated by the company</span>
+            <div class="input-wrap">
+                <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                <span class="unit">kWh</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Notes ── -->
+    <div class="field-row-1" style="margin-top:0.5rem;">
+        <div class="field-group">
+            <label class="field-label">Notes & Methodology</label>
+            <textarea class="form-textarea" placeholder="Calculation methodology, emission factors, data sources, carrier details, measurement uncertainties..."></textarea>
+        </div>
+    </div>`;
+
+    body.classList.add('anim-in');
+    setTimeout(() => body.classList.remove('anim-in'), 350);
+}
+
+function updateCat9PrimaryFuel(val) {
+    const el = document.getElementById('cat9-primary-fuel-wrap');
+    if (!el) return;
+    // Road modes needing fuel type (excludes Courier options — fuel already in their name)
+    const roadModes = ['ldt', 'mdt', 'hdt', 'ref', 'intermodal'];
+    const show = roadModes.includes(val);
+    el.style.display = show ? 'flex' : 'none';
+    el.style.flexDirection = 'column';
+}
+
+// ═══════════════════ CAT 11 — USE OF SOLD PRODUCTS ═══════════════════
+
+function renderCat11(body) {
+    const selectStyle = "width:100%;padding:0.6rem 0.75rem;border:1px solid var(--stroke);border-radius:var(--radius-sm);font-family:inherit;font-size:0.85rem;color:var(--ink);background:#fff;";
+
+    body.innerHTML = `
+    <!-- ── Product Type selector — always visible ── -->
+    <div class="form-section-label">Product Category (Use-Phase)</div>
+    <div class="field-row" style="margin-bottom:1rem;">
+        <div class="field-group">
+            <label class="field-label">Product Type</label>
+            <span class="field-hint">Category of sold product — determines which fields and EF apply</span>
+            <div class="input-wrap">
+                <select id="cat11-product-type" onchange="updateCat11Form(this.value)" style="${selectStyle}">
+                    <option value="">Select...</option>
+                    <option value="energy">Energy-Consuming Product (Appliances, Electronics, Machinery)</option>
+                    <option value="fuel">Fuel-Based Product (Petrol, Diesel, Gas)</option>
+                    <option value="ghg-charge">Product Containing GHGs (Refrigerants, Aerosols)</option>
+                    <option value="ghg-release">Product Releasing GHGs in Use (Chemicals, Solvents)</option>
+                    <option value="thermal">Product Requiring Heating / Cooling in Use</option>
+                    <option value="non-energy">Non-Energy Consumer Product</option>
+                    <option value="industrial">Industrial Intermediate (Cat 10 applies instead)</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+        </div>
+        <div class="field-group"></div>
+    </div>
+
+    <!-- ── Redirect: Industrial Intermediate ── -->
+    <div id="cat11-redirect-banner" class="cat11-info-banner cat11-warn" style="display:none;">
+        ⚠️ <span>This product type falls under <strong>Category 10 — Processing of Sold Products</strong>. Please use the Cat 10 form instead. Cat 11 covers use-phase emissions from the end customer's use of the product — it does not apply to industrial intermediates that require further processing.</span>
+    </div>
+
+    <!-- ── Info: Non-Energy Consumer Product ── -->
+    <div id="cat11-nonenergy-banner" class="cat11-info-banner cat11-info" style="display:none;">
+        ℹ️ <span><strong>Near-zero use-phase EF applies.</strong> For non-energy consumer products (e.g. furniture, clothing, non-electrical goods), use-phase emissions are typically immaterial under the GHG Protocol. Record units sold for completeness only.</span>
+    </div>
+
+    <!-- ── Placeholder ── -->
+    <div id="cat11-placeholder" class="cat11-placeholder">
+        ← Select a Product Type above to load the relevant data fields
+    </div>
+
+    <!-- ── SECTION: Use-Phase Activity ── -->
+    <div id="cat11-sec-activity" style="display:none;">
+        <div class="form-section-label">Use-Phase Activity</div>
+        <div class="field-row">
+            <div class="field-group">
+                <label class="field-label">Units of Product Sold (Period)</label>
+                <span class="field-hint">Total units sold during the reporting period</span>
+                <div class="input-wrap">
+                    <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                    <span class="unit">Units</span>
+                </div>
+            </div>
+            <div class="field-group" id="cat11-lifetime-field">
+                <label class="field-label">Expected Product Lifetime</label>
+                <span class="field-hint">Average useful service life of the product</span>
+                <div class="input-wrap">
+                    <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                    <span class="unit">Years</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── SECTION: Energy Consumed in Use (energy-consuming products) ── -->
+    <div id="cat11-sec-energy" style="display:none;">
+        <div class="form-section-label">Energy Consumed in Use</div>
+        <div class="field-row">
+            <div class="field-group">
+                <label class="field-label">Energy Consumption per Unit per Year</label>
+                <span class="field-hint">Annual electricity consumed per product unit during use-phase</span>
+                <div class="input-wrap">
+                    <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                    <span class="unit">kWh/unit/yr</span>
+                </div>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Grid Region / EF Source</label>
+                <span class="field-hint">Grid EF used to convert kWh to CO₂e — depends on where customers use the product</span>
+                <div class="input-wrap">
+                    <select style="${selectStyle}">
+                        <option value="">Select...</option>
+                        <option>India — National Grid (CEA 2023)</option>
+                        <option>India — Southern Region Grid</option>
+                        <option>India — Northern Region Grid</option>
+                        <option>India — Western Region Grid</option>
+                        <option>India — Eastern Region Grid</option>
+                        <option>India — North-Eastern Region Grid</option>
+                        <option>International — IEA Country Average</option>
+                        <option>Customer-Provided / Product-Specific EF</option>
+                        <option>Unknown — use National Grid default</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── SECTION: Thermal Energy in Use (heating/cooling products) ── -->
+    <div id="cat11-sec-thermal" style="display:none;">
+        <div class="form-section-label">Thermal Energy Consumed in Use</div>
+        <div class="field-row">
+            <div class="field-group">
+                <label class="field-label">Thermal Energy per Unit per Year</label>
+                <span class="field-hint">Heating or cooling energy consumed per product unit during use-phase</span>
+                <div class="input-wrap">
+                    <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                    <span class="unit">GJ/unit/yr</span>
+                </div>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Thermal Energy Source</label>
+                <span class="field-hint">Fuel or energy type used for heating / cooling in use</span>
+                <div class="input-wrap">
+                    <select style="${selectStyle}">
+                        <option value="">Select...</option>
+                        <option>Natural Gas</option>
+                        <option>LPG</option>
+                        <option>Electricity (Grid)</option>
+                        <option>District Heating</option>
+                        <option>Biomass / Wood</option>
+                        <option>Coal</option>
+                        <option>Fuel Oil</option>
+                        <option>Mixed / Unknown</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── SECTION: Fuel Consumed in Use (fuel-based products) ── -->
+    <div id="cat11-sec-fuel" style="display:none;">
+        <div class="form-section-label">Fuel Consumed in Use</div>
+        <div class="field-row">
+            <div class="field-group">
+                <label class="field-label">Fuel Type</label>
+                <span class="field-hint">Type of fuel consumed when product is in use — determines EF and quantity unit</span>
+                <div class="input-wrap">
+                    <select id="cat11-fuel-type" onchange="updateCat11FuelUnit(this.value)" style="${selectStyle}">
+                        <option value="">Select...</option>
+                        <option value="petrol">Petrol (Gasoline / MS)</option>
+                        <option value="diesel">Diesel (HSD)</option>
+                        <option value="cng">CNG (Compressed Natural Gas)</option>
+                        <option value="lpg">LPG</option>
+                        <option value="png">PNG (Piped Natural Gas)</option>
+                        <option value="lng">LNG</option>
+                        <option value="hydrogen">Hydrogen</option>
+                        <option value="other">Other (specify in Notes)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Fuel Consumed per Unit per Year</label>
+                <span id="cat11-fuel-unit-hint" class="field-hint">Select fuel type to see correct unit</span>
+                <div class="input-wrap">
+                    <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                    <span class="unit" id="cat11-fuel-unit-label">—</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── SECTION: GHG Charge (refrigerants, aerosols) ── -->
+    <div id="cat11-sec-ghg-charge" style="display:none;">
+        <div class="form-section-label">GHG Content in Product</div>
+        <div class="field-row">
+            <div class="field-group">
+                <label class="field-label">GHG / Refrigerant Type</label>
+                <span class="field-hint">IPCC AR6 GWP shown in brackets — used to convert kg to tCO₂e</span>
+                <div class="input-wrap">
+                    <select style="${selectStyle}">
+                        <option value="">Select...</option>
+                        <option>R-410A [GWP 2,088]</option>
+                        <option>R-32 [GWP 675]</option>
+                        <option>R-134a [GWP 1,530]</option>
+                        <option>R-22 / HCFC-22 [GWP 1,760]</option>
+                        <option>R-404A [GWP 3,922]</option>
+                        <option>R-407C [GWP 1,624]</option>
+                        <option>R-600a — Isobutane [GWP 3]</option>
+                        <option>R-290 — Propane [GWP 0.02]</option>
+                        <option>HFO-1234yf [GWP 0.57]</option>
+                        <option>HFO-1234ze [GWP 0.15]</option>
+                        <option>SF₆ [GWP 17,500]</option>
+                        <option>CO₂ [GWP 1]</option>
+                        <option>N₂O [GWP 273]</option>
+                        <option>Other (specify in Notes)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field-group">
+                <label class="field-label">GHG Charge per Unit</label>
+                <span class="field-hint">Amount of refrigerant / GHG charged per product unit at manufacture / sale</span>
+                <div class="input-wrap">
+                    <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                    <span class="unit">kg/unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="field-row">
+            <div class="field-group">
+                <label class="field-label">Assumed Annual Leakage Rate</label>
+                <span class="field-hint">% of total charge lost per year (GHG Protocol default: 2–10% for RAC equipment)</span>
+                <div class="input-wrap">
+                    <input type="number" step="any" class="has-unit" placeholder="e.g., 5">
+                    <span class="unit">% / yr</span>
+                </div>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Expected Product Lifetime</label>
+                <span class="field-hint">Used to calculate total GHG released over product lifetime</span>
+                <div class="input-wrap">
+                    <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                    <span class="unit">Years</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── SECTION: GHG Release in Use (chemicals, solvents) ── -->
+    <div id="cat11-sec-ghg-release" style="display:none;">
+        <div class="form-section-label">GHG Released During Use</div>
+        <div class="field-row">
+            <div class="field-group">
+                <label class="field-label">GHG Type Released</label>
+                <span class="field-hint">Primary GHG emitted when product is used or applied — IPCC AR6 GWP in brackets</span>
+                <div class="input-wrap">
+                    <select style="${selectStyle}">
+                        <option value="">Select...</option>
+                        <option>CO₂ [GWP 1] — e.g. carbonated products, CO₂-based solvents</option>
+                        <option>CH₄ [GWP 27.9] — e.g. gas-releasing chemicals</option>
+                        <option>N₂O [GWP 273] — e.g. aerosols, propellants</option>
+                        <option>HFCs (mixed) — specify in Notes</option>
+                        <option>SF₆ [GWP 17,500] — e.g. electrical insulation products</option>
+                        <option>Other (specify in Notes)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field-group">
+                <label class="field-label">GHG Released per Unit per Year</label>
+                <span class="field-hint">Annual GHG release rate per product unit while in use</span>
+                <div class="input-wrap">
+                    <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                    <span class="unit">kg/unit/yr</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── SECTION: Emissions Summary — all types except industrial redirect ── -->
+    <div id="cat11-sec-summary" style="display:none;">
+        <div class="form-section-label">Emissions Summary</div>
+        <div class="field-row">
+            <div class="field-group">
+                <label class="field-label">Category 11 Emissions (tCO₂e)</label>
+                <span class="field-hint">Enter if already calculated externally, via LCA, or from activity data above</span>
+                <div class="input-wrap">
+                    <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                    <span class="unit">tCO₂e</span>
+                </div>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Calculation Basis</label>
+                <span class="field-hint">Method used to arrive at the emissions figure</span>
+                <div class="input-wrap">
+                    <select style="${selectStyle}">
+                        <option value="">Select...</option>
+                        <option>Activity Data × EF (calculated from fields above)</option>
+                        <option>LCA Study</option>
+                        <option>Industry Average</option>
+                        <option>Customer / End-User Data</option>
+                        <option>Engineering Estimate</option>
+                        <option>Not yet calculated</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Notes — shown for all except industrial redirect ── -->
+    <div id="cat11-sec-notes" style="display:none;">
+        <div class="field-row-1" style="margin-top:0.5rem;">
+            <div class="field-group">
+                <label class="field-label">Notes & Methodology</label>
+                <textarea class="form-textarea" placeholder="Calculation methodology, emission factors used, data sources, measurement uncertainties, product lifetime assumptions..."></textarea>
+            </div>
+        </div>
+    </div>`;
+
+    body.classList.add('anim-in');
+    setTimeout(() => body.classList.remove('anim-in'), 350);
+}
+
+function updateCat11Form(val) {
+    // Section visibility map: section ID → product type values that should show it
+    const showFor = {
+        'cat11-redirect-banner':  ['industrial'],
+        'cat11-nonenergy-banner': ['non-energy'],
+        'cat11-placeholder':      [''],
+        'cat11-sec-activity':     ['energy', 'fuel', 'thermal', 'non-energy', 'other'],
+        'cat11-sec-energy':       ['energy', 'other'],
+        'cat11-sec-thermal':      ['thermal', 'other'],
+        'cat11-sec-fuel':         ['fuel', 'other'],
+        'cat11-sec-ghg-charge':   ['ghg-charge', 'other'],
+        'cat11-sec-ghg-release':  ['ghg-release', 'other'],
+        'cat11-sec-summary':      ['energy', 'fuel', 'thermal', 'ghg-charge', 'ghg-release', 'non-energy', 'other'],
+        'cat11-sec-notes':        ['energy', 'fuel', 'thermal', 'ghg-charge', 'ghg-release', 'non-energy', 'other'],
+    };
+
+    Object.entries(showFor).forEach(([id, types]) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = types.includes(val) ? 'block' : 'none';
+    });
+
+    // Hide Lifetime field inside Activity section for non-energy (units only needed)
+    const lifetimeField = document.getElementById('cat11-lifetime-field');
+    if (lifetimeField) lifetimeField.style.display = val === 'non-energy' ? 'none' : 'block';
+}
+
+function updateCat11FuelUnit(val) {
+    const unitMap = {
+        'petrol':   { unit: 'Litres/unit/yr', hint: 'Petrol consumption per product unit per year' },
+        'diesel':   { unit: 'Litres/unit/yr', hint: 'Diesel (HSD) consumption per product unit per year' },
+        'cng':      { unit: 'kg/unit/yr',     hint: 'CNG sold by weight in India — 1 kg ≈ 1.39 m³ at STP' },
+        'lpg':      { unit: 'kg/unit/yr',     hint: 'LPG sold by weight — 1 kg ≈ 1.96 L liquid' },
+        'png':      { unit: 'SCM/unit/yr',    hint: 'Standard Cubic Metres at 15°C, 1 atm' },
+        'lng':      { unit: 'kg/unit/yr',     hint: 'LNG by weight — NCV approx 48 MJ/kg; specify source in Notes' },
+        'hydrogen': { unit: 'kg/unit/yr',     hint: 'H₂ by weight — EF depends on production pathway (green vs grey); specify in Notes' },
+        'other':    { unit: 'Units/yr',       hint: 'Specify unit and conversion in Notes & Methodology' },
+    };
+    const unitLabel = document.getElementById('cat11-fuel-unit-label');
+    const hintEl    = document.getElementById('cat11-fuel-unit-hint');
+    if (unitMap[val]) {
+        if (unitLabel) unitLabel.textContent = unitMap[val].unit;
+        if (hintEl)    hintEl.textContent    = unitMap[val].hint;
+    }
+}
+
 // ═══════════════════ ACTIONS ═══════════════════
 
 function showToast(msg) {
@@ -2602,6 +3185,18 @@ function clearForm() {
     document.getElementById('formPanelBody').querySelectorAll('input, textarea, select').forEach(el => {
         if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = '';
     });
+    // Reset conditional fields for dedicated-renderer categories
+    if (currentSubcat === '3.4') {
+        const pf = document.getElementById('cat4-primary-fuel-wrap');
+        const sf = document.getElementById('cat4-secondary-fuel-row');
+        if (pf) pf.style.display = 'none';
+        if (sf) sf.style.display = 'none';
+    }
+    if (currentSubcat === '3.9') {
+        const pf = document.getElementById('cat9-primary-fuel-wrap');
+        if (pf) pf.style.display = 'none';
+    }
+    if (currentSubcat === '3.11') updateCat11Form('');
     showToast('🗑️ Form cleared.');
 }
 
