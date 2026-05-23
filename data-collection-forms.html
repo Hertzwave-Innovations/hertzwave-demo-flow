@@ -567,6 +567,295 @@
             .cat-btn { min-width: 68px; height: 52px; }
         }
 
+        /* ─── GREENCO MODE TOGGLE ─── */
+        .gc-toggle-wrap {
+            display: flex; align-items: center; gap: 8px;
+            padding: 4px 12px 4px 8px;
+            background: rgba(30,120,50,0.06);
+            border: 1.5px solid rgba(30,120,50,0.2);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all .2s;
+            user-select: none;
+        }
+        .gc-toggle-wrap:hover { background: rgba(30,120,50,0.1); border-color: rgba(30,120,50,0.4); }
+        .gc-toggle-wrap.active { background: #1a7832; border-color: #1a7832; color: #fff; }
+        .gc-switch {
+            width: 28px; height: 16px;
+            background: #ccc; border-radius: 8px;
+            position: relative; transition: background .2s; flex-shrink: 0;
+        }
+        .gc-switch::after {
+            content:''; position: absolute; width: 12px; height: 12px;
+            background: #fff; border-radius: 50%; top: 2px; left: 2px;
+            transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2);
+        }
+        .gc-toggle-wrap.active .gc-switch { background: #a8e6a3; }
+        .gc-toggle-wrap.active .gc-switch::after { left: 14px; }
+        .gc-toggle-label { font-size: 0.75rem; font-weight: 700; color: inherit; letter-spacing: 0.2px; }
+        .gc-toggle-wrap:not(.active) .gc-toggle-label { color: #1a7832; }
+
+        /* ─── GREENCO PARAMETER MAP STRIP ─── */
+        #gcParamStrip {
+            display: none;
+            background: linear-gradient(135deg, #f0f7f1 0%, #e8f4ea 100%);
+            border: 1.5px solid #c0dfc6;
+            border-radius: var(--radius-lg);
+            padding: 0.85rem 1rem;
+            margin-bottom: 1rem;
+            animation: fadeUp .25s ease;
+        }
+        #gcParamStrip.visible { display: block; }
+        .gc-strip-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 0.65rem; flex-wrap: wrap; gap: 0.5rem;
+        }
+        .gc-strip-title {
+            font-size: 0.72rem; font-weight: 800; color: #1a7832;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .gc-lite-toggle {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.7rem; font-weight: 600; color: #5B6E64;
+        }
+        .gc-lite-toggle select {
+            padding: 3px 22px 3px 8px; border: 1px solid var(--stroke);
+            border-radius: 4px; font-family: inherit; font-size: 0.7rem;
+            background: #fff; color: var(--ink);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%235B6E64' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 6px center;
+            appearance: none; cursor: pointer;
+        }
+        .gc-param-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 0.5rem;
+        }
+        .gc-param-pill {
+            display: flex; align-items: flex-start; gap: 8px;
+            padding: 0.55rem 0.75rem;
+            background: #fff; border: 1px solid #d0e8d6;
+            border-radius: var(--radius-md);
+            cursor: pointer; transition: all .15s;
+            position: relative;
+        }
+        .gc-param-pill:hover { border-color: #1a7832; box-shadow: 0 2px 8px rgba(26,120,50,0.1); }
+        .gc-param-pill.active-param { border-color: #1a7832; background: #f0f7f1; box-shadow: 0 0 0 2px rgba(26,120,50,0.15); }
+        .gc-param-pill.lite-combined {
+            background: linear-gradient(135deg, #fff8f0, #fff3e0);
+            border-color: #f6ad55;
+        }
+        .gc-param-pill.lite-combined:hover { border-color: #d97706; }
+        .gc-param-num {
+            width: 22px; height: 22px; border-radius: 50%;
+            background: linear-gradient(135deg, #1a7832, #2d9147);
+            color: #fff; font-size: 0.65rem; font-weight: 800;
+            display: grid; place-items: center; flex-shrink: 0; margin-top: 1px;
+        }
+        .gc-param-pill.lite-combined .gc-param-num {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+        }
+        .gc-param-info { flex: 1; min-width: 0; }
+        .gc-param-name { font-size: 0.72rem; font-weight: 700; color: var(--ink); line-height: 1.3; }
+        .gc-param-forms { font-size: 0.63rem; color: var(--muted); margin-top: 2px; line-height: 1.3; }
+        .gc-param-forms strong { color: #1a7832; }
+        .gc-param-score-hint {
+            font-size: 0.6rem; font-weight: 600; color: #1a7832;
+            background: rgba(26,120,50,0.08); border-radius: 3px;
+            padding: 1px 5px; margin-top: 3px; display: inline-block;
+        }
+        .gc-cat-jump-row {
+            display: flex; flex-wrap: wrap; gap: 4px;
+        }
+        .gc-cat-jump-chip {
+            display: inline-flex; align-items: center; gap: 3px;
+            padding: 2px 8px; border-radius: 4px;
+            font-size: 0.62rem; font-weight: 700;
+            background: rgba(26,120,50,0.1); color: #1a7832;
+            border: 1px solid rgba(26,120,50,0.2);
+            cursor: pointer; transition: all .12s;
+            white-space: nowrap;
+        }
+        .gc-cat-jump-chip:hover {
+            background: #1a7832; color: #fff; border-color: #1a7832;
+        }
+        .gc-param-pill.lite-combined .gc-cat-jump-chip {
+            background: rgba(217,119,6,0.1); color: #92400e;
+            border-color: rgba(217,119,6,0.25);
+        }
+        .gc-param-pill.lite-combined .gc-cat-jump-chip:hover {
+            background: #d97706; color: #fff; border-color: #d97706;
+        }
+
+        /* ─── GREENCO SUBCAT BADGES ─── */
+        .gc-subcat-badge {
+            display: inline-flex; align-items: center; gap: 2px;
+            font-size: 0.55rem; font-weight: 700; padding: 1px 5px;
+            border-radius: 3px; text-transform: uppercase; letter-spacing: 0.3px;
+            background: rgba(26,120,50,0.1); color: #1a7832;
+            flex-shrink: 0; margin-left: auto;
+        }
+        .gc-subcat-badge.mandatory { background: rgba(26,120,50,0.15); color: #155228; }
+        .gc-subcat-badge.evidence-pending { background: rgba(246,173,85,0.15); color: #8a5a00; }
+        .gc-subcat-badge.lite-badge { background: rgba(217,119,6,0.12); color: #92400e; }
+        .subcat-item .gc-subcat-badge { display: none; }
+        body.gc-mode .subcat-item .gc-subcat-badge { display: inline-flex; }
+        body.gc-mode .subcat-item { gap: 5px; }
+
+        /* ─── EVIDENCE PANEL ─── */
+        #gcEvidencePanel {
+            display: none;
+            margin-top: 0;
+            border-top: 1px solid var(--stroke-light);
+        }
+        #gcEvidencePanel.has-evidence { display: block; }
+        .gc-evidence-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.7rem 1.5rem;
+            background: linear-gradient(90deg, #f0f7f1 0%, transparent 100%);
+            border-bottom: 1px solid var(--stroke-light);
+            cursor: pointer;
+        }
+        .gc-evidence-title {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.78rem; font-weight: 700; color: #1a7832;
+        }
+        .gc-evidence-chevron { font-size: 0.65rem; color: var(--muted); transition: transform .2s; }
+        .gc-evidence-chevron.open { transform: rotate(180deg); }
+        .gc-evidence-body {
+            padding: 1rem 1.5rem;
+            display: none;
+        }
+        .gc-evidence-body.open { display: block; animation: fadeUp .2s ease; }
+        .gc-evidence-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;
+            margin-bottom: 0.85rem;
+        }
+        .gc-evidence-section { display: flex; flex-direction: column; gap: 6px; }
+        .gc-ev-label {
+            font-size: 0.67rem; font-weight: 700; color: var(--subtle);
+            text-transform: uppercase; letter-spacing: 0.4px;
+        }
+        .gc-ev-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+        .gc-ev-list li {
+            font-size: 0.75rem; color: var(--ink); line-height: 1.35;
+            display: flex; align-items: flex-start; gap: 6px;
+        }
+        .gc-ev-list li::before {
+            content: '📎'; font-size: 0.65rem; flex-shrink: 0; margin-top: 1px;
+        }
+        .gc-readiness-bar {
+            display: flex; gap: 6px; margin-top: 0.75rem; flex-wrap: wrap;
+        }
+        .gc-readiness-chip {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 0.68rem; font-weight: 700;
+        }
+        .gc-readiness-chip.data-ok { background: #d4edda; color: #155724; }
+        .gc-readiness-chip.evidence-needed { background: #fff3cd; color: #856404; }
+        .gc-readiness-chip.not-scoreable { background: #f8d7da; color: #721c24; }
+        .gc-readiness-chip.ready { background: #d1fae5; color: #065f46; }
+        .gc-impact-note {
+            margin-top: 0.65rem; padding: 0.55rem 0.75rem;
+            background: rgba(26,120,50,0.06); border-left: 3px solid #1a7832;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            font-size: 0.72rem; color: var(--ink); line-height: 1.45;
+        }
+        .gc-impact-note strong { color: #1a7832; }
+
+        /* ─── EVIDENCE UPLOAD ─── */
+        .gc-upload-section {
+            border-top: 1px solid var(--stroke-light);
+            padding-top: 0.85rem; margin-top: 0.15rem;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 0.5rem;
+        }
+        .gc-upload-section-label {
+            font-size: 0.67rem; font-weight: 700; color: var(--subtle);
+            text-transform: uppercase; letter-spacing: 0.4px;
+        }
+        .gc-upload-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 0.4rem 0.9rem;
+            border: 1.5px solid #d97706;
+            border-radius: var(--radius-sm);
+            background: #fff; color: #92400e;
+            font-family: inherit; font-size: 0.75rem; font-weight: 700;
+            cursor: pointer; transition: all .15s; position: relative;
+        }
+        .gc-upload-btn:hover { background: #fffbeb; border-color: #b45309; }
+        .gc-upload-btn input[type=file] {
+            position: absolute; inset: 0; opacity: 0;
+            cursor: pointer; width: 100%; height: 100%;
+        }
+        /* ─── EVIDENCE DOCUMENT HISTORY ─── */
+        .gc-doc-history { margin-top: 0.75rem; }
+        .gc-doc-history-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 0.4rem;
+        }
+        .gc-doc-history-label {
+            font-size: 0.67rem; font-weight: 700; color: var(--subtle);
+            text-transform: uppercase; letter-spacing: 0.4px;
+        }
+        .gc-doc-count {
+            font-size: 0.65rem; font-weight: 700; color: #fff;
+            background: #1a7832; border-radius: 10px; padding: 1px 7px;
+        }
+        .gc-doc-empty {
+            font-size: 0.75rem; color: var(--muted); padding: 0.6rem 0.75rem;
+            background: var(--hz-primary-25); border-radius: var(--radius-sm);
+            text-align: center;
+        }
+        .gc-doc-row {
+            display: flex; align-items: center; gap: 8px;
+            padding: 0.45rem 0.65rem;
+            border: 1px solid var(--stroke-light); border-radius: var(--radius-sm);
+            background: #fff; margin-bottom: 4px; transition: background .12s;
+        }
+        .gc-doc-row:hover { background: var(--hz-primary-25); }
+        .gc-doc-icon {
+            width: 28px; height: 28px; border-radius: 5px;
+            display: grid; place-items: center; font-size: 0.85rem; flex-shrink: 0;
+        }
+        .gc-doc-icon.pdf   { background: #fde8e8; }
+        .gc-doc-icon.xlsx  { background: #e8f5e9; }
+        .gc-doc-icon.img   { background: #e8f0fe; }
+        .gc-doc-icon.other { background: #f3e8fd; }
+        .gc-doc-meta { flex: 1; min-width: 0; }
+        .gc-doc-name {
+            font-size: 0.75rem; font-weight: 600; color: var(--ink);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .gc-doc-info { font-size: 0.65rem; color: var(--muted); margin-top: 1px; }
+        .gc-doc-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .gc-doc-status {
+            font-size: 0.6rem; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+        }
+        .gc-doc-status.ok      { background: #d4edda; color: #155724; }
+        .gc-doc-status.pending { background: #fff3cd; color: #856404; }
+        .gc-doc-delete {
+            background: none; border: none; cursor: pointer;
+            color: var(--muted); font-size: 0.8rem; padding: 2px 5px;
+            border-radius: 3px; line-height: 1;
+        }
+        .gc-doc-delete:hover { background: #fde8e8; color: var(--danger); }
+
+        /* ─── CAT-BTN GREENCO HIGHLIGHT ─── */
+        body.gc-mode .cat-btn[data-gc-params] {
+            position: relative;
+        }
+        body.gc-mode .cat-btn[data-gc-params]::after {
+            content: attr(data-gc-params);
+            position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
+            font-size: 0.45rem; font-weight: 700; color: #1a7832;
+            background: rgba(26,120,50,0.1); border-radius: 2px;
+            padding: 1px 3px; white-space: nowrap; letter-spacing: 0.2px;
+        }
+        body.gc-mode .cat-btn { height: 66px; }
+
         /* ─── ENTRY METHOD TOGGLE ─── */
         .entry-method-wrap {
             display: flex; align-items: center; gap: 1rem;
@@ -731,12 +1020,16 @@
             <h1 class="page-title">ESG Data Collection</h1>
             <p class="page-subtitle">Multi-framework data entry — GHG Protocol · BRSR · GRI · CDP · CSRD · CBAM · GreenCo · IGBC</p>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
             <div class="tier-toggle" id="tierToggle">
                 <button class="tier-toggle-btn active" data-tier="professional" onclick="setTier('professional')">Professional</button>
                 <button class="tier-toggle-btn" data-tier="essentials" onclick="setTier('essentials')">Essentials</button>
             </div>
             <span class="tier-badge" id="tierBadge">⚡ Professional — 5 Levels</span>
+            <div class="gc-toggle-wrap" id="gcModeToggle" onclick="toggleGreenCoMode()" title="Show GreenCo parameter mapping, evidence requirements, and readiness status">
+                <span class="gc-switch"></span>
+                <span class="gc-toggle-label">🌿 GreenCo Mode</span>
+            </div>
         </div>
     </div>
 
@@ -802,6 +1095,25 @@
     <!-- ─── ESG CATEGORY TABS ─── -->
     <nav class="category-nav" id="categoryNav"></nav>
 
+    <!-- ─── GREENCO PARAMETER MAP STRIP ─── -->
+    <div id="gcParamStrip">
+        <div class="gc-strip-header">
+            <span class="gc-strip-title">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                GreenCo CII v3 — Parameter Navigator
+                <span style="font-weight:400;color:#5B6E64;font-size:0.65rem;">Click a parameter to jump to the relevant forms</span>
+            </span>
+            <div class="gc-lite-toggle">
+                <label for="gcLiteSelect" style="white-space:nowrap;">Assessment Mode:</label>
+                <select id="gcLiteSelect" onchange="applyGcLiteMode()">
+                    <option value="full">Full (10 Parameters)</option>
+                    <option value="lite">GreenCo Lite (P8+P9+P10 combined)</option>
+                </select>
+            </div>
+        </div>
+        <div class="gc-param-grid" id="gcParamGrid"></div>
+    </div>
+
     <!-- ─── SUBCATEGORY + FORM ─── -->
     <div class="form-layout" id="formLayout">
         <div class="subcat-panel">
@@ -829,6 +1141,20 @@
                 </button>
                 <button class="btn btn-secondary" onclick="saveDraft()">Save as Draft</button>
                 <button class="btn btn-outline btn-sm" onclick="clearForm()" style="margin-left:auto;">Clear</button>
+            </div>
+            <!-- ─── GREENCO EVIDENCE PANEL ─── -->
+            <div id="gcEvidencePanel">
+                <div class="gc-evidence-header" onclick="toggleEvidenceBody()">
+                    <span class="gc-evidence-title">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                        <span id="gcPanelTitle">Evidence &amp; Documents</span>
+                        <span id="gcParamTag" style="display:none;font-size:0.6rem;background:rgba(26,120,50,0.1);color:#1a7832;padding:1px 6px;border-radius:3px;font-weight:600;"></span>
+                    </span>
+                    <span class="gc-evidence-chevron" id="gcEvidenceChevron">▼</span>
+                </div>
+                <div class="gc-evidence-body" id="gcEvidenceBody">
+                    <div id="gcEvidenceContent"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -3206,6 +3532,596 @@ function submitAll() {
 
 function exportData() {
     showToast('📊 Export initiated. Excel file will be ready shortly.');
+}
+
+// ═══════════════════ GREENCO MODE ENGINE ═══════════════════
+// Adds parameter mapping, evidence checks, and GreenCo Lite support
+// as a non-destructive overlay on the existing ESG form architecture.
+
+let gcModeActive = false;
+let gcLiteMode = false;
+
+// ── GreenCo parameter definitions ──────────────────────────────────────────
+// Maps each of the 10 CII GreenCo v3 parameters to:
+//  • the ESG category IDs in the form
+//  • the specific sub-IDs that are mandatory for scoring
+//  • the max score weight
+//  • evidence requirements per sub-section
+const GC_PARAMS = [
+    {
+        num: 1, id: 'p1', name: 'Energy Conservation & Efficiency',
+        catIds: ['scope1','scope2','energy'],
+        mandatorySubs: ['EN.1','EN.2','EN.3','1.1','1.2','2.1'],
+        weight: 10,
+        description: 'Specific energy consumption, energy intensity trends, BEE/PAT compliance, and energy-saving initiatives.'
+    },
+    {
+        num: 2, id: 'p2', name: 'Renewable Energy',
+        catIds: ['energy','scope2'],
+        mandatorySubs: ['EN.4','2.1'],
+        weight: 10,
+        description: 'RE% of total consumption, REC purchases, PPA details, rooftop solar, and green tariff procurement.'
+    },
+    {
+        num: 3, id: 'p3', name: 'Water Conservation',
+        catIds: ['water'],
+        mandatorySubs: ['W.1','W.2','W.3','W.4','W.5'],
+        weight: 10,
+        description: 'Total withdrawal by source, recycling rate, ZLD status, water intensity, and discharge quality.'
+    },
+    {
+        num: 4, id: 'p4', name: 'Waste Management',
+        catIds: ['waste'],
+        mandatorySubs: ['WS.1','WS.2','WS.4'],
+        weight: 10,
+        description: 'Hazardous & non-hazardous waste generation, waste diversion rate, recycler certification, and TSDF records.'
+    },
+    {
+        num: 5, id: 'p5', name: 'GHG Emission Reduction',
+        catIds: ['scope1','scope2','scope3'],
+        mandatorySubs: ['1.1','1.2','2.1'],
+        weight: 10,
+        description: 'Scope 1 & 2 absolute emissions and intensity trends. Scope 3 disclosure (select categories) for Platinum.'
+    },
+    {
+        num: 6, id: 'p6', name: 'Pollution Prevention',
+        catIds: ['air'],
+        mandatorySubs: ['AQ.1','AQ.4'],
+        weight: 10,
+        description: 'Stack emissions (NOx/SOx/PM), CEMS data, ambient air quality monitoring, ODS phase-out records.'
+    },
+    {
+        num: 7, id: 'p7', name: 'Green Supply Chain',
+        catIds: ['materials','scope3'],
+        mandatorySubs: ['MT.3','3.1'],
+        weight: 10,
+        description: 'Supplier ESG screening %, eco-label products, green procurement policy, and supply-chain assessment logs.'
+    },
+    {
+        num: 8, id: 'p8', name: 'Product Stewardship',
+        catIds: ['materials','waste'],
+        mandatorySubs: ['MT.4','WS.5'],
+        weight: 10,
+        description: 'EPR compliance, take-back programs, packaging sustainability, lifecycle considerations.',
+        liteGroup: 'Environmental Leadership'
+    },
+    {
+        num: 9, id: 'p9', name: 'Biodiversity & Green Cover',
+        catIds: ['biodiversity'],
+        mandatorySubs: ['BD.1','BD.2','BD.3'],
+        weight: 10,
+        description: 'Land use footprint, green belt area, proximity to protected areas, restoration programs.',
+        liteGroup: 'Environmental Leadership'
+    },
+    {
+        num: 10, id: 'p10', name: 'Beyond Compliance',
+        catIds: ['governance','ehs','community'],
+        mandatorySubs: ['GV.3','EHS.1'],
+        weight: 10,
+        description: 'ISO 14001/50001, TCFD, community initiatives, safety performance, and sustainability disclosure.',
+        liteGroup: 'Environmental Leadership'
+    },
+];
+
+// Category-to-GreenCo param label for cat-btn overlays
+const GC_CAT_PARAM_LABELS = {
+    'scope1':      'P1·P5',
+    'scope2':      'P1·P2·P5',
+    'scope3':      'P5·P7',
+    'energy':      'P1·P2',
+    'water':       'P3',
+    'waste':       'P4·P8',
+    'materials':   'P7·P8',
+    'air':         'P6',
+    'biodiversity':'P9',
+    'governance':  'P10',
+    'ehs':         'P10',
+    'community':   'P10',
+    'ieq':         null,
+    'climate':     null,
+    'dei':         null,
+};
+
+// Sub-ID to GreenCo badge config
+const GC_SUB_BADGES = {
+    // Scope 1
+    '1.1':  { label: 'P1·P5', type: 'mandatory' },
+    '1.2':  { label: 'P1·P5', type: 'mandatory' },
+    '1.3':  { label: 'P5', type: 'feeds' },
+    '1.4':  { label: 'P5', type: 'feeds' },
+    // Scope 2
+    '2.1':  { label: 'P1·P2·P5', type: 'mandatory' },
+    '2.2':  { label: 'P1·P5', type: 'feeds' },
+    '2.3':  { label: 'P1', type: 'feeds' },
+    '2.4':  { label: 'P1', type: 'feeds' },
+    // Scope 3
+    '3.1':  { label: 'P7', type: 'feeds' },
+    '3.4':  { label: 'P7', type: 'feeds' },
+    '3.5':  { label: 'P4', type: 'feeds' },
+    // Energy
+    'EN.1': { label: 'P1 Mandatory', type: 'mandatory' },
+    'EN.2': { label: 'P1 Mandatory', type: 'mandatory' },
+    'EN.3': { label: 'P1 Score', type: 'mandatory' },
+    'EN.4': { label: 'P2 Mandatory', type: 'mandatory' },
+    // Water
+    'W.1':  { label: 'P3 Mandatory', type: 'mandatory' },
+    'W.2':  { label: 'P3 Mandatory', type: 'mandatory' },
+    'W.3':  { label: 'P3 Score', type: 'mandatory' },
+    'W.4':  { label: 'P3 Score', type: 'mandatory' },
+    'W.5':  { label: 'P3 Score', type: 'mandatory' },
+    'W.6':  { label: 'P3 Audit', type: 'feeds' },
+    'W.7':  { label: 'P3 Audit', type: 'feeds' },
+    // Waste
+    'WS.1': { label: 'P4 Mandatory', type: 'mandatory' },
+    'WS.2': { label: 'P4 Mandatory', type: 'mandatory' },
+    'WS.3': { label: 'P4 Score', type: 'feeds' },
+    'WS.4': { label: 'P4 Score', type: 'mandatory' },
+    'WS.5': { label: 'P8', type: gcLiteMode ? 'lite' : 'feeds' },
+    // Materials
+    'MT.1': { label: 'P7 Context', type: 'feeds' },
+    'MT.2': { label: 'P7 Score', type: 'mandatory' },
+    'MT.3': { label: 'P7 Mandatory', type: 'mandatory' },
+    'MT.4': { label: 'P8', type: 'feeds' },
+    // Air
+    'AQ.1': { label: 'P6 Mandatory', type: 'mandatory' },
+    'AQ.2': { label: 'P6 Score', type: 'feeds' },
+    'AQ.3': { label: 'P6 Score', type: 'feeds' },
+    'AQ.4': { label: 'P6 Ambient', type: 'mandatory' },
+    'AQ.5': { label: 'P6 Noise', type: 'feeds' },
+    // Biodiversity
+    'BD.1': { label: 'P9 Mandatory', type: 'mandatory' },
+    'BD.2': { label: 'P9 Mandatory', type: 'mandatory' },
+    'BD.3': { label: 'P9 Score', type: 'mandatory' },
+    'BD.4': { label: 'P9 Audit', type: 'feeds' },
+    // Governance / EHS / Community
+    'GV.1': { label: 'P10', type: 'feeds' },
+    'GV.2': { label: 'P10', type: 'feeds' },
+    'GV.3': { label: 'P10 Policy', type: 'mandatory' },
+    'EHS.1':{ label: 'P10 Safety', type: 'mandatory' },
+    'EHS.2':{ label: 'P10', type: 'feeds' },
+    'EHS.3':{ label: 'P10', type: 'feeds' },
+    'CM.1': { label: 'P10 CSR', type: 'feeds' },
+};
+
+// ── Evidence data per sub-category ─────────────────────────────────────────
+const GC_EVIDENCE = {
+    '1.1': {
+        param: 'P1 + P5 — Energy & GHG',
+        docs: ['Fuel purchase invoices (all fuel types)', 'DG set log books with fuel consumption', 'Boiler/furnace fuel meter records', 'CPCB Form V or stack test report if applicable'],
+        granularity: 'Monthly preferred; annual acceptable',
+        scoreImpact: 'Feeds Energy Intensity CAGR (P1) and GHG intensity calculations (P5)',
+        readiness: 'evidence-needed'
+    },
+    '1.2': {
+        param: 'P1 + P5 — Mobile Combustion',
+        docs: ['Fleet fuel purchase records (pump slips or invoices)', 'Vehicle log books with km and fuel data', 'Fleet management system export if available'],
+        granularity: 'Monthly per vehicle type',
+        scoreImpact: 'Included in total Scope 1 GHG for P5 scoring and energy intensity for P1',
+        readiness: 'evidence-needed'
+    },
+    '2.1': {
+        param: 'P1 + P2 + P5 — Electricity',
+        docs: ['Monthly electricity bills (DISCOM/utility)', 'Smart meter or AMR system export', 'Renewable Energy Certificate (REC) purchase records', 'PPA agreement summary and kWh delivered', 'On-site solar generation logs'],
+        granularity: 'Monthly mandatory for GreenCo trend calculation',
+        scoreImpact: 'Critical: feeds Energy Intensity (P1), RE% (P2), and Scope 2 GHG (P5). Missing bills will block all three parameters.',
+        readiness: 'evidence-needed'
+    },
+    'EN.1': {
+        param: 'P1 — Energy Consumption & Mix',
+        docs: ['Consolidated energy statement (all fuels + electricity)', 'BEE PAT cycle compliance certificates', 'Energy audit report (if available)', 'EMS or SCADA energy data export'],
+        granularity: 'Monthly with fuel-type breakup',
+        scoreImpact: 'Directly drives P1 score: energy intensity, consumption trend, and fuel mix analysis',
+        readiness: 'evidence-needed'
+    },
+    'EN.2': {
+        param: 'P1 — Energy Intensity & EPI',
+        docs: ['Production output data (tonnes/units/sq.m as applicable)', 'Energy Performance Index calculation sheet', 'BEE star rating certificate (if applicable)'],
+        granularity: 'Annual normalised to production/area denominator',
+        scoreImpact: 'P1 intensity scoring requires this normaliser. Without production data, intensity cannot be calculated.',
+        readiness: 'evidence-needed'
+    },
+    'EN.3': {
+        param: 'P1 — Energy Conservation Initiatives',
+        docs: ['Energy conservation project list with kWh savings', 'Capital expenditure on energy efficiency', 'VFD/LED/motor retrofits completion records', 'ISO 50001 certificate if available'],
+        granularity: 'Annual initiative summary with savings quantified',
+        scoreImpact: 'Scores conservation actions separately from intensity. High-impact for P1 score uplift.',
+        readiness: 'evidence-needed'
+    },
+    'EN.4': {
+        param: 'P2 — Renewable Energy',
+        docs: ['Rooftop/ground solar generation logs', 'Wind energy generation records', 'REC purchase certificates with vintage', 'Green tariff PPA agreement and units received', 'DISCOM green power certificate'],
+        granularity: 'Monthly RE generation and purchased units',
+        scoreImpact: 'RE% = Total RE / Total Energy. This is the sole driver of P2 score. Missing evidence = P2 cannot be scored.',
+        readiness: 'evidence-needed'
+    },
+    'W.1': {
+        param: 'P3 — Water Withdrawal by Source',
+        docs: ['Municipal water utility bills', 'Groundwater extraction meter logs (CGWA registration)', 'Surface water abstraction permit and meter records', 'Tanker water purchase invoices', 'Rainwater harvesting collection logs'],
+        granularity: 'Monthly, source-wise breakdown mandatory',
+        scoreImpact: 'P3 baseline: total withdrawal. Source breakdown needed for stress-area assessment.',
+        readiness: 'evidence-needed'
+    },
+    'W.2': {
+        param: 'P3 — Water Consumption & Intensity',
+        docs: ['Production output for intensity denominator (same as EN.2)', 'Internal water balance statement', 'STP/ETP inlet and outlet flow meters'],
+        granularity: 'Monthly with annual intensity calculation',
+        scoreImpact: 'Water intensity CAGR is the primary P3 scoring metric. Both withdrawal and output data needed.',
+        readiness: 'evidence-needed'
+    },
+    'W.3': {
+        param: 'P3 — Water Recycling & Reuse',
+        docs: ['STP treated water reuse records', 'ETP recycle volumes', 'RO reject reuse logs', 'Condensate recovery records'],
+        granularity: 'Monthly recycled volume and reuse destination',
+        scoreImpact: 'Recycling rate (%) boosts P3 score. ZLD status is a Platinum threshold in some sectors.',
+        readiness: 'evidence-needed'
+    },
+    'W.4': {
+        param: 'P3 — Discharge & Quality',
+        docs: ['CPCB Form V / TNPCB discharge consent', 'ETP outlet water quality test reports (BOD/COD/TSS/pH)', 'CETP connection records if applicable', 'Zero Liquid Discharge (ZLD) commissioning certificate'],
+        granularity: 'Quarterly test reports; monthly if CEMS available',
+        scoreImpact: 'Pollution prevention overlap (P6). Discharge quality is evidence-required, not just data entry.',
+        readiness: 'evidence-needed'
+    },
+    'WS.1': {
+        param: 'P4 — Hazardous Waste',
+        docs: ['Hazardous waste manifest (Form 9/10)', 'TSDF disposal receipts or co-processing certificates', 'Used oil disposal records', 'Annual HW return to SPCB'],
+        granularity: 'Per disposal event; annual summary for scoring',
+        scoreImpact: 'HW generation rate and safe disposal % directly scored under P4. Missing manifests = audit failure.',
+        readiness: 'evidence-needed'
+    },
+    'WS.2': {
+        param: 'P4 — Non-Hazardous Waste',
+        docs: ['Municipal solid waste disposal records', 'Waste characterisation / composition study', 'Dry waste sale invoices (paper, metal, plastic)', 'Composting/biogas output records'],
+        granularity: 'Monthly by waste stream',
+        scoreImpact: 'Waste diversion rate = (Recycled+Composted+Reused) / Total. Key P4 metric.',
+        readiness: 'evidence-needed'
+    },
+    'WS.4': {
+        param: 'P4 — Waste Diversion & Recycling',
+        docs: ['Recycler/vendor registration certificates (CPCB/SPCB authorised)', 'Sales invoices for recyclable waste', 'Co-processing certificates from cement kilns', 'Annual recycling rate calculation sheet'],
+        granularity: 'Monthly recycled quantities with authorised recycler details',
+        scoreImpact: 'Core P4 score driver. Recycler certificate is mandatory evidence; data alone is not accepted.',
+        readiness: 'evidence-needed'
+    },
+    'MT.3': {
+        param: 'P7 — Green Supply Chain',
+        docs: ['Supplier ESG / environmental questionnaire responses', 'Approved vendor list with ESG screening status', 'Green procurement policy document', 'Eco-label or environmental certification of purchased materials', 'Supplier site audit records (if conducted)'],
+        granularity: 'Annual % of suppliers screened and approved',
+        scoreImpact: 'P7 score = f(% suppliers screened, policy existence, green procurement %). Often the weakest parameter — improving screening rate from 30% to 60% can add 1.5–2 pts.',
+        readiness: 'evidence-needed'
+    },
+    'WS.5': {
+        param: 'P8 — Product Stewardship (or GreenCo Lite: Environmental Leadership)',
+        docs: ['EPR registration certificate (CPCB)', 'Take-back / collection programme records', 'Product eco-label certification (if any)', 'Packaging material declaration and recycled content %', 'End-of-life product quantity collected and recycled'],
+        granularity: 'Annual EPR targets vs actuals',
+        scoreImpact: 'P8 score. In GreenCo Lite, combined with P9+P10 into Environmental Leadership (max 30 pts).',
+        readiness: 'evidence-needed'
+    },
+    'AQ.1': {
+        param: 'P6 — Stack Emissions',
+        docs: ['CEMS (Continuous Emission Monitoring System) data export', 'Third-party stack test reports (NOx/SOx/PM)', 'SPCB consent conditions vs actual compliance table', 'DG set emission test records'],
+        granularity: 'Monthly CEMS; quarterly stack test minimum',
+        scoreImpact: 'P6 mandatory. Stack emissions compliance vs consent limits is the primary scoring criterion.',
+        readiness: 'evidence-needed'
+    },
+    'AQ.4': {
+        param: 'P6 — Ambient Air Quality',
+        docs: ['NAAQMS ambient monitoring station data', 'Third-party AAQ monitoring reports (PM2.5, PM10, NOx, SO2)', 'Meteorological data (wind rose if available)'],
+        granularity: 'Quarterly ambient monitoring reports',
+        scoreImpact: 'Ambient compliance to NAAQS limits scores separately from stack. Both needed for full P6.',
+        readiness: 'evidence-needed'
+    },
+    'BD.1': {
+        param: 'P9 — Land Use & Green Cover',
+        docs: ['Site plan with area breakup (built-up vs green vs paved)', 'Green cover / plantation area measurement', 'Satellite / drone imagery (if available)', 'Tree census records'],
+        granularity: 'Annual; area measured in hectares',
+        scoreImpact: 'Green cover % of total site area is the primary P9 metric.',
+        readiness: 'evidence-needed'
+    },
+    'BD.2': {
+        param: 'P9 — Protected & Sensitive Areas',
+        docs: ['MoEFCC environmental clearance document', 'Distance to nearest protected area / ESZ', 'Ecological sensitivity assessment (if conducted)', 'Mine rehabilitation plan (for mining/quarry sites)'],
+        granularity: 'One-time assessment; updated if land use changes',
+        scoreImpact: 'Mandatory declaration. Sites in ESZ/protected zones face additional scrutiny.',
+        readiness: 'evidence-needed'
+    },
+    'BD.3': {
+        param: 'P9 — Restoration & Conservation',
+        docs: ['Tree plantation drive records (species, numbers, survival rate)', 'Budget allocated to biodiversity conservation', 'Partnership with forest department or NGO records', 'Habitat restoration project completion reports'],
+        granularity: 'Annual plantation and conservation spend',
+        scoreImpact: 'Actively scored under P9. Investment in restoration above compliance level earns bonus points.',
+        readiness: 'evidence-needed'
+    },
+    'GV.3': {
+        param: 'P10 — Policy & Compliance',
+        docs: ['Approved Environmental Policy document (board-signed)', 'ISO 14001 / ISO 50001 certificate', 'Regulatory compliance status statement (no pending violations)', 'TCFD climate risk disclosure (if available)', 'Sustainability / ESG annual report'],
+        granularity: 'Annual policy review and compliance declaration',
+        scoreImpact: 'P10 base score. ISO 14001 certification alone provides ~2 pts. TCFD adds further for Platinum.',
+        readiness: 'evidence-needed'
+    },
+    'EHS.1': {
+        param: 'P10 — Safety Performance',
+        docs: ['LTIFR (Lost Time Injury Frequency Rate) calculation sheet', 'Accident register and investigation reports', 'Near-miss reporting statistics', 'Safety committee meeting minutes'],
+        granularity: 'Monthly LTIFR; annual summary for GreenCo',
+        scoreImpact: 'Safety excellence contributes to P10 Beyond Compliance score.',
+        readiness: 'evidence-needed'
+    },
+};
+
+// ── GreenCo Mode toggle ─────────────────────────────────────────────────────
+function toggleGreenCoMode() {
+    gcModeActive = !gcModeActive;
+    const toggle = document.getElementById('gcModeToggle');
+    const strip = document.getElementById('gcParamStrip');
+    toggle.classList.toggle('active', gcModeActive);
+    document.body.classList.toggle('gc-mode', gcModeActive);
+    strip.classList.toggle('visible', gcModeActive);
+
+    if (gcModeActive) {
+        renderGcParamGrid();
+        annotateCategories();
+        // Re-render current subcat list to add badges
+        if (currentCategory) buildSubcatList();
+        if (currentSubcat) updateEvidencePanel(currentSubcat);
+    } else {
+        // Remove param annotations from cat buttons
+        document.querySelectorAll('.cat-btn').forEach(b => b.removeAttribute('data-gc-params'));
+        // Revert panel to plain evidence mode (still visible)
+        if (currentSubcat) updateEvidencePanel(currentSubcat);
+    }
+}
+
+function annotateCategories() {
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+        const catId = btn.dataset.catId;
+        const label = GC_CAT_PARAM_LABELS[catId];
+        if (label) btn.setAttribute('data-gc-params', label);
+        else btn.removeAttribute('data-gc-params');
+    });
+}
+
+// ── GreenCo Lite mode ───────────────────────────────────────────────────────
+function applyGcLiteMode() {
+    const select = document.getElementById('gcLiteSelect');
+    gcLiteMode = select.value === 'lite';
+    renderGcParamGrid();
+}
+
+// ── Parameter grid render ───────────────────────────────────────────────────
+function renderGcParamGrid() {
+    const grid = document.getElementById('gcParamGrid');
+    if (!grid) return;
+
+    if (gcLiteMode) {
+        // Full params 1-7 individually + combined P8+P9+P10
+        const liteParams = GC_PARAMS.slice(0, 7);
+        const liteCombined = {
+            num: '8–10', id: 'p8p9p10', name: 'Environmental Leadership',
+            catIds: ['materials','waste','biodiversity','governance','ehs','community'],
+            description: 'GreenCo Lite combines Product Stewardship (P8), Biodiversity & Green Cover (P9), and Beyond Compliance (P10) into a single 30-point parameter. Fill all three source categories.',
+            weight: 30, liteGroup: true
+        };
+        const allPills = [...liteParams, liteCombined];
+        grid.innerHTML = allPills.map(p => renderParamPill(p, !!p.liteGroup)).join('');
+    } else {
+        grid.innerHTML = GC_PARAMS.map(p => renderParamPill(p, false)).join('');
+    }
+}
+
+function renderParamPill(p, isLite) {
+    const liteClass = isLite ? ' lite-combined' : '';
+
+    // For single-category params, the whole pill is clickable
+    if (p.catIds.length === 1) {
+        const cat = CATEGORIES.find(c => c.id === p.catIds[0]);
+        const label = cat ? `<strong>${cat.label}</strong>` : p.catIds[0];
+        return `<div class="gc-param-pill${liteClass}" onclick="jumpToGcParam('${p.catIds[0]}', this)">
+            <div class="gc-param-num">${p.num}</div>
+            <div class="gc-param-info">
+                <div class="gc-param-name">${p.name}</div>
+                <div class="gc-param-forms">Forms: ${label}</div>
+                <div class="gc-param-score-hint">10 pts max</div>
+            </div>
+        </div>`;
+    }
+
+    // For multi-category params (including lite combined), render individual jump chips
+    const chips = p.catIds.map(id => {
+        const cat = CATEGORIES.find(c => c.id === id);
+        const label = cat ? cat.label : id;
+        const icon = cat ? cat.icon : '→';
+        return `<span class="gc-cat-jump-chip" onclick="event.stopPropagation(); jumpToGcParam('${id}', null)">${icon} ${label}</span>`;
+    }).join('');
+
+    const scoreHint = isLite ? '30 pts max (combined)' : '10 pts max';
+
+    return `<div class="gc-param-pill${liteClass}">
+        <div class="gc-param-num">${p.num}</div>
+        <div class="gc-param-info">
+            <div class="gc-param-name">${p.name}</div>
+            <div class="gc-param-forms" style="margin-bottom:5px;">
+                ${isLite ? 'Combined parameter — navigate to each section:' : 'Jump to:'}
+            </div>
+            <div class="gc-cat-jump-row">${chips}</div>
+            <div class="gc-param-score-hint" style="margin-top:4px;">${scoreHint}</div>
+        </div>
+    </div>`;
+}
+
+function jumpToGcParam(catId, pillEl) {
+    selectCategory(catId);
+    document.querySelectorAll('.gc-param-pill').forEach(p => p.classList.remove('active-param'));
+    if (pillEl) pillEl.classList.add('active-param');
+}
+
+// ── Enhanced buildSubcatList to add GreenCo badges ──────────────────────────
+const _originalBuildSubcatList = buildSubcatList;
+buildSubcatList = function() {
+    _originalBuildSubcatList();
+    if (!gcModeActive) return;
+    const items = document.querySelectorAll('.subcat-item');
+    items.forEach(item => {
+        const subId = item.dataset.subId;
+        const badge = GC_SUB_BADGES[subId];
+        if (badge) {
+            const span = document.createElement('span');
+            span.className = `gc-subcat-badge ${badge.type === 'mandatory' ? 'mandatory' : badge.type === 'lite' ? 'lite-badge' : ''}`;
+            span.textContent = badge.label;
+            // Remove any existing gc badge
+            item.querySelectorAll('.gc-subcat-badge').forEach(b => b.remove());
+            item.appendChild(span);
+        }
+    });
+};
+
+// ── Enhanced selectSubcat to update evidence panel ──────────────────────────
+const _originalSelectSubcat = selectSubcat;
+selectSubcat = function(subId) {
+    _originalSelectSubcat(subId);
+    updateEvidencePanel(subId);
+};
+
+// ── Evidence panel logic ────────────────────────────────────────────────────
+// ── Per-subcategory evidence document store (in-memory) ────────────────────
+const gcEvidenceDocs = {};   // { subId: [ { name, size, type, date, user } ] }
+
+function updateEvidencePanel(subId) {
+    const panel = document.getElementById('gcEvidencePanel');
+    panel.classList.add('has-evidence');
+
+    // Panel title and GreenCo param tag — context-sensitive
+    const ev = GC_EVIDENCE[subId];
+    const titleEl   = document.getElementById('gcPanelTitle');
+    const paramTag  = document.getElementById('gcParamTag');
+    if (gcModeActive && ev) {
+        titleEl.textContent       = 'GreenCo Evidence & Readiness Check';
+        paramTag.textContent      = ev.param;
+        paramTag.style.display    = 'inline';
+    } else {
+        titleEl.textContent       = 'Evidence & Documents';
+        paramTag.style.display    = 'none';
+    }
+
+    renderEvidenceContent(subId);
+    // Auto-open
+    document.getElementById('gcEvidenceBody').classList.add('open');
+    document.getElementById('gcEvidenceChevron').classList.add('open');
+}
+
+function renderEvidenceContent(subId) {
+    const ev = GC_EVIDENCE[subId];
+    const docs = gcEvidenceDocs[subId] || [];
+    const hasEvidence = docs.length > 0;
+
+    // Readiness chip
+    const chipCls   = hasEvidence ? 'ready'           : 'evidence-needed';
+    const chipLabel = hasEvidence ? '✅ GreenCo Ready' : '⚠ Evidence Needed';
+
+    const docsHTML = ev ? ev.docs.map(d => `<li>${d}</li>`).join('') : '';
+
+    // Document history rows
+    const historyHTML = docs.length === 0
+        ? `<div class="gc-doc-empty">No evidence uploaded yet for this section.</div>`
+        : docs.map((d, i) => {
+            const iconCls = d.name.endsWith('.pdf') ? 'pdf'
+                          : d.name.match(/\.xlsx?$/i) ? 'xlsx'
+                          : d.name.match(/\.(png|jpg|jpeg)$/i) ? 'img' : 'other';
+            const iconEmoji = iconCls === 'pdf' ? '📄' : iconCls === 'xlsx' ? '📊'
+                            : iconCls === 'img' ? '🖼️' : '📎';
+            return `<div class="gc-doc-row">
+                <div class="gc-doc-icon ${iconCls}">${iconEmoji}</div>
+                <div class="gc-doc-meta">
+                    <div class="gc-doc-name" title="${d.name}">${d.name}</div>
+                    <div class="gc-doc-info">${d.date} &nbsp;·&nbsp; ${d.size} &nbsp;·&nbsp; ${d.user}</div>
+                </div>
+                <div class="gc-doc-right">
+                    <span class="gc-doc-status ok">✓ Uploaded</span>
+                    <button class="gc-doc-delete" title="Remove" onclick="removeEvidenceDoc('${subId}',${i})">✕</button>
+                </div>
+            </div>`;
+        }).join('');
+
+    // GreenCo guidance block — only when mode is active and evidence mapping exists
+    const gcGuidanceHTML = (gcModeActive && ev) ? `
+        <div class="gc-evidence-grid">
+            <div class="gc-evidence-section">
+                <div class="gc-ev-label">Acceptable Evidence Documents</div>
+                <ul class="gc-ev-list">${docsHTML}</ul>
+            </div>
+            <div class="gc-evidence-section">
+                <div class="gc-ev-label">Preferred Granularity</div>
+                <div style="font-size:0.78rem;color:var(--ink);padding:0.35rem 0 0.5rem;">${ev.granularity}</div>
+                <div class="gc-ev-label">Score Impact</div>
+                <div class="gc-impact-note"><strong>→</strong> ${ev.scoreImpact}</div>
+            </div>
+        </div>
+        <div class="gc-readiness-bar" style="margin-bottom:0.85rem;">
+            <span class="gc-readiness-chip ${chipCls}">${chipLabel}</span>
+            ${hasEvidence ? `<span class="gc-readiness-chip data-ok">✓ ${docs.length} file${docs.length>1?'s':''} attached</span>` : ''}
+        </div>` : '';
+
+    document.getElementById('gcEvidenceContent').innerHTML = gcGuidanceHTML + `
+        <div class="gc-upload-section">
+            <span class="gc-upload-section-label">Evidence Files &nbsp;<span class="gc-doc-count">${docs.length}</span></span>
+            <label class="gc-upload-btn">
+                ⬆ Upload Evidence
+                <input type="file" multiple accept=".pdf,.xlsx,.xls,.csv,.png,.jpg,.jpeg,.xml,.json"
+                    onchange="handleEvidenceUpload('${subId}', this)">
+            </label>
+        </div>
+        <div class="gc-doc-history" id="gcDocHistory_${subId}">${historyHTML}</div>`;
+}
+
+function handleEvidenceUpload(subId, input) {
+    if (!gcEvidenceDocs[subId]) gcEvidenceDocs[subId] = [];
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
+                  + ', ' + now.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+    Array.from(input.files).forEach(file => {
+        const kb = file.size < 1024 * 1024
+            ? (file.size / 1024).toFixed(0) + ' KB'
+            : (file.size / 1024 / 1024).toFixed(1) + ' MB';
+        gcEvidenceDocs[subId].push({ name: file.name, size: kb, date: dateStr, user: 'Sandesh S.' });
+    });
+    input.value = '';   // reset so same file can be re-uploaded if needed
+    renderEvidenceContent(subId);
+    showToast(`✅ ${Array.from(input.files || []).length || gcEvidenceDocs[subId].length} file(s) attached to ${subId}.`);
+}
+
+function removeEvidenceDoc(subId, idx) {
+    if (gcEvidenceDocs[subId]) gcEvidenceDocs[subId].splice(idx, 1);
+    renderEvidenceContent(subId);
+}
+
+function toggleEvidenceBody() {
+    const body    = document.getElementById('gcEvidenceBody');
+    const chevron = document.getElementById('gcEvidenceChevron');
+    body.classList.toggle('open');
+    chevron.classList.toggle('open');
+}
+
+function hideEvidencePanel() {
+    // Panel is always visible when a subcategory is active; this is now a no-op
 }
 
 // ═══════════════════ INIT ═══════════════════
