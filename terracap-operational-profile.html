@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TerraCAP — Operational Profile v2.2</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600&family=DM+Sans:opsz,wght@9..40,400;9..40,500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g7:#1e5c0a;--g6:#2d7a12;--g5:#3a9918;--g2:#97D459;--g1:#c5e99a;--g0:#eaf5dc;
+  --a7:#633806;--a6:#854F0B;--a5:#a06010;--a2:#FAC775;--a1:#fde4b0;--a0:#fef6e8;
+  --r6:#a32d2d;--r1:#f7c1c1;--r0:#fcebeb;
+  --b6:#185FA5;--b1:#B5D4F4;--b0:#E6F1FB;
+  --p6:#534AB7;--p1:#CECBF6;--p0:#EEEDFE;
+  --txt:#1a2a1f;--txt2:#4a6558;--txt3:#8aaa98;
+  --bg:#f4f7f4;--bg2:#eef2ee;--bg3:#ffffff;
+  --br:#d4e0d4;--br2:#b8ccb8;
+  --rad:10px;--rad-sm:7px;--rad-lg:14px;
+  --ff:'DM Sans',sans-serif;--ffh:'Sora',sans-serif;--ffm:'DM Mono',monospace
+}
+@media(prefers-color-scheme:dark){:root{
+  --g7:#97D459;--g6:#7aba40;--g0:#1a3408;--g1:#1e4508;--g2:#3a7012;
+  --a6:#FAC775;--a0:#2a1a02;--a1:#3a2505;--a2:#854F0B;
+  --r6:#F09595;--r0:#2a0808;--r1:#3a1010;
+  --b6:#85B7EB;--b0:#042C53;--b1:#0C447C;
+  --p6:#AFA9EC;--p0:#26215C;--p1:#3C3489;
+  --txt:#e8f2e8;--txt2:#9ab89a;--txt3:#5a7a5a;
+  --bg:#111811;--bg2:#192019;--bg3:#1f281f;--br:#2a3a2a;--br2:#3a4e3a
+}}
+body{font-family:var(--ff);font-size:13px;color:var(--txt);background:var(--bg);line-height:1.5;min-height:100vh}
+h1,h2,h3,h4{font-family:var(--ffh)}
+input[type=text],input[type=number],select,textarea{font-family:var(--ff);font-size:13px;color:var(--txt);background:var(--bg3);border:1px solid var(--br);border-radius:var(--rad-sm);padding:7px 10px;width:100%;outline:none;transition:border .15s}
+input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus{border-color:var(--g6)}
+textarea{resize:vertical;min-height:58px}
+button{font-family:var(--ff);font-size:13px;color:var(--txt);cursor:pointer;border:1px solid var(--br);border-radius:var(--rad-sm);padding:7px 14px;background:var(--bg3);transition:all .15s}
+button:hover{background:var(--bg2)} button:active{transform:scale(.98)}
+input[type=checkbox]{width:15px;height:15px;flex-shrink:0;accent-color:var(--g6);cursor:pointer}
+.app{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sb{width:220px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--br);display:flex;flex-direction:column}
+.sb-top{padding:1.125rem 1rem 0}
+.sb-logo{display:flex;align-items:center;gap:8px;margin-bottom:1rem}
+.sb-mark{width:26px;height:26px;border-radius:7px;background:var(--g6);display:flex;align-items:center;justify-content:center}
+.sb-mark i{color:#fff;font-size:14px}
+.sb-title{font-family:var(--ffh);font-size:15px;font-weight:600;letter-spacing:-.01em}
+.sb-tier{font-size:10px;color:var(--txt3);font-family:var(--ffm);margin-left:auto}
+.mode-seg{display:flex;gap:3px;background:var(--bg3);border:1px solid var(--br);border-radius:var(--rad-sm);padding:3px;margin-bottom:.75rem}
+.mode-btn{flex:1;font-size:11px;font-weight:500;padding:5px 4px;border:none;border-radius:5px;cursor:pointer;background:transparent;color:var(--txt3)}
+.mode-btn.on{background:var(--g6);color:#fff}
+.client-row{display:none;margin-bottom:.75rem}
+.client-row.show{display:block}
+.client-row label{font-size:10px;font-weight:500;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:3px}
+.client-dd{position:relative}
+.client-dd select{font-size:12px;padding-right:24px}
+.client-add{display:flex;gap:4px;margin-top:4px}
+.client-add input{font-size:11px;padding:5px 8px}
+.client-add button{font-size:11px;padding:5px 8px;white-space:nowrap;background:var(--g0);border-color:var(--g2);color:var(--g6)}
+.sb-div{height:1px;background:var(--br);margin-bottom:.75rem}
+.nav{padding:0 .625rem;flex:1}
+.ni{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--rad-sm);cursor:pointer;margin-bottom:2px}
+.ni:hover{background:var(--bg3)} .ni.on{background:var(--g0)}
+.ndot{width:8px;height:8px;border-radius:50%;flex-shrink:0;border:2px solid var(--br2);background:transparent;transition:all .2s}
+.ndot.done{background:var(--g6);border-color:var(--g6)} .ndot.part{background:var(--a2);border-color:var(--a6)} .ndot.cur{border-color:var(--g6);background:var(--g0)}
+.nlbl{font-size:12px;color:var(--txt2);flex:1} .ni.on .nlbl{color:var(--txt);font-weight:500}
+.npct{font-size:10px;color:var(--txt3);font-family:var(--ffm)}
+.sb-where{margin:0 .625rem .5rem;background:var(--bg3);border:1px solid var(--br);border-radius:var(--rad-sm);padding:8px 10px}
+.sb-where-lbl{font-size:10px;color:var(--txt3);margin-bottom:2px}
+.sb-where-path{font-size:11px;color:var(--txt2);display:flex;align-items:center;gap:3px;flex-wrap:wrap}
+.sb-where-path i{font-size:12px;color:var(--txt3)}
+.sb-foot{padding:.875rem 1rem;border-top:1px solid var(--br);margin-top:auto}
+.save-btn-main{width:100%;font-size:12px;font-weight:500;padding:8px;background:var(--g6);color:#fff;border:none;border-radius:var(--rad-sm);display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:4px;cursor:pointer}
+.save-btn-main:hover{background:var(--g7)}
+.save-hint{font-size:10px;color:var(--txt3);text-align:center}
+
+/* MAIN */
+.mc{flex:1;padding:2rem 2rem 4rem;max-width:860px}
+.sec-hd{margin-bottom:1rem}
+.sec-hd h2{font-size:18px;font-weight:600;margin-bottom:4px;letter-spacing:-.015em}
+.sec-hd p{font-size:12px;color:var(--txt2);line-height:1.6}
+.client-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--a6);background:var(--a0);border:1px solid var(--a2);border-radius:100px;padding:2px 10px;margin-top:6px}
+
+/* ENABLES BANNER */
+.enables-bar{display:flex;align-items:flex-start;gap:12px;padding:11px 14px;background:var(--b0);border:1px solid var(--b1);border-radius:var(--rad-sm);margin-bottom:1.25rem}
+.enables-bar i.main-icon{color:var(--b6);font-size:18px;flex-shrink:0;margin-top:1px}
+.enables-content{flex:1}
+.enables-title{font-size:12px;font-weight:500;color:var(--b6);margin-bottom:3px}
+.enables-items{display:flex;gap:6px;flex-wrap:wrap}
+.enables-pill{font-size:11px;padding:2px 9px;border-radius:100px;background:var(--bg3);border:1px solid var(--b1);color:var(--b6)}
+
+.prog-wrap{margin-bottom:1.25rem}
+.prog-track{height:4px;background:var(--bg2);border-radius:4px;overflow:hidden;margin-bottom:4px}
+.prog-fill{height:100%;background:var(--g6);border-radius:4px;transition:width .35s}
+.prog-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--txt3);font-family:var(--ffm)}
+
+.card{background:var(--bg3);border:1px solid var(--br);border-radius:var(--rad-lg);padding:1.25rem;margin-bottom:.875rem}
+.card-ttl{font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.875rem;padding-bottom:.5rem;border-bottom:1px solid var(--br)}
+.fg{display:grid;gap:10px;margin-bottom:10px}
+.f2{grid-template-columns:1fr 1fr} .f3{grid-template-columns:1fr 1fr 1fr}
+.fl{display:flex;flex-direction:column;gap:4px}
+.fl label{font-size:11px;font-weight:500;color:var(--txt2);display:flex;align-items:center;gap:4px}
+.fi{display:flex;gap:6px} .fi input{flex:1} .fi select{width:88px;flex-shrink:0}
+.trow{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--br)}
+.trow:last-child{border-bottom:none} .trow label{font-size:13px;flex:1}
+.chip-group{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.chip{display:flex;align-items:center;gap:3px;padding:4px 10px;border:1px solid var(--br);border-radius:100px;font-size:11px;cursor:pointer;background:var(--bg3);color:var(--txt2);user-select:none;transition:all .1s}
+.chip.sel{background:var(--g0);border-color:var(--g6);color:var(--g6);font-weight:500}
+.chip.sel-amber{background:var(--a0);border-color:var(--a2);color:var(--a6);font-weight:500}
+.chip.sel-red{background:var(--r0);border-color:var(--r1);color:var(--r6);font-weight:500}
+
+/* TOOLTIP */
+.tip-wrap{position:relative;display:inline-flex}
+.tip-icon{width:16px;height:16px;border-radius:50%;background:var(--bg2);border:1px solid var(--br);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--txt3);font-size:10px;font-weight:700;flex-shrink:0;user-select:none}
+.tip-icon:hover{background:var(--b0);border-color:var(--b1);color:var(--b6)}
+.tip-box{position:absolute;left:22px;top:-4px;z-index:100;background:var(--txt);color:#fff;border-radius:var(--rad-sm);padding:8px 12px;font-size:11px;line-height:1.6;width:240px;display:none;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.18)}
+.tip-box::before{content:'';position:absolute;left:-5px;top:9px;width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-right:5px solid var(--txt)}
+.tip-wrap:hover .tip-box,.tip-wrap.open .tip-box{display:block}
+
+/* CORE / ENRICHMENT */
+.mode-bar{display:flex;align-items:stretch;gap:0;background:var(--bg3);border:1px solid var(--br);border-radius:var(--rad-sm);overflow:hidden;margin-bottom:1rem}
+.mode-half{flex:1;padding:12px 14px;cursor:pointer;transition:background .15s;border-right:1px solid var(--br)}
+.mode-half:last-child{border-right:none}
+.mode-half.on{background:var(--g0);border-color:var(--g2)}
+.mode-half:not(.on):hover{background:var(--bg2)}
+.mh-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.mh-icon{font-size:16px;color:var(--txt3)} .mode-half.on .mh-icon{color:var(--g6)}
+.mh-title{font-size:12px;font-weight:600;color:var(--txt2)} .mode-half.on .mh-title{color:var(--g6)}
+.mh-fields{font-size:11px;color:var(--txt3);font-family:var(--ffm)}
+.mode-half.on .mh-fields{color:var(--g6)}
+.mh-desc{font-size:11px;color:var(--txt3);line-height:1.5} .mode-half.on .mh-desc{color:var(--g6);opacity:.8}
+
+/* STEP CARDS */
+.ptoolbar{display:flex;gap:8px;align-items:center;margin-bottom:1rem;flex-wrap:wrap}
+.ptoolbar button{font-size:12px;padding:6px 12px;display:flex;align-items:center;gap:5px}
+.btn-tpl{background:var(--g0)!important;border-color:var(--g2)!important;color:var(--g6)!important}
+.btn-save-tpl{background:var(--p0)!important;border-color:var(--p1)!important;color:var(--p6)!important}
+.p-stat{font-size:12px;color:var(--txt2)}
+.p-kwh{font-size:12px;font-family:var(--ffm);color:var(--g6);font-weight:500;margin-left:auto}
+.step-card{border:1px solid var(--br);border-radius:var(--rad-sm);margin-bottom:8px;overflow:hidden}
+.step-hd{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg2);cursor:pointer;border-bottom:1px solid transparent}
+.step-hd.open{border-bottom-color:var(--br)}
+.step-num{font-size:10px;font-family:var(--ffm);color:var(--txt3);min-width:20px}
+.step-name-lbl{font-size:12px;font-weight:500;flex:1}
+.cat-badge{font-size:10px;padding:2px 8px;border-radius:100px;font-weight:500;flex-shrink:0}
+.cat-mfg{background:#dbeafe;color:#1e40af} .cat-hvac{background:#ede9fe;color:#4c1d95}
+.cat-util{background:#fef3c7;color:#78350f} .cat-qual{background:#d1fae5;color:#065f46}
+.cat-admin{background:#f3f4f6;color:#374151} .cat-pkg{background:#dcfce7;color:#166534}
+.step-del{background:none!important;border:none!important;color:var(--txt3)!important;padding:3px 6px!important;font-size:16px}
+.step-del:hover{color:#c44040!important} .step-del:active{transform:none}
+.chev{font-size:15px;color:var(--txt3);transition:transform .2s} .chev.open{transform:rotate(180deg)}
+
+.step-body{display:none} .step-body.open{display:block}
+.core-fields{padding:12px;border-bottom:1px solid var(--br)}
+.enrich-fields{padding:12px;background:var(--a0);display:none}
+.enrich-fields.show{display:block}
+.enrich-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.enrich-header i{color:var(--a6);font-size:16px}
+.enrich-header-txt{font-size:11px;font-weight:600;color:var(--a6)}
+.core-complete-bar{padding:8px 12px;background:var(--bg2);display:flex;align-items:center;gap:8px;font-size:11px;color:var(--txt3);cursor:pointer}
+.core-complete-bar:hover{background:var(--bg3)}
+.core-complete-bar i{font-size:14px;color:var(--a5)}
+
+.load-cls{display:flex;gap:6px;margin-top:4px}
+.load-btn{flex:1;font-size:11px;font-weight:500;padding:6px 4px;text-align:center;border:1px solid var(--br);border-radius:var(--rad-sm);cursor:pointer;background:var(--bg3);color:var(--txt2)}
+.load-btn.on-fixed{background:var(--b0);border-color:var(--b6);color:var(--b6)}
+.load-btn.on-semi{background:var(--a0);border-color:var(--a6);color:var(--a6)}
+.load-btn.on-prod{background:var(--g0);border-color:var(--g6);color:var(--g6)}
+.est-bar{background:var(--g0);border:1px solid var(--g1);border-radius:var(--rad-sm);padding:12px 16px;margin-top:1rem;display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.est-lbl{font-size:12px;color:var(--g6)} .est-sub{font-size:11px;color:var(--g6);opacity:.7;margin-top:2px}
+.est-val{font-size:18px;font-weight:600;font-family:var(--ffm);color:var(--g6)}
+
+/* TEMPLATE MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--bg3);border-radius:var(--rad-lg);padding:1.5rem;width:480px;max-width:90vw;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal-title{font-family:var(--ffh);font-size:16px;font-weight:600;margin-bottom:4px}
+.modal-sub{font-size:12px;color:var(--txt2);margin-bottom:1rem}
+.tpl-list{margin-bottom:1rem}
+.tpl-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--br);border-radius:var(--rad-sm);margin-bottom:6px;cursor:pointer}
+.tpl-row:hover{background:var(--bg2)}
+.tpl-icon{width:28px;height:28px;border-radius:6px;background:var(--g0);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tpl-icon i{color:var(--g6);font-size:14px}
+.tpl-info{flex:1}
+.tpl-name{font-size:12px;font-weight:500}
+.tpl-meta{font-size:11px;color:var(--txt3)}
+.tpl-steps{font-size:11px;color:var(--txt3);font-family:var(--ffm)}
+.modal-save-row{display:flex;gap:8px}
+.modal-save-row input{flex:1;font-size:13px}
+.modal-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--br)}
+.btn-cancel{font-size:12px;padding:7px 14px}
+.btn-confirm{font-size:12px;padding:7px 16px;background:var(--p6)!important;color:#fff!important;border-color:var(--p6)!important}
+
+/* DEPENDENCY MATRIX */
+.dep-how{background:var(--bg2);border:1px solid var(--br);border-radius:var(--rad-sm);padding:12px 14px;margin-bottom:12px}
+.dep-how-title{font-size:11px;font-weight:600;color:var(--txt2);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.dep-how-title i{font-size:14px;color:var(--txt3)}
+.dep-legend{display:flex;gap:12px;margin-bottom:6px;flex-wrap:wrap}
+.dep-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2)}
+.dep-matrix-wrap{overflow-x:auto;margin-top:.5rem}
+.dep-matrix{width:100%;border-collapse:collapse;font-size:11px}
+.dep-matrix th{text-align:left;padding:7px 10px;font-size:10px;font-weight:600;color:var(--txt3);border-bottom:2px solid var(--br);background:var(--bg2);text-transform:uppercase;letter-spacing:.05em}
+.dep-matrix th:first-child{min-width:160px}
+.dep-matrix th:not(:first-child){text-align:center;min-width:100px}
+.dep-matrix td{padding:7px 10px;border-bottom:1px solid var(--br)}
+.dep-matrix td:first-child{color:var(--txt);font-size:12px}
+.dep-matrix td:not(:first-child){text-align:center}
+.dep-matrix tr:last-child td{border-bottom:none}
+.dep-matrix tr.dep-runtime td{background:var(--bg2);font-weight:500;font-size:11px;border-top:2px solid var(--br)}
+.dep-matrix tr.dep-runtime td:first-child{color:var(--txt2)}
+.dep-matrix tr.dep-mismatch td{background:var(--a0)}
+.dep-matrix tr.dep-mismatch td:first-child{color:var(--a6);font-weight:500}
+.dep-check{color:var(--g6);font-size:16px}
+.dep-dash{color:var(--txt3)}
+.dep-num-ok{font-size:11px;font-family:var(--ffm);color:var(--g6)}
+.dep-num-warn{font-size:11px;font-family:var(--ffm);color:var(--a6);font-weight:500}
+.mismatch-bar{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--a0);border:1px solid var(--a2);border-radius:var(--rad-sm);margin-top:.5rem}
+.mismatch-bar i{color:var(--a6);font-size:18px;flex-shrink:0;margin-top:1px}
+.mismatch-txt{font-size:12px;color:var(--a6);line-height:1.7}
+
+/* REGISTER */
+.reg-summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
+.sum-card{padding:14px;border-radius:var(--rad-sm);border:1px solid}
+.sum-card.green{background:var(--g0);border-color:var(--g1)} .sum-card.amber{background:var(--a0);border-color:var(--a1)} .sum-card.purple{background:var(--p0);border-color:var(--p1)}
+.sum-lbl{font-size:11px;margin-bottom:4px} .sum-val{font-size:20px;font-weight:600;font-family:var(--ffm)} .sum-sub{font-size:11px;opacity:.7;margin-top:2px}
+.sum-card.green .sum-lbl,.sum-card.green .sum-val,.sum-card.green .sum-sub{color:var(--g6)}
+.sum-card.amber .sum-lbl,.sum-card.amber .sum-val,.sum-card.amber .sum-sub{color:var(--a6)}
+.sum-card.purple .sum-lbl,.sum-card.purple .sum-val,.sum-card.purple .sum-sub{color:var(--p6)}
+.reg-filter-bar{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+.rfbtn{font-size:11px;padding:5px 12px;border-radius:100px;cursor:pointer;border:1px solid var(--br);background:var(--bg3);color:var(--txt2)}
+.rfbtn.on{background:var(--g6);border-color:var(--g6);color:#fff}
+.rfbtn.on-quick{background:var(--p6);border-color:var(--p6);color:#fff}
+.reg-entry{border:1px solid var(--br);border-radius:var(--rad-sm);margin-bottom:8px;overflow:hidden}
+.reg-main{display:flex;align-items:flex-start;gap:12px;padding:12px}
+.reg-rank{font-size:13px;font-weight:600;font-family:var(--ffm);color:var(--txt3);min-width:24px;padding-top:2px}
+.reg-body{flex:1}
+.reg-title{font-size:13px;font-weight:500;margin-bottom:5px}
+.reg-pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:4px}
+.pill{font-size:10px;padding:2px 9px;border-radius:100px;font-weight:500}
+.pill-qw{background:var(--p0);color:var(--p6)} .pill-nc{background:var(--g0);color:var(--g6)} .pill-lc{background:var(--a0);color:var(--a6)}
+.pill-cap{background:var(--r0);color:var(--r6)} .pill-hconf{background:var(--g0);color:var(--g6)}
+.pill-mconf{background:var(--a0);color:var(--a6)} .pill-lconf{background:var(--bg2);color:var(--txt3)}
+.pill-src-map{background:var(--b0);color:var(--b6)} .pill-src-util{background:var(--a0);color:var(--a6)} .pill-src-obs{background:var(--g0);color:var(--g6)}
+.reg-affected{font-size:11px;color:var(--txt3)}
+.reg-right{text-align:right;flex-shrink:0;min-width:96px}
+.reg-saving{font-size:16px;font-weight:600;font-family:var(--ffm);color:var(--g6)}
+.reg-kwh{font-size:10px;color:var(--txt3)} .reg-score{font-size:10px;color:var(--txt3);margin-top:3px}
+.why-toggle{display:flex;align-items:center;gap:5px;padding:6px 12px;border-top:1px solid var(--br);background:var(--bg2);cursor:pointer;font-size:11px;color:var(--txt3)}
+.why-toggle:hover{background:var(--bg3)}
+.why-body{padding:12px;background:var(--bg2);border-top:1px solid var(--br);display:none;font-size:12px;color:var(--txt2);line-height:1.7}
+.why-body.open{display:block}
+.why-calc{font-family:var(--ffm);font-size:11px;background:var(--bg3);border:1px solid var(--br);border-radius:var(--rad-sm);padding:8px 12px;margin:8px 0}
+.why-note{font-size:11px;color:var(--txt3);margin-top:6px;font-style:italic}
+
+.empty-state{text-align:center;padding:2rem 1.5rem;color:var(--txt3);border:1px dashed var(--br);border-radius:var(--rad-lg)}
+.empty-state i{font-size:36px;display:block;margin-bottom:.625rem}
+.empty-state p{font-size:12px;margin-top:.375rem}
+.util-sec{margin-bottom:.75rem}
+.util-hd{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border:1px solid var(--br);border-radius:var(--rad-sm);cursor:pointer}
+.util-hd.open{border-radius:var(--rad-sm) var(--rad-sm) 0 0}
+.util-hd .uicon{font-size:18px;color:var(--txt2)} .util-hd .utitle{font-size:13px;font-weight:500;flex:1}
+.status-pill{font-size:10px;padding:2px 9px;border-radius:100px;font-weight:500}
+.pill-ok{background:var(--g0);color:var(--g6)} .pill-na{background:var(--bg2);color:var(--txt3);border:1px solid var(--br)}
+.uchev{font-size:15px;color:var(--txt3);transition:transform .2s} .util-hd.open .uchev{transform:rotate(180deg)}
+.util-body{border:1px solid var(--br);border-top:none;border-radius:0 0 var(--rad-sm) var(--rad-sm);padding:14px;display:none}
+.util-body.open{display:block}
+.mtable{width:100%;border-collapse:collapse}
+.mtable th{text-align:left;padding:6px 8px;font-size:11px;font-weight:600;color:var(--txt3);border-bottom:1px solid var(--br);text-transform:uppercase;letter-spacing:.05em}
+.mtable td{padding:3px 8px;border-bottom:1px solid var(--br)}
+.mtable td:first-child{color:var(--txt2);font-size:12px;width:120px}
+.mtable input{font-family:var(--ffm);font-size:12px;text-align:right;padding:4px 6px;border-radius:5px}
+.obs-card{border:1px solid var(--br);border-radius:var(--rad-sm);margin-bottom:8px;overflow:hidden}
+.obs-hd{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg2);cursor:pointer}
+.obs-hd.open{border-bottom:1px solid var(--br)}
+.obs-conf{font-size:10px;padding:2px 8px;border-radius:100px;font-weight:500}
+.conf-high{background:var(--g0);color:var(--g6)} .conf-med{background:var(--a0);color:var(--a6)} .conf-low{background:var(--bg2);color:var(--txt3)}
+.obs-body{padding:12px;display:none} .obs-body.open{display:block}
+.fix-btns{display:flex;gap:6px;margin-top:4px}
+.fix-btn{flex:1;font-size:11px;padding:5px 4px;text-align:center;border:1px solid var(--br);border-radius:var(--rad-sm);cursor:pointer;background:var(--bg3);color:var(--txt2)}
+.fix-btn.on{background:var(--g0);border-color:var(--g6);color:var(--g6)}
+.fix-btn.on-low{background:var(--a0);border-color:var(--a6);color:var(--a6)}
+.fix-btn.on-med{background:var(--b0);border-color:var(--b6);color:var(--b6)}
+.fix-btn.on-high{background:var(--r0);border-color:var(--r6);color:var(--r6)}
+.sec-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--br)}
+.btn-prev{font-size:12px;padding:8px 16px;color:var(--txt2)}
+.btn-next{font-size:12px;padding:8px 20px;background:var(--g6)!important;color:#fff!important;border-color:var(--g6)!important;font-weight:500}
+.btn-next:hover{background:var(--g7)!important}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TEMPLATE MODAL -->
+<div class="modal-overlay" id="tplModal">
+  <div class="modal">
+    <div class="modal-title">Process map templates</div>
+    <div class="modal-sub">Load a saved template or save your current process map for reuse across clients or future audits.</div>
+    <div class="tpl-list" id="tplList"></div>
+    <div style="font-size:11px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Save current map as template</div>
+    <div class="modal-save-row">
+      <input type="text" id="tplNameIn" placeholder="e.g. Sterile MedTech — machining & assembly">
+      <button onclick="saveTemplate()" style="font-size:12px;padding:7px 14px;background:var(--p0);border-color:var(--p1);color:var(--p6)">Save</button>
+    </div>
+    <div class="modal-foot"><button class="btn-cancel" onclick="closeTplModal()">Close</button></div>
+  </div>
+</div>
+
+<aside class="sb">
+  <div class="sb-top">
+    <div class="sb-logo">
+      <div class="sb-mark"><i class="ti ti-leaf"></i></div>
+      <span class="sb-title">TerraCAP</span>
+      <span class="sb-tier">ESS</span>
+    </div>
+    <div class="mode-seg">
+      <button class="mode-btn on" onclick="setMode('self')">Self-service</button>
+      <button class="mode-btn" onclick="setMode('consultant')">Consultant</button>
+    </div>
+    <div class="client-row" id="clientRow">
+      <label>Client entity</label>
+      <div class="client-dd">
+        <select id="clientSelect" onchange="selectClient(this.value)">
+          <option value="">— Select client —</option>
+          <option value="Mediplas Devices Pvt Ltd">Mediplas Devices Pvt Ltd</option>
+          <option value="Surgicare Instruments Ltd">Surgicare Instruments Ltd</option>
+          <option value="BioMed Systems Pvt Ltd">BioMed Systems Pvt Ltd</option>
+          <option value="__new__">+ Add new client…</option>
+        </select>
+      </div>
+      <div class="client-add" id="clientAddRow" style="display:none">
+        <input type="text" id="newClientIn" placeholder="Client entity name">
+        <button onclick="addClient()">Add</button>
+      </div>
+    </div>
+    <div class="sb-div"></div>
+  </div>
+  <nav class="nav">
+    <div class="ni on" id="ni1" onclick="goTo(1)"><div class="ndot cur" id="nd1"></div><span class="nlbl">Entity context</span><span class="npct" id="np1">0%</span></div>
+    <div class="ni" id="ni2" onclick="goTo(2)"><div class="ndot" id="nd2"></div><span class="nlbl">Production metric</span><span class="npct" id="np2">0%</span></div>
+    <div class="ni" id="ni3" onclick="goTo(3)"><div class="ndot" id="nd3"></div><span class="nlbl">Process map</span><span class="npct" id="np3">0%</span></div>
+    <div class="ni" id="ni4" onclick="goTo(4)"><div class="ndot" id="nd4"></div><span class="nlbl">Utility systems</span><span class="npct" id="np4">0%</span></div>
+    <div class="ni" id="ni5" onclick="goTo(5)"><div class="ndot" id="nd5"></div><span class="nlbl">Observations</span><span class="npct" id="np5">0%</span></div>
+    <div class="ni" id="ni6" onclick="goTo(6)"><div class="ndot" id="nd6"></div><span class="nlbl">Savings register</span><span class="npct" id="np6"></span></div>
+  </nav>
+  <div class="sb-where">
+    <div class="sb-where-lbl">You are here</div>
+    <div class="sb-where-path">
+      <span>Facility</span><i class="ti ti-chevron-right"></i>
+      <span style="color:var(--g6);font-weight:500">Operational Profile</span>
+    </div>
+  </div>
+  <div class="sb-foot">
+    <button class="save-btn-main" onclick="saveNow()"><i class="ti ti-device-floppy"></i><span id="saveBtnTxt">Save progress</span></button>
+    <div class="save-hint" id="saveHint">Not saved yet</div>
+  </div>
+</aside>
+
+<main class="mc" id="mc"></main>
+</div>
+
+<script>
+const MONTHS_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const CATS=['Manufacturing','HVAC/Conditioning','Utilities','Packaging','Quality & Testing','Administration','Other'];
+const SOURCES=['Grid electricity','DG electricity','Compressed air','Steam','LPG','HSD'];
+const LOSS_TYPES=['Machine left on overnight','Weekend base load','Air leaks','Over-ventilation','Over-cooling','Over-pressure','Idle sterilisation cycles','Excessive lighting','Other'];
+const CONSTRAINTS=['Cleanroom class','Sterility','Temperature control','Pressure','Uptime SLA'];
+const CAT_CLS={'Manufacturing':'cat-mfg','HVAC/Conditioning':'cat-hvac','Utilities':'cat-util','Quality & Testing':'cat-qual','Administration':'cat-admin','Packaging':'cat-pkg','Other':'cat-admin'};
+const LOSS_WEIGHT={'No-capex':1,'Low-capex':0.7,'Medium-capex':0.4,'High-capex':0.2};
+const CONF_WEIGHT={'High (directly observed)':1,'High':1,'Medium (inferred from data)':0.6,'Medium':0.6,'Low (reported by staff)':0.3,'Low':0.3};
+
+const TOOLTIPS={
+  sector:'Sets the industry benchmarking group. TerraCAP compares your energy intensity against similar facilities in the same sector.',
+  area:'Used to compute energy intensity per sq ft — a useful metric for benchmarking HVAC and lighting loads.',
+  shifts:'Together with hours per shift and days per week, this defines your maximum productive operating hours — the reference against which utility runtimes are compared.',
+  outputUnit:'This becomes the denominator for energy intensity: kWh per [unit]. Choosing the right unit is critical — use your primary finished product, not a raw material or intermediate.',
+  reportPeriod:'Select the 12-month period for which you have production volume data. TerraCAP uses this to establish your baseline energy intensity.',
+  ratedLoad:'Enter the total rated (nameplate) power of all equipment in this step, in kilowatts. This is used in the bottom-up consumption model. Use equipment spec sheets or electricity bills to verify.',
+  loadCls:'Fixed = runs regardless of output (e.g. HVAC, admin lighting). Semi-variable = can be optimised by scheduling (e.g. compressed air, sterilisers). Production-linked = scales directly with output (e.g. machining, moulding). This drives the savings analysis.',
+  idleHrs:'Time per shift that equipment is energised but not actively producing. Even 1 hour of idle time per shift for a 45 kW machine is ~1,000 kWh/month — often the single biggest no-capex opportunity.',
+  depMatrix:'This table shows which process steps depend on each shared utility system. The bottom row shows that utility\'s actual weekly runtime. If the runtime is much higher than the maximum hours any dependent step runs, the gap is potentially avoidable — often a no-capex scheduling fix.'
+};
+
+const S={
+  mode:'self',cur:1,clientName:'',clients:['Mediplas Devices Pvt Ltd','Surgicare Instruments Ltd','BioMed Systems Pvt Ltd'],
+  depOverrides:{}, // key: "stepIdx-utilKey" → true/false override
+  detailMode:'core',regFilter:'all',
+  s1:{sector:'',sub:'',area:'',areaUnit:'sq ft',emp:'',shifts:'',hrs:'',daysWk:'',wksYr:''},
+  s2:{unit:'',customUnit:'',reportYear:2025,reportStartMonth:3,months:Array(12).fill('')},
+  steps:[],
+  s4:{discom:'',conn:'HT',sload:'',tariff:'',bill:'',demand:false,submet:false,
+      compPresent:false,compType:'',compCap:'',compHrs:'',compDpw:'',leakage:false,
+      crPresent:false,crArea:'',isoClass:'',hvacLoad:'',hvacHpd:'',hvacDpw:''},
+  observations:[],
+  templates:[
+    {name:'Sterile MedTech — machining & assembly',sector:'MedTech',steps:9,builtin:true},
+    {name:'Pharma — oral solids manufacturing',sector:'Pharma',steps:8,builtin:true}
+  ],
+  comp:{1:0,2:0,3:0,4:0,5:0,6:0}
+};
+
+const TEMPLATE_MEDTECH=[
+  {name:'Raw material storage',cat:'Utilities',sources:['Grid electricity'],equip:'Cold storage, racks, forklifts',kw:5,hpd:24,dpw:7,loadCls:'Fixed',opMode:'Continuous',bottleneck:false,idleHrs:0,setupHrs:0,waitHrs:0,loss:[],peakDemand:false,constraints:[],notes:''},
+  {name:'CNC / precision machining',cat:'Manufacturing',sources:['Grid electricity','Compressed air'],equip:'CNC machining centres, lathes, milling machines',kw:45,hpd:8,dpw:6,loadCls:'Production-linked',opMode:'Batch',bottleneck:true,idleHrs:1.5,setupHrs:0.5,waitHrs:0.5,loss:[],peakDemand:true,constraints:[],notes:''},
+  {name:'Injection moulding',cat:'Manufacturing',sources:['Grid electricity'],equip:'Injection moulding machines, hot runner systems',kw:60,hpd:8,dpw:6,loadCls:'Production-linked',opMode:'Batch',bottleneck:false,idleHrs:1,setupHrs:1,waitHrs:0,loss:['Machine left on overnight'],peakDemand:true,constraints:[],notes:''},
+  {name:'Cleanroom assembly',cat:'Manufacturing',sources:['Grid electricity','Compressed air'],equip:'Assembly workstations, laminar flow hoods',kw:15,hpd:8,dpw:5,loadCls:'Production-linked',opMode:'Batch',bottleneck:false,idleHrs:0.5,setupHrs:0.5,waitHrs:0.5,loss:[],peakDemand:false,constraints:['Cleanroom class','Sterility'],notes:''},
+  {name:'ETO / autoclave sterilisation',cat:'Manufacturing',sources:['Grid electricity','Steam'],equip:'Autoclave units, ETO chambers, aeration rooms',kw:30,hpd:12,dpw:6,loadCls:'Semi-variable',opMode:'Batch',bottleneck:false,idleHrs:4,setupHrs:0.5,waitHrs:2,loss:['Idle sterilisation cycles'],peakDemand:false,constraints:['Sterility','Temperature control'],notes:'Runs overnight on non-production days'},
+  {name:'Packaging',cat:'Packaging',sources:['Grid electricity'],equip:'Blister packing, heat sealing, labelling, cartoning',kw:20,hpd:8,dpw:6,loadCls:'Production-linked',opMode:'Batch',bottleneck:false,idleHrs:0.5,setupHrs:0.5,waitHrs:0.5,loss:[],peakDemand:false,constraints:[],notes:''},
+  {name:'Quality testing & inspection',cat:'Quality & Testing',sources:['Grid electricity'],equip:'Testing instruments, inspection benches, microscopes',kw:10,hpd:8,dpw:5,loadCls:'Production-linked',opMode:'Intermittent',bottleneck:false,idleHrs:2,setupHrs:0,waitHrs:1,loss:[],peakDemand:false,constraints:['Sterility'],notes:''},
+  {name:'HVAC / cleanroom conditioning',cat:'HVAC/Conditioning',sources:['Grid electricity'],equip:'AHUs, chillers, cooling towers, FCUs',kw:50,hpd:24,dpw:7,loadCls:'Fixed',opMode:'Continuous',bottleneck:false,idleHrs:0,setupHrs:0,waitHrs:0,loss:['Weekend base load','Over-ventilation'],peakDemand:false,constraints:['Cleanroom class','Temperature control'],notes:'Runs 24×7; production steps need conditioning only during 8×5 hours'},
+  {name:'Administration & lighting',cat:'Administration',sources:['Grid electricity'],equip:'Computers, servers, lighting, UPS systems',kw:8,hpd:10,dpw:6,loadCls:'Fixed',opMode:'Continuous',bottleneck:false,idleHrs:0,setupHrs:0,waitHrs:0,loss:['Excessive lighting'],peakDemand:false,constraints:[],notes:''}
+];
+
+const DEFAULT_OBS=[
+  {title:'HVAC running 24×7 vs 8×5 production',affectedStep:7,issueType:'Scheduling gap',cause:'No automated shutdown schedule',conf:'High (directly observed)',fix:'Time-based HVAC scheduling; setback mode outside production hours',fixCat:'No-capex',savingKwh:4800,savingRs:38400,owner:'Maintenance in-charge',status:'Hypothesis',_open:false},
+  {title:'Autoclave idle on non-production days',affectedStep:4,issueType:'Idle running',cause:'No shutdown SOP; left on standby over weekends',conf:'High (directly observed)',fix:'Weekend shutdown SOP; interlock with production schedule',fixCat:'No-capex',savingKwh:1440,savingRs:11520,owner:'Production supervisor',status:'Hypothesis',_open:false},
+  {title:'Compressed air leakage — suspected',affectedStep:-1,issueType:'Air leak',cause:'Ageing distribution network; no leak detection programme',conf:'Medium (inferred from data)',fix:'Ultrasonic leak survey; tag and repair leaks',fixCat:'Low-capex',savingKwh:800,savingRs:6400,owner:'Maintenance engineer',status:'Hypothesis',_open:false}
+];
+
+function tip(key){return `<span class="tip-wrap"><span class="tip-icon" onclick="event.stopPropagation();this.parentNode.classList.toggle('open')">?</span><div class="tip-box">${TOOLTIPS[key]||''}</div></span>`;}
+function setMode(m){S.mode=m;document.querySelectorAll('.mode-btn').forEach(b=>b.classList.toggle('on',b.textContent.trim().toLowerCase().startsWith(m.substr(0,4))));document.getElementById('clientRow').classList.toggle('show',m==='consultant');render();}
+function selectClient(v){if(v==='__new__'){document.getElementById('clientAddRow').style.display='flex';document.getElementById('clientSelect').value=S.clientName||'';}else{S.clientName=v;document.getElementById('clientAddRow').style.display='none';document.querySelectorAll('.client-tag').forEach(el=>{el.innerHTML=`<i class="ti ti-building"></i>${v||'No client selected'}`;});}}
+function addClient(){const n=document.getElementById('newClientIn').value.trim();if(!n)return;S.clients.push(n);S.clientName=n;document.getElementById('clientAddRow').style.display='none';render();}
+function goTo(n){collectCurrent();S.cur=n;[1,2,3,4,5,6].forEach(i=>{document.getElementById('ni'+i).classList.toggle('on',i===n);updateDot(i);});render();window.scrollTo(0,0);}
+function saveAndGo(n){collectCurrent();calcComp();updateAllDots();goTo(n);}
+function collectCurrent(){if(S.cur===1)collectS1();if(S.cur===2)collectS2();calcComp();updateAllDots();}
+function calcComp(){
+  const r=['sector','sub','area','emp','shifts','hrs','daysWk','wksYr'];
+  S.comp[1]=Math.round(r.filter(k=>S.s1[k]&&String(S.s1[k]).trim()).length/r.length*100);
+  let c=S.s2.unit?50:0;c+=Math.round(S.s2.months.filter(m=>m&&parseFloat(m)>0).length/12*50);S.comp[2]=c;
+  S.comp[3]=S.steps.length===0?0:Math.min(100,Math.round(S.steps.length/6*100));
+  let c4=0;if(S.s4.discom)c4+=25;if(S.s4.sload)c4+=25;if(S.s4.bill)c4+=25;if(S.s4.conn)c4+=25;S.comp[4]=c4;
+  S.comp[5]=Math.min(100,Math.round(S.observations.length/3*100));
+  S.comp[6]=registerEntries().length>0?100:0;
+}
+function updateDot(i){const nd=document.getElementById('nd'+i);const p=S.comp[i];nd.className='ndot'+(p>=100?' done':p>0?' part':'')+(i===S.cur?' cur':'');document.getElementById('np'+i).textContent=i===6?(registerEntries().length>0?registerEntries().length+' items':''):p+'%';}
+function updateAllDots(){[1,2,3,4,5,6].forEach(i=>updateDot(i));}
+function overallPct(){return Math.round([S.comp[1],S.comp[2],S.comp[3],S.comp[4]].reduce((a,b)=>a+b,0)/4);}
+function saveNow(){collectCurrent();const t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});document.getElementById('saveHint').textContent='Saved at '+t;const b=document.getElementById('saveBtnTxt');b.textContent='Saved ✓';setTimeout(()=>b.textContent='Save progress',2000);}
+function collectS1(){const ids={sector:'f-sector',sub:'f-sub',area:'f-area',areaUnit:'f-aunit',emp:'f-emp',shifts:'f-shifts',hrs:'f-hrs',daysWk:'f-dayswk',wksYr:'f-wksyr'};Object.keys(ids).forEach(k=>{const e=document.getElementById(ids[k]);if(e)S.s1[k]=e.value;});}
+function collectS2(){const u=document.getElementById('f-unit');if(u)S.s2.unit=u.value;const cu=document.getElementById('f-custunit');if(cu&&S.s2.unit==='Other')S.s2.customUnit=cu.value;getMonthIds().forEach((id,i)=>{const e=document.getElementById(id);if(e)S.s2.months[i]=e.value;});}
+function getMonthIds(){return Array.from({length:12},(_,i)=>'mo'+i);}
+function getMonthLabels(){const start=S.s2.reportStartMonth;const yr=S.s2.reportYear;return Array.from({length:12},(_,i)=>{const m=(start+i)%12;const y=yr+(start+i>=12?1:0);return MONTHS_SHORT[m]+' '+y;});}
+function estKwh(){return S.steps.reduce((t,st)=>t+(parseFloat(st.kw)||0)*(parseFloat(st.hpd)||0)*(parseFloat(st.dpw)||0)*4.33,0);}
+function render(){document.getElementById('mc').innerHTML=[renderS1,renderS2,renderS3,renderS4,renderS5,renderS6][S.cur-1]();}
+function progBar(p){return `<div class="prog-wrap"><div class="prog-track"><div class="prog-fill" style="width:${p}%"></div></div><div class="prog-labels"><span>Profile completion</span><span>${p}%</span></div></div>`;}
+function clientTag(){return S.mode==='consultant'?`<span class="client-tag"><i class="ti ti-building"></i>${S.clientName||'No client selected'}</span>`:'';}
+function enablesBanner(items,icon='ti-plug'){return `<div class="enables-bar"><i class="ti ${icon} main-icon"></i><div class="enables-content"><div class="enables-title">Completing this section enables</div><div class="enables-items">${items.map(i=>`<span class="enables-pill">${i}</span>`).join('')}</div></div></div>`;}
+
+function renderS1(){
+  const d=S.s1;const p=overallPct();
+  const secs=['Pharma','MedTech','Textile','Food processing','Auto components','Chemicals','Ceramics','Paper','Electronics','Other'];
+  const emps=['< 50','50 – 200','200 – 500','500+'];const shifts=['1 shift','2 shifts','3 shifts','Continuous (24 h)'];
+  const sel=(opts,val)=>opts.map(o=>`<option value="${o}"${val===o?' selected':''}>${o}</option>`).join('');
+  return `<div class="sec-hd"><h2>Entity context</h2><p>Basic information about your facility and how it operates. This is the benchmarking foundation — it tells the system what kind of facility you are and how many hours it runs.</p>${clientTag()}</div>
+  ${enablesBanner(['Industry benchmarking','Operating hours baseline','Zone-level aggregation'],'ti-building')}
+  ${progBar(p)}
+  <div class="card"><div class="card-ttl">Industry & product</div>
+    <div class="fg f2">
+      <div class="fl"><label>Industry sector ${tip('sector')}</label><select id="f-sector" onchange="S.s1.sector=this.value"><option value="">Select…</option>${sel(secs,d.sector)}</select></div>
+      <div class="fl"><label>Sub-sector / product description</label><input type="text" id="f-sub" placeholder="e.g. Surgical sutures and wound care" value="${d.sub}" onchange="S.s1.sub=this.value"></div>
+    </div>
+    <div class="fg f2">
+      <div class="fl"><label>Facility area ${tip('area')}</label><div class="fi"><input type="number" id="f-area" placeholder="e.g. 12000" value="${d.area}" min="0" onchange="S.s1.area=this.value"><select id="f-aunit" onchange="S.s1.areaUnit=this.value"><option value="sq ft">sq ft</option><option value="sq m">sq m</option></select></div></div>
+      <div class="fl"><label>Employees</label><select id="f-emp" onchange="S.s1.emp=this.value"><option value="">Select…</option>${sel(emps,d.emp)}</select></div>
+    </div>
+  </div>
+  <div class="card"><div class="card-ttl">Operating schedule ${tip('shifts')}</div>
+    <div class="fg f2">
+      <div class="fl"><label>Shifts per day</label><select id="f-shifts" onchange="S.s1.shifts=this.value"><option value="">Select…</option>${sel(shifts,d.shifts)}</select></div>
+      <div class="fl"><label>Hours per shift</label><input type="number" id="f-hrs" placeholder="e.g. 8" min="1" max="24" value="${d.hrs}" onchange="S.s1.hrs=this.value"></div>
+    </div>
+    <div class="fg f2">
+      <div class="fl"><label>Operating days per week</label><input type="number" id="f-dayswk" placeholder="1–7" min="1" max="7" value="${d.daysWk}" onchange="S.s1.daysWk=this.value"></div>
+      <div class="fl"><label>Operating weeks per year</label><input type="number" id="f-wksyr" placeholder="e.g. 50" min="1" max="52" value="${d.wksYr}" onchange="S.s1.wksYr=this.value"></div>
+    </div>
+  </div>
+  <div class="sec-foot"><button class="btn-next" onclick="saveAndGo(2)">Save & continue <i class="ti ti-arrow-right"></i></button></div>`;
+}
+
+function renderS2(){
+  const d=S.s2;const p=overallPct();
+  const unitOpts=['Units (pieces)','Batches','Kg','MT','Litres','sq m','Revenue (₹ lakhs)','Other'];
+  const years=[2023,2024,2025];const months=MONTHS_SHORT.map((m,i)=>({v:i,l:m}));
+  const labels=getMonthLabels();
+  return `<div class="sec-hd"><h2>Production metric</h2><p>This defines the denominator for energy intensity. Every kWh of consumption will be divided by your output to compute kWh per unit — the number that shows whether your efficiency is genuinely improving as production volumes change.</p>${clientTag()}</div>
+  ${enablesBanner(['Energy intensity tracking','Baseline consumption model','Meaningful savings comparison quarter-on-quarter'],'ti-chart-line')}
+  ${progBar(p)}
+  <div class="card"><div class="card-ttl">Output unit definition ${tip('outputUnit')}</div>
+    <div class="fg f2">
+      <div class="fl"><label>Primary output unit</label><select id="f-unit" onchange="S.s2.unit=this.value;render()"><option value="">Select…</option>${unitOpts.map(u=>`<option value="${u}"${d.unit===u?' selected':''}>${u}</option>`).join('')}</select></div>
+      <div class="fl"><label>Unit label</label><input type="text" id="f-custunit" ${d.unit!=='Other'?'disabled':''} placeholder="${d.unit==='Other'?'e.g. sterile packs, procedure kits':d.unit||'Select a unit type first'}" value="${d.unit==='Other'?d.customUnit:(d.unit||'')}" onchange="S.s2.customUnit=this.value"></div>
+    </div>
+  </div>
+  <div class="card"><div class="card-ttl">Reporting period ${tip('reportPeriod')}</div>
+    <div class="fg f2" style="margin-bottom:0">
+      <div class="fl"><label>Financial year</label><select id="f-repyear" onchange="S.s2.reportYear=parseInt(this.value);render()">${years.map(y=>`<option value="${y}"${d.reportYear===y?' selected':''}>FY ${y}–${String(y+1).slice(2)}</option>`).join('')}</select></div>
+      <div class="fl"><label>Period starts</label><select id="f-repstart" onchange="S.s2.reportStartMonth=parseInt(this.value);render()">${months.map(m=>`<option value="${m.v}"${d.reportStartMonth===m.v?' selected':''}>${m.l}</option>`).join('')}</select></div>
+    </div>
+  </div>
+  <div class="card"><div class="card-ttl">Monthly production volumes — ${labels[0]} to ${labels[11]}</div>
+    <p style="font-size:12px;color:var(--txt2);margin-bottom:.875rem">Enter output in <strong>${d.unit&&d.unit!=='Other'?d.unit:(d.customUnit||'the unit selected above')}</strong>. Partial data is fine — the baseline model uses whatever months are available. Enter at least 3 months to activate the intensity chart.</p>
+    <table class="mtable"><thead><tr><th>Month</th><th style="text-align:right">Output</th></tr></thead>
+    <tbody>${labels.map((l,i)=>`<tr><td>${l}</td><td><input type="number" id="mo${i}" placeholder="—" value="${d.months[i]||''}" min="0" step="any" onchange="S.s2.months[${i}]=this.value"></td></tr>`).join('')}</tbody></table>
+  </div>
+  <div class="sec-foot"><button class="btn-prev" onclick="saveAndGo(1)"><i class="ti ti-arrow-left"></i> Previous</button><button class="btn-next" onclick="saveAndGo(3)">Save & continue <i class="ti ti-arrow-right"></i></button></div>`;
+}
+
+function stepCard(st,i){
+  const cc=CAT_CLS[st.cat]||'cat-admin';const isOpen=st._open;const isCore=S.detailMode==='core';
+  const hasLoss=(st.loss&&st.loss.length>0)||(parseFloat(st.idleHrs)>1);
+  const lcMap={'Fixed':'on-fixed','Semi-variable':'on-semi','Production-linked':'on-prod'};
+  const omOpts=['Batch','Continuous','Intermittent'];
+  const kw=parseFloat(st.kw)||0;const hpd=parseFloat(st.hpd)||0;const dpw=parseFloat(st.dpw)||0;
+  const stepKwh=Math.round(kw*hpd*dpw*4.33);
+  return `<div class="step-card" id="sc${i}">
+    <div class="step-hd${isOpen?' open':''}" onclick="toggleStep(${i})">
+      <span class="step-num">${String(i+1).padStart(2,'0')}</span>
+      <span class="step-name-lbl" id="sn${i}">${st.name||'Unnamed step'}</span>
+      ${stepKwh>0?`<span style="font-size:10px;font-family:var(--ffm);color:var(--txt3)">${stepKwh.toLocaleString('en-IN')} kWh/mo</span>`:''}
+      <span class="cat-badge ${cc}" id="scb${i}">${st.cat}</span>
+      ${hasLoss&&!isCore?`<span title="Loss signals present" style="width:7px;height:7px;border-radius:50%;background:var(--a5);flex-shrink:0"></span>`:''}
+      <button class="step-del" onclick="event.stopPropagation();deleteStep(${i})" aria-label="Delete"><i class="ti ti-trash"></i></button>
+      <i class="ti ti-chevron-down chev${isOpen?' open':''}"></i>
+    </div>
+    <div class="step-body${isOpen?' open':''}" id="sb-body${i}">
+      <!-- CORE FIELDS: always visible when step is expanded -->
+      <div class="core-fields">
+        <div class="fg f2" style="margin-bottom:8px">
+          <div class="fl"><label>Step name</label><input type="text" value="${st.name}" placeholder="e.g. Autoclave sterilisation" onchange="S.steps[${i}].name=this.value;document.getElementById('sn${i}').textContent=this.value||'Unnamed step'"></div>
+          <div class="fl"><label>Process category</label><select onchange="S.steps[${i}].cat=this.value;const b=document.getElementById('scb${i}');b.textContent=this.value;b.className='cat-badge '+(CAT_CLS[this.value]||'cat-admin')">${CATS.map(c=>`<option value="${c}"${st.cat===c?' selected':''}>${c}</option>`).join('')}</select></div>
+        </div>
+        <div class="fl" style="margin-bottom:10px"><label>Energy sources <span style="font-size:10px;color:var(--txt3);font-weight:400">(select all that apply)</span></label>
+          <div class="chip-group">${SOURCES.map(src=>`<span class="chip${(st.sources||[]).includes(src)?' sel':''}" onclick="toggleSrc(${i},'${src}',this)">${src}</span>`).join('')}</div>
+        </div>
+        <div class="fg f3">
+          <div class="fl"><label>Rated load (kW) ${tip('ratedLoad')}</label><input type="number" value="${st.kw||''}" placeholder="kW" min="0" step="any" onchange="S.steps[${i}].kw=parseFloat(this.value)||0;refreshKwh()"></div>
+          <div class="fl"><label>Hours per day</label><input type="number" value="${st.hpd||''}" placeholder="hrs" min="0" max="24" onchange="S.steps[${i}].hpd=parseFloat(this.value)||0;refreshKwh()"></div>
+          <div class="fl"><label>Days per week</label><input type="number" value="${st.dpw||''}" placeholder="days" min="1" max="7" onchange="S.steps[${i}].dpw=parseFloat(this.value)||0;refreshKwh()"></div>
+        </div>
+        ${!isCore?'':` <div style="font-size:11px;color:var(--txt3);margin-top:10px;padding-top:10px;border-top:1px dashed var(--br);display:flex;align-items:center;gap:6px"><i class="ti ti-lock" style="font-size:13px"></i>Switch to <strong>Enrichment mode</strong> to add load classification, idle time, loss signals, and constraints — these generate the savings hypotheses.</div>`}
+      </div>
+      <!-- ENRICHMENT FIELDS: hidden in Core mode -->
+      <div class="enrich-fields${isCore?'':' show'}" id="ef${i}">
+        <div class="enrich-header"><i class="ti ti-microscope"></i><span class="enrich-header-txt">Diagnostic detail — enrichment fields</span></div>
+        <div class="fl" style="margin-bottom:12px"><label>Load classification ${tip('loadCls')}</label>
+          <div class="load-cls">${['Fixed','Semi-variable','Production-linked'].map(cls=>`<div class="load-btn${st.loadCls===cls?' '+lcMap[cls]:''}" onclick="S.steps[${i}].loadCls='${cls}';render()">${cls}</div>`).join('')}</div>
+        </div>
+        <div class="fg f2" style="margin-bottom:12px">
+          <div class="fl"><label>Operation mode</label><select onchange="S.steps[${i}].opMode=this.value">${omOpts.map(o=>`<option value="${o}"${st.opMode===o?' selected':''}>${o}</option>`).join('')}</select></div>
+          <div class="fl" style="justify-content:flex-end"><div class="trow" style="border:none;padding:6px 0 0;gap:8px"><label style="font-size:12px">Bottleneck / pace-setting step?</label><input type="checkbox" ${st.bottleneck?'checked':''} onchange="S.steps[${i}].bottleneck=this.checked"></div></div>
+        </div>
+        <div class="fg f3" style="margin-bottom:12px">
+          <div class="fl"><label>Idle time / shift (hrs) ${tip('idleHrs')}</label><input type="number" value="${st.idleHrs||''}" placeholder="e.g. 1.5" min="0" step="0.5" onchange="S.steps[${i}].idleHrs=parseFloat(this.value)||0"></div>
+          <div class="fl"><label>Setup / changeover (hrs)</label><input type="number" value="${st.setupHrs||''}" placeholder="e.g. 0.5" min="0" step="0.5" onchange="S.steps[${i}].setupHrs=parseFloat(this.value)||0"></div>
+          <div class="fl"><label>Waiting time (hrs)</label><input type="number" value="${st.waitHrs||''}" placeholder="e.g. 0.5" min="0" step="0.5" onchange="S.steps[${i}].waitHrs=parseFloat(this.value)||0"></div>
+        </div>
+        <div class="fl" style="margin-bottom:12px"><label>Known avoidable losses at this step</label>
+          <div class="chip-group">${LOSS_TYPES.map(l=>`<span class="chip${(st.loss||[]).includes(l)?' sel-amber':''}" onclick="toggleLoss(${i},'${l}',this)">${l}</span>`).join('')}</div>
+        </div>
+        <div class="fl" style="margin-bottom:12px"><label>Critical operating constraints (cannot be compromised)</label>
+          <div class="chip-group">${CONSTRAINTS.map(c=>`<span class="chip${(st.constraints||[]).includes(c)?' sel-red':''}" onclick="toggleConstraint(${i},'${c}',this)">${c}</span>`).join('')}</div>
+        </div>
+        <div class="trow" style="border:none;padding:6px 0 0;gap:8px"><label>Coincides with facility peak demand window?</label><input type="checkbox" ${st.peakDemand?'checked':''} onchange="S.steps[${i}].peakDemand=this.checked"></div>
+      </div>
+      <div style="padding:10px 12px;border-top:1px solid var(--br)">
+        <div class="fl"><label>Notes</label><textarea placeholder="Additional context, observations, or known issues" onchange="S.steps[${i}].notes=this.value">${st.notes||''}</textarea></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function depMatrixNeeds(si,u){
+  const s=S.steps[si];const ovKey=si+'-'+u.key;
+  if(ovKey in S.depOverrides)return S.depOverrides[ovKey];
+  if(u.key==='air')return !!(s.sources&&s.sources.includes('Compressed air'));
+  if(u.key==='hvac')return s.cat==='HVAC/Conditioning'||(s.constraints&&s.constraints.includes('Cleanroom class'));
+  if(u.key==='steam')return !!(s.sources&&s.sources.includes('Steam'));
+  return false;
+}
+function toggleDep(si,ukey){
+  const ovKey=si+'-'+ukey;
+  const cur=depMatrixNeeds(si,{key:ukey});
+  S.depOverrides[ovKey]=!cur;
+  // re-render just the matrix area
+  const wrap=document.getElementById('depMatrixWrap');
+  if(wrap){const tmp=document.createElement('div');tmp.innerHTML=depMatrix();wrap.replaceWith(tmp.firstChild);}
+}
+function depMatrix(){
+  if(S.steps.length===0)return '';
+  const utils=[];
+  if(S.steps.some(s=>s.sources&&s.sources.includes('Compressed air')))utils.push({key:'air',label:'Compressed air'});
+  if(S.steps.some(s=>s.cat==='HVAC/Conditioning'||(s.constraints&&s.constraints.includes('Cleanroom class'))))utils.push({key:'hvac',label:'Cleanroom / HVAC'});
+  if(S.steps.some(s=>s.sources&&s.sources.includes('Steam')))utils.push({key:'steam',label:'Steam / sterilisation'});
+  if(utils.length===0)return '';
+
+  // Required runtime per utility = max hrs/week of any step that depends on it
+  const utilRequired={};
+  const utilActual={air:0,hvac:0,steam:0};
+  utils.forEach(u=>{
+    const depSteps=S.steps.filter((_,si)=>depMatrixNeeds(si,u));
+    utilRequired[u.key]=depSteps.length>0?Math.max(...depSteps.map(s=>(parseFloat(s.hpd)||0)*(parseFloat(s.dpw)||0))):0;
+  });
+  // Actual runtime from process step entries (for HVAC, from the HVAC step itself; for others, from utility section later)
+  const hvacStep=S.steps.find(s=>s.cat==='HVAC/Conditioning');
+  if(hvacStep)utilActual.hvac=(parseFloat(hvacStep.hpd)||0)*(parseFloat(hvacStep.dpw)||0);
+  const compStep=S.steps.find(s=>s.sources&&s.sources.includes('Compressed air')&&s.cat==='Utilities');
+  if(compStep)utilActual.air=(parseFloat(compStep.hpd)||0)*(parseFloat(compStep.dpw)||0);
+
+  const rows=S.steps.map((s,si)=>`<tr>
+    <td style="font-size:12px">${s.name||'Unnamed step '+(si+1)}</td>
+    ${utils.map(u=>{
+      const checked=depMatrixNeeds(si,u);
+      const isAuto=!(si+'-'+u.key in S.depOverrides);
+      return `<td><span
+        onclick="toggleDep(${si},'${u.key}')"
+        title="${checked?'Click to mark as NOT dependent':'Click to mark as DEPENDENT'}"
+        style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;cursor:pointer;border:1.5px solid ${checked?'var(--g6)':'var(--br)'};background:${checked?'var(--g0)':'var(--bg3)'};transition:all .15s;user-select:none"
+        title="${isAuto?'Auto-detected from step data — click to override':'Manually set — click to toggle'}">
+        ${checked?'<i class="ti ti-check" style="color:var(--g6);font-size:14px"></i>':'<span style="color:var(--txt3);font-size:11px">—</span>'}
+        </span>${!isAuto?'<span title="Manually overridden" style="font-size:8px;color:var(--a6);margin-left:2px;vertical-align:top">✎</span>':''}</td>`;
+    }).join('')}
+  </tr>`).join('');
+
+  // Required row
+  const reqRow=`<tr style="background:var(--bg2);border-top:2px solid var(--br)">
+    <td style="font-size:11px;font-weight:600;color:var(--txt2)">Min. runtime required (hrs/week)</td>
+    ${utils.map(u=>`<td><span style="font-size:11px;font-family:var(--ffm);color:var(--g6);font-weight:500">${utilRequired[u.key]||'—'}</span></td>`).join('')}
+  </tr>`;
+
+  // Actual runtime row with mismatch highlighting
+  const actRow=`<tr style="border-top:1px solid var(--br)">
+    <td style="font-size:11px;font-weight:600;color:var(--txt2)">Actual runtime (hrs/week) <span style="font-weight:400;color:var(--txt3)">from step data</span></td>
+    ${utils.map(u=>{
+      const act=utilActual[u.key]||0;const req=utilRequired[u.key]||0;
+      const warn=act>0&&req>0&&act>req*1.2;const gap=warn?Math.round(act-req):0;
+      return `<td>${act>0
+        ?`<span style="font-size:11px;font-family:var(--ffm);font-weight:600;color:${warn?'var(--a6)':'var(--g6)'}">${act} hrs${warn?` <span style="font-size:10px">⚠ +${gap} excess</span>`:''}</span>`
+        :'<span style="color:var(--txt3);font-size:11px">enter in step</span>'}</td>`;
+    }).join('')}
+  </tr>`;
+
+  // Gap / savings row
+  const gapRows=utils.map(u=>{
+    const act=utilActual[u.key]||0;const req=utilRequired[u.key]||0;
+    if(act>0&&req>0&&act>req*1.2){
+      const hvacSt=S.steps.find(s=>s.cat==='HVAC/Conditioning');const kw=u.key==='hvac'&&hvacSt?parseFloat(hvacSt.kw)||50:20;
+      const gap=Math.round(act-req);const savK=Math.round(kw*gap*4.33*0.4);
+      return `<div class="mismatch-bar" style="margin-top:8px"><i class="ti ti-alert-triangle"></i><div class="mismatch-txt">
+        <strong>${u.label} mismatch → Savings hypothesis.</strong><br>
+        Actual runtime: <strong>${act} hrs/week</strong> · Required by dependent steps: <strong>${req} hrs/week</strong><br>
+        Gap: <strong>${gap} hrs/week</strong> × ${kw} kW × 4.33 × 40% modulation = <strong>~${savK.toLocaleString('en-IN')} kWh/month</strong> potentially avoidable.
+        This feeds directly into the Savings Register as a no-capex hypothesis.
+      </div></div>`;
+    }return '';
+  }).join('');
+
+  return `<div id="depMatrixWrap"><div style="font-size:10px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.07em;margin:1.25rem 0 .875rem;display:flex;align-items:center;gap:10px">Process-to-utility dependency analysis<span style="flex:1;height:1px;background:var(--br)"></span></div>
+  <div class="card"><div class="card-ttl">Dependency matrix ${tip('depMatrix')}</div>
+    <div class="dep-how">
+      <div class="dep-how-title"><i class="ti ti-book-2"></i>How to use this table</div>
+      <div style="font-size:12px;color:var(--txt2);line-height:1.7;margin-bottom:8px">
+        <strong>Click any cell</strong> to mark or unmark whether that step depends on a utility. Cells are pre-filled from your energy source selections above — override them here if needed. A pencil (✎) indicates a manual override.<br><br>
+        The <strong>Min. runtime required</strong> row shows the maximum hours/week any dependent step runs — this is the minimum that utility must operate. The <strong>Actual runtime</strong> row shows what the step data implies. <strong>A large gap = wasted energy = a no-capex savings hypothesis.</strong>
+      </div>
+      <div class="dep-legend">
+        <div class="dep-leg-item"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;border:1.5px solid var(--g6);background:var(--g0)"><i class="ti ti-check" style="color:var(--g6);font-size:12px"></i></span>Step depends on this utility</div>
+        <div class="dep-leg-item"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:4px;border:1.5px solid var(--br);background:var(--bg3);color:var(--txt3);font-size:11px">—</span>No dependency</div>
+        <div class="dep-leg-item"><span style="color:var(--a6);font-weight:600">⚠ +N excess</span>Actual > required → savings opportunity</div>
+      </div>
+    </div>
+    <div class="dep-matrix-wrap"><table class="dep-matrix">
+      <thead><tr><th>Process step</th>${utils.map(u=>`<th>${u.label}</th>`).join('')}</tr></thead>
+      <tbody>${rows}${reqRow}${actRow}</tbody>
+    </table></div>
+    ${gapRows}
+  </div></div>`;
+}
+
+function renderS3(){
+  const kwh=estKwh();const p=overallPct();const isCore=S.detailMode==='core';
+  const stepHtml=S.steps.length===0
+    ?`<div class="empty-state"><i class="ti ti-sitemap"></i><strong>No process steps yet</strong><p>Use a template to pre-populate steps for your sector,<br>or add steps manually to build a custom process map.</p></div>`
+    :S.steps.map((st,i)=>stepCard(st,i)).join('');
+  return `<div class="sec-hd"><h2>Process map</h2><p>Map each major energy-consuming process step in your facility. The core fields (5 per step) are enough to generate the bottom-up consumption estimate and the dependency matrix. Enrichment fields add the diagnostic detail that generates savings hypotheses.</p>${clientTag()}</div>
+  ${enablesBanner(['Bottom-up consumption estimate','Utility dependency mismatch detection','Savings hypothesis generation'],'ti-sitemap')}
+  ${progBar(p)}
+  <div class="mode-bar">
+    <div class="mode-half${isCore?' on':''}" onclick="S.detailMode='core';render()">
+      <div class="mh-top"><i class="ti ti-bolt mh-icon"></i><span class="mh-title">Core onboarding</span></div>
+      <div class="mh-fields">${isCore?'▶ Active':'Click to switch'} · 5 fields per step</div>
+      <div class="mh-desc" style="margin-top:4px">Step name, category, energy sources, rated load, hours, days. Generates the consumption estimate and dependency matrix. Complete in one session.</div>
+    </div>
+    <div class="mode-half${!isCore?' on':''}" onclick="S.detailMode='enrich';render()">
+      <div class="mh-top"><i class="ti ti-microscope mh-icon"></i><span class="mh-title">Enrichment</span></div>
+      <div class="mh-fields">${!isCore?'▶ Active':'Click to switch'} · 12 fields per step</div>
+      <div class="mh-desc" style="margin-top:4px">Adds load classification, idle time, setup time, avoidable loss signals, and constraints. Powers the savings hypotheses. Best done on a second pass or during site walkthrough.</div>
+    </div>
+  </div>
+  <div class="ptoolbar">
+    <button class="btn-tpl" onclick="openTplModal()"><i class="ti ti-template"></i> Templates</button>
+    <button onclick="addStep()"><i class="ti ti-plus"></i> Add step</button>
+    <button class="btn-save-tpl" onclick="openTplModal(true)"><i class="ti ti-bookmark"></i> Save as template</button>
+    <span class="p-stat">${S.steps.length} step${S.steps.length!==1?'s':''}</span>
+    ${kwh>0?`<span class="p-kwh"><i class="ti ti-bolt" style="font-size:13px;vertical-align:-1px"></i> ~${Math.round(kwh).toLocaleString('en-IN')} kWh/month</span>`:''}
+  </div>
+  ${stepHtml}
+  ${kwh>0?`<div class="est-bar"><div><div class="est-lbl">Bottom-up consumption estimate</div><div class="est-sub">Sum of rated loads × operating hours · compare against your actual monthly bills to find unexplained consumption</div></div><div style="text-align:right"><div class="est-val" id="estKwh">${Math.round(kwh).toLocaleString('en-IN')} kWh/month</div><div style="font-size:11px;color:var(--g6);opacity:.7" id="estRs">≈ ₹${Math.round(kwh*8).toLocaleString('en-IN')}/month at ₹8/kWh</div></div></div>`:''}
+  ${depMatrix()}
+  <div class="sec-foot"><button class="btn-prev" onclick="saveAndGo(2)"><i class="ti ti-arrow-left"></i> Previous</button><button class="btn-next" onclick="saveAndGo(4)">Save & continue <i class="ti ti-arrow-right"></i></button></div>`;
+}
+
+function renderS4(){
+  const d=S.s4;const p=overallPct();
+  return `<div class="sec-hd"><h2>Utility systems</h2><p>Shared infrastructure is often the largest and least visible energy consumer. Enter actual operating hours — the system compares these against the process dependency matrix to validate savings hypotheses from Section 3.</p>${clientTag()}</div>
+  ${enablesBanner(['Dependency matrix validation','Compressed air leakage hypothesis','HVAC scheduling savings estimate'],'ti-plug')}
+  ${progBar(p)}
+  <div class="util-sec">
+    <div class="util-hd open" id="uh-elec" onclick="toggleUtil('elec')"><i class="ti ti-bolt uicon"></i><span class="utitle">Electricity connection <span style="font-size:10px;font-weight:400;color:var(--txt3)">(required)</span></span><span class="status-pill ${d.discom&&d.sload&&d.bill?'pill-ok':'pill-na'}">${d.discom&&d.sload&&d.bill?'Complete':'Incomplete'}</span><i class="ti ti-chevron-down uchev"></i></div>
+    <div class="util-body open" id="ub-elec">
+      <div style="font-size:12px;color:var(--txt2);margin-bottom:12px">The monthly bill and sanctioned load are used to compute your blended tariff (₹/kWh) — which converts kWh savings into rupee savings in the register.</div>
+      <div class="fg f2"><div class="fl"><label>Discom / provider</label><input type="text" value="${d.discom}" placeholder="e.g. APEPDCL, BESCOM, MSEDCL" onchange="S.s4.discom=this.value"></div><div class="fl"><label>Connection type</label><select onchange="S.s4.conn=this.value"><option value="HT"${d.conn==='HT'?' selected':''}>HT — high tension</option><option value="LT"${d.conn==='LT'?' selected':''}>LT — low tension</option></select></div></div>
+      <div class="fg f3"><div class="fl"><label>Sanctioned load (kVA)</label><input type="number" value="${d.sload}" placeholder="e.g. 500" min="0" onchange="S.s4.sload=this.value"></div><div class="fl"><label>Tariff category</label><input type="text" value="${d.tariff}" placeholder="e.g. HT-2 Industrial" onchange="S.s4.tariff=this.value"></div><div class="fl"><label>Avg monthly bill (₹)</label><input type="number" value="${d.bill}" placeholder="e.g. 350000" min="0" onchange="S.s4.bill=this.value"></div></div>
+      <div class="trow"><label>Demand charges applicable?</label><input type="checkbox" ${d.demand?'checked':''} onchange="S.s4.demand=this.checked"></div>
+      <div class="trow"><label>Sub-metering already in place?</label><input type="checkbox" ${d.submet?'checked':''} onchange="S.s4.submet=this.checked"></div>
+    </div>
+  </div>
+  <div class="util-sec">
+    <div class="util-hd" id="uh-comp" onclick="toggleUtil('comp')"><i class="ti ti-wind uicon"></i><span class="utitle">Compressed air system <span style="font-size:10px;font-weight:400;color:var(--txt3)">(if present)</span></span><span class="status-pill ${d.compPresent?'pill-ok':'pill-na'}">${d.compPresent?'Present':'Not entered'}</span><i class="ti ti-chevron-down uchev"></i></div>
+    <div class="util-body" id="ub-comp">
+      <div style="font-size:12px;color:var(--txt2);margin-bottom:10px">Compressed air is typically the second or third largest energy consumer in a MedTech facility. Even a 10% reduction from leak repair can yield significant monthly savings.</div>
+      <div class="trow"><label>Compressed air system present?</label><input type="checkbox" ${d.compPresent?'checked':''} onchange="S.s4.compPresent=this.checked;renderS4section()"></div>
+      ${d.compPresent?`<div class="fg f3" style="margin-top:12px"><div class="fl"><label>Compressor type</label><select onchange="S.s4.compType=this.value"><option value="">Select…</option>${['Screw','Reciprocating','Centrifugal'].map(t=>`<option${d.compType===t?' selected':''}>${t}</option>`).join('')}</select></div><div class="fl"><label>Installed capacity (kW)</label><input type="number" value="${d.compCap}" placeholder="kW" min="0" onchange="S.s4.compCap=this.value"></div><div class="fl"><label>Actual hours / day</label><input type="number" value="${d.compHrs}" placeholder="hrs" min="0" max="24" onchange="S.s4.compHrs=this.value"></div></div><div class="trow"><label>Known leakage or pressure drop issues?</label><input type="checkbox" ${d.leakage?'checked':''} onchange="S.s4.leakage=this.checked"></div>`:`<div style="font-size:12px;color:var(--txt3);padding:6px 0">Check the box above to enter compressed air details.</div>`}
+    </div>
+  </div>
+  <div class="util-sec">
+    <div class="util-hd" id="uh-hvac" onclick="toggleUtil('hvac')"><i class="ti ti-air-conditioning uicon"></i><span class="utitle">HVAC / cleanroom conditioning <span style="font-size:10px;font-weight:400;color:var(--txt3)">(if present)</span></span><span class="status-pill ${d.crPresent?'pill-ok':'pill-na'}">${d.crPresent?'Present':'Not entered'}</span><i class="ti ti-chevron-down uchev"></i></div>
+    <div class="util-body" id="ub-hvac">
+      <div style="font-size:12px;color:var(--txt2);margin-bottom:10px">HVAC is typically the single largest energy consumer in a cleanroom facility. The system compares the runtime you enter here against the minimum required by dependent production steps to flag scheduling savings.</div>
+      <div class="trow"><label>Cleanroom or controlled environment present?</label><input type="checkbox" ${d.crPresent?'checked':''} onchange="S.s4.crPresent=this.checked;renderS4section()"></div>
+      ${d.crPresent?`<div class="fg f3" style="margin-top:12px"><div class="fl"><label>Estimated HVAC load (kW)</label><input type="number" value="${d.hvacLoad}" placeholder="kW" min="0" onchange="S.s4.hvacLoad=this.value"></div><div class="fl"><label>Actual hours / day</label><input type="number" value="${d.hvacHpd}" placeholder="e.g. 24" min="0" max="24" onchange="S.s4.hvacHpd=this.value"></div><div class="fl"><label>Days / week</label><input type="number" value="${d.hvacDpw}" placeholder="e.g. 7" min="1" max="7" onchange="S.s4.hvacDpw=this.value"></div></div><div class="fg f2"><div class="fl"><label>Cleanroom area (sq ft)</label><input type="number" value="${d.crArea}" placeholder="e.g. 3000" min="0" onchange="S.s4.crArea=this.value"></div><div class="fl"><label>ISO class / GMP grade</label><select onchange="S.s4.isoClass=this.value"><option value="">Select…</option>${['ISO 5 / GMP A','ISO 6 / GMP B','ISO 7 / GMP C','ISO 8 / GMP D','Non-classified'].map(c=>`<option value="${c}"${d.isoClass===c?' selected':''}>${c}</option>`).join('')}</select></div></div>`:`<div style="font-size:12px;color:var(--txt3);padding:6px 0">Check the box above to enter HVAC details.</div>`}
+    </div>
+  </div>
+  <div class="sec-foot"><button class="btn-prev" onclick="saveAndGo(3)"><i class="ti ti-arrow-left"></i> Previous</button><button class="btn-next" onclick="saveAndGo(5)">Save & continue <i class="ti ti-arrow-right"></i></button></div>`;
+}
+function renderS4section(){calcComp();updateAllDots();document.getElementById('mc').innerHTML=renderS4();}
+
+function renderS5(){
+  const p=overallPct();const issueTypes=['Idle running','Scheduling gap','Air leak','Over-conditioning','Over-pressure','Thermal loss','Lighting','Behavioural','Equipment age','Other'];
+  const confOpts=['High (directly observed)','Medium (inferred from data)','Low (reported by staff)'];
+  const totalSav=S.observations.reduce((t,o)=>t+(o.savingRs||0),0);
+  const cards=S.observations.map((ob,i)=>{
+    const cc=ob.conf.startsWith('High')?'conf-high':ob.conf.startsWith('Med')?'conf-med':'conf-low';
+    return `<div class="obs-card" id="oc${i}">
+      <div class="obs-hd${ob._open?' open':''}" onclick="toggleObs(${i})">
+        <i class="ti ti-eye-search" style="color:var(--txt3);font-size:15px"></i>
+        <span style="font-size:12px;font-weight:500;flex:1">${ob.title||'Untitled observation'}</span>
+        <span class="obs-conf ${cc}">${ob.conf.split(' ')[0]}</span>
+        <span style="font-size:10px;color:var(--txt3);margin-left:4px">${ob.fixCat||''}</span>
+        ${ob.savingRs>0?`<span style="font-size:12px;font-family:var(--ffm);color:var(--g6);margin-left:8px">₹${ob.savingRs.toLocaleString('en-IN')}/mo</span>`:''}
+        <button class="step-del" onclick="event.stopPropagation();S.observations.splice(${i},1);calcComp();updateAllDots();render()"><i class="ti ti-trash"></i></button>
+        <i class="ti ti-chevron-down chev${ob._open?' open':''}"></i>
+      </div>
+      <div class="obs-body${ob._open?' open':''}" id="ob-body${i}">
+        <div class="fg f2" style="margin-bottom:10px">
+          <div class="fl"><label>Observation title</label><input type="text" value="${ob.title}" placeholder="Short description of what was observed" onchange="S.observations[${i}].title=this.value"></div>
+          <div class="fl"><label>Issue type</label><select onchange="S.observations[${i}].issueType=this.value"><option value="">Select…</option>${issueTypes.map(t=>`<option value="${t}"${ob.issueType===t?' selected':''}>${t}</option>`).join('')}</select></div>
+        </div>
+        <div class="fg f2" style="margin-bottom:10px">
+          <div class="fl"><label>Affected step / system</label><select onchange="S.observations[${i}].affectedStep=parseInt(this.value)"><option value="-1">Whole facility / utility</option>${S.steps.map((s,si)=>`<option value="${si}"${ob.affectedStep===si?' selected':''}>${String(si+1).padStart(2,'0')} — ${s.name||'Unnamed'}</option>`).join('')}</select></div>
+          <div class="fl"><label>Confidence</label><select onchange="S.observations[${i}].conf=this.value"><option value="">Select…</option>${confOpts.map(c=>`<option value="${c}"${ob.conf===c?' selected':''}>${c}</option>`).join('')}</select></div>
+        </div>
+        <div class="fl" style="margin-bottom:10px"><label>Estimated cause</label><input type="text" value="${ob.cause||''}" placeholder="e.g. No automated shutdown; operator oversight" onchange="S.observations[${i}].cause=this.value"></div>
+        <div class="fl" style="margin-bottom:10px"><label>Potential fix</label><textarea placeholder="What change would address this?" onchange="S.observations[${i}].fix=this.value">${ob.fix||''}</textarea></div>
+        <div class="fl" style="margin-bottom:10px"><label>Fix category</label><div class="fix-btns">${[['No-capex','on'],['Low-capex','on-low'],['Medium-capex','on-med'],['High-capex','on-high']].map(([lbl,cls])=>`<div class="fix-btn${ob.fixCat===lbl?' '+cls:''}" onclick="S.observations[${i}].fixCat='${lbl}';this.parentNode.querySelectorAll('.fix-btn').forEach(b=>{b.className='fix-btn'+(b.textContent.trim()==='${lbl}'?' ${cls}':'')})">${lbl}</div>`).join('')}</div></div>
+        <div class="fg f2" style="margin-bottom:10px">
+          <div class="fl"><label>Est. saving (kWh/month)</label><input type="number" value="${ob.savingKwh||''}" placeholder="kWh" min="0" onchange="S.observations[${i}].savingKwh=parseFloat(this.value)||0;S.observations[${i}].savingRs=Math.round((parseFloat(this.value)||0)*8)"></div>
+          <div class="fl"><label>Est. saving (₹/month)</label><input type="number" value="${ob.savingRs||''}" placeholder="₹" min="0" onchange="S.observations[${i}].savingRs=parseFloat(this.value)||0"></div>
+        </div>
+        <div class="fg f2"><div class="fl"><label>Action owner</label><input type="text" value="${ob.owner||''}" placeholder="e.g. Production supervisor" onchange="S.observations[${i}].owner=this.value"></div><div class="fl"><label>Status</label><select onchange="S.observations[${i}].status=this.value">${['Hypothesis','Confirmed','Action raised','Implemented','Verified'].map(s=>`<option value="${s}"${ob.status===s?' selected':''}>${s}</option>`).join('')}</select></div></div>
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="sec-hd"><h2>Walkthrough observations</h2><p>Record energy waste observations from your site walkthrough. Each structured observation feeds directly into the Savings Register as a hypothesis, linked to a specific process step or utility system. ${S.mode==='consultant'?'These records are private to your workspace and are not included in client-facing exports.':''}</p>${clientTag()}</div>
+  ${enablesBanner(['Savings Register hypotheses','Confidence-rated action list','Action owner assignment'],'ti-eye-search')}
+  ${progBar(p)}
+  ${S.observations.length>0?`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--g0);border:1px solid var(--g1);border-radius:var(--rad-sm);margin-bottom:1rem"><div><div style="font-size:12px;color:var(--g6)">Total identified from observations</div></div><div style="font-size:20px;font-weight:600;font-family:var(--ffm);color:var(--g6)">₹${totalSav.toLocaleString('en-IN')}/month</div></div>`:''}
+  <div class="ptoolbar">
+    <button class="btn-tpl" onclick="loadDefaultObs()"><i class="ti ti-template"></i> Load example observations</button>
+    <button onclick="addObs()"><i class="ti ti-plus"></i> Add observation</button>
+    <span class="p-stat">${S.observations.length} recorded</span>
+  </div>
+  ${S.observations.length===0?`<div class="empty-state"><i class="ti ti-eye-search"></i><strong>No observations yet</strong><p>Add observations from your site walkthrough,<br>or load the example set to see how the register populates.</p></div>`:cards}
+  <div class="sec-foot"><button class="btn-prev" onclick="saveAndGo(4)"><i class="ti ti-arrow-left"></i> Previous</button><button class="btn-next" onclick="saveAndGo(6)">View savings register <i class="ti ti-arrow-right"></i></button></div>`;
+}
+
+function priorityScore(e){const c=CONF_WEIGHT[e.conf]||0.5;const l=LOSS_WEIGHT[e.fixCat]||0.5;return Math.round(e.savingRs*c*l);}
+function isQuickWin(e){return (e.fixCat==='No-capex'||e.fixCat==='Low-capex')&&(e.conf==='High'||e.conf==='High (directly observed)');}
+
+function registerEntries(){
+  const entries=[];
+  S.steps.forEach(st=>{
+    if(st.loss&&st.loss.length>0){
+      const idle=parseFloat(st.idleHrs)||1;const kw=parseFloat(st.kw)||0;const dpw=parseFloat(st.dpw)||5;
+      const savK=Math.round(kw*idle*dpw*4.33*0.6);
+      entries.push({title:`${st.name} — ${st.loss[0]}${st.loss.length>1?' +'+(st.loss.length-1)+' more':''}`,source:'Process map',affected:st.name,savingKwh:savK,savingRs:Math.round(savK*8),fixCat:'No-capex',conf:'Medium',calc:`${kw} kW × ${idle} hrs idle × ${dpw} days/week × 4.33 × 60% avoidance = ${savK.toLocaleString('en-IN')} kWh/month`,reasoning:`Loss signals flagged: ${st.loss.join(', ')}. Idle runtime represents energy consumed without productive output.`,type:'map'});
+    }
+  });
+  const hvac=S.steps.find(s=>s.cat==='HVAC/Conditioning');
+  const prodMax=Math.max(...S.steps.filter(s=>s.loadCls==='Production-linked').map(s=>(parseFloat(s.hpd)||0)*(parseFloat(s.dpw)||0)),0);
+  const hvacRt=hvac?(parseFloat(hvac.hpd)||0)*(parseFloat(hvac.dpw)||0):0;
+  if(hvac&&hvacRt>0&&prodMax>0&&hvacRt>prodMax*1.2){
+    const gap=hvacRt-prodMax;const kw=parseFloat(hvac.kw)||50;const savK=Math.round(kw*gap*4.33*0.4);
+    entries.push({title:'HVAC runtime vs production rhythm mismatch',source:'Utility mismatch',affected:'HVAC / cleanroom conditioning',savingKwh:savK,savingRs:Math.round(savK*8),fixCat:'No-capex',conf:'High',calc:`${kw} kW × ${gap.toFixed(0)} hrs/week gap × 4.33 × 40% modulation = ${savK.toLocaleString('en-IN')} kWh/month`,reasoning:`HVAC runs ${hvacRt} hrs/week. Production steps needing cleanroom conditioning run max ${prodMax} hrs/week. ${gap.toFixed(0)}-hr gap = HVAC runtime with no dependent process active.`,type:'util'});
+  }
+  S.observations.forEach(ob=>{
+    if((ob.savingRs||0)>0){
+      const aff=ob.affectedStep>=0&&S.steps[ob.affectedStep]?S.steps[ob.affectedStep].name:'Facility / utility';
+      entries.push({title:ob.title,source:'Walkthrough observation',affected:aff,savingKwh:ob.savingKwh||0,savingRs:ob.savingRs||0,fixCat:ob.fixCat||'No-capex',conf:ob.conf.split(' ')[0],calc:`Site observation estimate: ${(ob.savingKwh||0).toLocaleString('en-IN')} kWh/month × ₹8/kWh = ₹${(ob.savingRs||0).toLocaleString('en-IN')}/month`,reasoning:ob.cause||'Identified during site walkthrough.',type:'obs'});
+    }
+  });
+  return entries.sort((a,b)=>priorityScore(b)-priorityScore(a));
+}
+
+function renderS6(){
+  const all=registerEntries();const filter=S.regFilter;
+  const entries=filter==='quickwins'?all.filter(isQuickWin):filter==='nocapex'?all.filter(e=>e.fixCat==='No-capex'):all;
+  const totalRs=all.reduce((t,e)=>t+e.savingRs,0);const totalKwh=all.reduce((t,e)=>t+e.savingKwh,0);
+  const qwRs=all.filter(isQuickWin).reduce((t,e)=>t+e.savingRs,0);
+  const fixPill={'No-capex':'pill-nc','Low-capex':'pill-lc','Medium-capex':'pill-cap','High-capex':'pill-cap'};
+  const confPill={'High':'pill-hconf','Medium':'pill-mconf','Low':'pill-lconf','High (directly observed)':'pill-hconf','Medium (inferred from data)':'pill-mconf','Low (reported by staff)':'pill-lconf'};
+  const srcPill={map:'pill-src-map',util:'pill-src-util',obs:'pill-src-obs'};
+  const srcLbl={map:'Process map',util:'Utility mismatch',obs:'Site observation'};
+  return `<div class="sec-hd"><h2>Savings opportunities register</h2><p>Generated automatically from the process map, utility mismatch analysis, and walkthrough observations. Ranked by priority score — a composite of estimated saving, confidence, and ease of implementation. This is the primary deliverable at end of onboarding.</p>${clientTag()}</div>
+  ${all.length===0?`<div class="empty-state"><i class="ti ti-file-analytics"></i><strong>Register is empty</strong><p>Complete the process map (Section 3) and add walkthrough observations (Section 5)<br>to generate savings hypotheses automatically.</p></div>`:`
+  <div class="reg-summary-grid">
+    <div class="sum-card green"><div class="sum-lbl">Total identified opportunity</div><div class="sum-val">₹${totalRs.toLocaleString('en-IN')}/mo</div><div class="sum-sub">${totalKwh.toLocaleString('en-IN')} kWh · ${all.length} hypotheses</div></div>
+    <div class="sum-card purple"><div class="sum-lbl">Quick wins (no/low-capex + high confidence)</div><div class="sum-val">₹${qwRs.toLocaleString('en-IN')}/mo</div><div class="sum-sub">${all.filter(isQuickWin).length} items — no capital approval needed</div></div>
+    <div class="sum-card amber"><div class="sum-lbl">Annualised if achieved</div><div class="sum-val">₹${(totalRs*12).toLocaleString('en-IN')}</div><div class="sum-sub">vs ₹75,000/year subscription</div></div>
+  </div>
+  <div class="reg-filter-bar">
+    <span style="font-size:11px;color:var(--txt3)">Show:</span>
+    <button class="rfbtn${filter==='all'?' on':''}" onclick="S.regFilter='all';render()">All (${all.length})</button>
+    <button class="rfbtn${filter==='quickwins'?' on-quick':''}" onclick="S.regFilter='quickwins';render()"><i class="ti ti-star" style="font-size:12px;vertical-align:-1px"></i> Quick wins (${all.filter(isQuickWin).length})</button>
+    <button class="rfbtn${filter==='nocapex'?' on':''}" onclick="S.regFilter='nocapex';render()">No-capex (${all.filter(e=>e.fixCat==='No-capex').length})</button>
+    <span style="margin-left:auto;font-size:11px;color:var(--txt3)">Ranked: saving × confidence × ease</span>
+  </div>
+  ${entries.map((e,idx)=>`<div class="reg-entry" id="re${idx}">
+    <div class="reg-main">
+      <div class="reg-rank">${String(idx+1).padStart(2,'0')}</div>
+      <div class="reg-body">
+        <div class="reg-title">${e.title}</div>
+        <div class="reg-pills">
+          ${isQuickWin(e)?`<span class="pill pill-qw"><i class="ti ti-star" style="font-size:11px;vertical-align:-1px"></i> Quick win</span>`:''}
+          <span class="pill ${fixPill[e.fixCat]||'pill-nc'}">${e.fixCat}</span>
+          <span class="pill ${confPill[e.conf]||'pill-mconf'}">${e.conf.split(' ')[0]} confidence</span>
+          <span class="pill ${srcPill[e.type]}">${srcLbl[e.type]}</span>
+        </div>
+        <div class="reg-affected"><i class="ti ti-map-pin" style="font-size:12px;vertical-align:-1px;margin-right:3px"></i>${e.affected}</div>
+      </div>
+      <div class="reg-right"><div class="reg-saving">₹${e.savingRs.toLocaleString('en-IN')}/mo</div><div class="reg-kwh">${e.savingKwh.toLocaleString('en-IN')} kWh/mo</div><div class="reg-score">Priority: ${priorityScore(e).toLocaleString('en-IN')}</div></div>
+    </div>
+    <div class="why-toggle" onclick="toggleWhy(${idx})"><i class="ti ti-math-function" style="font-size:14px"></i>How this was identified — see the calculation<i class="ti ti-chevron-down chev" id="wchev${idx}" style="font-size:13px;margin-left:auto"></i></div>
+    <div class="why-body" id="why${idx}"><div>${e.reasoning}</div><div class="why-calc">${e.calc}</div><div class="why-note">This is a pre-data hypothesis. Confidence upgrades to "Data-validated" once 4–6 weeks of post-action meter readings are available. Link an intervention in the action tracker to start measurement.</div></div>
+  </div>`).join('')}
+  <div style="background:var(--b0);border:1px solid var(--b1);border-radius:var(--rad-sm);padding:12px 16px;display:flex;gap:10px;margin-top:.875rem"><i class="ti ti-info-circle" style="color:var(--b6);font-size:18px;flex-shrink:0;margin-top:1px"></i><div style="font-size:12px;color:var(--b6);line-height:1.7">Click <strong>"How this was identified"</strong> on any item to see the exact calculation. Every hypothesis is traceable to a specific field in the process map or a site observation — nothing is a black box.</div></div>`}
+  <div class="sec-foot"><button class="btn-prev" onclick="saveAndGo(5)"><i class="ti ti-arrow-left"></i> Previous</button><button class="btn-next" onclick="saveNow()"><i class="ti ti-device-floppy"></i> Save & finish</button></div>`;
+}
+
+function toggleStep(i){S.steps[i]._open=!S.steps[i]._open;const b=document.getElementById('sb-body'+i);const h=document.querySelector('#sc'+i+' .step-hd');const c=document.querySelector('#sc'+i+' .chev');if(b)b.classList.toggle('open',S.steps[i]._open);if(h)h.classList.toggle('open',S.steps[i]._open);if(c)c.classList.toggle('open',S.steps[i]._open);}
+function addStep(){S.steps.push({name:'',cat:'Manufacturing',sources:['Grid electricity'],equip:'',kw:'',hpd:'',dpw:'',loadCls:'Production-linked',opMode:'Batch',bottleneck:false,idleHrs:'',setupHrs:'',waitHrs:'',loss:[],peakDemand:false,constraints:[],notes:'',_open:true});calcComp();updateAllDots();render();}
+function deleteStep(i){S.steps.splice(i,1);calcComp();updateAllDots();render();}
+function toggleSrc(idx,src,el){const s=S.steps[idx];if(!s.sources)s.sources=[];const has=s.sources.includes(src);s.sources=has?s.sources.filter(x=>x!==src):[...s.sources,src];el.classList.toggle('sel',!has);}
+function toggleLoss(idx,l,el){const s=S.steps[idx];if(!s.loss)s.loss=[];const has=s.loss.includes(l);s.loss=has?s.loss.filter(x=>x!==l):[...s.loss,l];el.classList.toggle('sel-amber',!has);}
+function toggleConstraint(idx,c,el){const s=S.steps[idx];if(!s.constraints)s.constraints=[];const has=s.constraints.includes(c);s.constraints=has?s.constraints.filter(x=>x!==c):[...s.constraints,c];el.classList.toggle('sel-red',!has);}
+function toggleUtil(key){document.getElementById('uh-'+key).classList.toggle('open');document.getElementById('ub-'+key).classList.toggle('open');}
+function toggleObs(i){S.observations[i]._open=!S.observations[i]._open;const b=document.getElementById('ob-body'+i);const h=document.querySelector('#oc'+i+' .obs-hd');const c=document.querySelector('#oc'+i+' .chev');if(b)b.classList.toggle('open',S.observations[i]._open);if(h)h.classList.toggle('open',S.observations[i]._open);if(c)c.classList.toggle('open',S.observations[i]._open);}
+function addObs(){S.observations.push({title:'',affectedStep:-1,issueType:'',cause:'',conf:'',fix:'',fixCat:'No-capex',savingKwh:0,savingRs:0,owner:'',status:'Hypothesis',_open:true});calcComp();updateAllDots();render();}
+function loadDefaultObs(){if(S.observations.length>0&&!confirm('Load example observations?'))return;S.observations=DEFAULT_OBS.map(o=>({...o,_open:false}));if(S.steps.length===0)loadTemplate(0);calcComp();updateAllDots();render();}
+function toggleWhy(idx){const w=document.getElementById('why'+idx);const c=document.getElementById('wchev'+idx);if(w){w.classList.toggle('open');if(c)c.classList.toggle('open',w.classList.contains('open'));}}
+function refreshKwh(){const kwh=estKwh();const eK=document.getElementById('estKwh');const eR=document.getElementById('estRs');if(eK)eK.textContent=Math.round(kwh).toLocaleString('en-IN')+' kWh/month';if(eR)eR.textContent='≈ ₹'+Math.round(kwh*8).toLocaleString('en-IN')+'/month at ₹8/kWh';const pK=document.querySelector('.p-kwh');if(pK)pK.innerHTML=`<i class="ti ti-bolt" style="font-size:13px;vertical-align:-1px"></i> ~${Math.round(kwh).toLocaleString('en-IN')} kWh/month`;}
+
+function openTplModal(saveMode){window._tplSaveMode=saveMode;renderTplModal();document.getElementById('tplModal').classList.add('show');}
+function closeTplModal(){document.getElementById('tplModal').classList.remove('show');}
+function renderTplModal(){
+  const list=document.getElementById('tplList');
+  list.innerHTML=S.templates.map((t,i)=>`<div class="tpl-row" onclick="loadTemplate(${i})"><div class="tpl-icon"><i class="ti ti-sitemap"></i></div><div class="tpl-info"><div class="tpl-name">${t.name}</div><div class="tpl-meta">${t.sector}${t.builtin?' · Built-in':' · Saved by you'}</div></div><span class="tpl-steps">${t.steps} steps</span></div>`).join('');
+}
+function loadTemplate(idx){
+  if(idx===0){S.steps=TEMPLATE_MEDTECH.map(t=>({...t,_open:false}));}
+  calcComp();updateAllDots();closeTplModal();render();
+}
+function saveTemplate(){
+  const name=document.getElementById('tplNameIn').value.trim();
+  if(!name||S.steps.length===0){alert('Enter a name and make sure you have at least one process step.');return;}
+  S.templates.push({name,sector:S.s1.sector||'Custom',steps:S.steps.length,builtin:false});
+  document.getElementById('tplNameIn').value='';renderTplModal();
+  setTimeout(()=>{closeTplModal();},800);
+}
+
+render();
+</script>
+</body>
+</html>
