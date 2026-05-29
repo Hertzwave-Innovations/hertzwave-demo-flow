@@ -638,6 +638,7 @@
         .gc-cp-num.status-partial  { background: #d97706; }
         .gc-cp-num.status-missing  { background: #dc4a4a; }
         .gc-cp-num.status-overlap  { background: #6366f1; }
+        .gc-cp-num.status-data-ok  { background: #0d7490; }
         .gc-cp-body { display: flex; flex-direction: column; gap: 4px; }
         .gc-cp-name { font-size: 0.78rem; font-weight: 700; color: var(--ink); }
         .gc-cp-overlap-note {
@@ -680,7 +681,60 @@
         .gc-cp-chip.ready   { background: #d1fae5; color: #065f46; }
         .gc-cp-chip.partial { background: #fef3c7; color: #92400e; }
         .gc-cp-chip.missing { background: #fee2e2; color: #991b1b; }
+        .gc-cp-chip.data-ok { background: #cffafe; color: #0e7490; }
         .gc-cp-chip.overlap { background: rgba(99,102,241,0.1); color: #4338ca; }
+
+        /* ─── GreenCo overlap badge (navigator strip) ─── */
+        .gc-overlap-badge {
+            display: inline-block; margin-left: 6px;
+            font-size: 0.58rem; font-weight: 700; color: #4338ca;
+            background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.25);
+            border-radius: 8px; padding: 1px 6px; vertical-align: middle;
+            cursor: default;
+        }
+        /* ─── Sub-level jump chip (EN.4 direct jump in P2) ─── */
+        .gc-sub-jump-chip {
+            background: rgba(26,120,50,0.15) !important;
+            border: 1.5px solid rgba(26,120,50,0.4) !important;
+            font-weight: 800 !important;
+        }
+        .gc-sub-jump-chip:hover {
+            background: #1a7832 !important; color: #fff !important;
+        }
+        /* ─── GreenCo Settings pill (P8/P9/P10) ─── */
+        .gc-settings-pill {
+            border-left: 3px solid #6366f1 !important;
+            background: linear-gradient(135deg, #fafafa 0%, #f5f3ff 100%) !important;
+        }
+        .gc-settings-label {
+            font-size: 0.68rem; color: #4338ca; font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .gc-settings-chip {
+            background: #4338ca !important; color: #fff !important;
+            border-color: #4338ca !important; font-weight: 700 !important;
+        }
+        .gc-settings-chip:hover { background: #3730a3 !important; }
+        .gc-supporting-chip {
+            background: rgba(99,102,241,0.08) !important;
+            border-color: rgba(99,102,241,0.25) !important;
+            color: #4338ca !important; opacity: 0.85;
+        }
+        .gc-supporting-chip:hover {
+            background: rgba(99,102,241,0.18) !important; opacity: 1;
+        }
+        .gc-supporting-divider {
+            font-size: 0.6rem; color: var(--muted);
+            align-self: center; white-space: nowrap; padding: 0 2px;
+        }
+        /* ─── Lite mode composition banner ─── */
+        .gc-lite-banner {
+            margin-bottom: 0.65rem;
+            padding: 0.55rem 0.85rem;
+            background: #eff6ff; border: 1px solid #bfdbfe;
+            border-radius: var(--radius-sm);
+            font-size: 0.72rem; color: #1e40af; line-height: 1.5;
+        }
 
         /* ─── GREENCO MODE TOGGLE ─── */
         .gc-toggle-wrap {
@@ -814,6 +868,7 @@
         .gc-subcat-badge.mandatory { background: rgba(26,120,50,0.15); color: #155228; }
         .gc-subcat-badge.evidence-pending { background: rgba(246,173,85,0.15); color: #8a5a00; }
         .gc-subcat-badge.lite-badge { background: rgba(217,119,6,0.12); color: #92400e; }
+        .gc-subcat-badge.supporting { background: rgba(99,102,241,0.1); color: #4338ca; }
         .subcat-item .gc-subcat-badge { display: none; }
         body.gc-mode .subcat-item .gc-subcat-badge { display: inline-flex; }
         body.gc-mode .subcat-item { gap: 5px; }
@@ -1111,6 +1166,38 @@
             color: var(--muted);
             font-size: 0.85rem;
         }
+        /* ─── Scope 1 — 1.1 Fuel Selector Row ─── */
+        .s11-fuel-selector-row {
+            display: flex; align-items: center; gap: 10px;
+            padding: 0.6rem 0.85rem;
+            background: #f8fdf9;
+            border: 1px solid #c8e6cc;
+            border-radius: var(--radius-sm);
+            margin-bottom: 0.25rem;
+            flex-wrap: wrap;
+        }
+        .s11-selector-label {
+            font-size: 0.75rem; font-weight: 700;
+            color: var(--hz-primary); white-space: nowrap;
+        }
+        .s11-fuel-select {
+            flex: 1; min-width: 180px; max-width: 340px;
+            padding: 0.45rem 0.65rem;
+            border: 1.5px solid #a8d5b0;
+            border-radius: var(--radius-sm);
+            font-family: inherit; font-size: 0.82rem;
+            color: var(--ink); background: #fff;
+            cursor: pointer;
+        }
+        .s11-fuel-select:focus { outline: none; border-color: var(--hz-primary); }
+        .s11-showall-btn {
+            font-size: 0.72rem; font-weight: 700;
+            color: var(--hz-primary); background: none;
+            border: 1px solid rgba(26,120,50,0.35);
+            border-radius: var(--radius-sm); padding: 0.38rem 0.8rem;
+            cursor: pointer; font-family: inherit; white-space: nowrap;
+        }
+        .s11-showall-btn:hover { background: var(--hz-primary); color: #fff; }
     </style>
 </head>
 <body>
@@ -1215,10 +1302,17 @@
         <div class="gc-strip-header">
             <span class="gc-strip-title">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                GreenCo CII v3 — Parameter Navigator
+                <span id="gcVersionTitle">GreenCo CII — Version 4 (Current)</span>
                 <span style="font-weight:400;color:#5B6E64;font-size:0.65rem;">Click a parameter to jump to the relevant forms</span>
             </span>
             <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <div class="gc-lite-toggle">
+                    <label for="gcVersionSelect" style="white-space:nowrap;">Framework Version:</label>
+                    <select id="gcVersionSelect" onchange="applyGcVersion(this.value)">
+                        <option value="v4" selected>Version 4 (Current)</option>
+                        <option value="v3">Version 3 (Manufacturing)</option>
+                    </select>
+                </div>
                 <div class="gc-lite-toggle">
                     <label for="gcLiteSelect" style="white-space:nowrap;">Assessment Mode:</label>
                     <select id="gcLiteSelect" onchange="applyGcLiteMode()">
@@ -2417,6 +2511,10 @@ const FF = {
             { name: 'Energy Intensity (Revenue)', hint: 'GJ per ₹ Cr revenue', unit: 'GJ/₹Cr', type: 'number' },
             { name: 'BEE Star Rating', hint: 'Bureau of Energy Efficiency rating', unit: '', type: 'select', options: ['5 Star','4 Star','3 Star','2 Star','1 Star','Not Rated'] },
         ]},
+        { label: '🟢 GreenCo P5 — GHG Intensity Denominator', fields: [
+            { name: 'Production Output (Volume / Year)', hint: '⚠ Required for GreenCo P5 GHG Intensity — denominator for tCO₂e/unit calculation. Use same unit consistently across years.', unit: 'units/yr', type: 'number' },
+            { name: 'Production Output Unit', hint: 'Specify the unit used above (e.g. MT, MWh, kL, m², Nos)', unit: '', type: 'select', options: ['MT (Metric Tonnes)','kL (Kilolitres)','MWh','m² (sq. metres)','Nos (Units/Pieces)','kWh','GJ','Other (specify in Notes)'] },
+        ]},
     ]},
     'EN.3': { sections: [
         { fields: [
@@ -2521,7 +2619,7 @@ const FF = {
 
     // ── AIR & NOISE (expanded with ambient + noise) ──
     'AQ.1': { sections: [{ fields: [ { name: 'NOx Emissions', hint: 'Nitrogen oxides from combustion', unit: 'Kg', type: 'number' }, { name: 'SOx Emissions', hint: 'Sulphur oxides', unit: 'Kg', type: 'number' }, ]}, { fields: [ { name: 'PM₂.₅ Emissions', hint: 'Fine particulate', unit: 'Kg', type: 'number' }, { name: 'PM₁₀ Emissions', hint: 'Coarse particulate', unit: 'Kg', type: 'number' }, ]}]},
-    'AQ.2': { sections: [{ fields: [ { name: 'ODS Production', hint: 'Ozone depleting substances', unit: 'Kg CFC-11 eq', type: 'number' }, { name: 'ODS Imports', hint: 'ODS imported for use', unit: 'Kg CFC-11 eq', type: 'number' }, ]}]},
+    'AQ.2': { sections: [{ label: 'ℹ️ ODS data is cross-referenced from Scope 1 → 1.3 Fugitive Emissions. Ensure values entered here are consistent with your 1.3 form entries to avoid double-counting.', fields: [ { name: 'ODS Production', hint: 'Ozone depleting substances produced on-site — cross-check with 1.3 Fugitive Emissions (Scope 1)', unit: 'Kg CFC-11 eq', type: 'number' }, { name: 'ODS Imports', hint: 'ODS imported for use in operations — record refrigerant top-ups in 1.3 if applicable', unit: 'Kg CFC-11 eq', type: 'number' }, ]}]},
     'AQ.3': { sections: [{ fields: [ { name: 'VOC Emissions', hint: 'Volatile organics', unit: 'Kg', type: 'number' }, { name: 'HAP Emissions', hint: 'Hazardous air pollutants', unit: 'Kg', type: 'number' }, ]}]},
     'AQ.4': { sections: [{ fields: [ { name: 'Ambient PM₂.₅', hint: 'Monitored ambient PM2.5 level', unit: 'µg/m³', type: 'number' }, { name: 'Ambient PM₁₀', hint: 'Monitored ambient PM10 level', unit: 'µg/m³', type: 'number' }, ]}, { fields: [ { name: 'Ambient NO₂', hint: 'Ambient nitrogen dioxide', unit: 'µg/m³', type: 'number' }, { name: 'Ambient SO₂', hint: 'Ambient sulphur dioxide', unit: 'µg/m³', type: 'number' }, ]}]},
     'AQ.5': { sections: [{ fields: [ { name: 'Daytime Noise Level (Site Boundary)', hint: 'Measured at site boundary', unit: 'dB(A)', type: 'number' }, { name: 'Nighttime Noise Level (Site Boundary)', hint: 'Night measurement', unit: 'dB(A)', type: 'number' }, ]}, { fields: [ { name: 'Workplace Noise Level', hint: 'Average shop floor / work area', unit: 'dB(A)', type: 'number' }, { name: 'CPCB Noise Zone Classification', hint: 'Applicable zone category', unit: '', type: 'select', options: ['Industrial','Commercial','Residential','Silence Zone'] }, ]}]},
@@ -2892,6 +2990,7 @@ function supplierStripHTML(codePh) {
 function buildFormFields(subId) {
     const body = document.getElementById('formPanelBody');
     // Dedicated renderers for categories with conditional fields
+    if (subId === '1.1')  { renderS1Stationary(body); return; }
     if (subId === '3.4')  { renderCat4(body);  return; }
     if (subId === '3.9')  { renderCat9(body);  return; }
     if (subId === '3.11') { renderCat11(body); return; }
@@ -3028,6 +3127,149 @@ function switchEntryMethod(subId, method) {
     // Show/hide fields by method class
     body.querySelectorAll('.method-qty').forEach(el => el.classList.toggle('method-hidden', method !== 'qty'));
     body.querySelectorAll('.method-cost').forEach(el => el.classList.toggle('method-hidden', method !== 'cost'));
+}
+
+// ═══════════════════ SCOPE 1 — 1.1 STATIONARY COMBUSTION ═══════════════════
+
+// Parses FF['1.1'].sections at call time — any future fuel additions are picked up automatically.
+function parseS11Fuels() {
+    const sections = FF['1.1']?.sections || [];
+    const groups   = { solid: [], liquid: [], gas: [] };
+    const icons    = { solid: '🪨', liquid: '🛢️', gas: '💨' };
+    const names    = { solid: 'Solid Fuels', liquid: 'Liquid Fuels', gas: 'Gaseous Fuels' };
+    let cur = null;
+    sections.forEach(sec => {
+        if (sec.groupHeader) { cur = sec.groupId; }
+        else if (sec.label && cur && groups[cur]) {
+            groups[cur].push({ label: sec.label, fields: sec.fields });
+        }
+    });
+    return { groups, icons, names };
+}
+
+function renderS1Stationary(body) {
+    const { groups, icons, names } = parseS11Fuels();
+    const sel = "width:100%;padding:0.55rem 0.7rem;border:1px solid var(--stroke);border-radius:var(--radius-sm);font-family:inherit;font-size:0.82rem;color:var(--ink);background:#fff;";
+
+    let html = '';
+
+    // ── Entry Method Toggle ──────────────────────────────────────────────────
+    html += `<div class="entry-method-wrap">
+        <span class="entry-method-label">Entry Method</span>
+        <div class="entry-method-opts">
+            <label class="entry-method-opt active" id="em-qty-1.1">
+                <input type="radio" name="em-1.1" value="qty" checked onchange="switchEntryMethod('1.1','qty')">
+                ⛽ Actual Quantity
+            </label>
+            <label class="entry-method-opt" id="em-cost-1.1">
+                <input type="radio" name="em-1.1" value="cost" onchange="switchEntryMethod('1.1','cost')">
+                ₹ Cost-Based
+            </label>
+        </div>
+    </div>`;
+
+    // ── Fuel Group Tabs ──────────────────────────────────────────────────────
+    html += `<div class="fuel-group-tabs">
+        <span class="fuel-group-label">Fuel group:</span>
+        <button class="fgt-btn active" onclick="filterFuelGroup('solid',this)">🪨 Solid</button>
+        <button class="fgt-btn" onclick="filterFuelGroup('liquid',this)">🛢️ Liquid</button>
+        <button class="fgt-btn" onclick="filterFuelGroup('gas',this)">💨 Gaseous</button>
+        <button class="fgt-btn" onclick="filterFuelGroup('all',this)">☰ All</button>
+    </div>`;
+
+    // ── One block per fuel group ─────────────────────────────────────────────
+    ['solid','liquid','gas'].forEach((gid, gi) => {
+        const fuels  = groups[gid];
+        const hidden = gi > 0 ? ' hidden' : '';   // solid is default active tab
+
+        // Fuel selector dropdown options
+        const opts = fuels.map((f, i) =>
+            `<option value="${i}">${f.label}</option>`
+        ).join('');
+
+        html += `<div class="fuel-group-block${hidden}" data-fuelgroup="${gid}">
+            <div class="form-group-header">${icons[gid]} ${names[gid]}</div>
+
+            <div class="s11-fuel-selector-row">
+                <label class="s11-selector-label">Fuel type:</label>
+                <select id="s11-sel-${gid}" class="s11-fuel-select"
+                        onchange="selectS11Fuel('${gid}', this.value)">
+                    <option value="">— Select fuel —</option>
+                    ${opts}
+                </select>
+                <button class="s11-showall-btn"
+                        onclick="selectS11Fuel('${gid}','all'); document.getElementById('s11-sel-${gid}').value=''">
+                    Show all ${fuels.length}
+                </button>
+            </div>`;
+
+        // One row per fuel — all hidden by default; selectS11Fuel reveals the chosen one
+        fuels.forEach((fuel, idx) => {
+            const qtyF  = fuel.fields.find(f => f.method === 'qty');
+            const costF = fuel.fields.find(f => f.method === 'cost');
+            const codePh = fuel.label.replace(/[^A-Za-z0-9 ]/g,'').split(' ')[0].toUpperCase().slice(0,5);
+
+            html += `<div class="s11-fuel-row" data-group="${gid}" data-idx="${idx}" style="display:none;">
+                <div class="form-section-label" style="margin-top:0.5rem;">${fuel.label}</div>
+                <div class="field-row">`;
+
+            if (qtyF) html += `<div class="field-group method-qty">
+                <label class="field-label">${qtyF.name}</label>
+                <span class="field-hint">${qtyF.hint}</span>
+                <div class="input-wrap">
+                    <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                    <span class="unit">${qtyF.unit}</span>
+                </div>
+            </div>`;
+
+            if (costF) html += `<div class="field-group method-cost">
+                <label class="field-label">${costF.name}</label>
+                <span class="field-hint">${costF.hint}</span>
+                <div class="input-wrap">
+                    <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                    <span class="unit">${costF.unit}</span>
+                </div>
+            </div>`;
+
+            html += `</div>`; // close field-row
+            html += supplierStripHTML(codePh);
+            html += `</div>`; // close s11-fuel-row
+        });
+
+        html += `</div>`; // close fuel-group-block
+    });
+
+    // ── Notes ────────────────────────────────────────────────────────────────
+    html += `<div class="field-row-1" style="margin-top:0.5rem;">
+        <div class="field-group">
+            <label class="field-label">Notes & Methodology</label>
+            <textarea class="form-textarea" placeholder="Emission factors used, NCV/EF source (MoEFCC / IPCC Table 1 / CEA), data quality notes..."></textarea>
+        </div>
+    </div>`;
+
+    body.innerHTML = html;
+
+    // Apply default entry method and show first solid fuel
+    switchEntryMethod('1.1', 'qty');
+    selectS11Fuel('solid', '0');
+    document.getElementById('s11-sel-solid').value = '0';
+
+    body.classList.add('anim-in');
+    setTimeout(() => body.classList.remove('anim-in'), 350);
+}
+
+// Shows only the selected fuel row within a group; '' = hide all; 'all' = show all
+function selectS11Fuel(groupId, val) {
+    const rows = document.querySelectorAll(`.s11-fuel-row[data-group="${groupId}"]`);
+    if (val === 'all') {
+        rows.forEach(r => r.style.display = 'block');
+    } else if (val === '' || val === null) {
+        rows.forEach(r => r.style.display = 'none');
+    } else {
+        rows.forEach(r => {
+            r.style.display = (r.dataset.idx === String(val)) ? 'block' : 'none';
+        });
+    }
 }
 
 // ═══════════════════ CAT 4 — UPSTREAM TRANSPORTATION ═══════════════════
@@ -3655,6 +3897,19 @@ function clearForm() {
         if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = '';
     });
     // Reset conditional fields for dedicated-renderer categories
+    if (currentSubcat === '1.1') {
+        // Restore default view: solid group, first fuel selected
+        ['solid','liquid','gas'].forEach(g => {
+            const sel = document.getElementById(`s11-sel-${g}`);
+            if (sel) sel.selectedIndex = 0;
+            document.querySelectorAll(`.s11-fuel-row[data-group="${g}"]`).forEach(r => r.style.display = 'none');
+        });
+        // Show first solid fuel by default
+        const firstSolid = document.querySelector('.s11-fuel-row[data-group="solid"][data-idx="0"]');
+        const solidSel   = document.getElementById('s11-sel-solid');
+        if (firstSolid) firstSolid.style.display = 'block';
+        if (solidSel)   solidSel.value = '0';
+    }
     if (currentSubcat === '3.4') {
         const pf = document.getElementById('cat4-primary-fuel-wrap');
         const sf = document.getElementById('cat4-secondary-fuel-row');
@@ -3682,104 +3937,133 @@ function exportData() {
 // as a non-destructive overlay on the existing ESG form architecture.
 
 let gcModeActive = false;
-let gcLiteMode = false;
+let gcLiteMode   = false;
+let gcVersion    = 'v4';   // 'v3' = Version 3 | 'v4' = Version 4 (current)
+
+// ── Version-specific parameter definitions for P8 / P9 / P10 ──────────────
+// P1–P7 are identical across both versions (weights: 150, 100×6).
+// P8–P10 names and weights differ. applyGcVersion() patches GC_PARAMS at runtime.
+const GC_VERSION_DEFS = {
+    v3: {
+        label: 'Version 3',
+        stripTitle: 'GreenCo CII — Version 3 (Manufacturing)',
+        p8:  { name: 'Product Stewardship',                    weight: 75  },
+        p9:  { name: 'Life Cycle Assessment',                  weight: 75  },
+        p10: { name: 'Green Building, Biodiversity & Innovation', weight: 100 }
+    },
+    v4: {
+        label: 'Version 4',
+        stripTitle: 'GreenCo CII — Version 4 (Current)',
+        p8:  { name: 'Product Stewardship & Life Cycle Aspects', weight: 125 },
+        p9:  { name: 'Innovation for Environment',               weight: 50  },
+        p10: { name: 'Green Infrastructure & Ecology',           weight: 75  }
+    }
+};
 
 // ── GreenCo parameter definitions ──────────────────────────────────────────
-// Maps each of the 10 CII GreenCo v3 parameters to:
-//  • the ESG category IDs in the form
-//  • the specific sub-IDs that are mandatory for scoring
-//  • the max score weight
-//  • evidence requirements per sub-section
+// Weights reflect actual CII GreenCo scoring (total 1000 pts).
+// P8/P9/P10 are version-specific — applyGcVersion() patches these at runtime.
 const GC_PARAMS = [
     {
         num: 1, id: 'p1', name: 'Energy Conservation & Efficiency',
         catIds: ['scope1','scope2','energy'],
         mandatorySubs: ['EN.1','EN.2','EN.3','1.1','1.2','2.1'],
-        weight: 10,
+        weight: 150,
         description: 'Specific energy consumption, energy intensity trends, BEE/PAT compliance, and energy-saving initiatives.'
     },
     {
         num: 2, id: 'p2', name: 'Renewable Energy',
         catIds: ['energy','scope2'],
         mandatorySubs: ['EN.4','2.1'],
-        weight: 10,
+        weight: 100,
         description: 'RE% of total consumption, REC purchases, PPA details, rooftop solar, and green tariff procurement.'
     },
     {
         num: 3, id: 'p3', name: 'Water Conservation',
         catIds: ['water'],
         mandatorySubs: ['W.1','W.2','W.3','W.4','W.5'],
-        weight: 10,
+        weight: 100,
         description: 'Total withdrawal by source, recycling rate, ZLD status, water intensity, and discharge quality.'
     },
     {
         num: 4, id: 'p4', name: 'Waste Management',
         catIds: ['waste'],
         mandatorySubs: ['WS.1','WS.2','WS.4'],
-        weight: 10,
+        weight: 100,
         description: 'Hazardous & non-hazardous waste generation, waste diversion rate, recycler certification, and TSDF records.'
     },
     {
         num: 5, id: 'p5', name: 'GHG Emission Reduction',
         catIds: ['scope1','scope2','scope3'],
         mandatorySubs: ['1.1','1.2','2.1'],
-        weight: 10,
+        weight: 100,
         description: 'Scope 1 & 2 absolute emissions and intensity trends. Scope 3 disclosure (select categories) for Platinum.'
     },
     {
         num: 6, id: 'p6', name: 'Pollution Prevention',
         catIds: ['air'],
         mandatorySubs: ['AQ.1','AQ.4'],
-        weight: 10,
+        weight: 100,
         description: 'Stack emissions (NOx/SOx/PM), CEMS data, ambient air quality monitoring, ODS phase-out records.'
     },
     {
         num: 7, id: 'p7', name: 'Green Supply Chain',
         catIds: ['materials','scope3'],
         mandatorySubs: ['MT.3','3.1'],
-        weight: 10,
+        weight: 100,
         description: 'Supplier ESG screening %, eco-label products, green procurement policy, and supply-chain assessment logs.'
     },
     {
-        num: 8, id: 'p8', name: 'Product Stewardship',
+        num: 8, id: 'p8', name: 'Product Stewardship & Life Cycle Aspects',
         catIds: ['materials','waste'],
         mandatorySubs: ['MT.4','WS.5'],
-        weight: 10,
-        description: 'EPR compliance, take-back programs, packaging sustainability, lifecycle considerations.',
+        weight: 125,
+        gcSettings: true,
+        settingsSection: 'P8',
+        description: 'EPR compliance, take-back programs, packaging sustainability, lifecycle considerations. Primary data captured in GreenCo Settings.',
+        supportingCatIds: ['materials','waste'],
         liteGroup: 'Environmental Leadership'
     },
     {
-        num: 9, id: 'p9', name: 'Biodiversity & Green Cover',
+        num: 9, id: 'p9', name: 'Innovation for Environment',
         catIds: ['biodiversity'],
         mandatorySubs: ['BD.1','BD.2','BD.3'],
-        weight: 10,
-        description: 'Land use footprint, green belt area, proximity to protected areas, restoration programs.',
+        weight: 50,
+        gcSettings: true,
+        settingsSection: 'P9',
+        description: 'Environmental innovation initiatives, clean technology, and R&D for sustainability. Primary data captured in GreenCo Settings.',
+        supportingCatIds: ['biodiversity'],
         liteGroup: 'Environmental Leadership'
     },
     {
-        num: 10, id: 'p10', name: 'Beyond Compliance',
+        num: 10, id: 'p10', name: 'Green Infrastructure & Ecology',
         catIds: ['governance','ehs','community'],
         mandatorySubs: ['GV.3','EHS.1'],
-        weight: 10,
-        description: 'ISO 14001/50001, TCFD, community initiatives, safety performance, and sustainability disclosure.',
+        weight: 75,
+        gcSettings: true,
+        settingsSection: 'P10',
+        description: 'Green building features, biodiversity conservation, ecological restoration, and green cover. Primary data captured in GreenCo Settings.',
+        supportingCatIds: ['governance','ehs','community'],
         liteGroup: 'Environmental Leadership'
     },
 ];
 
 // Category-to-GreenCo param label for cat-btn overlays
+// P8/P9/P10 removed from primary labels — their primary entry is GreenCo Settings.
+// These categories remain as supporting evidence surfaces for those parameters.
 const GC_CAT_PARAM_LABELS = {
     'scope1':      'P1·P5',
     'scope2':      'P1·P2·P5',
     'scope3':      'P5·P7',
     'energy':      'P1·P2',
     'water':       'P3',
-    'waste':       'P4·P8',
-    'materials':   'P7·P8',
+    'waste':       'P4',        // P8 removed — primary entry via GreenCo Settings
+    'materials':   'P7',        // P8 removed — primary entry via GreenCo Settings
     'air':         'P6',
-    'biodiversity':'P9',
-    'governance':  'P10',
-    'ehs':         'P10',
-    'community':   'P10',
+    'biodiversity': null,       // P9 removed — primary entry via GreenCo Settings
+    'governance':  null,        // P10 removed — primary entry via GreenCo Settings
+    'ehs':         null,        // P10 removed — primary entry via GreenCo Settings
+    'community':   null,        // P10 removed — primary entry via GreenCo Settings
     'ieq':         null,
     'climate':     null,
     'dei':         null,
@@ -3814,36 +4098,36 @@ const GC_SUB_BADGES = {
     'W.5':  { label: 'P3 Score', type: 'mandatory' },
     'W.6':  { label: 'P3 Audit', type: 'feeds' },
     'W.7':  { label: 'P3 Audit', type: 'feeds' },
-    // Waste
+    // Waste — WS.5 is supporting evidence for P8 (primary entry: GreenCo Settings)
     'WS.1': { label: 'P4 Mandatory', type: 'mandatory' },
     'WS.2': { label: 'P4 Mandatory', type: 'mandatory' },
     'WS.3': { label: 'P4 Score', type: 'feeds' },
     'WS.4': { label: 'P4 Score', type: 'mandatory' },
-    'WS.5': { label: 'P8', type: gcLiteMode ? 'lite' : 'feeds' },
-    // Materials
+    'WS.5': { label: 'P8 Evidence', type: 'supporting' },
+    // Materials — MT.4 is supporting evidence for P8 (primary entry: GreenCo Settings)
     'MT.1': { label: 'P7 Context', type: 'feeds' },
     'MT.2': { label: 'P7 Score', type: 'mandatory' },
     'MT.3': { label: 'P7 Mandatory', type: 'mandatory' },
-    'MT.4': { label: 'P8', type: 'feeds' },
+    'MT.4': { label: 'P8 Evidence', type: 'supporting' },
     // Air
     'AQ.1': { label: 'P6 Mandatory', type: 'mandatory' },
     'AQ.2': { label: 'P6 Score', type: 'feeds' },
     'AQ.3': { label: 'P6 Score', type: 'feeds' },
     'AQ.4': { label: 'P6 Ambient', type: 'mandatory' },
     'AQ.5': { label: 'P6 Noise', type: 'feeds' },
-    // Biodiversity
-    'BD.1': { label: 'P9 Mandatory', type: 'mandatory' },
-    'BD.2': { label: 'P9 Mandatory', type: 'mandatory' },
-    'BD.3': { label: 'P9 Score', type: 'mandatory' },
-    'BD.4': { label: 'P9 Audit', type: 'feeds' },
-    // Governance / EHS / Community
-    'GV.1': { label: 'P10', type: 'feeds' },
-    'GV.2': { label: 'P10', type: 'feeds' },
-    'GV.3': { label: 'P10 Policy', type: 'mandatory' },
-    'EHS.1':{ label: 'P10 Safety', type: 'mandatory' },
-    'EHS.2':{ label: 'P10', type: 'feeds' },
-    'EHS.3':{ label: 'P10', type: 'feeds' },
-    'CM.1': { label: 'P10 CSR', type: 'feeds' },
+    // Biodiversity — supporting evidence for P9 (primary entry: GreenCo Settings)
+    'BD.1': { label: 'P9 Evidence', type: 'supporting' },
+    'BD.2': { label: 'P9 Evidence', type: 'supporting' },
+    'BD.3': { label: 'P9 Evidence', type: 'supporting' },
+    'BD.4': { label: 'P9 Evidence', type: 'supporting' },
+    // Governance / EHS / Community — supporting evidence for P10 (primary entry: GreenCo Settings)
+    'GV.1': { label: 'P10 Evidence', type: 'supporting' },
+    'GV.2': { label: 'P10 Evidence', type: 'supporting' },
+    'GV.3': { label: 'P10 Evidence', type: 'supporting' },
+    'EHS.1':{ label: 'P10 Evidence', type: 'supporting' },
+    'EHS.2':{ label: 'P10 Evidence', type: 'supporting' },
+    'EHS.3':{ label: 'P10 Evidence', type: 'supporting' },
+    'CM.1': { label: 'P10 Evidence', type: 'supporting' },
 };
 
 // ── Evidence data per sub-category ─────────────────────────────────────────
@@ -3957,7 +4241,7 @@ const GC_EVIDENCE = {
         param: 'P8 — Product Stewardship (or GreenCo Lite: Environmental Leadership)',
         docs: ['EPR registration certificate (CPCB)', 'Take-back / collection programme records', 'Product eco-label certification (if any)', 'Packaging material declaration and recycled content %', 'End-of-life product quantity collected and recycled'],
         granularity: 'Annual EPR targets vs actuals',
-        scoreImpact: 'P8 score. In GreenCo Lite, combined with P9+P10 into Environmental Leadership (max 30 pts).',
+        scoreImpact: 'P8 score. In GreenCo Lite, combined with P9+P10 into Environmental Leadership (250 pts combined).',
         readiness: 'evidence-needed'
     },
     'AQ.1': {
@@ -4044,6 +4328,26 @@ function annotateCategories() {
     });
 }
 
+// ── GreenCo Version selector ─────────────────────────────────────────────────
+function applyGcVersion(ver) {
+    gcVersion = ver;
+    const def = GC_VERSION_DEFS[ver];
+    // Patch P8, P9, P10 in GC_PARAMS with version-specific name and weight
+    ['p8','p9','p10'].forEach(id => {
+        const param = GC_PARAMS.find(p => p.id === id);
+        if (param && def[id]) {
+            param.name   = def[id].name;
+            param.weight = def[id].weight;
+        }
+    });
+    // Update strip title
+    const titleEl = document.getElementById('gcVersionTitle');
+    if (titleEl) titleEl.textContent = def.stripTitle;
+    // Re-render grid with updated params
+    renderGcParamGrid();
+    showToast(`📋 Switched to GreenCo ${def.label} — P8/P9/P10 updated.`);
+}
+
 // ── GreenCo Lite mode ───────────────────────────────────────────────────────
 function applyGcLiteMode() {
     const select = document.getElementById('gcLiteSelect');
@@ -4056,24 +4360,72 @@ function renderGcParamGrid() {
     const grid = document.getElementById('gcParamGrid');
     if (!grid) return;
 
+    // P1-P7 total = 150+100+100+100+100+100+100 = 750 pts (same both versions)
+    // P8+P9+P10 combined = 250 pts (both versions: 75+75+100 = 125+50+75 = 250)
+    const liteBanner = gcLiteMode
+        ? `<div class="gc-lite-banner">ℹ️ <strong>GreenCo Lite scoring:</strong> P1–P7 score individually (750 pts total) · P8, P9, P10 are combined into a single "Environmental Leadership" parameter (250 pts) · Total = 1,000 pts</div>`
+        : '';
+
     if (gcLiteMode) {
-        // Full params 1-7 individually + combined P8+P9+P10
         const liteParams = GC_PARAMS.slice(0, 7);
         const liteCombined = {
             num: '8–10', id: 'p8p9p10', name: 'Environmental Leadership',
             catIds: ['materials','waste','biodiversity','governance','ehs','community'],
-            description: 'GreenCo Lite combines Product Stewardship (P8), Biodiversity & Green Cover (P9), and Beyond Compliance (P10) into a single 30-point parameter. Fill all three source categories.',
-            weight: 30, liteGroup: true
+            supportingCatIds: ['materials','waste','biodiversity','governance','ehs','community'],
+            description: 'GreenCo Lite combines P8, P9, and P10 into a single parameter. Primary data captured in GreenCo Settings.',
+            weight: 250, liteGroup: true, isSettingsGroup: true
         };
         const allPills = [...liteParams, liteCombined];
-        grid.innerHTML = allPills.map(p => renderParamPill(p, !!p.liteGroup)).join('');
+        grid.innerHTML = liteBanner + allPills.map(p => renderParamPill(p, !!p.liteGroup)).join('');
     } else {
-        grid.innerHTML = GC_PARAMS.map(p => renderParamPill(p, false)).join('');
+        grid.innerHTML = liteBanner + GC_PARAMS.map(p => renderParamPill(p, false)).join('');
     }
 }
 
 function renderParamPill(p, isLite) {
     const liteClass = isLite ? ' lite-combined' : '';
+
+    // P1/P5 overlap badge
+    const overlapBadge = (p.id === 'p1' || p.id === 'p5')
+        ? `<span class="gc-overlap-badge" title="Scope 1+2 data is shared between P1 and P5. Fill once in the Energy and Scope forms — it counts for both.">⟳ Shares data with ${p.id === 'p1' ? 'P5' : 'P1'}</span>`
+        : '';
+
+    // Score hint — use actual framework weight throughout
+    const wt = p.weight || 0;
+    const scoreHint = isLite
+        ? `${wt} pts (combined)`
+        : `${wt} pts${(p.id==='p1'||p.id==='p5') ? ' · shared Scope 1+2 data' : ''}`;
+
+    // ── P8 / P9 / P10 (and Lite combined) route to GreenCo Settings ──────────
+    const isSettingsParam = p.gcSettings === true || p.isSettingsGroup === true;
+    if (isSettingsParam) {
+        // Build supporting evidence chips for the categories that still hold evidence
+        const supportingCats = p.supportingCatIds || p.catIds || [];
+        const supportingChips = supportingCats.map(id => {
+            const cat = CATEGORIES.find(c => c.id === id);
+            const label = cat ? cat.label : id;
+            const icon  = cat ? cat.icon  : '→';
+            return `<span class="gc-cat-jump-chip gc-supporting-chip" title="Supporting evidence — not the primary entry point" onclick="event.stopPropagation(); jumpToGcParam('${id}', null)">${icon} ${label}</span>`;
+        }).join('');
+
+        const settingsLabel = isLite ? 'Environmental Leadership (P8–P10)' : p.name;
+        const paramId = p.id;
+
+        return `<div class="gc-param-pill${liteClass} gc-settings-pill">
+            <div class="gc-param-num">${p.num}</div>
+            <div class="gc-param-info">
+                <div class="gc-param-name">${settingsLabel}</div>
+                <div class="gc-param-forms gc-settings-label">⚙️ Primary data entry: GreenCo Settings</div>
+                <div class="gc-cat-jump-row" style="margin-top:4px;">
+                    <span class="gc-cat-jump-chip gc-settings-chip" onclick="event.stopPropagation(); openGcSettings('${paramId}')">⚙️ Open GreenCo Settings</span>
+                    ${supportingChips.length ? `<span class="gc-supporting-divider">Supporting evidence →</span>${supportingChips}` : ''}
+                </div>
+                <div class="gc-param-score-hint" style="margin-top:4px;">${scoreHint}</div>
+            </div>
+        </div>`;
+    }
+
+    // ── P1–P7: existing behavior unchanged ───────────────────────────────────
 
     // For single-category params, the whole pill is clickable
     if (p.catIds.length === 1) {
@@ -4082,14 +4434,14 @@ function renderParamPill(p, isLite) {
         return `<div class="gc-param-pill${liteClass}" onclick="jumpToGcParam('${p.catIds[0]}', this)">
             <div class="gc-param-num">${p.num}</div>
             <div class="gc-param-info">
-                <div class="gc-param-name">${p.name}</div>
+                <div class="gc-param-name">${p.name}${overlapBadge}</div>
                 <div class="gc-param-forms">Forms: ${label}</div>
-                <div class="gc-param-score-hint">10 pts max</div>
+                <div class="gc-param-score-hint">${scoreHint}</div>
             </div>
         </div>`;
     }
 
-    // For multi-category params (including lite combined), render individual jump chips
+    // For multi-category params, render individual jump chips
     const chips = p.catIds.map(id => {
         const cat = CATEGORIES.find(c => c.id === id);
         const label = cat ? cat.label : id;
@@ -4097,23 +4449,43 @@ function renderParamPill(p, isLite) {
         return `<span class="gc-cat-jump-chip" onclick="event.stopPropagation(); jumpToGcParam('${id}', null)">${icon} ${label}</span>`;
     }).join('');
 
-    const scoreHint = isLite ? '30 pts max (combined)' : '10 pts max';
+    // P2 gets an extra direct sub-chip to land on EN.4 specifically
+    const p2SubChip = (p.id === 'p2')
+        ? `<span class="gc-cat-jump-chip gc-sub-jump-chip" onclick="event.stopPropagation(); jumpToGcParam('energy', null, 'EN.4')">★ RE Share (EN.4)</span>`
+        : '';
 
     return `<div class="gc-param-pill${liteClass}">
         <div class="gc-param-num">${p.num}</div>
         <div class="gc-param-info">
-            <div class="gc-param-name">${p.name}</div>
+            <div class="gc-param-name">${p.name}${overlapBadge}</div>
             <div class="gc-param-forms" style="margin-bottom:5px;">
                 ${isLite ? 'Combined parameter — navigate to each section:' : 'Jump to:'}
             </div>
-            <div class="gc-cat-jump-row">${chips}</div>
+            <div class="gc-cat-jump-row">${p2SubChip}${chips}</div>
             <div class="gc-param-score-hint" style="margin-top:4px;">${scoreHint}</div>
         </div>
     </div>`;
 }
 
-function jumpToGcParam(catId, pillEl) {
+// ── GreenCo Settings routing for P8/P9/P10 ─────────────────────────────────
+// NOTE for Siva: 'greenco_settings.html' must resolve relative to this file.
+// Update the path below if the settings file is in a different directory.
+const GC_SETTINGS_URL = 'greenco_settings.html';
+
+function openGcSettings(paramId) {
+    // Open GreenCo Settings in a new tab, same as the dashboard does
+    window.open(GC_SETTINGS_URL, '_blank');
+    // Show an in-page toast guiding the consultant
+    const paramNames = { p8: 'P8 — Product Stewardship', p9: 'P9 — Biodiversity & Green Cover', p10: 'P10 — Beyond Compliance', p8p9p10: 'Environmental Leadership (P8–P10)' };
+    showToast(`⚙️ Opening GreenCo Settings for ${paramNames[paramId] || paramId}. Supporting evidence can also be uploaded in the relevant category forms.`);
+}
+
+function jumpToGcParam(catId, pillEl, subId) {
     selectCategory(catId);
+    if (subId) {
+        // Pre-select the specific sub-category after the category renders
+        setTimeout(() => selectSubcat(subId), 0);
+    }
     document.querySelectorAll('.gc-param-pill').forEach(p => p.classList.remove('active-param'));
     if (pillEl) pillEl.classList.add('active-param');
 }
@@ -4129,7 +4501,7 @@ buildSubcatList = function() {
         const badge = GC_SUB_BADGES[subId];
         if (badge) {
             const span = document.createElement('span');
-            span.className = `gc-subcat-badge ${badge.type === 'mandatory' ? 'mandatory' : badge.type === 'lite' ? 'lite-badge' : ''}`;
+            span.className = `gc-subcat-badge ${badge.type === 'mandatory' ? 'mandatory' : badge.type === 'lite' ? 'lite-badge' : badge.type === 'supporting' ? 'supporting' : ''}`;
             span.textContent = badge.label;
             // Remove any existing gc badge
             item.querySelectorAll('.gc-subcat-badge').forEach(b => b.remove());
@@ -4342,6 +4714,7 @@ function getParamStatus(paramId) {
     // Evidence: at least one mandatory sub has evidence uploaded
     const evidenceSubs = spec.mandatory.filter(s => gcEvidenceDocs[s] && gcEvidenceDocs[s].length > 0);
     if (allMandatoryDone && evidenceSubs.length > 0) return 'ready';
+    if (allMandatoryDone && evidenceSubs.length === 0) return 'data-ok'; // all data filled, evidence pending
     if (filledMandatory.length > 0) return 'partial';
     return 'missing';
 }
@@ -4352,13 +4725,17 @@ function renderCompletenessPanel() {
     if (noteEl) noteEl.style.display = 'block';
 
     // Summary chips
-    let ready=0, partial=0, missing=0;
+    let ready=0, dataOk=0, partial=0, missing=0;
     GC_PARAMS.forEach(p => {
         const s = getParamStatus(p.id);
-        if (s==='ready') ready++; else if (s==='partial') partial++; else missing++;
+        if (s==='ready') ready++;
+        else if (s==='data-ok') dataOk++;
+        else if (s==='partial') partial++;
+        else missing++;
     });
     document.getElementById('gcCpSummaryChips').innerHTML = `
         <span class="gc-cp-chip ready">✅ ${ready} Ready</span>
+        <span class="gc-cp-chip data-ok">📋 ${dataOk} Data Complete</span>
         <span class="gc-cp-chip partial">⚠ ${partial} Partial</span>
         <span class="gc-cp-chip missing">✗ ${missing} Not Started</span>`;
 
@@ -4382,7 +4759,8 @@ function renderCompletenessPanel() {
         const spec = GC_PARAM_SUBS[p.id];
         const overlapNote = spec?.overlap || null;
         const status = isLiteCombined ? getParamStatus('p8') : getParamStatus(p.id);
-        const numCls = status === 'ready' ? 'status-ready'
+        const numCls = status === 'ready'   ? 'status-ready'
+                     : status === 'data-ok' ? 'status-data-ok'
                      : status === 'partial' ? 'status-partial'
                      : overlapNote ? 'status-overlap' : 'status-missing';
 
@@ -4404,7 +4782,10 @@ function renderCompletenessPanel() {
             </div>`;
         }).join('');
 
-        const chipLabel = status === 'ready' ? '✅ Ready' : status === 'partial' ? '⚠ Partial' : '✗ Not Started';
+        const chipLabel = status === 'ready'   ? '✅ Ready'
+                        : status === 'data-ok' ? '📋 Data Complete — Evidence Pending'
+                        : status === 'partial' ? '⚠ Partial'
+                        : '✗ Not Started';
         const chipCls   = status;
         const jumpCat   = p.catIds?.[0] || '';
         const overlapHTML = overlapNote
