@@ -486,10 +486,10 @@
 <!-- ════ STICKY BAR: health tiles + year selector ════ -->
 <div class="sticky-bar">
   <div class="health-tiles">
-    <div class="hs-tile"><div class="hs-icon">🏭</div><div><div class="hs-label">Registered</div><div class="hs-val">14</div></div></div>
-    <div class="hs-tile"><div class="hs-icon">✅</div><div><div class="hs-label">Active</div><div class="hs-val ok">12</div></div></div>
-    <div class="hs-tile"><div class="hs-icon">📋</div><div><div class="hs-label">Reporting</div><div class="hs-val ok">10</div></div></div>
-    <div class="hs-tile"><div class="hs-icon">⏳</div><div><div class="hs-label">Pending</div><div class="hs-val warn">2</div></div></div>
+    <div class="hs-tile"><div class="hs-icon">🏭</div><div><div class="hs-label">Campus Companies</div><div class="hs-val">31</div></div></div>
+    <div class="hs-tile"><div class="hs-icon">✅</div><div><div class="hs-label">On TerraCAP</div><div class="hs-val ok">10</div></div></div>
+    <div class="hs-tile"><div class="hs-icon">📋</div><div><div class="hs-label">Reporting</div><div class="hs-val ok">8</div></div></div>
+    <div class="hs-tile"><div class="hs-icon">⏳</div><div><div class="hs-label">Q4 Pending</div><div class="hs-val warn">2</div></div></div>
     <div class="hs-tile"><div class="hs-icon">📧</div><div><div class="hs-label">Invited</div><div class="hs-val">2</div></div></div>
   </div>
   <div class="year-pill">
@@ -522,7 +522,7 @@
       <div class="sidebar-label">Zone Management <span class="new-tag">New</span></div>
       <div class="sidebar-item active" onclick="showView('overview')"><span>📊</span> Zone Overview</div>
       <div class="sidebar-item" onclick="showView('zonedata')"><span>📝</span> Zone Data Entry</div>
-      <div class="sidebar-item" onclick="showView('tenants')"><span>🏭</span> Tenant List <span class="s-badge live">14</span></div>
+      <div class="sidebar-item" onclick="showView('tenants')"><span>🏭</span> Tenant List <span class="s-badge live">10</span></div>
       <div class="sidebar-item" onclick="showView('scope3')"><span>🔗</span> Scope 3 Detail <span class="s-badge new">New</span></div>
       <div class="sidebar-item" onclick="showView('compliance')"><span>📋</span> Zone Compliance</div>
       <div class="sidebar-item" onclick="showView('reports')"><span>📄</span> Zone Reports</div>
@@ -868,14 +868,14 @@
     <div id="view-tenants" class="view">
       <div class="view-header">
         <div class="view-title">Tenant List</div>
-        <div class="view-sub">All registered tenants · Click any row to enter read-only tenant view · Cat 13 recalculates on each submission · Q4-pending rows shown with amber background</div>
+        <div class="view-sub">AMTZ Essentials tenants registered on TerraCAP · Click any row to enter read-only tenant view · Cat 13 recalculates on each submission · Q4-pending rows shown with amber background</div>
       </div>
       <div class="card">
         <div class="section-hdr">
           <div><div class="section-hdr-title" id="rosterTitle">Tenant List — FY 2024–25</div></div>
           <div style="display:flex;gap:10px">
             <input type="text" placeholder="Search tenants…" style="padding:6px 12px;border:1px solid var(--stroke);border-radius:20px;font-size:12px;font-family:var(--font);width:180px;">
-            <button class="btn btn-primary btn-sm" onclick="openModal('modal-onboard')">+ Onboard Tenant</button>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modal-onboard')">+ Add Tenant</button>
           </div>
         </div>
         <table class="data-table">
@@ -883,94 +883,116 @@
             <tr><th>Tenant</th><th>Sector</th><th>Add-ons</th><th>Scope 1 tCO₂e</th><th>Scope 2 tCO₂e</th><th>Scope 3 tCO₂e</th><th>Cat 13 tCO₂e</th><th>Submission</th><th>Status</th><th>DQS</th><th></th></tr>
           </thead>
           <tbody>
-            <tr class="clickable" onclick="openTenantDetail('Bharat Biotech')">
-              <td><strong>Bharat Biotech</strong><div style="font-size:11px;color:var(--subtle)">Unit 4 · Block C</div></td>
-              <td>Vaccines / Biologics</td>
+            <!-- Active tenants: 8 of the 10 AMTZ Essentials onboarded -->
+            <tr class="clickable" onclick="openTenantDetail('imeds Global Pvt Ltd')">
+              <td><strong>imeds Global Pvt Ltd</strong><div style="font-size:11px;color:var(--subtle)">Medical Electronics &amp; Devices</div></td>
+              <td>Medical Devices</td>
               <td><span title="GreenCo opted" style="cursor:default">🌿</span></td>
-              <td>5,530</td><td>12,890</td><td>1,083</td><td>18,420</td>
-              <td><span class="pill pill-green">✓ Complete</span></td>
-              <td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td>
-              <td><strong style="color:#4A7C59">94%</strong></td>
-              <td style="display:flex;gap:4px;padding-top:8px">
-                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('Bharat Biotech')">View →</button>
-                <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openModal('modal-edit')">Edit</button>
-              </td>
-            </tr>
-            <tr class="clickable" onclick="openTenantDetail('Aurobindo API Unit')">
-              <td><strong>Aurobindo API Unit</strong><div style="font-size:11px;color:var(--subtle)">Unit 2 · Block A</div></td>
-              <td>API Pharma</td><td>—</td><td>4,680</td><td>10,930</td><td>720</td><td>15,610</td>
-              <td><span class="pill pill-green">✓ Complete</span></td>
-              <td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td>
-              <td><strong style="color:#d97706">72%</strong></td>
-              <td style="display:flex;gap:4px;padding-top:8px">
-                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('Aurobindo API Unit')">View →</button>
-                <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openModal('modal-edit')">Edit</button>
-              </td>
-            </tr>
-            <tr class="clickable" onclick="openTenantDetail('Divi\'s Laboratories')">
-              <td><strong>Divi's Laboratories</strong><div style="font-size:11px;color:var(--subtle)">Unit 7 · Block B</div></td>
-              <td>API Pharma</td><td><span title="GreenCo opted">🌿</span> <span title="CBAM opted">🚢</span></td><td>3,720</td><td>8,680</td><td>938</td><td>12,400</td>
+              <td>3,210</td><td>7,480</td><td>620</td><td>10,690</td>
               <td><span class="pill pill-green">✓ Complete</span></td>
               <td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td>
               <td><strong style="color:#4A7C59">91%</strong></td>
               <td style="display:flex;gap:4px;padding-top:8px">
-                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('Divi\'s Laboratories')">View →</button>
+                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('imeds Global Pvt Ltd')">View →</button>
                 <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openModal('modal-edit')">Edit</button>
               </td>
             </tr>
-            <!-- Q4 pending row — amber bg, show Q1–Q3 partial figures -->
-            <tr class="partial clickable" onclick="openTenantDetail('Poly Medicure')">
-              <td><strong>Poly Medicure</strong><div style="font-size:11px;color:#92400e">Unit 1 · Block A · Q4 not submitted</div></td>
+            <tr class="clickable" onclick="openTenantDetail('Bhaavaj Meditech Pvt Ltd')">
+              <td><strong>Bhaavaj Meditech Pvt Ltd</strong><div style="font-size:11px;color:var(--subtle)">Hospital Equipment &amp; Medical Supplies</div></td>
               <td>Medical Devices</td><td>—</td>
-              <td style="color:#d97706">~2,510 <span style="font-size:10px">(Q1–Q3)</span></td>
-              <td style="color:#d97706">~5,870 <span style="font-size:10px">(Q1–Q3)</span></td>
-              <td style="color:#d97706">~290</td><td style="color:#d97706">~8,380</td>
-              <td><span class="pill pill-amber">⏳ Q4 Pending</span></td>
+              <td>2,840</td><td>6,630</td><td>490</td><td>9,470</td>
+              <td><span class="pill pill-green">✓ Complete</span></td>
               <td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td>
-              <td><strong style="color:#d97706">78%</strong></td>
+              <td><strong style="color:#d97706">74%</strong></td>
               <td style="display:flex;gap:4px;padding-top:8px">
-                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('Poly Medicure')">View →</button>
+                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('Bhaavaj Meditech Pvt Ltd')">View →</button>
                 <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openModal('modal-edit')">Edit</button>
               </td>
             </tr>
-            <tr class="clickable" onclick="openTenantDetail('HLL Lifecare')">
-              <td><strong>HLL Lifecare</strong><div style="font-size:11px;color:var(--subtle)">Unit 5 · Block C</div></td>
-              <td>Medical Supplies</td><td>—</td><td>2,040</td><td>4,770</td><td>480</td><td>6,810</td>
+            <tr class="clickable" onclick="openTenantDetail('Techtron (SDS Life Sciences) Pvt Ltd')">
+              <td><strong>Techtron (SDS Life Sciences) Pvt Ltd</strong><div style="font-size:11px;color:var(--subtle)">Radiopharmaceuticals · Nuclear Medicine</div></td>
+              <td>Radiopharmaceutical</td><td><span title="CBAM opted">🚢</span></td>
+              <td>4,190</td><td>9,750</td><td>810</td><td>13,940</td>
               <td><span class="pill pill-green">✓ Complete</span></td>
               <td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td>
               <td><strong style="color:#4A7C59">88%</strong></td>
               <td style="display:flex;gap:4px;padding-top:8px">
-                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('HLL Lifecare')">View →</button>
-                <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();">Edit</button>
+                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('Techtron (SDS Life Sciences) Pvt Ltd')">View →</button>
+                <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openModal('modal-edit')">Edit</button>
+              </td>
+            </tr>
+            <tr class="clickable" onclick="openTenantDetail('TÜV Rheinland (India) Pvt Ltd')">
+              <td><strong>TÜV Rheinland (India) Pvt Ltd</strong><div style="font-size:11px;color:var(--subtle)">Testing, Inspection &amp; Certification</div></td>
+              <td>TIC Services</td><td>—</td>
+              <td>1,560</td><td>3,640</td><td>310</td><td>5,200</td>
+              <td><span class="pill pill-green">✓ Complete</span></td>
+              <td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td>
+              <td><strong style="color:#4A7C59">86%</strong></td>
+              <td style="display:flex;gap:4px;padding-top:8px">
+                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('TÜV Rheinland (India) Pvt Ltd')">View →</button>
+                <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openModal('modal-edit')">Edit</button>
               </td>
             </tr>
             <!-- Q4 pending -->
-            <tr class="partial clickable" onclick="openTenantDetail('SciGen MedTech')">
-              <td><strong>SciGen MedTech</strong><div style="font-size:11px;color:#92400e">Unit 3 · Block B · Q4 not submitted</div></td>
-              <td>Biologics</td><td><span title="GreenCo opted">🌿</span></td>
-              <td style="color:#d97706">~1,180</td><td style="color:#d97706">~2,740</td><td>—</td><td style="color:#d97706">~3,920</td>
+            <tr class="partial clickable" onclick="openTenantDetail('Molbio Diagnostics Ltd')">
+              <td><strong>Molbio Diagnostics Ltd</strong><div style="font-size:11px;color:#92400e">Molecular Diagnostics · Q4 not submitted</div></td>
+              <td>Diagnostics</td><td>—</td>
+              <td style="color:#d97706">~1,920 <span style="font-size:10px">(Q1–Q3)</span></td>
+              <td style="color:#d97706">~4,470 <span style="font-size:10px">(Q1–Q3)</span></td>
+              <td style="color:#d97706">~280</td><td style="color:#d97706">~6,390</td>
               <td><span class="pill pill-amber">⏳ Q4 Pending</span></td>
               <td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td>
-              <td><strong style="color:#d97706">65%</strong></td>
+              <td><strong style="color:#d97706">71%</strong></td>
               <td style="display:flex;gap:4px;padding-top:8px">
-                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('SciGen MedTech')">View →</button>
-                <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();">Edit</button>
+                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('Molbio Diagnostics Ltd')">View →</button>
+                <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openModal('modal-edit')">Edit</button>
               </td>
             </tr>
-            <tr class="clickable"><td><strong>Wipro GE Healthcare</strong><div style="font-size:11px;color:var(--subtle)">Unit 6 · Block A</div></td><td>Imaging</td><td><span title="CBAM opted">🚢</span></td><td>1,080</td><td>2,530</td><td>195</td><td>3,610</td><td><span class="pill pill-green">✓ Complete</span></td><td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td><td><strong style="color:#4A7C59">93%</strong></td><td style="display:flex;gap:4px;padding-top:8px"><button class="drill-btn">View →</button><button class="btn btn-outline btn-sm">Edit</button></td></tr>
-            <tr class="clickable"><td><strong>Thyrocare Labs</strong></td><td>Pathology</td><td>—</td><td>850</td><td>1,990</td><td>160</td><td>2,840</td><td><span class="pill pill-green">✓ Complete</span></td><td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td><td><strong style="color:#4A7C59">86%</strong></td><td style="display:flex;gap:4px;padding-top:8px"><button class="drill-btn">View →</button><button class="btn btn-outline btn-sm">Edit</button></td></tr>
-            <tr><td><strong>Innova Captab</strong></td><td>Formulations</td><td>—</td><td>630</td><td>1,470</td><td>112</td><td>2,100</td><td><span class="pill pill-green">✓ Complete</span></td><td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td><td><strong style="color:#4A7C59">82%</strong></td><td style="display:flex;gap:4px;padding-top:8px"><button class="drill-btn">View →</button><button class="btn btn-outline btn-sm">Edit</button></td></tr>
-            <tr><td><strong>Hester Biosciences</strong></td><td>Vet. Vaccines</td><td>—</td><td>580</td><td>1,360</td><td>—</td><td>1,940</td><td><span class="pill pill-green">✓ Complete</span></td><td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td><td><strong style="color:#4A7C59">80%</strong></td><td style="display:flex;gap:4px;padding-top:8px"><button class="drill-btn">View →</button><button class="btn btn-outline btn-sm">Edit</button></td></tr>
-            <tr><td><strong>ESIC Diagnostics</strong><div style="font-size:11px;color:var(--subtle)">Unit 9 · Block D</div></td><td>Diagnostics</td><td>—</td><td>1,320</td><td>3,080</td><td>209</td><td>4,400</td><td><span class="pill pill-green">✓ Complete</span></td><td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td><td><strong style="color:#4A7C59">90%</strong></td><td style="display:flex;gap:4px;padding-top:8px"><button class="drill-btn">View →</button><button class="btn btn-outline btn-sm">Edit</button></td></tr>
-            <tr><td><strong>AMTZ R&amp;D Centre</strong><div style="font-size:11px;color:var(--subtle)">HQ · Common Area</div></td><td>R&amp;D</td><td>—</td><td>1,130</td><td>2,650</td><td>163</td><td>3,780</td><td><span class="pill pill-green">✓ Complete</span></td><td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td><td><strong style="color:#4A7C59">89%</strong></td><td style="display:flex;gap:4px;padding-top:8px"><button class="drill-btn">View →</button><button class="btn btn-outline btn-sm">Edit</button></td></tr>
-            <!-- Invited -->
-            <tr style="opacity:0.65"><td><em>Cipla API Unit</em></td><td>API Pharma</td><td>—</td><td colspan="4" style="color:var(--subtle);font-style:italic">Awaiting registration</td><td>—</td><td><span class="pill pill-blue"><span class="status-dot invited"></span>Invited</span></td><td>—</td><td></td></tr>
-            <tr style="opacity:0.65"><td><em>Sun Pharma Unit 2</em></td><td>Formulations</td><td>—</td><td colspan="4" style="color:var(--subtle);font-style:italic">Awaiting registration</td><td>—</td><td><span class="pill pill-blue"><span class="status-dot invited"></span>Invited</span></td><td>—</td><td></td></tr>
+            <tr class="clickable" onclick="openTenantDetail('Trivitron Health Care')">
+              <td><strong>Trivitron Health Care</strong><div style="font-size:11px;color:var(--subtle)">Medical Devices &amp; Diagnostics</div></td>
+              <td>Medical Devices</td><td><span title="GreenCo opted">🌿</span></td>
+              <td>2,370</td><td>5,520</td><td>440</td><td>7,890</td>
+              <td><span class="pill pill-green">✓ Complete</span></td>
+              <td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td>
+              <td><strong style="color:#4A7C59">83%</strong></td>
+              <td style="display:flex;gap:4px;padding-top:8px">
+                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('Trivitron Health Care')">View →</button>
+                <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openModal('modal-edit')">Edit</button>
+              </td>
+            </tr>
+            <tr class="clickable" onclick="openTenantDetail('Gizmomed Pvt Ltd')">
+              <td><strong>Gizmomed Pvt Ltd</strong><div style="font-size:11px;color:var(--subtle)">Medical Device Innovation</div></td>
+              <td>Medical Devices</td><td>—</td>
+              <td>980</td><td>2,280</td><td>175</td><td>3,260</td>
+              <td><span class="pill pill-green">✓ Complete</span></td>
+              <td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td>
+              <td><strong style="color:#4A7C59">80%</strong></td>
+              <td style="display:flex;gap:4px;padding-top:8px">
+                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('Gizmomed Pvt Ltd')">View →</button>
+                <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openModal('modal-edit')">Edit</button>
+              </td>
+            </tr>
+            <!-- Q4 pending -->
+            <tr class="partial clickable" onclick="openTenantDetail('Jansen India Medtech Pvt Ltd')">
+              <td><strong>Jansen India Medtech Pvt Ltd</strong><div style="font-size:11px;color:#92400e">Medical Technology · Q4 not submitted</div></td>
+              <td>MedTech</td><td>—</td>
+              <td style="color:#d97706">~1,140</td><td style="color:#d97706">~2,660</td><td>—</td><td style="color:#d97706">~3,800</td>
+              <td><span class="pill pill-amber">⏳ Q4 Pending</span></td>
+              <td><span class="pill pill-green"><span class="status-dot active"></span>Active</span></td>
+              <td><strong style="color:#d97706">67%</strong></td>
+              <td style="display:flex;gap:4px;padding-top:8px">
+                <button class="drill-btn" onclick="event.stopPropagation();openTenantDetail('Jansen India Medtech Pvt Ltd')">View →</button>
+                <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openModal('modal-edit')">Edit</button>
+              </td>
+            </tr>
+            <!-- Invited — 2 remaining Essentials slots pending registration -->
+            <tr style="opacity:0.65"><td><em>Orange Koi Pvt Ltd</em><div style="font-size:11px;color:var(--subtle)">Essentials · Invitation sent</div></td><td>MedTech</td><td>—</td><td colspan="4" style="color:var(--subtle);font-style:italic">Awaiting registration</td><td>—</td><td><span class="pill pill-blue"><span class="status-dot invited"></span>Invited</span></td><td>—</td><td></td></tr>
+            <tr style="opacity:0.65"><td><em>Nanoshel Healthcare Pvt Ltd</em><div style="font-size:11px;color:var(--subtle)">Essentials · Invitation sent</div></td><td>Healthcare</td><td>—</td><td colspan="4" style="color:var(--subtle);font-style:italic">Awaiting registration</td><td>—</td><td><span class="pill pill-blue"><span class="status-dot invited"></span>Invited</span></td><td>—</td><td></td></tr>
           </tbody>
         </table>
         <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
           <div style="flex:1;padding:9px 12px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:12px;color:#92400e">
-            <strong>Cat 13 (provisional):</strong> 81,250 tCO₂e from 10 confirmed tenants. Expected final ~85,500 tCO₂e once Poly Medicure and SciGen submit Q4.
+            <strong>Cat 13 (provisional):</strong> 60,140 tCO₂e from 8 confirmed tenants. Expected final ~69,940 tCO₂e once Molbio Diagnostics and Jansen India Medtech submit Q4.
           </div>
           <div style="font-size:11px;color:var(--subtle)">🌿 GreenCo &nbsp; 🚢 CBAM</div>
         </div>
@@ -1676,45 +1698,39 @@
 <div class="modal-overlay" id="modal-onboard" onclick="closeModal('modal-onboard')">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-header">
-      <div class="modal-title">Onboard Tenant</div>
+      <div class="modal-title">Add Tenant to Zone</div>
       <button class="modal-close" onclick="closeModal('modal-onboard')">✕</button>
     </div>
     <div class="form-grid">
-      <div class="form-section-label">Company Details</div>
-      <div class="form-field"><label>Company Name</label><input placeholder="e.g. Cipla Ltd"></div>
-      <div class="form-field"><label>Unit – Block</label><input placeholder="e.g. Unit 13 – Block E"></div>
-      <div class="form-field"><label>Sector</label><select><option value="">— Select —</option><option>API Pharma</option><option>Formulations</option><option>Medical Devices</option><option>Vaccines / Biologics</option><option>Diagnostics</option><option>R&amp;D</option></select></div>
-      <div class="form-field"><label>GSTIN</label><input placeholder="22AAAAA0000A1Z5"></div>
-
-      <div class="form-section-label">Primary ESG Contact</div>
-      <div class="form-field"><label>Contact Name</label><input placeholder="Full name"></div>
-      <div class="form-field"><label>Contact Email</label><input type="email" placeholder="esg@company.com"></div>
-      <div class="form-field"><label>Contact Phone</label><input type="tel" placeholder="+91 98765 43210"></div>
-
-      <div class="form-section-label">Reporting Setup</div>
-      <div class="form-field"><label>GHG Baseline Year <span style="font-weight:400;color:var(--subtle)">(NetZero modelling)</span></label><select><option>FY 2021–22</option><option>FY 2022–23</option><option selected>FY 2023–24</option></select></div>
-      <div class="form-field"><label>Zone Registration Year <span style="font-weight:400;color:var(--subtle)">(year joined zone)</span></label><select><option>FY 2022–23</option><option>FY 2023–24</option><option selected>FY 2024–25</option><option>FY 2025–26</option></select></div>
-      <div class="form-field"><label>Subscription Tier</label><select><option selected>Essentials</option><option>Professional</option></select></div>
-
-      <!-- Add-on modules per tester observation -->
-      <div class="form-section-label">Add-on Modules</div>
-      <div class="addon-grid">
-        <label class="addon-item"><input type="checkbox"> 🌿 &nbsp;CII GreenCo Assessment</label>
-        <label class="addon-item"><input type="checkbox"> 🚢 &nbsp;EU CBAM Readiness</label>
-        <label class="addon-item"><input type="checkbox"> 🔄 &nbsp;LCA Tool</label>
-        <label class="addon-item"><input type="checkbox"> 🏭 &nbsp;Supplier Evaluation</label>
-        <label class="addon-item"><input type="checkbox"> 🌳 &nbsp;Carbon Credit Management</label>
-        <label class="addon-item"><input type="checkbox"> 🔍 &nbsp;TerraAudit Pack</label>
+      <div class="form-section-label">Select Registered Tenant</div>
+      <div class="form-field" style="grid-column:1/-1">
+        <label>Company <span style="font-weight:400;color:var(--subtle)">(AMTZ zone · registered on TerraCAP · Essentials tier)</span></label>
+        <select id="onboard-tenant-select" style="width:100%">
+          <option value="">— Select company —</option>
+          <option value="orange-koi">Orange Koi Pvt Ltd</option>
+          <option value="nanoshel">Nanoshel Healthcare Pvt Ltd</option>
+        </select>
+      </div>
+      <div class="form-field" style="grid-column:1/-1">
+        <label>Add-on Modules <span style="font-weight:400;color:var(--subtle)">(optional · can be changed later)</span></label>
+        <div class="addon-grid" style="margin-top:6px">
+          <label class="addon-item"><input type="checkbox"> 🌿 &nbsp;CII GreenCo Assessment</label>
+          <label class="addon-item"><input type="checkbox"> 🚢 &nbsp;EU CBAM Readiness</label>
+          <label class="addon-item"><input type="checkbox"> 🔄 &nbsp;LCA Tool</label>
+          <label class="addon-item"><input type="checkbox"> 🏭 &nbsp;Supplier Evaluation</label>
+          <label class="addon-item"><input type="checkbox"> 🌳 &nbsp;Carbon Credit Management</label>
+          <label class="addon-item"><input type="checkbox"> 🔍 &nbsp;TerraAudit Pack</label>
+        </div>
       </div>
     </div>
 
     <div class="alert blue" style="margin-top:14px;font-size:12px">
       <span class="alert-icon">ℹ️</span>
-      <div><strong>Send Invitation:</strong> A registration email with a one-time secure link is sent to the contact. The tenant self-registers and appears in the Tenant List as <strong>Invited → Registered → Active</strong>. Opted add-on modules will appear in their sidebar once Active. Their Scope 1+2 automatically contributes to the zone's Cat 13 on first submission.</div>
+      <div>Only companies already registered on TerraCAP with the AMTZ zone ID attached are shown here. Profile data, GSTIN, and contact details are pulled automatically from the platform. A confirmation email is sent to the tenant contact once added to this zone view. Their Scope 1+2 will automatically contribute to the zone's Cat 13 on first submission.</div>
     </div>
     <div style="margin-top:13px;display:flex;gap:10px;justify-content:flex-end">
       <button class="btn btn-outline" onclick="closeModal('modal-onboard')">Cancel</button>
-      <button class="btn btn-primary">Send Invitation →</button>
+      <button class="btn btn-primary">Add to Zone →</button>
     </div>
   </div>
 </div>
