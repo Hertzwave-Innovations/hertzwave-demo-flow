@@ -1251,6 +1251,44 @@
             margin: 0.25rem 0 0.5rem 0;
         }
         .variant-field-row .field-group { flex: 1; }
+        /* ─── EF hierarchy note inside panel ─── */
+        .ef-hierarchy-note {
+            font-size: 0.68rem; line-height: 1.5; color: #374151;
+            background: #f9fafb; border: 1px solid #e5e7eb;
+            border-radius: var(--radius-sm);
+            padding: 0.35rem 0.65rem; margin-bottom: 0.5rem;
+        }
+        .ef-hierarchy-note span { color: var(--hz-primary); font-weight: 700; }
+        /* ─── Dual / mixed-fuel collapsible panel ─── */
+        .dual-fuel-panel {
+            margin: 0.5rem 0;
+            border: 1px dashed #c8e6cc;
+            border-radius: var(--radius-sm);
+            background: #fbfffe;
+        }
+        .dual-fuel-panel summary {
+            list-style: none; cursor: pointer;
+            padding: 0.4rem 0.85rem;
+            font-size: 0.72rem; font-weight: 700; color: var(--hz-primary);
+            user-select: none;
+        }
+        .dual-fuel-panel summary::-webkit-details-marker { display: none; }
+        .dual-fuel-body { padding: 0.65rem 0.85rem; border-top: 1px dashed #c8e6cc; }
+        /* ─── EF validation warning state ─── */
+        .ef-block-wrap.ef-validation-warning .ef-default-note {
+            background: #fff8ed; border-color: #f6ad55; color: #7b4a0a;
+        }
+        .ef-block-wrap.ef-validation-warning .ef-details-panel {
+            border-color: #f6ad55;
+        }
+        /* ─── EF metadata advisory badge ─── */
+        .ef-meta-badge {
+            display: none; font-size: 0.7rem; font-weight: 700;
+            color: #7b4a0a; background: #fff8ed;
+            border: 1px solid #f6ad55; border-radius: 20px;
+            padding: 0.25rem 0.75rem; margin: 0.35rem 0.85rem 0;
+        }
+        .ef-meta-badge.visible { display: inline-block; }
     </style>
 </head>
 <body>
@@ -1414,6 +1452,7 @@
                 </div>
                 <div id="formBadges"></div>
             </div>
+            <div id="efMetaBadge" class="ef-meta-badge"></div>
             <div class="form-panel-body" id="formPanelBody">
                 <div style="text-align:center;padding:3rem;color:var(--muted);">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3;margin-bottom:1rem;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
@@ -2086,9 +2125,13 @@ const FF = {
         ]},
         { label: 'Source & Detection Method', fields: [
             { name: 'Source Type', hint: 'Equipment type causing fugitive release', unit: '', type: 'select',
-              options: ['Air Conditioning (HVAC)','Chiller (Central Plant)','Industrial Refrigeration','Cold Storage','Refrigerated Transport','Fire Suppression System','Electrical Switchgear (SF₆)','Semiconductor / Electronics Process','Industrial Process Gas','Pipeline Leaks','Other'] },
+              options: ['Air Conditioning (HVAC)','Chiller (Central Plant)','Industrial Refrigeration','Cold Storage','Refrigerated Transport','Fire Suppression System','Electrical Switchgear (SF\u2086)','Semiconductor / Electronics Process','Industrial Process Gas','Pipeline Leaks','Other'] },
             { name: 'Detection / Calculation Method', hint: 'How leak quantity was determined', unit: '', type: 'select',
               options: ['Direct Measurement (IR / Electronic Detector)','Mass Balance (Inventory Method)','Refill Records (Make-Up Approach)','Screening Emission Factors','OEM Leak Rate Calculation','Other'] },
+            { name: 'Calculation Methodology (Tier)', hint: 'IPCC / GHG Protocol methodology tier applied to this source', unit: '', type: 'select',
+              options: ['IPCC Tier 1 \u2014 Emission Factor Applied','IPCC Tier 2 \u2014 Mass Balance Method','Make-Up / Refill Records (GHG Protocol)','Direct Measurement (Tier 3 / Site-Specific)','Screening Level / Engineering Estimate','Not yet determined'] },
+            { name: 'GWP Source Year', hint: 'Which IPCC assessment report GWP values are from \u2014 AR5 vs AR6 can differ significantly for some gases', unit: '', type: 'select',
+              options: ['IPCC AR6 (2021) \u2014 recommended','IPCC AR5 (2014)','IPCC AR4 (2007)','Manufacturer / Chemical Supplier GWP','National Inventory Standard (MoEFCC)','Other \u2014 specify in Notes'] },
         ]},
     ]},
 
@@ -2178,9 +2221,17 @@ const FF = {
             { name: 'Installed Solar Capacity', hint: 'Total rooftop + ground-mount capacity', unit: 'kWp', type: 'number' },
             { name: 'On-Site RE % of Total Electricity', hint: 'Self-generation as share of total consumption', unit: '%', type: 'number' },
         ]},
+        { label: 'EF Version Lock (Annual Restatement Control)', fields: [
+            { name: 'Grid EF Version Locked', hint: 'Locks the emission factor version for this reporting period — prevents accidental mid-year factor change', unit: '', type: 'select',
+              options: ['CEA 2023 (FY2023-24 Baseline)','CEA 2022 (FY2022-23 Baseline)','CEA 2021 (FY2021-22 Baseline)','DEFRA 2024','DEFRA 2023','Custom — see EF Override above','Not yet locked'] },
+            { name: 'Residual Mix EF Version Locked', hint: 'For market-based method — lock the residual mix factor version separately from location-based', unit: '', type: 'select',
+              options: ['National Residual Mix 2023','National Residual Mix 2022','Supplier Contract EF (locked at contract date)','Not applicable (location-based only)'] },
+            { name: 'EF Version Valid For FY', hint: 'Reporting period this locked factor applies to — used for restatement tracking', unit: '', type: 'select',
+              options: ['FY 2025-26','FY 2024-25','FY 2023-24','FY 2022-23','Calendar Year 2025','Calendar Year 2024','Other'] },
+        ]},
     ]},
 
-    // 2.2 Purchased Steam — separate energy vector from heat
+    // 2.2 Purchased Steam
     '2.2': { sections: [
         { label: 'Steam Type & Pressure Class', fields: [
             { name: 'Steam Type', hint: 'Pressure class for correct emission factor', unit: '', type: 'select',
@@ -2283,6 +2334,7 @@ const FF = {
             { name: 'Physical Quantity (Tonnes)', hint: 'Enter actual tonnes for metals, polymers, chemicals — preferred over spend for accurate EF; avoids price-distorted EEIO errors', unit: 'Tonnes', type: 'number' },
             { name: 'Data Quality Rating', hint: 'Self-assessed quality of this category\'s input data', unit: '', type: 'select',
               options: ['Tier 1 — Supplier-specific primary data (highest quality)','Tier 2 — Physical activity data + published EF','Tier 3 — Spend-based / EEIO (lowest quality)','Mixed — different tiers per supplier'] },
+            { name: '', hint: '', type: 'ef-details', defaultNote: 'Ecoinvent v3 / IPCC 2006 / Supplier EPD \u2014 material sub-type specific; Primary vs Recycled content can change EF by up to 8x for metals' },
         ]},
     ]},
     '3.2': { sections: [
@@ -2318,9 +2370,21 @@ const FF = {
             { name: 'Total Capex Spend — This Period', hint: 'All capital procurement; EEIO factor applied as fallback', unit: '₹ Lakhs', type: 'number' },
             { name: 'IT & Technology Capex (Fallback)', hint: 'Servers, laptops, networking, data centre', unit: '₹ Lakhs', type: 'number' },
         ]},
+        { label: 'Supplier Data Completeness Scoring', fields: [
+            { name: 'Capex with EPD / LCA Data (%)', hint: 'Share of total capex where supplier Environmental Product Declaration or verified LCA data is available', unit: '%', type: 'number' },
+            { name: 'Capex with Physical Activity Data (%)', hint: 'Share with actual quantities (tonnes, units) — Tier 2', unit: '%', type: 'number' },
+            { name: 'Capex Spend-Based Only (%)', hint: 'Remainder where only EEIO / spend-based is available — lowest quality', unit: '%', type: 'number' },
+            { name: 'Data Completeness Rating', hint: 'Self-assessed rating for this period\u2019s capital goods data', unit: '', type: 'select',
+              options: ['A \u2014 >80% physical / LCA data','B \u2014 50\u201380% physical data','C \u2014 20\u201350% physical data','D \u2014 <20% physical data (mostly spend-based)','Not yet assessed'] },
+        ]},
+        { label: 'Asset Variant & EF Basis', fields: [
+            { name: 'Asset Family Variant', hint: 'Sub-type of the selected asset category \u2014 affects EF selection significantly', unit: '', type: 'select',
+              options: ['Structural Steel (Primary / BF route)','Structural Steel (Secondary / EAF route)','Reinforcement Steel (Rebar)','Precast Concrete','Ready-Mix Concrete','Aluminium (Primary Smelting)','Aluminium (Secondary / Recycled)','Copper (Primary)','Float Glass','Servers (High-density compute)','Desktop / Laptop PCs','Diesel Vehicles','Electric Vehicles (BEV)','CNG / Hybrid Vehicles','Other \u2014 specify in Notes'] },
+            { name: '', hint: '', type: 'ef-details', defaultNote: 'IPCC 2006 / Ecoinvent v3 / Supplier EPD \u2014 asset and material specific; use Supplier LCA Data where available (Tier 1 preferred)' },
+        ]},
         { label: 'Category 3.2 Total', fields: [
-            { name: 'Total Category 3.2 Emissions (tCO₂e)', hint: 'Combined from physical + LCA + spend-based paths', unit: 'tCO₂e', type: 'number' },
-            { name: 'Spend-Based Share of Total (%)', hint: 'Transparency metric — lower is better', unit: '%', type: 'number' },
+            { name: 'Total Category 3.2 Emissions (tCO\u2082e)', hint: 'Combined from physical + LCA + spend-based paths', unit: 'tCO\u2082e', type: 'number' },
+            { name: 'Spend-Based Share of Total (%)', hint: 'Transparency metric \u2014 lower is better for audit grade', unit: '%', type: 'number' },
         ]},
     ]},
     '3.3': { sections: [
@@ -2457,6 +2521,7 @@ const FF = {
             { name: 'Landfill CH₄ EF Source / Climate Zone', hint: 'Regional factor basis — tropical climate increases CH₄ generation rate', unit: '', type: 'select',
               options: ['CPCB India Default (Tropical)','IPCC Tier 1 — Tropical Developing Country','IPCC Tier 2 — Composition-Based Calculation','DEFRA 2024 Waste Factors','Site-Specific Measurement','Other — specify in Notes'] },
             { name: 'Degradable Organic Carbon (DOC) Applied (%)', hint: 'IPCC Tier 2 parameter; default 15% for Indian mixed MSW — enter actual if waste characterisation data available', unit: '%', type: 'number' },
+            { name: '', hint: '', type: 'ef-details', defaultNote: 'CPCB India Default / IPCC 2006 Waste Vol.5 \u2014 CH\u2084 EF varies significantly by landfill type and climate zone; landfill gas capture reduces net EF by 50\u201380%' },
         ]},
         { groupHeader: '📊 Category 3.5 Summary' },
         { label: 'Total Waste Generated & Emissions', fields: [
@@ -2485,6 +2550,7 @@ const FF = {
             { name: 'Business Travel Purpose', hint: 'Optional breakdown — helps target reduction programs and justify travel policy', unit: '', type: 'select',
               options: ['All classified as business purpose','Split tracked: client visits / internal meetings / conferences','Split tracked: see breakdown in Notes','Not tracked by purpose'] },
             { name: 'Total One-Way Business Trips (All Modes)', hint: 'Trip count for per-trip intensity KPI; complements distance-based calculation', unit: 'Trips', type: 'number' },
+            { name: '', hint: '', type: 'ef-details', defaultNote: 'DEFRA 2024 UK Conversion Factors \u2014 mode, class, and haul-type specific; RF multiplier (1.891\u00d7 DEFRA) applied to air only if selected above' },
         ]},
         { label: 'Air Travel', fields: [
             { name: 'Domestic Air Travel (Economy)', hint: 'Distance or trip count — domestic flights', unit: 'km', type: 'number' },
@@ -2517,8 +2583,8 @@ const FF = {
             { name: 'Working Days per Year', hint: 'Adjusted for WFH & leaves', unit: 'Days', type: 'number' },
         ]},
         { label: 'Commute Mode Split', fields: [
-            { name: 'Personal Car — Petrol/Diesel (%)', hint: '% of employees commuting by personal car', unit: '%', type: 'number' },
-            { name: 'Two-Wheeler — Petrol (%)', hint: '% using petrol motorcycle/scooter', unit: '%', type: 'number' },
+            { name: 'Personal Car \u2014 Petrol/Diesel (%)', hint: '% of employees commuting by personal car', unit: '%', type: 'number' },
+            { name: 'Two-Wheeler \u2014 Petrol (%)', hint: '% using petrol motorcycle/scooter', unit: '%', type: 'number' },
         ]},
         { label: 'Public & Shared Transport', fields: [
             { name: 'Public Bus / Metro / Rail (%)', hint: '% using public transit', unit: '%', type: 'number' },
@@ -2526,11 +2592,28 @@ const FF = {
         ]},
         { label: 'Distance & WFH', fields: [
             { name: 'Avg One-Way Commute Distance', hint: 'Average per commuting employee', unit: 'km/day', type: 'number' },
-            { name: 'WFH Days per Month (Average)', hint: 'Reduces commuting emissions', unit: 'Days/month', type: 'number' },
+            { name: 'WFH Days per Month (Average)', hint: 'Reduces commuting emissions proportionally', unit: 'Days/month', type: 'number' },
         ]},
         { label: 'EVs & Active Transport', fields: [
             { name: 'Electric Vehicle (EV) Commuters (%)', hint: '% using personal EV', unit: '%', type: 'number' },
             { name: 'Bicycle / Walk (%)', hint: '% using zero-emission active transport', unit: '%', type: 'number' },
+        ]},
+        { label: 'Fuel & EV Assumptions', fields: [
+            { name: 'Car Fuel Mix (Petrol : Diesel)', hint: 'Split within the "Personal Car" mode; affects EF selection', unit: '', type: 'select',
+              options: ['100% Petrol','75% Petrol / 25% Diesel','50% Petrol / 50% Diesel','25% Petrol / 75% Diesel','100% Diesel','Unknown \u2014 use national average'] },
+            { name: 'Dominant Car Fuel Grade', hint: 'Most common fuel grade for commuter cars \u2014 influences CO\u2082 per km', unit: '', type: 'select',
+              options: ['E5 / Standard Petrol','E10 (10% Ethanol)','B5 / Standard Diesel BS-VI','B7 Diesel','Not known \u2014 use default BS-VI'] },
+            { name: 'EV Grid Region (for EV Commuters)', hint: 'Grid region where EV charging predominantly occurs \u2014 location-based Scope 3', unit: '', type: 'select',
+              options: ['India \u2014 National Average (CEA 2023)','India \u2014 Southern Grid','India \u2014 Northern Grid','India \u2014 Western Grid','India \u2014 Eastern Grid','Not applicable (no EV commuters)'] },
+            { name: 'Two-Wheeler Fuel Grade', hint: 'Common grade for motorcycle/scooter commuters', unit: '', type: 'select',
+              options: ['E5 / Standard Petrol','E10 Petrol','E20 Petrol (India mandate)','Unknown \u2014 use E5 default'] },
+        ]},
+        { label: 'Location & City-Tier Defaults', fields: [
+            { name: 'Primary Facility City / Tier', hint: 'City tier determines public transit EF and commute distance defaults', unit: '', type: 'select',
+              options: ['Tier 1 \u2014 Metro (Mumbai, Delhi, Bengaluru, Chennai, Kolkata, Hyderabad)','Tier 2 \u2014 Large City (>1M population)','Tier 3 \u2014 Mid-size City','Industrial / Remote Location','Mixed (multiple sites)','Other'] },
+            { name: 'Public Transit EF Basis', hint: 'Emission factor for bus/metro/rail used in calculation', unit: '', type: 'select',
+              options: ['CEA 2023 \u2014 Indian Metro Rail (location-based)','MoRTH \u2014 City Bus Average','DEFRA 2024 \u2014 Average Bus/Rail','GHG Protocol Commute Default','Site-Specific Survey Data'] },
+            { name: '', hint: '', type: 'ef-details', defaultNote: 'DEFRA 2024 / GHG Protocol Commute Tool \u2014 mode and fuel-type specific; use CEA 2023 grid EF for EV charging component' },
         ]},
     ]},
     '3.8': { sections: [
@@ -2586,16 +2669,33 @@ const FF = {
     '3.13': { sections: [
         { label: 'Leased Asset Type (Downstream)', fields: [
             { name: 'Downstream Leased Asset', hint: 'Assets owned and leased to others', unit: '', type: 'select',
-              options: ['Real Estate — Office Buildings','Real Estate — Retail / Commercial','Real Estate — Industrial / Warehouse','Real Estate — Residential','Manufacturing Equipment','Vehicles / Fleet (Leased to Customer)','IT / Technology Equipment','Other'] },
+              options: ['Real Estate \u2014 Office Buildings','Real Estate \u2014 Retail / Commercial','Real Estate \u2014 Industrial / Warehouse','Real Estate \u2014 Residential','Manufacturing Equipment','Vehicles / Fleet (Leased to Customer)','IT / Technology Equipment','Other'] },
             { name: 'Number of Leased Assets / Tenants', hint: 'Count of lessees / tenants', unit: 'Nos', type: 'number' },
         ]},
         { label: 'Lessee Energy Data', fields: [
-            { name: 'Total Leased Area (sq ft)', hint: 'Gross area leased to all tenants', unit: 'sq ft', type: 'number' },
-            { name: 'Lessee Electricity Use (kWh)', hint: 'Energy consumed by lessees', unit: 'kWh', type: 'number' },
+            { name: 'Total Leased Area', hint: 'Gross area leased to all tenants', unit: 'sq m', type: 'number' },
+            { name: 'Lessee Electricity Use (kWh)', hint: 'Energy consumed by lessees \u2014 from tenant sub-meters or utility allocation', unit: 'kWh', type: 'number' },
+        ]},
+        { label: 'Asset Energy Basis & Intensity', fields: [
+            { name: 'Energy Intensity of Leased Asset', hint: 'Benchmark or measured kWh per m\u00b2 per year \u2014 used where tenant data is unavailable', unit: 'kWh/m\u00b2/yr', type: 'number' },
+            { name: 'Energy Data Source', hint: 'How tenant energy was determined', unit: '', type: 'select',
+              options: ['Tenant Sub-Meter (Direct Read)','Landlord Utility Bill Allocation','Estimated from Asset Type / CBECS Benchmark','RICS / GRESB Benchmark','Engineering Model / Simulation','Not Available \u2014 use intensity benchmark'] },
+        ]},
+        { label: 'Tenant Fuel Mix & Heating/Cooling', fields: [
+            { name: 'Tenant Heating Fuel', hint: 'Fuel used for space heating in leased asset \u2014 drives Scope 3 indirect combustion EF', unit: '', type: 'select',
+              options: ['Natural Gas (PNG)','LPG','Diesel / HSD','Electric Heating (Grid)','District Heating','No Space Heating Required','Not Known'] },
+            { name: 'Tenant Cooling Type', hint: 'Cooling system in the leased asset', unit: '', type: 'select',
+              options: ['Central Electric Chiller (Grid)','Packaged AC (Electric)','District Cooling','Gas Absorption Chiller','No Cooling Required','Not Known'] },
+            { name: 'Tenant Lessee Heating / Cooling (GJ)', hint: 'Thermal energy consumed by lessees for HVAC', unit: 'GJ', type: 'number' },
+        ]},
+        { label: 'Occupancy & Control Approach', fields: [
+            { name: 'Average Occupancy Rate', hint: 'Average % of leased space actually occupied during the reporting period', unit: '%', type: 'number' },
+            { name: 'Control Approach for Scope 3.13', hint: 'Accounting boundary per GHG Protocol', unit: '', type: 'select',
+              options: ['Operational Control (Lessor operates systems)','Financial Control (Lessor owns asset)','Equity Share Approach','Tenant-Reported Data (Direct)','Pro-Rata Floor Area Allocation','Not yet determined'] },
         ]},
         { label: 'Emissions', fields: [
-            { name: 'Lessee Heating / Cooling (GJ)', hint: 'Thermal energy by lessees', unit: 'GJ', type: 'number' },
-            { name: 'Category 13 Emissions (tCO₂e)', hint: 'Enter if already calculated', unit: 'tCO₂e', type: 'number' },
+            { name: 'Category 13 Emissions (tCO\u2082e)', hint: 'Enter if already calculated', unit: 'tCO\u2082e', type: 'number' },
+            { name: '', hint: '', type: 'ef-details', defaultNote: 'CEA 2023 National Grid EF for electricity; IPCC 2006 / MoEFCC 2023 for fuel-based heating \u2014 vary by tenant fuel mix and grid region' },
         ]},
     ]},
     '3.14': { sections: [
@@ -3287,7 +3387,235 @@ function switchEntryMethod(subId, method) {
     body.querySelectorAll('.method-cost').forEach(el => el.classList.toggle('method-hidden', method !== 'cost'));
 }
 
-// ── Per-fuel default EF reference table (IPCC 2006 Table 2.2 + MoEFCC 2023) ──
+// ── Per-fuel variant options (grade / blend / origin) ────────────────────────
+// Fuels where sub-variant materially affects the emission factor.
+// renderVariantBlock() uses this to show a structured dropdown instead of free text.
+const S1_FUEL_VARIANTS = {
+    'Petrol / Gasoline (Stationary)': [
+        'E5 \u2014 Standard Unleaded (95 RON)',
+        'E10 \u2014 10% Ethanol Blend',
+        'E20 \u2014 20% Ethanol Blend (India E20 mandate)',
+        '91 RON / Regular Grade',
+        '95 RON / Premium Unleaded',
+        '98 RON / Super Premium',
+        'Supplier-Specific Formulation',
+        'Other / Specify blend %',
+    ],
+    'High Speed Diesel (HSD)': [
+        'B0 \u2014 Pure HSD (ULSD, no bio-blend)',
+        'B5 \u2014 5% Biodiesel Blend',
+        'B7 \u2014 7% Biodiesel Blend',
+        'B20 \u2014 20% Biodiesel Blend',
+        'BS-VI Grade (\u226410 ppm Sulphur)',
+        'BS-IV Grade (\u226450 ppm Sulphur)',
+        'BS-III Grade (\u2264350 ppm Sulphur)',
+        'High Sulphur HSD (>350 ppm)',
+        'Other / Specify',
+    ],
+    'Light Diesel Oil (LDO)': [
+        'Standard Grade',
+        'High Sulphur LDO',
+        'Low Sulphur LDO (\u2264500 ppm)',
+        'Other / Specify',
+    ],
+    'Furnace Oil / Heavy Fuel Oil (HFO)': [
+        'HFO 180 cSt (Standard)',
+        'HFO 380 cSt (High Viscosity)',
+        'VLSFO \u2014 Very Low Sulphur (\u22640.5%)',
+        'ULSFO \u2014 Ultra Low Sulphur (\u22640.1%)',
+        'HSFO \u2014 High Sulphur (>2.5%)',
+        'Other / Specify grade & sulphur content',
+    ],
+    'Low Sulphur Heavy Stock (LSHS)': [
+        'LSHS Standard Grade (\u22641% S)',
+        'LSHS Ultra-Low (\u22640.5% S)',
+        'Other / Specify',
+    ],
+    'Kerosene / Superior Kerosene Oil (SKO)': [
+        'Straight-Run Kerosene',
+        'Deodorised Kerosene (Dodo)',
+        'High-Flash Kerosene (HFK)',
+        'Other / Specify',
+    ],
+    'LPG (Stationary \u2014 Heating / Process)': [
+        'Propane-Rich Mix (60:40 Propane:Butane)',
+        'Butane-Rich Mix (80:20 Butane:Propane)',
+        'HD-5 Grade (Industrial / Process)',
+        'Commercial Grade (Cooking / Heating)',
+        'Auto LPG Grade',
+        'Other / Specify composition',
+    ],
+    'Natural Gas (Piped PNG)': [
+        'City Gas Distribution (CGD) Network',
+        'Domestic Supply \u2014 High NCV (>9,000 kcal/Nm\u00b3)',
+        'Domestic Supply \u2014 Standard NCV',
+        'LNG Regasified (Imported) \u2014 High NCV',
+        'Biomethane Blend (specify % in Other field)',
+        'Other / Specify origin & NCV',
+    ],
+    'LNG (Liquefied Natural Gas)': [
+        'Qatar LNG (Qatargas / RasGas)',
+        'Australia LNG (NW Shelf / Gorgon)',
+        'US LNG (Henry Hub basis)',
+        'Domestic Indian LNG',
+        'High NCV (>11,000 kcal/kg)',
+        'Standard NCV',
+        'Other / Specify origin',
+    ],
+    'CNG (Compressed Natural Gas \u2014 Stationary)': [
+        'Grade A \u2014 Industrial / Process',
+        'Grade B \u2014 Commercial / Heating',
+        'Biomethane-Blended CNG (specify % in Other)',
+        'Other / Specify',
+    ],
+    'Biogas / Biomethane': [
+        'Landfill Gas (LFG) \u2014 Raw',
+        'Landfill Gas \u2014 Purified Biomethane',
+        'Sewage / Wastewater Biogas',
+        'Agricultural Digestate Biogas',
+        'Industrial Waste Biogas',
+        'Compressed Biomethane (Bio-CNG)',
+        'Other / Specify feedstock',
+    ],
+    'Biodiesel (B100)': [
+        'Palm Oil Methyl Ester (POME)',
+        'Soybean Methyl Ester (SME)',
+        'Jatropha Methyl Ester',
+        'Used Cooking Oil (UCO) Biodiesel',
+        'Tallow / Animal Fat Methyl Ester',
+        'ISCC / RSB Certified',
+        'Other / Specify feedstock',
+    ],
+    'Naphtha': [
+        'Light Naphtha (C5\u2013C6, Low Sulphur)',
+        'Heavy Naphtha (C7\u2013C12)',
+        'Cracker Naphtha (High Aromatics)',
+        'Petroleum Naphtha (Standard)',
+        'Other / Specify',
+    ],
+    'Anthracite Coal': [
+        'Premium Anthracite (>95% C)',
+        'Standard Anthracite (90\u201395% C)',
+        'Imported \u2014 South Africa / Russia',
+        'Domestic Indian Anthracite',
+        'Other / Specify CV & origin',
+    ],
+    'Bituminous Coal': [
+        'Coking-Grade Bituminous',
+        'Steam-Grade / Thermal Bituminous',
+        'Imported High-CV (5,800+ kcal/kg)',
+        'Domestic Indian Low-CV (3,500\u20134,500 kcal/kg)',
+        'Washed / Beneficiated',
+        'Run of Mine (ROM \u2014 Unwashed)',
+        'Other / Specify CV & origin',
+    ],
+    'Lignite / Brown Coal': [
+        'Raw Lignite (High Moisture >40%)',
+        'Dried / Pre-dried Lignite',
+        'Domestic Indian Lignite (Neyveli)',
+        'Imported Lignite',
+        'Other / Specify',
+    ],
+    'Sub-bituminous Coal': [
+        'Sub-bituminous A (Higher CV)',
+        'Sub-bituminous B (Medium CV)',
+        'Sub-bituminous C (Lower CV)',
+        'Domestic Indian Sub-bituminous',
+        'Other / Specify',
+    ],
+};
+
+// Renders a structured variant dropdown for known fuels, falls back to text for others.
+// fuelLabel: matches a key in S1_FUEL_VARIANTS | uid: unique prefix for element IDs
+function renderVariantBlock(fuelLabel, uid) {
+    const variants = S1_FUEL_VARIANTS[fuelLabel];
+    const varUid = `${uid}-vv`;
+    const ss = "width:100%;padding:0.55rem 0.7rem;border:1px solid var(--stroke);border-radius:var(--radius-sm);font-family:inherit;font-size:0.82rem;color:var(--ink);background:#fff;";
+    if (!variants) {
+        return `<div class="variant-field-row">
+            <div class="field-group">
+                <label class="field-label">Fuel / Material Specification</label>
+                <span class="field-hint">Grade, blend %, sulphur content, origin, or supplier spec</span>
+                <div class="input-wrap">
+                    <input type="text" class="text-input variant-input" placeholder="Enter specification (e.g., BS-VI, B7 blend, 200 ppm S)">
+                </div>
+            </div>
+        </div>`;
+    }
+    const opts = variants.map(v => `<option value="${v}">${v}</option>`).join('');
+    return `<div class="variant-field-row">
+        <div class="field-group">
+            <label class="field-label">Fuel Grade / Variant</label>
+            <span class="field-hint">Select the grade or blend that most closely matches your supply</span>
+            <div class="input-wrap">
+                <select onchange="toggleVariantOther('${varUid}', this.value)" style="${ss}">
+                    <option value="">— Select grade / variant —</option>
+                    ${opts}
+                </select>
+            </div>
+        </div>
+        <div class="field-group" id="variant-other-${varUid}" style="display:none;">
+            <label class="field-label">Specify Variant</label>
+            <span class="field-hint">Enter blend %, sulphur content, calorific value, or supplier spec</span>
+            <div class="input-wrap">
+                <input type="text" class="text-input" placeholder="e.g., B12.5 blend · 200 ppm S · 5,500 kcal/kg">
+            </div>
+        </div>
+    </div>`;
+}
+
+function toggleVariantOther(varUid, val) {
+    const el = document.getElementById(`variant-other-${varUid}`);
+    if (!el) return;
+    const show = val === 'Other / Specify' || val === 'Other / Specify blend %'
+        || val === 'Other / Specify origin' || val.startsWith('Other');
+    el.style.display = show ? 'flex' : 'none';
+    if (show) el.style.flexDirection = 'column';
+}
+
+// ── EF Metadata Validation ────────────────────────────────────────────────────
+// Scans visible fuel/vehicle/process rows for quantity data entered without
+// an EF source specified. Adds .ef-validation-warning to the ef-block-wrap
+// and returns the count of incomplete rows.
+function validateEFMetadata() {
+    const body = document.getElementById('formPanelBody');
+    if (!body) return 0;
+    let warnings = 0;
+    // Rows that hold both a qty input AND an ef-block-wrap
+    const rows = body.querySelectorAll(
+        '.s11-fuel-row, .s12-veh-row, .s13-type-sec, .s14-proc-sec'
+    );
+    rows.forEach(row => {
+        if (row.style.display === 'none') return;
+        const efBlock = row.querySelector('.ef-block-wrap');
+        if (!efBlock) return;
+        // Check if any numeric quantity is filled
+        const qtyInputs = row.querySelectorAll('input[type="number"]');
+        let hasData = false;
+        qtyInputs.forEach(inp => { if (inp.value && inp.value.trim() !== '') hasData = true; });
+        if (!hasData) { efBlock.classList.remove('ef-validation-warning'); return; }
+        // Has data — check if EF source is specified inside the panel
+        const efSourceSel = efBlock.querySelector('.ef-details-panel select');
+        const sourceSet = efSourceSel && efSourceSel.value !== '';
+        if (!sourceSet) {
+            efBlock.classList.add('ef-validation-warning');
+            warnings++;
+        } else {
+            efBlock.classList.remove('ef-validation-warning');
+        }
+    });
+    // Update advisory badge
+    const badge = document.getElementById('efMetaBadge');
+    if (badge) {
+        badge.textContent = warnings > 0
+            ? `\u26a0 ${warnings} row${warnings > 1 ? 's' : ''} — EF source not specified`
+            : '';
+        badge.className = warnings > 0 ? 'ef-meta-badge visible' : 'ef-meta-badge';
+    }
+    return warnings;
+}
+
+
 // Values shown in the always-visible "Default EF (if left blank)" note per fuel row.
 // Format: source — EF in most practical unit for that fuel + GJ basis in brackets.
 // Biogenic fuels flagged separately (excluded from Scope 1 fossil total per GHG Protocol).
@@ -3434,13 +3762,7 @@ function renderS1Stationary(body) {
 
             html += `<div class="s11-fuel-row" data-group="${gid}" data-idx="${idx}" style="display:none;">
                 <div class="form-section-label" style="margin-top:0.5rem;">${fuel.label}</div>
-                <div class="variant-field-row">
-                    <div class="field-group">
-                        <label class="field-label">Fuel Specification / Grade</label>
-                        <span class="field-hint">e.g., BS-VI, B7 blend, 95 RON, High NCV — used to select sub-variant EF</span>
-                        <div class="input-wrap"><input type="text" class="text-input" placeholder="Enter grade, blend %, or specification"></div>
-                    </div>
-                </div>
+                ${renderVariantBlock(fuel.label, uid)}
                 <div class="field-row">`;
 
             if (qtyF) html += `<div class="field-group method-qty">
@@ -3466,6 +3788,92 @@ function renderS1Stationary(body) {
             html += supplierStripHTML(codePh);
             html += `</div>`; // close s11-fuel-row
         });
+
+        // ── Dual / Mixed-Fuel Equipment ─────────────────────────────────────
+        const dualFuelOpts = Object.keys(S1_FUEL_VARIANTS)
+            .concat(['Acetylene (C\u2082H\u2082)', 'Propane', 'Butane', 'Blast Furnace Gas (BFG)',
+                     'Hydrogen (Combustion)', 'Other / Specify'])
+            .map(f => `<option value="${f}">${f}</option>`).join('');
+        const dSel = "width:100%;padding:0.55rem 0.7rem;border:1px solid var(--stroke);border-radius:var(--radius-sm);font-family:inherit;font-size:0.82rem;color:var(--ink);background:#fff;";
+        html += `<details class="dual-fuel-panel">
+            <summary>\u2295 Add Dual / Mixed-Fuel Equipment Entry</summary>
+            <div class="dual-fuel-body">
+                <div class="form-section-label">Dual / Mixed-Fuel Equipment</div>
+                <div class="field-row">
+                    <div class="field-group">
+                        <label class="field-label">Equipment Description</label>
+                        <span class="field-hint">Name/tag of the boiler, furnace, or generator on dual fuel</span>
+                        <div class="input-wrap"><input type="text" class="text-input" placeholder="e.g., Boiler B-02, Kiln #3"></div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Operating Mode</label>
+                        <span class="field-hint">How the two fuels are used together</span>
+                        <div class="input-wrap">
+                            <select style="${dSel}">
+                                <option value="">Select...</option>
+                                <option>Simultaneous Co-firing (both fuels at once)</option>
+                                <option>Sequential Switching (alternate by season / availability)</option>
+                                <option>Variable Blend (blend % varies \u2014 use average)</option>
+                                <option>Primary + Pilot Flame (small pilot, large primary)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="field-group">
+                        <label class="field-label">Primary Fuel</label>
+                        <span class="field-hint">Dominant fuel by energy share</span>
+                        <div class="input-wrap"><select style="${dSel}"><option value="">Select...</option>${dualFuelOpts}</select></div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Primary Fuel Share</label>
+                        <span class="field-hint">Energy share \u2014 must sum to 100% with secondary</span>
+                        <div class="input-wrap">
+                            <input type="number" step="any" min="0" max="100" class="has-unit" placeholder="e.g., 70">
+                            <span class="unit">%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="field-group">
+                        <label class="field-label">Secondary Fuel</label>
+                        <span class="field-hint">Supplementary fuel</span>
+                        <div class="input-wrap"><select style="${dSel}"><option value="">Select...</option>${dualFuelOpts}</select></div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Secondary Fuel Share</label>
+                        <span class="field-hint">Remainder to primary</span>
+                        <div class="input-wrap">
+                            <input type="number" step="any" min="0" max="100" class="has-unit" placeholder="e.g., 30">
+                            <span class="unit">%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="field-group">
+                        <label class="field-label">Total Combined Activity</label>
+                        <span class="field-hint">In primary fuel units; share split back-calculates each fuel\u2019s quantity for EF application</span>
+                        <div class="input-wrap">
+                            <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                            <span class="unit">GJ or primary unit</span>
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Calculation Basis</label>
+                        <span class="field-hint">How the activity split was determined</span>
+                        <div class="input-wrap">
+                            <select style="${dSel}">
+                                <option value="">Select...</option>
+                                <option>Fuel meter / sub-meter data</option>
+                                <option>Procurement records</option>
+                                <option>Operational log / engineering estimate</option>
+                                <option>Calorific value weighted average</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </details>`;
 
         html += `</div>`; // close fuel-group-block
     });
@@ -3609,13 +4017,7 @@ function renderS1Mobile(body) {
             const uid    = `s12-${tab.id}-${idx}`;
             html += `<div class="s12-veh-row" data-group="${tab.id}" data-idx="${idx}" style="display:none;">
                 <div class="form-section-label" style="margin-top:0.5rem;">${veh.label}</div>
-                <div class="variant-field-row">
-                    <div class="field-group">
-                        <label class="field-label">Vehicle / Fuel Specification</label>
-                        <span class="field-hint">e.g., BS-VI engine, Euro 5, B20 blend — used for sub-variant EF selection</span>
-                        <div class="input-wrap"><input type="text" class="text-input" placeholder="Enter emission standard or fuel specification"></div>
-                    </div>
-                </div>
+                ${renderVariantBlock(veh.label, uid)}
                 <div class="field-row">`;
             veh.fields.forEach(f => { html += renderS1FieldGroup(f); });
             html += `</div>`;
@@ -3944,6 +4346,9 @@ function renderEFDetailsBlock(uid, isOther = false, defaultNote = 'MoEFCC GHG In
     <details class="ef-details-panel">
         <summary class="ef-details-summary">⚙️ Override / EF Audit Trail — expand to customise</summary>
         <div class="ef-details-body">
+            <div class="ef-hierarchy-note">
+                <strong>Priority order:</strong> <span>① Custom Override</span> (reason required) → <span>② Supplier-Provided EF</span> (if entered) → <span>③ Default EF</span> shown above. Only the highest-priority source that is filled will be used in calculation.
+            </div>
             <div class="field-row">
                 <div class="field-group">
                     <label class="field-label">EF Source / Library</label>
@@ -5573,6 +5978,14 @@ document.addEventListener('DOMContentLoaded', () => {
     buildHierarchy();
     updatePeriodPicker();
     selectCategory('scope1');
+
+    // EF metadata advisory validation — delegated on formPanelBody
+    const panelBody = document.getElementById('formPanelBody');
+    if (panelBody) {
+        panelBody.addEventListener('change', (e) => {
+            if (e.target.matches('input[type="number"]')) validateEFMetadata();
+        });
+    }
 });
 </script>
 
