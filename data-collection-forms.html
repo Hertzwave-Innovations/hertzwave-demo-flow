@@ -1198,6 +1198,59 @@
             cursor: pointer; font-family: inherit; white-space: nowrap;
         }
         .s11-showall-btn:hover { background: var(--hz-primary); color: #fff; }
+        /* ─── EF block wrapper (note + collapsible panel) ─── */
+        .ef-block-wrap { margin: 0.35rem 0 0.5rem 0; }
+        /* ─── Default EF fallback note — always visible ─── */
+        .ef-default-note {
+            font-size: 0.7rem; line-height: 1.5;
+            background: #f0faf2; border: 1px solid #a8d5b0;
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            padding: 0.38rem 0.85rem;
+            color: #1a5e2a; margin-bottom: 0;
+        }
+        .ef-default-note strong { color: #0f3a1a; }
+        /* ─── EF Details / Audit Trail collapsible panel ─── */
+        .ef-details-panel {
+            border: 1px solid #c8e6cc; border-top: none;
+            border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+            background: #f8fdf9; overflow: hidden;
+        }
+        .ef-details-panel summary.ef-details-summary {
+            list-style: none; cursor: pointer;
+            padding: 0.42rem 0.85rem;
+            font-size: 0.72rem; font-weight: 700;
+            color: var(--hz-primary);
+            display: flex; align-items: center; gap: 5px;
+            user-select: none;
+        }
+        .ef-details-panel summary.ef-details-summary::marker,
+        .ef-details-panel summary.ef-details-summary::-webkit-details-marker { display: none; }
+        .ef-details-panel summary.ef-details-summary::after {
+            content: '▸'; font-size: 0.65rem; margin-left: auto;
+            transition: transform 0.15s;
+        }
+        .ef-details-panel[open] summary.ef-details-summary::after { transform: rotate(90deg); }
+        .ef-details-body {
+            padding: 0.6rem 0.85rem 0.75rem;
+            border-top: 1px solid #c8e6cc;
+            background: #fff;
+        }
+        .ef-details-body .field-row { margin-bottom: 0.5rem; }
+        .ef-details-body .field-label { font-size: 0.73rem; }
+        /* ─── Text input (for variant / spec fields) ─── */
+        .text-input {
+            width: 100%; padding: 0.55rem 0.75rem;
+            border: 1px solid var(--stroke); border-radius: var(--radius-sm);
+            font-family: inherit; font-size: 0.85rem; color: var(--ink);
+            background: #fff;
+        }
+        .text-input:focus { outline: none; border-color: var(--hz-primary); }
+        /* ─── Variant field row inside fuel/vehicle sections ─── */
+        .variant-field-row {
+            display: flex; align-items: flex-start; gap: 0.75rem;
+            margin: 0.25rem 0 0.5rem 0;
+        }
+        .variant-field-row .field-group { flex: 1; }
     </style>
 </head>
 <body>
@@ -1638,11 +1691,18 @@ const FF = {
             { name: 'Peat — Cost', hint: 'Total purchase cost', unit: '₹', type: 'number', method: 'cost' },
         ]},
         { label: 'Municipal Solid Waste (Non-Biogenic)', fields: [
-            { name: 'MSW — Quantity', hint: 'Only non-biogenic fraction per IPCC', unit: 'Tonnes', type: 'number', method: 'qty' },
+            { name: 'MSW — Quantity', hint: 'Only non-biogenic fraction per IPCC; biogenic fraction excluded', unit: 'Tonnes', type: 'number', method: 'qty' },
             { name: 'MSW — Cost', hint: 'Tipping fee / fuel cost', unit: '₹', type: 'number', method: 'cost' },
         ]},
-
-        // ── LIQUID FUELS ──
+        // ── IPCC 2006 Vol.2 additional solid fuels ──
+        { label: 'Brown Coal Briquettes', fields: [
+            { name: 'Brown Coal Briquettes — Quantity', hint: 'Compressed lignite briquettes used in boilers; IPCC 2006 Table 2.2 — slightly higher EF per GJ than raw lignite', unit: 'Tonnes', type: 'number', method: 'qty' },
+            { name: 'Brown Coal Briquettes — Cost', hint: 'Total purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Oil Shale / Tar Sands', fields: [
+            { name: 'Oil Shale — Quantity', hint: 'Direct combustion of oil shale; IPCC 2006 highest solid fuel CO₂ EF (~107 kgCO₂/GJ); rare in India but included for completeness', unit: 'Tonnes', type: 'number', method: 'qty' },
+            { name: 'Oil Shale — Cost', hint: 'Total purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
         { groupHeader: '🛢️ Liquid Fuels', groupId: 'liquid' },
         { label: 'High Speed Diesel (HSD)', fields: [
             { name: 'HSD — Quantity', hint: 'DG sets, boilers, industrial heaters', unit: 'Litres', type: 'number', method: 'qty' },
@@ -1681,11 +1741,30 @@ const FF = {
             { name: 'RFO — Cost', hint: 'Total fuel purchase cost', unit: '₹', type: 'number', method: 'cost' },
         ]},
         { label: 'Biodiesel (B100)', fields: [
-            { name: 'Biodiesel B100 — Quantity', hint: 'Pure biodiesel; biogenic CO₂ excluded', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Biodiesel B100 — Quantity', hint: 'Pure biodiesel; biogenic CO₂ excluded from Scope 1 total — report separately', unit: 'Litres', type: 'number', method: 'qty' },
             { name: 'Biodiesel B100 — Cost', hint: 'Total fuel purchase cost', unit: '₹', type: 'number', method: 'cost' },
         ]},
-
-        // ── GASEOUS FUELS ──
+        // ── IPCC 2006 Vol.2 additional liquid fuels ──
+        { label: 'Crude Oil (Direct Combustion)', fields: [
+            { name: 'Crude Oil — Quantity', hint: 'Direct combustion of crude oil in refinery heaters or industrial furnaces; IPCC 2006 Table 2.2 crude oil EF', unit: 'kL', type: 'number', method: 'qty' },
+            { name: 'Crude Oil — Cost', hint: 'Purchase / transfer cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Aviation Gasoline (Avgas)', fields: [
+            { name: 'Avgas — Quantity', hint: 'Piston-engine aircraft and ground support equipment; distinct EF from jet fuel (ATF); IPCC 2006 Aviation Gasoline EF', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Avgas — Cost', hint: 'Total purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Natural Gas Liquids (NGL) / Condensate', fields: [
+            { name: 'NGL / Condensate — Quantity', hint: 'Light hydrocarbon liquids from gas processing burned as fuel; IPCC 2006 NGL EF', unit: 'kL', type: 'number', method: 'qty' },
+            { name: 'NGL / Condensate — Cost', hint: 'Transfer / purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Waste Oil / Used Lubricants (Combustion)', fields: [
+            { name: 'Waste Oil — Quantity', hint: 'Used lubricating oil or waste oil burned as secondary fuel; IPCC 2006 "Other Petroleum Products" EF', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Waste Oil — Cost', hint: 'Disposal recovery value or procurement cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Fuel Ethanol (E100 — Biogenic)', fields: [
+            { name: 'Fuel Ethanol — Quantity', hint: 'Pure ethanol burned as fuel; combustion CO₂ is biogenic — excluded from Scope 1 fossil total per GHG Protocol; report separately in biogenic memo', unit: 'Litres', type: 'number', method: 'qty' },
+            { name: 'Fuel Ethanol — Cost', hint: 'Total purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
         { groupHeader: '💨 Gaseous Fuels', groupId: 'gas' },
         { label: 'Natural Gas (Piped PNG)', fields: [
             { name: 'Natural Gas — Quantity', hint: 'Boilers, heating, process equipment', unit: 'm³', type: 'number', method: 'qty' },
@@ -1724,8 +1803,25 @@ const FF = {
             { name: 'Refinery Gas — Cost', hint: 'Internal cost allocation', unit: '₹', type: 'number', method: 'cost' },
         ]},
         { label: 'Hydrogen (Combustion)', fields: [
-            { name: 'Hydrogen — Quantity', hint: 'Green/grey H₂ burned as fuel; zero CO₂', unit: 'Nm³', type: 'number', method: 'qty' },
+            { name: 'Hydrogen — Quantity', hint: 'Green/grey H₂ burned as fuel; zero CO₂ at point of combustion', unit: 'Nm³', type: 'number', method: 'qty' },
             { name: 'Hydrogen — Cost', hint: 'Total supply cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        // ── IPCC 2006 Vol.2 additional gaseous fuels ──
+        { label: 'Acetylene (C₂H₂)', fields: [
+            { name: 'Acetylene — Quantity', hint: 'Oxy-acetylene welding, cutting and heat treatment of metals; IPCC 2006/AR6 stoichiometric EF ≈ 3.38 kgCO₂/kg (92.2% carbon content). Sold in pressurised cylinders — record in kg per cylinder label', unit: 'Kg', type: 'number', method: 'qty' },
+            { name: 'Acetylene — Cost', hint: 'Total cylinder / bulk purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Ethylene (C₂H₄)', fields: [
+            { name: 'Ethylene — Quantity', hint: 'Petrochemical cracking furnace fuel and process gas; IPCC 2006 gaseous hydrocarbon EF', unit: 'Nm³', type: 'number', method: 'qty' },
+            { name: 'Ethylene — Cost', hint: 'Transfer or purchase cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Town Gas / Gas Works Gas', fields: [
+            { name: 'Town Gas — Quantity', hint: 'Legacy district gas or manufactured gas (H₂/CO/CH₄ mixture); IPCC 2006 "Other Manufactured Gases" EF — lower than natural gas per Nm³', unit: 'Nm³', type: 'number', method: 'qty' },
+            { name: 'Town Gas — Cost', hint: 'Total supply cost', unit: '₹', type: 'number', method: 'cost' },
+        ]},
+        { label: 'Other Process Gas / Waste Gas', fields: [
+            { name: 'Process / Waste Gas — Quantity', hint: 'Off-gas, vent gas, or mixed industrial process gas not covered above; enter custom EF in EF Details panel below', unit: 'Nm³', type: 'number', method: 'qty' },
+            { name: 'Process / Waste Gas — Cost', hint: 'Transfer price or imputed cost', unit: '₹', type: 'number', method: 'cost' },
         ]},
     ]},
 
@@ -2053,13 +2149,17 @@ const FF = {
             { name: 'Electricity Cost', hint: 'Total bill incl. fixed charges & taxes', unit: '₹', type: 'number' },
         ]},
         { label: 'Grid Region & Emission Factor', fields: [
+            { name: 'Utility / DISCOM Name', hint: 'Name of the electricity utility or distribution company supplying this connection', unit: '', type: 'text', placeholder: 'e.g., BESCOM, MSEDCL, TATA Power' },
             { name: 'Grid Region', hint: 'CEA regional grid for emission factor selection', unit: '', type: 'select',
               options: ['Northern Grid','Southern Grid','Eastern Grid','Western Grid','North-Eastern Grid','Island Grid (Andaman / Lakshadweep)','Other / International'] },
             { name: 'Grid Emission Factor Applied', hint: 'CEA 2023 national / regional factor', unit: 'tCO₂e/MWh', type: 'number' },
-        ]},
-        { label: 'Market-Based Instruments (RECs & PPAs)', fields: [
+            { name: 'EF Publication Year', hint: 'Year of the CEA/DEFRA factor version used — essential for audit trail', unit: 'Year', type: 'number' },
+            { name: '', hint: '', type: 'ef-details', defaultNote: 'CEA CO₂ Baseline 2023 — India National Grid (0.716 tCO₂/MWh); CEA regional grid factor if applicable' },
             { name: 'Renewable Energy Certificates (RECs)', hint: 'Purchased RECs — used for market-based method', unit: 'MWh', type: 'number' },
             { name: 'PPA / Direct Renewable Purchase', hint: 'Power Purchase Agreement renewable units acquired', unit: 'kWh', type: 'number' },
+            { name: 'REC / PPA Vintage Year', hint: 'Year of certificate issuance — must match reporting period for valid market-based claim', unit: 'Year', type: 'number' },
+            { name: 'Certificate Matching Period', hint: 'Annual / Monthly / Hourly — granularity of temporal matching', unit: '', type: 'select',
+              options: ['Annual Matching','Monthly Matching','Hourly Matching (24/7 CFE)','Not Specified'] },
         ]},
         { label: 'Supplier Residual Mix EF (Market-Based)', fields: [
             { name: 'Supplier-Specific Emission Factor', hint: 'If supplier provides a contract EF', unit: 'kgCO₂e/kWh', type: 'number' },
@@ -2099,7 +2199,10 @@ const FF = {
         { label: 'Supplier & Emission Factor', fields: [
             { name: 'Steam Supplier / Source', hint: 'Utility, CHP plant, or district system name', unit: '', type: 'select',
               options: ['Supplier EF provided (preferred)','Default national factor applied','IPCC default used','Not available — use engineering estimate'] },
+            { name: 'Supplier Fuel / Technology Basis', hint: 'Fuel or technology used by the steam supplier to generate steam — drives the EF', unit: '', type: 'select',
+              options: ['Natural Gas Boiler','Coal-Fired Boiler','Oil-Fired Boiler','Biomass Boiler','Waste Heat Recovery','Combined Heat & Power (Gas)','Combined Heat & Power (Coal)','Electric Boiler (Grid)','Not known / Not provided'] },
             { name: 'Supplier Steam Emission Factor', hint: 'Supplier-reported or default kgCO₂e per tonne steam', unit: 'kgCO₂e/tonne', type: 'number' },
+            { name: '', hint: '', type: 'ef-details', defaultNote: 'IPCC 2006 Vol.2 / Supplier-provided (Scope 2 Quality Criteria) — default varies by supplier fuel basis selected above' },
         ]},
     ]},
 
@@ -2118,7 +2221,10 @@ const FF = {
         { label: 'Supplier & Emission Factor', fields: [
             { name: 'Heat Supplier / District System', hint: 'Source of the purchased heat', unit: '', type: 'select',
               options: ['Supplier EF provided (preferred)','Default national factor applied','IPCC default used','Not available'] },
+            { name: 'Supplier Fuel / Technology Basis', hint: 'Fuel used by supplier to generate the heat — required for accurate EF selection', unit: '', type: 'select',
+              options: ['Natural Gas','LPG','Coal','Biomass / Biogas','Waste Heat (Recovered)','Electric Heat Pump','Geothermal','Not known / Not provided'] },
             { name: 'Supplier Heat Emission Factor', hint: 'Supplier-reported or IPCC default kgCO₂e/GJ', unit: 'kgCO₂e/GJ', type: 'number' },
+            { name: '', hint: '', type: 'ef-details', defaultNote: 'IPCC 2006 Vol.2 / Supplier-provided (Scope 2 Quality Criteria) — default varies by heat source technology selected above' },
         ]},
     ]},
 
@@ -2137,11 +2243,13 @@ const FF = {
         { label: 'Supplier & Emission Factor', fields: [
             { name: 'Cooling Supplier / District System', hint: 'Source of purchased cooling', unit: '', type: 'select',
               options: ['Supplier EF provided (preferred)','Default national factor applied','IPCC default used','Not available'] },
+            { name: 'Supplier Technology Basis', hint: 'Technology used by supplier to generate cooling — determines EF', unit: '', type: 'select',
+              options: ['Electric Chiller (Grid-Powered)','Absorption Chiller (Gas-Fired)','Absorption Chiller (Waste Heat)','Thermal Storage','CHP-Driven Cooling','Geothermal','Not known / Not provided'] },
             { name: 'Supplier Cooling Emission Factor', hint: 'kgCO₂e per MWh cooling or per TR-hr', unit: 'kgCO₂e/MWh', type: 'number' },
+            { name: '', hint: '', type: 'ef-details', defaultNote: 'IPCC 2006 Vol.2 / grid-based EF (CEA 2023) for electric chillers — varies by supplier technology selected above' },
         ]},
     ]},
 
-    // ═══════════════════════════════════════════════════
     // SCOPE 3 — VALUE CHAIN EMISSIONS (ALL 15 CATEGORIES)
     // ═══════════════════════════════════════════════════
     '3.1': { perEntrySupplier: true, sections: [
@@ -2164,6 +2272,17 @@ const FF = {
         { label: 'Primary Activity Data (If Available)', fields: [
             { name: 'Supplier Primary Emission Data Available', hint: 'Can be uploaded if yes', unit: '', type: 'select', options: ['Yes — Primary Data from Supplier','Partial — Some Suppliers','No — Spend-Based Applied'] },
             { name: 'Total Category 1 Emissions (tCO₂e)', hint: 'Enter if already calculated', unit: 'tCO₂e', type: 'number' },
+        ]},
+        { label: 'Material Sub-Type & Variant Detail', fields: [
+            { name: 'Primary Material Category', hint: 'Select the dominant material type for more precise EF selection', unit: '', type: 'select',
+              options: ['Metals & Alloys (Steel, Aluminium, Copper...)','Plastics & Polymers (PET, HDPE, PP, PVC...)','Chemicals & Solvents','Packaging (Paper, Cardboard, Flexible Film)','Fuels Purchased for Resale / Blending','Construction Materials (Cement, Aggregate)','Electronic Components & Assemblies','Agricultural & Bio-based Materials','Textiles & Fibres','Other / Mixed'] },
+            { name: 'Material Sub-Type / Grade', hint: 'e.g., Primary steel vs EAF recycled steel — EF can differ by 5–8x', unit: '', type: 'select',
+              options: ['Primary / Virgin Material (Higher EF)','Secondary / Recycled Content >50% (Lower EF)','Blended (Primary + Recycled — specify % in Notes)','Unknown — conservative primary EF applied'] },
+        ]},
+        { label: 'Physical Quantity for High-Variance Materials', fields: [
+            { name: 'Physical Quantity (Tonnes)', hint: 'Enter actual tonnes for metals, polymers, chemicals — preferred over spend for accurate EF; avoids price-distorted EEIO errors', unit: 'Tonnes', type: 'number' },
+            { name: 'Data Quality Rating', hint: 'Self-assessed quality of this category\'s input data', unit: '', type: 'select',
+              options: ['Tier 1 — Supplier-specific primary data (highest quality)','Tier 2 — Physical activity data + published EF','Tier 3 — Spend-based / EEIO (lowest quality)','Mixed — different tiers per supplier'] },
         ]},
     ]},
     '3.2': { sections: [
@@ -2329,6 +2448,16 @@ const FF = {
             { name: 'Sludge — Landfill (Dry Weight)', hint: 'Dewatered sludge disposed to landfill', unit: 'Tonnes', type: 'number' },
             { name: 'Sludge — Land Application / Composting', hint: 'Agricultural land application or composting', unit: 'Tonnes', type: 'number' },
         ]},
+        { label: 'Landfill Gas Capture — Additional Routes', fields: [
+            { name: 'MSW to Landfill — LFG Capture with Flaring Only', hint: 'Managed landfill with gas collection piped to flare — no energy recovery; significantly lower net CH₄ EF than unmanaged', unit: 'Tonnes', type: 'number' },
+            { name: 'MSW to Landfill — LFG-to-Energy (WtE Recovery)', hint: 'Managed landfill with full gas-to-energy recovery; lowest net CH₄ emission factor', unit: 'Tonnes', type: 'number' },
+        ]},
+        { label: 'Waste Composition & EF Basis', fields: [
+            { name: 'Organic / Degradable Fraction of MSW (%)', hint: 'For IPCC Tier 2 CH₄ calculation; Indian MSW default ≈ 40–55% organic — enter actual if known', unit: '%', type: 'number' },
+            { name: 'Landfill CH₄ EF Source / Climate Zone', hint: 'Regional factor basis — tropical climate increases CH₄ generation rate', unit: '', type: 'select',
+              options: ['CPCB India Default (Tropical)','IPCC Tier 1 — Tropical Developing Country','IPCC Tier 2 — Composition-Based Calculation','DEFRA 2024 Waste Factors','Site-Specific Measurement','Other — specify in Notes'] },
+            { name: 'Degradable Organic Carbon (DOC) Applied (%)', hint: 'IPCC Tier 2 parameter; default 15% for Indian mixed MSW — enter actual if waste characterisation data available', unit: '%', type: 'number' },
+        ]},
         { groupHeader: '📊 Category 3.5 Summary' },
         { label: 'Total Waste Generated & Emissions', fields: [
             { name: 'Total Waste Generated — All Streams', hint: 'Sum of all waste types across all treatment paths', unit: 'Tonnes', type: 'number' },
@@ -2341,6 +2470,22 @@ const FF = {
         ]},
     ]},
     '3.6': { sections: [
+        { label: 'Air Travel — International Haul Type', fields: [
+            { name: 'International Air — Short Haul Economy (<3,700 km)', hint: 'Short international flights e.g. India–Sri Lanka, India–UAE; DEFRA short-haul EF', unit: 'km', type: 'number' },
+            { name: 'International Air — Long Haul Economy (>3,700 km)', hint: 'Long international flights e.g. India–UK, India–USA; DEFRA long-haul EF', unit: 'km', type: 'number' },
+            { name: 'International Air — Short Haul Business Class', hint: 'Short-haul business class; typically 1.7–2x economy EF', unit: 'km', type: 'number' },
+            { name: 'International Air — Long Haul Business / First Class', hint: 'Long-haul premium; DEFRA business 2.4x, first class 3x economy seat-km EF', unit: 'km', type: 'number' },
+        ]},
+        { label: 'Radiative Forcing (RF) Adjustment — Aviation', fields: [
+            { name: 'Apply Radiative Forcing Multiplier', hint: 'RF accounts for non-CO₂ warming effects (contrails, NOx, cirrus) at altitude; DEFRA/GHG Protocol recommend applying for completeness', unit: '', type: 'select',
+              options: ['Yes — Apply RF (DEFRA 2024 default: 1.891×)','Yes — Apply RF (GHG Protocol default: 1.9×)','Yes — Apply custom RF factor (enter below)','No — Report CO₂ only (note this exclusion in disclosures)','Not yet decided — calculate both'] },
+            { name: 'Custom RF Multiplier (if applicable)', hint: 'Override if using alternative published RF source; default DEFRA 2024 = 1.891', unit: '×', type: 'number' },
+        ]},
+        { label: 'Trip Purpose & Metrics', fields: [
+            { name: 'Business Travel Purpose', hint: 'Optional breakdown — helps target reduction programs and justify travel policy', unit: '', type: 'select',
+              options: ['All classified as business purpose','Split tracked: client visits / internal meetings / conferences','Split tracked: see breakdown in Notes','Not tracked by purpose'] },
+            { name: 'Total One-Way Business Trips (All Modes)', hint: 'Trip count for per-trip intensity KPI; complements distance-based calculation', unit: 'Trips', type: 'number' },
+        ]},
         { label: 'Air Travel', fields: [
             { name: 'Domestic Air Travel (Economy)', hint: 'Distance or trip count — domestic flights', unit: 'km', type: 'number' },
             { name: 'International Air Travel (Economy)', hint: 'Radiative forcing factor applies', unit: 'km', type: 'number' },
@@ -3046,7 +3191,7 @@ function buildFormFields(subId) {
 
     // Sections
     let currentGroupId = null;
-    def.sections.forEach(sec => {
+    def.sections.forEach((sec, secIdx) => {
         if (sec.groupHeader) {
             const hasTabs = def.fuelGroupTabs || def.vehicleGroupTabs;
             if (hasTabs && currentGroupId !== null) html += '</div>'; // close previous block
@@ -3061,7 +3206,7 @@ function buildFormFields(subId) {
         }
         if (sec.label) html += `<div class="form-section-label">${sec.label}</div>`;
         html += '<div class="field-row">';
-        sec.fields.forEach(f => {
+        sec.fields.forEach((f, fIdx) => {
             const methodClass = f.method ? ` method-${f.method}` : '';
             if (f.type === 'select') {
                 html += `<div class="field-group${methodClass}">
@@ -3074,6 +3219,16 @@ function buildFormFields(subId) {
                         </select>
                     </div>
                 </div>`;
+            } else if (f.type === 'text') {
+                html += `<div class="field-group${methodClass}">
+                    <label class="field-label">${f.name}</label>
+                    ${f.hint ? `<span class="field-hint">${f.hint}</span>` : ''}
+                    <div class="input-wrap">
+                        <input type="text" class="text-input" placeholder="${f.placeholder || 'Enter value'}">
+                    </div>
+                </div>`;
+            } else if (f.type === 'ef-details') {
+                html += renderEFDetailsBlock(`${subId}-${secIdx}-${fIdx}`, f.isOther || false, f.defaultNote || undefined);
             } else {
                 html += `<div class="field-group${methodClass}">
                     <label class="field-label">${f.name}</label>
@@ -3131,6 +3286,60 @@ function switchEntryMethod(subId, method) {
     body.querySelectorAll('.method-qty').forEach(el => el.classList.toggle('method-hidden', method !== 'qty'));
     body.querySelectorAll('.method-cost').forEach(el => el.classList.toggle('method-hidden', method !== 'cost'));
 }
+
+// ── Per-fuel default EF reference table (IPCC 2006 Table 2.2 + MoEFCC 2023) ──
+// Values shown in the always-visible "Default EF (if left blank)" note per fuel row.
+// Format: source — EF in most practical unit for that fuel + GJ basis in brackets.
+// Biogenic fuels flagged separately (excluded from Scope 1 fossil total per GHG Protocol).
+const S1_FUEL_EF_DEFAULTS = {
+    // ── SOLID FUELS ────────────────────────────────────────────────────────
+    'Anthracite Coal':                      'IPCC 2006 Table 2.2 — 98.3 kgCO₂/GJ NCV',
+    'Bituminous Coal':                      'IPCC 2006 Table 2.2 — 94.6 kgCO₂/GJ NCV',
+    'Sub-bituminous Coal':                  'IPCC 2006 Table 2.2 — 96.1 kgCO₂/GJ NCV',
+    'Lignite / Brown Coal':                 'IPCC 2006 Table 2.2 — 101.0 kgCO₂/GJ NCV',
+    'Coking Coal':                          'IPCC 2006 Table 2.2 — 94.6 kgCO₂/GJ NCV (same family as Bituminous)',
+    'Coal Coke / Petroleum Coke':           'IPCC 2006 Table 2.2 — Petroleum Coke: 97.5 · Metallurgical Coke: 107.0 kgCO₂/GJ NCV — specify type in Notes',
+    'Charcoal':                             'IPCC 2006 Table 2.2 — 112.0 kgCO₂/GJ NCV (highest CO₂ intensity of solid fuels)',
+    'Wood / Wood Waste (Biomass)':          'IPCC 2006 — 109.6 kgCO₂/GJ (biogenic ⚠️ — excluded from Scope 1 fossil total; report as biogenic memo item)',
+    'Agricultural Biomass / Residues':      'IPCC 2006 — 91.7 kgCO₂/GJ (biogenic ⚠️ — excluded from Scope 1 fossil total; report as biogenic memo item)',
+    'Peat':                                 'IPCC 2006 Table 2.2 — 106.0 kgCO₂/GJ NCV (treated as fossil per IPCC)',
+    'Municipal Solid Waste (Non-Biogenic)': 'IPCC 2006 — 91.7 kgCO₂/GJ NCV (fossil fraction only; biogenic share excluded)',
+    'Brown Coal Briquettes':                'IPCC 2006 Table 2.2 — 97.5 kgCO₂/GJ NCV',
+    'Oil Shale / Tar Sands':                'IPCC 2006 Table 2.2 — 107.0 kgCO₂/GJ NCV (highest of any liquid/solid fuel in IPCC table)',
+
+    // ── LIQUID FUELS ───────────────────────────────────────────────────────
+    'High Speed Diesel (HSD)':                      'MoEFCC 2023 / IPCC 2006 — 2.68 kgCO₂/litre (74.1 kgCO₂/GJ NCV)',
+    'Light Diesel Oil (LDO)':                       'IPCC 2006 Gas/Diesel Oil — 74.1 kgCO₂/GJ NCV (~2.65 kgCO₂/litre)',
+    'Furnace Oil / Heavy Fuel Oil (HFO)':           'MoEFCC 2023 / IPCC 2006 — 3.09 kgCO₂/litre (77.4 kgCO₂/GJ NCV)',
+    'Low Sulphur Heavy Stock (LSHS)':               'IPCC 2006 Residual Fuel Oil — 77.4 kgCO₂/GJ NCV (~3.07 kgCO₂/litre)',
+    'Kerosene / Superior Kerosene Oil (SKO)':       'MoEFCC 2023 / IPCC 2006 — 2.45 kgCO₂/litre (71.9 kgCO₂/GJ NCV)',
+    'Petrol / Gasoline (Stationary)':               'MoEFCC 2023 / IPCC 2006 — 2.31 kgCO₂/litre (69.3 kgCO₂/GJ NCV)',
+    'LPG (Stationary \u2014 Heating / Process)':   'MoEFCC 2023 / IPCC 2006 — 2.983 kgCO₂/kg (63.1 kgCO₂/GJ NCV)',
+    'Naphtha':                                      'IPCC 2006 Table 2.2 — 73.3 kgCO₂/GJ NCV',
+    'Residual Fuel Oil (RFO)':                      'IPCC 2006 Table 2.2 — 77.4 kgCO₂/GJ NCV (~3.09 kgCO₂/litre)',
+    'Biodiesel (B100)':                             'IPCC 2006 — 70.8 kgCO₂/GJ (biogenic ⚠️ — excluded from Scope 1 fossil total; report separately)',
+    'Crude Oil (Direct Combustion)':                'IPCC 2006 Table 2.2 — 73.3 kgCO₂/GJ NCV',
+    'Aviation Gasoline (Avgas)':                    'IPCC 2006 Table 2.2 — 70.0 kgCO₂/GJ NCV',
+    'Natural Gas Liquids (NGL) / Condensate':       'IPCC 2006 Table 2.2 — 64.2 kgCO₂/GJ NCV',
+    'Waste Oil / Used Lubricants (Combustion)':     'IPCC 2006 Other Petroleum Products — 73.3 kgCO₂/GJ NCV',
+    'Fuel Ethanol (E100 \u2014 Biogenic)':          'IPCC 2006 — 56.1 kgCO₂/GJ (biogenic ⚠️ — excluded from Scope 1 fossil total; report separately)',
+
+    // ── GASEOUS FUELS ──────────────────────────────────────────────────────
+    'Natural Gas (Piped PNG)':                          'MoEFCC 2023 / IPCC 2006 — 1.887 kgCO₂/Nm³ (56.1 kgCO₂/GJ NCV)',
+    'LNG (Liquefied Natural Gas)':                      'IPCC 2006 — 56.1 kgCO₂/GJ NCV (same combustion factor as natural gas; NCV 48.6 MJ/kg)',
+    'CNG (Compressed Natural Gas \u2014 Stationary)':  'MoEFCC 2023 — 1.887 kgCO₂/Nm³ (56.1 kgCO₂/GJ NCV)',
+    'Biogas / Biomethane':                              'IPCC 2006 — 54.6 kgCO₂/GJ (biogenic ⚠️ — excluded from Scope 1 fossil total)',
+    'Propane':                                          'IPCC 2006 Table 2.2 — 63.1 kgCO₂/GJ NCV (same family as LPG)',
+    'Butane':                                           'IPCC 2006 Table 2.2 — 65.4 kgCO₂/GJ NCV',
+    'Blast Furnace Gas (BFG)':                          'IPCC 2006 Table 2.2 — 260.0 kgCO₂/GJ NCV (high CO content; very low NCV ~3.4 MJ/Nm³)',
+    'Coke Oven Gas (COG)':                              'IPCC 2006 Table 2.2 — 44.4 kgCO₂/GJ NCV (high H₂ content; NCV ~19.4 MJ/Nm³)',
+    'Refinery Gas / Still Gas':                         'IPCC 2006 Table 2.2 — 57.6 kgCO₂/GJ NCV (mixed refinery off-gas)',
+    'Hydrogen (Combustion)':                            'Zero CO₂ at combustion — GHG Protocol / IPCC (H₂ combustion produces H₂O only); upstream Scope 3 Cat 3.3 applies',
+    'Acetylene (C\u2082H\u2082)':                       'Calculated per IPCC 2006 methodology — 3.38 kgCO₂/kg · 71.3 kgCO₂/GJ NCV (92.2% carbon; NCV 47.4 MJ/kg)',
+    'Ethylene (C\u2082H\u2084)':                        'Calculated per IPCC 2006 methodology — 3.14 kgCO₂/kg · 66.6 kgCO₂/GJ NCV (85.6% carbon; NCV 47.1 MJ/kg)',
+    'Town Gas / Gas Works Gas':                         'IPCC 2006 Table 2.2 — 44.4 kgCO₂/GJ NCV (similar to COG; composition varies by plant)',
+    'Other Process Gas / Waste Gas':                    'No standard default — enter custom EF in Override / Audit Trail above; reference IPCC 2006 Vol.2 sector-specific tables',
+};
 
 // ═══════════════════ SCOPE 1 — 1.1 STATIONARY COMBUSTION ═══════════════════
 
@@ -3211,9 +3420,27 @@ function renderS1Stationary(body) {
             const qtyF  = fuel.fields.find(f => f.method === 'qty');
             const costF = fuel.fields.find(f => f.method === 'cost');
             const codePh = fuel.label.replace(/[^A-Za-z0-9 ]/g,'').split(' ')[0].toUpperCase().slice(0,5);
+            const uid    = `s11-${gid}-${idx}`;
+            const isOther = fuel.label.toLowerCase().startsWith('other');
+            const EF_GROUP_DEFAULTS = {
+                solid:  'IPCC 2006 Vol.2 Table 2.2 — Solid Fuels (MoEFCC 2023 India)',
+                liquid: 'IPCC 2006 Vol.2 Table 2.2 — Liquid Fuels (MoEFCC 2023 India)',
+                gas:    'IPCC 2006 Vol.2 Table 2.2 — Gaseous Fuels (MoEFCC 2023 India)',
+            };
+            // Fuel-specific EF default takes priority; group default is the fallback for any future unlisted fuel
+            const efDefault = S1_FUEL_EF_DEFAULTS[fuel.label]
+                || EF_GROUP_DEFAULTS[gid]
+                || 'IPCC 2006 Vol.2 / MoEFCC 2023 India';
 
             html += `<div class="s11-fuel-row" data-group="${gid}" data-idx="${idx}" style="display:none;">
                 <div class="form-section-label" style="margin-top:0.5rem;">${fuel.label}</div>
+                <div class="variant-field-row">
+                    <div class="field-group">
+                        <label class="field-label">Fuel Specification / Grade</label>
+                        <span class="field-hint">e.g., BS-VI, B7 blend, 95 RON, High NCV — used to select sub-variant EF</span>
+                        <div class="input-wrap"><input type="text" class="text-input" placeholder="Enter grade, blend %, or specification"></div>
+                    </div>
+                </div>
                 <div class="field-row">`;
 
             if (qtyF) html += `<div class="field-group method-qty">
@@ -3235,6 +3462,7 @@ function renderS1Stationary(body) {
             </div>`;
 
             html += `</div>`; // close field-row
+            html += renderEFDetailsBlock(uid, isOther, efDefault);
             html += supplierStripHTML(codePh);
             html += `</div>`; // close s11-fuel-row
         });
@@ -3378,11 +3606,20 @@ function renderS1Mobile(body) {
 
         vehicles.forEach((veh, idx) => {
             const codePh = veh.label.replace(/[^A-Za-z0-9 ]/g,'').split(' ')[0].toUpperCase().slice(0,5);
+            const uid    = `s12-${tab.id}-${idx}`;
             html += `<div class="s12-veh-row" data-group="${tab.id}" data-idx="${idx}" style="display:none;">
                 <div class="form-section-label" style="margin-top:0.5rem;">${veh.label}</div>
+                <div class="variant-field-row">
+                    <div class="field-group">
+                        <label class="field-label">Vehicle / Fuel Specification</label>
+                        <span class="field-hint">e.g., BS-VI engine, Euro 5, B20 blend — used for sub-variant EF selection</span>
+                        <div class="input-wrap"><input type="text" class="text-input" placeholder="Enter emission standard or fuel specification"></div>
+                    </div>
+                </div>
                 <div class="field-row">`;
             veh.fields.forEach(f => { html += renderS1FieldGroup(f); });
             html += `</div>`;
+            html += renderEFDetailsBlock(uid, false, 'DEFRA 2024 UK Conversion Factors — vehicle class and fuel type specific');
             html += supplierStripHTML(codePh);
             html += `</div>`;
         });
@@ -3479,6 +3716,7 @@ function renderS1Fugitive(body) {
             <div class="field-row">`;
         sec.fields.forEach(f => { html += renderS1FieldGroup(f); });
         html += `</div>`;
+        html += renderEFDetailsBlock(`s13-${idx}`, false, 'IPCC AR6 Table 2.14 — GWP100 radiative forcing values (2021 update)');
         html += supplierStripHTML(sec.label.replace(/[^A-Za-z0-9 ]/g,'').split(' ')[0].toUpperCase().slice(0,5));
         html += `</div>`;
     });
@@ -3587,7 +3825,9 @@ function renderS1Process(body) {
             <div class="form-section-label">${sec.label}</div>
             <div class="field-row">`;
         sec.fields.forEach(f => { html += renderS1FieldGroup(f); });
-        html += `</div></div>`;
+        html += `</div>`;
+        html += renderEFDetailsBlock(`s14-${idx}`, false, 'IPCC AR6 Vol.3 Industrial Processes — sector-specific process emission defaults');
+        html += `</div>`;
     });
     window._s14ProcSecCount = procSecs.length;
 
@@ -3639,7 +3879,7 @@ function selectS14Process(val) {
 }
 
 // ── Shared field renderer for all Scope 1 dedicated renderers ─────────────────
-// Handles number inputs, selects, and method-based visibility classes.
+// Handles number inputs, selects, text inputs, and method-based visibility classes.
 function renderS1FieldGroup(f) {
     const methodClass = f.method ? ` method-${f.method}` : '';
     const selStyle    = "width:100%;padding:0.6rem 0.75rem;border:1px solid var(--stroke);border-radius:var(--radius-sm);font-family:inherit;font-size:0.85rem;color:var(--ink);background:#fff;";
@@ -3655,6 +3895,15 @@ function renderS1FieldGroup(f) {
             </div>
         </div>`;
     }
+    if (f.type === 'text') {
+        return `<div class="field-group${methodClass}">
+            <label class="field-label">${f.name}</label>
+            ${f.hint ? `<span class="field-hint">${f.hint}</span>` : ''}
+            <div class="input-wrap">
+                <input type="text" class="text-input" placeholder="${f.placeholder || 'Enter value'}">
+            </div>
+        </div>`;
+    }
     return `<div class="field-group${methodClass}">
         <label class="field-label">${f.name}</label>
         ${f.hint ? `<span class="field-hint">${f.hint}</span>` : ''}
@@ -3663,6 +3912,97 @@ function renderS1FieldGroup(f) {
             ${f.unit ? `<span class="unit">${f.unit}</span>` : ''}
         </div>
     </div>`;
+}
+
+// ── EF Details collapsible panel ─────────────────────────────────────────────
+// uid: unique string to namespace IDs
+// isOther: show custom EF fields for "Other" fuels
+// defaultNote: text describing which EF fires automatically if fields are left blank
+function renderEFDetailsBlock(uid, isOther = false, defaultNote = 'MoEFCC GHG Inventory 2023 — India National Average') {
+    const ss = "width:100%;padding:0.55rem 0.7rem;border:1px solid var(--stroke);border-radius:var(--radius-sm);font-family:inherit;font-size:0.82rem;color:var(--ink);background:#fff;";
+    const otherFields = isOther ? `
+        <div class="field-row">
+            <div class="field-group">
+                <label class="field-label">Custom Fuel / Material Name</label>
+                <span class="field-hint">Full name for audit trail — e.g., "Furnace Oil Grade 0.5S"</span>
+                <div class="input-wrap"><input type="text" class="text-input" placeholder="Enter custom fuel name"></div>
+            </div>
+            <div class="field-group">
+                <label class="field-label">Custom Emission Factor Value</label>
+                <span class="field-hint">Emission factor for this fuel — document unit + source in Override Reason</span>
+                <div class="input-wrap">
+                    <input type="number" step="any" class="has-unit" placeholder="Enter value">
+                    <span class="unit">tCO₂e/unit</span>
+                </div>
+            </div>
+        </div>` : '';
+
+    return `<div class="ef-block-wrap">
+    <div class="ef-default-note">
+        ℹ️ <strong>Default EF (if left blank):</strong> ${defaultNote}
+    </div>
+    <details class="ef-details-panel">
+        <summary class="ef-details-summary">⚙️ Override / EF Audit Trail — expand to customise</summary>
+        <div class="ef-details-body">
+            <div class="field-row">
+                <div class="field-group">
+                    <label class="field-label">EF Source / Library</label>
+                    <span class="field-hint">Primary reference for the emission factor used</span>
+                    <div class="input-wrap">
+                        <select style="${ss}">
+                            <option value="">Select...</option>
+                            <option>MoEFCC GHG Inventory 2023</option>
+                            <option>IPCC AR6 (2021)</option>
+                            <option>IPCC AR5 (2014)</option>
+                            <option>CEA CO₂ Baseline 2023</option>
+                            <option>DEFRA UK GHG Factors 2024</option>
+                            <option>BEE / PAT Scheme Factors</option>
+                            <option>GHG Protocol Default</option>
+                            <option>Supplier-Provided Factor</option>
+                            <option>Custom Override — see reason below</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">EF Publication Year</label>
+                    <span class="field-hint">Year of the factor version applied</span>
+                    <div class="input-wrap">
+                        <input type="number" step="1" min="2000" max="2030" class="has-unit" placeholder="e.g., 2023">
+                        <span class="unit">Year</span>
+                    </div>
+                </div>
+            </div>
+            <div class="field-row">
+                <div class="field-group">
+                    <label class="field-label">Geography / Region</label>
+                    <span class="field-hint">Geographic scope of the factor applied</span>
+                    <div class="input-wrap">
+                        <select style="${ss}">
+                            <option value="">Select...</option>
+                            <option>India — National Average</option>
+                            <option>India — State-Specific</option>
+                            <option>India — CEA Regional Grid</option>
+                            <option>UK / DEFRA</option>
+                            <option>European Union</option>
+                            <option>USA / EPA</option>
+                            <option>Global Average (IPCC)</option>
+                            <option>Supplier-Specific</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label class="field-label">Override Reason</label>
+                    <span class="field-hint">Required if Custom Override selected above</span>
+                    <div class="input-wrap">
+                        <input type="text" class="text-input" placeholder="State reason for non-default EF selection">
+                    </div>
+                </div>
+            </div>
+            ${otherFields}
+        </div>
+    </details>
+</div>`;
 }
 
 
