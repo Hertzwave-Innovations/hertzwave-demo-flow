@@ -3069,7 +3069,7 @@
           </div>
 
           <h3 style="margin-bottom: 0.5rem;">Consultant Performance Matrix</h3>
-          <p style="font-size: 0.8rem; color: #718096; margin-bottom: 1.25rem;">X-axis: Client Load · Y-axis: Consultant Performance Index (CPI = 0.45×DQS + 0.25×Completion Rate + 0.30×Customer Feedback)</p>
+          <p style="font-size: 0.8rem; color: #718096; margin-bottom: 1.25rem;">X-axis: Client Load · Y-axis: CPI = 0.45×DQS + 0.25×EPR + 0.30×Customer Feedback · EPR = Execution Progress Rate (milestones, meetings, submissions, responsiveness)</p>
 
           <div class="matrix-container">
             <div class="matrix-quadrant" style="border-color: #48bb78; border-width: 3px;">
@@ -3119,7 +3119,7 @@
             </h4>
             <div style="padding: 1rem; background: white; border-radius: 6px; border-left: 4px solid #4a7c59; margin-bottom: 1.25rem;">
               <code style="font-size: 0.95rem; color: #2d3748;">
-                CPI = (DQS × 0.45) + (Completion Rate × 0.25) + (Customer Feedback / 5 × 100 × 0.30)
+                CPI = (DQS × 0.45) + (EPR × 0.25) + (Customer Feedback / 5 × 100 × 0.30)
               </code>
               <div style="margin-top: 0.75rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; font-size: 0.78rem;">
                 <div style="background: #e6f4ea; padding: 0.6rem; border-radius: 6px; text-align: center;">
@@ -3127,8 +3127,17 @@
                   <span style="color: #4a5568;">Output quality — highest weight in ESG consulting</span>
                 </div>
                 <div style="background: #ebf4ff; padding: 0.6rem; border-radius: 6px; text-align: center;">
-                  <strong style="color: #2b4c8c;">Completion Rate · 25%</strong><br>
-                  <span style="color: #4a5568;">Task throughput and on-time delivery</span>
+                  <strong style="color: #2b4c8c;">EPR · 25%</strong><br>
+                  <span style="color: #4a5568; font-size: 0.72rem;">
+                    <strong>Execution Progress Rate</strong> — composite of 4 sub-scores derived from existing client form fields:<br><br>
+                    <code style="background:#e8edf7;padding:0.2rem 0.4rem;border-radius:3px;display:block;margin-bottom:0.4rem;">
+                      EPR = 0.50×MCS + 0.20×MeetCS + 0.20×DSS + 0.10×RS
+                    </code>
+                    <strong>MCS</strong> Milestone Completion Score = (completedMilestones / totalMilestones) × (1 − delayedMilestones/totalMilestonesRF) × 100<br>
+                    <strong>MeetCS</strong> Meeting Cadence Score = (meetingsAttended / meetingsScheduled) × 100<br>
+                    <strong>DSS</strong> Data Submission Score = (completedForms / formsSent) × 100<br>
+                    <strong>RS</strong> Responsiveness Score = (messagesResponded / totalMessages) × 100
+                  </span>
                 </div>
                 <div style="background: #fef5e7; padding: 0.6rem; border-radius: 6px; text-align: center;">
                   <strong style="color: #975a16;">Customer Feedback · 30%</strong><br>
@@ -3190,7 +3199,7 @@
                 <th>Consultant</th>
                 <th>Clients</th>
                 <th>DQS</th>
-                <th>Completion Rate</th>
+                <th title="Engagement Progress Rate: avg. client milestone completion across consultant's portfolio">EPR ⓘ</th>
                 <th>Customer Feedback</th>
                 <th style="background: #e6f4ea; color: #276749;">CPI</th>
                 <th>Quadrant</th>
@@ -3271,7 +3280,14 @@
             </tbody>
           </table>
           <div style="margin-top: 1rem; padding: 0.75rem 1rem; background: #f7fafc; border-radius: 6px; font-size: 0.78rem; color: #718096;">
-            CPI = (DQS × 0.45) + (Completion Rate × 0.25) + (Customer Feedback / 5 × 100 × 0.30) · Sorted by CPI descending
+            CPI = (DQS × 0.45) + (EPR × 0.25) + (Customer Feedback / 5 × 100 × 0.30) · Sorted by CPI descending<br>
+            <span style="color: #4a5568;">EPR (Execution Progress Rate) = 0.50 × Milestone Completion Score + 0.20 × Meeting Cadence Score + 0.20 × Data Submission Score + 0.10 × Responsiveness Score</span><br>
+            <span style="color: #718096; font-size: 0.72rem;">
+              MCS = (completedMilestones / totalMilestones) × (1 − delayedMilestones / totalMilestonesRF) × 100 &nbsp;|&nbsp;
+              MeetCS = (meetingsAttended / meetingsScheduled) × 100 &nbsp;|&nbsp;
+              DSS = (completedForms / formsSent) × 100 &nbsp;|&nbsp;
+              RS = (messagesResponded / totalMessages) × 100 &nbsp;—&nbsp; all fields captured in client analytics forms
+            </span>
           </div>
         </div>
       </div>
