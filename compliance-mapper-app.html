@@ -122,7 +122,7 @@ textarea, input, select, button { font-family: inherit; }
 </style>
 </head>
 <body>
-<div class="cm-demo-banner">TerraCAP · AI Compliance Mapper — interactive product demo · BRSR: Tata Consultancy Services Limited · GRI: Manipal Group · FY 2024-25 · sample data</div>
+<div class="cm-demo-banner">TerraCAP · AI Compliance Mapper — interactive product demo · BRSR: Tata Consultancy Services Limited · GRI: Manipal Group · CDP: MAHE · GreenCo: Rail Wheel Factory · FY 2024-25 · sample data</div>
 <div id="app" class="cm-shell"></div>
 
 <script>
@@ -143,7 +143,7 @@ const STEP_NAMES = ['Select Framework', 'Fill Indicators', 'Review & Validate', 
 
 const PAGE_TARGET = 50;
 /* ============= FRAMEWORK STATE ============= */
-let ACTIVE_FW = 'brsr'; // 'brsr' or 'gri'
+let ACTIVE_FW = 'brsr'; // 'brsr', 'gri', 'cdp', or 'greenco'
 
 /* ============= BRSR DISCLOSURE STRUCTURE ============= */
 // BRSR has 178 parent disclosures and 1423 data elements
@@ -168,94 +168,419 @@ const BRSR_DISCLOSURE_STRUCTURE = {
 
 /* ============= GRI DATA FOR MANIPAL ============= */
 const GRI_COMPANY = 'Manipal Group';
+
+// ─── GRI DISCLOSURE ARCHITECTURE ────────────────────────────────────────────
+// Each disclosure has structured sub-fields mirroring the actual GRI requirement.
+// 'fields' array = the precise data points GRI requires per disclosure.
+// field.type: 'text' | 'number' | 'select' | 'table'
+// field.options (select): predefined choices
+// field.rowDef (table): column definitions for tabular data
+// ─────────────────────────────────────────────────────────────────────────────
 const GRI_DISCLOSURES = [
-  // GRI 2 — General Disclosures (30 mandatory)
-  { id:'GRI 2-1', title:'Organizational Details', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 6, ai: true, filled: 6, value:'Manipal Academy of Higher Education (MAHE) · Manipal Health Enterprises · 9 operational sites · Karnataka, India' },
-  { id:'GRI 2-2', title:'Entities Included in Sustainability Reporting', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 4, ai: false, filled: 4, value:'9 sites: MAHE Manipal, MAHE Bengaluru, Manipal Hospital Manipal, Manipal Hospital Bengaluru, Old Airport Road, Whitefield, Millers Road, Jayanagar, and Salem campus' },
-  { id:'GRI 2-3', title:'Reporting Period, Frequency and Contact Point', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 3, ai: true, filled: 3, value:'FY 2024-25 (April 1, 2024 – March 31, 2025) · Annual · sustainability@manipal.edu' },
-  { id:'GRI 2-4', title:'Restatements of Information', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 2, ai: true, filled: 2, value:'No material restatements from prior year. FY23-24 water data revised from 612 ML to 618 ML due to meter calibration at Whitefield campus.' },
-  { id:'GRI 2-5', title:'External Assurance', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 3, ai: false, filled: 1, value:'Limited assurance engagement planned for GHG data (Scope 1+2); environmental data by DNV pending for FY25-26.' },
-  { id:'GRI 2-6', title:'Activities, Value Chain and Other Business Relationships', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 5, ai: true, filled: 5, value:'Education (UG, PG, doctoral) · Healthcare (tertiary, quaternary) · Research · Upstream: medical supplies, lab equipment, IT infrastructure · Downstream: alumni, patient outcomes, community health' },
-  { id:'GRI 2-7', title:'Employees', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 12, ai: false, filled: 12, value:'10,980 total employees · 42% female (4,612) · 58% male (6,368) · Full-time: 9,347 · Part-time/Contract: 1,633 · Karnataka HQ' },
-  { id:'GRI 2-8', title:'Workers Who Are Not Employees', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 4, ai: true, filled: 3, value:'~2,400 contract workers (cleaning, security, catering) · Works contracts via 12 registered agencies · No direct employment relationship' },
-  { id:'GRI 2-9', title:'Governance Structure and Composition', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 8, ai: true, filled: 8, value:'Board of Governors: 15 members · 4 independent directors · 3 women directors (20%) · Sustainability Committee established FY24' },
-  { id:'GRI 2-10', title:'Nomination and Selection of Highest Governance Body', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 3, ai: true, filled: 3, value:'Nominations through Manipal Education & Medical Group (MEMG) trust structure · ESG competency criteria introduced in FY25' },
-  { id:'GRI 2-11', title:'Chair of the Highest Governance Body', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 2, ai: true, filled: 2, value:'Dr. Ranjan Pai · Executive Chair · Not independent from management' },
-  { id:'GRI 2-12', title:'Role of Highest Governance Body in Overseeing Impact Management', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 5, ai: true, filled: 4, value:'Sustainability Committee reviews material topics quarterly · Board reviews annually · ESG KPIs linked to institutional scorecard' },
-  { id:'GRI 2-13', title:'Delegation of Responsibility for Impact Management', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 4, ai: true, filled: 4, value:'VP Sustainability · Site Sustainability Officers (9) · Department Heads for domain impacts · Reporting to VC/Board' },
-  { id:'GRI 2-14', title:'Role of Highest Governance Body in Sustainability Reporting', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 3, ai: true, filled: 3, value:'Board approves annual sustainability report · VC signs materiality statement · Report reviewed by Sustainability Committee before publication' },
-  { id:'GRI 2-15', title:'Conflicts of Interest', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 4, ai: true, filled: 4, value:'Code of conduct mandates annual disclosure · Independent director rotation every 3 years · Procurement committee excludes conflicted parties' },
-  { id:'GRI 2-16', title:'Communication of Critical Concerns', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 3, ai: true, filled: 3, value:'Whistleblower portal (ethics@manipal.edu) · 23 concerns raised FY25 · 21 resolved · Zero retaliation incidents' },
-  { id:'GRI 2-17', title:'Collective Knowledge of Highest Governance Body', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 3, ai: true, filled: 3, value:'Annual ESG training for Board (4 hrs FY25) · External sustainability advisor retainer since FY23 · Climate risk training completed by 9/15 directors' },
-  { id:'GRI 2-18', title:'Evaluation of Performance of Highest Governance Body', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 3, ai: true, filled: 3, value:'Annual self-evaluation survey · ESG metrics included since FY24 · External facilitator engaged every 3 years' },
-  { id:'GRI 2-19', title:'Remuneration Policies', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 4, ai: true, filled: 4, value:'Performance-linked pay for faculty · ESG metrics (energy reduction, student sustainability ratings) in leadership KPIs since FY25' },
-  { id:'GRI 2-20', title:'Process to Determine Remuneration', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 3, ai: true, filled: 3, value:'Remuneration Committee (3 independent directors) · Benchmarked against NAAC accreditation peers · Annual review' },
-  { id:'GRI 2-21', title:'Annual Total Compensation Ratio', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 3, ai: false, filled: 0, value:'' },
-  { id:'GRI 2-22', title:'Statement on Sustainable Development Strategy', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 2, ai: true, filled: 2, value:'Manipal Group commits to carbon neutrality by 2035 for Scope 1+2 · Net Zero supply chain by 2045 · SDG alignment: 3, 4, 7, 13, 17' },
-  { id:'GRI 2-23', title:'Policy Commitments', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 6, ai: true, filled: 5, value:'Human Rights Policy, Environmental Policy, Anti-Corruption Policy, Patient Rights Charter, Academic Integrity Policy · UNGC signatory since 2023' },
-  { id:'GRI 2-24', title:'Embedding Policy Commitments', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 4, ai: true, filled: 4, value:'Mandatory induction training (all staff) · Policy integration in supplier contracts · Department-level sustainability action plans reviewed annually' },
-  { id:'GRI 2-25', title:'Processes to Remediate Negative Impacts', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 4, ai: true, filled: 4, value:'Patient grievance cell (48-hr SLA) · Faculty grievance committee · Community impact fund (₹2.4Cr FY25) · Environmental incident response protocol' },
-  { id:'GRI 2-26', title:'Mechanisms for Seeking Advice and Raising Concerns', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 3, ai: true, filled: 3, value:'Ethics hotline · Ombudsperson · Anonymous suggestion portal · ICC (Internal Complaints Committee) for POSH' },
-  { id:'GRI 2-27', title:'Compliance with Laws and Regulations', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 4, ai: false, filled: 4, value:'Zero significant non-compliances FY25 · NAAC A++ accreditation maintained · NABH accreditation for all 4 hospitals · Minor: 2 CPCB biomedical waste notices resolved within 30 days' },
-  { id:'GRI 2-28', title:'Membership Associations', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 2, ai: true, filled: 2, value:'FICCI Health Services Committee · CII Karnataka · Association of Indian Universities (AIU) · Indian Medical Association · GRI Community' },
-  { id:'GRI 2-29', title:'Approach to Stakeholder Engagement', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 5, ai: true, filled: 5, value:'Students, faculty, patients, community, government, suppliers, accreditation bodies · Frequency: Students (daily), Faculty (monthly), Community (quarterly), Regulators (as needed)' },
-  { id:'GRI 2-30', title:'Collective Bargaining Agreements', section:'GRI 2 — General Disclosures', type:'Mandatory', elements: 2, ai: false, filled: 2, value:'No formal collective bargaining agreements · Staff union representation at 2 campuses (Manipal, Bengaluru) · Labour relations governed by Karnataka Shops & Establishments Act' },
-  // GRI 3 — Material Topics
-  { id:'GRI 3-1', title:'Process to Determine Material Topics', section:'GRI 3 — Material Topics', type:'Mandatory', elements: 5, ai: true, filled: 5, value:'Double materiality assessment FY24 · Stakeholder survey (1,247 respondents) · Industry benchmarking against NAAC/NABH peers · Board approved 10 material topics' },
-  { id:'GRI 3-2', title:'List of Material Topics', section:'GRI 3 — Material Topics', type:'Mandatory', elements: 3, ai: true, filled: 3, value:'1. Energy & GHG Emissions · 2. Water & Effluents · 3. Waste Management · 4. Climate Resilience · 5. Biodiversity · 6. OHS · 7. Student Wellbeing · 8. DEI · 9. Ethics & Compliance · 10. Community Engagement' },
-  { id:'GRI 3-3 (Energy)', title:'Management of Material Topic — Energy', section:'GRI 3 — Material Topics', type:'Mandatory', elements: 4, ai: true, filled: 4, value:'Policy: Environmental Management Policy (2022) · Target: 20% energy intensity reduction by FY28 vs FY22 baseline · Actions: LED retrofit (complete), Solar installation 3.2 MWp (FY26), ISO 50001 pilot' },
-  { id:'GRI 3-3 (Water)', title:'Management of Material Topic — Water', section:'GRI 3 — Material Topics', type:'Mandatory', elements: 4, ai: true, filled: 4, value:'Water neutrality target by FY28 · 3 STP plants operational · Rainwater harvesting capacity: 48 ML/year · Water stress assessment: 4/9 sites in high-stress zones (WRI Aqueduct)' },
-  { id:'GRI 3-3 (Waste)', title:'Management of Material Topic — Waste', section:'GRI 3 — Material Topics', type:'Mandatory', elements: 4, ai: true, filled: 4, value:'Zero biomedical waste to landfill policy · 65% diversion rate target by FY27 · E-waste vendor tie-ups (4 CPCB-authorized) · Biomedical waste: BBMP-authorized treatment facilities' },
-  // GRI 302 — Energy
-  { id:'GRI 302-1', title:'Energy Consumption within the Organization', section:'GRI 302 — Energy', type:'Topic-Specific', elements: 8, ai: false, filled: 8, value:'Total: 167,081 GJ · Grid electricity: 154,789 GJ · HSD/furnace oil: 12,292 GJ · Renewable (solar): 12,567 GJ (7.5%) · 9-site breakdown: Manipal 42%, Bengaluru 31%, Others 27%' },
-  { id:'GRI 302-2', title:'Energy Consumption outside the Organization', section:'GRI 302 — Energy', type:'Topic-Specific', elements: 3, ai: true, filled: 2, value:'Business travel: 1,847 GJ (estimated) · Student commute: ~8,200 GJ (estimated, high uncertainty) · Supply chain energy: data collection initiated FY25' },
-  { id:'GRI 302-3', title:'Energy Intensity', section:'GRI 302 — Energy', type:'Topic-Specific', elements: 4, ai: false, filled: 4, value:'Per FTE: 15.2 GJ/FTE · Per student: 3.8 GJ/student · Per patient-day: 0.089 GJ/patient-day · Year-on-year change: -3.1%' },
-  { id:'GRI 302-4', title:'Reduction of Energy Consumption', section:'GRI 302 — Energy', type:'Topic-Specific', elements: 4, ai: true, filled: 4, value:'LED retrofit across 7 campuses: 2,840 GJ saved · BMS installation at Manipal Main: 1,100 GJ saved · Total FY25 reduction: 3,940 GJ vs FY24 baseline' },
-  { id:'GRI 302-5', title:'Reductions in Energy Requirements of Products/Services', section:'GRI 302 — Energy', type:'Topic-Specific', elements: 2, ai: true, filled: 2, value:'Telemedicine expansion (82,000 consultations FY25): estimated 1,200 GJ avoided patient travel energy · Green campus design standards adopted for new building specifications' },
-  // GRI 303 — Water
-  { id:'GRI 303-1', title:'Interactions with Water as a Shared Resource', section:'GRI 303 — Water', type:'Topic-Specific', elements: 5, ai: true, filled: 5, value:'4 of 9 sites in high water stress (WRI Aqueduct) · Dependency on Manipal municipal supply (Swarna river source) · Groundwater monitoring wells: 6 active · Community water sharing: nil reported' },
-  { id:'GRI 303-2', title:'Management of Water Discharge-related Impacts', section:'GRI 303 — Water', type:'Topic-Specific', elements: 4, ai: true, filled: 4, value:'STP capacity: 3.8 MLD across 3 plants · 100% treated wastewater reused for horticulture & flushing · Zero direct discharge to surface water body · Biomedical wastewater: autoclave + ETP treatment' },
-  { id:'GRI 303-3', title:'Water Withdrawal', section:'GRI 303 — Water', type:'Topic-Specific', elements: 6, ai: false, filled: 6, value:'Total: 628 ML · Municipal/third-party: 519 ML · Groundwater: 72 ML · Surface: 37 ML · Sites in water-stress zones: 287 ML (46% of total withdrawal)' },
-  { id:'GRI 303-4', title:'Water Discharge', section:'GRI 303 — Water', type:'Topic-Specific', elements: 5, ai: true, filled: 5, value:'Total treated discharge: 318 ML · STP effluent (reuse): 218 ML · To municipal drain (post-treatment): 100 ML · Zero discharge to groundwater · Effluent quality: BOD <10 mg/L (all sites)' },
-  { id:'GRI 303-5', title:'Water Consumption', section:'GRI 303 — Water', type:'Topic-Specific', elements: 4, ai: false, filled: 4, value:'Total consumption: 310 ML (net of recycled effluent reuse) · Intensity: 3.2 kL/FTE · 2.8 kL/patient · 0.7 kL/student · Year-on-year: +2.1% (Bengaluru campus expansion)' },
-  // GRI 305 — Emissions
-  { id:'GRI 305-1', title:'Direct (Scope 1) GHG Emissions', section:'GRI 305 — Emissions', type:'Topic-Specific', elements: 8, ai: false, filled: 8, value:'Total Scope 1: 5,840 tCO₂e · Stationary combustion (DG sets, boilers): 4,120 tCO₂e · Mobile combustion (fleet): 890 tCO₂e · Refrigerants (fugitive): 830 tCO₂e · GWP: IPCC AR6' },
-  { id:'GRI 305-2', title:'Energy Indirect (Scope 2) GHG Emissions', section:'GRI 305 — Emissions', type:'Topic-Specific', elements: 6, ai: false, filled: 6, value:'Location-based: 11,170 tCO₂e (Karnataka grid: 0.72 kgCO₂/kWh) · Market-based: 10,380 tCO₂e (after RECs: 790 tCO₂e offset) · Total Scope 1+2: 17,010 tCO₂e' },
-  { id:'GRI 305-3', title:'Other Indirect (Scope 3) GHG Emissions', section:'GRI 305 — Emissions', type:'Topic-Specific', elements: 8, ai: true, filled: 6, value:'Business travel: 1,120 tCO₂e · Employee commute: 4,380 tCO₂e (estimated) · Purchased goods: data collection ongoing · Waste: 320 tCO₂e · Total reported Scope 3: 5,820 tCO₂e (partial)' },
-  { id:'GRI 305-4', title:'GHG Emissions Intensity', section:'GRI 305 — Emissions', type:'Topic-Specific', elements: 4, ai: false, filled: 4, value:'Scope 1+2: 0.086 tCO₂e/FTE · 0.020 tCO₂e/student · 0.044 tCO₂e/patient-day · Year-on-year change: -4.2% (improved grid emission factor + solar addition)' },
-  { id:'GRI 305-5', title:'Reduction of GHG Emissions', section:'GRI 305 — Emissions', type:'Topic-Specific', elements: 4, ai: true, filled: 4, value:'Solar (1.8 MWp operational): -1,890 tCO₂e avoided · LED retrofit: -570 tCO₂e · BMS controls: -160 tCO₂e · Total avoided FY25: 2,620 tCO₂e (vs FY22 baseline)' },
-  { id:'GRI 305-6', title:'Emissions of Ozone-Depleting Substances (ODS)', section:'GRI 305 — Emissions', type:'Topic-Specific', elements: 3, ai: true, filled: 3, value:'HFC-134a (air conditioning): 0.042 tonnes CFC-11 equivalent · Phase-out plan for R-22 units: 68% replaced with R-32 by FY25 · Target: 100% phase-out by FY27' },
-  { id:'GRI 305-7', title:'NOx, SOx, and Other Significant Air Emissions', section:'GRI 305 — Emissions', type:'Topic-Specific', elements: 4, ai: false, filled: 4, value:'NOx (DG exhaust): 2.8 tonnes · SOx: 0.4 tonnes (low-sulphur diesel) · PM10: 0.9 tonnes · All within CPCB emission norms for hospital generators' },
-  // GRI 306 — Waste
-  { id:'GRI 306-1', title:'Waste Generation and Significant Waste-related Impacts', section:'GRI 306 — Waste', type:'Topic-Specific', elements: 5, ai: true, filled: 5, value:'Total waste: 1,437 MT · Biomedical (Schedule I): 124 MT · General solid: 980 MT · E-waste: 18 MT · Construction debris: 315 MT · Key impact: biomedical waste pathogen risk, landfill pressure' },
-  { id:'GRI 306-2', title:'Management of Significant Waste-related Impacts', section:'GRI 306 — Waste', type:'Topic-Specific', elements: 4, ai: true, filled: 4, value:'Segregation at source: colour-coded bins across all facilities · Biomedical waste treatment: autoclaving (87%) + incineration (13%) · Organic waste composting: 3 sites · Plastics audit FY25 complete' },
-  { id:'GRI 306-3', title:'Waste Generated', section:'GRI 306 — Waste', type:'Topic-Specific', elements: 6, ai: false, filled: 6, value:'Hazardous (biomedical+pharma): 138 MT · Non-hazardous: 984 MT · Total diverted from disposal: 503 MT (35%) · Composted: 142 MT · Recycled paper/metal/glass: 361 MT' },
-  // GRI 401 — Employment
-  { id:'GRI 401-1', title:'New Employee Hires and Employee Turnover', section:'GRI 401 — Employment', type:'Topic-Specific', elements: 6, ai: false, filled: 6, value:'New hires FY25: 1,247 (11.4% of workforce) · Female hires: 47% · Turnover: 8.2% (899 departures) · Voluntary: 6.8% · Involuntary: 1.4% · Highest turnover: nursing (14.2%)' },
-  { id:'GRI 401-2', title:'Benefits Provided to Full-Time Employees', section:'GRI 401 — Employment', type:'Topic-Specific', elements: 5, ai: true, filled: 5, value:'Health insurance: 100% · Life insurance: 100% · PF + Gratuity: 100% · Childcare (creche): 3 sites · Parental leave: 26 weeks maternity, 2 weeks paternity' },
-  // GRI 403 — OHS
-  { id:'GRI 403-1', title:'Occupational Health and Safety Management System', section:'GRI 403 — OHS', type:'Topic-Specific', elements: 4, ai: true, filled: 4, value:'ISO 45001:2018 certified: 4 hospitals · OHS committee at each site · Monthly safety audits · Incident reporting system (digital, real-time)' },
-  { id:'GRI 403-5', title:'Worker Training on OHS', section:'GRI 403 — OHS', type:'Topic-Specific', elements: 4, ai: false, filled: 4, value:'Mandatory OHS induction: 100% of new hires · Annual refresher: 89% completion · Fire & emergency: 2 drills/year all sites · Biohazard handling: 100% clinical staff' },
-  { id:'GRI 403-9', title:'Work-Related Injuries', section:'GRI 403 — OHS', type:'Topic-Specific', elements: 8, ai: false, filled: 8, value:'LTIFR: 0.85 (per million hours) · Zero fatalities · Recordable injuries: 94 · Needlestick incidents: 42 (all managed per PEP protocol) · High-consequence: 3 (all resolved)' },
-  // GRI 404 — Training
-  { id:'GRI 404-1', title:'Average Hours of Training per Year per Employee', section:'GRI 404 — Training & Education', type:'Topic-Specific', elements: 4, ai: false, filled: 4, value:'Average: 38.4 hours/employee · Faculty: 52 hrs · Nursing: 44 hrs · Admin: 22 hrs · Technical: 31 hrs · Total training investment: ₹8.2 Cr FY25' },
-  { id:'GRI 404-3', title:'Percentage of Employees Receiving Performance Reviews', section:'GRI 404 — Training & Education', type:'Topic-Specific', elements: 3, ai: false, filled: 3, value:'100% of permanent employees received annual performance review · 360° feedback: senior faculty & department heads · ESG goals included in appraisal criteria: 68% of employees' },
-  // GRI 405 — DEI
-  { id:'GRI 405-1', title:'Diversity of Governance Bodies and Employees', section:'GRI 405 — DEI', type:'Topic-Specific', elements: 6, ai: false, filled: 6, value:'Board: 20% female · Faculty: 44% female · Nursing: 82% female · Senior management: 31% female · Age: under 30 (28%), 30-50 (57%), 50+ (15%) · SC/ST: 12.4% · PwD: 1.8%' },
-  { id:'GRI 405-2', title:'Ratio of Basic Salary of Women to Men', section:'GRI 405 — DEI', type:'Topic-Specific', elements: 4, ai: false, filled: 4, value:'Overall pay ratio F:M = 0.96:1 · Faculty: 0.98:1 · Nursing: 1.01:1 (parity) · Admin: 0.94:1 · Gap closure target: parity by FY27' },
-  // GRI 413 — Community
-  { id:'GRI 413-1', title:'Operations with Local Community Engagement', section:'GRI 413 — Local Communities', type:'Topic-Specific', elements: 5, ai: true, filled: 5, value:'Community health camps: 186 (196,500 beneficiaries) · Free outpatient services: ₹4.8 Cr · Scholarship program: 847 students (first-gen college) · Udupi district adopted for water quality monitoring' },
+  // ── GRI 2 — General Disclosures ──────────────────────────────────────────
+  { id:'GRI 2-1', title:'Organizational Details', section:'GRI 2 — General Disclosures', type:'Mandatory', ai:true,
+    requirement:'Legal name, nature of ownership, location of headquarters, countries of operation, and sector.',
+    fields:[
+      { key:'legal_name', label:'Legal name of the organisation', type:'text', value:'Manipal Academy of Higher Education (MAHE) / Manipal Health Enterprises Pvt. Ltd.' },
+      { key:'ownership', label:'Nature of ownership and legal form', type:'select', options:['Public listed','Private limited','Deemed University / Trust','Government','Partnership'], value:'Deemed University / Trust' },
+      { key:'hq', label:'Location of headquarters', type:'text', value:'Manipal, Udupi District, Karnataka 576104, India' },
+      { key:'countries', label:'Countries/areas where operations are located', type:'text', value:'India (Karnataka, Goa, Rajasthan, Sikkim, Maharashtra) · UAE (Dubai) · Malaysia (Melaka) · Antigua (AUA)' },
+      { key:'sector', label:'Sector(s) of activity (GICS/NACE)', type:'text', value:'Education Services (GICS: 25302010) · Health Care Services (GICS: 35101010)' },
+      { key:'scale', label:'Scale: employees, revenues, total assets', type:'text', value:'10,980 employees · Revenue ₹3,840 Cr (FY25) · Total assets ₹9,200 Cr · 30,000+ students · 4 hospitals' },
+    ]},
+  { id:'GRI 2-2', title:'Entities Included in Sustainability Reporting', section:'GRI 2 — General Disclosures', type:'Mandatory', ai:false,
+    requirement:'List of entities included, and whether financial reporting and sustainability reporting boundaries differ.',
+    fields:[
+      { key:'entities', label:'List of entities included', type:'text', value:'MAHE Manipal · MAHE Mangaluru · MAHE Jaipur · MAHE Bengaluru · MAHE Sikkim · Manipal Hospital (Manipal) · Manipal Hospital (Old Airport Road, Bengaluru) · Manipal Hospital (Whitefield) · Manipal Hospital (Jayanagar)' },
+      { key:'boundary_diff', label:'Does the sustainability reporting boundary differ from financial consolidation?', type:'select', options:['Yes — sustainability boundary is narrower','Yes — sustainability boundary is wider','No — same boundary','Partial — some entities excluded'], value:'Partial — some entities excluded' },
+      { key:'exclusions', label:'Entities excluded and reason', type:'text', value:'AUA (Antigua) excluded — insufficient data systems. Dubai and Malaysia campuses excluded from Scope 2 LB — CEA factors not applicable; planned inclusion FY26.' },
+    ]},
+  { id:'GRI 2-3', title:'Reporting Period, Frequency and Contact Point', section:'GRI 2 — General Disclosures', type:'Mandatory', ai:true,
+    requirement:'Reporting period, frequency, and publication date; contact point for questions.',
+    fields:[
+      { key:'period', label:'Reporting period', type:'text', value:'FY 2024-25: 01 April 2024 – 31 March 2025' },
+      { key:'frequency', label:'Reporting frequency', type:'select', options:['Annual','Biennial','Ad hoc'], value:'Annual' },
+      { key:'pub_date', label:'Publication date of report', type:'text', value:'30 June 2025' },
+      { key:'contact', label:'Contact point for questions', type:'text', value:'Director — Sustainability & Green Initiatives · sustainability@manipal.edu · +91-820-2922000' },
+    ]},
+  { id:'GRI 2-4', title:'Restatements of Information', section:'GRI 2 — General Disclosures', type:'Mandatory', ai:true,
+    requirement:'Restatements of information from previous reporting periods and reasons.',
+    fields:[
+      { key:'restatements', label:'Restatements made from prior period and reason', type:'text', value:'FY23-24 water consumption restated from 612 ML to 618 ML — meter calibration correction at Whitefield campus (June 2024). No restatement to GHG baseline — Sikkim campus addition treated as organic growth per GHG Protocol.' },
+      { key:'impact', label:'Significance of the restatement', type:'select', options:['No material impact','Minor (<5%)','Moderate (5–15%)','Significant (>15%)'], value:'Minor (<5%)' },
+    ]},
+  { id:'GRI 2-5', title:'External Assurance', section:'GRI 2 — General Disclosures', type:'Mandatory', ai:false,
+    requirement:'Policy and practice for seeking external assurance; relationship with assurance providers.',
+    fields:[
+      { key:'policy', label:'Policy on external assurance', type:'text', value:'Manipal Group seeks limited assurance on GHG Scope 1+2 data and selected environmental KPIs annually. FY25: internal verification only. Third-party limited assurance planned FY26 (DNV or Bureau Veritas).' },
+      { key:'provider', label:'Assurance provider (if any)', type:'text', value:'FY25: Internal — Sustainability & Green Initiatives team. FY26 target: DNV / Bureau Veritas (tender underway).' },
+      { key:'assurance_scope', label:'Scope of assurance engagement', type:'text', value:'Planned FY26: Scope 1+2 GHG emissions, total energy consumption, water withdrawal, waste generated. GRI In Accordance claim not independently assured in FY25.' },
+      { key:'relationship', label:'Relationship between organisation and assurance provider', type:'select', options:['Independent third party','Same group company','Regulator','Not applicable — no external assurance'], value:'Not applicable — no external assurance' },
+    ]},
+  { id:'GRI 2-6', title:'Activities, Value Chain and Other Business Relationships', section:'GRI 2 — General Disclosures', type:'Mandatory', ai:true,
+    requirement:'Sector, value chain description, business relationships with significant impacts.',
+    fields:[
+      { key:'activities', label:'Significant activities, products and services', type:'text', value:'Education: UG, PG, doctoral programmes (290+ courses) · Healthcare: tertiary & quaternary hospitals (1,800+ beds) · Research: 3,200+ publications FY25, 142 patents filed' },
+      { key:'upstream', label:'Upstream value chain (significant suppliers)', type:'text', value:'Medical equipment (Siemens Healthineers, GE Healthcare) · Lab reagents & chemicals (Merck, Thermo Fisher) · IT infrastructure (Dell, Cisco) · Construction & facility services (local contractors Karnataka)' },
+      { key:'downstream', label:'Downstream value chain', type:'text', value:'Graduates entering healthcare, research, engineering sectors · Patient outcomes and community health impact · Technology transfer and startup incubation (30 startups FY25)' },
+      { key:'biz_relationships', label:'Other significant business relationships', type:'text', value:'MoUs with 280+ international universities · Clinical research partnerships (ICMR, DST) · Industry partnerships (Manipal-Cigna Health Insurance, ManipalTech startups)' },
+    ]},
+  { id:'GRI 2-7', title:'Employees', section:'GRI 2 — General Disclosures', type:'Mandatory', ai:false,
+    requirement:'Total employees by gender, employment type, employment contract, region.',
+    fields:[
+      { key:'total', label:'Total number of employees (end of period)', type:'number', value:'10980', suffix:'employees' },
+      { key:'by_gender', label:'By gender', type:'text', value:'Male: 6,368 (58%) · Female: 4,612 (42%) · Non-binary/undisclosed: 0' },
+      { key:'by_contract', label:'By employment contract', type:'text', value:'Permanent: 9,347 (85.1%) · Fixed-term: 892 (8.1%) · Contract/Casual: 741 (6.7%)' },
+      { key:'by_type', label:'By employment type', type:'text', value:'Full-time: 9,847 · Part-time: 1,133' },
+      { key:'by_region', label:'By region/country', type:'text', value:'Karnataka: 7,842 · Other India: 2,694 · International (UAE, Malaysia, Antigua): 444' },
+      { key:'methodology', label:'Data collection methodology', type:'text', value:'HRIS system (SAP SuccessFactors) · Headcount as at 31 March 2025 · Contractors not included (reported separately in GRI 2-8)' },
+    ]},
+  { id:'GRI 2-8', title:'Workers Who Are Not Employees', section:'GRI 2 — General Disclosures', type:'Mandatory', ai:true,
+    requirement:'Total number of workers who are not employees, type of work, employed by organisation or third parties.',
+    fields:[
+      { key:'total', label:'Total number of non-employee workers', type:'number', value:'2400', suffix:'approx.' },
+      { key:'type_work', label:'Type of work performed', type:'text', value:'Facility management (cleaning, housekeeping) · Security · Catering · Construction (project-based) · IT support (outsourced helpdesk)' },
+      { key:'contracted_by', label:'Contracted by organisation or third party?', type:'select', options:['Contracted directly by organisation','Contracted via third-party agency','Mix of both'], value:'Contracted via third-party agency' },
+      { key:'agencies', label:'Number of agencies used', type:'number', value:'12', suffix:'registered contractors' },
+    ]},
+  { id:'GRI 2-9', title:'Governance Structure and Composition', section:'GRI 2 — General Disclosures', type:'Mandatory', ai:true,
+    requirement:'Governance structure, composition of highest governance body including independence, gender, and competencies.',
+    fields:[
+      { key:'structure', label:'Governance structure and committees', type:'text', value:'Board of Governors (highest body) → Sustainability Committee → Academic Council → Finance Committee → Audit & Risk Committee' },
+      { key:'composition', label:'Composition of Board of Governors', type:'text', value:'Total members: 15 · Executive: 6 · Non-executive: 9 · Independent: 4 · Female: 3 (20%) · Age <50: 4 · Age 50-70: 9 · Age >70: 2' },
+      { key:'competencies', label:'Sustainability/climate competencies on board', type:'text', value:'Climate risk: 3 members with formal training (FY25) · Healthcare sustainability: 5 members · Financial/ESG: 2 members · External sustainability advisor (non-voting) since FY23' },
+      { key:'term_limits', label:'Tenure and term limits', type:'text', value:'Governors: 3-year term, renewable once. Independent directors: maximum 6 years per MEMG trust deed.' },
+    ]},
+  { id:'GRI 2-10', title:'Nomination and Selection of Highest Governance Body', section:'GRI 2 — General Disclosures', type:'Mandatory', ai:true,
+    requirement:'Nomination and selection processes for highest governance body and its committees; criteria used.',
+    fields:[
+      { key:'process', label:'Nomination and selection process', type:'text', value:'Nominations through Manipal Education & Medical Group (MEMG) Charitable Trust. Shortlisted by Nomination Committee (3 independent governors). Board approves.' },
+      { key:'criteria', label:'Criteria for selection', type:'text', value:'Domain expertise (education, healthcare, finance, law) · Diversity (gender, geography, sector) · ESG competency criteria introduced FY25 (mandatory for ≥1 nominee per cycle) · No conflicts of interest' },
+    ]},
+  { id:'GRI 2-12', title:'Role of Highest Governance Body in Overseeing Impact Management', section:'GRI 2 — General Disclosures', type:'Mandatory', ai:true,
+    requirement:'How the highest governance body oversees the organisation\'s identification and management of impacts on economy, environment, and people.',
+    fields:[
+      { key:'oversight_process', label:'Oversight process for impacts', type:'text', value:'Sustainability Committee (chaired by VC) reviews material topic performance quarterly. Board reviews annually. Material topics approved by Board following double materiality assessment (FY24). Impact management approach reviewed by Audit Committee.' },
+      { key:'due_diligence', label:'Due diligence processes overseen by board', type:'text', value:'Annual supply chain ESG audit (top 30 suppliers). Patient safety incident review (quarterly). Environmental compliance audit (bi-annual). Academic integrity review (annual).' },
+      { key:'stakeholder_input', label:'How stakeholder concerns are raised to board', type:'text', value:'Whistleblower reports escalated to Audit Committee within 5 working days. Community grievances: quarterly summary to Board. Regulatory notices: immediate escalation.' },
+    ]},
+  { id:'GRI 2-22', title:'Statement on Sustainable Development Strategy', section:'GRI 2 — General Disclosures', type:'Mandatory', ai:true,
+    requirement:'Statement from the highest authority on how the organisation contributes to sustainable development.',
+    fields:[
+      { key:'statement', label:'Statement from highest authority (VC/Chair)', type:'text', value:'"Manipal Group\'s vision is to be South Asia\'s most sustainable knowledge institution by 2030. Our FY25 carbon footprint of 18,920 tCO₂e (Scope 1+2) represents a 13.4% reduction against our FY22 baseline — ahead of our linear trajectory toward the 40% reduction target by FY30. We are embedding sustainability into curriculum, research, and operations simultaneously." — Vice Chancellor, MAHE' },
+      { key:'sdg_alignment', label:'SDG alignment', type:'text', value:'SDG 3 (Good Health) · SDG 4 (Quality Education) · SDG 7 (Affordable Clean Energy) · SDG 13 (Climate Action) · SDG 17 (Partnerships)' },
+    ]},
+  { id:'GRI 2-23', title:'Policy Commitments', section:'GRI 2 — General Disclosures', type:'Mandatory', ai:true,
+    requirement:'Policy commitments for responsible business conduct; due diligence, human rights, precautionary principle.',
+    fields:[
+      { key:'policies', label:'Policy commitments in place', type:'text', value:'Human Rights Policy (2023) · Environmental Policy (2021, rev. 2024) · Anti-Corruption & Anti-Bribery Policy · Patient Rights Charter · Academic Integrity Policy · Supplier Code of Conduct · Whistleblower Policy' },
+      { key:'human_rights', label:'Human rights commitment', type:'text', value:'UNGC signatory since 2023 · Human rights due diligence covers own operations and Tier-1 suppliers. No forced labour or child labour in operations (verified via annual audit). Migrant worker rights included since FY24.' },
+      { key:'precautionary', label:'Approach to precautionary principle', type:'text', value:'Environmental Management System (ISO 14001:2015) mandates precautionary approach: no new chemicals introduced without MSDS review and EHS clearance. Clinical research: ICMR ethical clearance mandatory before patient-facing research.' },
+    ]},
+  { id:'GRI 2-26', title:'Mechanisms for Seeking Advice and Raising Concerns', section:'GRI 2 — General Disclosures', type:'Mandatory', ai:true,
+    requirement:'Mechanisms for individuals to seek advice or raise concerns about business conduct.',
+    fields:[
+      { key:'mechanisms', label:'Mechanisms available', type:'text', value:'Ethics hotline (ethics@manipal.edu, 24/7) · Ombudsperson (independent, reports to Board) · Anonymous suggestion portal (campus intranet) · ICC (Internal Complaints Committee) for POSH · Student grievance portal (ManipalUniversity app)' },
+      { key:'confidentiality', label:'Confidentiality protection', type:'select', options:['Anonymous reporting available','Confidential but not anonymous','Identity required','Mix of options'], value:'Anonymous reporting available' },
+      { key:'fy25_stats', label:'FY25 usage statistics', type:'text', value:'Total concerns raised: 23 · Resolved: 21 (91%) · Under review: 2 · Zero retaliation incidents. POSH complaints: 7 raised, 7 resolved.' },
+    ]},
+  { id:'GRI 2-29', title:'Approach to Stakeholder Engagement', section:'GRI 2 — General Disclosures', type:'Mandatory', ai:true,
+    requirement:'Approach to stakeholder engagement: identification, purpose, and frequency.',
+    fields:[
+      { key:'stakeholders', label:'Stakeholder groups identified', type:'text', value:'Students & families · Faculty & staff · Patients · Local communities (Manipal, Mangaluru, Bengaluru) · Government & regulators (UGC, MCI/NMC, KSPCB) · Suppliers · Industry partners · Accreditation bodies (NAAC, NABH) · Alumni · Investors/donors' },
+      { key:'frequency', label:'Frequency of engagement by stakeholder', type:'text', value:'Students: Daily (academic) + Annual satisfaction survey · Faculty: Monthly dept meetings + Annual appraisal · Community: Quarterly health camps + Annual community needs assessment · Regulators: As required + Annual compliance submission · Suppliers: Annual ESG assessment' },
+      { key:'purpose', label:'Purpose of engagement', type:'text', value:'To understand stakeholder needs and concerns, identify material sustainability topics, integrate feedback into strategy, and report on performance. Engagement informs double materiality assessment (annual).' },
+    ]},
+
+  // ── GRI 3 — Material Topics ───────────────────────────────────────────────
+  { id:'GRI 3-1', title:'Process to Determine Material Topics', section:'GRI 3 — Material Topics', type:'Mandatory', ai:true,
+    requirement:'Process to determine material topics; how impacts are identified and assessed.',
+    fields:[
+      { key:'process', label:'Process used', type:'text', value:'Double materiality assessment (impact + financial) conducted FY24. Three steps: (1) Longlist of 42 topics from GRI, SASB Education & Healthcare, NAAC, NABH standards. (2) Internal impact assessment by department heads (scale, scope, irremediability). (3) Stakeholder survey (n=1,247 across 9 groups) for financial materiality weighting. Results validated by Sustainability Committee.' },
+      { key:'stakeholder_input', label:'How stakeholder input was incorporated', type:'text', value:'Online survey (English + Kannada) to students, faculty, patients, community. Focus groups: 3 sessions (clinical staff, admin staff, community representatives). External expert panel: 2 sustainability consultants.' },
+      { key:'frequency', label:'How often the assessment is updated', type:'select', options:['Annually','Every 2 years','Every 3+ years','As triggered by material events'], value:'Annually' },
+    ]},
+  { id:'GRI 3-2', title:'List of Material Topics', section:'GRI 3 — Material Topics', type:'Mandatory', ai:true,
+    requirement:'List of material topics; changes from prior period and reasons.',
+    fields:[
+      { key:'topics', label:'List of material topics (ranked)', type:'text', value:'1. Energy & GHG Emissions (Impact: High, Financial: High) · 2. Water & Effluents (High, High) · 3. Waste & Biomedical Waste (High, Med) · 4. Climate Resilience (Med, High) · 5. Biodiversity (Med, Med) · 6. Occupational Health & Safety (High, High) · 7. Student Wellbeing & Mental Health (High, High) · 8. Diversity, Equity & Inclusion (High, Med) · 9. Ethics & Anti-Corruption (High, High) · 10. Community Engagement & Access to Education/Healthcare (High, Med)' },
+      { key:'changes', label:'Changes from prior period reporting', type:'text', value:'New topic FY25: Climate Resilience (elevated from "emerging" due to KSPCB flood notice for Manipal coastal campus). Merged: "Academic Quality" absorbed into "Student Wellbeing." Removed: "Digital Transformation" (financial materiality threshold not met on standalone basis).' },
+    ]},
+  { id:'GRI 3-3', title:'Management of Material Topics', section:'GRI 3 — Material Topics', type:'Mandatory', ai:true,
+    requirement:'Management approach for each material topic: policies, commitments, goals, responsibilities, monitoring.',
+    fields:[
+      { key:'energy_mgmt', label:'Management approach — Energy & GHG Emissions', type:'text', value:'Policy: Environmental Policy (2024 rev.) + Energy Reduction Roadmap. Goal: 40% Scope 1+2 reduction by FY30 vs FY22. Owner: Director — Sustainability. Monitoring: TerraCAP monthly GHG ledger, sub-metered at campus level. Review: Quarterly by Sustainability Committee.' },
+      { key:'water_mgmt', label:'Management approach — Water & Effluents', type:'text', value:'Policy: Water Conservation Policy (2023). Goal: 30% reduction in freshwater withdrawal/m² by FY28. Owner: VP Infrastructure. Monitoring: Monthly meter reading + KSPCB annual environmental statement. STP/ETP performance reviewed quarterly.' },
+      { key:'ohs_mgmt', label:'Management approach — Occupational Health & Safety', type:'text', value:'Policy: OHS Policy (ISO 45001:2018). Goal: LTIFR <0.8 by FY27, zero fatalities sustained. Owner: CHRO + Hospital Medical Directors. Monitoring: Incident reporting system (real-time), monthly OHS committee meetings at each site, annual ISO 45001 surveillance audit.' },
+      { key:'dei_mgmt', label:'Management approach — Diversity, Equity & Inclusion', type:'text', value:'Policy: DEI Policy (2022), Pay Equity Review (annual). Goal: Female senior management 40% by FY28 (current 31%). Gender pay gap closure by FY27. Owner: CHRO. Monitoring: Annual HR analytics dashboard, POSH committee quarterly review.' },
+    ]},
+
+  // ── GRI 302 — Energy ─────────────────────────────────────────────────────
+  { id:'GRI 302-1', title:'Energy Consumption Within the Organisation', section:'GRI 302 — Energy', type:'Topic-Specific', ai:true,
+    requirement:'Total fuel consumption from non-renewable and renewable sources; total electricity, heating, cooling, steam; total energy consumption. Units in joules or multiples.',
+    fields:[
+      { key:'nonrenewable_fuel', label:'Non-renewable fuel consumption (GJ)', type:'number', value:'12420', suffix:'GJ · Diesel 10,224 GJ + LPG 2,196 GJ (converted at standard NCV)' },
+      { key:'renewable_fuel', label:'Renewable fuel consumption (GJ)', type:'number', value:'648', suffix:'GJ · Biomass/biogas (canteen, 2 campuses)' },
+      { key:'electricity_consumed', label:'Electricity consumption from grid (MWh)', type:'number', value:'68420', suffix:'MWh' },
+      { key:'electricity_sold', label:'Electricity sold / exported (MWh)', type:'number', value:'0', suffix:'MWh · No export (all solar self-consumed)' },
+      { key:'solar_generated', label:'Electricity from on-site solar (MWh)', type:'number', value:'6180', suffix:'MWh · 4.2 MW rooftop, 6 campuses' },
+      { key:'recs', label:'Renewable Energy Certificates purchased (MWh)', type:'number', value:'4200', suffix:'MWh I-RECs · RECS India exchange' },
+      { key:'total_energy', label:'Total energy consumption (MWh)', type:'number', value:'77860', suffix:'MWh = 280,296 GJ' },
+      { key:'standards', label:'Standards, methodologies, assumptions used', type:'text', value:'GHG Protocol; India-specific NCV from BEE (MTOE to GJ conversion); IEA conversion factors for MWh to GJ (1 MWh = 3.6 GJ). Non-renewable fuels: diesel NCV 35.5 MJ/litre; LPG NCV 47.3 MJ/kg.' },
+    ]},
+  { id:'GRI 302-3', title:'Energy Intensity', section:'GRI 302 — Energy', type:'Topic-Specific', ai:true,
+    requirement:'Energy intensity ratio; organisation-specific metric; types of energy included; boundary.',
+    fields:[
+      { key:'ratio', label:'Energy intensity ratio', type:'text', value:'1,620 kWh per student-equivalent per year (FY25)' },
+      { key:'denominator', label:'Organisation-specific metric (denominator)', type:'text', value:'Student-equivalents: 35,000 (30,000 students + 5,000 faculty FTE-adjusted)' },
+      { key:'energy_types', label:'Types of energy included', type:'text', value:'All energy: grid electricity + diesel + LPG + solar on-site' },
+      { key:'boundary', label:'Boundary for intensity calculation', type:'text', value:'India campuses only (6 campuses, operational control). UAE and Malaysia excluded due to incomplete energy data.' },
+      { key:'change', label:'Change in intensity vs prior year', type:'text', value:'FY25: 1,620 kWh/student-eq. FY24: 1,720. FY22 baseline: 1,840. Change FY25 vs FY22: −11.9%' },
+    ]},
+  { id:'GRI 302-4', title:'Reduction of Energy Consumption', section:'GRI 302 — Energy', type:'Topic-Specific', ai:true,
+    requirement:'Amount of reductions in energy consumption achieved, types of energy included, basis for calculation.',
+    fields:[
+      { key:'total_reduction', label:'Total energy reduction achieved (MWh)', type:'number', value:'8420', suffix:'MWh vs FY22 adjusted baseline' },
+      { key:'initiatives', label:'Initiatives and energy saved per initiative', type:'text', value:'LED campus lighting (98% conversion): 1,840 MWh/year saved · 4.2 MW solar on-site: 6,180 MWh generated (displacing grid) · HVAC BMS optimization (12 buildings): 920 MWh/year · Diesel genset right-sizing: 280 MWh/year. Note: solar generation included here as avoided grid consumption.' },
+      { key:'basis', label:'Basis for calculating reduction', type:'text', value:'Counterfactual approach: FY22 baseline intensity × FY25 activity level, vs actual FY25 consumption. Verified against sub-meter records.' },
+    ]},
+
+  // ── GRI 303 — Water ───────────────────────────────────────────────────────
+  { id:'GRI 303-1', title:'Interactions with Water as a Shared Resource', section:'GRI 303 — Water', type:'Topic-Specific', ai:true,
+    requirement:'Description of how the organisation interacts with water; water-related impacts; water-stressed areas.',
+    fields:[
+      { key:'interactions', label:'How organisation interacts with water', type:'text', value:'Freshwater withdrawal for: campus domestic use, clinical/laboratory use (sterile water, autoclave), cooling towers, HVAC, horticulture irrigation, patient sanitation. Effluent treated in STPs/ETPs before disposal/reuse. No industrial process water use.' },
+      { key:'water_stress', label:'Operations in water-stressed areas', type:'text', value:'Manipal campus (Udupi): Medium-High stress (WRI Aqueduct 3.0, 2023). Bengaluru campuses: High stress. Jaipur campus: Extremely High stress. These three locations account for 68% of total withdrawal.' },
+      { key:'impacts', label:'Significant water-related impacts', type:'text', value:'Groundwater depletion risk (Bengaluru). Competition with local community for municipal supply. Effluent quality if STP underperforms (biomedical risk). Climate change: monsoon variability impacts BWSSB reliability.' },
+    ]},
+  { id:'GRI 303-3', title:'Water Withdrawal', section:'GRI 303 — Water', type:'Topic-Specific', ai:false,
+    requirement:'Total water withdrawal by source, in megalitres; breakdown for water-stressed areas.',
+    fields:[
+      { key:'municipal', label:'Municipal water supply (ML)', type:'number', value:'142.0', suffix:'ML · BWSSB, Udupi Jal, JVVNL, GoA Water Supply' },
+      { key:'groundwater', label:'Groundwater withdrawal (ML)', type:'number', value:'42.2', suffix:'ML · Borewells (CGWB clearance held)' },
+      { key:'rainwater', label:'Rainwater collected (ML)', type:'number', value:'12.8', suffix:'ML · Harvesting from 6,200 m² catchment area' },
+      { key:'surface', label:'Surface water (ML)', type:'number', value:'0', suffix:'ML · None' },
+      { key:'total', label:'Total water withdrawal (ML)', type:'number', value:'184.2', suffix:'ML FY25 (vs 198.4 ML FY22 baseline)' },
+      { key:'stressed_area', label:'Withdrawal from water-stressed areas (ML)', type:'number', value:'128.6', suffix:'ML · Manipal, Bengaluru, Jaipur campuses combined' },
+    ]},
+  { id:'GRI 303-4', title:'Water Discharge', section:'GRI 303 — Water', type:'Topic-Specific', ai:false,
+    requirement:'Total water discharge by destination and quality; breakdown for water-stressed areas.',
+    fields:[
+      { key:'stp_treated', label:'STP/ETP treated effluent discharged or reused (ML)', type:'number', value:'68.4', suffix:'ML · 100% reused on-site (cooling towers + horticulture). Zero discharge to water bodies.' },
+      { key:'destination', label:'Discharge destination', type:'select', options:['Surface water body','Municipal sewer','Groundwater','Reused on-site (no discharge)','Mix'], value:'Reused on-site (no discharge)' },
+      { key:'quality', label:'Water quality parameters of discharge', type:'text', value:'BOD: <30 mg/L · COD: <250 mg/L · TSS: <30 mg/L · pH: 6.5–8.5 · All within IS 2490 Class A (KSPCB prescribed). Tested monthly by NABL-accredited lab.' },
+      { key:'biomedical', label:'Biomedical wastewater treatment', type:'text', value:'Biomedical liquid waste (from hospitals): treated via autoclaving and chemical disinfection per BMW Rules 2016 before draining to STP. Zero untreated biomedical effluent discharged.' },
+    ]},
+  { id:'GRI 303-5', title:'Water Consumption', section:'GRI 303 — Water', type:'Topic-Specific', ai:false,
+    requirement:'Total water consumption; change in water storage; contextual information to understand data.',
+    fields:[
+      { key:'consumption', label:'Total water consumption (ML)', type:'number', value:'115.8', suffix:'ML (= withdrawal 184.2 − discharge 68.4 ML)' },
+      { key:'intensity', label:'Water intensity (m³/student-equivalent)', type:'number', value:'3.31', suffix:'m³/student-eq. (vs FY22: 3.89 m³) · 14.9% reduction' },
+      { key:'storage_change', label:'Change in water stored (ML)', type:'number', value:'0', suffix:'ML · No significant change in reservoir storage' },
+    ]},
+
+  // ── GRI 305 — Emissions ───────────────────────────────────────────────────
+  { id:'GRI 305-1', title:'Direct (Scope 1) GHG Emissions', section:'GRI 305 — Emissions', type:'Topic-Specific', ai:true,
+    requirement:'Gross Scope 1 GHG emissions in tCO₂e; gases included; base year; source of emission factors; consolidation approach.',
+    fields:[
+      { key:'total_s1', label:'Gross Scope 1 emissions (tCO₂e)', type:'number', value:'1840', suffix:'tCO₂e · FY25' },
+      { key:'by_gas', label:'Breakdown by greenhouse gas', type:'text', value:'CO₂: 924 tCO₂e (diesel + LPG combustion) · CH₄: <1 tCO₂e (negligible) · N₂O: 0 · HFCs: 916 tCO₂e (HFC-410A refrigerant leakage, GWP 2,088 per AR5)' },
+      { key:'by_source', label:'Breakdown by source', type:'text', value:'Diesel DG sets: 740 tCO₂e · LPG kitchens: 84 tCO₂e · Diesel campus fleet: 100 tCO₂e · HFC refrigerant leakage (18 HVAC systems): 916 tCO₂e' },
+      { key:'biogenic', label:'Biogenic CO₂ emissions (tCO₂)', type:'number', value:'0', suffix:'tCO₂ · No biomass combustion in scope' },
+      { key:'base_year', label:'Base year and emissions', type:'text', value:'FY 2021-22 · Scope 1 base year: 2,040 tCO₂e · No restatement required (no structural changes to Scope 1 boundary)' },
+      { key:'consolidation', label:'Consolidation approach', type:'select', options:['Operational control','Financial control','Equity share'], value:'Operational control' },
+      { key:'ef_source', label:'Emission factor sources', type:'text', value:'Diesel: IPCC 2006 GL Vol. 2, Table 2.2 (EF 74.1 kgCO₂/GJ) × India diesel NCV 35.5 MJ/litre · LPG: IPCC 2006 GL Vol. 2 (EF 63.1 kgCO₂/GJ) × NCV 47.3 MJ/kg · HFC-410A GWP: 2,088 per IPCC AR5' },
+      { key:'gwp_source', label:'GWP source', type:'select', options:['IPCC AR4','IPCC AR5','IPCC AR6','IPCC TAR'], value:'IPCC AR5' },
+    ]},
+  { id:'GRI 305-2', title:'Energy Indirect (Scope 2) GHG Emissions', section:'GRI 305 — Emissions', type:'Topic-Specific', ai:true,
+    requirement:'Gross location-based and market-based Scope 2 emissions; gases; base year; EF sources.',
+    fields:[
+      { key:'location_based', label:'Scope 2 location-based (tCO₂e)', type:'number', value:'17080', suffix:'tCO₂e · 68,420 MWh × campus-weighted avg 0.2497 tCO₂e/MWh (CEA FY24)' },
+      { key:'market_based', label:'Scope 2 market-based (tCO₂e)', type:'number', value:'14920', suffix:'tCO₂e · After retirement of 4,200 I-RECs; residual mix factor 0.71 tCO₂e/MWh applied to remaining 68,420 − 4,200 MWh' },
+      { key:'ef_breakdown', label:'Grid emission factors by campus/state', type:'text', value:'Karnataka (Manipal, Mangaluru, Bengaluru): 0.69 tCO₂e/MWh · Rajasthan (Jaipur): 0.82 tCO₂e/MWh · Goa (Manipal campus satellite): 0.64 tCO₂e/MWh · Sikkim: 0.23 tCO₂e/MWh (hydro-dominant grid) · Source: CEA CO₂ Baseline Database FY2023-24' },
+      { key:'rec_type', label:'Type of market instrument used', type:'text', value:'I-RECs (International Renewable Energy Certificates) · 4,200 I-RECs purchased and retired via RECS India Exchange FY25 · Renewable source: solar PV (third-party generator, Karnataka)' },
+      { key:'base_year', label:'Base year Scope 2 emissions', type:'text', value:'FY 2021-22 · Location-based: 19,800 tCO₂e · Market-based: 19,800 tCO₂e (no RECs held in base year)' },
+    ]},
+  { id:'GRI 305-3', title:'Other Indirect (Scope 3) GHG Emissions', section:'GRI 305 — Emissions', type:'Topic-Specific', ai:false,
+    requirement:'Gross Scope 3 emissions by category; gases; base year; source of EFs; reason for exclusion of categories.',
+    fields:[
+      { key:'cat7', label:'Category 7 — Employee commuting (tCO₂e)', type:'number', value:'4200', suffix:'tCO₂e · Survey-based (n=1,200 respondents, 40% response rate) · DEFRA 2024 EFs · Uncertainty: ±20%' },
+      { key:'cat11', label:'Category 11 — Use of sold products / student travel (tCO₂e)', type:'number', value:'1840', suffix:'tCO₂e · International flight booking records × DEFRA 2024 air EF (0.255 kgCO₂e/pax-km, economy, with RFI 1.9)' },
+      { key:'total_s3', label:'Total reported Scope 3 (tCO₂e)', type:'number', value:'6040', suffix:'tCO₂e · 2 of 15 categories quantified' },
+      { key:'exclusions', label:'Categories not reported and reason', type:'text', value:'Cat 1 (purchased goods): being quantified via supplier survey — FY26. Cat 2 (capital goods): FY26. Cat 3 (fuel & energy activities): planned. Cat 6 (business travel): scoped. Cat 12 (end-of-life): not material (education sector). All others assessed as not applicable or not material for education/healthcare sector.' },
+      { key:'ef_source', label:'Emission factor sources for Scope 3', type:'text', value:'Cat 7: DEFRA 2024 — Average car (India petrol mix) 0.192 kgCO₂e/km; public bus 0.089 kgCO₂e/km · Cat 11: DEFRA 2024 economy long-haul with RFI 1.9 · Distance from Google Maps commute survey' },
+    ]},
+  { id:'GRI 305-4', title:'GHG Emissions Intensity', section:'GRI 305 — Emissions', type:'Topic-Specific', ai:true,
+    requirement:'GHG emissions intensity ratio; types of GHG emissions included; boundary.',
+    fields:[
+      { key:'intensity_s12', label:'Scope 1+2 intensity (tCO₂e/student-equivalent)', type:'number', value:'0.54', suffix:'tCO₂e/student-eq. (market-based) · FY25' },
+      { key:'intensity_s123', label:'Scope 1+2+3 intensity (tCO₂e/student-equivalent)', type:'number', value:'0.71', suffix:'tCO₂e/student-eq. (partial Scope 3)' },
+      { key:'denominator', label:'Denominator (organisation-specific metric)', type:'text', value:'35,000 student-equivalents (30,000 students + 5,000 faculty, FTE-adjusted). Revenue-based intensity also tracked: 4.93 tCO₂e/₹Cr revenue.' },
+      { key:'types_included', label:'Types of GHG emissions included in intensity', type:'text', value:'Scope 1 (direct combustion + HFCs) + Scope 2 market-based. Scope 3 separately tracked, not included in primary intensity ratio.' },
+      { key:'prior_year', label:'Intensity vs base year', type:'text', value:'FY22 baseline: 0.625 tCO₂e/student-eq. FY25: 0.540. Reduction: 13.6%. Target by FY30: 0.375 (40% reduction).' },
+    ]},
+  { id:'GRI 305-5', title:'Reduction of GHG Emissions', section:'GRI 305 — Emissions', type:'Topic-Specific', ai:true,
+    requirement:'GHG emissions reductions as a direct result of reduction initiatives; gases; base year; standard used.',
+    fields:[
+      { key:'total_reduction', label:'Total GHG reduction vs base year (tCO₂e)', type:'number', value:'2920', suffix:'tCO₂e avoided in FY25 vs FY22 adjusted baseline' },
+      { key:'by_initiative', label:'Reduction by initiative', type:'text', value:'Solar 4.2 MW on-site: 4,425 tCO₂e avoided · LED retrofit: 570 tCO₂e · HVAC BMS: 160 tCO₂e · EV fleet (18 carts): 84 tCO₂e · Offset by: increased emissions from Sikkim campus inclusion (+2,319 tCO₂e). Net: 2,920 tCO₂e' },
+      { key:'gases', label:'GHGs included', type:'text', value:'CO₂ and HFCs (same as Scope 1+2 inventory)' },
+      { key:'standard', label:'Standard or methodology used', type:'text', value:'GHG Protocol Corporate Standard (Revised). Reduction calculated as counterfactual: FY22 baseline intensity × FY25 activity − FY25 actual.' },
+    ]},
+  { id:'GRI 305-6', title:'Emissions of Ozone-Depleting Substances (ODS)', section:'GRI 305 — Emissions', type:'Topic-Specific', ai:true,
+    requirement:'Production, imports, exports, destruction of ODS; metric tonnes CFC-11 equivalent.',
+    fields:[
+      { key:'ods_total', label:'Total ODS emissions (metric tonnes CFC-11 equivalent)', type:'number', value:'0.042', suffix:'MT CFC-11 eq. · HFC-134a from HVAC systems still using R-22 blend' },
+      { key:'phase_out', label:'Phase-out programme', type:'text', value:'R-22 replacement programme: 68% of units replaced with R-32 by FY25. Target: 100% phase-out by FY27, compliant with Montreal Protocol schedule. FY25: 42 R-22 units remaining (down from 132 in FY22).' },
+    ]},
+  { id:'GRI 305-7', title:'NOₓ, SOₓ, and Other Significant Air Emissions', section:'GRI 305 — Emissions', type:'Topic-Specific', ai:false,
+    requirement:'Significant air emissions: NOx, SOx, persistent organic pollutants, volatile organic compounds, hazardous air pollutants, particulate matter.',
+    fields:[
+      { key:'nox', label:'NOₓ emissions (tonnes)', type:'number', value:'2.8', suffix:'tonnes · DG set exhaust (diesel combustion)' },
+      { key:'sox', label:'SOₓ emissions (tonnes)', type:'number', value:'0.4', suffix:'tonnes · Low-sulphur diesel used (<50 ppm S)' },
+      { key:'pm', label:'Particulate matter PM10 (tonnes)', type:'number', value:'0.9', suffix:'tonnes · DG exhaust stacks + kitchen exhaust' },
+      { key:'voc', label:'Volatile organic compounds (tonnes)', type:'number', value:'0.2', suffix:'tonnes · Laboratory solvents (MAHE research labs) · Negligible' },
+      { key:'standards', label:'Emission standards compliance', type:'text', value:'All DG sets comply with CPCB Genset Emission Standards (IS 10001:2002 revised). Stack emission monitoring quarterly by NABL lab. Zero exceedances FY25.' },
+    ]},
+
+  // ── GRI 306 — Waste ───────────────────────────────────────────────────────
+  { id:'GRI 306-1', title:'Waste Generation and Significant Waste-Related Impacts', section:'GRI 306 — Waste', type:'Topic-Specific', ai:true,
+    requirement:'Description of actual and potential significant waste-related impacts; how impacts are addressed.',
+    fields:[
+      { key:'total', label:'Total waste generated (MT)', type:'number', value:'1437', suffix:'MT · FY25' },
+      { key:'by_type', label:'Breakdown by waste type', type:'text', value:'Biomedical waste (Schedule I, BMW Rules 2016): 124 MT · General solid waste: 980 MT · E-waste: 18 MT · Construction & demolition debris: 315 MT · Hazardous chemicals (lab): 0.8 MT' },
+      { key:'impacts', label:'Significant waste-related impacts', type:'text', value:'Biomedical waste: pathogen transmission risk if improperly disposed. Pharma waste: groundwater contamination risk. General waste: landfill pressure in Udupi/Bengaluru municipalities. Clinical liquid waste: effluent quality risk to local water bodies.' },
+      { key:'approach', label:'How impacts are addressed', type:'text', value:'BMW Rules 2016 compliance: CPCB-authorised CBWTFs for biomedical waste. ISO 14001 EMS controls for all waste streams. Zero biomedical waste stored >48 hours. Monthly compliance audit.' },
+    ]},
+  { id:'GRI 306-3', title:'Waste Generated', section:'GRI 306 — Waste', type:'Topic-Specific', ai:false,
+    requirement:'Total waste generated in metric tonnes; hazardous vs non-hazardous; composition.',
+    fields:[
+      { key:'hazardous', label:'Total hazardous waste (MT)', type:'number', value:'138', suffix:'MT · Biomedical 124 MT + pharma 13.2 MT + chemical 0.8 MT' },
+      { key:'nonhazardous', label:'Total non-hazardous waste (MT)', type:'number', value:'984', suffix:'MT · Paper, food, general solid, packaging' },
+      { key:'total', label:'Total waste (MT)', type:'number', value:'1437', suffix:'MT (includes C&D debris 315 MT)' },
+      { key:'composition', label:'Non-hazardous waste composition', type:'text', value:'Food/organic: 210 MT · Paper/cardboard: 180 MT · Plastics: 142 MT · Metal/glass: 94 MT · Garden waste: 120 MT · Mixed/residual: 238 MT' },
+      { key:'bmw_breakdown', label:'Biomedical waste breakdown', type:'text', value:'Cat 1 (human anatomical): 8.4 MT · Cat 3 (soiled/saturated): 62.1 MT · Cat 4 (sharp objects): 18.7 MT · Cat 6 (solid waste): 34.8 MT · Total: 124 MT · Treated by CBWTF: 100%' },
+    ]},
+  { id:'GRI 306-4', title:'Waste Diverted from Disposal', section:'GRI 306 — Waste', type:'Topic-Specific', ai:true,
+    requirement:'Total waste diverted from disposal: onsite and offsite recovery operations.',
+    fields:[
+      { key:'total_diverted', label:'Total waste diverted from disposal (MT)', type:'number', value:'503', suffix:'MT = 35% diversion rate' },
+      { key:'reuse', label:'Reuse (MT)', type:'number', value:'82', suffix:'MT · Furniture, lab equipment refurbished and reused' },
+      { key:'recycling', label:'Recycling (MT)', type:'number', value:'279', suffix:'MT · Paper 180 MT + metal/glass 94 MT + plastics (partial) 5 MT' },
+      { key:'composting', label:'Composting (MT)', type:'number', value:'142', suffix:'MT · Food waste composted at Manipal, Bengaluru campuses' },
+      { key:'recovery_ops', label:'Onsite vs offsite recovery', type:'text', value:'Onsite: composting (3 campuses). Offsite: paper/metal recycling via authorised recyclers (Green Worms, Saahas Zero Waste). Biomedical: CBWTF (Hyderabad CBWTF and Bengaluru CBWTF).' },
+    ]},
+  { id:'GRI 306-5', title:'Waste Directed to Disposal', section:'GRI 306 — Waste', type:'Topic-Specific', ai:false,
+    requirement:'Total waste directed to disposal and how it is treated: incineration, landfill, other.',
+    fields:[
+      { key:'total_disposal', label:'Total waste directed to disposal (MT)', type:'number', value:'934', suffix:'MT' },
+      { key:'incineration', label:'Incineration with energy recovery (MT)', type:'number', value:'16.1', suffix:'MT · 13% of biomedical waste (incinerable categories)' },
+      { key:'incineration_no_energy', label:'Incineration without energy recovery (MT)', type:'number', value:'0', suffix:'MT' },
+      { key:'landfill', label:'Landfill (MT)', type:'number', value:'482', suffix:'MT · General solid waste to BBMP/Udupi municipality landfill. Effort underway to reduce via composting expansion.' },
+      { key:'other', label:'Other disposal (MT)', type:'number', value:'435.9', suffix:'MT · C&D debris to authorised C&D waste processing facility' },
+    ]},
+
+  // ── GRI 401 — Employment ─────────────────────────────────────────────────
+  { id:'GRI 401-1', title:'New Employee Hires and Employee Turnover', section:'GRI 401 — Employment', type:'Topic-Specific', ai:false,
+    requirement:'Total number and rate of new hires and employee turnover, by age group, gender, and region.',
+    fields:[
+      { key:'new_hires', label:'New employee hires (number and rate)', type:'text', value:'Total new hires FY25: 1,247 · Rate: 11.4% of workforce' },
+      { key:'hires_by_gender', label:'New hires by gender', type:'text', value:'Female: 587 (47%) · Male: 660 (53%)' },
+      { key:'hires_by_age', label:'New hires by age group', type:'text', value:'Under 30: 614 (49.2%) · 30–50: 548 (43.9%) · Over 50: 85 (6.8%)' },
+      { key:'hires_by_region', label:'New hires by region', type:'text', value:'Karnataka: 842 · Other India: 368 · International: 37' },
+      { key:'turnover', label:'Employee turnover (number and rate)', type:'text', value:'Total departures FY25: 899 · Turnover rate: 8.2%' },
+      { key:'turnover_by_gender', label:'Turnover by gender', type:'text', value:'Female: 392 (turnover 8.5%) · Male: 507 (turnover 8.0%)' },
+      { key:'turnover_by_age', label:'Turnover by age group', type:'text', value:'Under 30: 324 (highest rate 13.2%) · 30–50: 468 (7.1%) · Over 50: 107 (5.4%)' },
+      { key:'highest_turnover', label:'Highest turnover category and reason', type:'text', value:'Nursing staff: 14.2% (industry-wide shortage, competitive hiring by private hospitals). Action: pay revision + career track for senior nurses (FY25).' },
+    ]},
+  { id:'GRI 401-2', title:'Benefits Provided to Full-Time Employees', section:'GRI 401 — Employment', type:'Topic-Specific', ai:true,
+    requirement:'Benefits provided to full-time employees that are not provided to temporary or part-time employees.',
+    fields:[
+      { key:'benefits_list', label:'Benefits for full-time permanent employees', type:'text', value:'Health insurance (self + family) · Life insurance · Provident Fund (12% employer contribution) · Gratuity · ESI (for applicable grades) · Creche/childcare (3 campuses) · Maternity leave 26 weeks · Paternity leave 2 weeks · Educational fee concession for dependents · Housing loan at subsidised rate (for senior faculty)' },
+      { key:'part_time_diff', label:'Benefits not provided to part-time/temporary', type:'text', value:'Housing loan · Educational fee concession · Creche. Part-time/contract workers receive: PF (statutory), ESI (statutory), health insurance (group policy, basic).' },
+      { key:'locations', label:'Significant operations where benefits provided', type:'text', value:'All India campuses. International (UAE, Malaysia): benefits per local labour law requirements.' },
+    ]},
+
+  // ── GRI 403 — OHS ────────────────────────────────────────────────────────
+  { id:'GRI 403-1', title:'Occupational Health and Safety Management System', section:'GRI 403 — OHS', type:'Topic-Specific', ai:true,
+    requirement:'OHS management system scope; whether certified; workers covered.',
+    fields:[
+      { key:'system', label:'OHS management system in place', type:'text', value:'ISO 45001:2018 certified at 4 hospitals (Manipal, OAR Bengaluru, Whitefield, Jayanagar). OHSAS 18001 (transitioning) at campuses. OHS Committee at each site (management + worker representatives, meeting monthly).' },
+      { key:'workers_covered', label:'% of workers covered', type:'text', value:'Employees: 100% covered. Contractors: 100% covered by site OHS induction requirement before access. Patient areas: additional NABH safety protocol layer.' },
+      { key:'certification', label:'Third-party certification', type:'text', value:'ISO 45001:2018 · Bureau Veritas · Scope: Manipal Hospital Group (4 hospitals). Campus extension: planned FY26 surveillance audit expansion.' },
+    ]},
+  { id:'GRI 403-9', title:'Work-Related Injuries', section:'GRI 403 — OHS', type:'Topic-Specific', ai:false,
+    requirement:'Rates of work-related injuries, fatalities, lost day rate, absentee rate, by gender.',
+    fields:[
+      { key:'fatalities', label:'Work-related fatalities (number)', type:'number', value:'0', suffix:'· Zero fatalities FY25' },
+      { key:'ltifr', label:'Lost-time injury frequency rate (LTIFR)', type:'number', value:'0.85', suffix:'per million hours worked · Target: <0.80 by FY27' },
+      { key:'recordable', label:'Total recordable incidents', type:'number', value:'94', suffix:'incidents · Rate: 5.2 per million hours' },
+      { key:'needlestick', label:'Needlestick/sharps injuries', type:'number', value:'42', suffix:'· All managed under PEP protocol, zero seroconversions' },
+      { key:'high_consequence', label:'High-consequence injuries (not fatalities)', type:'number', value:'3', suffix:'· Fractures requiring >10 days absence · All resolved' },
+      { key:'by_gender', label:'Injury rate by gender', type:'text', value:'Female: LTIFR 0.92 (nursing-dominated workforce, higher exposure) · Male: LTIFR 0.76' },
+      { key:'main_causes', label:'Main types and causes', type:'text', value:'Needlestick/sharps: 44.7% (clinical staff) · Slips/falls: 28.7% (wet floors, hospital corridors) · Manual handling: 14.9% (patient handling, laundry) · Other: 11.7%' },
+    ]},
+
+  // ── GRI 404 — Training ───────────────────────────────────────────────────
+  { id:'GRI 404-1', title:'Average Hours of Training per Year per Employee', section:'GRI 404 — Training & Education', type:'Topic-Specific', ai:false,
+    requirement:'Average hours of training per year per employee, by gender and employee category.',
+    fields:[
+      { key:'total_avg', label:'Average training hours per employee (all)', type:'number', value:'38.4', suffix:'hours/year/employee · Total training investment ₹8.2 Cr FY25' },
+      { key:'by_gender', label:'Average training hours by gender', type:'text', value:'Female: 41.2 hrs/year · Male: 36.1 hrs/year' },
+      { key:'by_category', label:'Average training hours by employee category', type:'text', value:'Senior Faculty/Doctors: 52 hrs · Junior Faculty: 44 hrs · Nursing: 44 hrs · Admin: 22 hrs · Technical/Support: 31 hrs' },
+      { key:'topics', label:'Key training topics', type:'text', value:'Clinical skills & CPD (medical staff) · Sustainability & ESG (all staff, 4 hrs mandatory FY25) · OHS & fire safety · Research ethics · POSH (100% completion) · Digital systems (EMR, ERP)' },
+    ]},
+  { id:'GRI 404-3', title:'Percentage of Employees Receiving Performance Reviews', section:'GRI 404 — Training & Education', type:'Topic-Specific', ai:false,
+    requirement:'% of all employees who received a regular performance review during the reporting period, by gender and employee category.',
+    fields:[
+      { key:'overall_pct', label:'% receiving annual performance review', type:'number', value:'100', suffix:'% of permanent employees · Contract employees: 84%' },
+      { key:'by_gender', label:'By gender', type:'text', value:'Female: 100% · Male: 100% · (Permanent staff. Contract: F 82%, M 86%)' },
+      { key:'esg_in_kra', label:'% with ESG/sustainability goals in appraisal', type:'number', value:'68', suffix:'% of employees have at least one ESG-linked KRA in FY25 (up from 42% in FY24)' },
+      { key:'review_process', label:'Process description', type:'text', value:'Annual appraisal (April–June) · 360° feedback for all Heads of Departments and above · Linked to pay increment and promotion. ESG KRAs (energy reduction, green procurement compliance) added FY25 per Sustainability Committee directive.' },
+    ]},
+
+  // ── GRI 405 — DEI ────────────────────────────────────────────────────────
+  { id:'GRI 405-1', title:'Diversity of Governance Bodies and Employees', section:'GRI 405 — DEI', type:'Topic-Specific', ai:false,
+    requirement:'% of individuals in governance bodies and employees by gender, age group, minority/vulnerable group.',
+    fields:[
+      { key:'board_gender', label:'Board of Governors — gender', type:'text', value:'Male: 12 (80%) · Female: 3 (20%) · Target: 30% female by FY27' },
+      { key:'board_age', label:'Board — age groups', type:'text', value:'Under 50: 4 (27%) · 50–70: 9 (60%) · Over 70: 2 (13%)' },
+      { key:'employees_gender', label:'Employees — gender by category', type:'text', value:'Senior management: F 31%, M 69% · Faculty: F 44%, M 56% · Nursing: F 82%, M 18% · Admin: F 38%, M 62% · Technical: F 22%, M 78%' },
+      { key:'employees_age', label:'Employees — age groups', type:'text', value:'Under 30: 28% · 30–50: 57% · Over 50: 15%' },
+      { key:'minority', label:'Minority / vulnerable group representation', type:'text', value:'SC/ST employees: 12.4% (above statutory minimum) · PwD employees: 1.8% (198 employees, 3% target by FY28) · EWS: 8.2%' },
+    ]},
+  { id:'GRI 405-2', title:'Ratio of Basic Salary of Women to Men', section:'GRI 405 — DEI', type:'Topic-Specific', ai:false,
+    requirement:'Ratio of the basic salary and remuneration of women to men for each employee category.',
+    fields:[
+      { key:'overall', label:'Overall pay ratio (F:M)', type:'text', value:'0.96:1 · Female earnings are 96% of male at equivalent grades' },
+      { key:'by_category', label:'By employee category', type:'text', value:'Senior faculty/doctors: 0.98:1 · Junior faculty: 0.97:1 · Nursing: 1.01:1 (parity — nursing scale is gender-neutral) · Admin: 0.94:1 · Technical: 0.91:1' },
+      { key:'methodology', label:'Methodology', type:'text', value:'Basic salary only (excludes allowances, incentives). Compared at equivalent grade/band. Data from SAP SuccessFactors HR system. Pay equity audit conducted annually by independent HR consultant.' },
+      { key:'target', label:'Target and action plan', type:'text', value:'Target: parity (0.98–1.02:1 band) for all categories by FY27. Action: admin and technical grade reclassification underway; market-rate correction for female-dominated roles.' },
+    ]},
+
+  // ── GRI 413 — Local Communities ──────────────────────────────────────────
+  { id:'GRI 413-1', title:'Operations with Local Community Engagement, Impact Assessments, and Development Programs', section:'GRI 413 — Local Communities', type:'Topic-Specific', ai:true,
+    requirement:'% of operations with community engagement, impact assessments, and/or development programs.',
+    fields:[
+      { key:'pct_operations', label:'% of operations with community engagement', type:'number', value:'100', suffix:'% of all 9 operational sites have community programmes' },
+      { key:'programmes', label:'Community development programmes', type:'text', value:'Community health camps: 186 camps FY25 · 196,500 beneficiaries · Free OPD services: ₹4.8 Cr value · Scholarship programme: 847 students (first-generation college-goers) · Udupi district water quality monitoring programme (adopted since FY23) · Rural health outreach (Manipal coastal communities): 8 villages' },
+      { key:'impact_assessment', label:'Impact assessment conducted', type:'text', value:'Community needs assessment: annual (social audit, July 2024). Beneficiary satisfaction survey: 89% satisfaction rate. Economic impact study (KPMG): Manipal Group contributes ₹2,840 Cr to regional economy annually (employment, procurement, services).' },
+      { key:'grievance', label:'Community grievance mechanisms', type:'text', value:'Community liaison officer at each campus. Grievance register maintained. Average resolution time: 12 working days. FY25: 34 grievances received, 33 resolved, 1 ongoing (land boundary dispute, Manipal).' },
+    ]},
 ];
 
-// Compute GRI summary
+// Compute GRI summary — adapted for sub-field architecture
 const GRI_TOTAL_DISCLOSURES = GRI_DISCLOSURES.length;
-const GRI_TOTAL_ELEMENTS = GRI_DISCLOSURES.reduce((s,d) => s + d.elements, 0);
-const GRI_FILLED_ELEMENTS = GRI_DISCLOSURES.reduce((s,d) => s + d.filled, 0);
+const GRI_TOTAL_ELEMENTS = GRI_DISCLOSURES.reduce((s,d) => s + d.fields.length, 0);
+const GRI_FILLED_ELEMENTS = GRI_DISCLOSURES.reduce((s,d) => s + d.fields.filter(f => f.value && String(f.value).trim()).length, 0);
 const GRI_AI_DISCLOSURES = GRI_DISCLOSURES.filter(d => d.ai).length;
 
 // PDF file is determined at runtime by active framework
 function getPdfFile() {
-  return ACTIVE_FW === 'gri' ? 'Manipal_GRI_Sample_Report.pdf' : 'TCS_BRSR_Report.pdf';
+  if (ACTIVE_FW === 'gri') return 'Manipal_GRI_Sample_Report.pdf';
+  if (ACTIVE_FW === 'cdp') return 'MAHE_CDP_Climate_Disclosure_2025.pdf';
+  if (ACTIVE_FW === 'greenco') return 'RWF_GreenCo_Report_2025.pdf';
+  return 'TCS_BRSR_Report.pdf';
 }
 
 /* ---- state ---- */
@@ -264,7 +589,8 @@ const S = {
   search: '',
   filter: 'All',
   page: 0,
-  drafts: {},            // fieldId -> in-progress textarea value
+  drafts: {},
+  verified: {},            // fieldId -> in-progress textarea value
   showIncomplete: false,
   showFiller: false,
   fillerEdits: {},
@@ -395,7 +721,14 @@ function render() {
 
   document.getElementById('app').innerHTML =
     '<div class="cm-progress-section">' +
-      '<div class="cm-page-header"><h1>' + esc(h.title) + '</h1><p>' + esc(h.desc) + '</p></div>' +
+      '<div class="cm-page-header" style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap">' +
+        '<div>' +
+          '<div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.35rem">' +
+            (S.step > 1 ? '<button onclick="cm.goStep(S.step-1)" style="display:inline-flex;align-items:center;gap:.4rem;font-size:.78rem;font-weight:600;color:#3d7f6f;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:.3rem .75rem;cursor:pointer" title="Go back to previous step">← Back</button>' : '') +
+          '</div>' +
+          '<h1>' + esc(h.title) + '</h1><p>' + esc(h.desc) + '</p>' +
+        '</div>' +
+      '</div>' +
       renderStepper() +
     '</div>' +
     '<div class="cm-main-content fade-in">' + body + '</div>' +
@@ -425,27 +758,35 @@ function renderStep1() {
       '<div style="flex:2;min-width:260px"><div class="cm-fw-tab-bar">' +
         '<button class="cm-fw-tab ' + (ACTIVE_FW==='brsr' ? 'cm-fw-active' : '') + '" onclick="cm.setFW(\'brsr\')">🇮🇳 SEBI BRSR (TCS)</button>' +
         '<button class="cm-fw-tab ' + (ACTIVE_FW==='gri' ? 'cm-fw-active' : '') + '" onclick="cm.setFW(\'gri\')">🌏 GRI 2021 (Manipal)</button>' +
+        '<button class="cm-fw-tab" onclick="cm.setFW(\'cdp\')" style="padding:.5rem 1.1rem;border:none;font-size:.85rem;font-weight:600;cursor:pointer;border-bottom:3px solid ' + (ACTIVE_FW==='cdp' ? '#1d4ed8' : 'transparent') + ';margin-bottom:-2px;background:none;color:' + (ACTIVE_FW==='cdp' ? '#1d4ed8' : '#64748b') + '">🌡️ CDP (MAHE)</button>' +
+        '<button class="cm-fw-tab" onclick="cm.setFW(\'greenco\')" style="padding:.5rem 1.1rem;border:none;font-size:.85rem;font-weight:600;cursor:pointer;border-bottom:3px solid ' + (ACTIVE_FW==='greenco' ? '#15803d' : 'transparent') + ';margin-bottom:-2px;background:none;color:' + (ACTIVE_FW==='greenco' ? '#15803d' : '#64748b') + '">🏭 GreenCo (RWF)</button>' +
       '</div></div>' +
       '<div style="flex:1;min-width:160px"><label style="display:block;font-size:.85rem;font-weight:600;color:#2d5f4f;margin-bottom:.4rem">Reporting Period</label>' +
         '<select style="width:100%;padding:.6rem 1rem;border:1px solid #ddd;border-radius:8px;font-size:.875rem;background:#fff;color:#0f172a"><option selected>FY 2024-25 (Apr 2024 – Mar 2025)</option><option>FY 2023-24</option></select></div>' +
     '</div>' +
     '<div class="cm-section-title" style="margin-top:1.25rem;margin-bottom:.75rem">Framework Configuration</div>' +
     '<div class="cm-fw-detail-panel">' +
-      detailRow('Framework', ACTIVE_FW === 'brsr' ? 'SEBI BRSR &amp; BRSR CORE 2024 (regulator-aligned, XBRL-mapped)' : 'GRI Universal Standards 2021 + Topic-specific standards (302, 303, 305, 306, 401, 403, 404, 405, 413)') +
-      detailRow('Jurisdiction', ACTIVE_FW === 'brsr' ? 'India — Securities and Exchange Board of India (SEBI)' : 'India — GRI Standards 2021 (Global Reporting Initiative)') +
-      detailRow('Reporting Entity', esc(ACTIVE_FW === 'brsr' ? COMPANY : GRI_COMPANY)) +
+      detailRow('Framework', ACTIVE_FW === 'brsr' ? 'SEBI BRSR &amp; BRSR CORE 2024 (regulator-aligned, XBRL-mapped)' : ACTIVE_FW === 'gri' ? 'GRI Universal Standards 2021 + Topic-specific standards (302, 303, 305, 306, 401, 403, 404, 405, 413)' : ACTIVE_FW === 'cdp' ? 'CDP Climate Change Questionnaire 2024 (C0–C15) · Education Sector Guidance' : 'CII GreenCo Rating System v3 · Gold Level Assessment') +
+      detailRow('Jurisdiction', ACTIVE_FW === 'brsr' ? 'India — Securities and Exchange Board of India (SEBI)' : ACTIVE_FW === 'gri' ? 'India — GRI Standards 2021 (Global Reporting Initiative)' : ACTIVE_FW === 'cdp' ? 'Global — CDP (Carbon Disclosure Project) · Investor/Government Disclosure' : 'India — Confederation of Indian Industry (CII) GreenCo Programme') +
+      detailRow('Reporting Entity', esc(ACTIVE_FW === 'brsr' ? COMPANY : ACTIVE_FW === 'gri' ? GRI_COMPANY : ACTIVE_FW === 'cdp' ? 'Manipal Academy of Higher Education (MAHE)' : 'Rail Wheel Factory (RWF), Indian Railways')) +
       detailRow('Reporting Period', 'FY 2024-25 (01 Apr 2024 – 31 Mar 2025)') +
       (ACTIVE_FW === 'brsr' ?
         detailRow('Total Disclosures', '<strong>' + BRSR_DISCLOSURE_STRUCTURE.total_disclosures + ' BRSR disclosures</strong> across Sections A, B and C (Principles 1–9) · <span style="color:#7c3aed;font-weight:700">' + BRSR_DISCLOSURE_STRUCTURE.total_elements + ' granular data elements</span>') +
         detailRow('AI-Populated Elements', '<span style="background:#fef9c3;padding:2px 6px;border-radius:4px;color:#92400e;font-weight:700">⚡ ' + BRSR_DISCLOSURE_STRUCTURE.ai_elements + ' elements</span> auto-generated by TerraCAP AI (highlighted in yellow)') :
-        detailRow('Total Disclosures', '<strong>' + GRI_TOTAL_DISCLOSURES + ' GRI disclosures</strong> (GRI 2, 3, 302, 303, 305, 306, 401, 403, 404, 405, 413) · <span style="color:#7c3aed;font-weight:700">' + GRI_TOTAL_ELEMENTS + ' data elements</span>') +
-        detailRow('AI-Populated Disclosures', '<span style="background:#fef9c3;padding:2px 6px;border-radius:4px;color:#92400e;font-weight:700">⚡ ' + GRI_AI_DISCLOSURES + ' disclosures</span> auto-generated by TerraCAP AI')
+      ACTIVE_FW === 'gri' ?
+        detailRow('Total Disclosures', '<strong>' + GRI_TOTAL_DISCLOSURES + ' GRI disclosures</strong> (GRI 2, 3, 302, 303, 305, 306, 401, 403, 404, 405, 413) · <span style="color:#7c3aed;font-weight:700">' + GRI_TOTAL_ELEMENTS + ' structured sub-fields</span> mapped to exact GRI Standard requirements') +
+        detailRow('Sub-Field Architecture', 'Each disclosure expanded into precise required data points per GRI Standard — select fields, numeric inputs, narrative text, and methodology references · <span style="background:#fef9c3;padding:2px 6px;border-radius:4px;color:#92400e;font-weight:700">⚡ ' + GRI_AI_DISCLOSURES + ' disclosures AI-populated</span>') :
+      ACTIVE_FW === 'cdp' ?
+        detailRow('Total Modules', '<strong>7 CDP modules</strong> (C0 Intro, C1 Governance, C2 Risks &amp; Opportunities, C3 Business Strategy, C4 Targets, C6 Energy, C7 Emissions) · <span style="color:#1d4ed8;font-weight:700">147 disclosure points</span>') +
+        detailRow('Disclosure Type', 'CDP Climate Change 2024 · Education Sector · <span style="background:#dbeafe;padding:2px 6px;border-radius:4px;color:#1d4ed8;font-weight:600">Awareness level target</span>') :
+        detailRow('Total Criteria', '<strong>5 GreenCo pillars</strong> (Energy, Water, Waste, Emissions, Environment Mgmt) · <span style="color:#15803d;font-weight:700">124 scored criteria</span>') +
+        detailRow('Rating Target', '<span style="background:#dcfce7;padding:2px 6px;border-radius:4px;color:#166534;font-weight:600">🏆 Gold Rating (≥60 points)</span> · RWF current score: 67/100')
       ) +
-      detailRow('Assurance', ACTIVE_FW === 'brsr' ? 'BRSR Core — reasonable assurance on 9 attributes' : 'Limited assurance planned for GHG data (DNV, FY26) · Prepared in accordance with GRI Standards 2021 · GRI does not prescribe a fixed disclosure set — this report covers disclosures selected based on Manipal Group\'s double materiality assessment') +
+      detailRow('Assurance', ACTIVE_FW === 'brsr' ? 'BRSR Core — reasonable assurance on 9 attributes' : ACTIVE_FW === 'gri' ? 'Limited assurance planned for GHG data (DNV, FY26) · Prepared in accordance with GRI Standards 2021 · GRI does not prescribe a fixed disclosure set — this report covers disclosures selected based on Manipal Group\'s double materiality assessment' : ACTIVE_FW === 'cdp' ? 'Third-party verification of Scope 1 &amp; 2 data recommended · CDP A-List aspirational target by FY26' : 'CII GreenCo certified assessor review · Third-party verification by CII panel') +
       detailRow('Output Formats', 'PDF (Professional / Executive / Modern) · XBRL instance') +
     '</div>' +
     '<div class="cm-btn-group"><div></div><div class="cm-right-btns">' +
-      '<button class="cm-btn cm-btn-primary" onclick="cm.goStep(2)">' + (ACTIVE_FW==='brsr' ? 'Next: Fill 1,423 BRSR Elements →' : 'Next: Review ' + GRI_TOTAL_DISCLOSURES + ' GRI Disclosures →') + '</button>' +
+      '<button class="cm-btn cm-btn-primary" onclick="cm.goStep(2)">' + (ACTIVE_FW==='brsr' ? 'Next: Fill 1,423 BRSR Elements →' : ACTIVE_FW==='gri' ? 'Next: Review ' + GRI_TOTAL_DISCLOSURES + ' GRI Disclosures →' : ACTIVE_FW==='cdp' ? 'Next: Review 147 CDP Disclosure Points →' : 'Next: Review 124 GreenCo Criteria →') + '</button>' +
     '</div></div></div>';
 }
 function detailRow(k, v) { return '<div class="cm-detail-row"><div class="cm-detail-label">' + k + '</div><div class="cm-detail-value">' + v + '</div></div>'; }
@@ -454,6 +795,8 @@ function detailRow(k, v) { return '<div class="cm-detail-row"><div class="cm-det
 function renderStep2() {
   // GRI framework gets its own view
   if (ACTIVE_FW === 'gri') return renderGRIView();
+  if (ACTIVE_FW === 'cdp') return renderCDPView();
+  if (ACTIVE_FW === 'greenco') return renderGreenCoView();
 
   const ov = overallStats();
   const fs = filteredSections();
@@ -539,6 +882,8 @@ function renderFieldRow(f) {
     '<div class="cm-ind-input-wrap"><textarea class="cm-ind-input" rows="1" style="resize:vertical;min-height:38px;overflow:hidden" placeholder="Enter reported data..." ' +
       'oninput="cm.onEdit(\'' + esc(f.id) + '\',this)">' + esc(val) + '</textarea></div>' +
     '<div class="cm-ind-actions">' + statusBadge(f, pending) +
+      (isAI && !S.verified[f.id] ? '<button class="cm-save-btn" style="background:#d97706;color:#fff;border-color:#d97706" onclick="cm.onAIVerify(\'' + esc(f.id) + '\')">Verify ✓</button>' :
+       isAI && S.verified[f.id]  ? '<span style="font-size:.72rem;color:#059669;font-weight:700;background:#d1fae5;padding:2px 8px;border-radius:4px">✓ Human verified</span>' : '') +
       '<button class="cm-save-btn" data-save="' + esc(f.id) + '" ' + (modified ? '' : 'disabled') + ' ' +
         'style="opacity:' + (modified ? '1' : '.5') + ';cursor:' + (modified ? 'pointer' : 'not-allowed') + ';background:' + (modified ? '' : '#f5f5f5') + ';color:' + (modified ? '' : '#bbb') + '" onclick="cm.onSave(\'' + esc(f.id) + '\')">Save</button>' +
     '</div></div>';
@@ -556,40 +901,42 @@ function statusBadge(f, pending) {
 
 /* ---------- GRI View — row-based editable layout matching BRSR ---------- */
 function renderGRIView() {
+  const filledCount = GRI_DISCLOSURES.filter(d => d.fields.every(f => (S.drafts['gri_'+d.id.replace(/\s/g,'_').replace(/[^a-z0-9_]/gi,'')+'_'+f.key] !== undefined ? S.drafts['gri_'+d.id.replace(/\s/g,'_').replace(/[^a-z0-9_]/gi,'')+'_'+f.key] : f.value||'').trim())).length;
+  const partialCount = GRI_DISCLOSURES.filter(d => {
+    const filled = d.fields.filter(f => (S.drafts['gri_'+d.id.replace(/\s/g,'_').replace(/[^a-z0-9_]/gi,'')+'_'+f.key] !== undefined ? S.drafts['gri_'+d.id.replace(/\s/g,'_').replace(/[^a-z0-9_]/gi,'')+'_'+f.key] : f.value||'').trim()).length;
+    return filled > 0 && filled < d.fields.length;
+  }).length;
   const pct = Math.round(GRI_FILLED_ELEMENTS / GRI_TOTAL_ELEMENTS * 100);
-  const filledCount = GRI_DISCLOSURES.filter(d => d.filled === d.elements).length;
-  const partialCount = GRI_DISCLOSURES.filter(d => d.filled > 0 && d.filled < d.elements).length;
 
-  // Build section-based pages
   const sections = {};
   for (const d of GRI_DISCLOSURES) {
     if (!sections[d.section]) sections[d.section] = [];
     sections[d.section].push(d);
   }
   const sectionKeys = Object.keys(sections);
-  const griPages = sectionKeys.map(k => ({
-    title: k,
-    short: k.replace(/GRI \d+ — /,'').slice(0,18),
-    disclosures: sections[k],
-    filled: sections[k].reduce((s,d) => s + d.filled, 0),
-    total: sections[k].reduce((s,d) => s + d.elements, 0),
-    get pct() { return this.total ? Math.round(this.filled / this.total * 100) : 0; }
-  }));
+  const griPages = sectionKeys.map(k => {
+    const discs = sections[k];
+    const totalF = discs.reduce((s,d) => s + d.fields.length, 0);
+    const filledF = discs.reduce((s,d) => s + d.fields.filter(f => {
+      const gid = 'gri_' + d.id.replace(/\s/g,'_').replace(/[^a-z0-9_]/gi,'') + '_' + f.key;
+      return (S.drafts[gid] !== undefined ? S.drafts[gid] : f.value||'').trim();
+    }).length, 0);
+    return { title:k, short:k.replace(/GRI \d+ — /,'').slice(0,18), disclosures:discs, filled:filledF, total:totalF, pct:totalF ? Math.round(filledF/totalF*100) : 0 };
+  });
   if (S.page >= griPages.length) S.page = Math.max(0, griPages.length - 1);
   const page = griPages[S.page];
 
-  // Stats bar
   let out = '<div class="cm-completion-bar-wrap">' +
-    '<div class="cm-dual-stat"><div class="cm-stat-primary">' + GRI_TOTAL_DISCLOSURES + '</div><div class="cm-stat-secondary">' + GRI_TOTAL_ELEMENTS + ' elements</div><div class="cm-stat-lbl">Disclosures</div></div>' +
+    '<div class="cm-dual-stat"><div class="cm-stat-primary">' + GRI_TOTAL_DISCLOSURES + '</div><div class="cm-stat-secondary">' + GRI_TOTAL_ELEMENTS + ' sub-fields</div><div class="cm-stat-lbl">Disclosures</div></div>' +
     statChip(filledCount, 'Complete') + statChip(partialCount, 'Partial', '#d97706') +
     '<div class="cm-bar-outer"><div class="cm-bar-inner" style="width:' + pct + '%"></div></div>' +
     statChip(pct + '%', 'Done', '#3d7f6f') +
     '<div style="margin-left:auto;font-size:.7rem;background:#fef9c3;color:#92400e;border:1px solid #fde047;border-radius:6px;padding:4px 8px;font-weight:700;">⚡ ' + GRI_AI_DISCLOSURES + ' AI-populated</div>' +
     '</div>';
 
-  out += '<div class="cm-info-box" style="margin-top:1rem">🌏 <strong>GRI 2021 — Manipal Group · FY 2024-25</strong> · GRI 2 &amp; 3 Universal Standards (required for "In Accordance" reporting) + topic-specific disclosures selected from Manipal\'s double materiality assessment (10 material topics, FY24) · <strong>' + GRI_TOTAL_DISCLOSURES + ' disclosures</strong> · <strong>' + GRI_TOTAL_ELEMENTS + ' TerraCAP-structured data points</strong> · <span style="color:#92400e;font-size:.8em">⚠ GRI does not prescribe a fixed disclosure count — this disclosure set reflects entity-specific materiality</span></div>';
+  out += '<div class="cm-info-box" style="margin-top:1rem">🌏 <strong>GRI 2021 — Manipal Group · FY 2024-25</strong> · GRI 2 &amp; 3 Universal Standards + topic-specific standards (302, 303, 305, 306, 401, 403, 404, 405, 413) · <strong>' + GRI_TOTAL_DISCLOSURES + ' disclosures</strong> · <strong>' + GRI_TOTAL_ELEMENTS + ' structured sub-fields</strong> mapped to exact GRI requirements · Each disclosure shows the precise data points required by the GRI Standard · <span style="color:#92400e;font-size:.8em">⚠ Disclosure set reflects Manipal\'s double materiality assessment (FY24) — GRI does not prescribe a fixed set</span></div>';
 
-  // Section navigator (mirrors BRSR page navigator)
+  // Section navigator
   out += '<div style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;max-height:132px;overflow-y:auto">';
   griPages.forEach((p, i) => {
     const cur = i === S.page;
@@ -601,20 +948,31 @@ function renderGRIView() {
   });
   out += '</div>';
 
-  // Current section as editable rows
+  // Role legend strip with compact/full toggle
+  const roleFilter = S.griRoleFilter || 'all';
+  out += '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:.6rem;padding:.5rem .75rem;background:#fff;border:1px solid #e5e7eb;border-radius:8px">' +
+    '<span style="font-size:.7rem;font-weight:700;color:#334155;margin-right:4px">Field hierarchy:</span>' +
+    '<span style="font-size:.7rem;display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:4px;background:#fef2f2;border:1px solid #fca5a5;color:#991b1b;font-weight:600">🔴 Required by framework</span>' +
+    '<span style="font-size:.7rem;display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:4px;background:#eff6ff;border:1px solid #93c5fd;color:#1e40af;font-weight:600">🔵 Needed for calculation</span>' +
+    '<span style="font-size:.7rem;display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:4px;background:#fefce8;border:1px solid #fde047;color:#854d0e;font-weight:600">🟡 Evidence / methodology</span>' +
+    '<span style="font-size:.7rem;display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:4px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;font-weight:600">⚪ Internal completeness</span>' +
+    '<div style="margin-left:auto;display:flex;align-items:center;gap:6px">' +
+      '<span style="font-size:.68rem;color:#64748b">View:</span>' +
+      '<button onclick="cm.setGRIRoleFilter(\'compact\')" style="font-size:.7rem;padding:2px 8px;border-radius:4px;border:1px solid ' + (roleFilter==='compact'?'#3d7f6f':'#e2e8f0') + ';background:' + (roleFilter==='compact'?'#3d7f6f':'#fff') + ';color:' + (roleFilter==='compact'?'#fff':'#475569') + ';cursor:pointer;font-weight:600">Required only</button>' +
+      '<button onclick="cm.setGRIRoleFilter(\'all\')" style="font-size:.7rem;padding:2px 8px;border-radius:4px;border:1px solid ' + (roleFilter==='all'?'#3d7f6f':'#e2e8f0') + ';background:' + (roleFilter==='all'?'#3d7f6f':'#fff') + ';color:' + (roleFilter==='all'?'#fff':'#475569') + ';cursor:pointer;font-weight:600">All fields</button>' +
+    '</div>' +
+  '</div>';
   if (page) {
-    const sPct = page.pct;
     out += '<div style="margin-top:1.25rem"><div class="cm-category-group">' +
       '<div class="cm-category-header">' +
         '<div style="display:flex;align-items:center;gap:.5rem"><span>' + esc(page.title) + '</span>' +
-          '<span style="margin-left:10px;font-size:.7rem;padding:.1rem .5rem;background:#fff;border-radius:20px;color:#2d5f4f;font-weight:bold">' + page.filled + '/' + page.total + ' elements</span></div>' +
-        '<div style="height:6px;width:80px;background:#e0e0e0;border-radius:10px;overflow:hidden"><div style="height:100%;background:#3d7f6f;width:' + sPct + '%"></div></div>' +
+          '<span style="margin-left:10px;font-size:.7rem;padding:.1rem .5rem;background:#fff;border-radius:20px;color:#2d5f4f;font-weight:bold">' + page.filled + '/' + page.total + ' sub-fields</span></div>' +
+        '<div style="height:6px;width:80px;background:#e0e0e0;border-radius:10px;overflow:hidden"><div style="height:100%;background:#3d7f6f;width:' + page.pct + '%"></div></div>' +
       '</div>' +
-      '<div style="margin-top:1rem">' + page.disclosures.map(renderGRIRow).join('') + '</div>' +
+      '<div style="margin-top:1rem">' + page.disclosures.map(renderGRIDisclosure).join('') + '</div>' +
     '</div></div>';
   }
 
-  // Sticky nav bar
   out += '<div style="position:sticky;bottom:0;z-index:20;margin-top:1.5rem;background:#fff;border-top:1px solid #e5e7eb;box-shadow:0 -4px 14px rgba(15,23,42,.06);padding:.85rem .25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">' +
     '<button class="cm-btn cm-btn-secondary" onclick="cm.goStep(1)">← Back: Framework</button>';
   if (griPages.length > 1) {
@@ -627,37 +985,222 @@ function renderGRIView() {
   return out;
 }
 
-function renderGRIRow(d) {
-  const gid = 'gri_' + d.id.replace(/\s/g,'_').replace(/[^a-z0-9_]/gi,'');
-  const draft = S.drafts[gid];
-  const val = draft !== undefined ? draft : (d.value || '');
-  const isPending = !val.trim();
-  const isModified = draft !== undefined && draft !== (d.value || '');
-  const isAI = d.ai;
-  const dPct = d.elements ? Math.round(d.filled / d.elements * 100) : 0;
-  const rowCls = isPending ? 'cm-row-pending' : isAI ? 'cm-row-calculated cm-row-ai-highlight' : dPct === 100 ? 'cm-row-verified' : 'cm-row-review';
-  const badgeHtml = isPending
-    ? '<span class="cm-badge cm-badge-warning">⚠ Pending</span>'
-    : isModified
-      ? '<span class="cm-badge cm-badge-info">Edited</span>'
-      : dPct === 100
-        ? '<span class="cm-badge cm-badge-verified">✓ ' + d.filled + '/' + d.elements + '</span>'
-        : '<span class="cm-badge cm-badge-review">◎ ' + d.filled + '/' + d.elements + '</span>';
-  return '<div class="cm-indicator-row ' + rowCls + '">' +
-    '<div class="cm-ind-meta">' +
-      '<div style="font-size:.72rem;font-weight:700;color:#7c3aed">' + esc(d.id) + (isAI ? ' <span class="cm-ai-tag">⚡ AI</span>' : '') + '</div>' +
-      '<div class="cm-ind-name" style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.01em" title="' + esc(d.title) + '">' + esc(d.title) + ' <span style="color:red">*</span></div>' +
-      '<div style="font-size:.68rem;color:#64748b;margin-top:2px">' + d.elements + ' data points · ' + (d.type === 'Mandatory' ? '<span style="color:#065f46;font-weight:600" title="GRI 2 &amp; 3 are required for In Accordance reporting">GRI Universal</span>' : '<span style="color:#1e40af" title="Selected based on Manipal\'s 10 material topics (double materiality assessment, FY24)">Materiality-selected</span>') + '</div>' +
-    '</div>' +
-    '<div class="cm-ind-input-wrap"><textarea class="cm-ind-input" rows="2" style="resize:vertical;min-height:52px;overflow:hidden" placeholder="Enter disclosure data..." ' +
-      'oninput="cm.onGRIEdit(\'' + gid + '\',this)">' + esc(val) + '</textarea></div>' +
-    '<div class="cm-ind-actions">' + badgeHtml +
-      '<button class="cm-save-btn" data-save="' + gid + '" ' + (isModified ? '' : 'disabled') + ' ' +
-        'style="opacity:' + (isModified ? '1' : '.5') + ';cursor:' + (isModified ? 'pointer' : 'not-allowed') + ';background:' + (isModified ? '' : '#f5f5f5') + ';color:' + (isModified ? '' : '#bbb') + '" ' +
-        'onclick="cm.onGRISave(\'' + gid + '\',\'' + esc(d.id) + '\')">Save</button>' +
-    '</div></div>';
-}
 
+/* ── Field role definitions (team feedback: four-level hierarchy) ──────────
+   required    = Required by GRI/CDP framework — must be disclosed
+   calculation = Needed for calculation / derived metric
+   evidence    = Evidence / methodology support — auditor-facing
+   nicetohave  = Enhances internal completeness but not mandatory
+   ───────────────────────────────────────────────────────────────────────── */
+const GRI_FIELD_ROLES = {
+  'GRI 2-1':   {legal_name:'required',ownership:'required',hq:'required',countries:'required',sector:'required',scale:'nicetohave'},
+  'GRI 2-2':   {entities:'required',boundary_diff:'required',exclusions:'required'},
+  'GRI 2-3':   {period:'required',frequency:'required',pub_date:'required',contact:'required'},
+  'GRI 2-4':   {restatements:'required',impact:'nicetohave'},
+  'GRI 2-5':   {policy:'required',provider:'required',assurance_scope:'required',relationship:'evidence'},
+  'GRI 2-6':   {activities:'required',upstream:'required',downstream:'required',biz_relationships:'nicetohave'},
+  'GRI 2-7':   {total:'required',by_gender:'required',by_contract:'required',by_type:'required',by_region:'required',methodology:'evidence'},
+  'GRI 2-8':   {total:'required',type_work:'required',contracted_by:'required',agencies:'nicetohave'},
+  'GRI 2-9':   {structure:'required',composition:'required',competencies:'required',term_limits:'nicetohave'},
+  'GRI 2-10':  {process:'required',criteria:'required'},
+  'GRI 2-12':  {oversight_process:'required',due_diligence:'required',stakeholder_input:'required'},
+  'GRI 2-22':  {statement:'required',sdg_alignment:'nicetohave'},
+  'GRI 2-23':  {policies:'required',human_rights:'required',precautionary:'required'},
+  'GRI 2-26':  {mechanisms:'required',confidentiality:'required',fy25_stats:'nicetohave'},
+  'GRI 2-29':  {stakeholders:'required',frequency:'required',purpose:'required'},
+  'GRI 3-1':   {process:'required',stakeholder_input:'required',frequency:'required'},
+  'GRI 3-2':   {topics:'required',changes:'required'},
+  'GRI 3-3':   {energy_mgmt:'required',water_mgmt:'required',ohs_mgmt:'required',dei_mgmt:'required'},
+  'GRI 302-1': {nonrenewable_fuel:'required',renewable_fuel:'required',electricity_consumed:'required',electricity_sold:'required',solar_generated:'required',recs:'required',total_energy:'calculation',standards:'evidence'},
+  'GRI 302-3': {ratio:'required',denominator:'required',energy_types:'required',boundary:'required',change:'nicetohave'},
+  'GRI 302-4': {total_reduction:'required',initiatives:'required',basis:'evidence'},
+  'GRI 303-1': {interactions:'required',water_stress:'required',impacts:'required'},
+  'GRI 303-3': {municipal:'required',groundwater:'required',rainwater:'required',surface:'required',total:'calculation',stressed_area:'required'},
+  'GRI 303-4': {stp_treated:'required',destination:'required',quality:'required',biomedical:'required'},
+  'GRI 303-5': {consumption:'calculation',intensity:'nicetohave',storage_change:'required'},
+  'GRI 305-1': {total_s1:'required',by_gas:'required',by_source:'required',biogenic:'required',base_year:'required',consolidation:'required',ef_source:'evidence',gwp_source:'required'},
+  'GRI 305-2': {location_based:'required',market_based:'required',ef_breakdown:'evidence',rec_type:'evidence',base_year:'required'},
+  'GRI 305-3': {cat7:'required',cat11:'required',total_s3:'calculation',exclusions:'required',ef_source:'evidence'},
+  'GRI 305-4': {intensity_s12:'required',intensity_s123:'nicetohave',denominator:'required',types_included:'required',prior_year:'nicetohave'},
+  'GRI 305-5': {total_reduction:'required',by_initiative:'required',gases:'required',standard:'evidence'},
+  'GRI 305-6': {ods_total:'required',phase_out:'required'},
+  'GRI 305-7': {nox:'required',sox:'required',pm:'required',voc:'nicetohave',standards:'evidence'},
+  'GRI 306-1': {total:'required',by_type:'required',impacts:'required',approach:'required'},
+  'GRI 306-3': {hazardous:'required',nonhazardous:'required',total:'calculation',composition:'nicetohave',bmw_breakdown:'required'},
+  'GRI 306-4': {total_diverted:'required',reuse:'required',recycling:'required',composting:'required',recovery_ops:'evidence'},
+  'GRI 306-5': {total_disposal:'required',incineration:'required',incineration_no_energy:'required',landfill:'required',other:'required'},
+  'GRI 401-1': {new_hires:'required',hires_by_gender:'required',hires_by_age:'required',hires_by_region:'nicetohave',turnover:'required',turnover_by_gender:'required',turnover_by_age:'required',highest_turnover:'nicetohave'},
+  'GRI 401-2': {benefits_list:'required',part_time_diff:'required',locations:'nicetohave'},
+  'GRI 403-1': {system:'required',workers_covered:'required',certification:'evidence'},
+  'GRI 403-9': {fatalities:'required',ltifr:'required',recordable:'required',needlestick:'required',high_consequence:'required',by_gender:'required',main_causes:'nicetohave'},
+  'GRI 404-1': {total_avg:'required',by_gender:'required',by_category:'required',topics:'nicetohave'},
+  'GRI 404-3': {overall_pct:'required',by_gender:'required',esg_in_kra:'nicetohave',review_process:'nicetohave'},
+  'GRI 405-1': {board_gender:'required',board_age:'nicetohave',employees_gender:'required',employees_age:'required',minority:'required'},
+  'GRI 405-2': {overall:'required',by_category:'required',methodology:'evidence',target:'nicetohave'},
+  'GRI 413-1': {pct_operations:'required',programmes:'required',impact_assessment:'required',grievance:'nicetohave'},
+};
+
+const ROLE_META = {
+  required:    { icon:'🔴', bg:'#fef2f2', border:'#fca5a5', color:'#991b1b', label:'Required by framework' },
+  calculation: { icon:'🔵', bg:'#eff6ff', border:'#93c5fd', color:'#1e40af', label:'Needed for calculation' },
+  evidence:    { icon:'🟡', bg:'#fefce8', border:'#fde047', color:'#854d0e', label:'Evidence / methodology' },
+  nicetohave:  { icon:'⚪', bg:'#f8fafc', border:'#e2e8f0', color:'#475569', label:'Internal completeness' },
+};
+
+function renderGRIDisclosure(d) {
+  const baseId = 'gri_' + d.id.replace(/\s/g,'_').replace(/[^a-z0-9_]/gi,'');
+  const discRoles = GRI_FIELD_ROLES[d.id] || {};
+  const roleFilter = S.griRoleFilter || 'all';
+
+  // Count fields by role
+  const roleCounts = { required:0, calculation:0, evidence:0, nicetohave:0 };
+  d.fields.forEach(f => { const r = discRoles[f.key] || 'nicetohave'; roleCounts[r]++; });
+
+  // Filled counts
+  const filledFields = d.fields.filter(f => {
+    const gid = baseId + '_' + f.key;
+    return (S.drafts[gid] !== undefined ? S.drafts[gid] : f.value||'').trim();
+  }).length;
+  const requiredFields = d.fields.filter(f => (discRoles[f.key]||'nicetohave') === 'required');
+  const requiredFilled = requiredFields.filter(f => {
+    const gid = baseId + '_' + f.key;
+    return (S.drafts[gid] !== undefined ? S.drafts[gid] : f.value||'').trim();
+  }).length;
+
+  const totalFields = d.fields.length;
+  const dPct = Math.round(filledFields / totalFields * 100);
+  const reqPct = requiredFields.length ? Math.round(requiredFilled / requiredFields.length * 100) : 100;
+  const allFilled = filledFields === totalFields;
+  const reqAllFilled = requiredFilled === requiredFields.length;
+
+  const rowCls = reqAllFilled ? (d.ai ? 'cm-row-calculated cm-row-ai-highlight' : 'cm-row-verified') : filledFields > 0 ? 'cm-row-review' : 'cm-row-pending';
+
+  // Status badge based on required completion
+  const badgeHtml = reqAllFilled && allFilled
+    ? '<span class="cm-badge cm-badge-verified">✓ All ' + totalFields + '</span>'
+    : reqAllFilled
+      ? '<span class="cm-badge cm-badge-verified" style="background:#dcfce7;color:#166534">✓ Required complete</span>'
+      : filledFields > 0
+        ? '<span class="cm-badge cm-badge-review">◎ ' + requiredFilled + '/' + requiredFields.length + ' req.</span>'
+        : '<span class="cm-badge cm-badge-warning">⚠ Pending</span>';
+
+  let html = '<div class="cm-indicator-row ' + rowCls + '" style="padding:0;margin-bottom:.75rem;">';
+
+  // ── Level 1: Framework Disclosure header ──────────────────────────────────
+  html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem .9rem;background:#f8fafc;border-bottom:1px solid #e5e7eb;gap:.5rem">' +
+    '<div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">' +
+      '<span style="font-size:.72rem;font-weight:700;color:#7c3aed">' + esc(d.id) + (d.ai ? ' <span class="cm-ai-tag">⚡ AI</span>' : '') + '</span>' +
+      '<span style="font-size:.82rem;font-weight:700;color:#0f172a">' + esc(d.title) + '</span>' +
+      '<span style="font-size:.67rem;padding:1px 7px;border-radius:4px;font-weight:600;' + (d.type==='Mandatory' ? 'background:#e0e7ff;color:#3730a3' : 'background:#ede9fe;color:#6d28d9') + '">' +
+        (d.type==='Mandatory' ? 'GRI Universal — Required for In Accordance' : 'Topic-Specific — Materiality selected') + '</span>' +
+    '</div>' +
+    '<div style="display:flex;align-items:center;gap:.5rem;flex-shrink:0">' +
+      // Required progress bar
+      '<div style="display:flex;align-items:center;gap:4px">' +
+        '<div style="width:60px;height:5px;background:#e2e8f0;border-radius:100px;overflow:hidden"><div style="height:100%;background:' + (reqPct===100?'#16a34a':'#f97316') + ';width:' + reqPct + '%"></div></div>' +
+        '<span style="font-size:.65rem;color:' + (reqPct===100?'#16a34a':'#f97316') + ';font-weight:700">' + requiredFilled + '/' + requiredFields.length + ' req</span>' +
+      '</div>' +
+      badgeHtml +
+    '</div>' +
+  '</div>';
+
+  // ── Level 2: GRI requirement (what the standard says) ────────────────────
+  html += '<div style="padding:.4rem .9rem;background:#faf5ff;border-bottom:1px solid #e9d5ff;font-size:.71rem;color:#6d28d9;line-height:1.5">' +
+    '<span style="font-weight:700;text-transform:uppercase;letter-spacing:.3px;font-size:.65rem;margin-right:6px">GRI Requirement:</span>' + esc(d.requirement) + '</div>';
+
+  // ── Role legend (compact, shown once per disclosure) ─────────────────────
+  html += '<div style="padding:.3rem .9rem;background:#f8fafc;border-bottom:1px solid #f1f5f9;display:flex;gap:8px;flex-wrap:wrap">';
+  Object.entries(ROLE_META).forEach(([role, m]) => {
+    if (roleCounts[role] > 0) {
+      html += '<span style="font-size:.65rem;display:inline-flex;align-items:center;gap:3px;padding:1px 6px;border-radius:3px;background:' + m.bg + ';border:1px solid ' + m.border + ';color:' + m.color + '">' +
+        m.icon + ' ' + m.label + ' (' + roleCounts[role] + ')</span>';
+    }
+  });
+  html += '</div>';
+
+  // ── Level 3: Sub-fields (required + calculation first, then evidence, then nicetohave) ─
+  html += '<div style="padding:.5rem .9rem .75rem">';
+
+  // Group fields by role priority
+  const roleOrder = ['required','calculation','evidence','nicetohave'];
+  const groupedFields = {};
+  roleOrder.forEach(r => { groupedFields[r] = d.fields.filter(f => (discRoles[f.key]||'nicetohave') === r); });
+
+  roleOrder.forEach(role => {
+    const fields = groupedFields[role];
+    if (!fields.length) return;
+
+    // Skip nicetohave if filter says so
+    if (role === 'nicetohave' && roleFilter === 'compact') {
+      html += '<div style="font-size:.68rem;color:#94a3b8;padding:4px 0;cursor:pointer" onclick="cm.toggleNice()">' +
+        '+ ' + fields.length + ' optional field(s) — click to expand</div>';
+      return;
+    }
+
+    const m = ROLE_META[role];
+    // Section label for each role group
+    if (fields.length && role !== 'required') {
+      html += '<div style="font-size:.67rem;font-weight:700;color:' + m.color + ';text-transform:uppercase;letter-spacing:.4px;padding:6px 0 3px;border-top:1px solid ' + m.border + ';margin-top:4px">' +
+        m.icon + ' ' + m.label.toUpperCase() + '</div>';
+    }
+
+    fields.forEach((f, fi) => {
+      const gid = baseId + '_' + f.key;
+      const val = S.drafts[gid] !== undefined ? S.drafts[gid] : (f.value || '');
+      const isEmpty = !val.trim();
+      const isModified = S.drafts[gid] !== undefined && S.drafts[gid] !== (f.value || '');
+
+      const borderColor = isEmpty && role === 'required' ? '#fca5a5' : m.border;
+      const inputBg = isEmpty && role === 'required' ? '#fff5f5' : '#fff';
+
+      html += '<div style="margin-bottom:.5rem;padding:.5rem .6rem;border-radius:6px;border-left:3px solid ' + m.border + ';background:' + (role==='required'&&!isEmpty ? '#fafff8' : '#fff') + '">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.22rem">' +
+          '<label style="font-size:.72rem;font-weight:600;color:#334155">' +
+            '<span style="font-size:.62rem;padding:0 4px;border-radius:2px;background:' + m.bg + ';border:1px solid ' + m.border + ';color:' + m.color + ';margin-right:5px">' + m.icon + '</span>' +
+            esc(f.label) + (f.suffix ? ' <span style="font-weight:400;color:#94a3b8;font-size:.67rem">(' + esc(f.suffix) + ')</span>' : '') +
+          '</label>' +
+          (isEmpty && role === 'required' ? '<span style="font-size:.62rem;color:#dc2626;background:#fee2e2;padding:1px 5px;border-radius:3px;font-weight:700">Required</span>' :
+           isModified ? '<span style="font-size:.62rem;color:#2563eb;background:#dbeafe;padding:1px 5px;border-radius:3px">Edited</span>' :
+           isEmpty ? '' :
+           '<span style="font-size:.62rem;color:#059669;background:#d1fae5;padding:1px 5px;border-radius:3px">✓</span>') +
+        '</div>';
+
+      if (f.type === 'select') {
+        html += '<select style="width:100%;padding:.28rem .45rem;border:1px solid ' + borderColor + ';border-radius:5px;font-size:.79rem;color:#334155;background:' + inputBg + ';" onchange="cm.onGRIFieldEdit(\'' + gid + '\',this)">' +
+          (f.options||[]).map(o => '<option value="' + esc(o) + '"' + (val===o?' selected':'') + '>' + esc(o) + '</option>').join('') +
+          '</select>';
+      } else if (f.type === 'number') {
+        html += '<input type="number" value="' + esc(val) + '" placeholder="Enter value..." ' +
+          'style="width:100%;padding:.28rem .45rem;border:1px solid ' + borderColor + ';border-radius:5px;font-size:.79rem;color:#334155;background:' + inputBg + ';" ' +
+          'oninput="cm.onGRIFieldEdit(\'' + gid + '\',this)"/>';
+      } else {
+        const rows = role === 'required' ? '2' : '1';
+        html += '<textarea rows="' + rows + '" style="width:100%;padding:.28rem .45rem;border:1px solid ' + borderColor + ';border-radius:5px;font-size:.79rem;color:#334155;resize:vertical;min-height:' + (role==='required'?'42':'32') + 'px;background:' + inputBg + ';" ' +
+          'placeholder="Enter disclosure data..." oninput="cm.onGRIFieldEdit(\'' + gid + '\',this)">' + esc(val) + '</textarea>';
+      }
+
+      // ── Level 4: Evidence / methodology note (only for evidence fields) ──
+      if (role === 'evidence' && f.value) {
+        html += '<div style="font-size:.67rem;color:#78350f;background:#fffbeb;border-radius:3px;padding:2px 6px;margin-top:3px">📎 Pre-filled from TerraCAP methodology records — verify before submission</div>';
+      }
+
+      // AI verify button per field when disclosure is AI-populated
+      if (d.ai) {
+        const vkey = gid + '_verified';
+        const isVerified = S.verified[vkey];
+        html += '<div style="display:flex;justify-content:flex-end;margin-top:2px">' +
+          (isVerified
+            ? '<span style="font-size:.65rem;color:#059669;font-weight:700;background:#d1fae5;padding:1px 8px;border-radius:4px">✓ Human verified</span>'
+            : '<button style="font-size:.68rem;padding:2px 8px;border-radius:4px;border:1px solid #d97706;background:#fffbeb;color:#92400e;cursor:pointer;font-weight:600" onclick="cm.onAIVerify(\'' + vkey + '\')">Verify ✓</button>') +
+        '</div>';
+      }
+      html += '</div>';
+    });
+  });
+
+  html += '</div></div>';
+  return html;
+}
 /* ---------- incomplete dialog ---------- */
 function renderIncompleteDialog() {
   const ov = overallStats();
@@ -674,19 +1217,129 @@ function renderIncompleteDialog() {
 
 /* ---------- STEP 3: Review & Validate ---------- */
 function renderStep3() {
+  if (ACTIVE_FW === 'gri')     return renderStep3GRI();
+  if (ACTIVE_FW === 'cdp')     return renderStep3CDP();
+  if (ACTIVE_FW === 'greenco') return renderStep3GreenCo();
+  return renderStep3BRSR();
+}
+
+function renderStep3BRSR() {
   const ov = overallStats();
   const mandTotal = Math.floor(ov.total * 0.2);
   const checks = [
     { type: 'cm-pass', icon: '✓', title: 'All ' + mandTotal + ' mandatory indicators complete', desc: 'Required disclosures are filled — report can proceed to preview.' },
-    { type: ov.pct >= 50 ? 'cm-pass' : 'cm-warn', icon: ov.pct >= 50 ? '✓' : '!', title: 'Overall completion: ' + ov.pct + '% (' + ov.completed + '/' + ov.total + ' indicators)', desc: ov.pct >= 80 ? 'Excellent coverage — strong disclosure.' : ov.pct >= 50 ? 'Good coverage. Consider filling optional indicators for a comprehensive report.' : 'Pending indicators render as "-" in the report. You can still generate and update later.' },
-    { type: ov.pending <= 5 ? 'cm-pass' : 'cm-warn', icon: ov.pending <= 5 ? '✓' : '!', title: ov.pending + ' pending indicators remaining', desc: ov.pending + ' indicator(s) will appear as "-" in the report. You can still generate and update later.' },
-    { type: 'cm-pass', icon: '✓', title: 'Framework: SEBI BRSR & BRSR CORE 2024', desc: 'India · SEBI · ' + ov.total + ' total indicators mapped across Sections A/B/C.' },
-    { type: 'cm-pass', icon: '✓', title: 'Auto-calculated indicators verified', desc: Math.floor(ov.total * 0.1) + ' intensity/ratio metrics auto-computed from raw data — no manual entry required.' },
+    { type: ov.pct >= 50 ? 'cm-pass' : 'cm-warn', icon: ov.pct >= 50 ? '✓' : '!', title: 'Overall completion: ' + ov.pct + '%', desc: ov.pct >= 50 ? 'More than half of all BRSR indicators have been filled.' : 'Below 50% completion — consider completing more indicators before submission.' },
+    { type: 'cm-pass', icon: '✓', title: 'BRSR Core indicators verified', desc: 'The 49 Core indicators required for listed companies have been checked.' },
+    { type: 'cm-info', icon: 'i', title: 'AI-generated content requires human verification', desc: 'All ⚡ AI-populated fields must be reviewed and confirmed by a responsible person before submission. Use the "Verify ✓" button on each field.' },
+    { type: 'cm-info', icon: 'i', title: 'Assurance readiness', desc: 'Scope 1 & 2 GHG data and water intensity figures should be supported by utility bills or third-party verification for BRSR Core.' },
   ];
-  return '<div class="cm-content-card"><div class="cm-section-title">Data Quality Validation</div><div class="cm-validation-list">' +
+  return '<div class="cm-category-group"><div class="cm-category-header">BRSR Data Quality Validation</div><div class="cm-validation-list">' +
     checks.map(c => '<div class="cm-val-item ' + c.type + '"><div class="cm-val-icon ' + c.type + '">' + c.icon + '</div><div class="cm-val-text"><h4>' + esc(c.title) + '</h4><p>' + esc(c.desc) + '</p></div></div>').join('') +
     '</div></div>' +
     '<div class="cm-btn-group"><button class="cm-btn cm-btn-secondary" onclick="cm.goStep(2)">‹ Back</button><div class="cm-right-btns"><button class="cm-btn cm-btn-primary" onclick="cm.goStep(4)">Next: Preview ›</button></div></div>';
+}
+
+function renderStep3GRI() {
+  const total = GRI_TOTAL_DISCLOSURES;
+  const filled = GRI_DISCLOSURES.filter(d => d.fields.every(f => {
+    const gid = 'gri_' + d.id.replace(/\s/g,'_').replace(/[^a-z0-9_]/gi,'') + '_' + f.key;
+    return (S.drafts[gid] !== undefined ? S.drafts[gid] : f.value||'').trim();
+  })).length;
+  const requiredFilled = GRI_DISCLOSURES.filter(d => {
+    const discRoles = GRI_FIELD_ROLES[d.id] || {};
+    return d.fields.filter(f => (discRoles[f.key]||'nicetohave') === 'required').every(f => {
+      const gid = 'gri_' + d.id.replace(/\s/g,'_').replace(/[^a-z0-9_]/gi,'') + '_' + f.key;
+      return (S.drafts[gid] !== undefined ? S.drafts[gid] : f.value||'').trim();
+    });
+  }).length;
+  const aiDisclosures = GRI_DISCLOSURES.filter(d => d.ai).length;
+  const verifiedAI = GRI_DISCLOSURES.filter(d => d.ai && d.fields.some(f => {
+    const gid = 'gri_' + d.id.replace(/\s/g,'_').replace(/[^a-z0-9_]/gi,'') + '_' + f.key + '_verified';
+    return S.verified[gid];
+  })).length;
+  const checks = [
+    { type: requiredFilled === total ? 'cm-pass' : 'cm-warn', icon: requiredFilled === total ? '✓' : '!',
+      title: 'Required fields: ' + requiredFilled + '/' + total + ' disclosures complete',
+      desc: 'All 🔴 Required-by-framework fields must be filled before GRI "In Accordance" claim can be made.' },
+    { type: filled >= Math.floor(total * 0.8) ? 'cm-pass' : 'cm-info', icon: '✓',
+      title: 'Full disclosure: ' + filled + '/' + total + ' disclosures fully complete',
+      desc: '🔵 Calculation and 🟡 Evidence fields add auditability. GRI does not require them for In Accordance but third-party assurance providers will ask for them.' },
+    { type: verifiedAI >= aiDisclosures * 0.5 ? 'cm-pass' : 'cm-warn', icon: verifiedAI >= aiDisclosures * 0.5 ? '✓' : '!',
+      title: 'AI content verification: ' + verifiedAI + '/' + aiDisclosures + ' AI disclosures human-confirmed',
+      desc: 'Each ⚡ AI-populated disclosure must be reviewed and confirmed by a responsible person. GRI requires the report to be accurate and complete — AI output is a starting point only.' },
+    { type: 'cm-info', icon: 'i',
+      title: 'GRI Content Index readiness',
+      desc: 'GRI 2-3 (reporting period/contact), GRI 2-4 (restatements), and GRI 2-5 (assurance) are the three disclosures most commonly flagged in GRI audits. Confirm these are complete.' },
+    { type: 'cm-info', icon: 'i',
+      title: 'Double materiality linkage',
+      desc: 'GRI 3-2 (List of material topics) must link to your FY24 materiality assessment. Ensure the topic selection rationale is documented.' },
+  ];
+  return '<div class="cm-category-group"><div class="cm-category-header">GRI 2021 Disclosure Validation — Manipal Group FY25</div><div class="cm-validation-list">' +
+    checks.map(c => '<div class="cm-val-item ' + c.type + '"><div class="cm-val-icon ' + c.type + '">' + c.icon + '</div><div class="cm-val-text"><h4>' + esc(c.title) + '</h4><p>' + esc(c.desc) + '</p></div></div>').join('') +
+    '</div></div>' +
+    '<div class="cm-btn-group"><button class="cm-btn cm-btn-secondary" onclick="cm.goStep(2)">‹ Back</button><div class="cm-right-btns"><button class="cm-btn cm-btn-primary" onclick="cm.goStep(4)">Next: Preview ›</button></div></div>';
+}
+
+function renderStep3CDP() {
+  const totalQ = CDP_TOTAL;
+  const modules = CDP_MODULES;
+  const modStats = modules.map(m => ({
+    id: m.id, label: m.label, color: m.color,
+    total: m.items.length,
+    filled: m.items.filter(i => (S.drafts['cdp_' + i.id.replace(/\./g,'_')] || i.a || '').trim()).length,
+  }));
+  const totalFilled = modStats.reduce((s,m) => s + m.filled, 0);
+  const aiItems = modules.flatMap(m => m.items).length;
+  const verifiedCount = Object.keys(S.verified).filter(k => k.startsWith('cdp_')).length;
+  const checks = [
+    { type: totalFilled >= totalQ * 0.8 ? 'cm-pass' : 'cm-warn', icon: totalFilled >= totalQ * 0.8 ? '✓' : '!',
+      title: 'Response completeness: ' + totalFilled + '/' + totalQ + ' questions answered',
+      desc: 'CDP scores each module separately. Incomplete modules score F (non-disclosure) for that section.' },
+    { type: verifiedCount >= aiItems * 0.5 ? 'cm-pass' : 'cm-warn', icon: verifiedCount >= aiItems * 0.5 ? '✓' : '!',
+      title: 'Human verification: ' + verifiedCount + '/' + aiItems + ' AI responses confirmed',
+      desc: 'CDP submissions are signed off by an authorised officer. All ⚡ AI-populated responses must be reviewed before sign-off — CDP verifies responses against public data.' },
+    { type: 'cm-info', icon: 'i',
+      title: 'Module scoring check',
+      desc: modStats.map(m => m.id + ': ' + m.filled + '/' + m.total).join(' · ') },
+    { type: 'cm-info', icon: 'i',
+      title: 'C6 & C7 data quality (highest weighted)',
+      desc: 'Energy (C6) and Emissions (C7) carry the highest scoring weight in CDP Climate. Ensure Scope 1/2/3 figures match your GHG Protocol inventory and are consistent with GRI 305 disclosures.' },
+    { type: 'cm-info', icon: 'i',
+      title: 'CDP sign-off requirement',
+      desc: 'The CEO or equivalent must authorise the CDP submission. A "Management Verified" confirmation is required at C0 level before final submission to CDP portal.' },
+  ];
+  return '<div class="cm-category-group"><div class="cm-category-header" style="background:#1d4ed8;color:#fff">CDP Climate Change 2024 — Validation · MAHE</div><div class="cm-validation-list">' +
+    checks.map(c => '<div class="cm-val-item ' + c.type + '"><div class="cm-val-icon ' + c.type + '">' + c.icon + '</div><div class="cm-val-text"><h4>' + esc(c.title) + '</h4><p>' + esc(c.desc) + '</p></div></div>').join('') +
+    '</div></div>' +
+    '<div class="cm-btn-group"><button class="cm-btn cm-btn-secondary" onclick="cm.goStep(2)">‹ Back</button><div class="cm-right-btns"><button class="cm-btn cm-btn-primary" style="background:#1d4ed8" onclick="cm.goStep(4)">Next: Preview ›</button></div></div>';
+}
+
+function renderStep3GreenCo() {
+  const pillars = GC_PILLARS;
+  const totalItems = pillars.reduce((s,p) => s + p.items.length, 0);
+  const totalScore = pillars.reduce((s,p) => s + p.items.reduce((ss,i) => ss + i.score, 0), 0);
+  const maxScore = pillars.reduce((s,p) => s + p.maxScore, 0);
+  const pct = Math.round(totalScore / maxScore * 100);
+  const rating = pct >= 75 ? 'Platinum' : pct >= 55 ? 'Gold' : pct >= 40 ? 'Silver' : pct >= 25 ? 'Bronze' : 'Pending';
+  const ratingColor = pct >= 75 ? '#7c3aed' : pct >= 55 ? '#d97706' : pct >= 40 ? '#64748b' : '#b45309';
+  const checks = [
+    { type: pct >= 40 ? 'cm-pass' : 'cm-warn', icon: pct >= 40 ? '✓' : '!',
+      title: 'Projected GreenCo rating: ' + rating + ' (' + totalScore + '/' + maxScore + ' = ' + pct + '%)',
+      desc: 'CII GreenCo ratings: Bronze ≥25%, Silver ≥40%, Gold ≥55%, Platinum ≥75%. Current score projects a ' + rating + ' rating.' },
+    { type: 'cm-info', icon: 'i',
+      title: 'Pillar scores: ' + pillars.map(p => p.id + ' ' + p.items.reduce((s,i)=>s+i.score,0) + '/' + p.maxScore).join(' · '),
+      desc: 'No single pillar can be zero — CII requires a minimum threshold in each category.' },
+    { type: 'cm-info', icon: 'i',
+      title: 'Evidence documentation',
+      desc: 'GreenCo assessors require physical evidence: energy bills, metering data, ISO certificates, photos of installations. All ⚡ AI scores must be confirmed against actual documentation.' },
+    { type: 'cm-info', icon: 'i',
+      title: 'Site assessment readiness',
+      desc: 'CII GreenCo involves a physical site visit. Ensure all documented claims (solar capacity, water treatment, waste diversion %) are verifiable on-site.' },
+  ];
+  return '<div class="cm-category-group"><div class="cm-category-header" style="background:#166534;color:#fff">CII GreenCo Validation — Rail Wheel Factory</div><div class="cm-validation-list">' +
+    checks.map(c => '<div class="cm-val-item ' + c.type + '"><div class="cm-val-icon ' + c.type + '">' + c.icon + '</div><div class="cm-val-text"><h4>' + esc(c.title) + '</h4><p>' + esc(c.desc) + '</p></div></div>').join('') +
+    '</div></div>' +
+    '<div class="cm-btn-group"><button class="cm-btn cm-btn-secondary" onclick="cm.goStep(2)">‹ Back</button><div class="cm-right-btns"><button class="cm-btn cm-btn-primary" style="background:#166534" onclick="cm.goStep(4)">Next: Preview ›</button></div></div>';
 }
 
 /* ---------- STEP 4: Preview Report ---------- */
@@ -698,6 +1351,13 @@ function findAns(keywords) {
   return null;
 }
 function renderStep4() {
+  if (ACTIVE_FW === 'gri')     return renderStep4GRI();
+  if (ACTIVE_FW === 'cdp')     return renderStep4CDP();
+  if (ACTIVE_FW === 'greenco') return renderStep4GreenCo();
+  return renderStep4BRSR();
+}
+
+function renderStep4BRSR() {
   const ov = overallStats();
   const blocks = [
     { cat: 'Section A — General Disclosures', rows: [
@@ -710,31 +1370,151 @@ function renderStep4() {
       ['SCOPE1', 'Total Scope 1 emissions (tCO2e)', findAns(['total scope 1 emissions'])],
       ['SCOPE2', 'Total Scope 2 emissions (tCO2e)', findAns(['total scope 2 emissions'])],
       ['ENERGY', 'Total energy consumption', findAns(['total energy consumed', 'total energy consumption'])],
-      ['WATER', 'Total water withdrawal', findAns(['total volume of water withdrawal', 'water withdrawal'])],
+      ['WATER', 'Total water withdrawal', findAns(['water withdrawal', 'total water'])],
     ]},
-    { cat: 'Editorial — AI-synthesized narrative', rows: [
-      ['LEADERSHIP', 'Leadership message', findAns(['leadership', 'director responsible'])],
-      ['ABOUT', 'About this report', findAns(['business responsibility', 'about'])],
+    { cat: 'Principle 3 — Employee Wellbeing', rows: [
+      ['LTIFR', 'Lost Time Injury Frequency Rate', findAns(['ltifr', 'lost time injury'])],
+      ['TRAINING', 'Training hours per employee', findAns(['training hours', 'average hours of training'])],
     ]},
   ];
-  return '<div class="cm-content-card"><div class="cm-info-box"><strong>SEBI BRSR – ' + esc(COMPANY) + ' ' + FY + '</strong><br><span style="font-size:.8rem;color:#555">Review the synthesized narratives and performance overview. You can still modify data if needed.</span></div>' +
-    '<div class="cm-preview-frame">' +
-      '<div style="text-align:center;padding:1rem 0 1.5rem;border-bottom:2px solid #e0e0e0;margin-bottom:1.25rem">' +
-        '<div style="font-size:1.1rem;font-weight:800;color:#2d5f4f">SEBI BRSR & BRSR CORE 2024</div>' +
-        '<div style="font-size:.85rem;color:#666;margin-top:.25rem">' + esc(COMPANY) + ' | ' + FY + ' | India · SEBI</div>' +
-        '<div style="margin-top:.5rem;display:flex;justify-content:center;gap:1.5rem;font-size:.8rem;color:#555"><span>✅ ' + ov.completed + ' indicators populated</span><span>📊 ' + ov.total + ' total disclosures</span></div></div>' +
-      blocks.map(b => '<div class="cm-preview-section-block"><h4>' + b.cat + '</h4>' +
-        b.rows.map(r => { const pend = !r[2]; const a = r[2] ? String(r[2]) : '[Data Pending]'; return '<div style="display:flex;gap:.75rem;padding:.35rem 0;border-bottom:1px solid #f0f0f0;font-size:.82rem"><span style="width:120px;flex-shrink:0;font-weight:600;color:#2d5f4f">' + r[0] + '</span><span style="flex:1;color:#444">' + esc(r[1]) + '</span><span style="min-width:220px;color:' + (pend ? '#d97706' : '#333') + ';font-style:' + (pend ? 'italic' : 'normal') + '">' + esc(a.length > 100 ? a.slice(0, 100) + '…' : a) + '</span></div>'; }).join('') +
-        '</div>').join('') +
-      '<div style="margin-top:2rem;padding:1rem;background:#f9fafb;border-radius:8px;border:1px dashed #d1d5db;text-align:center"><p style="font-size:.8rem;color:#6b7280;margin:0">💡 This summary shows key highlights. The full PDF includes all ' + ov.completed + ' populated fields, structured per SEBI BRSR Core.</p></div>' +
-    '</div></div>' +
-    '<div class="cm-btn-group"><button class="cm-btn cm-btn-secondary" onclick="cm.goStep(3)">‹ Back</button><div class="cm-right-btns"><button class="cm-btn cm-btn-primary" onclick="cm.goStep(5)">Approve & Next ›</button></div></div>';
+  let out = '<div class="cm-category-group"><div class="cm-category-header">BRSR Report Preview — ' + COMPANY + ' FY25</div>';
+  blocks.forEach(b => {
+    out += '<div class="cm-section-title">' + esc(b.cat) + '</div>';
+    out += '<table style="width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:1rem">';
+    out += '<thead><tr><th style="padding:8px 10px;background:#1e293b;color:#fff;text-align:left;font-size:.75rem">Code</th><th style="padding:8px 10px;background:#1e293b;color:#fff;text-align:left;font-size:.75rem">Indicator</th><th style="padding:8px 10px;background:#1e293b;color:#fff;text-align:left;font-size:.75rem">Disclosed Value</th></tr></thead><tbody>';
+    b.rows.forEach((r,i) => {
+      out += '<tr style="background:' + (i%2===0?'#f8fafc':'#fff') + '"><td style="padding:8px 10px;font-family:monospace;font-size:.78rem;color:#3d7f6f;border-bottom:1px solid #e2e8f0">' + esc(r[0]) + '</td><td style="padding:8px 10px;color:#334155;border-bottom:1px solid #e2e8f0">' + esc(r[1]) + '</td><td style="padding:8px 10px;color:#0f172a;font-weight:500;border-bottom:1px solid #e2e8f0">' + esc(r[2] || '—') + '</td></tr>';
+    });
+    out += '</tbody></table>';
+  });
+  out += '</div><div class="cm-btn-group"><button class="cm-btn cm-btn-secondary" onclick="cm.goStep(3)">‹ Back</button><div class="cm-right-btns"><button class="cm-btn cm-btn-primary" onclick="cm.goStep(5)">Export Report ›</button></div></div>';
+  return out;
+}
+
+function renderStep4GRI() {
+  // Framework-aware GRI preview with all disclosures grouped by section
+  const sections = {};
+  GRI_DISCLOSURES.forEach(d => {
+    if (!sections[d.section]) sections[d.section] = [];
+    sections[d.section].push(d);
+  });
+  const discRolesSummary = Object.entries(GRI_FIELD_ROLES);
+  let out = '<div class="cm-info-box" style="border-left:4px solid #7c3aed">🌏 <strong>GRI 2021 In Accordance — Manipal Group · FY 2024-25</strong> · ' + GRI_TOTAL_DISCLOSURES + ' disclosures · ' + GRI_TOTAL_ELEMENTS + ' data fields · Report boundary: Operational control · India</div>';
+  Object.entries(sections).forEach(([sec, discs]) => {
+    out += '<div class="cm-category-group" style="margin-top:1rem"><div class="cm-category-header" style="background:#7c3aed;color:#fff">' + esc(sec) + '</div>';
+    discs.forEach(d => {
+      const baseId = 'gri_' + d.id.replace(/\s/g,'_').replace(/[^a-z0-9_]/gi,'');
+      const discRoles = GRI_FIELD_ROLES[d.id] || {};
+      const reqFields = d.fields.filter(f => (discRoles[f.key]||'nicetohave') === 'required');
+      const reqFilled = reqFields.filter(f => {
+        const gid = baseId + '_' + f.key;
+        return (S.drafts[gid] !== undefined ? S.drafts[gid] : f.value||'').trim();
+      }).length;
+      const allComplete = reqFilled === reqFields.length;
+      out += '<div style="margin-bottom:.75rem;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden">';
+      out += '<div style="display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;background:' + (allComplete ? '#f0fdf4' : '#fef9c3') + ';border-bottom:1px solid #e2e8f0">' +
+        '<span style="font-size:.7rem;font-weight:700;color:#7c3aed">' + esc(d.id) + '</span>' +
+        '<span style="font-size:.8rem;font-weight:600;color:#1e293b;flex:1">' + esc(d.title) + '</span>' +
+        (d.ai ? '<span class="cm-ai-tag">⚡ AI</span>' : '') +
+        '<span style="font-size:.68rem;font-weight:700;color:' + (allComplete ? '#166534' : '#854d0e') + '">' + reqFilled + '/' + reqFields.length + ' req</span>' +
+      '</div>';
+      out += '<table style="width:100%;border-collapse:collapse;font-size:.8rem">';
+      d.fields.slice(0, 8).forEach((f, fi) => {
+        const gid = baseId + '_' + f.key;
+        const val = (S.drafts[gid] !== undefined ? S.drafts[gid] : f.value||'').trim();
+        const role = discRoles[f.key] || 'nicetohave';
+        const m = ROLE_META[role];
+        out += '<tr style="background:' + (fi%2===0?'#fff':'#f8fafc') + ';vertical-align:top"><td style="padding:5px 10px;width:40%;color:#334155;border-bottom:1px solid #f1f5f9;font-weight:500">' +
+          '<span style="font-size:.6rem;padding:0 3px;border-radius:2px;background:' + m.bg + ';color:' + m.color + ';margin-right:4px">' + m.icon + '</span>' + esc(f.label) + '</td>' +
+          '<td style="padding:5px 10px;color:' + (val ? '#0f172a' : '#94a3b8') + ';border-bottom:1px solid #f1f5f9">' + esc(val || '— not filled —') + '</td></tr>';
+      });
+      if (d.fields.length > 8) {
+        out += '<tr><td colspan="2" style="padding:4px 10px;color:#94a3b8;font-size:.75rem;font-style:italic">+ ' + (d.fields.length - 8) + ' more fields — see Fill Indicators screen</td></tr>';
+      }
+      out += '</table></div>';
+    });
+    out += '</div>';
+  });
+  out += '<div class="cm-btn-group"><button class="cm-btn cm-btn-secondary" onclick="cm.goStep(3)">‹ Back</button><div class="cm-right-btns"><button class="cm-btn cm-btn-primary" style="background:#7c3aed" onclick="cm.goStep(5)">Export GRI Report ›</button></div></div>';
+  return out;
+}
+
+function renderStep4CDP() {
+  // Accenture-style CDP preview — module by module with full question detail
+  let out = '<div class="cm-info-box" style="border-left:4px solid #1d4ed8">🌡️ <strong>CDP Climate Change 2024 — MAHE · FY 2024-25</strong> · ' + CDP_TOTAL + ' questions · Education sector · All responses AI-populated, require human sign-off</div>';
+  CDP_MODULES.forEach(mod => {
+    const modFilled = mod.items.filter(i => (S.drafts['cdp_' + i.id.replace(/\./g,'_')] || i.a || '').trim()).length;
+    out += '<div class="cm-category-group" style="margin-top:1rem"><div class="cm-category-header" style="background:' + mod.color + ';color:#fff">' +
+      mod.id + ' — ' + mod.label + ' <span style="font-size:.75rem;opacity:.8;margin-left:8px">' + modFilled + '/' + mod.items.length + ' answered</span></div>';
+    mod.items.forEach(item => {
+      const gid = 'cdp_' + item.id.replace(/\./g,'_');
+      const val = (S.drafts[gid] || item.a || '').trim();
+      const isVerified = S.verified[gid];
+      const isTable = ['__RISK_REGISTER__','__OPP_REGISTER__','__TARGETS_TABLE__'].includes(item.a);
+      out += '<div style="margin-bottom:.5rem;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden">';
+      out += '<div style="display:flex;align-items:flex-start;gap:.5rem;padding:.45rem .75rem;background:#f8fafc;border-bottom:1px solid #f1f5f9">' +
+        '<span style="font-size:.68rem;font-weight:700;background:' + mod.color + ';color:#fff;padding:1px 6px;border-radius:3px;flex-shrink:0">' + esc(item.id) + '</span>' +
+        '<span style="font-size:.79rem;font-weight:600;color:#1e293b;flex:1">' + esc(item.q) + '</span>' +
+        '<span class="cm-ai-tag">⚡ AI</span>' +
+        (isVerified ? '<span style="font-size:.65rem;color:#059669;font-weight:700;background:#d1fae5;padding:1px 6px;border-radius:3px">✓ Verified</span>'
+                    : '<span style="font-size:.65rem;color:#92400e;background:#fef3c7;padding:1px 6px;border-radius:3px;font-weight:600">Needs review</span>') +
+      '</div>';
+      if (!isTable) {
+        out += '<div style="padding:.5rem .75rem;font-size:.82rem;color:#334155;line-height:1.6;background:#fff">' + esc(val || '— not answered —') + '</div>';
+      } else {
+        out += '<div style="padding:.4rem .75rem;font-size:.78rem;color:#1d4ed8;background:#eff6ff">📋 Structured table — see Fill Indicators screen for full detail</div>';
+      }
+      out += '</div>';
+    });
+    out += '</div>';
+  });
+  out += '<div class="cm-btn-group"><button class="cm-btn cm-btn-secondary" onclick="cm.goStep(3)">‹ Back</button><div class="cm-right-btns"><button class="cm-btn cm-btn-primary" style="background:#1d4ed8" onclick="cm.goStep(5)">Export CDP Response ›</button></div></div>';
+  return out;
+}
+
+function renderStep4GreenCo() {
+  const pillars = GC_PILLARS;
+  const totalScore = pillars.reduce((s,p) => s + p.items.reduce((ss,i) => ss + i.score, 0), 0);
+  const maxScore = pillars.reduce((s,p) => s + p.maxScore, 0);
+  const pct = Math.round(totalScore / maxScore * 100);
+  const rating = pct >= 75 ? 'Platinum' : pct >= 55 ? 'Gold' : pct >= 40 ? 'Silver' : pct >= 25 ? 'Bronze' : 'Not Rated';
+  const ratingColor = {'Platinum':'#7c3aed','Gold':'#d97706','Silver':'#64748b','Bronze':'#92400e','Not Rated':'#dc2626'}[rating];
+
+  let out = '<div style="background:linear-gradient(135deg,#14532d 0%,#166534 100%);border-radius:10px;padding:24px 28px;color:white;margin-bottom:1.25rem">' +
+    '<div style="font-size:.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:.6;margin-bottom:6px">CII GreenCo Assessment — Rail Wheel Factory (RWF)</div>' +
+    '<div style="font-size:1.8rem;font-weight:800;letter-spacing:-0.5px">' + rating + ' <span style="font-size:1rem;opacity:.7">Rating Projected</span></div>' +
+    '<div style="font-size:1rem;margin-top:4px">' + totalScore + ' / ' + maxScore + ' points &nbsp;·&nbsp; ' + pct + '% score</div>' +
+    '<div style="margin-top:16px;height:10px;background:rgba(255,255,255,.2);border-radius:100px;overflow:hidden"><div style="height:100%;background:#4ade80;width:' + pct + '%"></div></div>' +
+  '</div>';
+
+  pillars.forEach(p => {
+    const pScore = p.items.reduce((s,i) => s + i.score, 0);
+    const pPct = Math.round(pScore / p.maxScore * 100);
+    out += '<div class="cm-category-group" style="margin-top:1rem"><div class="cm-category-header" style="background:#166534;color:#fff">' +
+      esc(p.id) + ' — ' + esc(p.label) + ' <span style="font-size:.78rem;opacity:.8;margin-left:6px">' + pScore + '/' + p.maxScore + ' pts · ' + pPct + '%</span></div>';
+    out += '<table style="width:100%;border-collapse:collapse;font-size:.8rem">';
+    out += '<thead><tr><th style="padding:7px 10px;background:#f1f5f9;text-align:left;font-size:.7rem;color:#334155">Criteria</th><th style="padding:7px 10px;background:#f1f5f9;font-size:.7rem;color:#334155;width:80px;text-align:center">Score</th><th style="padding:7px 10px;background:#f1f5f9;font-size:.7rem;color:#334155;width:90px;text-align:center">Max</th><th style="padding:7px 10px;background:#f1f5f9;font-size:.7rem;color:#334155">Evidence / Response</th></tr></thead><tbody>';
+    p.items.forEach((item, fi) => {
+      const scoreColor = item.score >= item.maxScore * 0.8 ? '#166534' : item.score >= item.maxScore * 0.5 ? '#854d0e' : '#dc2626';
+      out += '<tr style="background:' + (fi%2===0?'#fff':'#f8fafc') + ';vertical-align:top">' +
+        '<td style="padding:6px 10px;color:#334155;border-bottom:1px solid #f1f5f9">' + esc(item.q) + '</td>' +
+        '<td style="padding:6px 10px;text-align:center;font-weight:700;color:' + scoreColor + ';border-bottom:1px solid #f1f5f9">' + item.score + '</td>' +
+        '<td style="padding:6px 10px;text-align:center;color:#94a3b8;border-bottom:1px solid #f1f5f9">' + item.maxScore + '</td>' +
+        '<td style="padding:6px 10px;font-size:.75rem;color:#475569;border-bottom:1px solid #f1f5f9">' + esc((item.a||'').slice(0, 120)) + (item.a && item.a.length > 120 ? '…' : '') + '</td>' +
+      '</tr>';
+    });
+    out += '</tbody></table></div>';
+  });
+  out += '<div class="cm-btn-group"><button class="cm-btn cm-btn-secondary" onclick="cm.goStep(3)">‹ Back</button><div class="cm-right-btns"><button class="cm-btn cm-btn-primary" style="background:#166534" onclick="cm.goStep(5)">Export GreenCo Report ›</button></div></div>';
+  return out;
 }
 
 /* ---------- STEP 5: Export ---------- */
 function renderStep5() {
   const ov = overallStats();
   const isGRI = ACTIVE_FW === 'gri';
+  const isCDP = ACTIVE_FW === 'cdp';
+  const isGreenCo = ACTIVE_FW === 'greenco';
   const pdfFile = getPdfFile();
   const summary = isGRI ? [
     ['Company', esc(GRI_COMPANY)],
@@ -743,6 +1523,23 @@ function renderStep5() {
     ['Disclosures Complete', GRI_DISCLOSURES.filter(d => d.filled === d.elements).length + ' of ' + GRI_TOTAL_DISCLOSURES],
     ['Elements Filled', GRI_FILLED_ELEMENTS + ' of ' + GRI_TOTAL_ELEMENTS + ' (' + Math.round(GRI_FILLED_ELEMENTS/GRI_TOTAL_ELEMENTS*100) + '%)'],
     ['Report Type', 'GRI 2021 In Accordance · Materiality-driven disclosure set · Sustainability Report'],
+    ['Generated By', 'TerraCAP – Hertzwave Carbon Accounting Platform'],
+  ] : isCDP ? [
+    ['Company', esc(CDP_COMPANY)],
+    ['Framework', 'CDP Climate Change 2024 · Education Sector'],
+    ['Reporting Period', 'FY 2024-25 (Apr 2024 – Mar 2025)'],
+    ['Modules Covered', '7 modules (C0, C1, C2, C3, C4, C6, C7)'],
+    ['Disclosure Points', CDP_FILLED + ' of ' + CDP_TOTAL + ' populated'],
+    ['GHG Scope 1+2', '18,920 tCO2e (market-based) · 13.4% reduction vs FY22'],
+    ['Disclosure Level', 'Awareness · Target: Management by FY26'],
+    ['Generated By', 'TerraCAP – Hertzwave Carbon Accounting Platform'],
+  ] : isGreenCo ? [
+    ['Company', esc(GC_COMPANY)],
+    ['Framework', 'CII GreenCo Rating System v3'],
+    ['Reporting Period', 'FY 2024-25 (Apr 2024 – Mar 2025)'],
+    ['Total Score', GC_TOTAL_SCORE + ' / ' + GC_MAX_SCORE + ' (' + GC_PCT + '%)'],
+    ['Rating Achieved', '🏆 ' + GC_RATING + ' Rating'],
+    ['Scope 1+2 GHG', '18,310 tCO2e · 18.3% reduction vs FY22'],
     ['Generated By', 'TerraCAP – Hertzwave Carbon Accounting Platform'],
   ] : [
     ['Company', esc(COMPANY)], ['Framework', 'SEBI BRSR & BRSR CORE 2024'], ['Reporting Period', FY + ' (Apr 2024 – Mar 2025)'],
@@ -757,7 +1554,7 @@ function renderStep5() {
         '</tbody></table></div>' +
       '<div style="flex:1 1 300px;display:flex;flex-direction:column;gap:1.5rem;background:#f8fafc;padding:2rem;border-radius:8px;border:1px solid #e2e8f0">' +
         '<div style="text-align:center"><div style="font-size:2.2rem">📤</div><h3 style="margin:.25rem 0 0;color:#1e293b;font-size:1.1rem">Generate Final Report</h3></div>' +
-        '<div style="display:flex;flex-direction:column;gap:.5rem;padding:.85rem;background:#fff;border-radius:8px;border:1px solid #e2e8f0"><label style="font-size:.85rem;font-weight:600;color:#334155">' + (isGRI ? 'GRI report style' : 'BRSR template style') + '</label>' +
+        '<div style="display:flex;flex-direction:column;gap:.5rem;padding:.85rem;background:#fff;border-radius:8px;border:1px solid #e2e8f0"><label style="font-size:.85rem;font-weight:600;color:#334155">' + (isGRI ? 'GRI report style' : isCDP ? 'CDP response style' : isGreenCo ? 'GreenCo report style' : 'BRSR template style') + '</label>' +
           '<select style="width:100%;padding:.7rem .8rem;border-radius:6px;border:1px solid #cbd5e1;background:#fff;color:#0f172a;font-size:.9rem"><option selected>Professional</option><option>Executive</option><option>Modern</option></select></div>' +
         '<div style="display:flex;flex-direction:column;gap:.75rem">' +
           exportRow('📄', 'PDF report (.pdf)', 'READY', '#16a34a') +
@@ -775,6 +1572,8 @@ function renderStep5() {
   } else {
     const name = isGRI
       ? GRI_COMPANY.replace(/\s+/g,'_') + '_GRI-2021-Sustainability-Report_2025-03-31'
+      : isCDP ? 'MAHE_CDP-Climate-Change-2024_Disclosure_2025-03-31'
+      : isGreenCo ? 'RWF_CII-GreenCo-Gold_Assessment-Report_2025-03-31'
       : COMPANY.replace(/\s+/g, '_') + '_brsr-sebi-2024_professional_2025-03-31';
     out += '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.85rem;text-align:left">' +
       '<thead><tr style="border-bottom:2px solid #e2e8f0;color:#475569"><th style="padding:.75rem">Report Name</th><th style="padding:.75rem">Status</th><th style="padding:.75rem">Generated On</th><th style="padding:.75rem;text-align:right">Actions</th></tr></thead><tbody>' +
@@ -817,10 +1616,363 @@ function renderFiller() {
     '</div></div></div>';
 }
 
+/* ================================ CDP — MAHE Data & Renderer ================================ */
+const CDP_COMPANY = 'Manipal Academy of Higher Education (MAHE)';
+const CDP_MODULES = [
+  { id: 'C0', label: 'C0 — Introduction', color: '#3b82f6', items: [
+    { id: 'C0.1', q: 'Give a general description and introduction to your organization', a: 'MAHE is a deemed university established in 1953, ranked among India\'s top 10 universities. With 30,000+ students and 5,000+ faculty across 8 campuses, MAHE is committed to integrating sustainability into education, research, and operations.', filled: true },
+    { id: 'C0.2', q: 'State the start and end date of the year for which you are reporting', a: 'Start: 01 April 2024 | End: 31 March 2025', filled: true },
+    { id: 'C0.3', q: 'Select the countries/areas in which you operate', a: 'India (primary), UAE (Dubai campus), Malaysia (Melaka campus)', filled: true },
+    { id: 'C0.4', q: 'Select the currency used for all financial information', a: 'Indian Rupee (INR)', filled: true },
+    { id: 'C0.5', q: 'Select the optional modules you are including in your response', a: 'Not applicable — responding to core Climate Change questionnaire only', filled: true },
+  ]},
+  { id: 'C1', label: 'C1 — Governance', color: '#7c3aed', items: [
+    { id: 'C1.1', q: 'Is there board-level oversight of climate-related issues within your organization?', a: 'Yes. The Board of Governors has oversight of MAHE\'s sustainability strategy. The Vice Chancellor chairs a Sustainability Committee that reviews climate targets and ESG performance annually.', filled: true },
+    { id: 'C1.1a', q: 'Identify the position(s) of the individual(s) on the board with responsibility for climate-related issues', a: 'Vice Chancellor (Chairperson, Sustainability Committee); Pro-Vice Chancellor (Operations); Director — Infrastructure & Sustainability', filled: true },
+    { id: 'C1.2', q: 'Provide the highest management-level position(s) or committee(s) with responsibility for climate-related issues', a: 'Director — Sustainability & Green Initiatives reports directly to the Vice Chancellor. The Green Campus Committee meets quarterly and tracks KPIs for energy, water, and carbon.', filled: true },
+    { id: 'C1.3', q: 'Do you provide incentives for the management of climate-related issues?', a: 'Yes. Department heads include sustainability KPIs (energy reduction targets, waste diversion rates) in their annual performance appraisals.', filled: true },
+  ]},
+  { id: 'C2', label: 'C2 — Risks & Opportunities', color: '#dc2626', items: [
+    { id: 'C2.1', q: 'Does your organization have a process for identifying, assessing, and responding to climate-related risks and opportunities?', a: 'Yes. MAHE conducts an annual climate risk assessment covering physical risks (extreme heat, flooding of low-lying campus areas) and transition risks (carbon pricing, regulatory changes under India\'s CCTS).', filled: true },
+    { id: 'C2.2', q: 'Describe your process(es) for identifying, assessing and responding to climate-related risks and opportunities', a: 'Physical risk: Campus vulnerability mapping done in FY24 identified Mangaluru and Manipal campuses as high flood-risk zones. Transition risk: TerraCAP carbon ledger tracks Scope 1/2 exposures monthly. Opportunities: Green building retrofits, solar PV expansion, and research grant pipeline in climate science.', filled: true },
+    { id: 'C2.3', q: 'Inherent climate-related risks — Risk Register (CDP C2.3a format)', a: '__RISK_REGISTER__', filled: true },
+    { id: 'C2.4', q: 'Climate-related opportunities — Opportunity Register (CDP C2.4a format)', a: '__OPP_REGISTER__', filled: true },
+  ]},
+  { id: 'C3', label: 'C3 — Business Strategy', color: '#0891b2', items: [
+    { id: 'C3.1', q: 'Have climate-related risks and opportunities influenced your organization\'s strategy and/or financial planning?', a: 'Yes. MAHE\'s Strategic Plan 2030 includes a Climate Action Roadmap with targets for carbon neutrality by 2040, 100% renewable electricity by 2030, and zero single-use plastic across all campuses by 2026.', filled: true },
+    { id: 'C3.2', q: 'Does your organization use climate-related scenario analysis to inform its strategy?', a: 'Yes. MAHE uses two scenarios: (1) IEA Net Zero 2050 pathway for long-range planning; (2) RCP 4.5 physical risk scenario for infrastructure planning. Analysis conducted FY23–FY24 with support from CII.', filled: true },
+    { id: 'C3.3', q: 'Describe where and how climate-related risks and opportunities have influenced your financial planning', a: 'Capital budget: ₹45 Cr allocated to sustainability infrastructure FY25–FY28 (solar, water recycling, building retrofits). Operating budget: Energy efficiency savings target of ₹8.4 Cr/year by FY28. R&D budget: ₹12 Cr in climate science and clean energy research annually.', filled: true },
+  ]},
+  { id: 'C4', label: 'C4 — Targets & Performance', color: '#059669', items: [
+    { id: 'C4.1', q: 'Did you have an emissions target that was active in the reporting year?', a: 'Yes. Absolute target: Reduce Scope 1+2 GHG emissions by 40% by FY30 vs FY22 baseline (21,840 tCO₂e). Current FY25 status: 18,920 tCO₂e — 13.4% reduction achieved.', filled: true },
+    { id: 'C4.1a', q: 'Target Summary Table — CDP C4.1a format', a: '__TARGETS_TABLE__', filled: true },
+    { id: 'C4.2', q: 'Other climate-related targets active in the reporting year', a: 'Energy intensity: Reduce energy intensity (kWh/student) by 25% by FY28 vs FY22. Renewable energy: 50% of electricity from solar/renewables by FY27. Water: 30% reduction in freshwater withdrawal per campus area by FY28.', filled: true },
+    { id: 'C4.3', q: 'Did you have emissions reduction initiatives active within the reporting year?', a: '4.2 MW rooftop solar across Manipal, Mangaluru, and Jaipur campuses (commissioned FY25). LED retrofit programme: 98% of campus lighting now LED. HVAC optimization: BMS-controlled cooling across 12 academic buildings.', filled: true },
+  ]},
+  { id: 'C6', label: 'C6 — Energy', color: '#d97706', items: [
+    { id: 'C6.1', q: 'What percentage of your total operational spend in the reporting year was on energy?', a: '8.3% of total operational expenditure (₹127 Cr energy spend out of ₹1,530 Cr total OpEx)', filled: true },
+    { id: 'C6.2', q: 'Report total energy consumption breakdown by fuel type', a: 'Grid electricity: 68,420 MWh | Diesel (DG sets): 2,840 MWh equiv. | Solar (on-site): 6,180 MWh | LPG (kitchens): 420 MWh equiv. | Total: 77,860 MWh', filled: true },
+    { id: 'C6.3', q: 'Report total renewable energy consumption', a: 'On-site solar: 6,180 MWh (7.9% of total). Renewable energy certificates (RECs) purchased: 4,200 MWh. Total renewable: 10,380 MWh (13.3% of total consumption).', filled: true },
+    { id: 'C6.4', q: 'Provide data on energy consumption by low and zero carbon fuel type', a: 'Solar PV (on-site): 6,180 MWh | REC-backed grid: 4,200 MWh | Biofuel blend (canteen): 180 MWh equiv. | Total low/zero carbon: 10,560 MWh', filled: true },
+    { id: 'C6.5', q: 'Account for your organization\'s gross global combined Scope 1 and 2 emissions', a: 'Scope 1 (direct — diesel, LPG): 1,840 tCO2e | Scope 2 location-based (grid): 17,080 tCO2e | Scope 2 market-based: 14,920 tCO2e | Total (market-based): 16,760 tCO2e', filled: true },
+  ]},
+  { id: 'C7', label: 'C7 — Emissions', color: '#6d28d9', items: [
+    { id: 'C7.1', q: 'Does your organization account for Scope 1 emissions?', a: 'Yes. Methodology: GHG Protocol Corporate Standard. Scope 1 sources: Diesel combustion (DG sets, university vehicles), LPG combustion (residential kitchens), refrigerant leakage (HVAC). FY25 Scope 1: 1,840 tCO2e.', filled: true },
+    { id: 'C7.2', q: 'Describe your organization\'s approach to reporting Scope 2 emissions', a: 'Both location-based and market-based Scope 2 reported. Location-based: 17,080 tCO2e (Tamil Nadu/Karnataka/Rajasthan grid factors). Market-based: 14,920 tCO2e (after REC retirement). Emission factor source: CEA CO2 baseline database FY24.', filled: true },
+    { id: 'C7.3', q: 'Are Scope 3 emissions relevant to your organization?', a: 'Yes. Material Scope 3 categories identified: Category 7 (employee commuting — 4,200 tCO2e est.), Category 11 (student air travel for international exchange — 1,840 tCO2e est.), Category 1 (purchased goods/services — being quantified for FY26 disclosure).', filled: true },
+    { id: 'C7.5', q: 'Account for your organization\'s gross global Scope 3 emissions', a: 'Category 7 Employee commuting: 4,200 tCO2e (survey-based). Category 11 Student international travel: 1,840 tCO2e (flight records). Total reported Scope 3: 6,040 tCO2e. Additional categories (Category 1, 2, 6) under quantification for FY26.', filled: true },
+  ]},
+];
+
+const CDP_TOTAL = CDP_MODULES.reduce((s, m) => s + m.items.length, 0);
+const CDP_FILLED = CDP_MODULES.reduce((s, m) => s + m.items.filter(i => i.filled).length, 0);
+
+function renderCDPRiskRegister() {
+  const risks = [
+    { type:'Physical — Chronic', risk:'Increased frequency of extreme heat events', campus:'All campuses (esp. Jaipur, Bengaluru)', timeframe:'Medium-term (2025–2035)', likelihood:'Likely', magnitude:'Medium', financial:'₹4.2 Cr HVAC upgrade + 8% OpEx increase in cooling energy', response:'Chiller efficiency upgrades; green building HVAC for new blocks; shade structures' },
+    { type:'Physical — Acute', risk:'Coastal flooding / storm surge (sea-level rise)', campus:'Manipal main campus (1.2 km coast)', timeframe:'Long-term (2030–2050)', likelihood:'More likely than not', magnitude:'High', financial:'₹38 Cr potential infrastructure damage; 2-week academic disruption scenario', response:'Campus elevation mapping done FY24; critical equipment raised; drainage upgrade ₹4.2 Cr (FY25)' },
+    { type:'Transition — Regulatory', risk:'India CCTS mandatory carbon cost (FY27+)', campus:'Large campuses above threshold', timeframe:'Short-term (FY27)', likelihood:'Virtually certain', magnitude:'Low-Medium', financial:'₹2.1 Cr/year compliance cost from FY27 (estimated)', response:'Solar expansion to reduce grid dependence; register as voluntary discloser before mandatory threshold' },
+    { type:'Transition — Market', risk:'Student demand shift to sustainability-ranked universities', campus:'International student recruitment', timeframe:'Current–Short-term', likelihood:'Likely', magnitude:'Medium', financial:'8–15% fee premium at sustainability-ranked peers; risk of enrollment softening if rank drops', response:'QS Sustainability Ranking score 620/1000 (2024); CDP disclosure itself a differentiator' },
+    { type:'Transition — Technology', risk:'Stranded assets — fossil fuel HVAC/DG equipment', campus:'All campuses', timeframe:'Medium-term (2028–2035)', likelihood:'More likely than not', magnitude:'Low', financial:'₹22 Cr early retirement of DG sets if grid reliability improves + carbon pricing kicks in', response:'DG right-sizing; transition to grid + battery backup; new builds specified without DG dependency' },
+  ];
+  const tblStyle = 'width:100%;border-collapse:collapse;font-size:.75rem;margin-top:.5rem;border:1px solid #fca5a5;border-radius:8px;overflow:hidden';
+  const thStyle = 'background:#7f1d1d;color:#fff;padding:6px 8px;text-align:left;font-weight:700;font-size:.68rem;';
+  const tdStyle = 'padding:6px 8px;border-bottom:1px solid #fee2e2;color:#334155;vertical-align:top;';
+  let html = '<div style="background:#fff5f5;border:1.5px solid #fca5a5;border-radius:10px;padding:10px 12px;margin-bottom:6px">' +
+    '<div style="font-size:.75rem;font-weight:700;color:#dc2626;margin-bottom:8px">⚠ CDP C2.3a — Inherent Climate Risk Register · 5 material risks identified</div>' +
+    '<div style="overflow-x:auto"><table style="' + tblStyle + '"><thead><tr>' +
+    ['Risk Type','Risk Description','Affected Campus(es)','Timeframe','Likelihood','Magnitude','Financial Impact','Management Response'].map(h => '<th style="' + thStyle + '">' + h + '</th>').join('') +
+    '</tr></thead><tbody>' +
+    risks.map((r, i) => '<tr style="' + (i%2===0?'background:#fff;':'background:#fff5f5;') + '">' +
+      [r.type, r.risk, r.campus, r.timeframe, r.likelihood, r.magnitude, r.financial, r.response].map(v => '<td style="' + tdStyle + '">' + esc(v) + '</td>').join('') +
+    '</tr>').join('') +
+    '</tbody></table></div></div>';
+  return html;
+}
+
+function renderCDPOppRegister() {
+  const opps = [
+    { type:'Resource efficiency', opp:'Solar PV expansion to 8 MW (from 4.2 MW)', timeframe:'Short-term (FY26–FY27)', likelihood:'Virtually certain', magnitude:'Medium', financial:'₹18 Cr investment · ₹6.4 Cr/year savings by FY28 · 12-year payback', approach:'PPA model for 3 MW addition; KREDL tender underway' },
+    { type:'Products & services', opp:'IGBC Green Building certification — 3 new academic blocks', timeframe:'Short-term (FY26)', likelihood:'Likely', magnitude:'Low-Medium', financial:'₹3.2 Cr/year energy OpEx reduction; 8% lower lifecycle building cost', approach:'Architect brief includes IGBC Gold as minimum standard for all new capital projects' },
+    { type:'Markets', opp:'Climate research grants (DST, MoEFCC, UKRI)', timeframe:'Current–Medium-term', likelihood:'More likely than not', magnitude:'Medium', financial:'₹42 Cr pipeline over 5 years; 28 climate-related grant applications FY25', approach:'Dedicated research grants team; Manipal Centre for Climate Research established FY25' },
+    { type:'Reputation', opp:'Student/faculty recruitment via sustainability ranking', timeframe:'Current', likelihood:'Likely', magnitude:'Medium', financial:'Premium positioning: sustainability-ranked universities command 8–15% fee premium in intl. markets', approach:'CDP disclosure, GRI reporting, QS Sustainability Ranking entry — all contribute to reputational positioning' },
+  ];
+  const tblStyle = 'width:100%;border-collapse:collapse;font-size:.75rem;margin-top:.5rem;border:1px solid #86efac;border-radius:8px;overflow:hidden';
+  const thStyle = 'background:#14532d;color:#fff;padding:6px 8px;text-align:left;font-weight:700;font-size:.68rem;';
+  const tdStyle = 'padding:6px 8px;border-bottom:1px solid #dcfce7;color:#334155;vertical-align:top;';
+  let html = '<div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:10px 12px;margin-bottom:6px">' +
+    '<div style="font-size:.75rem;font-weight:700;color:#15803d;margin-bottom:8px">✓ CDP C2.4a — Climate Opportunity Register · 4 material opportunities identified</div>' +
+    '<div style="overflow-x:auto"><table style="' + tblStyle + '"><thead><tr>' +
+    ['Opportunity Type','Opportunity','Timeframe','Likelihood','Magnitude','Financial Impact','Management Approach'].map(h => '<th style="' + thStyle + '">' + h + '</th>').join('') +
+    '</tr></thead><tbody>' +
+    opps.map((r, i) => '<tr style="' + (i%2===0?'background:#fff;':'background:#f0fdf4;') + '">' +
+      [r.type, r.opp, r.timeframe, r.likelihood, r.magnitude, r.financial, r.approach].map(v => '<td style="' + tdStyle + '">' + esc(v) + '</td>').join('') +
+    '</tr>').join('') +
+    '</tbody></table></div></div>';
+  return html;
+}
+
+function renderCDPTargetsTable() {
+  const targets = [
+    { id:'T1', type:'Absolute — Scope 1+2', scopes:'Scope 1+2', baseYear:'FY 2021-22', baseEmissions:'21,840 tCO₂e', targetYear:'FY 2029-30', pctTarget:'40% reduction', targetEmissions:'13,104 tCO₂e', fy25Actual:'18,920 tCO₂e', progress:'13.4%', status:'On Track', methodology:'GHG Protocol Corporate Standard · Market-based Scope 2' },
+    { id:'T2', type:'Intensity — Energy per student', scopes:'All energy', baseYear:'FY 2021-22', baseEmissions:'1,840 kWh/student-eq.', targetYear:'FY 2027-28', pctTarget:'25% reduction', targetEmissions:'1,380 kWh/student-eq.', fy25Actual:'1,620 kWh/student-eq.', progress:'11.9%', status:'On Track', methodology:'Student-equivalents denominator: students + faculty FTE' },
+    { id:'T3', type:'Renewable electricity share', scopes:'Scope 2 (electricity)', baseYear:'FY 2022-23', baseEmissions:'4.8%', targetYear:'FY 2026-27', pctTarget:'50% renewable', targetEmissions:'50% of grid consumption', fy25Actual:'13.3%', progress:'26.6% of target', status:'Needs acceleration', methodology:'Solar on-site + I-RECs as % of total electricity' },
+    { id:'T4', type:'Carbon neutrality — Scope 1+2', scopes:'Scope 1+2', baseYear:'FY 2021-22', baseEmissions:'21,840 tCO₂e', targetYear:'FY 2039-40', pctTarget:'Net zero (100%)', targetEmissions:'0 tCO₂e (with residual offsets)', fy25Actual:'18,920 tCO₂e', progress:'13.4% reduction achieved', status:'Long-term — On trajectory', methodology:'Reduction first; residual offsets to be CORSIA/Gold Standard certified' },
+  ];
+  const thStyle = 'background:#14532d;color:#fff;padding:6px 8px;text-align:left;font-weight:700;font-size:.68rem;white-space:nowrap;';
+  const tdStyle = 'padding:6px 8px;border-bottom:1px solid #dcfce7;color:#334155;vertical-align:top;font-size:.75rem;';
+  let html = '<div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:10px 12px;margin-bottom:6px">' +
+    '<div style="font-size:.75rem;font-weight:700;color:#15803d;margin-bottom:8px">🎯 CDP C4.1a — Target Summary Table · 4 active targets</div>' +
+    '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.75rem;border:1px solid #86efac;border-radius:8px;overflow:hidden"><thead><tr>' +
+    ['ID','Target Type','Scopes','Base Year','Base Value','Target Year','% Target','Target Value','FY25 Actual','Progress','Status','Methodology'].map(h => '<th style="' + thStyle + '">' + h + '</th>').join('') +
+    '</tr></thead><tbody>' +
+    targets.map((t, i) => {
+      const statusColor = t.status === 'On Track' ? '#15803d' : t.status === 'Needs acceleration' ? '#d97706' : '#1d4ed8';
+      const statusBg = t.status === 'On Track' ? '#dcfce7' : t.status === 'Needs acceleration' ? '#fef3c7' : '#dbeafe';
+      return '<tr style="' + (i%2===0?'background:#fff;':'background:#f0fdf4;') + '">' +
+        [t.id, t.type, t.scopes, t.baseYear, t.baseEmissions, t.targetYear, t.pctTarget, t.targetEmissions, t.fy25Actual, t.progress].map(v => '<td style="' + tdStyle + '">' + esc(v) + '</td>').join('') +
+        '<td style="' + tdStyle + '"><span style="background:' + statusBg + ';color:' + statusColor + ';padding:2px 6px;border-radius:4px;font-weight:700;font-size:.68rem;">' + esc(t.status) + '</span></td>' +
+        '<td style="' + tdStyle + '">' + esc(t.methodology) + '</td>' +
+      '</tr>';
+    }).join('') +
+    '</tbody></table></div></div>';
+  return html;
+}
+
+// CDP sub-field definitions — capture layer underneath question-level responses
+// These expand when user clicks "Add supporting data" on any item
+const CDP_SUBFIELDS = {
+  'C2_3': [
+    { key:'risk_type', label:'Risk type', type:'select', options:['Physical — Acute','Physical — Chronic','Transition — Regulatory','Transition — Market','Transition — Technology','Transition — Reputation'], role:'required' },
+    { key:'timeframe', label:'Timeframe', type:'select', options:['Current','Short-term (0–5 years)','Medium-term (5–10 years)','Long-term (>10 years)'], role:'required' },
+    { key:'likelihood', label:'Likelihood', type:'select', options:['Virtually certain','Likely','More likely than not','About as likely as not','Unlikely'], role:'required' },
+    { key:'magnitude', label:'Magnitude of impact', type:'select', options:['Low','Medium','High','Very High'], role:'required' },
+    { key:'financial_impact', label:'Potential financial impact (₹ Cr or narrative)', type:'text', role:'calculation' },
+    { key:'response', label:'Management response / mitigation action', type:'text', role:'required' },
+  ],
+  'C4_1a': [
+    { key:'base_year', label:'Base year', type:'text', role:'required' },
+    { key:'base_emissions', label:'Base year emissions (tCO₂e)', type:'number', role:'required' },
+    { key:'target_year', label:'Target year', type:'text', role:'required' },
+    { key:'pct_reduction', label:'% reduction target', type:'number', role:'required' },
+    { key:'target_emissions', label:'Target year emissions (tCO₂e)', type:'number', role:'calculation' },
+    { key:'fy25_actual', label:'FY25 actual emissions (tCO₂e)', type:'number', role:'required' },
+    { key:'progress_pct', label:'Progress to target (%)', type:'number', role:'calculation' },
+    { key:'status', label:'Status', type:'select', options:['On track','Needs acceleration','Achieved','At risk'], role:'required' },
+    { key:'methodology', label:'Methodology note', type:'text', role:'evidence' },
+  ],
+  'C6_5': [
+    { key:'s1_diesel', label:'Scope 1 — Diesel combustion (tCO₂e)', type:'number', role:'required' },
+    { key:'s1_lpg', label:'Scope 1 — LPG combustion (tCO₂e)', type:'number', role:'required' },
+    { key:'s1_hfc', label:'Scope 1 — HFC refrigerants (tCO₂e)', type:'number', role:'required' },
+    { key:'s1_total', label:'Scope 1 total (tCO₂e)', type:'number', role:'calculation' },
+    { key:'s2_lb', label:'Scope 2 location-based (tCO₂e)', type:'number', role:'required' },
+    { key:'s2_mb', label:'Scope 2 market-based (tCO₂e)', type:'number', role:'required' },
+    { key:'ef_source', label:'Emission factor source', type:'text', role:'evidence' },
+    { key:'rec_type', label:'Market instrument used (RECs)', type:'text', role:'evidence' },
+  ],
+  'C7_5': [
+    { key:'cat7', label:'Category 7 — Employee commuting (tCO₂e)', type:'number', role:'required' },
+    { key:'cat7_method', label:'Cat 7 methodology', type:'text', role:'evidence' },
+    { key:'cat11', label:'Category 11 — Student travel (tCO₂e)', type:'number', role:'required' },
+    { key:'cat11_method', label:'Cat 11 methodology', type:'text', role:'evidence' },
+    { key:'cat1_status', label:'Category 1 (Purchased goods) — status', type:'select', options:['Quantified','Partially quantified','In progress','Not quantified — not material','Not quantified — data gap'], role:'required' },
+    { key:'exclusion_note', label:'Exclusion rationale for unreported categories', type:'text', role:'required' },
+  ],
+};
+
+const CDP_ROLE_META = {
+  required:    { icon:'🔴', bg:'#fef2f2', border:'#fca5a5', color:'#991b1b', label:'Required' },
+  calculation: { icon:'🔵', bg:'#eff6ff', border:'#93c5fd', color:'#1e40af', label:'Calculated' },
+  evidence:    { icon:'🟡', bg:'#fefce8', border:'#fde047', color:'#854d0e', label:'Evidence' },
+};
+
+function renderCDPView() {
+  const activeMod = S.cdpMod || CDP_MODULES[0].id;
+  const mod = CDP_MODULES.find(m => m.id === activeMod) || CDP_MODULES[0];
+  let out = '';
+  out += '<div class="cm-info-box" style="margin-top:1rem;border-left:4px solid #1d4ed8">🌡️ <strong>CDP Climate Change 2024 — MAHE · FY 2024-25</strong> · 7 modules · <strong>' + CDP_TOTAL + ' primary disclosure questions</strong> · <strong>' + CDP_FILLED + ' AI-populated</strong> · Each question has optional supporting sub-fields for data capture · <span style="background:#dbeafe;padding:2px 6px;border-radius:4px;font-size:.8em;color:#1d4ed8">CDP scores on quality of narrative response — sub-fields support auditability, not scoring</span></div>';
+  // module pills
+  out += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:1rem 0">';
+  CDP_MODULES.forEach(m => {
+    const active = m.id === activeMod;
+    out += '<button onclick="cm.setCDPMod(\'' + m.id + '\')" style="padding:.3rem .8rem;border-radius:20px;border:1.5px solid ' + (active ? m.color : '#e2e8f0') + ';background:' + (active ? m.color : '#fff') + ';color:' + (active ? '#fff' : '#475569') + ';font-size:.78rem;font-weight:600;cursor:pointer">' + m.id + '</button>';
+  });
+  out += '</div>';
+  out += '<div class="cm-section-title">' + mod.label + '</div>';
+
+  mod.items.forEach(item => {
+    const gid = 'cdp_' + item.id.replace(/\./g, '_');
+    const isTableItem = ['__RISK_REGISTER__','__OPP_REGISTER__','__TARGETS_TABLE__'].includes(item.a);
+    const subKey = item.id.replace(/\./g, '_');
+    const subFields = CDP_SUBFIELDS[subKey] || [];
+    const isSubOpen = S.cdpSubOpen && S.cdpSubOpen[gid];
+
+    out += '<div class="cm-ind-row" style="border-left:3px solid ' + mod.color + ';margin-bottom:.75rem;padding:0;background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.06)">';
+
+    // ── Question header (Level 1 — primary disclosure) ────────────────────
+    out += '<div style="padding:.7rem .9rem .5rem;border-bottom:' + (isTableItem||isSubOpen||subFields.length?'1px solid #f1f5f9':'none') + '">' +
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.4rem">' +
+        '<div style="flex:1"><span style="background:' + mod.color + ';color:#fff;font-size:.7rem;font-weight:700;padding:1px 6px;border-radius:3px;margin-right:6px">' + item.id + '</span>' +
+        '<span style="font-size:.83rem;font-weight:600;color:#1e293b">' + esc(item.q) + '</span></div>' +
+        '<span style="font-size:.7rem;background:#dcfce7;color:#166534;padding:1px 6px;border-radius:3px;white-space:nowrap;flex-shrink:0">✓ AI-populated</span>' +
+      '</div>';
+
+    if (isTableItem) {
+      if (item.a === '__RISK_REGISTER__') out += renderCDPRiskRegister();
+      else if (item.a === '__OPP_REGISTER__') out += renderCDPOppRegister();
+      else if (item.a === '__TARGETS_TABLE__') out += renderCDPTargetsTable();
+    } else {
+      const val = (S.drafts && S.drafts[gid] !== undefined) ? S.drafts[gid] : item.a;
+      const isModified = val !== item.a;
+      // Primary question-level textarea
+      out += '<div class="cm-ind-input-wrap"><textarea class="cm-ind-input" rows="3" style="resize:vertical;min-height:58px;overflow:hidden;font-size:.82rem" placeholder="Enter disclosure response..." ' +
+        'oninput="cm.onCDPEdit(\'' + gid + '\',this)">' + esc(val) + '</textarea></div>' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:.35rem">' +
+          '<div style="font-size:.68rem;color:#94a3b8;font-style:italic">CDP primary response — narrative quality determines CDP score</div>' +
+          (isModified ? '<button class="cm-save-btn" style="background:#1d4ed8;color:#fff" onclick="cm.onCDPSave(\'' + gid + '\')">Save</button>' : '') +
+        (S.verified[gid] 
+          ? '<span style="font-size:.68rem;color:#059669;font-weight:700;background:#d1fae5;padding:2px 8px;border-radius:4px">✓ Human verified</span>'
+          : '<button style="font-size:.72rem;padding:3px 10px;border-radius:5px;border:1px solid #d97706;background:#fffbeb;color:#92400e;cursor:pointer;font-weight:600;margin-left:4px" onclick="cm.onAIVerify(\'' + gid + '\')">Verify ✓</button>') +
+        '</div>';
+    }
+
+    // ── Sub-fields toggle (Level 2 — capture layer) ───────────────────────
+    if (subFields.length && !isTableItem) {
+      out += '<div style="margin-top:.5rem;padding-top:.4rem;border-top:1px dashed #e2e8f0">' +
+        '<button onclick="cm.toggleCDPSub(\'' + gid + '\')" style="font-size:.71rem;color:#1d4ed8;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:3px 10px;cursor:pointer;font-weight:600">' +
+          (isSubOpen ? '▼ Hide supporting data fields' : '▶ Add supporting data (' + subFields.length + ' sub-fields)') + '</button>' +
+        (isSubOpen ? '' : '<span style="font-size:.67rem;color:#94a3b8;margin-left:8px">Optional — for auditability and calculation traceability</span>') +
+      '</div>';
+      if (isSubOpen) {
+        out += '<div style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:.6rem .9rem .5rem;margin-top:.4rem">' +
+          '<div style="font-size:.68rem;font-weight:700;color:#475569;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.4px">Supporting Data Fields</div>';
+        subFields.forEach(sf => {
+          const sfgid = gid + '_' + sf.key;
+          const sfval = S.drafts[sfgid] || '';
+          const m = CDP_ROLE_META[sf.role] || CDP_ROLE_META.evidence;
+          out += '<div style="margin-bottom:.4rem">' +
+            '<label style="font-size:.71rem;font-weight:600;color:#334155;display:block;margin-bottom:.15rem">' +
+              '<span style="font-size:.62rem;padding:0 4px;border-radius:2px;background:' + m.bg + ';border:1px solid ' + m.border + ';color:' + m.color + ';margin-right:5px">' + m.icon + ' ' + m.label + '</span>' +
+              esc(sf.label) + '</label>';
+          if (sf.type === 'select') {
+            out += '<select style="width:100%;padding:.25rem .4rem;border:1px solid #e2e8f0;border-radius:5px;font-size:.79rem;color:#334155;" onchange="cm.onCDPSubEdit(\'' + sfgid + '\',this)">' +
+              sf.options.map(o => '<option value="' + esc(o) + '"' + (sfval===o?' selected':'') + '>' + esc(o) + '</option>').join('') +
+              '</select>';
+          } else if (sf.type === 'number') {
+            out += '<input type="number" value="' + esc(sfval) + '" placeholder="Enter value" style="width:100%;padding:.25rem .4rem;border:1px solid #e2e8f0;border-radius:5px;font-size:.79rem;color:#334155;" oninput="cm.onCDPSubEdit(\'' + sfgid + '\',this)"/>';
+          } else {
+            out += '<textarea rows="1" style="width:100%;padding:.25rem .4rem;border:1px solid #e2e8f0;border-radius:5px;font-size:.79rem;color:#334155;resize:vertical;min-height:30px;" placeholder="Enter data..." oninput="cm.onCDPSubEdit(\'' + sfgid + '\',this)">' + esc(sfval) + '</textarea>';
+          }
+          out += '</div>';
+        });
+        out += '</div>';
+      }
+    }
+
+    out += '</div></div>';
+  });
+  out += '<div class="cm-btn-group"><button class="cm-btn cm-btn-secondary" onclick="cm.goStep(1)">‹ Back</button><div class="cm-right-btns"><button class="cm-btn cm-btn-primary" style="background:#1d4ed8" onclick="cm.goStep(3)">Next: Validate ›</button></div></div>';
+  return out;
+}
+/* ================================ GreenCo — RWF Data & Renderer ================================ */
+const GC_COMPANY = 'Rail Wheel Factory (RWF), Indian Railways';
+const GC_PILLARS = [
+  { id: 'E1', label: 'Energy Management', color: '#d97706', maxScore: 25, items: [
+    { id: 'E1.1', q: 'Energy policy and management system', a: 'RWF has a Board-approved Energy Policy (2022) aligned with BEE PAT Scheme Cycle II. ISO 50001 certified since 2019. Energy Management Cell headed by Senior Energy Manager.', score: 4, maxScore: 5 },
+    { id: 'E1.2', q: 'Energy performance baseline and targets', a: 'FY22 baseline: 2,840 GJ/1000 wheel/axle sets. FY25 target: 2,450 GJ/1000 sets. FY25 actual: 2,510 GJ/1000 sets — 11.6% reduction achieved against FY22 baseline.', score: 4, maxScore: 5 },
+    { id: 'E1.3', q: 'Renewable energy adoption', a: '2.4 MW rooftop solar installed (FY24). Annual generation: 3,120 MWh — 8.2% of total electricity consumption. PPA for 3 MW additional solar under procurement. Wind power PPA planned for FY26.', score: 3, maxScore: 5 },
+    { id: 'E1.4', q: 'Energy efficiency projects implemented', a: 'FY25 projects: (1) VFD installation on 18 induction motors — saving 420 MWh/year. (2) Waste heat recovery from furnaces — 380 GJ/year. (3) LED shop-floor lighting — 210 MWh/year. Total FY25 savings: 1,010 MWh + 380 GJ.', score: 4, maxScore: 5 },
+    { id: 'E1.5', q: 'Energy monitoring and reporting', a: 'Real-time energy monitoring via SCADA with sub-metering at 24 points across Wheel Plant, Axle Plant, and Rolling Stock lines. Monthly energy review meetings. Data fed into TerraCAP carbon ledger for Scope 1/2 tracking.', score: 3, maxScore: 5 },
+  ]},
+  { id: 'W1', label: 'Water Management', color: '#0891b2', maxScore: 20, items: [
+    { id: 'W1.1', q: 'Water policy and targets', a: 'Water Conservation Policy adopted FY23. Target: 25% reduction in specific water consumption (m3/unit) by FY27 vs FY21 baseline. FY25 status: 14.8% reduction achieved. Zero liquid discharge (ZLD) for process water by FY26.', score: 4, maxScore: 5 },
+    { id: 'W1.2', q: 'Water consumption and recycling', a: 'FY25 total freshwater withdrawal: 184,200 m3. Process water recycled: 68,400 m3 (37.1% recycle rate). Rainwater harvesting: 12,800 m3 collected from 6,200 m2 harvesting area. Effluent treated and reused for horticulture: 100%.', score: 4, maxScore: 5 },
+    { id: 'W1.3', q: 'Water treatment and ZLD progress', a: 'Effluent Treatment Plant (ETP) — 800 KLD capacity, operating at 420 KLD. Treated water reused for cooling towers and horticulture. ZLD pilot for machining coolant (200 KLD) commissioned FY25. Full ZLD target FY26.', score: 3, maxScore: 5 },
+    { id: 'W1.4', q: 'Water risk assessment', a: 'RWF (Yelahanka, Bengaluru) classified as Medium-High water stress zone (WRI Aqueduct). Monsoon dependency reduced via 3 groundwater recharge pits. CGWB clearance obtained for borewells. Contingency water sourcing plan in place.', score: 3, maxScore: 5 },
+  ]},
+  { id: 'WS1', label: 'Waste Management', color: '#7c3aed', maxScore: 20, items: [
+    { id: 'WS1.1', q: 'Waste policy and 3R implementation', a: 'RWF Waste Management Policy (2021) mandates reduce-reuse-recycle hierarchy. FY25: Hazardous waste generated 842 MT; disposed via KSPCB-authorised facilities 100%. Non-hazardous waste recycled 94.2%. Scrap steel sold to SAIL recycling — ₹18.4 Cr revenue.', score: 4, maxScore: 5 },
+    { id: 'WS1.2', q: 'Waste quantification and tracking', a: 'Hazardous waste: 842 MT (spent emulsified coolant: 580 MT, used oil: 142 MT, ETP sludge: 120 MT). Non-hazardous: 4,840 MT total (metal scrap: 3,920 MT recycled, paper/cardboard: 420 MT recycled, mixed 500 MT — 92% diverted from landfill).', score: 4, maxScore: 5 },
+    { id: 'WS1.3', q: 'Hazardous waste disposal compliance', a: '100% manifested disposal via TSDF (Treatment Storage Disposal Facility) — KSPCB-authorised. Annual hazardous waste return filed. E-waste (computer equipment) disposed via MPCB-registered e-waste recyclers. No violations in FY25.', score: 4, maxScore: 5 },
+    { id: 'WS1.4', q: 'Waste reduction initiatives', a: 'FY25 initiatives: Coolant life extension via centrifuge — 22% reduction in emulsion disposal. Foundry sand reclamation system — 180 MT/year reuse. Swarf compaction for steel scrap value recovery. ISO 14001:2015 surveillance audit — zero non-conformances.', score: 3, maxScore: 5 },
+  ]},
+  { id: 'GHG1', label: 'GHG Emissions', color: '#dc2626', maxScore: 20, items: [
+    { id: 'GHG1.1', q: 'GHG emissions inventory — Scope 1', a: 'Scope 1 FY25: 4,820 tCO2e. Sources: Furnace oil combustion (Wheel Plant heat treatment): 3,640 tCO2e; Diesel (DG sets, vehicles): 840 tCO2e; LPG (canteen): 120 tCO2e; Refrigerants (HVAC): 220 tCO2e. GHG Protocol methodology.', score: 4, maxScore: 5 },
+    { id: 'GHG1.2', q: 'GHG emissions inventory — Scope 2', a: 'Scope 2 location-based FY25: 14,280 tCO2e. Grid electricity: 38,000 MWh @ 0.716 tCO2e/MWh (CEA FY24 factor — Karnataka grid). Market-based: 13,490 tCO2e (after 2,400 MWh solar offset). Total Scope 1+2 market-based: 18,310 tCO2e.', score: 4, maxScore: 5 },
+    { id: 'GHG1.3', q: 'Scope 3 emissions (partial)', a: 'Category 1 (purchased raw materials — steel billets): 28,400 tCO2e est. Category 4 (upstream transport by rail): 1,840 tCO2e est. Category 11 (product use — wheels/axles in service): not applicable (raw materials). Methodology: Scope 3 standard, secondary data.', score: 3, maxScore: 5 },
+    { id: 'GHG1.4', q: 'GHG reduction targets and progress', a: 'Target: 15% absolute reduction in Scope 1+2 by FY28 vs FY22 baseline (22,400 tCO2e). FY25: 18,310 tCO2e — 18.3% reduction achieved (ahead of target). Carbon intensity: 4.2 tCO2e/unit — 22% improvement vs FY22 (5.4 tCO2e/unit).', score: 4, maxScore: 5 },
+  ]},
+  { id: 'ENV1', label: 'Environment Management', color: '#059669', maxScore: 15, items: [
+    { id: 'ENV1.1', q: 'Environmental management system', a: 'ISO 14001:2015 certified (since 2016, recertified 2022). Annual environmental audit. KSPCB Consent to Operate renewed FY25. Air quality monitoring (stack emissions) quarterly. Ambient noise/air monitoring bi-annually. No environmental violations in FY25.', score: 4, maxScore: 5 },
+    { id: 'ENV1.2', q: 'Biodiversity and green cover', a: 'RWF campus: 168 acres. Green cover: 42 acres (25% of campus). FY25 tree plantation: 1,840 saplings (net addition 1,200 trees after mortality). No forest land use or biodiversity-sensitive area impact. Horticultural water sourced 100% from ETP treated water.', score: 3, maxScore: 5 },
+    { id: 'ENV1.3', q: 'Supplier environmental assessment', a: 'Green procurement policy: 28 critical suppliers assessed for environmental compliance (ISO 14001 or equivalent). 18 of 28 (64%) certified. Supply chain GHG data collection pilot launched FY25 with top 5 steel suppliers via TerraCAP Scope 3 module.', score: 3, maxScore: 5 },
+  ]},
+];
+
+const GC_TOTAL_SCORE = GC_PILLARS.reduce((s, p) => s + p.items.reduce((ss, i) => ss + i.score, 0), 0);
+const GC_MAX_SCORE = GC_PILLARS.reduce((s, p) => s + p.maxScore, 0);
+const GC_PCT = Math.round(GC_TOTAL_SCORE / GC_MAX_SCORE * 100);
+const GC_RATING = GC_PCT >= 80 ? 'Platinum' : GC_PCT >= 60 ? 'Gold' : GC_PCT >= 45 ? 'Silver' : 'Bronze';
+const GC_RATING_COLOR = GC_PCT >= 80 ? '#7c3aed' : GC_PCT >= 60 ? '#d97706' : GC_PCT >= 45 ? '#6b7280' : '#b45309';
+
+function renderGreenCoView() {
+  const activePillar = S.gcPillar || GC_PILLARS[0].id;
+  const pillar = GC_PILLARS.find(p => p.id === activePillar) || GC_PILLARS[0];
+  const pillarScore = pillar.items.reduce((s, i) => s + i.score, 0);
+  const pillarMax = pillar.maxScore;
+  let out = '';
+  out += '<div class="cm-info-box" style="margin-top:1rem;border-left:4px solid #15803d">🏭 <strong>CII GreenCo Rating — Rail Wheel Factory · FY 2024-25</strong> · 5 pillars · 124 scored criteria · <strong>Total score: ' + GC_TOTAL_SCORE + '/' + GC_MAX_SCORE + ' (' + GC_PCT + '%)</strong> · <span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:4px;font-weight:700">🏆 ' + GC_RATING + ' Rating</span> · <span style="font-size:.8em;color:#555">GreenCo does not prescribe a fixed disclosure set — criteria applicable based on plant operations and sector profile</span></div>';
+  // Pillar score summary cards
+  out += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:1rem 0">';
+  GC_PILLARS.forEach(p => {
+    const ps = p.items.reduce((s, i) => s + i.score, 0);
+    const pct = Math.round(ps / p.maxScore * 100);
+    const isActive = p.id === activePillar;
+    out += '<button onclick="cm.setGCPillar(\'' + p.id + '\')" style="flex:1;min-width:100px;padding:.6rem .5rem;border-radius:8px;border:2px solid ' + (isActive ? p.color : '#e2e8f0') + ';background:' + (isActive ? p.color : '#fff') + ';cursor:pointer;text-align:center">' +
+      '<div style="font-size:.7rem;font-weight:700;color:' + (isActive ? '#fff' : '#475569') + '">' + p.id + '</div>' +
+      '<div style="font-size:1.1rem;font-weight:800;color:' + (isActive ? '#fff' : p.color) + '">' + ps + '/' + p.maxScore + '</div>' +
+      '<div style="font-size:.65rem;color:' + (isActive ? 'rgba(255,255,255,.8)' : '#94a3b8') + '">' + pct + '%</div>' +
+    '</button>';
+  });
+  out += '</div>';
+  out += '<div class="cm-section-title">' + pillar.label + ' — Score: ' + pillarScore + '/' + pillarMax + ' (' + Math.round(pillarScore/pillarMax*100) + '%)</div>';
+  pillar.items.forEach(item => {
+    const gid = 'gc_' + item.id.replace(/\./g, '_');
+    const val = (S.drafts && S.drafts[gid] !== undefined) ? S.drafts[gid] : item.a;
+    const isModified = val !== item.a;
+    const scoreBar = Math.round(item.score / item.maxScore * 100);
+    out += '<div class="cm-ind-row" style="border-left:3px solid ' + pillar.color + ';margin-bottom:.75rem;padding:.75rem .75rem .75rem 1rem;background:#fff;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.06)">' +
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:.35rem">' +
+        '<div><span style="background:' + pillar.color + ';color:#fff;font-size:.7rem;font-weight:700;padding:1px 6px;border-radius:3px;margin-right:6px">' + item.id + '</span>' +
+        '<span style="font-size:.83rem;font-weight:600;color:#1e293b">' + esc(item.q) + '</span></div>' +
+        '<div style="text-align:right;white-space:nowrap"><span style="font-size:.75rem;font-weight:700;color:' + pillar.color + '">' + item.score + '/' + item.maxScore + '</span>' +
+          '<div style="width:60px;height:5px;background:#e2e8f0;border-radius:3px;margin-top:2px"><div style="width:' + scoreBar + '%;height:100%;background:' + pillar.color + ';border-radius:3px"></div></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="cm-ind-input-wrap"><textarea class="cm-ind-input" rows="2" style="resize:vertical;min-height:52px;overflow:hidden" placeholder="Enter evidence / response..." ' +
+        'oninput="cm.onGCEdit(\'' + gid + '\',this)">' + esc(val) + '</textarea></div>' +
+      '<div class="cm-ind-actions">' +
+        '<button class="cm-save-btn" data-save="' + gid + '" ' + (isModified ? '' : 'disabled') + ' style="opacity:' + (isModified ? '1' : '.5') + ';cursor:' + (isModified ? 'pointer' : 'not-allowed') + ';background:' + (isModified ? pillar.color : '#f5f5f5') + ';color:' + (isModified ? '#fff' : '#bbb') + '" ' +
+          'onclick="cm.onGCSave(\'' + gid + '\')">Save</button>' +
+      '</div></div>';
+  });
+  out += '<div class="cm-btn-group"><button class="cm-btn cm-btn-secondary" onclick="cm.goStep(1)">‹ Back</button><div class="cm-right-btns"><button class="cm-btn cm-btn-primary" style="background:#15803d" onclick="cm.goStep(3)">Next: Validate ›</button></div></div>';
+  return out;
+}
+
 /* ================================ controller ================================ */
 const cm = {
   goStep(n) { S.step = n; S.page = 0; window.scrollTo({ top: 0 }); render(); },
   setFW(fw) { ACTIVE_FW = fw; S.step = 1; S.page = 0; render(); },
+  setCDPMod(mod) { S.cdpMod = mod; render(); },
+  setGCPillar(p) { S.gcPillar = p; render(); },
+  toggleCDPSub(gid) { if (!S.cdpSubOpen) S.cdpSubOpen = {}; S.cdpSubOpen[gid] = !S.cdpSubOpen[gid]; render(); },
+  onCDPSubEdit(id, el) { S.drafts[id] = el.value || (el.options ? el.options[el.selectedIndex].value : ''); if (el.tagName==='TEXTAREA'){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';} },
+  toggleNice() { S.griRoleFilter = S.griRoleFilter === 'all' ? 'compact' : 'all'; render(); },
+  onCDPSave(id) { alert('CDP response for ' + id + ' saved.'); render(); },
+  onGCEdit(id, ta) { S.drafts[id] = ta.value; ta.style.height='auto'; ta.style.height = Math.min(ta.scrollHeight,240)+'px'; const btn=document.querySelector('[data-save="'+id+'"]'); if(btn){const modified=ta.value!==ta.defaultValue;btn.disabled=!modified;btn.style.opacity=modified?'1':'.5';} },
+  onGCSave(id) { alert('GreenCo evidence for ' + id + ' saved.'); render(); },
   setFilter(f) { S.filter = f; S.page = 0; render(); },
   setSearch(v) {
     S.search = v; S.page = 0; render();
@@ -847,6 +1999,7 @@ const cm = {
       btn.style.color = modified ? '' : '#bbb';
     }
   },
+  onAIVerify(id) { S.verified[id] = true; render(); },
   onSave(id) {
     const f = DEMO.fields.find(x => x.id === id);
     const v = S.drafts[id];
