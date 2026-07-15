@@ -265,6 +265,7 @@
         .tag-amber { background: var(--amber-100); color: var(--amber-600); }
         .tag-red { background: var(--red-100); color: var(--red-600); }
         .tag-blue { background: var(--blue-100); color: var(--blue-600); }
+        .tag-slate { background: var(--slate-100); color: var(--slate-600); }
 
         /* ===== BUTTONS ===== */
         .btn {
@@ -657,7 +658,7 @@
             <div class="sidebar-label">Audit Lifecycle</div>
             <div class="nav-item active" data-screen="dashboard" onclick="navigateTo('dashboard')"><span class="nav-icon">📊</span> Dashboard</div>
             <div class="nav-item" data-screen="engagement" onclick="navigateTo('engagement')"><span class="nav-icon">📋</span> Engagement <span class="nav-badge green">✓</span></div>
-            <div class="nav-item" data-screen="planning" onclick="navigateTo('planning')"><span class="nav-icon">🎯</span> Planning & Risk <span class="nav-badge green">✓</span></div>
+            <div class="nav-item" data-screen="planning" onclick="navigateTo('planning')"><span class="nav-icon">🎯</span> Planning & Assurance Risk <span class="nav-badge green">✓</span></div>
             <div class="nav-item" data-screen="evidence" onclick="navigateTo('evidence')"><span class="nav-icon">📁</span> Evidence Review <span class="nav-badge amber">3</span></div>
             <div class="nav-item" data-screen="testing" onclick="navigateTo('testing')"><span class="nav-icon">🔬</span> Testing & Validation</div>
             <div class="nav-item" data-screen="findings" onclick="navigateTo('findings')"><span class="nav-icon">⚠️</span> Findings <span class="nav-badge">5</span></div>
@@ -693,7 +694,7 @@
                 <div class="lifecycle-label">Audit Lifecycle Progress</div>
                 <div class="lifecycle-steps">
                     <div class="lc-step completed" onclick="navigateTo('engagement')"><div class="lc-step-bar"></div><div class="lc-step-label">Engagement<br>Acceptance</div></div>
-                    <div class="lc-step completed" onclick="navigateTo('planning')"><div class="lc-step-bar"></div><div class="lc-step-label">Planning &<br>Risk Assessment</div></div>
+                    <div class="lc-step completed" onclick="navigateTo('planning')"><div class="lc-step-bar"></div><div class="lc-step-label">Planning &<br>Assurance Risk</div></div>
                     <div class="lc-step active" onclick="navigateTo('evidence')"><div class="lc-step-bar"></div><div class="lc-step-label">Evidence Review<br>& Testing</div></div>
                     <div class="lc-step" onclick="navigateTo('findings')"><div class="lc-step-bar"></div><div class="lc-step-label">Findings &<br>Observations</div></div>
                     <div class="lc-step" onclick="navigateTo('reporting')"><div class="lc-step-bar"></div><div class="lc-step-label">Report<br>Drafting</div></div>
@@ -858,14 +859,14 @@
         <!-- ==================== PLANNING & RISK ==================== -->
         <div class="screen" id="screen-planning">
             <div class="page-header">
-                <div class="page-title">Planning & Risk Assessment</div>
-                <div class="page-subtitle">Five-step planning workflow — complete each step; outputs feed forward automatically</div>
+                <div class="page-title">Planning & Assurance Risk Assessment</div>
+                <div class="page-subtitle">Five-step planning workflow — auditor-owned judgment throughout; tenant inputs inform but never set the rating</div>
             </div>
 
             <!-- Step tabs -->
             <div class="wf-tabs" id="plan-tabs">
                 <div class="wf-tab done" onclick="switchPlanTab(0)">1. Entity Understanding</div>
-                <div class="wf-tab done" onclick="switchPlanTab(1)">2. Risk Assessment</div>
+                <div class="wf-tab done" onclick="switchPlanTab(1)">2. Assurance Risk Assessment</div>
                 <div class="wf-tab active" onclick="switchPlanTab(2)">3. Materiality</div>
                 <div class="wf-tab" onclick="switchPlanTab(3)">4. Audit Strategy</div>
                 <div class="wf-tab" onclick="switchPlanTab(4)">5. Sampling Plan</div>
@@ -877,13 +878,13 @@
                     <div class="card-header">
                         <div class="card-title has-tip">Step 1 — Entity Understanding &amp; Scope Confirmation
                             <span class="tip-icon">?</span>
-                            <div class="tip-box"><strong>Why this step?</strong> Before the auditor can assess risk or plan tests, they must understand the entity's operations, how it collects GHG data, and what controls exist. This knowledge directly determines what goes onto the Risk Register in Step 2 — every emission category in scope becomes a potential risk area.<div class="tip-row"><strong>Standard:</strong> ISAE 3000 para 21 — auditor must obtain understanding of entity.</div><div class="tip-row"><strong>Output:</strong> A list of all in-scope emission categories that becomes the starting point for Step 2.</div></div>
+                            <div class="tip-box"><strong>Why this step?</strong> Before the auditor can assess risk or plan tests, they must understand the entity's operations, how it collects GHG data, and what controls exist. This knowledge, combined with the tenant's signed Management Disclosure & Completeness Declaration, determines what goes onto the Assurance Risk Assessment in Step 2 — every emission category in scope becomes a candidate risk area, and every disclosed data-quality issue or control weakness becomes a candidate signal for the auditor to weigh.<div class="tip-row"><strong>Standard:</strong> ISAE 3000 para 21 — auditor must obtain understanding of entity.</div><div class="tip-row"><strong>Output:</strong> A list of all in-scope emission categories, plus tenant disclosure signals, that becomes the starting point for Step 2 — ratings themselves are entered independently by the auditor.</div></div>
                         </div>
                         <span class="tag tag-green">✓ Completed Jan 8, 2025</span>
                     </div>
                     <div class="card-body">
                         <div style="padding:0.75rem 1rem; background:var(--blue-100); border-radius:8px; font-size:0.82rem; color:var(--blue-600); margin-bottom:1.25rem;">
-                            <strong>How scope categories enter the Risk Register:</strong> Every GHG emission category confirmed in-scope here is automatically seeded into the Risk Register in Step 2. The auditor reviews them, assigns inherent and control risk ratings, and deletes any categories later determined to be immaterial or excluded. New categories can also be added manually.
+                            <strong>How scope categories enter the Assurance Risk Assessment:</strong> Every GHG emission category confirmed in-scope here, along with any items the tenant disclosed in their signed Management Disclosure & Completeness Declaration, is seeded into Step 2 as an <em>unrated</em> candidate row. The auditor independently assigns inherent and control risk ratings — nothing carries a pre-filled severity — and deletes any categories later determined to be immaterial or excluded. New categories can also be added manually.
                         </div>
                         <div class="engagement-grid">
                             <div class="eng-detail"><div class="eng-detail-label">Reporting Boundary</div><div class="eng-detail-value">Operational control</div></div>
@@ -896,7 +897,7 @@
                             <div class="eng-detail"><div class="eng-detail-label">Key Risk Signals</div><div class="eng-detail-value">Manual refrigerant logs; spend-based S3</div></div>
                         </div>
                         <div style="margin-top:1.25rem;">
-                            <div style="font-size:0.8rem; font-weight:700; color:var(--slate-600); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.65rem;">In-scope emission categories → seeds Risk Register</div>
+                            <div style="font-size:0.8rem; font-weight:700; color:var(--slate-600); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.65rem;">In-scope emission categories → seeds Assurance Risk Assessment</div>
                             <div style="display:flex; flex-wrap:wrap; gap:0.4rem;">
                                 <span style="padding:0.3rem 0.75rem; background:var(--amber-100); color:var(--amber-600); border-radius:20px; font-size:0.8rem; font-weight:600;">S1 — Stationary Combustion</span>
                                 <span style="padding:0.3rem 0.75rem; background:var(--amber-100); color:var(--amber-600); border-radius:20px; font-size:0.8rem; font-weight:600;">S1 — Mobile Combustion</span>
@@ -908,6 +909,20 @@
                                 <span style="padding:0.3rem 0.75rem; background:var(--slate-100); color:var(--slate-600); border-radius:20px; font-size:0.8rem; font-weight:600;">EF Selection (cross-cutting)</span>
                             </div>
                         </div>
+                        <div style="margin-top:1.25rem; padding:0.85rem 1rem; background:#fff; border:1px solid var(--slate-200); border-radius:8px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                                <div style="font-size:0.8rem; font-weight:700; color:var(--slate-600); text-transform:uppercase; letter-spacing:0.04em;">Management Disclosure &amp; Completeness Declaration</div>
+                                <span class="tag tag-green">✓ Signed — v3</span>
+                            </div>
+                            <div style="font-size:0.82rem; color:var(--slate-600); margin-bottom:0.6rem;">Tenant-submitted, read-only to the auditor. Discloses known data-quality issues, control weaknesses, estimation methods, exclusions, and methodology changes, plus a completeness assertion. This is evidence the auditor considers — it does not set any risk rating below.</div>
+                            <div class="engagement-grid" style="grid-template-columns:repeat(4,1fr);">
+                                <div class="eng-detail"><div class="eng-detail-label">Signed by</div><div class="eng-detail-value">R. Menon, CFO</div></div>
+                                <div class="eng-detail"><div class="eng-detail-label">Date signed</div><div class="eng-detail-value">Jan 6, 2025</div></div>
+                                <div class="eng-detail"><div class="eng-detail-label">Version</div><div class="eng-detail-value">v3 (supersedes v2, Dec 18)</div></div>
+                                <div class="eng-detail"><div class="eng-detail-label">Post-fieldwork edits</div><div class="eng-detail-value">None</div></div>
+                            </div>
+                            <div style="margin-top:0.6rem;"><button class="btn btn-sm btn-ghost" onclick="showToast('Opening Management Disclosure & Completeness Declaration (read-only)')">View Full Declaration →</button></div>
+                        </div>
                         <div style="margin-top:1rem; padding:0.75rem; background:var(--slate-50); border-radius:8px; font-size:0.82rem;"><strong>WP-201:</strong> Entity Understanding Memorandum · Jan 8 · Reviewed by Vikram Desai (Engagement Manager) Jan 9</div>
                     </div>
                 </div>
@@ -918,22 +933,23 @@
             <div class="wf-panel" id="plan-panel-1">
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title has-tip">Step 2 — Risk Assessment Register
+                        <div class="card-title has-tip">Step 2 — Assurance Risk Assessment
                             <span class="tip-icon">?</span>
-                            <div class="tip-box"><strong>Where do risk items come from?</strong> The starting list is auto-seeded from Step 1 — every in-scope emission category becomes a row. The auditor then:<div class="tip-row">1. Rates <strong>Inherent Risk</strong>: how likely is an error before any controls? (High if manual data, estimates, or complex calculations)</div><div class="tip-row">2. Rates <strong>Control Risk</strong>: how likely is it that client internal controls miss the error? (Low if TerraCAP auto-validates; High if no review process)</div><div class="tip-row">3. <strong>Combined Risk</strong> = the higher of the two, and drives testing depth in Steps 4–5</div><div class="tip-row"><strong>Add:</strong> Auditor can add unlisted risks (e.g. data governance, boundary disputes). <strong>Delete:</strong> Excluded categories can be removed with a rationale note.</div></div>
+                            <div class="tip-box"><strong>Where do risk items come from — and who rates them?</strong> Candidate rows are seeded from Step 1 (in-scope emission categories) and from the tenant's signed Management Disclosure. <strong>Every row starts unrated.</strong> The auditor then:<div class="tip-row">1. Rates <strong>Inherent Risk</strong>: how likely is an error before any controls? (High if manual data, estimates, or complex calculations)</div><div class="tip-row">2. Rates <strong>Control Risk</strong>: how likely is it that client internal controls miss the error? (Low if TerraCAP auto-validates; High if no review process)</div><div class="tip-row">3. <strong>Combined Risk</strong> = the higher of the two, and drives testing depth in Steps 4–5</div><div class="tip-row"><strong>Independence rule:</strong> tenant disclosures inform the auditor's judgment but never pre-populate a rating. Materiality (Step 3) is blocked until every row below is explicitly rated.</div><div class="tip-row"><strong>Add:</strong> Auditor can add unlisted risks (e.g. data governance, boundary disputes). <strong>Delete:</strong> Excluded categories can be removed with a rationale note.</div></div>
                         </div>
                         <div class="flex gap-sm items-center">
-                            <span class="tag tag-green">✓ Completed Jan 12, 2025</span>
+                            <span class="tag tag-amber">⏳ 2 of 7 rows unrated</span>
                             <button class="btn btn-sm btn-primary" onclick="openAddRiskModal()">+ Add Risk</button>
                         </div>
                     </div>
                     <div class="card-body">
                         <div style="padding:0.65rem 0.85rem; background:var(--terra-50); border-radius:8px; font-size:0.82rem; color:var(--terra-800); margin-bottom:1rem;">
-                            <strong>Auto-seeded from Step 1 scope categories.</strong> Auditor has rated each. Combined risk drives audit response and sample sizes in Steps 4–5. Click any row's risk ratings to adjust; use Delete to remove excluded categories.
+                            <strong>Seeded from Step 1 scope + tenant Management Disclosure — ratings are auditor-entered only.</strong> Combined risk drives audit response and sample sizes in Steps 4–5. Progression to Step 3 (Materiality) is blocked until every row has an Inherent and Control rating. Click any row's risk ratings to set or adjust; use Delete to remove excluded categories.
                         </div>
                         <table class="data-table" id="risk-register">
                             <thead><tr>
-                                <th class="has-tip" style="position:relative">Risk Area<span class="tip-icon">?</span><div class="tip-box" style="left:0;transform:none;">Auto-seeded from in-scope categories defined in Step 1. Add custom risks using the + button.</div></th>
+                                <th class="has-tip" style="position:relative">Risk Area<span class="tip-icon">?</span><div class="tip-box" style="left:0;transform:none;">Seeded from in-scope categories (Step 1) and tenant Management Disclosure. Add custom risks using the + button.</div></th>
+                                <th class="has-tip" style="position:relative">Source<span class="tip-icon">?</span><div class="tip-box" style="left:0;transform:none;">Where this candidate row came from. Traceability only — the source never sets or implies a rating.</div></th>
                                 <th class="has-tip" style="position:relative">Inherent Risk<span class="tip-icon">?</span><div class="tip-box" style="left:0;transform:none;"><strong>Inherent Risk:</strong> Likelihood of a material error existing before considering any internal controls. <br>High → complex/manual/estimated data<br>Medium → some automation but manual steps<br>Low → automated, utility-billed, simple calculation</div></th>
                                 <th class="has-tip" style="position:relative">Control Risk<span class="tip-icon">?</span><div class="tip-box" style="left:0;transform:none;"><strong>Control Risk:</strong> Likelihood that client's internal controls fail to detect an error. <br>High → no formal review / manual process<br>Medium → periodic review but not systematic<br>Low → TerraCAP AI validates + management review</div></th>
                                 <th class="has-tip" style="position:relative">Combined<span class="tip-icon">?</span><div class="tip-box" style="left:0;transform:none;"><strong>Combined Risk:</strong> The higher of Inherent and Control Risk. This is the risk level that drives Steps 4 and 5 — higher combined risk means more testing, larger samples, physical verification, and specialist procedures.</div></th>
@@ -944,6 +960,7 @@
                             <tbody id="risk-tbody">
                                 <tr id="risk-s1-stationary">
                                     <td class="fw-600">S1 — Stationary Combustion<div class="text-xs text-muted">DG sets, boilers — fuel purchase records</div></td>
+                                    <td><span class="tag tag-slate" style="font-size:0.72rem;">Seeded — Scope</span></td>
                                     <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="medium" selected>Medium</option><option value="high">High</option><option value="low">Low</option></select></td>
                                     <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="low" selected>Low</option><option value="high">High</option><option value="medium">Medium</option></select></td>
                                     <td><span class="tag tag-amber combined-tag">Medium</span></td>
@@ -951,17 +968,19 @@
                                     <td class="text-mono text-xs">WP-210</td>
                                     <td><button class="btn btn-sm btn-danger" onclick="deleteRisk(this)">✕</button></td>
                                 </tr>
-                                <tr id="risk-s1-refrigerant">
+                                <tr id="risk-s1-refrigerant" style="background:var(--amber-50,#fffdf5);">
                                     <td class="fw-600">S1 — Fugitive (Refrigerants)<div class="text-xs text-muted">HVAC top-up logs — manual records</div></td>
-                                    <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="high" selected>High</option><option value="medium">Medium</option><option value="low">Low</option></select></td>
-                                    <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="medium" selected>Medium</option><option value="high">High</option><option value="low">Low</option></select></td>
-                                    <td><span class="tag tag-red combined-tag">High</span></td>
-                                    <td class="text-sm">100% test + physical verification → Step 4</td>
+                                    <td><span class="tag tag-blue" style="font-size:0.72rem;">Flagged — Management</span></td>
+                                    <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="" selected>— Select —</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></td>
+                                    <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="" selected>— Select —</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></td>
+                                    <td><span class="tag tag-slate combined-tag">Unrated</span></td>
+                                    <td class="text-sm text-muted">Pending rating</td>
                                     <td class="text-mono text-xs">WP-211</td>
                                     <td><button class="btn btn-sm btn-danger" onclick="deleteRisk(this)">✕</button></td>
                                 </tr>
                                 <tr id="risk-s1-mobile">
                                     <td class="fw-600">S1 — Mobile Combustion<div class="text-xs text-muted">Fleet fuel cards + GPS — systematic</div></td>
+                                    <td><span class="tag tag-slate" style="font-size:0.72rem;">Seeded — Scope</span></td>
                                     <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="medium" selected>Medium</option><option value="high">High</option><option value="low">Low</option></select></td>
                                     <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="low" selected>Low</option><option value="high">High</option><option value="medium">Medium</option></select></td>
                                     <td><span class="tag tag-amber combined-tag">Medium</span></td>
@@ -971,6 +990,7 @@
                                 </tr>
                                 <tr id="risk-s2-elec">
                                     <td class="fw-600">S2 — Grid Electricity<div class="text-xs text-muted">BESCOM utility bills — documented</div></td>
+                                    <td><span class="tag tag-slate" style="font-size:0.72rem;">Seeded — Scope</span></td>
                                     <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="low" selected>Low</option><option value="high">High</option><option value="medium">Medium</option></select></td>
                                     <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="low" selected>Low</option><option value="high">High</option><option value="medium">Medium</option></select></td>
                                     <td><span class="tag tag-green combined-tag">Low</span></td>
@@ -980,6 +1000,7 @@
                                 </tr>
                                 <tr id="risk-s3-travel">
                                     <td class="fw-600">S3 — Business Travel<div class="text-xs text-muted">SAP travel + expense — completeness risk</div></td>
+                                    <td><span class="tag tag-slate" style="font-size:0.72rem;">Seeded — Scope</span></td>
                                     <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="medium" selected>Medium</option><option value="high">High</option><option value="low">Low</option></select></td>
                                     <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="medium" selected>Medium</option><option value="high">High</option><option value="low">Low</option></select></td>
                                     <td><span class="tag tag-amber combined-tag">Medium</span></td>
@@ -987,17 +1008,19 @@
                                     <td class="text-mono text-xs">WP-214</td>
                                     <td><button class="btn btn-sm btn-danger" onclick="deleteRisk(this)">✕</button></td>
                                 </tr>
-                                <tr id="risk-s3-purchased">
+                                <tr id="risk-s3-purchased" style="background:var(--amber-50,#fffdf5);">
                                     <td class="fw-600">S3 — Purchased Goods (Cat. 1)<div class="text-xs text-muted">Spend-based EEIO estimation — high inherent uncertainty</div></td>
-                                    <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="high" selected>High</option><option value="medium">Medium</option><option value="low">Low</option></select></td>
-                                    <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="high" selected>High</option><option value="medium">Medium</option><option value="low">Low</option></select></td>
-                                    <td><span class="tag tag-red combined-tag">High</span></td>
-                                    <td class="text-sm">Methodology review + top-20 supplier → Step 4</td>
+                                    <td><span class="tag tag-blue" style="font-size:0.72rem;">Flagged — Management</span></td>
+                                    <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="" selected>— Select —</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></td>
+                                    <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="" selected>— Select —</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select></td>
+                                    <td><span class="tag tag-slate combined-tag">Unrated</span></td>
+                                    <td class="text-sm text-muted">Pending rating</td>
                                     <td class="text-mono text-xs">WP-215</td>
                                     <td><button class="btn btn-sm btn-danger" onclick="deleteRisk(this)">✕</button></td>
                                 </tr>
                                 <tr id="risk-ef">
                                     <td class="fw-600">Emission Factor Selection<div class="text-xs text-muted">Cross-cutting — version currency risk</div></td>
+                                    <td><span class="tag tag-slate" style="font-size:0.72rem;">Suggested — Platform rule</span></td>
                                     <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="medium" selected>Medium</option><option value="high">High</option><option value="low">Low</option></select></td>
                                     <td><select class="form-select" style="padding:0.3rem 0.5rem; font-size:0.8rem; width:100px;" onchange="updateCombinedRisk(this)"><option value="low" selected>Low</option><option value="high">High</option><option value="medium">Medium</option></select></td>
                                     <td><span class="tag tag-amber combined-tag">Medium</span></td>
@@ -1007,12 +1030,12 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <div style="margin-top:0.75rem; padding:0.65rem 0.85rem; background:var(--slate-50); border-radius:8px; font-size:0.82rem;"><strong>WP-200:</strong> Risk Assessment Register · Completed Jan 12 · Reviewed by Vikram Desai (Engagement Manager)</div>
+                        <div style="margin-top:0.75rem; padding:0.65rem 0.85rem; background:var(--slate-50); border-radius:8px; font-size:0.82rem;"><strong>WP-200:</strong> Assurance Risk Assessment · 2 rows pending auditor rating · Reviewed by Vikram Desai (Engagement Manager)</div>
                     </div>
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-top:0.5rem;">
                     <button class="btn btn-ghost" onclick="switchPlanTab(0)">← Back</button>
-                    <button class="btn btn-primary" onclick="switchPlanTab(2)">Next: Materiality →</button>
+                    <button class="btn btn-primary" id="risk-next-btn" onclick="switchPlanTab(2)" disabled title="Blocked: 2 risk rows still need an auditor rating">Next: Materiality →</button>
                 </div>
             </div>
 
@@ -2857,24 +2880,48 @@
 
 
 
-    // ===== PLANNING — RISK REGISTER =====
+    // ===== PLANNING — ASSURANCE RISK ASSESSMENT =====
     function updateCombinedRisk(sel) {
         const row = sel.closest('tr');
         const selects = row.querySelectorAll('select');
         if (selects.length < 2) return;
         const ir = selects[0].value;
         const cr = selects[1].value;
+        const tag = row.querySelector('.combined-tag');
+        const respCell = row.cells[5];
+        if (!ir || !cr) {
+            // Independence rule: a row is not rated until the auditor has entered BOTH fields — no partial/inherited severity.
+            if (tag) { tag.className = 'tag combined-tag tag-slate'; tag.textContent = 'Unrated'; }
+            if (respCell) { respCell.textContent = 'Pending rating'; respCell.className = 'text-sm text-muted'; }
+            updateRiskGate();
+            return;
+        }
         const rankMap = {high:3, medium:2, low:1};
         const combined = rankMap[ir] >= rankMap[cr] ? ir : cr;
-        const tag = row.querySelector('.combined-tag');
         if (tag) {
             tag.className = 'tag combined-tag ' + (combined==='high'?'tag-red':combined==='medium'?'tag-amber':'tag-green');
             tag.textContent = combined.charAt(0).toUpperCase() + combined.slice(1);
         }
         // Update response text
         const responseMap = {high:'Substantive + physical verification', medium:'Mixed procedures + 15–25% sample', low:'Analytical procedures + 10–15% sample'};
-        const respCell = row.cells[4];
-        if (respCell) respCell.textContent = responseMap[combined] + ' → Step 4';
+        if (respCell) { respCell.textContent = responseMap[combined] + ' → Step 4'; respCell.className = 'text-sm'; }
+        updateRiskGate();
+    }
+
+    function updateRiskGate() {
+        // Blocks progression to Step 3 (Materiality) until every risk row has an explicit auditor rating.
+        const tbody = document.getElementById('risk-tbody');
+        if (!tbody) return;
+        const rows = tbody.querySelectorAll('tr');
+        let unrated = 0;
+        rows.forEach(r => { if (r.querySelector('.combined-tag') && r.querySelector('.combined-tag').textContent === 'Unrated') unrated++; });
+        const badge = document.querySelector('#screen-planning .tag-amber');
+        const nextBtn = document.getElementById('risk-next-btn');
+        if (badge && badge.textContent.includes('unrated')) {
+            badge.textContent = unrated > 0 ? ('⏳ ' + unrated + ' of ' + rows.length + ' rows unrated') : ('✓ All ' + rows.length + ' rows rated');
+            badge.className = unrated > 0 ? 'tag tag-amber' : 'tag tag-green';
+        }
+        if (nextBtn) nextBtn.disabled = unrated > 0;
     }
 
     function deleteRisk(btn) {
@@ -2907,11 +2954,11 @@
                 '<div class="form-row">',
                 '<div class="form-group"><label class="form-label">Inherent Risk</label>',
                 '<select class="form-select" id="ar-ir">',
-                '<option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option>',
+                '<option value="" selected>— Select —</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>',
                 '</select></div>',
                 '<div class="form-group"><label class="form-label">Control Risk</label>',
                 '<select class="form-select" id="ar-cr">',
-                '<option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option>',
+                '<option value="" selected>— Select —</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>',
                 '</select></div></div></div>',
                 '<div class="modal-footer">',
                 '<button class="btn btn-ghost" id="ar-cancel-x">Cancel</button>',
@@ -2932,14 +2979,18 @@
         const ir = document.getElementById('ar-ir').value;
         const cr = document.getElementById('ar-cr').value;
         const rankMap = {high:3,medium:2,low:1};
-        const combined = rankMap[ir] >= rankMap[cr] ? ir : cr;
-        const tagColor = combined==='high'?'tag-red':combined==='medium'?'tag-amber':'tag-green';
+        const rated = ir && cr;
+        const combined = rated ? (rankMap[ir] >= rankMap[cr] ? ir : cr) : '';
+        const tagColor = !rated ? 'tag-slate' : (combined==='high'?'tag-red':combined==='medium'?'tag-amber':'tag-green');
+        const combinedLabel = rated ? (combined.charAt(0).toUpperCase()+combined.slice(1)) : 'Unrated';
+        const responseText = rated ? 'To be determined in Step 4' : 'Pending rating';
         const row = document.createElement('tr');
-        row.innerHTML = '<td class="fw-600">' + name + (notes?'<div class="text-xs text-muted">'+notes+'</div>':'') + '</td><td><select class="form-select" style="padding:0.3rem 0.5rem;font-size:0.8rem;width:100px;" onchange="updateCombinedRisk(this)"><option value="high"'+(ir==='high'?' selected':'')+'>High</option><option value="medium"'+(ir==='medium'?' selected':'')+'>Medium</option><option value="low"'+(ir==='low'?' selected':'')+'>Low</option></select></td><td><select class="form-select" style="padding:0.3rem 0.5rem;font-size:0.8rem;width:100px;" onchange="updateCombinedRisk(this)"><option value="high"'+(cr==='high'?' selected':'')+'>High</option><option value="medium"'+(cr==='medium'?' selected':'')+'>Medium</option><option value="low"'+(cr==='low'?' selected':'')+'>Low</option></select></td><td><span class="tag '+tagColor+' combined-tag">'+combined.charAt(0).toUpperCase()+combined.slice(1)+'</span></td><td class="text-sm">To be determined in Step 4</td><td class="text-mono text-xs">WP-2xx</td><td><button class="btn btn-sm btn-danger" onclick="deleteRisk(this)">✕</button></td>';
+        row.innerHTML = '<td class="fw-600">' + name + (notes?'<div class="text-xs text-muted">'+notes+'</div>':'') + '</td><td><span class="tag tag-slate" style="font-size:0.72rem;">Added — Auditor</span></td><td><select class="form-select" style="padding:0.3rem 0.5rem;font-size:0.8rem;width:100px;" onchange="updateCombinedRisk(this)"><option value=""'+(ir?'':' selected')+'>— Select —</option><option value="high"'+(ir==='high'?' selected':'')+'>High</option><option value="medium"'+(ir==='medium'?' selected':'')+'>Medium</option><option value="low"'+(ir==='low'?' selected':'')+'>Low</option></select></td><td><select class="form-select" style="padding:0.3rem 0.5rem;font-size:0.8rem;width:100px;" onchange="updateCombinedRisk(this)"><option value=""'+(cr?'':' selected')+'>— Select —</option><option value="high"'+(cr==='high'?' selected':'')+'>High</option><option value="medium"'+(cr==='medium'?' selected':'')+'>Medium</option><option value="low"'+(cr==='low'?' selected':'')+'>Low</option></select></td><td><span class="tag '+tagColor+' combined-tag">'+combinedLabel+'</span></td><td class="text-sm'+(rated?'':' text-muted')+'">'+responseText+'</td><td class="text-mono text-xs">WP-2xx</td><td><button class="btn btn-sm btn-danger" onclick="deleteRisk(this)">✕</button></td>';
         row.style.animation = 'fadeIn 0.3s ease';
         document.getElementById('risk-tbody').appendChild(row);
         closeModal('modal-add-risk');
-        showToast(name + ' added to risk register');
+        updateRiskGate();
+        showToast(name + ' added to Assurance Risk Assessment' + (rated ? '' : ' — rating still required'));
     }
 
     // ===== MATERIALITY CALCULATOR =====
@@ -3175,6 +3226,8 @@
         document.body.appendChild(toast);
         setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
     }
+
+    document.addEventListener('DOMContentLoaded', function() { updateRiskGate(); });
 </script>
 
 <!-- ==================== TEST EXECUTION MODAL ==================== -->

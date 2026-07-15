@@ -384,7 +384,8 @@
                 <div class="wiz-step active" id="ws-1"><div class="wiz-step-bar"></div><div class="wiz-step-label">1. Engagement Details</div></div>
                 <div class="wiz-step" id="ws-2"><div class="wiz-step-bar"></div><div class="wiz-step-label">2. Select Audit Firm</div></div>
                 <div class="wiz-step" id="ws-3"><div class="wiz-step-bar"></div><div class="wiz-step-label">3. Define Scope & Access</div></div>
-                <div class="wiz-step" id="ws-4"><div class="wiz-step-bar"></div><div class="wiz-step-label">4. Review & Confirm</div></div>
+                <div class="wiz-step" id="ws-4"><div class="wiz-step-bar"></div><div class="wiz-step-label">4. Management Disclosure</div></div>
+                <div class="wiz-step" id="ws-5"><div class="wiz-step-bar"></div><div class="wiz-step-label">5. Review & Confirm</div></div>
             </div>
 
             <!-- Step 1 -->
@@ -401,8 +402,18 @@
                             <div class="form-group"><label class="form-label">Deadline for Opinion Issuance</label><input class="form-input" type="date"></div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group"><label class="form-label">Assurance Level</label><select class="form-select"><option>Limited Assurance (ISAE 3410)</option><option>Reasonable Assurance (ISAE 3000)</option></select></div>
+                            <div class="form-group"><label class="form-label">Assurance Level</label><select class="form-select"><option>Limited Assurance</option><option>Reasonable Assurance</option></select></div>
                             <div class="form-group"><label class="form-label">Subject Matter</label><select class="form-select"><option>GHG Emissions (Scope 1, 2, 3)</option><option>GHG Emissions (Scope 1, 2 only)</option><option>Full ESG Report</option></select></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Governing Assurance Standard <span style="font-weight:400; color:var(--subtle);">(auto-suggested — confirm before proceeding)</span></label>
+                            <select class="form-select" id="governing-standard-select">
+                                <option value="ssae3000" selected>SSAE 3000 — ICAI Standard on Sustainability Assurance Engagements (India, current)</option>
+                                <option value="isae3000">ISAE 3000 (Revised) — IAASB, direct application</option>
+                                <option value="ssa5000">SSA-5000 — ICAI, once finalised (India equivalent of ISSA 5000)</option>
+                                <option value="issa5000">ISSA 5000 — IAASB, effective for periods from 15 Dec 2026</option>
+                            </select>
+                            <div class="form-hint" style="margin-top:0.4rem;">Suggested from the entity's jurisdiction (India) and reporting period against TerraCAP's Standards Registry. ICAI has not yet finalised its SSA-5000 adoption date, so engagements straddling 15 Dec 2026 need Engagement Partner confirmation. <a href="#" onclick="return false;" style="color:var(--terra-600);">View Standards Registry →</a></div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Applicable Frameworks</label>
@@ -533,14 +544,55 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-footer"><button class="btn btn-ghost" onclick="wizardBack(3)">← Back</button><button class="btn btn-primary" onclick="wizardNext(3)">Next: Review & Confirm →</button></div>
+                    <div class="card-footer"><button class="btn btn-ghost" onclick="wizardBack(3)">← Back</button><button class="btn btn-primary" onclick="wizardNext(3)">Next: Management Disclosure →</button></div>
                 </div>
             </div>
 
-            <!-- Step 4 -->
+            <!-- Step 4 — Management Disclosure & Completeness Declaration -->
             <div class="wizard-panel" id="wp-4" style="display:none;">
                 <div class="card">
-                    <div class="card-header"><div class="card-title"><span class="step-indicator active">4</span>Review & Confirm Engagement</div></div>
+                    <div class="card-header"><div class="card-title"><span class="step-indicator active">4</span>Management Disclosure &amp; Completeness Declaration</div></div>
+                    <div class="card-body">
+                        <div class="info-box">
+                            <div class="info-box-title">📝 Why this exists</div>
+                            <div class="info-box-text">This is management's formal, signed representation to the audit team — similar in weight to your Independence Declaration on the auditor's side. It discloses known data-quality issues, control weaknesses, estimation methods, exclusions, and methodology changes. <strong>It does not set any risk rating</strong> — the auditor rates risk independently in their Assurance Risk Assessment. This declaration is version-locked once signed; any later change is tracked, not overwritten.</div>
+                        </div>
+
+                        <div class="form-group"><label class="form-label">Authorised Signatory</label>
+                            <select class="form-select" id="mgmt-disclosure-signatory">
+                                <option value="">— Select an authorised signatory —</option>
+                                <option value="cfo">R. Menon — Chief Financial Officer</option>
+                                <option value="sustainability_head">Head of Sustainability</option>
+                                <option value="ceo">Chief Executive Officer</option>
+                            </select>
+                            <div class="form-hint">Restricted to roles with representation authority for this entity — not any TerraCAP admin user.</div>
+                        </div>
+
+                        <div class="form-group"><label class="form-label">Known data-quality issues, control weaknesses, or estimation-heavy areas</label>
+                            <textarea class="form-input" rows="3" placeholder="e.g. Refrigerant top-ups are logged manually at Site 3 with no secondary review; Scope 3 Category 1 uses spend-based EEIO estimation for ~40% of purchased goods."></textarea>
+                        </div>
+
+                        <div class="form-group"><label class="form-label">Exclusions and methodology changes since prior period</label>
+                            <textarea class="form-input" rows="2" placeholder="e.g. Rail travel currently excluded from Scope 3 Business Travel pending SAP integration."></textarea>
+                        </div>
+
+                        <div style="padding:0.85rem 1rem; background:var(--bg); border:1px solid var(--stroke); border-radius:8px; margin-top:0.5rem;">
+                            <label class="checkbox-row" style="align-items:flex-start;">
+                                <input type="checkbox" id="mgmt-completeness-assertion">
+                                <span style="margin-left:0.5rem; font-size:0.85rem;"><strong>Completeness assertion:</strong> I confirm, to the best of my knowledge and on behalf of the entity, that all known data-quality issues, control weaknesses, estimation methods, exclusions, and methodology changes relevant to this engagement have been disclosed above.</span>
+                            </label>
+                        </div>
+
+                        <div class="form-hint" style="margin-top:0.75rem;">Once signed: this declaration is versioned and date-stamped. Auditor access to TerraAudit will not be activated until this step is complete <em>and</em> the audit firm's Independence Declaration is received (Step 5). Any edit after fieldwork begins creates a new version, an alert on affected risk rows, and a timeline entry — it does not silently overwrite the signed record.</div>
+                    </div>
+                    <div class="card-footer"><button class="btn btn-ghost" onclick="wizardBack(4)">← Back</button><button class="btn btn-primary" onclick="wizardNext(4)">Next: Review & Confirm →</button></div>
+                </div>
+            </div>
+
+            <!-- Step 5 -->
+            <div class="wizard-panel" id="wp-5" style="display:none;">
+                <div class="card">
+                    <div class="card-header"><div class="card-title"><span class="step-indicator active">5</span>Review & Confirm Engagement</div></div>
                     <div class="card-body">
                         <div class="info-box">
                             <div class="info-box-title">📋 Engagement Summary</div>
@@ -550,13 +602,15 @@
                         <table class="data-table" style="margin-bottom:1.25rem;">
                             <tbody>
                                 <tr><td style="font-weight:600; width:200px; color:var(--subtle);">Engagement ID</td><td style="font-family:'JetBrains Mono';">AUD-2025-002</td></tr>
-                                <tr><td style="font-weight:600; color:var(--subtle);">Assurance Level</td><td>Limited Assurance (ISAE 3410)</td></tr>
+                                <tr><td style="font-weight:600; color:var(--subtle);">Assurance Level</td><td>Limited Assurance</td></tr>
+                                <tr><td style="font-weight:600; color:var(--subtle);">Governing Standard</td><td>SSAE 3000 — ICAI Standard on Sustainability Assurance Engagements <span class="tag tag-gray" style="margin-left:0.4rem;">auto-suggested, confirmed</span></td></tr>
                                 <tr><td style="font-weight:600; color:var(--subtle);">Frameworks</td><td>SEBI BRSR Core, ISSB S2</td></tr>
                                 <tr><td style="font-weight:600; color:var(--subtle);">Entities in Scope</td><td>3 legal entities · 12 facilities</td></tr>
                                 <tr><td style="font-weight:600; color:var(--subtle);">ESG Categories</td><td>GHG Emissions, Water Management, Waste Management</td></tr>
                                 <tr><td style="font-weight:600; color:var(--subtle);">Emission Scopes</td><td>Scope 1, 2, 3</td></tr>
                                 <tr><td style="font-weight:600; color:var(--subtle);">Audit Firm</td><td>Deloitte Haskins & Sells LLP</td></tr>
                                 <tr><td style="font-weight:600; color:var(--subtle);">Audit Team</td><td>Sarah Mitchell (Lead), Vikram Desai (Team), Rajesh Kumar (Partner)</td></tr>
+                                <tr><td style="font-weight:600; color:var(--subtle);">Management Disclosure</td><td id="review-mgmt-disclosure-status"><span class="tag tag-amber">⏳ Not yet signed</span></td></tr>
                             </tbody>
                         </table>
 
@@ -570,26 +624,27 @@
                                 </div>
                                 <div style="display:flex; align-items:center; color:var(--subtle); font-size:1.2rem;">→</div>
                                 <div style="flex:1; padding:1rem; border-radius:10px; border:2px solid var(--warning); background:#FFFBEB;">
-                                    <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#B7791F; margin-bottom:0.3rem;">Stage 2 — Pending</div>
-                                    <div style="font-weight:700; font-size:0.9rem; color:var(--ink);">⏳ Independence Declaration</div>
-                                    <div style="font-size:0.78rem; color:var(--subtle); margin-top:0.25rem;">The audit firm must formally declare independence before access is granted. Platform Admin notified.</div>
+                                    <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#B7791F; margin-bottom:0.3rem;">Stage 2 — Pending (both required)</div>
+                                    <div style="font-weight:700; font-size:0.9rem; color:var(--ink);">⏳ Independence Declaration <span style="color:var(--subtle); font-weight:400;">(audit firm)</span></div>
+                                    <div style="font-weight:700; font-size:0.9rem; color:var(--ink);">⏳ Management Disclosure <span style="color:var(--subtle); font-weight:400;">(you)</span></div>
+                                    <div style="font-size:0.78rem; color:var(--subtle); margin-top:0.25rem;">Both must be signed before access is granted. Platform Admin notified of each as it completes.</div>
                                 </div>
                                 <div style="display:flex; align-items:center; color:var(--subtle); font-size:1.2rem;">→</div>
                                 <div style="flex:1; padding:1rem; border-radius:10px; border:2px solid var(--stroke); background:var(--bg); opacity:0.6;">
                                     <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--subtle); margin-bottom:0.3rem;">Stage 3 — Locked</div>
                                     <div style="font-weight:700; font-size:0.9rem; color:var(--ink);">🔐 Credentials Provisioned</div>
-                                    <div style="font-size:0.78rem; color:var(--subtle); margin-top:0.25rem;">Activated only after independence is confirmed. Auditors then access TerraAudit with read-only permissions.</div>
+                                    <div style="font-size:0.78rem; color:var(--subtle); margin-top:0.25rem;">Activated only after BOTH declarations are confirmed. Auditors then access TerraAudit with read-only permissions.</div>
                                 </div>
                             </div>
                         </div>
 
                         <div style="padding:1rem; background:#FFFBEB; border:1px solid #F6E05E; border-radius:8px;">
                             <div style="font-weight:600; font-size:0.88rem; color:#744210; margin-bottom:0.3rem;">🔐 What Happens After You Confirm</div>
-                            <div style="font-size:0.82rem; color:#744210;">The engagement is created in <strong>Pending Independence</strong> status. The Platform Admin receives a notification to prepare auditor user accounts. However, <strong>credentials will only be activated after the audit firm submits a signed Independence Declaration</strong> — either via platform or uploaded document — preventing premature data access.</div>
+                            <div style="font-size:0.82rem; color:#744210;">The engagement is created in <strong>Pending Independence</strong> status. The Platform Admin receives a notification to prepare auditor user accounts. However, <strong>credentials will only be activated once the audit firm's signed Independence Declaration AND your signed Management Disclosure &amp; Completeness Declaration are both on file</strong> — preventing premature data access and ensuring the audit team's risk assessment starts from a documented baseline.</div>
                         </div>
                     </div>
                     <div class="card-footer">
-                        <button class="btn btn-ghost" onclick="wizardBack(4)">← Back</button>
+                        <button class="btn btn-ghost" onclick="wizardBack(5)">← Back</button>
                         <button class="btn btn-success" onclick="provisionCredentials()">Create Engagement (Pending Independence)</button>
                     </div>
                 </div>
@@ -1270,6 +1325,16 @@
 
     // Wizard
     function wizardNext(step) {
+        if (step === 4) {
+            const signatory = document.getElementById('mgmt-disclosure-signatory');
+            const assertion = document.getElementById('mgmt-completeness-assertion');
+            if (!signatory || !signatory.value || !assertion || !assertion.checked) {
+                toast('Select an authorised signatory and confirm the completeness assertion before continuing.');
+                return;
+            }
+            const statusEl = document.getElementById('review-mgmt-disclosure-status');
+            if (statusEl) statusEl.innerHTML = '<span class="tag tag-green">✓ Signed — v1</span>';
+        }
         document.getElementById('wp-'+step).style.display = 'none';
         document.getElementById('wp-'+(step+1)).style.display = 'block';
         document.getElementById('ws-'+step).classList.remove('active');
@@ -1287,7 +1352,7 @@
     }
 
     function provisionCredentials() {
-        toast('Engagement created. Platform Admin notified — credentials will activate after independence declaration is received.');
+        toast('Engagement created. Platform Admin notified — credentials activate once BOTH the Independence Declaration and Management Disclosure are on file.');
         setTimeout(() => go('overview'), 1500);
     }
 
