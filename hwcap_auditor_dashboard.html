@@ -1047,13 +1047,13 @@
                             <span class="tip-icon">?</span>
                             <div class="tip-box"><strong>What is materiality in GHG assurance?</strong> It defines the level of error that would cause a user of the report to reach a different decision. The auditor sets three thresholds — Overall Materiality, Performance Materiality, and Trivial Threshold — and these drive every subsequent decision about what to test and how much.<div class="tip-row"><strong>Standard:</strong> ISAE 3410 para 28; ISAE 3000 para A61</div></div>
                         </div>
-                        <span class="tag tag-green">✓ Completed Jan 12, 2025</span>
+                        <span class="tag tag-amber" id="materiality-status-tag">⏳ Pending Auditor Confirmation</span>
                     </div>
                     <div class="card-body">
                         <!-- Who sets materiality -->
                         <div style="padding:0.85rem 1.1rem; background:var(--terra-50); border:1px solid var(--terra-400,#6db3a4); border-radius:8px; margin-bottom:1.25rem; font-size:0.85rem;">
                             <div style="font-weight:700; color:var(--terra-800); margin-bottom:0.4rem;">👤 Who sets materiality — and who are these people?</div>
-                            <div style="color:var(--terra-800); line-height:1.65;">Materiality is proposed by the <strong>Engagement Manager</strong> (Vikram Desai, Senior Manager at Deloitte Haskins &amp; Sells) and approved by the <strong>Engagement Partner</strong> (Rajesh Kumar, Partner at Deloitte Haskins &amp; Sells). Both are members of the <em>audit firm's team</em>, not the client. The Engagement Manager leads day-to-day fieldwork; the Partner signs the opinion and bears professional responsibility for the engagement. Client personnel (Acme's CFO, ESG Manager) are <em>not</em> involved in setting materiality — this must remain an independent auditor judgment.</div>
+                            <div style="color:var(--terra-800); line-height:1.65;">Materiality is proposed by the <strong>Engagement Manager</strong> (Vikram Desai, Senior Manager at Deloitte Haskins &amp; Sells) and approved by the <strong>Engagement Partner</strong> (Rajesh Kumar, Partner at Deloitte Haskins &amp; Sells) — both below. Both are members of the <em>audit firm's team</em>, not the client. The Engagement Manager leads day-to-day fieldwork; the Partner signs the opinion and bears professional responsibility for the engagement. Client personnel (Acme's CFO, ESG Manager) are <em>not</em> involved in setting materiality — this must remain an independent auditor judgment.</div>
                         </div>
 
                         <!-- Materiality source / ESG scoping link -->
@@ -1061,6 +1061,14 @@
                             <strong>📊 Data source:</strong> Total reported GHG of <strong>8,990 tCO₂e</strong> pulled from TerraCAP (S1+S2+S3).
                             <div style="margin-top:0.5rem;"><strong>🔗 Link to ESG Materiality Scoping Module:</strong> Acme's ESG Materiality Scoping module (in the client dashboard under "ESG Scope") identifies which topics are financially material. The auditor reviews this output to confirm no in-scope GHG categories were wrongly excluded by the client. If the client's scoping excluded a material category, the auditor would expand scope. <a href="#" onclick="showToast('Opening ESG Scoping Module…'); return false;" style="color:var(--terra-700); font-weight:600;">Open ESG Scoping →</a></div>
                         </div>
+
+                        <!-- How to choose the OM% — guidance, not just a worked example -->
+                        <div style="padding:0.85rem 1.1rem; background:#FFFBEB; border:1px solid #F6E05E; border-radius:8px; margin-bottom:1.25rem; font-size:0.85rem;">
+                            <div style="font-weight:700; color:#744210; margin-bottom:0.5rem;">🧭 How to choose the Overall Materiality % — this is an auditor judgment, not a system default</div>
+                            <div style="color:#744210; line-height:1.65;">ISAE 3410 para 28 gives a working range of <strong>5–10% of total reported emissions</strong> for GHG assurance (narrower than the 0.5–5% typically used for financial statement materiality, reflecting the inherent estimation uncertainty in GHG data). Within that range, move toward the <strong>lower end (5–6%)</strong> when: this is a first-year engagement, a high proportion of data is estimated (e.g. spend-based Scope 3), or Step 2 flagged multiple High combined-risk areas. Move toward the <strong>higher end (8–10%)</strong> when: the entity has multiple prior clean engagements, most data is metered/invoiced (Low risk), and controls testing supports reliance on the platform's automated checks. There is no formula that outputs this number automatically — the auditor enters it below and documents the rationale.</div>
+                        </div>
+
+                        <div class="form-group"><label class="form-label">Rationale for OM% selected</label><textarea class="form-input" id="mat-rationale" rows="2" placeholder="e.g. Set at 5% (lower end of ISAE 3410 range) given first-year engagement status and ~40% Scope 3 spend-based estimation identified in Step 2."></textarea></div>
 
                         <!-- The three measures with full audit impact explanation -->
                         <div style="padding:0.85rem 1.1rem; background:#F0FFF4; border:1px solid var(--green-600); border-radius:8px; margin-bottom:1.25rem; font-size:0.85rem;">
@@ -1105,12 +1113,19 @@
                             </div>
                             <div style="margin-top:0.65rem; font-size:0.78rem; color:var(--slate-500);" id="mat-impact-text">At this materiality: errors up to ±338 tCO₂e are the working limit. Samples must be large enough to detect errors approaching this threshold. The trivial zone (below ±45 tCO₂e) covers items that are too small to affect the opinion.</div>
                         </div>
-                        <div style="padding:0.75rem; background:var(--slate-50); border-radius:8px; font-size:0.82rem;"><strong>WP-202:</strong> Materiality Workbook · Proposed by Vikram Desai (Engagement Manager) · Approved by Rajesh Kumar (Engagement Partner) · Jan 12</div>
+                        <div style="padding:0.85rem 1.1rem; background:var(--slate-50); border-radius:8px; display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;" id="materiality-confirm-row">
+                            <div style="font-size:0.82rem; color:var(--slate-600);">Once confirmed, these thresholds lock and drive Steps 4–5. Engagement Manager confirms first; Engagement Partner approval follows.</div>
+                            <div style="display:flex; gap:0.5rem;">
+                                <button class="btn btn-sm btn-primary" id="mat-confirm-btn" onclick="confirmMateriality()">Confirm (Vikram Desai, Engagement Manager)</button>
+                                <button class="btn btn-sm btn-secondary" id="mat-approve-btn" onclick="approveMateriality()" disabled>Approve (Rajesh Kumar, Engagement Partner)</button>
+                            </div>
+                        </div>
+                        <div style="margin-top:0.75rem; padding:0.75rem; background:var(--slate-50); border-radius:8px; font-size:0.82rem;" id="materiality-wp-note"><strong>WP-202:</strong> Materiality Workbook · Not yet confirmed</div>
                     </div>
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-top:0.5rem;">
                     <button class="btn btn-ghost" onclick="switchPlanTab(1)">← Back</button>
-                    <button class="btn btn-primary" onclick="switchPlanTab(3)">Next: Audit Strategy →</button>
+                    <button class="btn btn-primary" id="materiality-next-btn" onclick="switchPlanTab(3)" disabled title="Blocked: materiality must be confirmed and approved first">Next: Audit Strategy →</button>
                 </div>
             </div>
 
@@ -1140,7 +1155,7 @@
                         <div style="font-weight:700; font-size:0.85rem; color:var(--slate-700); margin-bottom:0.75rem; text-transform:uppercase; letter-spacing:0.04em;">Choose strategy parameters:</div>
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.25rem;">
                             <div style="padding:0.85rem; border:2px solid var(--terra-600); border-radius:8px; background:var(--terra-50);">
-                                <div class="form-label" style="margin-bottom:0.3rem;">Assurance Approach</div>
+                                <div class="form-label has-tip" style="margin-bottom:0.3rem; position:relative;">Assurance Approach<span class="tip-icon">?</span><div class="tip-box" style="left:0; transform:none;"><strong>Combined:</strong> substantive testing on High/Medium risk areas, analytical on Low — the usual default for a mixed-risk portfolio.<div class="tip-row"><strong>Primarily Substantive:</strong> vouching/recalculation across nearly everything. Slower and costlier, but most defensible for first-year or high-risk engagements.</div><div class="tip-row"><strong>Primarily Analytical:</strong> trend/ratio review only. Only appropriate when every risk area is Low and controls reliance is already established — not appropriate if any High/Medium risk rows exist.</div></div></div>
                                 <select class="form-select" id="strat-approach" onchange="updateStrategyRow()">
                                     <option value="combined" selected>Combined (Substantive + Analytical) — recommended for mixed risk</option>
                                     <option value="substantive">Primarily Substantive — for high-risk or first-year engagements</option>
@@ -1149,7 +1164,7 @@
                                 <div style="margin-top:0.35rem; font-size:0.75rem; color:var(--slate-500);" id="strat-approach-note">Appropriate: 2 High-risk areas require substantive testing. Analytical is sufficient for S2 electricity (Low risk).</div>
                             </div>
                             <div style="padding:0.85rem; border:2px solid var(--terra-600); border-radius:8px; background:var(--terra-50);">
-                                <div class="form-label" style="margin-bottom:0.3rem;">Technology Use</div>
+                                <div class="form-label has-tip" style="margin-bottom:0.3rem; position:relative;">Technology Use<span class="tip-icon">?</span><div class="tip-box" style="left:0; transform:none;"><strong>Hybrid (recommended):</strong> TerraCAP runs automated recalculation and anomaly detection on every record; the auditor still manually vouches high-risk items. Best balance of coverage and cost.<div class="tip-row"><strong>Primarily Manual:</strong> use when platform data reliability itself is in question (e.g. recent migration, unresolved control weaknesses) — auditor re-performs calculations independently.</div><div class="tip-row"><strong>Primarily Platform:</strong> only once IT/general controls testing over TerraCAP has separately established that its outputs can be relied on without independent recalculation.</div></div></div>
                                 <select class="form-select" id="strat-tech" onchange="updateStrategyRow()">
                                     <option value="hybrid" selected>TerraCAP Automated + Manual (hybrid) — recommended</option>
                                     <option value="manual">Primarily Manual — if platform data cannot be relied on</option>
@@ -1158,8 +1173,8 @@
                                 <div style="margin-top:0.35rem; font-size:0.75rem; color:var(--slate-500);">TerraCAP provides recalculation and anomaly detection. Manual vouching still required for high-risk areas.</div>
                             </div>
                             <div style="padding:0.85rem; border:2px solid var(--terra-600); border-radius:8px; background:var(--terra-50);">
-                                <div class="form-label" style="margin-bottom:0.3rem;">Scope 3 Approach</div>
-                                <select class="form-select" id="strat-s3">
+                                <div class="form-label has-tip" style="margin-bottom:0.3rem; position:relative;">Scope 3 Approach<span class="tip-icon">?</span><div class="tip-box" style="left:0; transform:none;"><strong>Methodology focus (recommended for spend-based):</strong> since spend-based EEIO data can't be vouched to a physical quantity, the auditor instead validates the emission-factor selection and category mapping is defensible.<div class="tip-row"><strong>Data vouching:</strong> use only where primary-source activity data (litres, kWh, km) is available for Scope 3 rather than spend estimates.</div><div class="tip-row"><strong>Analytical only:</strong> appropriate only for low-risk, stable Scope 3 categories with a consistent year-on-year pattern.</div></div></div>
+                                <select class="form-select" id="strat-s3" onchange="updateStrategyRow()">
                                     <option value="methodology" selected>Methodology focus (EF selection, completeness) — recommended for spend-based</option>
                                     <option value="vouching">Data vouching — appropriate if primary-source data is available</option>
                                     <option value="analytical">Analytical only — appropriate only for low-risk, stable S3 categories</option>
@@ -1167,8 +1182,8 @@
                                 <div style="margin-top:0.35rem; font-size:0.75rem; color:var(--slate-500);">Spend-based EEIO has inherent ±30% uncertainty — methodology focus is most defensible.</div>
                             </div>
                             <div style="padding:0.85rem; border:2px solid var(--terra-600); border-radius:8px; background:var(--terra-50);">
-                                <div class="form-label" style="margin-bottom:0.3rem;">Site Visits</div>
-                                <select class="form-select" id="strat-sites">
+                                <div class="form-label has-tip" style="margin-bottom:0.3rem; position:relative;">Site Visits<span class="tip-icon">?</span><div class="tip-box" style="left:0; transform:none;"><strong>High-risk sites physical, others remote (recommended):</strong> focuses limited travel budget on the sites tied to High combined-risk categories (e.g. manual refrigerant logs, DG fuel).<div class="tip-row"><strong>All sites physical:</strong> use for smaller engagements, first-year assurance, or where the client relationship/travel budget supports full coverage.</div><div class="tip-row"><strong>All remote:</strong> only defensible for low-risk, small engagements with strong documentary evidence — document the justification if selected.</div></div></div>
+                                <select class="form-select" id="strat-sites" onchange="updateStrategyRow()">
                                     <option value="high-risk" selected>High-risk sites physical, others remote</option>
                                     <option value="all">All sites physical</option>
                                     <option value="none">All remote (only for low-risk, small engagements)</option>
@@ -1178,10 +1193,14 @@
                         </div>
 
                         <!-- Procedure table (driven by choices above) -->
-                        <div style="font-weight:700; font-size:0.85rem; color:var(--slate-700); margin-bottom:0.5rem; text-transform:uppercase; letter-spacing:0.04em;">Resulting procedure plan → feeds into Step 5 &amp; Testing</div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                            <div style="font-weight:700; font-size:0.85rem; color:var(--slate-700); text-transform:uppercase; letter-spacing:0.04em;">Resulting procedure plan → feeds into Step 5 &amp; Testing</div>
+                            <button class="btn btn-sm btn-primary" onclick="regenerateProcedurePlan()">↻ Regenerate from current selections</button>
+                        </div>
+                        <div id="procedure-stale-banner" style="display:none; padding:0.6rem 0.85rem; background:#FFFBEB; border:1px solid #F6E05E; border-radius:8px; font-size:0.8rem; color:#744210; margin-bottom:0.75rem;">⚠ Strategy parameters or Step 2 risk ratings changed since this plan was last generated — click "Regenerate" so the procedure plan matches your current choices.</div>
                         <table class="data-table">
                             <thead><tr><th>Procedure Type</th><th>Risk Areas Covered</th><th class="has-tip" style="position:relative">Why chosen<span class="tip-icon">?</span><div class="tip-box" style="left:0;transform:none;">The procedure type is chosen based on combined risk: High → Substantive; Medium → Mixed; Low → Analytical. This column shows the reasoning from Step 2 that drove the choice.</div></th><th>Executor</th><th>Timing</th></tr></thead>
-                            <tbody>
+                            <tbody id="procedure-tbody">
                                 <tr><td class="fw-600">Recalculation (Platform)</td><td>S1, S2, S3 — all</td><td class="text-sm text-muted">All risk levels: automated check costs nothing; catches formula errors</td><td><span class="tag tag-blue">TerraCAP</span></td><td class="text-mono text-xs">Week 1</td></tr>
                                 <tr style="background:var(--red-100,#fff5f5);"><td class="fw-600">Document vouching</td><td>S1 fuel, S1 refrigerant, S2 bills</td><td class="text-sm" style="color:var(--red-600);">High/Medium combined risk → substantive evidence required</td><td><span class="tag tag-green">Auditor</span></td><td class="text-mono text-xs">Weeks 2–3</td></tr>
                                 <tr style="background:var(--red-100,#fff5f5);"><td class="fw-600">Physical site visit — Site 3</td><td>S1 Stationary + Refrigerants</td><td class="text-sm" style="color:var(--red-600);">High combined risk + DG anomaly → physical presence required</td><td><span class="tag tag-green">Auditor</span></td><td class="text-mono text-xs">Week 3</td></tr>
@@ -1220,15 +1239,24 @@
                                 <span style="background:var(--slate-100); color:var(--slate-700); padding:0.2rem 0.6rem; border-radius:12px; font-size:0.78rem; font-weight:600;">PM ±337 tCO₂e is the error ceiling</span>
                             </div>
                         </div>
+                        <div style="padding:0.75rem 0.9rem; background:var(--slate-50); border-radius:8px; margin-bottom:1rem; font-size:0.8rem; color:var(--slate-600);">
+                            <strong>Where each column comes from</strong> (for implementation reference):
+                            <ul style="margin:0.4rem 0 0; padding-left:1.2rem; line-height:1.7;">
+                                <li><strong>Population</strong> — pulled automatically from TerraCAP's live record count for that category (invoice count, log entry count, supplier count). Not editable — it reflects what's actually in the system.</li>
+                                <li><strong>System-Suggested Sample</strong> — calculated from the derivation rule above (risk level × population size). Shown for reference; not directly editable.</li>
+                                <li><strong>Auditor Sample Size</strong> — <em>this is the field the auditor actually sets.</em> Pre-filled with the system suggestion; the auditor can accept it as-is or change it. Reducing below the suggestion requires a justification.</li>
+                                <li><strong>Method</strong> — the auditor selects from a fixed list of recognised sampling methods (see column). A method is suggested based on data type and risk, but the auditor makes the final choice.</li>
+                            </ul>
+                        </div>
                         <table class="data-table" id="sample-table">
                             <thead><tr>
                                 <th>Data Category</th>
                                 <th>Risk (Step 2)</th>
-                                <th>Population</th>
-                                <th class="has-tip" style="position:relative">Proposed Sample<span class="tip-icon">?</span><div class="tip-box" style="left:0;transform:none;">Derived from combined risk. Auditor may increase but should not reduce below the minimum without justification.</div></th>
-                                <th>Override Size</th>
-                                <th>Justification</th>
-                                <th>Method</th>
+                                <th class="has-tip" style="position:relative">Population<span class="tip-icon">?</span><div class="tip-box" style="left:0;transform:none;">Auto-pulled from TerraCAP's live record count for this category. Not manually entered.</div></th>
+                                <th class="has-tip" style="position:relative">System-Suggested Sample<span class="tip-icon">?</span><div class="tip-box" style="left:0;transform:none;">Derived from combined risk × population using the rule above. Reference only.</div></th>
+                                <th class="has-tip" style="position:relative">Auditor Sample Size<span class="tip-icon">?</span><div class="tip-box" style="left:0;transform:none;">The auditor's actual entry — defaults to the system suggestion, editable. This is what gets executed in Testing (Step 4 of the audit lifecycle).</div></th>
+                                <th>Justification (if reduced)</th>
+                                <th class="has-tip" style="position:relative">Method<span class="tip-icon">?</span><div class="tip-box" style="left:0;transform:none;">Auditor-selected from recognised sampling methods: Random, Systematic, Stratified Random, Monetary Unit Sampling (MUS), Judgmental, or Full Population.</div></th>
                                 <th>Status</th>
                             </tr></thead>
                             <tbody>
@@ -1237,9 +1265,9 @@
                                     <td><span class="tag tag-red">High</span></td>
                                     <td class="text-mono">12 records</td>
                                     <td class="fw-600 text-mono" style="color:var(--red-600);">12 (100%)</td>
-                                    <td><input class="form-input" type="number" placeholder="—" style="width:70px; padding:0.3rem 0.4rem; font-size:0.8rem;"></td>
-                                    <td><input class="form-input" placeholder="Reason for override" style="font-size:0.78rem; padding:0.3rem 0.5rem;"></td>
-                                    <td class="text-sm">Full population test</td>
+                                    <td><input class="form-input" type="number" value="12" style="width:70px; padding:0.3rem 0.4rem; font-size:0.8rem;"></td>
+                                    <td><input class="form-input" placeholder="Only required if reduced below 12" style="font-size:0.78rem; padding:0.3rem 0.5rem;"></td>
+                                    <td><select class="form-select" style="font-size:0.78rem; padding:0.3rem 0.5rem;"><option>Full Population</option><option>Random</option><option>Systematic</option><option>Stratified Random</option><option>Judgmental</option></select></td>
                                     <td><span class="tag tag-amber">Pending — logs awaited</span></td>
                                 </tr>
                                 <tr>
@@ -1247,9 +1275,9 @@
                                     <td><span class="tag tag-red">High</span></td>
                                     <td class="text-mono">380 suppliers</td>
                                     <td class="fw-600 text-mono" style="color:var(--red-600);">Top 20 + 30 random</td>
-                                    <td><input class="form-input" type="number" placeholder="—" style="width:70px; padding:0.3rem 0.4rem; font-size:0.8rem;"></td>
-                                    <td><input class="form-input" placeholder="Reason for override" style="font-size:0.78rem; padding:0.3rem 0.5rem;"></td>
-                                    <td class="text-sm">Value-weighted + random</td>
+                                    <td><input class="form-input" type="number" value="50" style="width:70px; padding:0.3rem 0.4rem; font-size:0.8rem;"></td>
+                                    <td><input class="form-input" placeholder="Only required if reduced below 50" style="font-size:0.78rem; padding:0.3rem 0.5rem;"></td>
+                                    <td><select class="form-select" style="font-size:0.78rem; padding:0.3rem 0.5rem;"><option selected>Monetary Unit Sampling (MUS)</option><option>Random</option><option>Systematic</option><option>Stratified Random</option><option>Judgmental</option></select></td>
                                     <td><span class="tag tag-amber">Pending</span></td>
                                 </tr>
                                 <tr>
@@ -1257,9 +1285,9 @@
                                     <td><span class="tag tag-amber">Medium</span></td>
                                     <td class="text-mono">480 records</td>
                                     <td class="fw-600 text-mono" style="color:var(--amber-600);">120 (25%)</td>
-                                    <td><input class="form-input" type="number" placeholder="—" style="width:70px; padding:0.3rem 0.4rem; font-size:0.8rem;"></td>
-                                    <td><input class="form-input" placeholder="Reason for override" style="font-size:0.78rem; padding:0.3rem 0.5rem;"></td>
-                                    <td class="text-sm">Systematic (every 4th)</td>
+                                    <td><input class="form-input" type="number" value="120" style="width:70px; padding:0.3rem 0.4rem; font-size:0.8rem;"></td>
+                                    <td><input class="form-input" placeholder="Only required if reduced below 120" style="font-size:0.78rem; padding:0.3rem 0.5rem;"></td>
+                                    <td><select class="form-select" style="font-size:0.78rem; padding:0.3rem 0.5rem;"><option selected>Systematic</option><option>Random</option><option>Stratified Random</option><option>Monetary Unit Sampling (MUS)</option><option>Judgmental</option></select></td>
                                     <td><span class="tag tag-blue">In Progress</span></td>
                                 </tr>
                                 <tr>
@@ -1267,9 +1295,9 @@
                                     <td><span class="tag tag-amber">Medium</span></td>
                                     <td class="text-mono">1,240 claims</td>
                                     <td class="fw-600 text-mono" style="color:var(--amber-600);">248 (20%)</td>
-                                    <td><input class="form-input" type="number" placeholder="—" style="width:70px; padding:0.3rem 0.4rem; font-size:0.8rem;"></td>
-                                    <td><input class="form-input" placeholder="Reason for override" style="font-size:0.78rem; padding:0.3rem 0.5rem;"></td>
-                                    <td class="text-sm">Monetary unit sampling</td>
+                                    <td><input class="form-input" type="number" value="248" style="width:70px; padding:0.3rem 0.4rem; font-size:0.8rem;"></td>
+                                    <td><input class="form-input" placeholder="Only required if reduced below 248" style="font-size:0.78rem; padding:0.3rem 0.5rem;"></td>
+                                    <td><select class="form-select" style="font-size:0.78rem; padding:0.3rem 0.5rem;"><option selected>Monetary Unit Sampling (MUS)</option><option>Random</option><option>Systematic</option><option>Stratified Random</option><option>Judgmental</option></select></td>
                                     <td><span class="tag tag-amber">Pending</span></td>
                                 </tr>
                                 <tr>
@@ -1277,14 +1305,14 @@
                                     <td><span class="tag tag-green">Low</span></td>
                                     <td class="text-mono">144 invoices</td>
                                     <td class="fw-600 text-mono" style="color:var(--green-600);">22 (15%)</td>
-                                    <td><input class="form-input" type="number" placeholder="—" style="width:70px; padding:0.3rem 0.4rem; font-size:0.8rem;"></td>
-                                    <td><input class="form-input" placeholder="Reason for override" style="font-size:0.78rem; padding:0.3rem 0.5rem;"></td>
-                                    <td class="text-sm">Stratified random</td>
+                                    <td><input class="form-input" type="number" value="22" style="width:70px; padding:0.3rem 0.4rem; font-size:0.8rem;"></td>
+                                    <td><input class="form-input" placeholder="Only required if reduced below 22" style="font-size:0.78rem; padding:0.3rem 0.5rem;"></td>
+                                    <td><select class="form-select" style="font-size:0.78rem; padding:0.3rem 0.5rem;"><option selected>Stratified Random</option><option>Random</option><option>Systematic</option><option>Monetary Unit Sampling (MUS)</option><option>Judgmental</option></select></td>
                                     <td><span class="tag tag-green">Complete</span></td>
                                 </tr>
                             </tbody>
                         </table>
-                        <div style="margin-top:1rem; padding:0.75rem; background:var(--slate-50); border-radius:8px; font-size:0.82rem;"><strong>WP-203:</strong> Sampling Plan — drafted Jan 13. Override fields above are logged into the working paper with auditor signature. Samples selected using TerraCAP random number generator for statistical defensibility.</div>
+                        <div style="margin-top:1rem; padding:0.75rem; background:var(--slate-50); border-radius:8px; font-size:0.82rem;"><strong>WP-203:</strong> Sampling Plan — drafted Jan 13. The Auditor Sample Size and Method columns are logged into the working paper with auditor signature once confirmed. Samples are selected using TerraCAP's random number generator for statistical defensibility.</div>
                     </div>
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-top:0.5rem;">
@@ -1432,7 +1460,7 @@
 
             <!-- How testing works -->
             <div style="padding:0.85rem 1.1rem; background:var(--terra-50); border:1px solid var(--terra-300,#9dc8be); border-radius:8px; font-size:0.82rem; color:var(--terra-800); margin-bottom:1.25rem; line-height:1.6;">
-                <strong>How testing works:</strong> Tests are of three types — <strong>Platform</strong> (TerraCAP automatically recalculates, compares actuals vs reported, and flags anomalies), <strong>Auditor</strong> (manual procedures: document vouching, interviews, physical checks — auditor logs results here), and <strong>Hybrid</strong> (platform flags, auditor confirms). Click <strong>Execute</strong> to run a platform test or log a manual result. Exceptions discovered are escalated to Findings automatically.
+                <strong>How testing works:</strong> Tests are of three types — <strong>Platform</strong> (TerraCAP automatically recalculates, compares actuals vs reported, and flags anomalies), <strong>Auditor</strong> (manual procedures: document vouching, interviews, physical checks — auditor logs results here), and <strong>Hybrid</strong> (platform flags, auditor confirms). Click <strong>Execute</strong> to run a platform test. For Auditor tests, click <strong>Select Evidence</strong> first to choose which specific documents from the full evidence population you examined, then <strong>Log Result</strong>. Exceptions discovered are escalated to Findings automatically.
             </div>
 
             <div class="metrics-row" style="grid-template-columns: repeat(3, 1fr);">
@@ -1486,9 +1514,9 @@
                             <tr><td class="text-mono fw-600">T-001</td><td>Electricity bill reconciliation to utility portal</td><td>S2</td><td><span class="tag tag-blue">Platform</span></td><td><span class="tag tag-green">Complete</span></td><td><span class="tag tag-green">✓ Pass</span></td><td><button class="btn btn-sm btn-ghost" onclick="openResultModal('T-001','Electricity Bill Reconciliation','144 BESCOM invoices reconciled against CEA reported consumption. Variance: +12 kWh (0.08%) — within trivial threshold. No exception raised.','Pass')">View Result</button></td></tr>
                             <tr><td class="text-mono fw-600">T-002</td><td>Emission factor source verification — all EFs</td><td>All</td><td><span class="tag tag-blue">Platform</span></td><td><span class="tag tag-green">Complete</span></td><td><span class="tag tag-amber">⚠ Exception</span></td><td><button class="btn btn-sm btn-ghost" onclick="openResultModal('T-002','EF Source Verification','6 of 8 emission factors verified to current IPCC/CEA sources. Exception: R-410A GWP 2,088 (AR4) — current AR6 value is 2,256. Escalated to Finding F-003.','Exception')">View Result</button></td></tr>
                             <tr><td class="text-mono fw-600">T-003</td><td>Diesel consumption vs generator capacity — anomaly check</td><td>S1</td><td><span class="tag tag-amber">Hybrid</span></td><td><span class="tag tag-green">Complete</span></td><td><span class="tag tag-red">❌ Exception</span></td><td><button class="btn btn-sm btn-ghost" onclick="openResultModal('T-003','DG Set Capacity Check','Platform flagged Site 3 Nov 2024: reported 8,500L vs rated capacity 2,500L/month (340% overage). Physical verification confirmed DG set specs. Root cause unresolved. Escalated to Finding F-001 (Critical).','Exception')">View Result</button></td></tr>
-                            <tr><td class="text-mono fw-600">T-004</td><td>Fuel purchase records — sample vouch to invoices (120 records)</td><td>S1</td><td><span class="tag tag-green">Auditor</span></td><td><span class="tag tag-blue">In Progress</span></td><td>—</td><td><button class="btn btn-sm btn-secondary" onclick="logManualResult('T-004','Fuel Purchase Records — Manual Vouching')">Log Result</button></td></tr>
+                            <tr><td class="text-mono fw-600">T-004</td><td>Fuel purchase records — sample vouch to invoices (120 records)</td><td>S1</td><td><span class="tag tag-green">Auditor</span></td><td><span class="tag tag-blue">In Progress</span></td><td>—</td><td><button class="btn btn-sm btn-ghost" onclick="openEvidenceSelectModal('T-004','Fuel Purchase Records — Manual Vouching','S1 Fuel Records',120,480)">📎 Select Evidence</button> <button class="btn btn-sm btn-secondary" onclick="logManualResult('T-004','Fuel Purchase Records — Manual Vouching')">Log Result</button></td></tr>
                             <tr><td class="text-mono fw-600">T-005</td><td>Travel expense completeness — system reconciliation</td><td>S3</td><td><span class="tag tag-blue">Platform</span></td><td><span class="tag tag-amber">Pending</span></td><td>—</td><td><button class="btn btn-sm btn-primary" onclick="openExecuteModal('T-005','Travel Expense Completeness Check','Platform','Platform checks: (1) Employee headcount vs travel claimants by quarter. (2) Travel categories — confirms air, rail, taxi, hotel are all present. (3) Flags missing months. (4) Cross-checks SAP claim total against TerraCAP emission total.')">▶ Execute</button></td></tr>
-                            <tr><td class="text-mono fw-600">T-006</td><td>Scope 3 spend-based EF methodology validation</td><td>S3</td><td><span class="tag tag-green">Auditor</span></td><td><span class="tag tag-amber">Pending</span></td><td>—</td><td><button class="btn btn-sm btn-secondary" onclick="logManualResult('T-006','S3 EF Methodology Validation')">Log Result</button></td></tr>
+                            <tr><td class="text-mono fw-600">T-006</td><td>Scope 3 spend-based EF methodology validation</td><td>S3</td><td><span class="tag tag-green">Auditor</span></td><td><span class="tag tag-amber">Pending</span></td><td>—</td><td><button class="btn btn-sm btn-ghost" onclick="openEvidenceSelectModal('T-006','S3 EF Methodology Validation','S3 Purchased Goods (Cat.1)',50,380)">📎 Select Evidence</button> <button class="btn btn-sm btn-secondary" onclick="logManualResult('T-006','S3 EF Methodology Validation')">Log Result</button></td></tr>
                             <tr><td class="text-mono fw-600">T-007</td><td>Recalculation of Scope 2 market-based emissions</td><td>S2</td><td><span class="tag tag-blue">Platform</span></td><td><span class="tag tag-green">Complete</span></td><td><span class="tag tag-green">✓ Pass</span></td><td><button class="btn btn-sm btn-ghost" onclick="openResultModal('T-007','S2 Market-based Recalculation','Independent recalculation using CEA 2023 grid EF (0.82 kgCO₂/kWh) applied to all BESCOM invoices in sample. Recalculated: 12.31 tCO₂e vs reported 12.3 tCO₂e. Difference 0.01 tCO₂e — trivial. Pass.','Pass')">View Result</button></td></tr>
                             <tr><td class="text-mono fw-600">T-008</td><td>YoY analytical review — Scope 1 trend analysis</td><td>S1</td><td><span class="tag tag-amber">Hybrid</span></td><td><span class="tag tag-green">Complete</span></td><td><span class="tag tag-amber">Observation</span></td><td><button class="btn btn-sm btn-ghost" onclick="openResultModal('T-008','YoY Analytical Review — S1','S1 emissions increased 8.3% YoY (FY23-24: 352 tCO₂e → FY24-25: 381 tCO₂e). Increase linked to new DG set at Site 5 + higher production. No narrative explanation in client report. Escalated to Observation F-005. Not material but recommended for disclosure.','Observation')">View Result</button></td></tr>
                         </tbody>
@@ -1852,7 +1880,11 @@
 
         <!-- ==================== DATA LINEAGE ==================== -->
         <div class="screen" id="screen-lineage">
-            <div class="page-header"><div class="page-title">Data Lineage Explorer</div><div class="page-subtitle">Trace data from source document to final reported CO₂e value for every scope element</div></div>
+            <div class="page-header"><div class="page-title">Data Lineage Explorer</div><div class="page-subtitle">Start from the reported CO₂e value and trace backward to the calculation and source evidence — confirms the recomputed figure reconciles to what was reported</div></div>
+
+            <div style="padding:0.75rem 1rem; background:var(--blue-100); border-radius:8px; margin-bottom:1.25rem; font-size:0.82rem; color:var(--blue-600);">
+                <strong>🔍 How to read this:</strong> Each panel below starts with the <strong>Reported / Computed Value</strong> — the figure that appears in the client's GHG report — then traces backward through the calculation to the underlying <strong>Source Evidence</strong>. If TerraCAP's independent recalculation from source doesn't match the reported figure, that's flagged directly on the Reported Value node so the auditor sees the discrepancy before doing any manual work.
+            </div>
 
             <!-- Master Coverage Summary -->
             <div class="card" style="margin-bottom:1.5rem;">
@@ -1967,11 +1999,11 @@
                 <div class="card"><div class="card-header"><div class="card-title">Scope 1 · Stationary Combustion (DG Sets) · FY 2024-25</div><span class="tag tag-amber">⚠ Finding F-001 Open</span></div>
                 <div class="card-body">
                     <div class="lineage-flow">
-                        <div class="lineage-node source"><div class="node-type">📊 Source</div><div class="node-val">Diesel Purchase Invoices</div><div class="node-detail">42,500 litres total</div><div class="node-detail text-xs text-muted">12 sites · monthly records</div></div>
+                        <div class="lineage-node result"><div class="node-type">📈 Reported / Computed Value</div><div class="node-val">113.9 tCO₂e</div><div class="node-detail">Scope 1 - Stationary</div><div class="node-detail text-xs text-muted" style="color:var(--red-600);">⚠ Anomaly in Nov (F-001)</div></div>
                         <div class="lineage-arrow">→</div>
                         <div class="lineage-node calc"><div class="node-type">⚙️ Calculation</div><div class="node-val">NCV × Density × EF</div><div class="node-detail">2.68 kg CO₂/litre diesel</div><div class="node-detail text-xs text-muted">IPCC 2006 Vol 2, Ch 2</div></div>
                         <div class="lineage-arrow">→</div>
-                        <div class="lineage-node result"><div class="node-type">📈 Result</div><div class="node-val">113.9 tCO₂e</div><div class="node-detail">Scope 1 - Stationary</div><div class="node-detail text-xs text-muted" style="color:var(--red-600);">⚠ Anomaly in Nov (F-001)</div></div>
+                        <div class="lineage-node source"><div class="node-type">📊 Source Evidence</div><div class="node-val">Diesel Purchase Invoices</div><div class="node-detail">42,500 litres total</div><div class="node-detail text-xs text-muted">12 sites · monthly records</div></div>
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
                         <div style="padding:0.75rem; background:var(--slate-50); border-radius:8px;">
@@ -1997,11 +2029,11 @@
                 <div class="card"><div class="card-header"><div class="card-title">Scope 1 · Mobile Combustion (Fleet Vehicles) · FY 2024-25</div><span class="tag tag-green">✓ Accepted</span></div>
                 <div class="card-body">
                     <div class="lineage-flow">
-                        <div class="lineage-node source"><div class="node-type">📊 Source</div><div class="node-val">Fleet Fuel Cards / GPS Logs</div><div class="node-detail">68,200 litres (petrol + diesel)</div><div class="node-detail text-xs text-muted">85 vehicles across 3 entities</div></div>
+                        <div class="lineage-node result"><div class="node-type">📈 Reported / Computed Value</div><div class="node-val">172.4 tCO₂e</div><div class="node-detail">Scope 1 - Mobile</div><div class="node-detail text-xs text-muted">✓ Validated</div></div>
                         <div class="lineage-arrow">→</div>
                         <div class="lineage-node calc"><div class="node-type">⚙️ Calculation</div><div class="node-val">Fuel Type × EF</div><div class="node-detail">Petrol: 2.31 kg CO₂/L, Diesel: 2.68 kg CO₂/L</div><div class="node-detail text-xs text-muted">IPCC 2006 mobile sources</div></div>
                         <div class="lineage-arrow">→</div>
-                        <div class="lineage-node result"><div class="node-type">📈 Result</div><div class="node-val">172.4 tCO₂e</div><div class="node-detail">Scope 1 - Mobile</div><div class="node-detail text-xs text-muted">✓ Validated</div></div>
+                        <div class="lineage-node source"><div class="node-type">📊 Source Evidence</div><div class="node-val">Fleet Fuel Cards / GPS Logs</div><div class="node-detail">68,200 litres (petrol + diesel)</div><div class="node-detail text-xs text-muted">85 vehicles across 3 entities</div></div>
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
                         <div style="padding:0.75rem; background:var(--slate-50); border-radius:8px;">
@@ -2026,11 +2058,11 @@
                 <div class="card"><div class="card-header"><div class="card-title">Scope 1 · Fugitive Emissions (Refrigerants) · FY 2024-25</div><span class="tag tag-red">⚠ Finding F-003 Open</span></div>
                 <div class="card-body">
                     <div class="lineage-flow">
-                        <div class="lineage-node source"><div class="node-type">📊 Source</div><div class="node-val">HVAC Maintenance Logs</div><div class="node-detail">R-410A: 45 kg topped up</div><div class="node-detail text-xs text-muted">⚠ Logs pending (Evidence Gap)</div></div>
+                        <div class="lineage-node result"><div class="node-type">📈 Reported / Computed Value</div><div class="node-val">94.0 tCO₂e</div><div class="node-detail">Scope 1 - Fugitive</div><div class="node-detail text-xs text-muted" style="color:var(--red-600);">⚠ Under-reported by ~7.5 tCO₂e</div></div>
                         <div class="lineage-arrow">→</div>
                         <div class="lineage-node calc"><div class="node-type">⚙️ Calculation</div><div class="node-val">Top-up × GWP</div><div class="node-detail">GWP: 2,088 (AR4) — ⚠ Finding F-003</div><div class="node-detail text-xs text-muted">Should be 2,256 (AR6)</div></div>
                         <div class="lineage-arrow">→</div>
-                        <div class="lineage-node result"><div class="node-type">📈 Result</div><div class="node-val">94.0 tCO₂e</div><div class="node-detail">Scope 1 - Fugitive</div><div class="node-detail text-xs text-muted" style="color:var(--red-600);">⚠ Under-reported by ~7.5 tCO₂e</div></div>
+                        <div class="lineage-node source"><div class="node-type">📊 Source Evidence</div><div class="node-val">HVAC Maintenance Logs</div><div class="node-detail">R-410A: 45 kg topped up</div><div class="node-detail text-xs text-muted">⚠ Logs pending (Evidence Gap)</div></div>
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
                         <div style="padding:0.75rem; background:var(--slate-50); border-radius:8px;">
@@ -2070,11 +2102,11 @@
                 <div class="card"><div class="card-header"><div class="card-title">Scope 2 · Grid Electricity (Location-based) · Oct 2024 Sample</div><span class="tag tag-green">✓ Accepted</span></div>
                 <div class="card-body">
                     <div class="lineage-flow">
-                        <div class="lineage-node source"><div class="node-type">📊 Source</div><div class="node-val">BESCOM Electricity Bill</div><div class="node-detail">15,000 kWh consumed</div><div class="node-detail text-xs text-muted">Oct 15, 2024</div></div>
+                        <div class="lineage-node result"><div class="node-type">📈 Reported / Computed Value</div><div class="node-val">12.3 tCO₂e</div><div class="node-detail">Scope 2 Location-based</div><div class="node-detail text-xs text-muted">✓ Validated & Approved</div></div>
                         <div class="lineage-arrow">→</div>
                         <div class="lineage-node calc"><div class="node-type">⚙️ Calculation</div><div class="node-val">Grid EF Applied</div><div class="node-detail">0.82 kg CO₂e/kWh</div><div class="node-detail text-xs text-muted">CEA India 2023</div></div>
                         <div class="lineage-arrow">→</div>
-                        <div class="lineage-node result"><div class="node-type">📈 Result</div><div class="node-val">12.3 tCO₂e</div><div class="node-detail">Scope 2 Location-based</div><div class="node-detail text-xs text-muted">✓ Validated & Approved</div></div>
+                        <div class="lineage-node source"><div class="node-type">📊 Source Evidence</div><div class="node-val">BESCOM Electricity Bill</div><div class="node-detail">15,000 kWh consumed</div><div class="node-detail text-xs text-muted">Oct 15, 2024</div></div>
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
                         <div style="padding:0.75rem; background:var(--slate-50); border-radius:8px;">
@@ -2101,11 +2133,11 @@
                 <div class="card"><div class="card-header"><div class="card-title">Scope 3 · Business Travel (Category 6) · FY 2024-25</div><span class="tag tag-amber">⚠ Finding F-002</span></div>
                 <div class="card-body">
                     <div class="lineage-flow">
-                        <div class="lineage-node source"><div class="node-type">📊 Source</div><div class="node-val">SAP Travel Module Export</div><div class="node-detail">Air travel: 1,240 expense claims</div><div class="node-detail text-xs text-muted">⚠ Rail travel excluded</div></div>
+                        <div class="lineage-node result"><div class="node-type">📈 Reported / Computed Value</div><div class="node-val">48.2 tCO₂e</div><div class="node-detail">S3 Cat 6 (Air only)</div><div class="node-detail text-xs text-muted" style="color:var(--amber-600);">⚠ Understated — rail missing</div></div>
                         <div class="lineage-arrow">→</div>
                         <div class="lineage-node calc"><div class="node-type">⚙️ Calculation</div><div class="node-val">Distance × Seat Class × EF</div><div class="node-detail">DEFRA 2023 flight EFs</div><div class="node-detail text-xs text-muted">Short/long haul differentiated</div></div>
                         <div class="lineage-arrow">→</div>
-                        <div class="lineage-node result"><div class="node-type">📈 Result</div><div class="node-val">48.2 tCO₂e</div><div class="node-detail">S3 Cat 6 (Air only)</div><div class="node-detail text-xs text-muted" style="color:var(--amber-600);">⚠ Understated — rail missing</div></div>
+                        <div class="lineage-node source"><div class="node-type">📊 Source Evidence</div><div class="node-val">SAP Travel Module Export</div><div class="node-detail">Air travel: 1,240 expense claims</div><div class="node-detail text-xs text-muted">⚠ Rail travel excluded</div></div>
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
                         <div style="padding:0.75rem; background:var(--slate-50); border-radius:8px;">
@@ -2131,11 +2163,11 @@
                 <div class="card"><div class="card-header"><div class="card-title">Scope 3 · Purchased Goods &amp; Services (Category 1) · FY 2024-25</div><span class="tag tag-amber">Under Review</span></div>
                 <div class="card-body">
                     <div class="lineage-flow">
-                        <div class="lineage-node source"><div class="node-type">📊 Source</div><div class="node-val">Procurement Spend Data</div><div class="node-detail">₹8,420 Cr total spend</div><div class="node-detail text-xs text-muted">380 active suppliers</div></div>
+                        <div class="lineage-node result"><div class="node-type">📈 Reported / Computed Value</div><div class="node-val">8,620 tCO₂e</div><div class="node-detail">S3 Cat 1 (Spend-based)</div><div class="node-detail text-xs text-muted">⚠ Inherent EF uncertainty</div></div>
                         <div class="lineage-arrow">→</div>
                         <div class="lineage-node calc"><div class="node-type">⚙️ Calculation</div><div class="node-val">Spend × EEIO EF</div><div class="node-detail">GHG Protocol EEIO method</div><div class="node-detail text-xs text-muted">Commodity-level EFs</div></div>
                         <div class="lineage-arrow">→</div>
-                        <div class="lineage-node result"><div class="node-type">📈 Result</div><div class="node-val">8,620 tCO₂e</div><div class="node-detail">S3 Cat 1 (Spend-based)</div><div class="node-detail text-xs text-muted">⚠ Inherent EF uncertainty</div></div>
+                        <div class="lineage-node source"><div class="node-type">📊 Source Evidence</div><div class="node-val">Procurement Spend Data</div><div class="node-detail">₹8,420 Cr total spend</div><div class="node-detail text-xs text-muted">380 active suppliers</div></div>
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
                         <div style="padding:0.75rem; background:var(--slate-50); border-radius:8px;">
@@ -2160,11 +2192,11 @@
                 <div class="card"><div class="card-header"><div class="card-title">Scope 3 · Water &amp; Wastewater Treatment (Category 5) · FY 2024-25</div><span class="tag tag-green">✓ Accepted</span></div>
                 <div class="card-body">
                     <div class="lineage-flow">
-                        <div class="lineage-node source"><div class="node-type">📊 Source</div><div class="node-val">BWSSB / MIDC Water Bills</div><div class="node-detail">28,400 kL consumed</div><div class="node-detail text-xs text-muted">12 sites · monthly invoices</div></div>
+                        <div class="lineage-node result"><div class="node-type">📈 Reported / Computed Value</div><div class="node-val">20.1 tCO₂e</div><div class="node-detail">S3 Cat 5 (Water)</div><div class="node-detail text-xs text-muted">✓ Validated</div></div>
                         <div class="lineage-arrow">→</div>
                         <div class="lineage-node calc"><div class="node-type">⚙️ Calculation</div><div class="node-val">Volume × Treatment EF</div><div class="node-detail">0.708 kg CO₂e/kL (WRI 2023)</div><div class="node-detail text-xs text-muted">Withdrawal + treatment emissions</div></div>
                         <div class="lineage-arrow">→</div>
-                        <div class="lineage-node result"><div class="node-type">📈 Result</div><div class="node-val">20.1 tCO₂e</div><div class="node-detail">S3 Cat 5 (Water)</div><div class="node-detail text-xs text-muted">✓ Validated</div></div>
+                        <div class="lineage-node source"><div class="node-type">📊 Source Evidence</div><div class="node-val">BWSSB / MIDC Water Bills</div><div class="node-detail">28,400 kL consumed</div><div class="node-detail text-xs text-muted">12 sites · monthly invoices</div></div>
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
                         <div style="padding:0.75rem; background:var(--slate-50); border-radius:8px;">
@@ -2190,11 +2222,11 @@
                 <div class="card"><div class="card-header"><div class="card-title">Scope 3 · Waste Generated in Operations (Category 5 — Waste) · FY 2024-25</div><span class="tag tag-amber">Under Review</span></div>
                 <div class="card-body">
                     <div class="lineage-flow">
-                        <div class="lineage-node source"><div class="node-type">📊 Source</div><div class="node-val">Waste Manifest &amp; Disposal Records</div><div class="node-detail">1,840 MT total waste</div><div class="node-detail text-xs text-muted">Landfill, recycled, incinerated</div></div>
+                        <div class="lineage-node result"><div class="node-type">📈 Reported / Computed Value</div><div class="node-val">16.0 tCO₂e</div><div class="node-detail">S3 Cat 5 (Waste)</div><div class="node-detail text-xs text-muted">⚠ Disposal split under review</div></div>
                         <div class="lineage-arrow">→</div>
                         <div class="lineage-node calc"><div class="node-type">⚙️ Calculation</div><div class="node-val">Weight × Disposal Method EF</div><div class="node-detail">CPCB India disposal factors</div><div class="node-detail text-xs text-muted">Weighted average by disposal type</div></div>
                         <div class="lineage-arrow">→</div>
-                        <div class="lineage-node result"><div class="node-type">📈 Result</div><div class="node-val">16.0 tCO₂e</div><div class="node-detail">S3 Cat 5 (Waste)</div><div class="node-detail text-xs text-muted">⚠ Disposal split under review</div></div>
+                        <div class="lineage-node source"><div class="node-type">📊 Source Evidence</div><div class="node-val">Waste Manifest &amp; Disposal Records</div><div class="node-detail">1,840 MT total waste</div><div class="node-detail text-xs text-muted">Landfill, recycled, incinerated</div></div>
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem;">
                         <div style="padding:0.75rem; background:var(--slate-50); border-radius:8px;">
@@ -2218,9 +2250,12 @@
 
         <!-- ==================== COMPLIANCE MAP ==================== -->
         <div class="screen" id="screen-compliance">
-            <div class="page-header"><div class="page-title">Framework Compliance Map</div><div class="page-subtitle">Coverage and compliance status across applicable reporting frameworks</div></div>
+            <div class="page-header"><div class="page-title">Framework Compliance Map</div><div class="page-subtitle">Coverage and compliance status for the frameworks in this engagement's scope</div></div>
+            <div style="padding:0.75rem 1.1rem; background:var(--blue-100); border-radius:8px; margin-bottom:1.25rem; font-size:0.82rem; color:var(--blue-600);">
+                <strong>Scope for this engagement:</strong> BRSR Core and ISSB S2 — as defined by the client in Data Access Scope (Part I, Step 3) and confirmed at engagement setup. Only these frameworks are assessed and drive the gap analysis below. Other frameworks the client may report against elsewhere are shown collapsed for context only — they are not part of this audit opinion.
+            </div>
             <div class="card">
-                <div class="card-header"><div class="card-title has-tip">Compliance Overview<span class="tip-icon">?</span>
+                <div class="card-header"><div class="card-title has-tip">Compliance Overview — In Scope<span class="tip-icon">?</span>
                     <div class="tip-box"><strong>Compliance %</strong> indicates what proportion of mandatory disclosure requirements for each framework have been met with verified data. It is calculated as: (Verified Disclosures / Total Required Disclosures) × 100. Gaps are detailed in the Disclosure Gap Analysis table below.</div>
                 </div></div>
                 <div class="card-body">
@@ -2233,17 +2268,26 @@
                             <div class="compliance-score">92%</div><div class="compliance-label">ISSB S2</div><div class="mt-1"><span class="tag tag-green">On Track</span></div>
                             <div class="tip-box"><strong>ISSB S2</strong> (IFRS Sustainability — Climate). 23 of 25 disclosures complete. Gaps: physical risk scenario analysis, transition plan detail.</div>
                         </div>
-                        <div class="compliance-item has-tip" style="cursor:help">
-                            <div class="compliance-score">85%</div><div class="compliance-label">CSRD E1</div><div class="mt-1"><span class="tag tag-amber">5 gaps</span></div>
-                            <div class="tip-box"><strong>CSRD E1</strong> (EU — Climate Change). 17 of 20 disclosure requirements met. Key gaps: transition plan, science-based targets, Scope 3 Cat 1 methodology documentation.</div>
-                        </div>
-                        <div class="compliance-item has-tip" style="opacity:0.5; cursor:help">
-                            <div class="compliance-score">—</div><div class="compliance-label">CDP Climate</div><div class="mt-1"><span class="tag tag-blue">Not in scope</span></div>
-                            <div class="tip-box"><strong>CDP Climate</strong> questionnaire is not included in this engagement scope. Client may choose to report to CDP separately.</div>
-                        </div>
                     </div>
                 </div>
             </div>
+            <details style="margin-bottom:1.5rem;">
+                <summary style="cursor:pointer; font-size:0.82rem; color:var(--slate-500); padding:0.5rem 0.25rem; font-weight:600;">Show frameworks outside this engagement's scope (informational only, not assessed)</summary>
+                <div class="card" style="margin-top:0.5rem; opacity:0.7;">
+                    <div class="card-body">
+                        <div class="compliance-grid">
+                            <div class="compliance-item has-tip" style="cursor:help;">
+                                <div class="compliance-score">—</div><div class="compliance-label">CSRD E1</div><div class="mt-1"><span class="tag tag-blue">Not in this engagement's scope</span></div>
+                                <div class="tip-box"><strong>CSRD E1</strong> (EU — Climate Change) is not part of the frameworks confirmed for this engagement. If the client needs CSRD assurance, that requires a separate scope confirmation and would appear here once added.</div>
+                            </div>
+                            <div class="compliance-item has-tip" style="cursor:help">
+                                <div class="compliance-score">—</div><div class="compliance-label">CDP Climate</div><div class="mt-1"><span class="tag tag-blue">Not in scope</span></div>
+                                <div class="tip-box"><strong>CDP Climate</strong> questionnaire is not included in this engagement scope. Client may choose to report to CDP separately.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </details>
             <div class="card">
                 <div class="card-header"><div class="card-title has-tip">Disclosure Gap Analysis<span class="tip-icon">?</span>
                     <div class="tip-box"><strong>How the gap analysis is populated:</strong>
@@ -2259,7 +2303,7 @@
                 </div>
                 </div>
                 <div style="padding:0.6rem 1.25rem; background:var(--terra-50); font-size:0.78rem; color:var(--terra-800); border-bottom:1px solid var(--slate-100);">
-                    <strong>Auto-populated from:</strong> 5 findings in findings log · Framework mapping engine · Testing exceptions (T-002, T-008) · Manual additions: 0
+                    <strong>Auto-populated from:</strong> findings log (in-scope frameworks only) · Framework mapping engine · Testing exceptions · Manual additions: 0
                 </div>
                 <div class="card-body">
                     <table class="data-table">
@@ -2267,8 +2311,6 @@
                         <tbody>
                             <tr><td><span class="fw-badge">BRSR Core</span></td><td class="fw-600">Energy intensity per unit of turnover</td><td><span class="tag tag-amber">Inconsistent</span></td><td class="text-sm">Denominator changed mid-year (F-004)</td></tr>
                             <tr><td><span class="fw-badge">ISSB S2</span></td><td class="fw-600">Climate-related physical risk disclosure</td><td><span class="tag tag-amber">Partial</span></td><td class="text-sm">Risk assessment present, scenario analysis missing</td></tr>
-                            <tr><td><span class="fw-badge">CSRD E1</span></td><td class="fw-600">Transition plan & GHG reduction targets</td><td><span class="tag tag-red">Missing</span></td><td class="text-sm">Client to provide science-based targets documentation</td></tr>
-                            <tr><td><span class="fw-badge">CSRD E1</span></td><td class="fw-600">Scope 3 Category 1 methodology</td><td><span class="tag tag-amber">Methodology unclear</span></td><td class="text-sm">Spend-based approach — EF sources need documentation</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -2725,6 +2767,8 @@
         document.getElementById('exec-steps').innerHTML = '';
         document.getElementById('exec-run-btn').style.display = '';
         document.getElementById('exec-result-area').style.display = 'none';
+        const leftoverEvBtn = document.getElementById('ev-confirm-btn');
+        if (leftoverEvBtn) leftoverEvBtn.remove();
         document.getElementById('modal-execute').classList.add('open');
     }
 
@@ -2799,6 +2843,60 @@
     }
 
     // logResultModal: used by "Log Result" (manual tests) to record outcome and update table
+    // Auditor selects specific evidence items from the full population before logging a manual test result
+    function openEvidenceSelectModal(testId, testName, category, targetCount, populationCount) {
+        _currentTestId = testId;
+        document.getElementById('exec-modal-title').textContent = testId + ': Select Evidence to Test';
+        document.getElementById('exec-modal-type').textContent = 'Auditor (Manual) — Evidence Selection';
+        document.getElementById('exec-modal-desc').textContent = 'Choose the specific documents examined for "' + testName + '". Target sample size from the Sampling Plan (Step 5): ' + targetCount + ' of ' + populationCount + ' in population.';
+        // Mock a representative slice of the underlying evidence population for the category
+        const items = [];
+        for (let i = 1; i <= 14; i++) {
+            items.push({
+                id: category.replace(/[^A-Z0-9]/gi,'').slice(0,4).toUpperCase() + '-' + String(i).padStart(3,'0'),
+                label: category + ' — record ' + i,
+                date: 'FY 2024-25, month ' + (((i - 1) % 12) + 1),
+            });
+        }
+        let html = '<div style="font-size:0.8rem; color:var(--slate-500); margin-bottom:0.6rem;">Showing a representative slice of the ' + populationCount + '-item population from Evidence Review. Selected items are logged as this test\'s working sample.</div>';
+        html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;"><span id="ev-select-count" style="font-weight:700; font-size:0.85rem;">0 of ' + targetCount + ' selected</span><button class="btn btn-sm btn-ghost" onclick="autoSelectEvidence(' + targetCount + ')">Auto-select ' + targetCount + ' at random</button></div>';
+        html += '<div style="max-height:260px; overflow-y:auto; border:1px solid var(--slate-200); border-radius:8px;">';
+        items.forEach(it => {
+            html += '<label style="display:flex; align-items:center; gap:0.6rem; padding:0.5rem 0.75rem; border-bottom:1px solid var(--slate-100); font-size:0.82rem; cursor:pointer;"><input type="checkbox" class="ev-select-cb" onchange="updateEvidenceSelectCount(' + targetCount + ')"><span class="text-mono" style="color:var(--slate-500); min-width:70px;">' + it.id + '</span><span style="flex:1;">' + it.label + '</span><span class="text-xs text-muted">' + it.date + '</span></label>';
+        });
+        html += '</div>';
+        html += '<div style="margin-top:0.5rem; font-size:0.75rem; color:var(--slate-500);">Full population of ' + populationCount + ' items is browsable in <strong>Evidence Review</strong> — this list shows the first 14 for illustration.</div>';
+        document.getElementById('exec-steps').innerHTML = html;
+        document.getElementById('exec-run-btn').style.display = 'none';
+        document.getElementById('exec-result-area').style.display = 'none';
+        const oldBtn = document.getElementById('ev-confirm-btn');
+        if (oldBtn) oldBtn.remove();
+        const confirmBtn = document.createElement('button');
+        confirmBtn.className = 'btn btn-primary';
+        confirmBtn.id = 'ev-confirm-btn';
+        confirmBtn.textContent = 'Confirm Selection → Log Result';
+        confirmBtn.onclick = function() {
+            const selected = document.querySelectorAll('.ev-select-cb:checked').length;
+            if (selected === 0) { showToast('Select at least one evidence item before continuing.'); return; }
+            showToast(selected + ' evidence items recorded as the working sample for ' + testId + '.');
+            closeModal('modal-execute');
+            logManualResult(testId, testName);
+        };
+        document.querySelector('#modal-execute .modal-footer').appendChild(confirmBtn);
+        document.getElementById('modal-execute').classList.add('open');
+    }
+    function updateEvidenceSelectCount(target) {
+        const n = document.querySelectorAll('.ev-select-cb:checked').length;
+        const el = document.getElementById('ev-select-count');
+        if (el) el.textContent = n + ' of ' + target + ' selected';
+    }
+    function autoSelectEvidence(target) {
+        const boxes = document.querySelectorAll('.ev-select-cb');
+        boxes.forEach((b, i) => { b.checked = i < Math.min(target, boxes.length); });
+        updateEvidenceSelectCount(target);
+        showToast('Auto-selected ' + Math.min(target, boxes.length) + ' items (illustrative — full population sampling runs against all ' + boxes.length + '+ records).');
+    }
+
     function logManualResult(testId, testName) {
         _currentTestId = testId;
         document.getElementById('exec-modal-title').textContent = testId + ': Log Manual Result';
@@ -2807,6 +2905,8 @@
         document.getElementById('exec-steps').innerHTML = '<div style="margin:0.5rem 0;"><div class="form-group"><label class="form-label">Result</label><select class="form-select" id="manual-result-sel"><option value="Pass">Pass — no exception</option><option value="Exception">Exception found</option><option value="Observation">Observation noted</option></select></div><div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="manual-result-notes" rows="3" placeholder="Describe what you found, any exceptions, supporting references..."></textarea></div><div class="form-group"><label class="form-label">Working Paper Ref</label><input class="form-input" id="manual-wp-ref" value="WP-30' + Math.floor(Math.random()*9+2) + '"></div></div>';
         document.getElementById('exec-run-btn').style.display = 'none';
         document.getElementById('exec-result-area').style.display = 'none';
+        const leftoverEvBtn = document.getElementById('ev-confirm-btn');
+        if (leftoverEvBtn) leftoverEvBtn.remove();
         const logBtn = document.createElement('button');
         logBtn.className = 'btn btn-primary';
         logBtn.textContent = '✓ Save Manual Result';
@@ -2894,6 +2994,7 @@
             if (tag) { tag.className = 'tag combined-tag tag-slate'; tag.textContent = 'Unrated'; }
             if (respCell) { respCell.textContent = 'Pending rating'; respCell.className = 'text-sm text-muted'; }
             updateRiskGate();
+            if (typeof markProcedurePlanStale === 'function') markProcedurePlanStale();
             return;
         }
         const rankMap = {high:3, medium:2, low:1};
@@ -2906,6 +3007,7 @@
         const responseMap = {high:'Substantive + physical verification', medium:'Mixed procedures + 15–25% sample', low:'Analytical procedures + 10–15% sample'};
         if (respCell) { respCell.textContent = responseMap[combined] + ' → Step 4'; respCell.className = 'text-sm'; }
         updateRiskGate();
+        if (typeof markProcedurePlanStale === 'function') markProcedurePlanStale();
     }
 
     function updateRiskGate() {
@@ -3011,6 +3113,34 @@
         if (imp) imp.textContent = 'At this materiality: samples must be sized to detect errors above ±' + pm.toLocaleString() + ' tCO₂e (PM). Errors below ±' + trivial.toLocaleString() + ' tCO₂e are clearly trivial and not accumulated. Setting OM higher reduces sample sizes but increases opinion risk.';
     }
 
+    function confirmMateriality() {
+        const rationale = document.getElementById('mat-rationale');
+        if (!rationale || !rationale.value.trim()) {
+            showToast('Enter a rationale for the OM% selected before confirming.');
+            return;
+        }
+        ['mat-total','mat-om-pct','mat-pm-pct','mat-rationale'].forEach(id => { const el = document.getElementById(id); if (el) el.disabled = true; });
+        const confirmBtn = document.getElementById('mat-confirm-btn');
+        const approveBtn = document.getElementById('mat-approve-btn');
+        if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = '✓ Confirmed by Vikram Desai'; }
+        if (approveBtn) approveBtn.disabled = false;
+        const tag = document.getElementById('materiality-status-tag');
+        if (tag) { tag.className = 'tag tag-blue'; tag.textContent = '⏳ Awaiting Partner Approval'; }
+        showToast('Materiality confirmed by Engagement Manager — awaiting Partner approval.');
+    }
+
+    function approveMateriality() {
+        const approveBtn = document.getElementById('mat-approve-btn');
+        if (approveBtn) { approveBtn.disabled = true; approveBtn.textContent = '✓ Approved by Rajesh Kumar'; }
+        const tag = document.getElementById('materiality-status-tag');
+        if (tag) { tag.className = 'tag tag-green'; tag.textContent = '✓ Confirmed & Approved'; }
+        const wp = document.getElementById('materiality-wp-note');
+        if (wp) wp.innerHTML = '<strong>WP-202:</strong> Materiality Workbook · Proposed by Vikram Desai (Engagement Manager) · Approved by Rajesh Kumar (Engagement Partner) · ' + new Date().toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'});
+        const nextBtn = document.getElementById('materiality-next-btn');
+        if (nextBtn) { nextBtn.disabled = false; nextBtn.title = ''; }
+        showToast('Materiality approved — thresholds locked and now drive Steps 4–5.');
+    }
+
     // ===== AUDIT STRATEGY =====
     function updateStrategyRow() {
         const approach = document.getElementById('strat-approach')?.value;
@@ -3021,6 +3151,112 @@
             analytical: 'Only appropriate if all areas are Low risk and strong controls are demonstrated. Not appropriate here — 2 High-risk areas exist.'
         };
         if (noteEl && approach) noteEl.textContent = notes[approach] || '';
+        markProcedurePlanStale();
+    }
+
+    function markProcedurePlanStale() {
+        const banner = document.getElementById('procedure-stale-banner');
+        if (banner) banner.style.display = 'block';
+    }
+
+    // Risk areas known to Step 2, mapped to display name and the scope label shown in the procedure table
+    const RISK_AREA_MAP = {
+        'risk-s1-stationary': { name: 'S1 Stationary Combustion', scope: 'S1 Stationary' },
+        'risk-s1-refrigerant': { name: 'S1 Fugitive (Refrigerants)', scope: 'S1 Refrigerants' },
+        'risk-s1-mobile': { name: 'S1 Mobile Combustion', scope: 'S1 Mobile' },
+        'risk-s2-elec': { name: 'S2 Grid Electricity', scope: 'S2 Electricity' },
+        'risk-s3-travel': { name: 'S3 Business Travel', scope: 'S3 Travel' },
+        'risk-s3-purchased': { name: 'S3 Purchased Goods (Cat. 1)', scope: 'S3 Purchased Goods' },
+        'risk-ef': { name: 'Emission Factor Selection', scope: 'All EFs (cross-cutting)' },
+    };
+
+    function getCurrentRiskRatings() {
+        const ratings = {};
+        Object.keys(RISK_AREA_MAP).forEach(id => {
+            const row = document.getElementById(id);
+            const tag = row?.querySelector('.combined-tag');
+            ratings[id] = tag ? tag.textContent.trim() : 'Unrated';
+        });
+        return ratings;
+    }
+
+    function regenerateProcedurePlan() {
+        const approach = document.getElementById('strat-approach')?.value || 'combined';
+        const tech = document.getElementById('strat-tech')?.value || 'hybrid';
+        const s3Approach = document.getElementById('strat-s3')?.value || 'methodology';
+        const sites = document.getElementById('strat-sites')?.value || 'high-risk';
+        const ratings = getCurrentRiskRatings();
+        const rows = [];
+        const techExecutor = tech === 'manual' ? 'Auditor' : tech === 'platform' ? 'TerraCAP' : 'Hybrid';
+
+        rows.push(['Recalculation (Platform)', 'S1, S2, S3 — all', 'All risk levels: automated check costs nothing; catches formula errors', tech === 'manual' ? 'Auditor' : 'TerraCAP', 'Week 1']);
+        rows.push(['Management inquiry', 'All scopes', 'Required under ISAE 3410: questions to management about unusual items and control environment', 'Auditor', 'Week 1']);
+
+        Object.entries(RISK_AREA_MAP).forEach(([id, meta]) => {
+            if (id === 'risk-ef') return; // handled separately below
+            const risk = ratings[id];
+            if (risk === 'Unrated') {
+                rows.push([`⚠ ${meta.name} — no procedure assigned`, meta.scope, 'Risk not yet rated in Step 2 — return to Assurance Risk Assessment before this area can be planned', '—', '—']);
+                return;
+            }
+            const isS3 = id.startsWith('risk-s3');
+            let procType, why, executor = 'Auditor';
+            if (approach === 'analytical') {
+                procType = 'Analytical review (YoY)';
+                why = risk === 'High'
+                    ? '⚠ Analytical-only selected, but this area is High risk — not recommended; consider Combined or Substantive approach'
+                    : 'Low/Medium risk with Analytical-only approach: trend review only';
+                executor = 'Hybrid';
+            } else if (isS3 && s3Approach !== 'analytical') {
+                procType = s3Approach === 'vouching' ? 'Document vouching' : 'Methodology review';
+                why = s3Approach === 'vouching' ? 'Primary-source data available for this S3 category — vouch to source' : 'Spend-based EEIO: validate EF selection and categorisation, not the spend itself';
+            } else if (risk === 'High') {
+                procType = approach === 'substantive' || approach === 'combined' ? 'Document vouching' : 'Analytical review (YoY)';
+                why = 'High combined risk → substantive evidence required';
+            } else if (risk === 'Medium') {
+                procType = approach === 'substantive' ? 'Document vouching' : 'Completeness / analytical (mixed)';
+                why = 'Medium combined risk → mixed procedures';
+                executor = 'Hybrid';
+            } else {
+                procType = 'Analytical review (YoY)';
+                why = 'Low combined risk → analytical procedures sufficient';
+                executor = 'Hybrid';
+            }
+            rows.push([procType, meta.scope, why, executor, risk === 'High' ? 'Weeks 2–3' : 'Week 2']);
+
+            // Site visit row for physically-relevant high-risk categories
+            if (risk === 'High' && (id === 'risk-s1-stationary' || id === 'risk-s1-refrigerant')) {
+                if (sites === 'all' || sites === 'high-risk') {
+                    rows.push(['Physical site visit — Site 3', meta.scope, 'High combined risk + physical evidence (DG sets / refrigerant logs) → site presence required', 'Auditor', 'Week 3']);
+                } else {
+                    rows.push(['⚠ No site visit planned', meta.scope, 'All-remote selected despite High risk — document justification for the working paper', 'Auditor', '—']);
+                }
+            }
+        });
+
+        if (sites === 'all') {
+            rows.push(['Physical site visit — remaining sites', 'All facilities not otherwise covered', '"All sites physical" selected — full coverage regardless of risk level', 'Auditor', 'Week 3']);
+        }
+
+        const efRisk = ratings['risk-ef'];
+        if (efRisk === 'Unrated') {
+            rows.push(['⚠ Emission Factor Selection — no procedure assigned', 'All EFs (cross-cutting)', 'Risk not yet rated in Step 2', '—', '—']);
+        } else {
+            rows.push(['EF source verification', 'All EFs (cross-cutting)', efRisk + ' risk: EF currency check against IPCC/GHG Protocol', tech === 'manual' ? 'Auditor' : 'TerraCAP', 'Week 1']);
+        }
+
+        const tbody = document.getElementById('procedure-tbody');
+        if (tbody) {
+            tbody.innerHTML = rows.map(r => {
+                const flagged = r[0].startsWith('⚠');
+                const bg = flagged ? ' style="background:#FFF5F5;"' : '';
+                const whyColor = flagged ? ' style="color:var(--red-600);"' : '';
+                return `<tr${bg}><td class="fw-600">${r[0]}</td><td>${r[1]}</td><td class="text-sm"${whyColor}>${r[2]}</td><td><span class="tag ${r[3]==='TerraCAP'?'tag-blue':r[3]==='Auditor'?'tag-green':'tag-amber'}">${r[3]}</span></td><td class="text-mono text-xs">${r[4]}</td></tr>`;
+            }).join('');
+        }
+        const banner = document.getElementById('procedure-stale-banner');
+        if (banner) banner.style.display = 'none';
+        showToast('Procedure plan regenerated from current strategy selections and Step 2 risk ratings.');
     }
 
 
