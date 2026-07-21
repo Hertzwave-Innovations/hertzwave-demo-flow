@@ -293,7 +293,7 @@
             <div class="nav-section-title">Active Audit</div>
             <div class="nav-item" data-screen="queries" onclick="go('queries')"><div class="nav-icon">💬</div> Auditor Queries<span class="nav-badge nav-badge-red">3</span></div>
             <div class="nav-item" data-screen="findings" onclick="go('findings')"><div class="nav-icon">⚠️</div> Findings & Responses<span class="nav-badge nav-badge-amber">2</span></div>
-            <div class="nav-item" data-screen="pbc" onclick="go('pbc')"><div class="nav-icon">📋</div> PBC / Evidence Requests<span class="nav-badge nav-badge-amber">4</span></div>
+            <div class="nav-item" data-screen="pbc" onclick="go('pbc')"><div class="nav-icon">📋</div> Evidence Requests<span class="nav-badge nav-badge-amber">4</span></div>
             <div class="nav-item" data-screen="timeline" onclick="go('timeline')"><div class="nav-icon">📅</div> Activity Timeline</div>
         </div>
 
@@ -402,8 +402,18 @@
                             <div class="form-group"><label class="form-label">Deadline for Opinion Issuance</label><input class="form-input" type="date"></div>
                         </div>
                         <div class="form-row">
-                            <div class="form-group"><label class="form-label">Assurance Level</label><select class="form-select"><option>Limited Assurance</option><option>Reasonable Assurance</option></select></div>
+                            <div class="form-group"><label class="form-label">Assurance Level</label><select class="form-select" id="assurance-level-select" onchange="updateAssuranceLevelHelp()"><option value="limited">Limited Assurance</option><option value="reasonable">Reasonable Assurance</option></select></div>
                             <div class="form-group"><label class="form-label">Subject Matter</label><select class="form-select"><option>GHG Emissions (Scope 1, 2, 3)</option><option>GHG Emissions (Scope 1, 2 only)</option><option>Full ESG Report</option></select></div>
+                        </div>
+                        <div id="assurance-level-help" style="display:flex; gap:0.75rem; margin:-0.5rem 0 1.25rem;">
+                            <div id="al-card-limited" style="flex:1; padding:0.85rem 1rem; border-radius:8px; border:2px solid var(--hz-primary); background:var(--hz-primary-50);">
+                                <div style="font-weight:700; font-size:0.82rem; color:var(--hz-primary); margin-bottom:0.3rem;">✓ Limited Assurance <span style="font-weight:400;">(selected)</span></div>
+                                <div style="font-size:0.78rem; color:var(--subtle); line-height:1.55;">The auditor performs mainly analytical procedures and inquiry — not full testing of every item. Their opinion says nothing has come to their attention to suggest the data is materially misstated <em>("negative assurance")</em>. Lower cost and time; the standard starting point for most first-time BRSR/GHG assurance engagements.</div>
+                            </div>
+                            <div id="al-card-reasonable" style="flex:1; padding:0.85rem 1rem; border-radius:8px; border:1px solid var(--stroke); background:var(--bg);">
+                                <div style="font-weight:700; font-size:0.82rem; color:var(--ink); margin-bottom:0.3rem;">Reasonable Assurance</div>
+                                <div style="font-size:0.78rem; color:var(--subtle); line-height:1.55;">The auditor performs testing and evidence-gathering comparable to a financial statement audit. Their opinion is a positive, direct statement that the data <em>is</em> fairly stated <em>("positive assurance")</em>. Higher cost and time, and higher assurance value to stakeholders — typically required for BRSR Core "reasonable assurance" parameters mandated for top-listed entities.</div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Governing Assurance Standard <span style="font-weight:400; color:var(--subtle);">(auto-suggested — confirm before proceeding)</span></label>
@@ -414,6 +424,15 @@
                                 <option value="issa5000">ISSA 5000 — IAASB, effective for periods from 15 Dec 2026</option>
                             </select>
                             <div class="form-hint" style="margin-top:0.4rem;">Suggested from the entity's jurisdiction (India) and reporting period against TerraCAP's Standards Registry. ICAI has not yet finalised its SSA-5000 adoption date, so engagements straddling 15 Dec 2026 need Engagement Partner confirmation. <a href="#" onclick="return false;" style="color:var(--terra-600);">View Standards Registry →</a></div>
+                            <div style="margin-top:0.6rem; padding:0.75rem 0.9rem; background:var(--bg); border:1px solid var(--stroke); border-radius:8px;">
+                                <div style="font-weight:700; font-size:0.78rem; color:var(--ink); margin-bottom:0.4rem;">What actually changes with the standard you pick:</div>
+                                <ul style="margin:0; padding-left:1.1rem; font-size:0.78rem; color:var(--subtle); line-height:1.6;">
+                                    <li>The <strong>audit procedures</strong> the auditor is required to follow — risk assessment, materiality-setting, and sampling rules differ between the ISAE 3000 family and the ISSA/SSA 5000 family (the latter adds explicit double-materiality assessment).</li>
+                                    <li>The <strong>wording and format of the assurance opinion</strong> itself, which regulators and stakeholders read literally — an opinion issued under the wrong standard can be rejected on a technicality even if the underlying work was sound.</li>
+                                    <li><strong>Whether SEBI/regulatory filings accept it</strong> — BRSR Core assurance must be performed to a standard SEBI recognises for the filing year in question.</li>
+                                    <li>Little to no change to <strong>what data the auditor asks you for</strong> — evidence and access requirements stay broadly similar across standards.</li>
+                                </ul>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Applicable Frameworks</label>
@@ -559,13 +578,23 @@
                         </div>
 
                         <div class="form-group"><label class="form-label">Authorised Signatory</label>
-                            <select class="form-select" id="mgmt-disclosure-signatory">
-                                <option value="">— Select an authorised signatory —</option>
-                                <option value="cfo">R. Menon — Chief Financial Officer</option>
-                                <option value="sustainability_head">Head of Sustainability</option>
-                                <option value="ceo">Chief Executive Officer</option>
-                            </select>
-                            <div class="form-hint">Restricted to roles with representation authority for this entity — not any TerraCAP admin user.</div>
+                            <div class="form-hint" style="margin-bottom:0.6rem;">Enter the person authorised to make representations to the auditor on behalf of the entity. This does not have to be a pre-listed role — any name can be entered, subject to the authorisation basis below.</div>
+                            <div class="form-row">
+                                <div class="form-group"><label class="form-label" style="font-weight:500; font-size:0.78rem;">Full Name</label><input class="form-input" id="mgmt-disclosure-name" type="text" placeholder="e.g. Rohan Menon"></div>
+                                <div class="form-group"><label class="form-label" style="font-weight:500; font-size:0.78rem;">Designation / Title</label><input class="form-input" id="mgmt-disclosure-designation" type="text" placeholder="e.g. Chief Financial Officer"></div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group"><label class="form-label" style="font-weight:500; font-size:0.78rem;">Official Email Address</label><input class="form-input" id="mgmt-disclosure-email" type="email" placeholder="name@company.com"></div>
+                                <div class="form-group"><label class="form-label" style="font-weight:500; font-size:0.78rem;">Authorisation Basis</label>
+                                    <select class="form-select" id="mgmt-disclosure-basis">
+                                        <option value="">— Select —</option>
+                                        <option value="statutory">Statutory officer of the entity (e.g. CEO, CFO, Company Secretary)</option>
+                                        <option value="board">Board resolution / delegation of authority on file</option>
+                                        <option value="poa">Power of Attorney on file</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-hint">The auditor's engagement partner may request supporting documentation for the authorisation basis before accepting this declaration as management's representation.</div>
                         </div>
 
                         <div class="form-group"><label class="form-label">Known data-quality issues, control weaknesses, or estimation-heavy areas</label>
@@ -816,9 +845,9 @@
 
 
 
-        <!-- ==================== PBC / EVIDENCE REQUESTS ==================== -->
+        <!-- ==================== EVIDENCE REQUESTS ==================== -->
         <div class="screen" id="screen-pbc">
-            <div class="page-header"><div class="page-title">PBC / Evidence Requests</div><div class="page-subtitle">Provided-By-Client tracker — all documents requested by the auditor, due dates, and current status</div></div>
+            <div class="page-header"><div class="page-title">Evidence Requests <span style="font-weight:400; font-size:1rem; color:var(--subtle);">(from Auditor)</span></div><div class="page-subtitle">Documents the auditor has requested from you — track due dates and provide them here. Known in audit terms as the "PBC" (Provided-By-Client) list.</div></div>
 
             <div class="info-box">
                 <div class="info-box-title">📋 About This Tracker</div>
@@ -1324,12 +1353,28 @@
     }
 
     // Wizard
+    function updateAssuranceLevelHelp() {
+        const sel = document.getElementById('assurance-level-select');
+        const limitedCard = document.getElementById('al-card-limited');
+        const reasonableCard = document.getElementById('al-card-reasonable');
+        if (!sel || !limitedCard || !reasonableCard) return;
+        const isLimited = sel.value === 'limited';
+        limitedCard.style.border = isLimited ? '2px solid var(--hz-primary)' : '1px solid var(--stroke)';
+        limitedCard.style.background = isLimited ? 'var(--hz-primary-50)' : 'var(--bg)';
+        limitedCard.querySelector('div').innerHTML = (isLimited ? '✓ ' : '') + 'Limited Assurance' + (isLimited ? ' <span style="font-weight:400;">(selected)</span>' : '');
+        reasonableCard.style.border = !isLimited ? '2px solid var(--hz-primary)' : '1px solid var(--stroke)';
+        reasonableCard.style.background = !isLimited ? 'var(--hz-primary-50)' : 'var(--bg)';
+        reasonableCard.querySelector('div').innerHTML = (!isLimited ? '✓ ' : '') + 'Reasonable Assurance' + (!isLimited ? ' <span style="font-weight:400;">(selected)</span>' : '');
+    }
     function wizardNext(step) {
         if (step === 4) {
-            const signatory = document.getElementById('mgmt-disclosure-signatory');
+            const name = document.getElementById('mgmt-disclosure-name');
+            const designation = document.getElementById('mgmt-disclosure-designation');
+            const email = document.getElementById('mgmt-disclosure-email');
+            const basis = document.getElementById('mgmt-disclosure-basis');
             const assertion = document.getElementById('mgmt-completeness-assertion');
-            if (!signatory || !signatory.value || !assertion || !assertion.checked) {
-                toast('Select an authorised signatory and confirm the completeness assertion before continuing.');
+            if (!name?.value.trim() || !designation?.value.trim() || !email?.value.trim() || !basis?.value || !assertion?.checked) {
+                toast('Enter the signatory\'s name, designation, email, and authorisation basis, and confirm the completeness assertion before continuing.');
                 return;
             }
             const statusEl = document.getElementById('review-mgmt-disclosure-status');
