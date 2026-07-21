@@ -1059,7 +1059,7 @@
                         <!-- Materiality source / ESG scoping link -->
                         <div style="padding:0.85rem 1.1rem; background:var(--blue-100); border-radius:8px; margin-bottom:1.25rem; font-size:0.85rem; color:var(--blue-600);">
                             <strong>📊 Data source:</strong> Total reported GHG of <strong>8,990 tCO₂e</strong> pulled from TerraCAP (S1+S2+S3).
-                            <div style="margin-top:0.5rem;"><strong>🔗 Link to ESG Materiality Scoping Module:</strong> Acme's ESG Materiality Scoping module (in the client dashboard under "ESG Scope") identifies which topics are financially material. The auditor reviews this output to confirm no in-scope GHG categories were wrongly excluded by the client. If the client's scoping excluded a material category, the auditor would expand scope. <a href="#" onclick="showToast('Opening ESG Scoping Module…'); return false;" style="color:var(--terra-700); font-weight:600;">Open ESG Scoping →</a></div>
+                            <div style="margin-top:0.5rem;"><strong>📐 ESG Materiality Assessment (client's own document):</strong> Acme's double-materiality matrix and stakeholder engagement output identifies which topics are financially material. The auditor reviews this document — access granted directly under this engagement's Data Access Scope, no separate request needed — to confirm no in-scope GHG category was wrongly excluded by the client. If the client's own scoping excluded a category that should be in the audit scope, the auditor would expand scope and document why. <button class="btn btn-sm btn-ghost" style="margin-left:0.25rem;" onclick="openDocViewer('Acme_ESG_Materiality_Assessment_FY2425.pdf', 'Double Materiality Matrix & Stakeholder Engagement Summary · Uploaded Jan 5, 2025 · 3.1 MB', '&lt;strong&gt;Section 1 — Stakeholder Engagement&lt;/strong&gt;&lt;br&gt;Investors, employees, regulators, and community groups consulted Q3 2024 (14 sessions, 210 respondents).&lt;br&gt;&lt;br&gt;&lt;strong&gt;Section 2 — Double Materiality Matrix&lt;/strong&gt;&lt;br&gt;GHG Emissions, Water Management, and Waste Management scored highest on both impact and financial materiality axes — consistent with the categories confirmed in this engagement\'s Data Access Scope.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Section 3 — Topics Considered but Excluded&lt;/strong&gt;&lt;br&gt;Biodiversity impact scored below the materiality threshold this cycle; auditor should confirm no in-scope GHG category was excluded on this basis.')">📄 View Materiality Assessment →</button> <span style="font-size:0.75rem; color:var(--slate-500);">Also browsable anytime under Evidence Review → 📐 Materiality Assessment.</span></div>
                         </div>
 
                         <!-- How to choose the OM% — guidance, not just a worked example -->
@@ -1337,11 +1337,28 @@
                 <span class="filter-chip" onclick="filterEvidence(this,'scope2')">Scope 2</span>
                 <span class="filter-chip" onclick="filterEvidence(this,'scope3')">Scope 3</span>
                 <span class="filter-chip" onclick="filterEvidence(this,'policy')">Policies</span>
+                <span class="filter-chip" onclick="filterEvidence(this,'materiality')">📐 Materiality Assessment</span>
                 <span class="filter-chip" onclick="filterEvidence(this,'flagged')">⚠ Flagged</span>
                 <span class="filter-chip" onclick="filterEvidence(this,'gap')">❌ Gaps</span>
             </div>
 
             <div id="evidence-list">
+                <!-- ESG Materiality Assessment (double materiality matrix) -->
+                <div class="evidence-row" data-cat="materiality">
+                    <div class="ev-icon" style="background:#E9E4FF">📐</div>
+                    <div class="ev-info">
+                        <div class="ev-name">Acme_ESG_Materiality_Assessment_FY2425.pdf</div>
+                        <div class="ev-meta"><span>Double Materiality Matrix &amp; Stakeholder Engagement Summary</span> <span>3.1 MB</span> <span>Uploaded Jan 5, 2025</span> <span class="tag tag-green">✓ Access granted (Data Access Scope)</span></div>
+                        <div class="ev-frameworks"><span class="fw-badge">ISSB S2</span><span class="fw-badge">AA1000AS</span><span class="fw-badge">BRSR Core</span></div>
+                    </div>
+                    <div class="ev-actions">
+                        <button class="btn btn-sm btn-ghost" onclick="openDocViewer('Acme_ESG_Materiality_Assessment_FY2425.pdf', 'Double Materiality Matrix & Stakeholder Engagement Summary · Uploaded Jan 5, 2025 · 3.1 MB', '&lt;strong&gt;Section 1 — Stakeholder Engagement&lt;/strong&gt;&lt;br&gt;Investors, employees, regulators, and community groups consulted Q3 2024 (14 sessions, 210 respondents).&lt;br&gt;&lt;br&gt;&lt;strong&gt;Section 2 — Double Materiality Matrix&lt;/strong&gt;&lt;br&gt;GHG Emissions, Water Management, and Waste Management scored highest on both impact and financial materiality axes — consistent with the categories confirmed in this engagement\'s Data Access Scope.&lt;br&gt;&lt;br&gt;&lt;strong&gt;Section 3 — Topics Considered but Excluded&lt;/strong&gt;&lt;br&gt;Biodiversity impact scored below the materiality threshold this cycle; auditor should confirm no in-scope GHG category was excluded on this basis.')">View Document</button>
+                        <button class="btn btn-sm btn-secondary">Add Note</button>
+                        <button class="btn btn-sm btn-primary">✓ Accept</button>
+                        <button class="btn btn-sm btn-danger" onclick="openQueryModal('Acme_ESG_Materiality_Assessment_FY2425.pdf')">Raise Query</button>
+                    </div>
+                </div>
+
                 <!-- Scope 2 Validated -->
                 <div class="evidence-row" data-cat="scope2">
                     <div class="ev-icon" style="background:var(--blue-100)">⚡</div>
@@ -2539,6 +2556,22 @@
 
 <!-- ==================== MODALS ==================== -->
 
+<!-- Document Viewer Modal (read-only) -->
+<div class="modal-overlay" id="modal-docviewer">
+    <div class="modal" style="max-width:560px;">
+        <div class="modal-header">
+            <div class="modal-title" id="docviewer-title">Document</div>
+            <button class="modal-close" onclick="closeModal('modal-docviewer')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="font-size:0.78rem; color:var(--slate-500); margin-bottom:0.75rem;" id="docviewer-meta"></div>
+            <div style="padding:1rem; background:var(--slate-50); border-radius:8px; font-size:0.85rem; line-height:1.7; max-height:320px; overflow-y:auto;" id="docviewer-content"></div>
+            <div style="margin-top:0.75rem; font-size:0.75rem; color:var(--slate-500);">🔒 Read-only — provided by client under this engagement's Data Access Scope.</div>
+        </div>
+        <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('modal-docviewer')">Close</button></div>
+    </div>
+</div>
+
 <!-- Raise Query Modal -->
 <div class="modal-overlay" id="modal-query">
     <div class="modal">
@@ -2758,6 +2791,13 @@
 
     // ===== TEST EXECUTION MODAL =====
     let _currentTestId = null; // track which test is running
+
+    function openDocViewer(title, meta, contentHtml) {
+        document.getElementById('docviewer-title').textContent = title;
+        document.getElementById('docviewer-meta').textContent = meta;
+        document.getElementById('docviewer-content').innerHTML = contentHtml;
+        document.getElementById('modal-docviewer').classList.add('open');
+    }
 
     function openExecuteModal(testId, testName, type, description) {
         _currentTestId = testId;
