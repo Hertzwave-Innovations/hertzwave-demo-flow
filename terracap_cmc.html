@@ -3,1051 +3,723 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>TerraCAP — Carbon Market Compliance</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>TerraCAP — Global Carbon Compliance Navigator</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{
-  --teal:#0f7a60;--teal-l:#1d9e75;--teal-pale:#e1f5ee;--teal-50:#f0faf5;
-  --blue:#185fa5;--blue-pale:#e6f1fb;--blue-50:#f2f8fe;
-  --amber:#ba7517;--amber-pale:#faeeda;--amber-50:#fdf6e8;
-  --coral:#993c1d;--coral-pale:#faece7;--coral-50:#fdf3ef;
-  --green:#3b6d11;--green-pale:#eaf3de;
-  --ink:#0d1512;--body:#374151;--muted:#6b7280;--subtle:#9ca3af;
-  --border:#e5e7eb;--border-l:#f3f4f6;
-  --surface:#f9fafb;--white:#fff;
-  --sbw:262px;
-  --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
-  --sh-md:0 4px 16px rgba(0,0,0,.08),0 1px 3px rgba(0,0,0,.05);
-}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:14px;-webkit-font-smoothing:antialiased}
-body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--body);min-height:100vh;display:flex}
-#app{display:flex;flex:1}
-/* SIDEBAR */
-#sb{width:var(--sbw);flex-shrink:0;background:var(--white);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:200;overflow-y:auto;box-shadow:var(--sh)}
-.sb-brand{padding:15px 17px 12px;border-bottom:1px solid var(--border-l)}
-.sb-wm{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:800;color:var(--teal)}
-.sb-mod{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:1px}
-.co-wrap{margin:11px 13px 0}
-.co-wrap label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px}
-.co-sel{width:100%;padding:7px 10px;border:1.5px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--ink);background:var(--white);cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:25px;outline:none;transition:border-color .15s}
-.co-sel:focus{border-color:var(--teal-l)}
-.sb-grp{padding:12px 15px 3px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--subtle)}
-.sb-it{display:flex;align-items:center;gap:9px;padding:7px 15px;cursor:pointer;border:none;background:transparent;width:100%;text-align:left;font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--muted);border-left:2.5px solid transparent;transition:all .12s}
-.sb-it:hover{background:var(--surface);color:var(--body)}.sb-it.active{background:var(--teal-50);color:var(--teal);font-weight:500;border-left-color:var(--teal-l)}.sb-it.locked{opacity:.38;cursor:not-allowed;pointer-events:none}
-.sbn{width:20px;height:20px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:9px;flex-shrink:0;opacity:.8}
-.sb-it.active .sbn{background:var(--teal-l);border-color:var(--teal-l);color:#fff;opacity:1}
-.sb-rt{margin-left:auto;font-family:'DM Mono',monospace;font-size:9px;padding:1px 6px;border-radius:6px}
-.rt-pat{background:var(--amber-pale);color:var(--amber)}.rt-ccts{background:var(--teal-pale);color:var(--teal)}.rt-cbam{background:var(--coral-pale);color:var(--coral)}
-.sb-div{height:1px;background:var(--border-l);margin:5px 11px}
-.sb-back{padding:11px 15px;margin-top:auto;border-top:1px solid var(--border-l)}
-.sb-back a{font-size:11.5px;color:var(--muted);text-decoration:none}.sb-back a:hover{color:var(--teal)}
-/* MAIN */
-#main{margin-left:var(--sbw);flex:1;display:flex;flex-direction:column;min-height:100vh}
-#topbar{background:var(--white);border-bottom:1px solid var(--border);height:50px;display:flex;align-items:center;padding:0 26px;gap:10px;position:sticky;top:0;z-index:100;box-shadow:var(--sh);flex-shrink:0}
-.tb-crumb{font-family:'DM Mono',monospace;font-size:11px;color:var(--subtle)}.tb-crumb span{color:var(--body);font-weight:500}
+body{font-family:'DM Sans',sans-serif;background:#f9fafb;color:#374151;min-height:100vh}
+a{color:#1d9e75}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes slideIn{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+
+/* TOP BAR */
+#topbar{background:#fff;border-bottom:1px solid #e5e7eb;height:52px;display:flex;align-items:center;padding:0 28px;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.tb-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:800;color:#0f7a60}
+.tb-mod{font-size:11px;color:#6b7280;font-family:'DM Mono',monospace;padding:2px 8px;background:#f0faf5;border-radius:5px}
 .tb-sp{flex:1}
-.tb-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;border:1px solid var(--border);background:var(--surface)}
-.tb-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-#content{flex:1;padding:26px 30px 60px;max-width:980px}
-.screen{display:none;animation:fi .2s ease}.screen.active{display:block}
-@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
-/* TOOLTIP */
-.tip{position:relative;display:inline-flex;align-items:center;margin-left:5px;vertical-align:middle;cursor:help}
-.tip-icon{width:16px;height:16px;border-radius:50%;background:var(--blue-pale);border:1px solid rgba(24,95,165,.25);color:var(--blue);font-size:9px;font-weight:700;font-family:'DM Mono',monospace;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;line-height:1}
-.tip:hover .tip-icon{background:var(--blue);color:#fff}
-.tip-pop{display:none;position:absolute;left:22px;top:50%;transform:translateY(-50%);background:var(--ink);color:#fff;font-size:12px;line-height:1.6;font-family:'DM Sans',sans-serif;padding:11px 14px;border-radius:9px;width:280px;z-index:800;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.25)}
-.tip-pop.tip-left{left:auto;right:22px}
-.tip-pop.tip-up{top:auto;bottom:22px;transform:none;left:50%;margin-left:-140px}
-.tip-pop::before{content:'';position:absolute;left:-5px;top:50%;transform:translateY(-50%);border:5px solid transparent;border-left:0;border-right-color:var(--ink)}
-.tip-pop.tip-left::before{left:auto;right:-5px;border-right:0;border-left-color:var(--ink)}
-.tip-pop.tip-up::before{display:none}
-.tip-pop .tp-term{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px;display:block}
-.tip-pop .tp-reg{font-size:10.5px;background:rgba(255,255,255,.1);border-radius:4px;padding:2px 7px;display:inline-block;margin-top:5px;font-family:'DM Mono',monospace}
-.tip-pop .tp-feeds{font-size:10.5px;color:rgba(255,255,255,.7);margin-top:5px;border-top:1px solid rgba(255,255,255,.15);padding-top:5px}
-.tip:hover .tip-pop{display:block}
-/* ABBR GLOSSARY */
-.abbr-row{display:inline-flex;align-items:baseline;gap:5px;font-size:12px;margin-bottom:3px}
-.abbr-short{font-family:'DM Mono',monospace;font-weight:500;color:var(--teal)}
-.abbr-long{color:var(--body)}
-/* LAYOUT */
-.ph{margin-bottom:22px}
-.page-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;color:var(--ink);line-height:1.2;margin-bottom:5px}
-.page-sub{font-size:13px;color:var(--muted);line-height:1.65;max-width:660px}
+.tb-ctx{display:flex;gap:6px;align-items:center}
+.tb-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;border:1px solid #e5e7eb;background:#f9fafb}
+.tb-dot{width:6px;height:6px;border-radius:50%}
+
+/* HERO */
+#hero{background:linear-gradient(135deg,#0f7a60 0%,#185fa5 100%);padding:44px 32px 36px;text-align:center;color:#fff}
+.hero-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:27px;font-weight:800;margin-bottom:10px;line-height:1.2}
+.hero-sub{font-size:13.5px;opacity:.85;max-width:580px;margin:0 auto 24px;line-height:1.65}
+.hero-note{font-size:12px;opacity:.7;font-family:'DM Mono',monospace;margin-top:12px}
+
+/* MAIN */
+#content{max-width:1020px;margin:0 auto;padding:28px 24px 80px}
+
+/* STEP PROGRESS */
+.step-bar{display:flex;align-items:center;gap:0;margin-bottom:28px;overflow-x:auto;padding-bottom:4px}
+.step-node{display:flex;align-items:center;gap:7px;font-size:12px;white-space:nowrap}
+.step-circle{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:10px;flex-shrink:0}
+.sc-done{background:#1d9e75;color:#fff}
+.sc-active{background:#fff;border:2px solid #1d9e75;color:#1d9e75;font-weight:700}
+.sc-idle{background:#f9fafb;border:1.5px solid #e5e7eb;color:#9ca3af}
+.step-lbl-done{color:#1d9e75;font-weight:500}
+.step-lbl-active{color:#0d1512;font-weight:600}
+.step-lbl-idle{color:#9ca3af}
+.step-line{flex:1;min-width:20px;height:2px;background:#e5e7eb;margin:0 8px}
+.step-line.done{background:#1d9e75}
+
+/* SCREENS */
+.screen{display:none;animation:fadeIn .2s ease}.screen.active{display:block}
+
+/* SECTION HEADERS */
+.section-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:#0d1512;margin-bottom:5px}
+.section-sub{font-size:13px;color:#6b7280;line-height:1.65;max-width:700px;margin-bottom:20px}
+.question-note{font-size:11.5px;font-family:'DM Mono',monospace;color:#6b7280;background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:6px 11px;margin-bottom:16px;display:inline-block}
+
+/* GEO GRID */
+.geo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:22px}
+.geo-card{background:#fff;border:2px solid #e5e7eb;border-radius:11px;padding:15px 16px;cursor:pointer;transition:all .15s;text-align:left;width:100%}
+.geo-card:hover{border-color:#1d9e75;background:#f0faf5;transform:translateY(-1px);box-shadow:0 3px 10px rgba(29,158,117,.1)}
+.geo-card.sel{border-color:#1d9e75;background:#f0faf5;box-shadow:0 0 0 3px rgba(29,158,117,.1)}
+.gc-flag{font-size:22px;margin-bottom:7px}
+.gc-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;font-weight:700;color:#0d1512;margin-bottom:2px}
+.gc-desc{font-size:11.5px;color:#6b7280;line-height:1.4}
+.gc-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:7px}
+.gc-tag{font-family:'DM Mono',monospace;font-size:9px;padding:1px 6px;border-radius:4px}
+.tag-live{background:#e1f5ee;color:#1d9e75}.tag-cbam{background:#faece7;color:#993c1d}
+.tag-sub{background:#e6f1fb;color:#185fa5}.tag-em{background:#faeeda;color:#ba7517}
+.tag-none{background:#f3f4f6;color:#6b7280}
+
+/* ROLE CARDS */
+.role-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px}
+.role-card{background:#fff;border:2px solid #e5e7eb;border-radius:11px;padding:18px 16px;cursor:pointer;transition:all .15s;text-align:left;width:100%}
+.role-card:hover{border-color:#185fa5;background:#f2f8fe}
+.role-card.sel{border-color:#185fa5;background:#f2f8fe;box-shadow:0 0 0 3px rgba(24,95,165,.1)}
+.rc-icon{font-size:28px;margin-bottom:10px}
+.rc-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;color:#0d1512;margin-bottom:4px}
+.rc-desc{font-size:12px;color:#6b7280;line-height:1.5}
+
+/* PRODUCT SELECTOR */
+.prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:18px}
+.prod-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:9px;padding:12px 14px;cursor:pointer;transition:all .15s;text-align:left}
+.prod-card:hover{border-color:#993c1d;background:#fdf3ef}
+.prod-card.sel{border-color:#993c1d;background:#fdf3ef;box-shadow:0 0 0 2px rgba(153,60,29,.1)}
+.pc-icon{font-size:20px;margin-bottom:5px}
+.pc-name{font-size:13px;font-weight:600;color:#0d1512;margin-bottom:2px}
+.pc-cn{font-family:'DM Mono',monospace;font-size:10px;color:#6b7280}
+
+/* DEST SELECTOR */
+.dest-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:18px}
+.dest-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:9px;padding:12px 14px;cursor:pointer;transition:all .15s}
+.dest-card:hover{border-color:#993c1d;background:#fdf3ef}
+.dest-card.sel{border-color:#993c1d;background:#fdf3ef}
+.dest-flag{font-size:20px;margin-bottom:5px}
+.dest-name{font-size:13px;font-weight:600;color:#0d1512;margin-bottom:2px}
+.dest-desc{font-size:11px;color:#6b7280}
+
+/* MULTI SELECT */
+.ms-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border:1.5px solid #e5e7eb;border-radius:8px;margin-bottom:8px;cursor:pointer;transition:all .15s}
+.ms-item:hover{border-color:#1d9e75;background:#f0faf5}
+.ms-item.sel{border-color:#1d9e75;background:#f0faf5}
+.ms-check{width:18px;height:18px;border-radius:4px;border:1.5px solid #e5e7eb;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.ms-item.sel .ms-check{background:#1d9e75;border-color:#1d9e75;color:#fff;font-size:11px}
+.ms-label{font-size:13px;font-weight:500;color:#0d1512}
+.ms-sub{font-size:11.5px;color:#6b7280;margin-top:1px}
+
+/* CARDS + NOTICES */
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.card-t{font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;font-weight:700;color:#0d1512;margin-bottom:5px}
+.c-teal{border-left:3px solid #1d9e75;border-radius:0 10px 10px 0}
+.c-blue{border-left:3px solid #185fa5;border-radius:0 10px 10px 0}
+.c-amber{border-left:3px solid #ba7517;border-radius:0 10px 10px 0}
+.c-coral{border-left:3px solid #993c1d;border-radius:0 10px 10px 0}
+.c-green{border-left:3px solid #3b6d11;border-radius:0 10px 10px 0}
+.c-purple{border-left:3px solid #6b21a8;border-radius:0 10px 10px 0}
+.notice{padding:11px 14px;border-radius:8px;font-size:12.5px;line-height:1.6;margin-bottom:12px;display:flex;gap:9px;align-items:flex-start}
+.n-teal{background:#f0faf5;color:#0f7a60;border:1px solid rgba(29,158,117,.2)}
+.n-blue{background:#f2f8fe;color:#1e3a8a;border:1px solid rgba(24,95,165,.2)}
+.n-amber{background:#fdf6e8;color:#7c4a03;border:1px solid rgba(186,117,23,.25)}
+.n-coral{background:#fdf3ef;color:#993c1d;border:1px solid rgba(153,60,29,.2)}
+.n-green{background:#eaf3de;color:#3b6d11;border:1px solid rgba(59,109,17,.2)}
+.n-gray{background:#f9fafb;color:#374151;border:1px solid #e5e7eb}
+.ni{flex-shrink:0;font-size:15px}
+.notice strong{font-weight:600}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-/* CARDS */
-.card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px 18px;box-shadow:var(--sh)}
-.card.c-teal{border-left:3px solid var(--teal-l);border-radius:0 10px 10px 0}
-.card.c-amber{border-left:3px solid var(--amber);border-radius:0 10px 10px 0}
-.card.c-blue{border-left:3px solid var(--blue);border-radius:0 10px 10px 0}
-.card.c-coral{border-left:3px solid var(--coral);border-radius:0 10px 10px 0}
-.card.c-green{border-left:3px solid var(--green);border-radius:0 10px 10px 0}
-.card-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:4px}
-/* STATS */
-.stat{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 16px;box-shadow:var(--sh)}
-.stat-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-.stat-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:26px;font-weight:800;color:var(--ink);line-height:1}
-.stat-unit{font-size:11px;color:var(--muted);margin-top:3px}
-.stat-delta{font-size:11.5px;margin-top:5px}
-.pos{color:var(--teal)}.neg{color:var(--coral)}
-/* NOTICES */
-.notice{padding:11px 14px;border-radius:8px;font-size:12.5px;line-height:1.55;margin-bottom:14px;display:flex;gap:9px;align-items:flex-start}
-.nt{background:var(--teal-50);color:var(--teal);border:1px solid rgba(29,158,117,.2)}
-.na{background:var(--amber-50);color:#7c4a03;border:1px solid rgba(186,117,23,.25)}
-.nb{background:var(--blue-50);color:#1e3a8a;border:1px solid rgba(24,95,165,.2)}
-.nc{background:var(--coral-50);color:var(--coral);border:1px solid rgba(153,60,29,.2)}
-.ni{flex-shrink:0;font-size:15px}.notice strong{font-weight:600}
+
 /* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:7px;border:1px solid var(--border);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;transition:all .15s;background:var(--white);color:var(--body)}
-.btn:hover{background:var(--surface)}.btn:active{transform:scale(.98)}
-.btn.primary{background:var(--teal-l);color:#fff;border-color:var(--teal-l)}.btn.primary:hover{background:var(--teal)}
-.btn.secondary{background:var(--white);color:var(--teal);border-color:rgba(29,158,117,.4)}.btn.secondary:hover{background:var(--teal-50)}
-.btn.coral{background:var(--coral);color:#fff;border-color:var(--coral)}.btn.coral:hover{background:#7a2e15}
-.btn.ghost{border-color:transparent;background:transparent;color:var(--teal)}
-.btn-row{display:flex;align-items:center;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border-l)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:7px;border:1px solid #e5e7eb;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;transition:all .15s;background:#fff;color:#374151;text-decoration:none}
+.btn:hover{background:#f9fafb}.btn:active{transform:scale(.98)}
+.btn-primary{background:#1d9e75;color:#fff;border-color:#1d9e75}.btn-primary:hover{background:#0f7a60}
+.btn-blue{background:#185fa5;color:#fff;border-color:#185fa5}.btn-blue:hover{background:#134e8f}
+.btn-coral{background:#993c1d;color:#fff;border-color:#993c1d}.btn-coral:hover{background:#7a2e15}
+.btn-amber{background:#ba7517;color:#fff;border-color:#ba7517}.btn-amber:hover{background:#9a610f}
+.btn-ghost{border-color:transparent;background:transparent;color:#1d9e75}
+.btn-row{display:flex;align-items:center;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid #f3f4f6;flex-wrap:wrap}
+
 /* TAGS */
-.tag{display:inline-flex;align-items:center;gap:3px;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px}
-.t-teal{background:var(--teal-pale);color:var(--teal)}.t-blue{background:var(--blue-pale);color:var(--blue)}
-.t-amber{background:var(--amber-pale);color:var(--amber)}.t-coral{background:var(--coral-pale);color:var(--coral)}
-.t-green{background:var(--green-pale);color:var(--green)}.t-gray{background:var(--surface);color:var(--muted);border:1px solid var(--border)}
-/* SEC LABEL */
-.sec-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-/* PIPELINE */
-.pipeline{display:flex;border-radius:9px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--sh);margin-bottom:16px}
-.pipe-step{flex:1;min-width:80px;padding:10px 12px;text-align:center;border-right:1px solid var(--border);font-family:'DM Mono',monospace;font-size:10px}
-.pipe-step:last-child{border-right:none}
-.ps-done{background:var(--teal-50)}.ps-active{background:var(--teal-l)}.ps-pending{background:var(--white)}
-.pq{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:800;display:block;margin-bottom:2px}
-.ps-done .pq{color:var(--teal)}.ps-active .pq{color:#fff}.ps-pending .pq{color:var(--muted)}
-.ps-done .pl{color:var(--teal)}.ps-active .pl{color:#fff;opacity:.9}.ps-pending .pl{color:var(--subtle)}
-/* DELIVERY CHAIN */
-.dchain{display:flex;align-items:stretch;gap:0;margin:14px 0;border-radius:9px;overflow:hidden;border:1px solid var(--border)}
-.dc-step{flex:1;padding:10px 12px;position:relative;font-size:12px}
-.dc-step:not(:last-child){border-right:1px solid var(--border)}
-.dc-owner{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:3px}
-.dc-action{font-weight:500;color:var(--ink);font-size:12px;line-height:1.35}
-.dc-a{background:var(--amber-50)}.dc-t{background:var(--teal-50)}.dc-b{background:var(--blue-50)}.dc-g{background:var(--green-pale)}.dc-s{background:var(--surface)}
-/* REL BOX */
-.rel-box{border-radius:10px;padding:14px 18px;margin-bottom:16px}
-.rel-teal{background:var(--teal-50);border:1px solid rgba(29,158,117,.2)}
-.rel-amber{background:var(--amber-50);border:1px solid rgba(186,117,23,.2)}
-.rel-title{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
-.rel-flow{display:flex;align-items:center;flex-wrap:wrap;gap:0}
-.rel-node{text-align:center;padding:8px 14px;border-radius:8px;flex-shrink:0}
-.rel-arrow{font-size:18px;padding:0 8px;flex-shrink:0;color:var(--border)}
-.rn-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;line-height:1;margin-bottom:2px}
-.rn-lbl{font-size:10px;color:var(--muted);line-height:1.4}
-.rel-formula{font-family:'DM Mono',monospace;font-size:11.5px;padding:9px 14px;border-radius:6px;margin-top:10px;line-height:1.7}
-.rel-formula .rf-src{font-size:10px;opacity:.7}
-/* REGIME CARDS */
-.rc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:22px}
-.rc{background:var(--white);border:2px solid var(--border);border-radius:12px;padding:20px 18px}
-.rc-pat{border-top:4px solid var(--amber)}.rc-ccts{border-top:4px solid var(--teal-l)}.rc-cbam{border-top:4px solid var(--coral)}
-.rc-icon{font-size:26px;margin-bottom:10px}
-.rc-name{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:800;color:var(--ink);margin-bottom:1px}
-.rc-full{font-size:11.5px;color:var(--teal);font-weight:600;margin-bottom:2px}
-.rc-org{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:12px}
-.rc-body{font-size:12.5px;color:var(--body);line-height:1.65;margin-bottom:12px}
-.rc-box{background:var(--surface);border-radius:7px;padding:9px 11px;border:1px solid var(--border)}
-.rc-box-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-bottom:5px}
-.thr{display:flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--body);margin-bottom:3px;line-height:1.45}
-.td{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:5px}
-.td-a{background:var(--amber)}.td-t{background:var(--teal-l)}.td-c{background:var(--coral)}.td-b{background:var(--blue)}.td-g{background:var(--border)}
-.rc-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
-/* GLOSSARY STRIP */
-.gloss-strip{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:12px 16px;margin-bottom:16px}
-.gloss-title{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
-.gloss-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 20px}
-.gloss-item{font-size:12px;color:var(--body);line-height:1.4}
-.gloss-item strong{font-family:'DM Mono',monospace;color:var(--teal);font-size:11px}
-/* SECTOR TABLE */
-.sector-tbl{width:100%;border-collapse:collapse;font-size:12px}
-.sector-tbl th{padding:7px 12px;text-align:left;font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);background:var(--surface)}
-.sector-tbl td{padding:7px 12px;border-bottom:1px solid var(--border-l);vertical-align:top}
-.sector-tbl tr:last-child td{border-bottom:none}
-.sector-tbl tr:hover td{background:var(--surface)}
-/* WIZARD */
-.wz{background:var(--white);border:1.5px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:14px;transition:border-color .2s}
-.wz.ws-active{border-color:var(--teal-l);box-shadow:0 0 0 3px rgba(29,158,117,.08)}
-.wz.ws-done{border-color:var(--green);background:var(--teal-50)}
-.wz.ws-idle{opacity:.6}
-.wz-hdr{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.wz-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;flex-shrink:0}
-.ws-active .wz-num{background:var(--teal-l);color:#fff}
-.ws-done .wz-num{background:var(--green);color:#fff}
-.ws-idle .wz-num{background:var(--surface);color:var(--muted);border:1.5px solid var(--border)}
-.wz-q{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;color:var(--ink)}
-.wz-opts{display:flex;gap:8px;flex-wrap:wrap}
-.wz-opt{padding:7px 14px;border-radius:7px;border:1.5px solid var(--border);background:var(--white);font-size:12.5px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
-.wz-opt:hover{border-color:var(--teal-l);background:var(--teal-50);color:var(--teal)}
-.wz-opt.sel{border-color:var(--teal-l);background:var(--teal-l);color:#fff;font-weight:500}
-.wz-ans{font-size:12.5px;color:var(--teal);font-weight:500;margin-top:6px}
-/* PROFILE */
-.prof{background:linear-gradient(135deg,#f0faf5,#e6f1fb);border:1.5px solid rgba(29,158,117,.25);border-radius:12px;padding:20px 22px;margin-top:20px;animation:fi .3s ease}
-.prof-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:800;color:var(--ink);margin-bottom:4px}
-.prof-sub{font-size:12.5px;color:var(--muted);margin-bottom:14px}
-.prof-regs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.pcr{display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:600}
-.pcr-pat{background:var(--amber-pale);color:var(--amber);border:1px solid rgba(186,117,23,.25)}
-.pcr-ccts{background:var(--teal-pale);color:var(--teal);border:1px solid rgba(29,158,117,.3)}
-.pcr-cbam{background:var(--coral-pale);color:var(--coral);border:1px solid rgba(153,60,29,.2)}
-.disclaimer{font-size:11.5px;background:var(--amber-50);border:1px solid rgba(186,117,23,.2);border-radius:7px;padding:9px 12px;color:#7c4a03;margin-bottom:14px;line-height:1.55}
-/* DATA FORM */
-.field{margin-bottom:14px}
-.field-lbl{font-size:12.5px;font-weight:500;color:var(--body);margin-bottom:5px;display:flex;align-items:center}
-.field-hint{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.45}
-.field-src{font-family:'DM Mono',monospace;font-size:10px;color:var(--blue);margin-top:3px;display:flex;align-items:center;gap:4px}
-.fi-unit{display:flex;border-radius:7px;overflow:hidden;border:1px solid var(--border);transition:border-color .15s}
-.fi-unit:focus-within{border-color:var(--teal-l);box-shadow:0 0 0 3px rgba(29,158,117,.1)}
-.fi-unit input{flex:1;border:none;padding:8px 11px;font-family:'DM Mono',monospace;font-size:13px;color:var(--ink);outline:none;background:var(--white)}
-.fi-unit .ul{background:var(--surface);padding:8px 11px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);border-left:1px solid var(--border);white-space:nowrap;display:flex;align-items:center;gap:4px}
-.fi{width:100%;padding:8px 11px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--white);outline:none}
-.fi:focus{border-color:var(--teal-l);box-shadow:0 0 0 3px rgba(29,158,117,.1)}
-.fs-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;padding-bottom:7px;border-bottom:1px solid var(--border-l);display:flex;align-items:center;gap:6px}
-.fs-sub{font-size:11.5px;color:var(--muted);margin-bottom:12px;margin-top:2px;line-height:1.5}
-/* CONSOLIDATION BRIDGE */
-.bridge{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px}
-.bridge-hdr{background:var(--teal-50);padding:10px 14px;border-bottom:1px solid rgba(29,158,117,.15);display:flex;align-items:center;gap:8px}
-.bridge-hdr-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--teal)}
-.bridge-row{display:grid;grid-template-columns:1fr 28px 1fr 28px 1fr;align-items:center;padding:8px 14px;border-bottom:1px solid var(--border-l);font-size:12px}
-.bridge-row:last-child{border-bottom:none}
-.bridge-row:hover{background:rgba(29,158,117,.03)}
-.br-src{color:var(--muted)}.br-arrow{text-align:center;color:var(--teal);font-size:14px}
-.br-calc{color:var(--body);font-family:'DM Mono',monospace;font-size:11px}
-.br-out{font-weight:500;color:var(--teal)}
-.br-scope{display:inline-block;font-family:'DM Mono',monospace;font-size:9px;padding:1px 5px;border-radius:4px;margin-left:4px}
-.scope1{background:var(--amber-pale);color:var(--amber)}.scope2{background:var(--blue-pale);color:var(--blue)}
-/* STEP TRACK */
-.st-track{display:flex;align-items:center;margin-bottom:20px;overflow-x:auto;padding-bottom:4px}
-.st-item{display:flex;flex-direction:column;align-items:center;flex:1;min-width:80px;position:relative}
-.st-item:not(:last-child)::after{content:'';position:absolute;top:14px;left:calc(50% + 14px);right:calc(-50% + 14px);height:2px;background:var(--border)}
-.st-item.st-done:not(:last-child)::after,.st-item.st-active:not(:last-child)::after{background:var(--teal-l)}
-.st-c{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;margin-bottom:5px;border:2px solid var(--border);background:var(--white);z-index:1}
-.st-done .st-c{background:var(--teal-l);border-color:var(--teal-l);color:#fff}
-.st-active .st-c{border-color:var(--teal-l);color:var(--teal);font-weight:700;box-shadow:0 0 0 3px rgba(29,158,117,.15)}
-.st-lbl{font-size:10px;color:var(--muted);text-align:center;line-height:1.3;max-width:72px}
-.st-done .st-lbl,.st-active .st-lbl{color:var(--teal)}
-/* DOC PAPER */
-.doc-paper{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:28px 32px;box-shadow:var(--sh-md);max-width:740px}
-.doc-hdr{border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-start}
-.doc-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:800;color:var(--teal)}
-.doc-ref{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-align:right;line-height:1.6}
-.doc-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:800;color:var(--ink);margin-bottom:3px}
-.doc-sub{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--muted);margin-bottom:18px}
-.doc-sec{margin-bottom:18px}
-.doc-sec-t{font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border-l);padding-bottom:5px;margin-bottom:10px}
-.doc-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dotted var(--border-l);font-size:12.5px}
-.doc-row:last-child{border-bottom:none}
-.dl{color:var(--muted)}.dv{font-weight:500;color:var(--ink);font-family:'DM Mono',monospace;font-size:12px}
-.dv.hi{color:var(--teal);font-weight:700}.dv.wa{color:var(--coral)}
-.doc-formula{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:10px 14px;font-family:'DM Mono',monospace;font-size:11.5px;color:var(--teal);margin:10px 0;line-height:1.8}
-.doc-sign{margin-top:22px;padding-top:16px;border-top:1px solid var(--border);display:grid;gap:20px}
-.dsb{text-align:center}.dsl{border-bottom:1px solid var(--ink);margin-bottom:5px;height:30px}
-.dslbl{font-family:'DM Mono',monospace;font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.doc-stamp{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border:1.5px solid var(--teal-l);border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;color:var(--teal);margin-top:10px}
-.doc-copy-toggle{display:flex;gap:0;border:1.5px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px;max-width:380px}
-.dct-btn{flex:1;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:12.5px;cursor:pointer;border:none;background:var(--white);color:var(--muted);transition:all .15s;font-weight:500}
-.dct-btn.act{background:var(--teal-l);color:#fff}
-.doc-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
-/* ACVA */
-.acva-box{border:2px dashed rgba(24,95,165,.3);border-radius:10px;padding:16px 18px;background:rgba(24,95,165,.02);position:relative;margin-bottom:14px}
-.acva-tag{position:absolute;top:-11px;left:14px;background:var(--surface);padding:0 10px;font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue)}
-.acva-phases{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
-.acva-ph{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
-.acva-ph-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:4px}
-.acva-ph-title{font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:3px}
-.acva-ph-owner{font-family:'DM Mono',monospace;font-size:9.5px;color:var(--blue);background:var(--blue-pale);padding:2px 7px;border-radius:4px;display:inline-block;margin-bottom:5px}
-.acva-ph-body{font-size:12px;color:var(--muted);line-height:1.5}
-/* CBAM */
-.eu-hdr{background:linear-gradient(90deg,#003399,#0055cc);color:#fff;padding:12px 16px;border-radius:8px 8px 0 0;margin:-28px -32px 16px;display:flex;align-items:center;gap:10px}
-.eu-stars{font-size:16px;letter-spacing:2px}
-.eu-t{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700}
-.eu-s{font-size:11px;opacity:.8;font-family:'DM Mono',monospace}
+.tag{display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px}
+.tg-teal{background:#e1f5ee;color:#1d9e75}.tg-amber{background:#faeeda;color:#ba7517}
+.tg-blue{background:#e6f1fb;color:#185fa5}.tg-coral{background:#faece7;color:#993c1d}
+.tg-green{background:#eaf3de;color:#3b6d11}.tg-gray{background:#f9fafb;color:#6b7280;border:1px solid #e5e7eb}
+
+/* OBLIGATION PANEL */
+.obl-engine{background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;margin-bottom:14px;overflow:hidden}
+.obl-engine-hdr{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f3f4f6}
+.obl-engine-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;color:#0d1512}
+.obl-engine-body{padding:14px 18px}
+.detail-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px dotted #f3f4f6;font-size:12.5px}
+.detail-row:last-child{border-bottom:none}
+.dl{color:#6b7280}.dv{font-weight:500;color:#0d1512;font-family:'DM Mono',monospace;font-size:12px}
+
+/* CBAM MODULE PANEL */
+.cbam-module{border-radius:10px;padding:16px 18px;margin-bottom:12px}
+.cbam-eu{background:linear-gradient(135deg,#fdf3ef,#fff8f6);border:1.5px solid rgba(153,60,29,.2)}
+.cbam-uk{background:linear-gradient(135deg,#fdf6e8,#fffbf0);border:1.5px solid rgba(186,117,23,.25)}
+.cbam-module-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;margin-bottom:6px}
+.cbam-mod-divider{height:1px;background:rgba(0,0,0,.06);margin:12px 0}
+
+/* RULE SNAPSHOT */
+.rule-snap{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px;font-family:'DM Mono',monospace;font-size:11px;color:#374151;line-height:1.7;margin-top:10px}
+.rs-locked{background:#eaf3de;border-color:rgba(59,109,17,.2);color:#3b6d11}
+
+/* COMING SOON */
+.coming-panel{text-align:center;padding:32px 22px;background:#fff;border:1.5px dashed #e5e7eb;border-radius:12px;margin-bottom:14px}
+.cp-icon{font-size:32px;margin-bottom:10px}
+.cp-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:800;color:#0d1512;margin-bottom:5px}
+.cp-body{font-size:12.5px;color:#6b7280;line-height:1.65;max-width:500px;margin:0 auto 14px}
+.cp-list{text-align:left;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px;font-size:12px;display:inline-block;min-width:300px}
 </style>
 </head>
 <body>
-<div id="app">
-<nav id="sb">
-  <div class="sb-brand"><div class="sb-wm">TerraCAP</div><div class="sb-mod">Carbon Market Compliance</div></div>
-  <div class="co-wrap">
-    <label>Demo company</label>
-    <select class="co-sel" id="csel" onchange="setCo(this.value)">
-      <option value="cement">Bharathi Cement Ltd · Kadapa</option>
-      <option value="steel">SLR Metaliks Ltd · Hospet</option>
-      <option value="aluminium">Hindalco Industries Ltd · Renukoot</option>
-    </select>
-  </div>
-  <div class="sb-grp" style="margin-top:14px">Understanding the landscape</div>
-  <button class="sb-it active" id="nav-learn" onclick="go('learn')"><span class="sbn">1</span>What is required &amp; why</button>
-  <button class="sb-it" id="nav-qualify" onclick="go('qualify')"><span class="sbn">2</span>Your compliance profile</button>
-  <div class="sb-div"></div>
-  <div class="sb-grp">India compliance workflow</div>
-  <button class="sb-it locked" id="nav-dash" onclick="go('dash')"><span class="sbn">3</span><span id="sb-rlbl">CCTS</span> dashboard<span class="sb-rt rt-ccts" id="sb-rtag">CCTS</span></button>
-  <button class="sb-it locked" id="nav-data" onclick="go('data')"><span class="sbn">4</span>Energy &amp; GHG data entry</button>
-  <button class="sb-it locked" id="nav-bridge" onclick="go('bridge')"><span class="sbn">5</span>Data consolidation</button>
-  <button class="sb-it locked" id="nav-filing" onclick="go('filing')"><span class="sbn">6</span>Filing pack &amp; document</button>
-  <button class="sb-it locked" id="nav-verify" onclick="go('verify')"><span class="sbn">7</span>Verification &amp; ACVA</button>
-  <button class="sb-it locked" id="nav-certs" onclick="go('certs')"><span class="sbn">8</span>Certificate portfolio</button>
-  <div class="sb-div"></div>
-  <div class="sb-grp">EU CBAM</div>
-  <button class="sb-it locked" id="nav-cbam" onclick="go('cbam')"><span class="sbn">9</span>Supplier emissions package<span class="sb-rt rt-cbam">CBAM</span></button>
-  <div class="sb-back"><a href="#">← TerraCAP main menu</a></div>
-</nav>
-<div id="main">
+
 <div id="topbar">
-  <div class="tb-crumb">Carbon market compliance › <span id="bc">What is required &amp; why</span></div>
+  <div class="tb-logo">TerraCAP</div>
+  <span class="tb-mod">Global Carbon Compliance Navigator</span>
   <div class="tb-sp"></div>
-  <div class="tb-pill" id="tp-india"><div class="tb-dot" style="background:var(--teal-l)"></div><span id="tr-india">CCTS Active</span></div>
-  <div class="tb-pill" id="tp-cbam" style="margin-left:6px"><div class="tb-dot" style="background:var(--coral)"></div>EU CBAM Definitive Phase</div>
+  <div class="tb-ctx" id="tb-ctx" style="display:none">
+    <div class="tb-pill" id="tp-loc"><div class="tb-dot" style="background:#1d9e75"></div><span id="tp-loc-t">—</span></div>
+    <div class="tb-pill" id="tp-role" style="display:none"><div class="tb-dot" style="background:#185fa5"></div><span id="tp-role-t">—</span></div>
+    <div class="tb-pill" id="tp-cbam" style="display:none"><div class="tb-dot" style="background:#993c1d"></div><span id="tp-cbam-t">CBAM applicable</span></div>
+  </div>
 </div>
+
+<div id="hero">
+  <div class="hero-title">Where does your carbon compliance obligation sit?</div>
+  <div class="hero-sub">Carbon obligations are driven by three independent factors: where your facility is located, what role you play (producer, importer, or both), and what products you export to which markets. TerraCAP routes you correctly across all three.</div>
+  <div class="hero-note">⚠ Location alone does not determine CBAM obligations — product type and destination market are equally decisive gates</div>
+</div>
+
 <div id="content">
 
-<!-- ════ S1: LEARN ════ -->
-<div class="screen active" id="s-learn">
-  <div class="ph">
-    <div class="page-title">India's carbon compliance landscape</div>
-    <div class="page-sub">Three regulatory regimes govern carbon and energy reporting for Indian industry. PAT came first in 2012, CCTS is replacing it sector by sector from 2025, and CBAM is the EU border mechanism that consumes the output of both.</div>
-  </div>
+<!-- STEP BAR -->
+<div class="step-bar">
+  <div class="step-node"><div class="step-circle sc-active" id="sc1">1</div><span class="step-lbl-active" id="sl1">Your location</span></div>
+  <div class="step-line" id="ln1"></div>
+  <div class="step-node"><div class="step-circle sc-idle" id="sc2">2</div><span class="step-lbl-idle" id="sl2">Facility role</span></div>
+  <div class="step-line" id="ln2"></div>
+  <div class="step-node"><div class="step-circle sc-idle" id="sc3">3</div><span class="step-lbl-idle" id="sl3">Export products</span></div>
+  <div class="step-line" id="ln3"></div>
+  <div class="step-node"><div class="step-circle sc-idle" id="sc4">4</div><span class="step-lbl-idle" id="sl4">Destination markets</span></div>
+  <div class="step-line" id="ln4"></div>
+  <div class="step-node"><div class="step-circle sc-idle" id="sc5">5</div><span class="step-lbl-idle" id="sl5">Your obligations</span></div>
+</div>
 
-  <!-- GLOSSARY STRIP — first use of all abbreviations -->
-  <div class="gloss-strip">
-    <div class="gloss-title">Key abbreviations — full forms</div>
-    <div class="gloss-grid">
-      <div class="gloss-item"><strong>PAT</strong> Perform Achieve &amp; Trade</div>
-      <div class="gloss-item"><strong>CCTS</strong> Carbon Credit Trading Scheme</div>
-      <div class="gloss-item"><strong>CBAM</strong> Carbon Border Adjustment Mechanism</div>
-      <div class="gloss-item"><strong>BEE</strong> Bureau of Energy Efficiency</div>
-      <div class="gloss-item"><strong>MoEFCC</strong> Ministry of Environment, Forest &amp; Climate Change</div>
-      <div class="gloss-item"><strong>DC</strong> Designated Consumer</div>
-      <div class="gloss-item"><strong>SEC</strong> Specific Energy Consumption</div>
-      <div class="gloss-item"><strong>TOE</strong> Tonne of Oil Equivalent</div>
-      <div class="gloss-item"><strong>ESCert</strong> Energy Saving Certificate</div>
-      <div class="gloss-item"><strong>CCC</strong> Carbon Credit Certificate</div>
-      <div class="gloss-item"><strong>ACVA</strong> Accredited Carbon Verification Agency</div>
-      <div class="gloss-item"><strong>GHG</strong> Greenhouse Gas</div>
-    </div>
+<!-- ══ S1: LOCATION ══ -->
+<div class="screen active" id="s-loc">
+  <div class="section-title">Where is your facility or organisation located?</div>
+  <div class="section-sub">This determines which domestic compliance schemes apply. CBAM obligations are determined separately by what you export and where it goes — not by location alone.</div>
+  <div class="question-note">Step 1 of 4 · Domestic compliance gate</div>
+  <div class="geo-grid">
+    <button class="geo-card" id="gc-india" onclick="selLoc('india')"><div class="gc-flag">🇮🇳</div><div class="gc-name">India</div><div class="gc-desc">PAT (energy efficiency) and CCTS (GHG intensity) for designated consumers. Multiple sectors active from 2025.</div><div class="gc-tags"><span class="gc-tag tag-live">CCTS active</span><span class="gc-tag tag-live">PAT Cycle VII</span></div></button>
+    <button class="geo-card" id="gc-eu" onclick="selLoc('eu')"><div class="gc-flag">🇪🇺</div><div class="gc-name">European Union</div><div class="gc-desc">EU ETS for power and heavy industry. EU importers are the authorised CBAM declarant for goods imported from third countries.</div><div class="gc-tags"><span class="gc-tag tag-live">EU ETS active</span><span class="gc-tag tag-cbam">CBAM declarant</span></div></button>
+    <button class="geo-card" id="gc-uk" onclick="selLoc('uk')"><div class="gc-flag">🇬🇧</div><div class="gc-name">United Kingdom</div><div class="gc-desc">UK ETS active. UK CBAM launched January 2026 — separate legal instrument from EU CBAM with different rules and authority.</div><div class="gc-tags"><span class="gc-tag tag-live">UK ETS active</span><span class="gc-tag tag-cbam">UK CBAM declarant</span></div></button>
+    <button class="geo-card" id="gc-us" onclick="selLoc('us')"><div class="gc-flag">🇺🇸</div><div class="gc-name">United States</div><div class="gc-desc">No federal carbon price. California Cap-and-Trade and RGGI active at state level. No US inbound CBAM equivalent.</div><div class="gc-tags"><span class="gc-tag tag-sub">California C&T</span><span class="gc-tag tag-sub">RGGI</span><span class="gc-tag tag-none">No federal ETS</span></div></button>
+    <button class="geo-card" id="gc-china" onclick="selLoc('china')"><div class="gc-flag">🇨🇳</div><div class="gc-name">China</div><div class="gc-desc">National ETS active (power sector). Expanding to steel, aluminium, cement by 2027. Also a CBAM supplier if exporting to EU/UK.</div><div class="gc-tags"><span class="gc-tag tag-live">China ETS active</span><span class="gc-tag tag-cbam">CBAM supplier</span></div></button>
+    <button class="geo-card" id="gc-korea" onclick="selLoc('korea')"><div class="gc-flag">🇰🇷</div><div class="gc-name">South Korea</div><div class="gc-desc">K-ETS active since 2015 — covers ~75% of national emissions. Stronger Phase 3 from 2026 with greater auctioning.</div><div class="gc-tags"><span class="gc-tag tag-live">K-ETS active</span><span class="gc-tag tag-cbam">CBAM supplier</span></div></button>
+    <button class="geo-card" id="gc-japan" onclick="selLoc('japan')"><div class="gc-flag">🇯🇵</div><div class="gc-name">Japan</div><div class="gc-desc">GX-ETS transitioning to mandatory from FY2026. Carbon levy on fossil fuel importers from FY2028.</div><div class="gc-tags"><span class="gc-tag tag-live">GX-ETS from FY26</span><span class="gc-tag tag-cbam">CBAM supplier</span></div></button>
+    <button class="geo-card" id="gc-canada" onclick="selLoc('canada')"><div class="gc-flag">🇨🇦</div><div class="gc-name">Canada</div><div class="gc-desc">Federal OBPS (output-based, similar to CCTS) plus federal carbon tax. Quebec Cap-and-Trade linked with California.</div><div class="gc-tags"><span class="gc-tag tag-live">OBPS active</span><span class="gc-tag tag-live">Carbon tax</span></div></button>
+    <button class="geo-card" id="gc-gcc" onclick="selLoc('gcc')"><div class="gc-flag">🌍</div><div class="gc-name">GCC / Middle East</div><div class="gc-desc">No mandatory national ETS yet (UAE developing). GCC exporters of steel, aluminium, cement to EU/UK face CBAM data obligations.</div><div class="gc-tags"><span class="gc-tag tag-em">ETS developing</span><span class="gc-tag tag-cbam">CBAM supplier</span></div></button>
+    <button class="geo-card" id="gc-sea" onclick="selLoc('sea')"><div class="gc-flag">🌏</div><div class="gc-name">Southeast Asia</div><div class="gc-desc">Singapore carbon tax active. Indonesia, Vietnam piloting ETS. Indonesia most CBAM-exposed given steel/aluminium/nickel exports to EU.</div><div class="gc-tags"><span class="gc-tag tag-live">Singapore tax</span><span class="gc-tag tag-em">ETS emerging</span></div></button>
+    <button class="geo-card" id="gc-aus" onclick="selLoc('australia')"><div class="gc-flag">🇦🇺</div><div class="gc-name">Australia</div><div class="gc-desc">Safeguard Mechanism (reformed 2023) for large emitters. ACCU/SMC credits. CBAM supplier obligations if exporting to EU/UK.</div><div class="gc-tags"><span class="gc-tag tag-live">Safeguard Mech.</span><span class="gc-tag tag-cbam">CBAM supplier</span></div></button>
+    <button class="geo-card" id="gc-other" onclick="selLoc('other')"><div class="gc-flag">🌐</div><div class="gc-name">Other / Rest of World</div><div class="gc-desc">Brazil ETS pilot 2026, South Africa carbon tax, NZ ETS, Turkey ETS developing, and others. Contact TerraCAP for country assessment.</div><div class="gc-tags"><span class="gc-tag tag-em">Varies by country</span></div></button>
   </div>
+</div>
 
-  <div class="rc-grid">
-    <div class="rc rc-pat">
-      <div class="rc-icon">⚡</div>
-      <div class="rc-name">PAT</div>
-      <div class="rc-full">Perform Achieve &amp; Trade</div>
-      <div class="rc-org">Bureau of Energy Efficiency (BEE) · 2012 onward · Cycle VII active</div>
-      <div class="rc-body">India's foundational energy efficiency compliance regime. Designated Consumers (DCs) — large energy-intensive facilities notified by BEE — receive a Specific Energy Consumption (SEC) target in Tonne of Oil Equivalent (TOE) per unit of output. Over-performers earn <strong>Energy Saving Certificates (ESCerts)</strong> tradeable on IEX and PXIL. PAT is being phased out sector-by-sector as CCTS is notified.</div>
-      <div class="rc-box">
-        <div class="rc-box-lbl">Designated Consumer (DC) thresholds — sector-specific</div>
-        <div class="thr"><span class="td td-a"></span>Cement: &gt;30,000 Tonne of Oil Equivalent (TOE)/year</div>
-        <div class="thr"><span class="td td-a"></span>Iron &amp; Steel: &gt;50,000 TOE/year</div>
-        <div class="thr"><span class="td td-a"></span>Aluminium, fertiliser, textile: sector-specific cutoffs (not a single universal rule)</div>
-        <div class="thr"><span class="td td-a"></span>Currently Cycle VII: FY2022–23 to FY2025–26</div>
-      </div>
-      <div class="rc-meta"><span class="tag t-amber">Metric: SEC (TOE/unit output)</span><span class="tag t-amber">Certificate: ESCert</span></div>
-    </div>
-    <div class="rc rc-ccts">
+<!-- ══ S2: ROLE ══ -->
+<div class="screen" id="s-role">
+  <div class="section-title">What is your facility's role?</div>
+  <div class="section-sub">CBAM obligations depend critically on whether you produce goods, import them, or both. A producer and an importer of the same product have completely different obligations under EU and UK CBAM.</div>
+  <div class="question-note">Step 2 of 4 · Determines CBAM role (supplier vs declarant)</div>
+  <div class="role-grid">
+    <button class="role-card" id="rc-producer" onclick="selRole('producer')">
       <div class="rc-icon">🏭</div>
-      <div class="rc-name">CCTS</div>
-      <div class="rc-full">Carbon Credit Trading Scheme</div>
-      <div class="rc-org">MoEFCC / BEE · Notified Oct 2025 + Jan 2026 amendments</div>
-      <div class="rc-body">India's GHG-intensity compliance scheme replacing PAT for notified sectors. Facilities below their sector intensity target earn <strong>Carbon Credit Certificates (CCCs)</strong> they can sell on exchanges. Facilities above must purchase CCCs or face penalties under the Carbon Credit Trading Rules 2023.</div>
-      <div class="rc-box">
-        <div class="rc-box-lbl">Notified sectors — by notification status</div>
-        <div class="thr"><span class="td td-t"></span><span><strong>Oct 2025:</strong> Cement, Aluminium (primary), Chlor-alkali, Pulp &amp; Paper — baseline year FY2023–24</span></div>
-        <div class="thr"><span class="td td-t"></span><span><strong>Jan 2026 amendment:</strong> Secondary aluminium, Petroleum refinery, Petrochemicals, Textiles — baseline year FY2024–25</span></div>
-        <div class="thr"><span class="td td-b"></span><span><strong>Anticipated:</strong> Iron &amp; Steel, Fertilisers — BEE roadmap, timeline TBD</span></div>
-      </div>
-      <div class="rc-meta"><span class="tag t-teal">Metric: GHG intensity (tCO₂e/unit)</span><span class="tag t-teal">Certificate: CCC</span></div>
-    </div>
-    <div class="rc rc-cbam">
-      <div class="rc-icon">🇪🇺</div>
-      <div class="rc-name">CBAM</div>
-      <div class="rc-full">Carbon Border Adjustment Mechanism</div>
-      <div class="rc-org">EU Regulation 2023/956 · Definitive phase from 1 January 2026</div>
-      <div class="rc-body">EU's border carbon price on carbon-intensive imports. From January 2026, the legal declarant obligation sits with the EU-side <strong>authorized CBAM declarant</strong>. Indian exporters supply verified embedded-emissions data to support those declarations. TerraCAP generates this <em>Supplier Emissions Package</em> — pulled directly from your CCTS/PAT calculation.</div>
-      <div class="rc-box">
-        <div class="rc-box-lbl">Covered goods — Indian exporters must supply data</div>
-        <div class="thr"><span class="td td-c"></span>Cement (CN 2523.xx) — clinker, OPC, PPC, blended</div>
-        <div class="thr"><span class="td td-c"></span>Iron &amp; Steel (CN 7206–7217, 7301–7314)</div>
-        <div class="thr"><span class="td td-c"></span>Aluminium (CN 7601, 7604–7616)</div>
-        <div class="thr"><span class="td td-c"></span>Fertilisers, hydrogen, electricity</div>
-      </div>
-      <div class="rc-meta"><span class="tag t-coral">Declarant: EU customer (annual)</span><span class="tag t-coral">Indian exporter: data supplier</span></div>
-    </div>
+      <div class="rc-name">Producer / Manufacturer</div>
+      <div class="rc-desc">Your facility makes goods — cement, steel, aluminium, fertilisers, or other products. You may export to the EU or UK, making you a <strong>CBAM data supplier</strong>.</div>
+    </button>
+    <button class="role-card" id="rc-importer" onclick="selRole('importer')">
+      <div class="rc-icon">🚢</div>
+      <div class="rc-name">Importer / Trader</div>
+      <div class="rc-desc">Your organisation imports CBAM-covered goods into the EU or UK from third countries. You are an <strong>authorised CBAM declarant</strong> — a fundamentally different obligation.</div>
+    </button>
+    <button class="role-card" id="rc-both" onclick="selRole('both')">
+      <div class="rc-icon">🔄</div>
+      <div class="rc-name">Both — integrated group</div>
+      <div class="rc-desc">Your group both manufactures goods in one country and imports from third-country affiliates or suppliers. You have <strong>both supplier and declarant obligations</strong>, which must be managed separately.</div>
+    </button>
   </div>
-
-  <div class="notice nb"><span class="ni">ℹ</span><div><strong>CCTS and CBAM are connected in TerraCAP.</strong> Your verified GHG intensity from the CCTS/PAT calculation is automatically used to build the CBAM Supplier Emissions Package. No duplicate data entry. This integration is a core design principle of the platform.</div></div>
-
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-title" style="margin-bottom:10px">Sector status at a glance</div>
-    <div style="overflow-x:auto;border-radius:8px;border:1px solid var(--border)">
-      <table class="sector-tbl">
-        <thead><tr><th>Sector</th><th>PAT status</th><th>CCTS notification</th><th>Baseline year</th><th>CBAM covered</th></tr></thead>
-        <tbody>
-          <tr><td><strong>Cement</strong></td><td><span class="tag t-gray">Transitioning to CCTS</span></td><td><span class="tag t-teal">Oct 2025</span></td><td>FY2023–24</td><td><span class="tag t-coral">Yes — CN 2523</span></td></tr>
-          <tr><td><strong>Aluminium (primary)</strong></td><td><span class="tag t-gray">Transitioning to CCTS</span></td><td><span class="tag t-teal">Oct 2025</span></td><td>FY2023–24</td><td><span class="tag t-coral">Yes — CN 7601</span></td></tr>
-          <tr><td><strong>Aluminium (secondary)</strong></td><td><span class="tag t-amber">PAT Cycle VII active</span></td><td><span class="tag t-teal">Jan 2026</span></td><td>FY2024–25</td><td><span class="tag t-coral">Yes — CN 7601</span></td></tr>
-          <tr><td><strong>Petroleum refinery</strong></td><td><span class="tag t-amber">PAT Cycle VII active</span></td><td><span class="tag t-teal">Jan 2026</span></td><td>FY2024–25</td><td><span class="tag t-gray">Not yet covered</span></td></tr>
-          <tr><td><strong>Textiles</strong></td><td><span class="tag t-amber">PAT Cycle VII active</span></td><td><span class="tag t-teal">Jan 2026</span></td><td>FY2024–25</td><td><span class="tag t-gray">Not yet covered</span></td></tr>
-          <tr><td><strong>Iron &amp; Steel</strong></td><td><span class="tag t-amber">PAT Cycle VII active</span></td><td><span class="tag t-blue">Expected H2 FY2026–27</span></td><td>TBD</td><td><span class="tag t-coral">Yes — CN 7207+</span></td></tr>
-          <tr><td><strong>Chlor-alkali / Pulp</strong></td><td><span class="tag t-gray">Transitioning to CCTS</span></td><td><span class="tag t-teal">Oct 2025</span></td><td>FY2023–24</td><td><span class="tag t-gray">Not currently covered</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-    <div style="font-size:11px;color:var(--muted);margin-top:7px;font-family:'DM Mono',monospace">⚠ Screening guide only. Final Designated Consumer (DC) status requires verification against notified sector schedules and BEE DC registration for your specific facility.</div>
-  </div>
-  <div class="btn-row" style="border:none;padding-top:0;margin-top:10px">
-    <button class="btn primary" onclick="go('qualify');unl('qualify')">Check your compliance profile →</button>
+  <div class="btn-row" style="border:none;padding:0;margin-top:0">
+    <button class="btn btn-ghost" onclick="go('loc')">← Change location</button>
   </div>
 </div>
 
-<!-- ════ S2: QUALIFY ════ -->
-<div class="screen" id="s-qualify">
-  <div class="ph">
-    <div class="page-title">Your compliance profile</div>
-    <div class="page-sub">Answer three screening questions to identify which regimes likely apply. TerraCAP will configure your workflow and pre-populate sector-specific data from the matching demo company.</div>
+<!-- ══ S3: PRODUCTS ══ -->
+<div class="screen" id="s-products">
+  <div class="section-title">Which products does your facility produce or trade?</div>
+  <div class="section-sub" id="prod-sub">Select all that apply. CBAM obligations are product-driven and CN-code specific — different products have different calculation methodologies, covered scopes, and evidence requirements.</div>
+  <div class="question-note">Step 3 of 4 · Product-level CBAM gate (independent of location)</div>
+  <div class="prod-grid">
+    <button class="prod-card" id="pc-cement" onclick="togProd('cement')"><div class="pc-icon">🏗</div><div class="pc-name">Cement</div><div class="pc-cn">CN 2523.xx — OPC, PPC, blended, clinker</div></button>
+    <button class="prod-card" id="pc-steel" onclick="togProd('steel')"><div class="pc-icon">⚙</div><div class="pc-name">Iron &amp; Steel</div><div class="pc-cn">CN 7206–7217, 7301–7314 — billets, HRC, bars, rebar</div></button>
+    <button class="prod-card" id="pc-aluminium" onclick="togProd('aluminium')"><div class="pc-icon">🔩</div><div class="pc-name">Aluminium</div><div class="pc-cn">CN 7601, 7604–7616 — primary ingots, extrusions, sheet</div></button>
+    <button class="prod-card" id="pc-fertiliser" onclick="togProd('fertiliser')"><div class="pc-icon">🌱</div><div class="pc-name">Fertilisers</div><div class="pc-cn">CN 31xx — urea, ammonium nitrate, NPK</div></button>
+    <button class="prod-card" id="pc-hydrogen" onclick="togProd('hydrogen')"><div class="pc-icon">⚗</div><div class="pc-name">Hydrogen</div><div class="pc-cn">CN 2804.10 — green, blue, grey</div></button>
+    <button class="prod-card" id="pc-electricity" onclick="togProd('electricity')"><div class="pc-icon">⚡</div><div class="pc-name">Electricity</div><div class="pc-cn">CN 2716.00 — cross-border grid transfers</div></button>
+    <button class="prod-card" id="pc-nickel" onclick="togProd('nickel')"><div class="pc-icon">🪙</div><div class="pc-name">Nickel / other metals</div><div class="pc-cn">Potential future CBAM extension — monitor</div></button>
+    <button class="prod-card" id="pc-none" onclick="togProd('none')"><div class="pc-icon">📦</div><div class="pc-name">None of the above</div><div class="pc-cn">No CBAM-covered goods produced or traded</div></button>
   </div>
-  <div class="wz ws-active" id="ws1">
-    <div class="wz-hdr"><div class="wz-num" style="background:var(--teal-l);color:#fff">1</div><div class="wz-q">Which sector does your facility operate in?</div></div>
-    <div class="wz-opts">
-      <button class="wz-opt" onclick="wsel(1,'Cement','cement')">🏗 Cement</button>
-      <button class="wz-opt" onclick="wsel(1,'Iron &amp; Steel','steel')">⚙ Iron &amp; Steel</button>
-      <button class="wz-opt" onclick="wsel(1,'Aluminium (primary)','aluminium')">🔩 Aluminium (primary)</button>
-      <button class="wz-opt" onclick="wsel(1,'Aluminium (secondary)','aluminium')">♻ Aluminium (secondary)</button>
-      <button class="wz-opt" onclick="wsel(1,'Petroleum refinery','steel')">⛽ Petroleum refinery</button>
-      <button class="wz-opt" onclick="wsel(1,'Textiles','steel')">🧵 Textiles</button>
-      <button class="wz-opt" onclick="wsel(1,'Other sector','cement')">📦 Other</button>
-    </div>
+  <div id="prod-warning" style="display:none" class="notice n-amber"><span class="ni">⚠</span><div id="prod-warning-text"></div></div>
+  <div class="btn-row" style="border:none;padding:0;margin-top:0">
+    <button class="btn btn-primary" id="btn-prod-next" onclick="go('dest')" style="display:none">Continue to destination markets →</button>
+    <button class="btn btn-ghost" onclick="go('role')">← Change facility role</button>
   </div>
-  <div class="wz ws-idle" id="ws2">
-    <div class="wz-hdr"><div class="wz-num">2</div><div class="wz-q">What is your facility's approximate annual energy consumption?<span class="tip tip-up"><span class="tip-icon">i</span><span class="tip-pop tip-up"><span class="tp-term">Why we ask</span>BEE uses energy consumption (in Tonne of Oil Equivalent / TOE) as the primary threshold to identify Designated Consumers (DCs) who must comply with PAT or CCTS. 1 TOE ≈ 11.63 MWh of electrical energy equivalent.</span></span></div></div>
-    <div class="wz-opts" id="w2o" style="display:none">
-      <button class="wz-opt" onclick="wsel(2,'Below 30,000 TOE/yr','low')">Below 30,000 TOE/yr</button>
-      <button class="wz-opt" onclick="wsel(2,'30,000–100,000 TOE/yr','mid')">30,000–100,000 TOE/yr</button>
-      <button class="wz-opt" onclick="wsel(2,'Above 100,000 TOE/yr','high')">Above 100,000 TOE/yr</button>
-      <button class="wz-opt" onclick="wsel(2,'Not sure yet','unsure')">Not sure yet</button>
-    </div>
-  </div>
-  <div class="wz ws-idle" id="ws3">
-    <div class="wz-hdr"><div class="wz-num">3</div><div class="wz-q">Do you export goods to the European Union?</div></div>
-    <div class="wz-opts" id="w3o" style="display:none">
-      <button class="wz-opt" onclick="wsel(3,'Yes — active EU exports','yes')">Yes — active EU exports</button>
-      <button class="wz-opt" onclick="wsel(3,'No EU exports currently','no')">No EU exports</button>
-      <button class="wz-opt" onclick="wsel(3,'Exploring EU market entry','exploring')">Exploring EU market entry</button>
-    </div>
-  </div>
-  <div id="prof-result" style="display:none"></div>
 </div>
 
-<!-- ════ S3: DASHBOARD ════ -->
-<div class="screen" id="s-dash">
-  <div class="ph">
-    <div class="page-title" id="dash-title">Compliance Dashboard</div>
-    <div style="display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap" id="dash-meta"></div>
+<!-- ══ S4: DESTINATIONS ══ -->
+<div class="screen" id="s-dest">
+  <div class="section-title">Which markets do you export to?</div>
+  <div class="section-sub">EU CBAM and UK CBAM are separate legal instruments. Exporting to Germany triggers EU CBAM obligations; exporting to the UK triggers UK CBAM. Both can apply simultaneously and require separate supplier packages.</div>
+  <div class="question-note">Step 4 of 4 · Destination-market gate — EU and UK are separate CBAM instruments</div>
+  <div class="notice n-blue" style="margin-bottom:16px"><span class="ni">ℹ</span><div><strong>EU CBAM ≠ UK CBAM.</strong> The EU and UK CBAMs share similar design intent but are separate regulations, with different national authorities, different covered goods lists (which may diverge over time), different certificate markets, and different evidence and verification requirements. TerraCAP manages them as separate modules.</div></div>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
+    <div class="ms-item" id="dest-eu" onclick="togDest('eu')"><div class="ms-check" id="dc-eu"></div><div><div class="ms-label">🇪🇺 European Union — EU CBAM (active Jan 2026)</div><div class="ms-sub">Legal basis: EU Reg 2023/956 · Authority: European Commission / national customs · Annual declaration · EU ETS certificate price</div></div></div>
+    <div class="ms-item" id="dest-uk" onclick="togDest('uk')"><div class="ms-check" id="dc-uk"></div><div><div class="ms-label">🇬🇧 United Kingdom — UK CBAM (active Jan 2026)</div><div class="ms-sub">Legal basis: UK Finance Act 2024 · Authority: HMRC · Annual declaration · UK ETS carbon price · Separate from EU CBAM</div></div></div>
+    <div class="ms-item" id="dest-india" onclick="togDest('india')"><div class="ms-check" id="dc-india"></div><div><div class="ms-label">🇮🇳 India — domestic sale or intra-group transfer</div><div class="ms-sub">No CBAM obligation for domestic Indian sales — PAT/CCTS compliance only</div></div></div>
+    <div class="ms-item" id="dest-other" onclick="togDest('other')"><div class="ms-check" id="dc-other"></div><div><div class="ms-label">🌐 Other markets (US, GCC, SEA, China, etc.)</div><div class="ms-sub">No CBAM obligation for non-EU/UK export markets at this time</div></div></div>
   </div>
-  <div class="rel-box rel-teal" id="dash-rel">
-    <div class="rel-title" id="dash-rel-title" style="color:var(--teal)">How your compliance metrics connect</div>
-    <div class="rel-flow" id="dash-rel-flow"></div>
-    <div class="rel-formula" style="background:rgba(29,158,117,.08);color:var(--teal)" id="dash-formula"></div>
+  <div id="dest-warning" style="display:none" class="notice n-coral"><span class="ni">⚠</span><div id="dest-warning-text"></div></div>
+  <div class="btn-row" style="border:none;padding:0;margin-top:0">
+    <button class="btn btn-primary" id="btn-dest-next" onclick="buildAndGoObligations()" style="display:none">See your compliance obligations →</button>
+    <button class="btn btn-ghost" onclick="go('products')">← Change products</button>
   </div>
-  <div class="g3" style="margin-bottom:16px" id="dash-stats"></div>
-  <div class="g2">
-    <div class="card"><div class="sec-lbl">Compliance timeline</div><div id="dash-tl"></div></div>
-    <div class="card"><div class="sec-lbl">Actions required</div><div id="dash-actions"></div></div>
-  </div>
+</div>
+
+<!-- ══ S5: OBLIGATIONS ══ -->
+<div class="screen" id="s-obligations">
+  <div class="section-title">Your compliance obligations</div>
+  <div class="section-sub" id="obl-sub">Based on your location, role, products, and export markets.</div>
+  <div id="obl-content"></div>
   <div class="btn-row">
-    <button class="btn primary" onclick="go('data')">Enter energy &amp; GHG data →</button>
-    <button class="btn ghost" onclick="go('qualify')">← Compliance profile</button>
+    <button class="btn btn-ghost" onclick="go('dest')">← Review destination markets</button>
+    <button class="btn btn-ghost" onclick="resetAll()">↺ Start over</button>
   </div>
 </div>
 
-<!-- ════ S4: DATA ENTRY ════ -->
-<div class="screen" id="s-data">
-  <div class="ph">
-    <div class="page-title">Energy &amp; GHG data entry</div>
-    <div class="page-sub" id="data-sub">Sector-specific data collection for your compliance filing. Fields are pre-filled from TerraCAP's Scope 1 and Scope 2 records. All data entered here flows directly into the consolidation engine and then the filing document.</div>
-  </div>
-  <div class="notice nt"><span class="ni">✓</span><div><strong>Pre-filled from TerraCAP GHG module.</strong> Production, fuel, and electricity data imported from your existing Scope 1 &amp; 2 activity records. Review each field — the consolidation step (Screen 5) will show exactly how each entry maps to your filing.</div></div>
-  <div class="notice na"><span class="ni">⚠</span><div><strong>2 data conflicts flagged.</strong> Fields marked with a warning have year-on-year variance &gt;15%. Resolve before generating the filing pack.</div></div>
-  <div id="data-sections"></div>
-  <div class="btn-row">
-    <button class="btn primary" onclick="go('bridge')">Review data consolidation →</button>
-    <button class="btn ghost" onclick="go('dash')">← Dashboard</button>
-  </div>
 </div>
-
-<!-- ════ S5: CONSOLIDATION BRIDGE ════ -->
-<div class="screen" id="s-bridge">
-  <div class="ph">
-    <div class="page-title">Data consolidation</div>
-    <div class="page-sub" id="bridge-sub">This is how TerraCAP converts your raw data inputs into the compliance metrics and certificate calculations in your filing document. Every number in the filing is traceable to a data field you entered above.</div>
-  </div>
-  <div class="notice nt"><span class="ni">✓</span><div><strong>Full audit trail maintained.</strong> Every transformation below is logged with its source field, emission factor applied, and the regulation that mandates it. This is what your Accredited Carbon Verification Agency (ACVA) will examine during verification.</div></div>
-  <div class="bridge" id="bridge-table">
-    <div class="bridge-hdr">
-      <span style="font-size:16px">🔗</span>
-      <div>
-        <div class="bridge-hdr-title">Data → Calculation → Filing output</div>
-        <div style="font-size:11.5px;color:var(--teal);margin-top:1px">How each field you entered becomes a line in the compliance document</div>
-      </div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 28px 1fr 28px 1fr;padding:7px 14px;background:var(--surface);border-bottom:1px solid var(--border)">
-      <div style="font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Data entered (Screen 4)</div>
-      <div></div>
-      <div style="font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Calculation applied</div>
-      <div></div>
-      <div style="font-family:'DM Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Filing field (Screen 6)</div>
-    </div>
-    <div id="bridge-rows"></div>
-  </div>
-  <div class="card c-teal" style="margin-top:4px">
-    <div class="card-title" id="bridge-formula-title">Certificate calculation — traced from your data</div>
-    <div class="doc-formula" id="bridge-formula-detail" style="margin-top:8px"></div>
-  </div>
-  <div class="btn-row">
-    <button class="btn primary" onclick="go('filing')">Generate filing pack →</button>
-    <button class="btn ghost" onclick="go('data')">← Back to data entry</button>
-  </div>
-</div>
-
-<!-- ════ S6: FILING ════ -->
-<div class="screen" id="s-filing">
-  <div class="ph">
-    <div class="page-title" id="fil-title">Filing pack</div>
-    <div class="page-sub" id="fil-sub">Generated from your verified data. Review below then download or submit to the BEE portal.</div>
-  </div>
-  <div class="st-track" id="fil-steps"></div>
-  <div class="doc-copy-toggle">
-    <button class="dct-btn act" id="dct-r" onclick="togCopy('r')">Illustrative review copy</button>
-    <button class="dct-btn" id="dct-p" onclick="togCopy('p')">Portal-ready extract</button>
-  </div>
-  <div id="fil-doc"></div>
-  <div id="fil-portal" style="display:none" class="card c-blue">
-    <div class="card-title">Portal-ready extract — BEE submission format</div>
-    <div style="font-size:12.5px;color:var(--muted);margin:8px 0 12px;line-height:1.6">Structured for direct upload to the BEE compliance portal. Contains all mandatory fields in the notified schema including DC reference, intensity values, production data, and Accredited Carbon Verification Agency (ACVA) attestation reference.</div>
-    <div style="font-family:'DM Mono',monospace;font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;line-height:1.8;color:var(--ink)" id="fil-portal-json"></div>
-    <div style="display:flex;gap:8px;margin-top:12px"><button class="btn primary">Download JSON extract</button><button class="btn secondary">Upload to BEE portal</button></div>
-  </div>
-  <div class="btn-row">
-    <button class="btn primary" onclick="go('verify')">Proceed to ACVA verification →</button>
-    <button class="btn ghost" onclick="go('bridge')">← Data consolidation</button>
-  </div>
-</div>
-
-<!-- ════ S7: VERIFY ════ -->
-<div class="screen" id="s-verify">
-  <div class="ph">
-    <div class="page-title">Verification &amp; ACVA handoff</div>
-    <div class="page-sub">All CCTS and PAT submissions require independent third-party verification by a BEE-empanelled <strong>Accredited Carbon Verification Agency (ACVA)</strong> before certificates are issued. TerraCAP manages this in four distinct phases with clear owner assignments.</div>
-  </div>
-  <div class="acva-box">
-    <div class="acva-tag">What is an ACVA? — Accredited Carbon Verification Agency</div>
-    <div style="font-size:12.5px;color:var(--body);line-height:1.65;margin-bottom:14px;margin-top:6px">An ACVA is a BEE-empanelled third-party auditor — similar to a statutory auditor but for carbon and energy data. They examine your boundary definition, data integrity, emission factor selection, and intensity calculation before BEE will accept your submission and issue certificates. Bureau Veritas, SGS, DNV, and TÜV are examples of BEE-empanelled ACVAs.</div>
-    <div class="acva-phases">
-      <div class="acva-ph"><div class="acva-ph-num">Phase 1 of 4</div><div class="acva-ph-title">Document preparation</div><div class="acva-ph-owner">Owner: TerraCAP + Plant team</div><div class="acva-ph-body">Filing document, source data export, audit trail, boundary statement, and emission factor references packaged automatically by TerraCAP. Plant DGM Environment reviews and approves. Hours vs weeks manually.</div></div>
-      <div class="acva-ph"><div class="acva-ph-num">Phase 2 of 4</div><div class="acva-ph-title">Verifier interaction</div><div class="acva-ph-owner">Owner: ACVA + Plant team</div><div class="acva-ph-body">ACVA selected from BEE empanelled list. Site review conducted — typically 4–6 weeks. ACVA raises clarifications in TerraCAP's comment thread; plant responds without rebuilding the filing.</div></div>
-      <div class="acva-ph"><div class="acva-ph-num">Phase 3 of 4</div><div class="acva-ph-title">Verification statement</div><div class="acva-ph-owner">Owner: ACVA</div><div class="acva-ph-body">ACVA issues formal verification statement per ISO 14064-3 / ISAE 3410. TerraCAP attaches it to the submission bundle. Statement references compliance period, boundary, intensity, and production data.</div></div>
-      <div class="acva-ph"><div class="acva-ph-num">Phase 4 of 4</div><div class="acva-ph-title">Regulator submission</div><div class="acva-ph-owner">Owner: Plant team + BEE</div><div class="acva-ph-body">Verified bundle submitted to BEE portal. BEE accepts, issues certificates to the facility's account. TerraCAP portfolio updates in real time post-issuance.</div></div>
-    </div>
-  </div>
-  <div class="g2" style="margin-bottom:16px">
-    <div class="card c-blue">
-      <div class="card-title">Verification bundle — ready to share</div>
-      <div style="display:flex;flex-direction:column;gap:5px;font-size:12.5px;margin:8px 0 12px">
-        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">Filing document (Phase 1)</span><span class="tag t-teal">✓ Ready</span></div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">Source data export + audit trail</span><span class="tag t-teal">✓ Ready</span></div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">Emission factor references</span><span class="tag t-teal">✓ Ready</span></div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-l)"><span style="color:var(--muted)">Boundary definition statement</span><span class="tag t-teal">✓ Ready</span></div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0"><span style="color:var(--muted)">ACVA verification statement (Phase 3)</span><span class="tag t-gray">Awaiting ACVA</span></div>
-      </div>
-      <div style="display:flex;gap:7px"><button class="btn primary" style="flex:1;justify-content:center">Share bundle with ACVA</button><button class="btn" style="flex:1;justify-content:center">Download ZIP</button></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Select ACVA — Phase 2 <span class="tip"><span class="tip-icon">i</span><span class="tip-pop">ACVAs (Accredited Carbon Verification Agencies) are third-party auditors empanelled by BEE to independently verify GHG and energy data. They must be engaged for all PAT and CCTS submissions before BEE will issue ESCerts or CCCs.</span></span></div>
-      <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface);border-radius:7px;border:1px solid var(--border)"><span style="font-size:12.5px">Bureau Veritas India Pvt Ltd</span><button class="btn secondary" style="font-size:11px;padding:3px 9px">Select</button></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--teal-50);border-radius:7px;border:1px solid rgba(29,158,117,.2)"><span style="font-size:12.5px;font-weight:500;color:var(--teal)">SGS India Pvt Ltd ✓ Selected</span><button class="btn ghost" style="font-size:11px">Change</button></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface);border-radius:7px;border:1px solid var(--border)"><span style="font-size:12.5px">DNV Business Assurance India</span><button class="btn secondary" style="font-size:11px;padding:3px 9px">Select</button></div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface);border-radius:7px;border:1px solid var(--border)"><span style="font-size:12.5px">TÜV SÜD South Asia Pvt Ltd</span><button class="btn secondary" style="font-size:11px;padding:3px 9px">Select</button></div>
-      </div>
-    </div>
-  </div>
-  <div class="btn-row">
-    <button class="btn primary" onclick="go('certs')">View certificate portfolio →</button>
-    <button class="btn ghost" onclick="go('filing')">← Filing pack</button>
-  </div>
-</div>
-
-<!-- ════ S8: CERTS ════ -->
-<div class="screen" id="s-certs">
-  <div class="ph">
-    <div class="page-title">Certificate portfolio</div>
-    <div class="page-sub" id="certs-sub">Your certificates after ACVA sign-off. Tradeable on IEX, PXIL, and HPX exchanges under BEE/CERC rules.</div>
-  </div>
-  <div class="g4" style="margin-bottom:16px" id="cert-stats"></div>
-  <div class="pipeline" id="cert-pipe"></div>
-  <div class="notice nt"><span class="ni">✓</span><div id="cert-notice"></div></div>
-  <div class="card" style="margin-bottom:16px" id="cert-rev"></div>
-  <div class="sec-lbl" style="margin-bottom:8px">Submission &amp; delivery chain — where does this go after certificate issuance?</div>
-  <div class="dchain" id="cert-chain"></div>
-  <div class="btn-row">
-    <button class="btn coral" id="btn-cbam" onclick="go('cbam')">Generate CBAM supplier emissions package →</button>
-    <button class="btn ghost" onclick="go('verify')">← Verification</button>
-  </div>
-</div>
-
-<!-- ════ S9: CBAM ════ -->
-<div class="screen" id="s-cbam">
-  <div class="ph">
-    <div class="page-title">EU CBAM — Supplier Emissions Package</div>
-    <div class="page-sub">From 1 January 2026, the CBAM definitive phase applies. The legal obligation sits with the EU-side authorized CBAM declarant — your EU customer. TerraCAP generates the <strong>Supplier Emissions Package</strong> they need to fulfil their annual CBAM declaration, using intensity already verified in your CCTS/PAT filing.</div>
-  </div>
-  <div class="notice nt"><span class="ni">✓</span><div><strong>Intensity auto-linked — no re-entry.</strong> <span id="cbam-note"></span></div></div>
-  <div class="notice nb"><span class="ni">ℹ</span><div><strong>Your role as Indian exporter in the 2026 definitive phase:</strong> You are the <em>data supplier</em>. Your EU customer (or their customs agent) is the <em>authorized CBAM declarant</em> who submits the annual declaration to their national authority and surrenders CBAM certificates. TerraCAP packages everything they need from you.</div></div>
-  <div class="g2" style="margin-bottom:16px">
-    <div>
-      <div class="sec-lbl">Shipment details</div>
-      <div class="card">
-        <div class="field"><div class="field-lbl">Product type <span class="tip"><span class="tip-icon">i</span><span class="tip-pop">Select the specific product exported. CBAM uses EU Combined Nomenclature (CN) codes to identify covered goods. Different CN codes may have different embedded emissions calculation rules.</span></span></div><select class="fi" id="cbam-prod"><option id="cbam-prod-opt"></option><option>+ Add product</option></select></div>
-        <div class="field"><div class="field-lbl">Shipment quantity <span class="tip"><span class="tip-icon">i</span><span class="tip-pop">Total net weight of the shipment in tonnes. TerraCAP multiplies this by your verified GHG intensity (pulled from the CCTS/PAT calculation) to compute the total embedded tCO₂e for this shipment.</span></span></div><div class="fi-unit"><input type="number" id="cbam-qty" value="5000" oninput="updCBAM()"><div class="ul">tonnes</div></div></div>
-        <div class="field"><div class="field-lbl">EU customer / authorized CBAM declarant</div><select class="fi"><option>LafargeHolcim GmbH, Germany</option><option>thyssenkrupp AG, Germany</option><option>Norsk Hydro ASA, Norway</option><option>+ Add EU customer</option></select></div>
-        <div class="card c-coral" style="margin-top:8px;padding:12px 14px">
-          <div class="sec-lbl">Embedded emissions — auto-calculated <span class="tip"><span class="tip-icon">i</span><span class="tip-pop" style="width:260px">Embedded tCO₂e = Shipment quantity (t) × Verified GHG intensity (tCO₂e/t). The intensity figure is pulled directly from your CCTS or PAT compliance calculation — verified by your ACVA. This is what the EU declarant reports.</span></span></div>
-          <div style="font-size:22px;font-weight:800;color:var(--coral);font-family:'Plus Jakarta Sans',sans-serif" id="cbam-emb">—</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:3px" id="cbam-calc"></div>
-          <div style="font-size:13px;font-weight:600;color:var(--coral);margin-top:6px" id="cbam-exp"></div>
-        </div>
-        <button class="btn coral" style="margin-top:12px;width:100%;justify-content:center">Add to emissions package →</button>
-      </div>
-    </div>
-    <div>
-      <div class="sec-lbl">Supplier emissions package — document preview</div>
-      <div class="doc-paper" style="padding:20px 22px">
-        <div class="eu-hdr"><div class="eu-stars">★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★ ★</div><div><div class="eu-t">Supplier Embedded Emissions Report</div><div class="eu-s">For EU CBAM Authorized Declarant · Definitive Phase 2026</div></div></div>
-        <div class="doc-title" id="cbam-doc-title">Supplier Emissions Package</div>
-        <div class="doc-sub" id="cbam-doc-sub"></div>
-        <div class="doc-sec">
-          <div class="doc-sec-t">Indian exporter (data supplier)</div>
-          <div class="doc-row"><span class="dl">Company</span><span class="dv" id="cbam-co"></span></div>
-          <div class="doc-row"><span class="dl">Facility</span><span class="dv" id="cbam-fac"></span></div>
-          <div class="doc-row"><span class="dl">CCTS / PAT reference</span><span class="dv" id="cbam-dcref"></span></div>
-          <div class="doc-row"><span class="dl">Verified GHG intensity</span><span class="dv hi" id="cbam-int"></span></div>
-          <div class="doc-row"><span class="dl">Verification body (ACVA)</span><span class="dv">SGS India Pvt Ltd (ISO 14064-3)</span></div>
-        </div>
-        <div class="doc-sec">
-          <div class="doc-sec-t">Shipment &amp; embedded emissions</div>
-          <div class="doc-row"><span class="dl">EU authorized CBAM declarant</span><span class="dv">LafargeHolcim GmbH, Germany</span></div>
-          <div class="doc-row"><span class="dl">Product (CN code)</span><span class="dv" id="cbam-cn"></span></div>
-          <div class="doc-row"><span class="dl">Quantity dispatched</span><span class="dv" id="cbam-dqty"></span></div>
-          <div class="doc-row"><span class="dl">Embedded tCO₂e</span><span class="dv wa" id="cbam-demb"></span></div>
-          <div class="doc-row"><span class="dl">Reference CBAM price (indicative)</span><span class="dv">€75.36 / tCO₂e</span></div>
-          <div class="doc-row"><span class="dl">Estimated CBAM exposure (EU declarant)</span><span class="dv wa" id="cbam-dliab"></span></div>
-        </div>
-        <div class="doc-sec">
-          <div class="doc-sec-t">Methodology attestation</div>
-          <div class="doc-row"><span class="dl">GHG standard</span><span class="dv">GHG Protocol Corporate Standard</span></div>
-          <div class="doc-row"><span class="dl">Emission factors</span><span class="dv">IPCC AR6 + DEFRA 2024 + CEA 2024–25</span></div>
-          <div class="doc-row"><span class="dl">Verification standard</span><span class="dv">ISO 14064-3 / ISAE 3410</span></div>
-          <div class="doc-row"><span class="dl">Intended recipient</span><span class="dv">EU authorized CBAM declarant only</span></div>
-        </div>
-        <div class="doc-sign" style="grid-template-columns:1fr 1fr"><div class="dsb"><div class="dsl"></div><div class="dslbl">Authorised signatory (Indian exporter)</div></div><div class="dsb"><div class="dsl"></div><div class="dslbl">Date of issue</div></div></div>
-        <div><span class="doc-stamp">✓ TerraCAP · Hertzwave Innovations · Demo</span></div>
-        <div class="doc-actions"><button class="btn coral">Download package (PDF)</button><button class="btn secondary">Share with EU customer</button></div>
-      </div>
-    </div>
-  </div>
-  <div class="sec-lbl" style="margin-bottom:8px">How this package flows in the CBAM definitive phase</div>
-  <div class="dchain">
-    <div class="dc-step dc-a"><div class="dc-owner">Indian exporter</div><div class="dc-action">TerraCAP generates supplier emissions package with ACVA-verified intensity</div></div>
-    <div class="dc-step dc-t"><div class="dc-owner">Shared with</div><div class="dc-action">EU customer / authorized CBAM declarant receives and validates package</div></div>
-    <div class="dc-step dc-b"><div class="dc-owner">EU declarant submits</div><div class="dc-action">Annual CBAM declaration to national authority using your embedded emissions data</div></div>
-    <div class="dc-step dc-s"><div class="dc-owner">National authority</div><div class="dc-action">Processes declaration; EU declarant surrenders CBAM certificates at €/tCO₂e rate</div></div>
-  </div>
-</div>
-
-</div></div></div>
 <script>
-// ══════════ COMPANY DATA ══════════
-const COs = {
-cement: {
-  name:'Bharathi Cement Ltd', fac:'Kadapa Plant, Andhra Pradesh', sector:'Cement', regime:'CCTS', dc:'CEM-AP-0034', cbam:true,
-  int:0.701, tgt:0.728, base:0.761, iu:'tCO₂e / tonne cement', ct:'CCC', cn_full:'Carbon Credit Certificate', certs:18360, rev:'₹1.1–1.7 Cr', rate:'₹600–900',
-  secA:null, secT:null, su:null, ml:'GHG intensity (actual)', tl_lbl:'CCTS intensity target',
-  formula_parts:{surplus_label:'CCC surplus', int_tgt:0.728, int_act:0.701, prod:680000, prod_unit:'tonnes cement (tEC)', prod_label:'annual cement production', certs:18360, rev:'₹1.1–1.7 Cr'},
-  tl_items:[['CCTS targets notified (BEE)','Oct 2025','t-teal'],['Baseline year reference','FY2023–24','t-teal'],['Compliance period close','31 Mar 2026','t-teal'],['CCTS filing deadline','31 Jul 2026','t-amber'],['ACVA verification','Jun–Jul 2026','t-gray'],['CCC issuance','After ACVA sign-off','t-gray']],
-  cbamProd:'OPC Cement', cbamCN:'OPC — CN 2523.29',
-  ftype:'CCTS Compliance Report', fsteps:['GHG intensity calc','Boundary statement','BEE Form 3','ACVA sign-off'],
-  fdocTitle:'CCTS Compliance Submission — FY2025–26',
-  fdocSub:'Kadapa Plant · BEE Ref: CEM-AP-0034 · Cement Sector · Baseline year: FY2023–24',
-  fr1:[{l:'Company',v:'Bharathi Cement Ltd'},{l:'Facility',v:'Kadapa Plant, Andhra Pradesh'},{l:'Sector',v:'Cement — Integrated dry process'},{l:'BEE DC Reference',v:'CEM-AP-0034'},{l:'CCTS notification date',v:'October 2025 (MoEFCC)'},{l:'Baseline year',v:'FY2023–24'},{l:'Compliance year',v:'FY2025–26'},{l:'Reporting boundary',v:'All kilns, raw mills, cement mills — operational control'}],
-  fr2:[{l:'Annual cement production',v:'6,80,000 tEC',h:1},{l:'Total Scope 1 emissions',v:'3,61,244 tCO₂e',h:0},{l:'Total Scope 2 emissions (market)',v:'1,16,440 tCO₂e',h:0},{l:'Total GHG emissions',v:'4,77,684 tCO₂e',h:0},{l:'GHG Intensity (actual)',v:'0.701 tCO₂e/tEC',h:1},{l:'CCTS intensity target',v:'0.728 tCO₂e/tEC',h:0},{l:'Variance vs target',v:'−3.7% (surplus)',h:1},{l:'CCC surplus (est.)',v:'18,360 Carbon Credit Certificates',h:1}],
-  chain:[['Plant DGM + CFO','Reviews & signs filing document'],['SGS India (ACVA)','ISO 14064-3 verification, 4–6 weeks'],['BEE portal','Receives verified submission'],['BEE / CERC','Issues 18,360 CCCs to facility account'],['IEX / PXIL','CCCs traded; ₹1.1–1.7 Cr revenue']],
-  bridge:[
-    {src:'Coal consumed (22,200 MT)',calc:'× EF 2.42 tCO₂/t (IPCC AR6)',out:'Scope 1 — coal combustion emissions',scope:'1'},
-    {src:'Petcoke consumed (3,400 MT)',calc:'× EF 3.40 tCO₂/t (IPCC AR6)',out:'Scope 1 — petcoke combustion emissions',scope:'1'},
-    {src:'Diesel consumed (420 kL)',calc:'× EF 2.68 tCO₂/kL (DEFRA 2024)',out:'Scope 1 — diesel combustion emissions',scope:'1'},
-    {src:'Grid electricity (142 MU)',calc:'× CEA grid EF 0.82 tCO₂/MWh',out:'Scope 2 — grid electricity emissions',scope:'2'},
-    {src:'Cement production (6,80,000 tEC)',calc:'Sum all Scope 1+2 ÷ production',out:'GHG intensity: 0.701 tCO₂e/tEC',scope:''},
-    {src:'GHG intensity vs CCTS target',calc:'(0.728 − 0.701) × 6,80,000t',out:'CCC surplus: 18,360 certificates',scope:''}
-  ],
-  // Sector-specific data sections
-  dataSections:[
-    {title:'Production data — FY2025–26', sub:'Annual output figures — the denominator for your CCTS GHG intensity calculation',
-     fields:[
-      {l:'Annual cement production',v:'680000',u:'tEC',tip:'Tonne Equivalent Cement (tEC) — the CCTS-mandated normalised production unit for cement. Accounts for different cement grades. This is the denominator in the intensity formula: Intensity = Total GHG ÷ Production (tEC).', src:'From production MIS / dispatch records'},
-      {l:'Clinker produced',v:'612000',u:'tonnes',tip:'Required separately for BEE Form 3 to compute specific heat consumption per tonne of clinker — a key sub-metric for kiln efficiency. Clinker-to-cement ratio (here ~90%) is used to validate boundary consistency.', src:'From kiln control system'},
-      {l:'Blended cement share',v:'28',u:'% of total',tip:'Percentage of total production that is blended cement (PPC, PSC, etc.). Affects the clinker factor, which in turn affects process CO₂ emissions per tonne. CCTS requires this for intensity boundary validation.', src:'From QC records'},
-    ]},
-    {title:'Scope 1 — Direct emissions', sub:'Fuel combustion in kilns, captive power, and logistics. Largest emission source for cement.',
-     fields:[
-      {l:'Coal — all kilns combined',v:'22200',u:'MT/year',tip:'Primary fuel for kiln combustion. BEE/IPCC AR6 emission factor ~2.42 tCO₂/tonne. Enter total coal consumed across all rotary kilns and pre-heaters. TerraCAP applies the notified emission factor automatically.', src:'From fuel procurement / weigh-bridge records'},
-      {l:'Petcoke — supplementary fuel',v:'3400',u:'MT/year',tip:'Supplementary kiln fuel. Higher carbon content than coal — IPCC AR6 EF ~3.40 tCO₂/tonne. Enter only petcoke consumed in kilns, not any used as raw material.', src:'From fuel procurement records'},
-      {l:'Diesel — internal logistics',v:'420',u:'kL/year',tip:'Diesel for trucks, loaders, and quarry equipment within the facility boundary. DEFRA 2024 EF: ~2.68 tCO₂/kL. Includes mobile combustion sources within operational control boundary.', src:'From fuel store records'},
-      {l:'Process CO₂ — calcination',v:'185000',u:'tCO₂/year',tip:'CO₂ released from limestone (CaCO₃ → CaO + CO₂) during clinker production. This is a process emission, not combustion. Calculated as clinker produced × 0.525 tCO₂/t clinker (stoichiometric). TerraCAP auto-calculates but allows manual override.', src:'Auto-calculated from clinker production × 0.525 tCO₂/t'},
-    ]},
-    {title:'Scope 2 — Indirect electricity emissions', sub:'Grid electricity purchased for grinding mills, fans, and plant operations.',
-     fields:[
-      {l:'Grid electricity purchased',v:'142',u:'MU/year',tip:'Million Units (MU) = Gigawatt-hours (GWh). Total electricity imported from the grid for cement grinding, raw mills, cooler fans, and plant operations. Does not include any self-generated captive power.', src:'From DISCOM monthly bills'},
-      {l:'Captive power generated (if any)',v:'0',u:'MU/year',tip:'If the facility has captive power, enter total units generated here. TerraCAP will compute emissions from captive fuel consumption under Scope 1 (the fuel used) and exclude these units from the Scope 2 grid calculation.', src:'From captive power plant DCS'},
-      {l:'DISCOM grid EF applied',v:'0.82',u:'tCO₂/MWh',tip:'CEA (Central Electricity Authority) grid emission factor for the Southern regional grid, FY2024–25. This is the market-based Scope 2 emission factor mandated by BEE for CCTS calculations in this region. TerraCAP applies this automatically based on your state.', src:'CEA grid EF 2024–25 — Southern region'},
-    ]}
-  ]
-},
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let selLocKey = null;
+let selRoleKey = null;
+let selProds = new Set();
+let selDests = new Set();
 
-steel: {
-  name:'SLR Metaliks Ltd', fac:'SLRM Hospet, Karnataka', sector:'Iron & Steel', regime:'PAT', dc:'STL-KA-0089', cbam:true,
-  int:1.92, tgt:2.2, base:2.48, iu:'tCO₂e/tonne finished steel', ct:'ESCert', cn_full:'Energy Saving Certificate', certs:8400, rev:'₹0.5–0.75 Cr', rate:'₹600–850',
-  secA:0.517, secT:0.545, su:'TOE/tonne liquid steel', ml:'SEC actual (PAT metric)', tl_lbl:'BEE PAT target (SEC)',
-  formula_parts:{surplus_label:'ESCert surplus', int_tgt:0.545, int_act:0.517, prod:300000, prod_unit:'tonnes liquid steel', prod_label:'annual liquid steel production', certs:8400, rev:'₹0.5–0.75 Cr'},
-  tl_items:[['PAT Cycle VII baseline set','FY2022–23','t-teal'],['Compliance period','FY2022–23 → FY2025–26','t-teal'],['PAD filing deadline','31 Jul 2026','t-amber'],['ACVA verification','Jun–Jul 2026','t-gray'],['ESCert issuance','After ACVA','t-gray'],['CCTS notification (est.)','H2 FY2026–27','t-blue']],
-  cbamProd:'Alloy Steel (Billet)', cbamCN:'Steel billet — CN 7207.19',
-  ftype:'PAT PAD Filing', fsteps:['SEC calculation','BEE Form 1','BEE Form 2','BEE Form 3','ACVA sign-off'],
-  fdocTitle:'PAT PAD Filing — FY2025–26 (Cycle VII)',
-  fdocSub:'SLRM Hospet · BEE DC: STL-KA-0089 · PAT Cycle VII · Iron & Steel',
-  fr1:[{l:'Company',v:'SLR Metaliks Ltd'},{l:'Facility',v:'SLRM Hospet, Karnataka'},{l:'Sector',v:'Iron & Steel — BF-EOF route'},{l:'BEE DC Reference',v:'STL-KA-0089'},{l:'PAT Cycle',v:'Cycle VII (FY2022–23 to FY2025–26)'},{l:'Baseline SEC',v:'0.573 TOE/tonne liquid steel (Cycle VI)'},{l:'Compliance year',v:'FY2025–26'},{l:'Reporting boundary',v:'Blast furnace, EOF shop, rolling mill, captive power'}],
-  fr2:[{l:'Annual liquid steel production',v:'3,00,000 tonnes',h:1},{l:'Total energy consumed',v:'1,55,100 TOE/year',h:0},{l:'SEC (Specific Energy Consumption) — actual',v:'0.517 TOE/tonne liquid steel',h:1},{l:'PAT target SEC (BEE notified)',v:'0.545 TOE/tonne liquid steel',h:0},{l:'Variance vs PAT target',v:'−5.1% (surplus)',h:1},{l:'ESCert surplus (estimated)',v:'8,400 Energy Saving Certificates',h:1},{l:'GHG intensity (CCTS-ready)',v:'1.92 tCO₂e/tonne finished steel',h:0}],
-  chain:[['Plant DGM + CFO','Reviews & signs PAD filing'],['SGS India (ACVA)','ISO 14064-3 verification, 4–6 weeks'],['BEE portal','Receives verified PAD submission'],['BEE / CERC','Issues 8,400 ESCerts to facility account'],['IEX / PXIL','ESCerts traded at ₹600–850 each']],
-  bridge:[
-    {src:'BF coke consumed (1,85,000 MT)',calc:'× EF 3.67 tCO₂/t (IPCC AR6) × 0.429 toe/GJ',out:'Scope 1 — BF coke energy & emissions',scope:'1'},
-    {src:'PCI coal injection (18,000 MT)',calc:'× EF 2.42 tCO₂/t; energy = × 0.614 TOE/t',out:'Scope 1 — PCI coal contribution to SEC',scope:'1'},
-    {src:'BFG captive power (6 MW avg)',calc:'Fuel energy in, power out — efficiency calc',out:'Scope 1 — BFG recovery (reduces SEC)',scope:'1'},
-    {src:'Grid electricity (48 MU)',calc:'× 0.86 TOE/MWh (BEE conversion factor)',out:'Scope 2 energy — added to total energy (TOE)',scope:'2'},
-    {src:'Liquid steel production (3,00,000 t)',calc:'Total energy (TOE) ÷ production',out:'SEC: 0.517 TOE/tonne liquid steel',scope:''},
-    {src:'SEC vs PAT target (0.545)',calc:'(0.545 − 0.517) × 3,00,000t',out:'ESCert surplus: 8,400 certificates',scope:''}
-  ],
-  dataSections:[
-    {title:'Production data — FY2025–26', sub:'Annual steel output — the denominator for your Specific Energy Consumption (SEC) calculation under PAT',
-     fields:[
-      {l:'Annual liquid steel production',v:'300000',u:'tonnes',tip:'Liquid steel output from the Electric Arc / EOF furnace. This is the PAT denominator — SEC = Total energy (TOE) ÷ liquid steel production. All energy inputs are divided by this figure to arrive at your Specific Energy Consumption (TOE/tonne liquid steel).', src:'From production log / MIS'},
-      {l:'Hot metal from blast furnace',v:'265000',u:'tonnes',tip:'Total hot metal (pig iron) produced in the blast furnace and fed to the EOF shop. Required for BEE\'s sub-metric on specific energy per tonne of hot metal — cross-checked against total coke consumption.', src:'From BF control system'},
-      {l:'Finished steel dispatched',v:'285000',u:'tonnes',tip:'Total finished steel (billets, bars, etc.) dispatched from rolling mill. Used for CBAM embedded intensity calculation, which uses finished product output rather than liquid steel.', src:'From dispatch records / weigh-bridge'},
+// ══════════════════════════════════════
+// GEO DATA
+// ══════════════════════════════════════
+const GEOS = {
+  india:    { name:'India', flag:'🇮🇳', domesticLive:true,
+    schemes:[
+      { id:'ccts', name:'CCTS', full:'Carbon Credit Trading Scheme', color:'#1d9e75', bg:'#f0faf5', border:'rgba(29,158,117,.2)',
+        status:'Active', since:'Oct 2025 (first cohort) + Jan 2026 (amendment)',
+        metric:'GHG intensity (tCO₂e / unit output)', cert:'CCC', regulator:'BEE / MoEFCC',
+        sectors:'Cement, Aluminium (primary & secondary), Chlor-alkali, Pulp & Paper, Petroleum refinery, Textiles',
+        verifier:'BEE-empanelled ACVA per CCTS-specific MoEFCC protocol (distinct from PAT M&V)',
+        verifierNote:'CCTS verifier empanelment is scheme-specific. Select from MoEFCC/BEE CCTS-empanelled list — not automatically identical to PAT verifier list.',
+        evidence:['GHG intensity calculation (Scope 1+2)', 'Boundary definition statement (signed)', 'Emission factor references (IPCC AR6 + CEA grid EF)', 'Production data with source audit trail', 'Rule version lock (CCTS Rules 2023 + amendments)', 'Facility-level ACVA verification statement (ISO 14064-3 / CCTS protocol)'],
+        action:'india', live:true },
+      { id:'pat', name:'PAT', full:'Perform Achieve & Trade', color:'#ba7517', bg:'#fdf6e8', border:'rgba(186,117,23,.2)',
+        status:'Active — Cycle VII', since:'2012',
+        metric:'Specific Energy Consumption (TOE / unit output)', cert:'ESCert', regulator:'BEE',
+        sectors:'Iron & Steel (CCTS not yet notified), plus any sectors pending CCTS transition',
+        verifier:'BEE-empanelled ACVA per PAT Monitoring & Verification (M&V) protocol',
+        verifierNote:'PAT verification follows the PAT M&V protocol (ISO 50001-aligned). The filing submitted to BEE is the M&V report — not a PAD. PAD (Plant Applicability Document) establishes DC status and baseline; M&V report is the compliance submission.',
+        evidence:['SEC calculation (energy inputs + production denominator)', 'BEE Form 1 (DC registration)', 'BEE Form 2 (baseline SEC)', 'BEE Form 3 (compliance year M&V report)', 'ACVA M&V verification statement', 'Rule version: PAT Cycle VII notified schedule'],
+        action:'india', live:true }
     ]},
-    {title:'Scope 1 — Energy inputs (direct)', sub:'BF coke, PCI coal, and BFG recovery — primary energy drivers of your SEC. Enter in physical units; TerraCAP converts to TOE.',
-     fields:[
-      {l:'Blast furnace coke consumed',v:'185000',u:'MT/year',tip:'Primary reducing agent in the blast furnace. Largest single energy and carbon source. BEE converts to TOE using a net calorific value (NCV) of ~6,800 kcal/kg. IPCC AR6 emission factor: ~3.67 tCO₂/tonne coke. Enter total coke pushed into BF.', src:'From coke plant / procurement records'},
-      {l:'Pulverised Coal Injection (PCI)',v:'18000',u:'MT/year',tip:'PCI coal injected into blast furnace tuyeres to reduce coke consumption. PAT credits PCI as an efficiency measure. BEE NCV: ~6,200 kcal/kg. Reducing PCI is a key lever to improve SEC. Enter total PCI consumed.', src:'From PCI plant flow meters'},
-      {l:'Blast furnace gas (BFG) recovered',v:'6',u:'MW avg captive',tip:'BFG is a by-product gas from the blast furnace, recovered and used in the captive power plant. This reduces grid electricity import and improves overall SEC. TerraCAP treats BFG recovery as energy credit against total SEC. Enter average MW generated from BFG.', src:'From captive power DCS / energy meter'},
-      {l:'LD / EOF gas recovered',v:'0',u:'MW avg captive',tip:'Gas recovered from the steelmaking furnace (if applicable). Similar to BFG — reduces external energy import. Enter 0 if not applicable.', src:'From steelmaking energy meter'},
-    ]},
-    {title:'Scope 2 — Grid electricity', sub:'Grid electricity consumed for plant operations, electric arc furnace, rolling mill, utilities.',
-     fields:[
-      {l:'Grid electricity purchased',v:'48',u:'MU/year',tip:'Total units imported from the grid for electric arc / EOF furnace, rolling mill, compressed air, water, and other utilities. BEE converts to TOE using the factor 0.086 TOE/unit (860 kcal/kWh). This is added to Scope 1 energy to compute total SEC.', src:'From DISCOM monthly bills + energy meters'},
-      {l:'Wind power (group captive)',v:'19800',u:'MWh/year',tip:'Renewable power from the group captive wind project (~19.8 MW). Under BEE\'s PAT rules, group captive renewable energy is credited against total grid consumption for SEC purposes — reducing your effective SEC. TerraCAP handles this adjustment automatically.', src:'From wind plant generation log'},
-    ]}
-  ]
-},
-
-aluminium: {
-  name:'Hindalco Industries Ltd', fac:'Renukoot Smelter, UP', sector:'Aluminium', regime:'CCTS', dc:'ALU-UP-0012', cbam:true,
-  int:8.42, tgt:9.10, base:9.85, iu:'tCO₂e/tonne primary Al', ct:'CCC', cn_full:'Carbon Credit Certificate', certs:258400, rev:'₹15.5–23.2 Cr', rate:'₹600–900',
-  secA:null, secT:null, su:null, ml:'GHG intensity (actual)', tl_lbl:'CCTS intensity target',
-  formula_parts:{surplus_label:'CCC surplus', int_tgt:9.10, int_act:8.42, prod:380000, prod_unit:'tonnes primary aluminium', prod_label:'annual primary aluminium production', certs:258400, rev:'₹15.5–23.2 Cr'},
-  tl_items:[['CCTS targets notified (BEE)','Oct 2025','t-teal'],['Baseline year reference','FY2023–24','t-teal'],['Compliance period close','31 Mar 2026','t-teal'],['CCTS filing deadline','31 Jul 2026','t-amber'],['ACVA verification','Jun–Jul 2026','t-gray'],['CCC issuance','After ACVA sign-off','t-gray']],
-  cbamProd:'Primary Aluminium (ingots)', cbamCN:'Al ingots — CN 7601.10',
-  ftype:'CCTS Compliance Report', fsteps:['GHG intensity calc','PFC calculation','Boundary statement','BEE Form 3','ACVA sign-off'],
-  fdocTitle:'CCTS Compliance Submission — FY2025–26',
-  fdocSub:'Renukoot Smelter · BEE Ref: ALU-UP-0012 · Aluminium Sector · Baseline year: FY2023–24',
-  fr1:[{l:'Company',v:'Hindalco Industries Ltd'},{l:'Facility',v:'Renukoot Smelter, Uttar Pradesh'},{l:'Sector',v:'Aluminium — Primary smelting (prebaked anode)'},{l:'BEE DC Reference',v:'ALU-UP-0012'},{l:'CCTS notification date',v:'October 2025 (MoEFCC)'},{l:'Baseline year',v:'FY2023–24'},{l:'Compliance year',v:'FY2025–26'},{l:'Reporting boundary',v:'Smelter potrooms, captive power plant, anode bake furnace'}],
-  fr2:[{l:'Annual primary aluminium production',v:'3,80,000 tonnes',h:1},{l:'Scope 1 — captive power combustion',v:'12,24,000 tCO₂e',h:0},{l:'Scope 1 — anode carbon oxidation',v:'1,45,200 tCO₂e',h:0},{l:'Scope 1 — PFC process emissions (CF4+C2F6)',v:'12,400 tCO₂e',h:0},{l:'Scope 2 — grid electricity (market-based)',v:'6,560 tCO₂e',h:0},{l:'GHG Intensity (actual)',v:'8.42 tCO₂e/tonne Al',h:1},{l:'CCTS intensity target',v:'9.10 tCO₂e/tonne Al',h:0},{l:'Variance vs target',v:'−7.5% (surplus)',h:1},{l:'CCC surplus (estimated)',v:'2,58,400 Carbon Credit Certificates',h:1}],
-  chain:[['Plant DGM + CFO','Reviews & signs filing document'],['SGS India (ACVA)','ISO 14064-3 + PFC methodology review, 4–6 wks'],['BEE portal','Receives verified submission'],['BEE / CERC','Issues 2,58,400 CCCs to facility account'],['IEX / PXIL','CCCs traded; ₹15.5–23.2 Cr revenue']],
-  bridge:[
-    {src:'Captive power coal (4,80,000 MT)',calc:'× EF 2.42 tCO₂/t (IPCC AR6 coal)',out:'Scope 1 — captive power combustion (largest source)',scope:'1'},
-    {src:'Prebaked anode carbon (86,000 MT)',calc:'× 1.69 tCO₂/t anode (carbon oxidation)',out:'Scope 1 — anode oxidation process emissions',scope:'1'},
-    {src:'PFC emissions: CF4 anode effects',calc:'× GWP 6,630 (IPCC AR6)',out:'Scope 1 — PFC global warming contribution',scope:'1'},
-    {src:'PFC emissions: C2F6 anode effects',calc:'× GWP 11,100 (IPCC AR6)',out:'Scope 1 — PFC global warming contribution',scope:'1'},
-    {src:'Grid electricity supplement (8 MU)',calc:'× CEA Northern grid EF 0.82 tCO₂/MWh',out:'Scope 2 — residual grid electricity',scope:'2'},
-    {src:'Al production (3,80,000 t)',calc:'Sum all Scope 1+2 ÷ production',out:'GHG intensity: 8.42 tCO₂e/tonne Al',scope:''},
-    {src:'GHG intensity vs CCTS target',calc:'(9.10 − 8.42) × 3,80,000t',out:'CCC surplus: 2,58,400 certificates',scope:''}
-  ],
-  dataSections:[
-    {title:'Production data — FY2025–26', sub:'Annual primary aluminium output — the denominator for your CCTS GHG intensity. Note: primary and secondary aluminium are separate CCTS compliance stories with different targets.',
-     fields:[
-      {l:'Primary aluminium production',v:'380000',u:'tonnes',tip:'Total primary aluminium produced in the electrolytic potrooms. This is the CCTS denominator: GHG Intensity = Total Scope 1+2 GHG ÷ Primary Al production. Note: primary and secondary aluminium are notified separately under CCTS — do not combine them.', src:'From potroom production log / MIS'},
-      {l:'Alumina consumed',v:'760000',u:'tonnes',tip:'~2 tonnes of alumina (Al₂O₃) are consumed per tonne of primary aluminium in the Hall-Héroult electrolytic process. Required for CCTS boundary validation and anode effect calculation. TerraCAP uses this to cross-check production data consistency.', src:'From alumina silo receipts / procurement'},
-      {l:'Prebaked anodes consumed',v:'86000',u:'MT/year',tip:'Carbon anodes are consumed in the electrolytic cells. Anode oxidation (C + O₂ → CO₂) is a significant process emission source. TerraCAP applies a carbon oxidation factor of ~1.69 tCO₂/tonne anode consumed, per IPCC AR6 methodology for aluminium smelting.', src:'From anode plant / rodding shop records'},
-    ]},
-    {title:'Scope 1 — Captive power & process emissions', sub:'Three distinct Scope 1 sources for aluminium: captive power combustion, anode oxidation, and PFC (Perfluorocarbon) process emissions from anode effects. All three are mandatory for CCTS.',
-     fields:[
-      {l:'Captive power plant — coal consumed',v:'480000',u:'MT/year',tip:'The on-site captive thermal power plant supplies ~85% of smelter electricity. Coal combustion here is a Scope 1 emission (combustion within operational control boundary). Largest single emission source for primary aluminium smelters with captive power. IPCC AR6 EF: ~2.42 tCO₂/tonne coal.', src:'From CPP fuel records / weigh-bridge'},
-      {l:'PFC emissions — CF4 (tetrafluoromethane)',v:'0.0032',u:'t CF4/t Al produced',tip:'CF4 is emitted during anode effects in the electrolytic cells. It has a very high Global Warming Potential (GWP) of 6,630 under IPCC AR6. CCTS mandates PFC reporting for all aluminium smelters. TerraCAP converts to tCO₂e using: CF4 emissions (t) × 6,630. Enter as kg CF4 per tonne of aluminium produced.', src:'From potroom anode effect monitoring system'},
-      {l:'PFC emissions — C2F6 (hexafluoroethane)',v:'0.00032',u:'t C2F6/t Al produced',tip:'C2F6 co-emitted during anode effects. IPCC AR6 GWP = 11,100. Typically ~10% of CF4 in mass terms but adds significant tCO₂e. TerraCAP calculates: C2F6 emissions (t) × 11,100. Enter as kg C2F6 per tonne of aluminium produced.', src:'From potroom anode effect monitoring system'},
-      {l:'Diesel — internal plant logistics',v:'650',u:'kL/year',tip:'Diesel for internal transport, cranes, and maintenance equipment within the smelter boundary. DEFRA 2024 EF: ~2.68 tCO₂/kL. Smaller source but required for complete Scope 1 reporting.', src:'From fuel store records'},
-    ]},
-    {title:'Scope 2 — Grid electricity (supplement)', sub:'Most smelter electricity comes from captive power (Scope 1). Grid is supplementary — but still reported under Scope 2.',
-     fields:[
-      {l:'Grid electricity purchased',v:'8',u:'MU/year',tip:'Supplementary electricity imported from the Northern regional grid. Since most electricity is captive (Scope 1 already reported above), this is a relatively small Scope 2 source. CEA Northern grid EF 2024–25: ~0.82 tCO₂/MWh. Market-based Scope 2 method used per BEE/CCTS rules.', src:'From DISCOM bills / energy meter'},
-      {l:'Captive solar generation',v:'40',u:'MW installed capacity',tip:'On-site solar reduces dependence on the captive coal plant, improving GHG intensity. TerraCAP uses actual generation (MW × capacity factor) to offset equivalent coal-fired captive generation. This is one of the fastest ROI levers for improving CCTS intensity performance.', src:'From solar plant inverter monitoring / DAS'},
-    ]}
-  ]
-}
+  eu:       { name:'European Union', flag:'🇪🇺', domesticLive:false,
+    schemes:[
+      { id:'eu-ets', name:'EU ETS', full:'EU Emissions Trading System', color:'#185fa5', bg:'#f2f8fe', border:'rgba(24,95,165,.2)',
+        status:'Active', since:'2005', metric:'Absolute cap (EUA — EU Allowances)', cert:'EUA', regulator:'European Commission / national authorities',
+        sectors:'Power, steel, cement, aluminium, aviation, maritime (from 2026)', verifier:'Accredited verifier per EU MRV Regulation', verifierNote:'', evidence:[], action:'coming', live:false }]},
+  uk:       { name:'United Kingdom', flag:'🇬🇧', domesticLive:false,
+    schemes:[
+      { id:'uk-ets', name:'UK ETS', full:'UK Emissions Trading Scheme', color:'#185fa5', bg:'#f2f8fe', border:'rgba(24,95,165,.2)',
+        status:'Active', since:'2021', metric:'Absolute cap (UKA — UK Allowances)', cert:'UKA', regulator:'UK ETS Authority',
+        sectors:'Power, steel, cement, glass, paper, aviation, maritime (Jul 2026)', verifier:'Accredited verifier per UK MRV regulations', verifierNote:'', evidence:[], action:'coming', live:false }]},
+  us:       { name:'United States', flag:'🇺🇸', domesticLive:false,
+    schemes:[
+      { id:'ca-ct', name:'California C&T', full:'California Cap-and-Trade', color:'#6b21a8', bg:'#f3e8ff', border:'rgba(107,33,168,.2)',
+        status:'Active — to 2045', since:'2013', metric:'Absolute cap (CCA)', cert:'CCA', regulator:'CARB', sectors:'Power, industry, transportation fuels', verifier:'CARB-approved verifier', verifierNote:'', evidence:[], action:'coming', live:false },
+      { id:'rggi', name:'RGGI', full:'Regional Greenhouse Gas Initiative', color:'#6b21a8', bg:'#f3e8ff', border:'rgba(107,33,168,.2)',
+        status:'Active — 11 states', since:'2009', metric:'Absolute cap (RGGI Allowances)', cert:'RGGI Allowance', regulator:'11 state agencies', sectors:'Power generation ≥25 MW only', verifier:'State-approved verifier', verifierNote:'', evidence:[], action:'coming', live:false }]},
+  china:    { name:'China', flag:'🇨🇳', domesticLive:false, schemes:[{ id:'cn-ets', name:'China ETS', full:'China National ETS', color:'#993c1d', bg:'#fdf3ef', border:'rgba(153,60,29,.15)', status:'Active — expanding', since:'2021', metric:'Intensity-based (→ absolute cap 2027)', cert:'CEA', regulator:'MEE', sectors:'Power now; steel/aluminium/cement expanding by 2027', verifier:'MRV verifier per MEE protocols', verifierNote:'', evidence:[], action:'coming', live:false }]},
+  korea:    { name:'South Korea', flag:'🇰🇷', domesticLive:false, schemes:[{ id:'k-ets', name:'K-ETS', full:'Korea Emissions Trading Scheme', color:'#185fa5', bg:'#f2f8fe', border:'rgba(24,95,165,.2)', status:'Active — Phase 3', since:'2015', metric:'Absolute cap (KAU)', cert:'KAU', regulator:'Ministry of Environment', sectors:'Power, steel, cement, aviation, buildings, transport, waste', verifier:'MOE-approved verifier', verifierNote:'', evidence:[], action:'coming', live:false }]},
+  japan:    { name:'Japan', flag:'🇯🇵', domesticLive:false, schemes:[{ id:'gx-ets', name:'GX-ETS', full:'Green Transformation ETS', color:'#1d9e75', bg:'#f0faf5', border:'rgba(29,158,117,.2)', status:'Mandatory from FY2026', since:'2023 (voluntary)', metric:'→ absolute cap', cert:'GX Credits', regulator:'METI', sectors:'Power, industry, buildings, transport', verifier:'METI-approved verifier', verifierNote:'', evidence:[], action:'coming', live:false }]},
+  canada:   { name:'Canada', flag:'🇨🇦', domesticLive:false, schemes:[{ id:'obps', name:'OBPS', full:'Output-Based Pricing System', color:'#3b6d11', bg:'#eaf3de', border:'rgba(59,109,17,.2)', status:'Active', since:'2019', metric:'Intensity-based (similar to CCTS)', cert:'OBPS credits', regulator:'ECCC', sectors:'Large industrial emitters', verifier:'ECCC-accredited verifier', verifierNote:'', evidence:[], action:'coming', live:false }]},
+  gcc:      { name:'GCC / Middle East', flag:'🌍', domesticLive:false, schemes:[{ id:'gcc-dev', name:'ETS (developing)', full:'GCC Domestic Carbon Markets', color:'#ba7517', bg:'#fdf6e8', border:'rgba(186,117,23,.2)', status:'Developing — UAE most advanced', since:'Various', metric:'Varies', cert:'Varies', regulator:'National ministries', sectors:'Oil & gas, petrochemicals, aluminium', verifier:'Varies', verifierNote:'', evidence:[], action:'coming', live:false }]},
+  sea:      { name:'Southeast Asia', flag:'🌏', domesticLive:false, schemes:[{ id:'sg-tax', name:'Singapore Carbon Tax', full:'Singapore Carbon Tax', color:'#1d9e75', bg:'#f0faf5', border:'rgba(29,158,117,.2)', status:'Active', since:'2019', metric:'S$25–45/tCO₂e (rising)', cert:'N/A', regulator:'NEA', sectors:'Facilities ≥25,000 tCO₂e/yr', verifier:'NEA-approved verifier', verifierNote:'', evidence:[], action:'coming', live:false }]},
+  australia:{ name:'Australia', flag:'🇦🇺', domesticLive:false, schemes:[{ id:'safeguard', name:'Safeguard Mechanism', full:'Safeguard Mechanism (reformed 2023)', color:'#3b6d11', bg:'#eaf3de', border:'rgba(59,109,17,.2)', status:'Active', since:'2016', metric:'Baseline-and-credit (declining)', cert:'ACCU / SMC', regulator:'Clean Energy Regulator', sectors:'Large emitters ≥100,000 tCO₂e/yr', verifier:'CER-approved verifier', verifierNote:'', evidence:[], action:'coming', live:false }]},
+  other:    { name:'Other / Rest of World', flag:'🌐', domesticLive:false, schemes:[]}
 };
 
-let cur='cement';
-let wA={};
+const CBAM_PRODUCTS = {
+  cement:    { name:'Cement', icon:'🏗', cn:'CN 2523.xx', euMethod:'Default or actual — facility-level direct emissions (calcination + combustion)', ukMethod:'Aligned with EU method (Jan 2026) — monitor for divergence', scope:'Direct Scope 1 only (EU); indirect Scope 2 under review' },
+  steel:     { name:'Iron & Steel', icon:'⚙', cn:'CN 7206–7314', euMethod:'Default or actual — product-level direct + some indirect emissions', ukMethod:'Aligned with EU method (Jan 2026)', scope:'Direct Scope 1 + specific indirect Scope 2' },
+  aluminium: { name:'Aluminium', icon:'🔩', cn:'CN 7601, 7604+', euMethod:'Default or actual — facility-level direct emissions + PFC for primary', ukMethod:'Aligned with EU method (Jan 2026)', scope:'Direct Scope 1 (incl. PFC) + indirect Scope 2' },
+  fertiliser:{ name:'Fertilisers', icon:'🌱', cn:'CN 31xx', euMethod:'Default or actual — process emissions (N₂O + combustion)', ukMethod:'Aligned with EU method (Jan 2026)', scope:'Direct Scope 1 (N₂O + combustion)' },
+  hydrogen:  { name:'Hydrogen', icon:'⚗', cn:'CN 2804.10', euMethod:'Default or actual — production pathway specific', ukMethod:'Aligned with EU method (Jan 2026)', scope:'Direct Scope 1 + electricity-based Scope 2' },
+  electricity:{ name:'Electricity', icon:'⚡', cn:'CN 2716.00', euMethod:'Default (grid average) — verified actual requires MEA acceptance', ukMethod:'UK ETS price applies', scope:'Scope 1 generation emissions' },
+  nickel:    { name:'Nickel / other metals', icon:'🪙', cn:'Potential extension', euMethod:'No current CBAM obligation — monitor', ukMethod:'No current obligation', scope:'N/A — not currently covered' },
+  none:      { name:'No covered goods', icon:'📦', cn:'—', euMethod:'—', ukMethod:'—', scope:'—' }
+};
 
-function setCo(c){cur=c;buildAll();updSB();}
-
-function updSB(){
-  const co=COs[cur];
-  const rt=document.getElementById('sb-rtag');
-  rt.textContent=co.regime; rt.className='sb-rt '+(co.regime==='CCTS'?'rt-ccts':'rt-pat');
-  document.getElementById('sb-rlbl').textContent=co.regime;
-  document.getElementById('tr-india').textContent=co.regime+' Active';
-  document.getElementById('tp-cbam').style.display=co.cbam?'inline-flex':'none';
-  document.getElementById('nav-cbam').classList.toggle('locked',!co.cbam);
+// ══════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════
+const SCREENS = ['loc','role','products','dest','obligations'];
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('s-' + id);
+  if (el) el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function buildAll(){bDash();bData();bBridge();bFiling();bCerts();bCBAM();}
-
-function bDash(){
-  const co=COs[cur]; const isPAT=co.regime==='PAT';
-  document.getElementById('dash-title').textContent='Compliance Dashboard — '+co.fac;
-  document.getElementById('dash-meta').innerHTML=`<span class="tag ${isPAT?'t-amber':'t-teal'}">⬤ ${co.regime} Active</span><span style="font-size:12px;color:var(--muted)">${co.sector} · Bureau of Energy Efficiency (BEE) DC: ${co.dc} · FY2025–26</span>`;
-  const v1=isPAT?co.secA:co.int; const v2=isPAT?co.secT:co.tgt;
-  const pct=(((v2-v1)/v2)*100).toFixed(1);
-  const rb=document.getElementById('dash-rel');
-  rb.className='rel-box '+(isPAT?'rel-amber':'rel-teal');
-  document.getElementById('dash-rel-title').style.color=isPAT?'var(--amber)':'var(--teal)';
-  document.getElementById('dash-rel-flow').innerHTML=isPAT?`
-    <div class="rel-node" style="background:rgba(186,117,23,.1)"><div class="rn-val" style="color:var(--amber)">${co.secA}</div><div class="rn-lbl">SEC actual<br><span style="font-family:'DM Mono',monospace;font-size:9px">${co.su}</span></div></div>
-    <div class="rel-arrow">vs</div>
-    <div class="rel-node" style="background:rgba(0,0,0,.04)"><div class="rn-val">${co.secT}</div><div class="rn-lbl">PAT target<br><span style="font-family:'DM Mono',monospace;font-size:9px">${co.su}</span></div></div>
-    <div class="rel-arrow">=</div>
-    <div class="rel-node" style="background:rgba(59,109,17,.1)"><div class="rn-val" style="color:var(--green)">${co.certs.toLocaleString()}</div><div class="rn-lbl">ESCert surplus<br><span style="font-family:'DM Mono',monospace;font-size:9px">Energy Saving Certificates</span></div></div>`:`
-    <div class="rel-node" style="background:rgba(29,158,117,.1)"><div class="rn-val" style="color:var(--teal)">${co.int}</div><div class="rn-lbl">GHG intensity<br><span style="font-family:'DM Mono',monospace;font-size:9px">${co.iu}</span></div></div>
-    <div class="rel-arrow">vs</div>
-    <div class="rel-node" style="background:rgba(0,0,0,.04)"><div class="rn-val">${co.tgt}</div><div class="rn-lbl">CCTS target<br><span style="font-family:'DM Mono',monospace;font-size:9px">${co.iu}</span></div></div>
-    <div class="rel-arrow">=</div>
-    <div class="rel-node" style="background:rgba(29,158,117,.1)"><div class="rn-val" style="color:var(--teal)">${co.certs.toLocaleString()}</div><div class="rn-lbl">CCC surplus<br><span style="font-family:'DM Mono',monospace;font-size:9px">Carbon Credit Certificates</span></div></div>`;
-  const fp=co.formula_parts;
-  const diff=(fp.int_tgt-fp.int_act).toFixed(3);
-  document.getElementById('dash-formula').innerHTML=`${fp.surplus_label} = (${fp.int_tgt} − ${fp.int_act}) × ${fp.prod.toLocaleString()}t [${fp.prod_label} — pre-populated from GHG records; confirm in data entry] = ${fp.certs.toLocaleString()} ${co.ct}s ≈ ${fp.rev}`;
-  const col=isPAT?'var(--amber)':'var(--teal)';
-  document.getElementById('dash-stats').innerHTML=`
-    <div class="stat" style="border-top:3px solid ${col}"><div class="stat-lbl">${co.ml}</div><div class="stat-val" style="color:${col}">${v1}</div><div class="stat-unit">${isPAT?co.su:co.iu}</div><div class="stat-delta pos">↓ ${pct}% below target</div></div>
-    <div class="stat" style="border-top:3px solid var(--border)"><div class="stat-lbl">${co.tl_lbl}</div><div class="stat-val">${v2}</div><div class="stat-unit">${isPAT?co.su:co.iu}</div><div class="stat-delta" style="color:var(--muted)">Baseline: ${co.base}</div></div>
-    <div class="stat" style="border-top:3px solid var(--teal-l)"><div class="stat-lbl">Est. ${co.ct} surplus</div><div class="stat-val" style="color:var(--teal)">${co.certs.toLocaleString()}</div><div class="stat-unit">${co.cn_full}s</div><div class="stat-delta pos">${co.rev} revenue potential</div></div>`;
-  // Provisional notice — data not yet confirmed
-  const provNotice = `<div class="notice na" style="margin-bottom:14px"><span class="ni">⚠</span><div><strong>Provisional estimates — based on TerraCAP GHG records.</strong> Production volumes, emission figures, and certificate counts shown here are pre-populated from your existing Scope 1 &amp; 2 records. Review and confirm all values in <a href="#" onclick="go('data');return false;" style="color:var(--amber);font-weight:600">Energy &amp; GHG data entry →</a> before the filing pack is generated.</div></div>`;
-  const existingNotice = document.getElementById('dash-provisional');
-  if(!existingNotice){
-    const noticeEl = document.createElement('div');
-    noticeEl.id = 'dash-provisional';
-    noticeEl.innerHTML = provNotice;
-    document.getElementById('dash-rel').before(noticeEl);
-  } else {
-    existingNotice.innerHTML = provNotice;
+function setStep(n, state) {
+  document.getElementById('sc' + n).className = 'step-circle sc-' + state;
+  const lbl = document.getElementById('sl' + n);
+  if (lbl) lbl.className = 'step-lbl-' + state;
+  if (n < 5) {
+    const ln = document.getElementById('ln' + n);
+    if (ln && state === 'done') ln.classList.add('done');
+    else if (ln) ln.classList.remove('done');
   }
-  document.getElementById('dash-tl').innerHTML=co.tl_items.map(([l,v,c])=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border-l)"><span style="font-size:12px;color:var(--muted)">${l}</span><span class="tag ${c}">${v}</span></div>`).join('');
-  document.getElementById('dash-actions').innerHTML=`
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--amber-50);border-radius:7px;border:1px solid rgba(186,117,23,.2);margin-bottom:7px"><div style="font-size:12.5px;font-weight:500;color:#7c4a03">Complete data entry &amp; resolve conflicts</div><button class="btn" style="font-size:11px;padding:4px 10px" onclick="go('data')">Enter →</button></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface);border-radius:7px;border:1px solid var(--border);margin-bottom:7px"><div style="font-size:12.5px">Review data consolidation</div><button class="btn secondary" style="font-size:11px;padding:4px 10px" onclick="go('bridge')">Review →</button></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface);border-radius:7px;border:1px solid var(--border)"><div style="font-size:12.5px">Generate ${co.ftype}</div><button class="btn secondary" style="font-size:11px;padding:4px 10px" onclick="go('filing')">Open →</button></div>`;
 }
 
-function mkTip(text){
-  return `<span class="tip"><span class="tip-icon">i</span><span class="tip-pop">${text}</span></span>`;
+function resetAll() {
+  selLocKey = null; selRoleKey = null; selProds = new Set(); selDests = new Set();
+  document.querySelectorAll('.geo-card,.role-card,.prod-card,.ms-item').forEach(e => e.classList.remove('sel'));
+  document.querySelectorAll('.ms-check').forEach(e => { e.textContent = ''; });
+  [1,2,3,4,5].forEach(n => setStep(n, n===1 ? 'active' : 'idle'));
+  document.getElementById('tb-ctx').style.display = 'none';
+  go('loc');
 }
 
-function bData(){
-  const co=COs[cur];
-  document.getElementById('data-sub').textContent=`Sector-specific data for ${co.fac} (${co.sector}) — ${co.ftype}. All fields feed the consolidation engine in the next step.`;
-  let html='';
-  co.dataSections.forEach(sec=>{
-    html+=`<div style="margin-bottom:20px">
-      <div class="fs-title">${sec.title} ${mkTip('This section captures '+sec.sub+'. All values entered here are carried forward to the data consolidation step (Screen 5) and then to the filing document.')}</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.55">${sec.sub}</div>
-      <div class="g2">`;
-    sec.fields.forEach(f=>{
-      html+=`<div class="field">
-        <div class="field-lbl">${f.l} ${mkTip(f.tip)}</div>
-        <div class="fi-unit"><input type="number" value="${f.v}"><div class="ul">${f.u}</div></div>
-        <div class="field-src">↑ Source: ${f.src}</div>
+// ══════════════════════════════════════
+// STEP 1: LOCATION
+// ══════════════════════════════════════
+function selLoc(key) {
+  selLocKey = key;
+  document.querySelectorAll('.geo-card').forEach(c => c.classList.remove('sel'));
+  const idMap = { australia:'aus', other:'other', gcc:'gcc', sea:'sea' };
+  const elId = 'gc-' + (idMap[key] || key);
+  const el = document.getElementById(elId);
+  if (el) el.classList.add('sel');
+  setStep(1, 'done'); setStep(2, 'active');
+  document.getElementById('tb-ctx').style.display = 'flex';
+  const g = GEOS[key];
+  document.getElementById('tp-loc-t').textContent = g.flag + ' ' + g.name;
+  // Importer-role shortcut for EU/UK
+  if (key === 'eu' || key === 'uk') {
+    selRoleKey = 'importer';
+    document.getElementById('tp-role').style.display = 'inline-flex';
+    document.getElementById('tp-role-t').textContent = 'Importer / Declarant';
+    setStep(2, 'done'); setStep(3, 'active');
+    go('products');
+    document.getElementById('prod-sub').textContent = `As an EU/UK importer you are the authorised CBAM declarant. Select the covered goods you import from third countries — each product type has its own calculation methodology and evidence requirements.`;
+  } else {
+    go('role');
+  }
+}
+
+// ══════════════════════════════════════
+// STEP 2: ROLE
+// ══════════════════════════════════════
+function selRole(key) {
+  selRoleKey = key;
+  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('sel'));
+  document.getElementById('rc-' + key).classList.add('sel');
+  setStep(2, 'done'); setStep(3, 'active');
+  document.getElementById('tp-role').style.display = 'inline-flex';
+  const roleLabels = { producer:'Producer / Manufacturer', importer:'Importer / Trader', both:'Integrated group (both)' };
+  document.getElementById('tp-role-t').textContent = roleLabels[key];
+  const isImporter = key === 'importer';
+  document.getElementById('prod-sub').textContent = isImporter
+    ? `Select the covered goods you import from third countries. As importer you are the authorised CBAM declarant — a fundamentally different obligation from being the exporting producer.`
+    : `Select all products your facility produces. CBAM obligations apply per product CN code when you export to EU or UK — different products have different calculation methodologies and evidence requirements.`;
+  go('products');
+}
+
+// ══════════════════════════════════════
+// STEP 3: PRODUCTS
+// ══════════════════════════════════════
+function togProd(key) {
+  if (key === 'none') {
+    selProds.clear();
+    selProds.add('none');
+    document.querySelectorAll('.prod-card').forEach(c => c.classList.remove('sel'));
+    document.getElementById('pc-none').classList.add('sel');
+  } else {
+    selProds.delete('none');
+    document.getElementById('pc-none').classList.remove('sel');
+    if (selProds.has(key)) {
+      selProds.delete(key);
+      document.getElementById('pc-' + key).classList.remove('sel');
+    } else {
+      selProds.add(key);
+      document.getElementById('pc-' + key).classList.add('sel');
+    }
+  }
+  const warnEl = document.getElementById('prod-warning');
+  const nextEl = document.getElementById('btn-prod-next');
+  if (selProds.has('nickel') && !selProds.has('none')) {
+    warnEl.style.display = 'flex';
+    document.getElementById('prod-warning-text').innerHTML = `<strong>Nickel and most other metals are not currently covered by EU or UK CBAM.</strong> They may be added in future scope extensions. TerraCAP will track this. Your other selected products may still be in scope.`;
+  } else {
+    warnEl.style.display = 'none';
+  }
+  nextEl.style.display = selProds.size > 0 ? 'inline-flex' : 'none';
+}
+
+// ══════════════════════════════════════
+// STEP 4: DESTINATIONS
+// ══════════════════════════════════════
+function togDest(key) {
+  const el = document.getElementById('dest-' + key);
+  const ck = document.getElementById('dc-' + key);
+  if (selDests.has(key)) {
+    selDests.delete(key);
+    el.classList.remove('sel');
+    ck.textContent = '';
+  } else {
+    selDests.add(key);
+    el.classList.add('sel');
+    ck.textContent = '✓';
+  }
+  const warnEl = document.getElementById('dest-warning');
+  const nextEl = document.getElementById('btn-dest-next');
+  nextEl.style.display = selDests.size > 0 ? 'inline-flex' : 'none';
+  if (selDests.has('eu') && selDests.has('uk')) {
+    warnEl.style.display = 'flex';
+    document.getElementById('dest-warning-text').innerHTML = `<strong>Both EU CBAM and UK CBAM apply.</strong> These are separate legal obligations. TerraCAP generates separate supplier packages for each. Do not assume one package satisfies both — covered goods lists, carbon prices, verification standards, and submission authorities differ.`;
+    warnEl.className = 'notice n-coral';
+  } else {
+    warnEl.style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════
+// STEP 5: OBLIGATIONS BUILDER
+// ══════════════════════════════════════
+function buildAndGoObligations() {
+  setStep(3, 'done'); setStep(4, 'done'); setStep(5, 'active');
+  const hasCBAM_EU = selDests.has('eu') && !selProds.has('none') && selProds.size > 0;
+  const hasCBAM_UK = selDests.has('uk') && !selProds.has('none') && selProds.size > 0;
+  if (hasCBAM_EU || hasCBAM_UK) {
+    document.getElementById('tp-cbam').style.display = 'inline-flex';
+    const parts = [];
+    if (hasCBAM_EU) parts.push('EU CBAM');
+    if (hasCBAM_UK) parts.push('UK CBAM');
+    document.getElementById('tp-cbam-t').textContent = parts.join(' + ');
+  }
+
+  const geo = GEOS[selLocKey];
+  const isProducer = selRoleKey === 'producer' || selRoleKey === 'both';
+  const isImporter = selRoleKey === 'importer' || selRoleKey === 'both';
+  const covProds = [...selProds].filter(p => p !== 'none' && p !== 'nickel' && CBAM_PRODUCTS[p]);
+
+  document.getElementById('obl-sub').textContent =
+    `${geo.flag} ${geo.name} · ${selRoleKey === 'producer' ? 'Producer' : selRoleKey === 'importer' ? 'Importer / Declarant' : 'Integrated group'} · ${covProds.length > 0 ? covProds.map(p => CBAM_PRODUCTS[p].name).join(', ') : 'No CBAM-covered goods'} · ${[...selDests].map(d => d === 'eu' ? 'EU' : d === 'uk' ? 'UK' : d).join(' + ')}`;
+
+  let html = '';
+
+  // ── DOMESTIC SCHEMES ──
+  html += `<div style="margin-bottom:24px">
+    <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#6b7280;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+      Domestic compliance engine
+      <span style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:4px;background:#f0faf5;color:#1d9e75">Separate from CBAM calculation</span>
+    </div>`;
+
+  if (geo.domesticLive && geo.schemes.length > 0) {
+    geo.schemes.forEach(s => {
+      html += `<div class="obl-engine" style="border-color:${s.border}">
+        <div class="obl-engine-hdr" style="background:${s.bg}">
+          <div>
+            <div class="obl-engine-title" style="color:${s.color}">${s.name} — ${s.full}</div>
+            <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap">
+              <span class="tag" style="background:${s.bg};color:${s.color};border:1px solid ${s.border}">${s.status}</span>
+              <span class="tag tg-gray">Since ${s.since}</span>
+              <span class="tag tg-gray">${s.regulator}</span>
+            </div>
+          </div>
+          ${s.live ? `<a href="TerraCAP_Compliance_Workflow.html" class="btn btn-primary" style="font-size:12px;white-space:nowrap">Open ${s.name} workflow →</a>` : `<span class="btn" style="font-size:12px;opacity:.6;cursor:default">Coming soon</span>`}
+        </div>
+        <div class="obl-engine-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+            <div><span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:#6b7280">Metric</span><div style="font-size:12.5px;margin-top:2px">${s.metric}</div></div>
+            <div><span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:#6b7280">Sectors</span><div style="font-size:12.5px;margin-top:2px">${s.sectors}</div></div>
+          </div>
+          <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px;margin-bottom:10px">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:#6b7280;margin-bottom:6px">Verifier — scheme-specific, not generic</div>
+            <div style="font-size:12.5px;color:#374151;margin-bottom:4px"><strong>${s.verifier}</strong></div>
+            ${s.verifierNote ? `<div style="font-size:11.5px;color:#6b7280;line-height:1.5">${s.verifierNote}</div>` : ''}
+          </div>
+          ${s.evidence.length > 0 ? `<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:#6b7280;margin-bottom:6px">Evidence pack — ${s.name}-specific (not shared with CBAM)</div>
+            ${s.evidence.map(e => `<div style="font-size:12px;color:#374151;padding:2px 0;display:flex;align-items:flex-start;gap:6px"><span style="color:#1d9e75;flex-shrink:0">•</span>${e}</div>`).join('')}
+          </div>` : ''}
+        </div>
       </div>`;
     });
-    html+='</div></div>';
-  });
-  document.getElementById('data-sections').innerHTML=html;
-}
+  } else {
+    html += `<div class="obl-engine">
+      <div class="obl-engine-hdr"><div class="obl-engine-title">${geo.name} domestic schemes</div></div>
+      <div class="obl-engine-body">`;
+    if (geo.schemes.length > 0) {
+      geo.schemes.forEach(s => {
+        html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:${s.bg};border:1px solid ${s.border};border-radius:8px;margin-bottom:8px">
+          <div><div style="font-size:13px;font-weight:600;color:${s.color}">${s.name} — ${s.full}</div><div style="font-size:11.5px;color:#6b7280;margin-top:2px">${s.status} · ${s.regulator} · ${s.metric}</div></div>
+          <span class="tag tg-gray">Coming soon</span></div>`;
+      });
+    } else {
+      html += `<div style="font-size:12.5px;color:#6b7280">No mandatory domestic carbon scheme identified for ${geo.name}. You may have voluntary GHG reporting obligations — contact TerraCAP for a country-specific assessment.</div>`;
+    }
+    html += `</div></div>`;
+  }
+  html += `</div>`;
 
-function bBridge(){
-  const co=COs[cur];
-  document.getElementById('bridge-sub').textContent=`How TerraCAP converts your ${co.fac} data inputs into the compliance metrics and ${co.ct} calculation in the ${co.ftype}.`;
-  const rows=co.bridge.map(r=>{
-    const scTag=r.scope?`<span class="br-scope ${r.scope==='1'?'scope1':'scope2'}">Scope ${r.scope}</span>`:'';
-    return `<div class="bridge-row">
-      <div class="br-src">${r.src}${scTag}</div>
-      <div class="br-arrow">→</div>
-      <div class="br-calc">${r.calc}</div>
-      <div class="br-arrow">→</div>
-      <div class="br-out">${r.out}</div>
-    </div>`;
-  }).join('');
-  document.getElementById('bridge-rows').innerHTML=rows;
-  const fp=co.formula_parts;
-  document.getElementById('bridge-formula-title').textContent=`${fp.surplus_label} calculation — every figure sourced from your data`;
-  document.getElementById('bridge-formula-detail').innerHTML=`Step 1: Total GHG ÷ ${fp.prod_unit} = GHG intensity (${co.int} ${co.iu})\nStep 2: Target − Actual = surplus per unit → ${fp.int_tgt} − ${fp.int_act} = ${(fp.int_tgt-fp.int_act).toFixed(3)}\nStep 3: Surplus per unit × production = ${fp.surplus_label} → ${(fp.int_tgt-fp.int_act).toFixed(3)} × ${fp.prod.toLocaleString()} [${fp.prod_label}] = ${fp.certs.toLocaleString()} ${co.ct}s\nRevenue estimate: ${fp.certs.toLocaleString()} × ${co.rate} per ${co.ct} = ${fp.rev}`;
-}
-
-function bFiling(){
-  const co=COs[cur];
-  document.getElementById('fil-title').textContent=co.ftype+' — '+co.fac;
-  document.getElementById('fil-steps').innerHTML=co.fsteps.map((s,i)=>`<div class="st-item ${i<co.fsteps.length-1?'st-done':'st-active'}"><div class="st-c">${i<co.fsteps.length-1?'✓':i+1}</div><div class="st-lbl">${s}</div></div>`).join('');
-  const r1=co.fr1.map(r=>`<div class="doc-row"><span class="dl">${r.l}</span><span class="dv">${r.v}</span></div>`).join('');
-  const r2=co.fr2.map(r=>`<div class="doc-row"><span class="dl">${r.l}</span><span class="dv ${r.h?'hi':''}">${r.v}</span></div>`).join('');
-  const fp=co.formula_parts;
-  document.getElementById('fil-doc').innerHTML=`<div class="doc-paper">
-    <div class="doc-hdr"><div><div class="doc-logo">TerraCAP · Hertzwave Innovations Pvt. Ltd.</div><div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px">Generated: ${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div></div><div class="doc-ref">Ref: TC-${co.dc}-FY26<br>Illustrative review copy<br>Pending ACVA verification</div></div>
-    <div class="doc-title">${co.fdocTitle}</div><div class="doc-sub">${co.fdocSub}</div>
-    <div class="doc-sec"><div class="doc-sec-t">Section A — Facility identification</div>${r1}</div>
-    <div class="doc-sec"><div class="doc-sec-t">Section B — Compliance metrics &amp; certificate calculation</div>${r2}</div>
-    <div class="doc-formula">${fp.surplus_label} = (${fp.int_tgt} − ${fp.int_act}) × ${fp.prod.toLocaleString()}t [${fp.prod_label}] = ${fp.certs.toLocaleString()} ${co.ct}s ≈ ${fp.rev}</div>
-    <div class="doc-sec"><div class="doc-sec-t">Section C — Methodology &amp; references</div>
-      <div class="doc-row"><span class="dl">GHG Protocol</span><span class="dv">Corporate Standard (Revised) 2015</span></div>
-      <div class="doc-row"><span class="dl">Emission factors</span><span class="dv">IPCC AR6 + DEFRA 2024 + CEA Grid EF 2024–25</span></div>
-      <div class="doc-row"><span class="dl">Verification standard</span><span class="dv">ISO 14064-3 / ISAE 3410</span></div>
-      <div class="doc-row"><span class="dl">Accredited Carbon Verification Agency (ACVA)</span><span class="dv">SGS India Pvt Ltd (BEE empanelled)</span></div>
+  // ── RULE SNAPSHOT ──
+  const today = new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+  html += `<div class="notice n-blue" style="margin-bottom:20px"><span class="ni">🔒</span><div>
+    <strong>Rule versioning.</strong> Every TerraCAP filing is locked to the exact rule set, baseline, and emission factor library active at the time of filing. If rules change after your filing is created but before submission, TerraCAP flags the delta and requires explicit re-confirmation before the filing is updated. The snapshot below shows the current version.
+    <div class="rule-snap rs-locked" style="margin-top:8px">
+      Rule snapshot · Generated: ${today}<br>
+      ${selLocKey === 'india' ? `CCTS Rules 2023 + Jan 2026 amendment · PAT Cycle VII (FY2022–26)<br>Emission factors: IPCC AR6 · DEFRA 2024 · CEA grid EF 2024–25<br>` : `Domestic scheme: ${geo.schemes[0]?.name || 'N/A'} · `}
+      ${hasCBAM_EU ? `EU CBAM: Reg 2023/956 · Implementing Regulation 2023/1773 · Default values v2.0<br>` : ''}
+      ${hasCBAM_UK ? `UK CBAM: Finance Act 2024 · HMRC guidance v1.2<br>` : ''}
+      Status: ⚠ Pending rule lock — lock in applicability validation step before filing
     </div>
-    <div class="doc-sign" style="grid-template-columns:1fr 1fr 1fr"><div class="dsb"><div class="dsl"></div><div class="dslbl">Plant head / DGM Environment</div></div><div class="dsb"><div class="dsl"></div><div class="dslbl">CFO / Authorised signatory</div></div><div class="dsb"><div class="dsl"></div><div class="dslbl">ACVA verification stamp</div></div></div>
-    <div><span class="doc-stamp">✓ TerraCAP · Hertzwave Innovations · Demo environment</span></div>
-    <div class="doc-actions"><button class="btn primary">Download PDF</button><button class="btn secondary">Share with ACVA</button><button class="btn">Upload to BEE portal</button></div>
-  </div>`;
-  document.getElementById('fil-portal-json').textContent=`{\n  "bee_dc_ref": "${co.dc}",\n  "regime": "${co.regime}",\n  "notification_date": "${co.regime==='CCTS'?'2025-10-01':'PAT-Cycle-VII'}",\n  "baseline_year": "${co.regime==='CCTS'?'FY2023-24':'FY2022-23'}",\n  "compliance_year": "FY2025-26",\n  "intensity_actual": ${co.int},\n  "intensity_target": ${co.tgt},\n  "intensity_unit": "${co.iu}",\n  "production": ${fp.prod},\n  "production_unit": "${fp.prod_unit}",\n  "certificate_surplus": ${co.certs},\n  "certificate_type": "${co.ct}",\n  "acva_name": "SGS India Pvt Ltd",\n  "acva_statement_ref": "PENDING",\n  "verification_std": "ISO 14064-3"\n}`;
+  </div></div>`;
+
+  // ── CBAM OBLIGATIONS ──
+  if (hasCBAM_EU || hasCBAM_UK || isImporter) {
+    html += `<div style="margin-bottom:24px">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#6b7280;margin-bottom:10px;display:flex;align-items:center;gap:8px">
+        CBAM obligations
+        <span style="font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:4px;background:#faece7;color:#993c1d">Separate calculation engine · Product-level · Distinct evidence pack</span>
+      </div>
+      <div class="notice n-coral" style="margin-bottom:12px"><span class="ni">⚠</span><div>
+        <strong>CBAM methodology lock — anti-contamination rule.</strong> CBAM embedded emissions calculations use their own methodology, boundary, and emission factors. TerraCAP prevents PAT/CCTS emission factors and scope boundaries from being silently reused in CBAM calculations unless you explicitly review and approve the carry-over. Each CBAM module has its own locked methodology record.
+      </div></div>`;
+
+    // EU CBAM MODULE
+    if ((hasCBAM_EU && isProducer) || (isImporter && selDests.has('eu'))) {
+      const role = isImporter ? 'declarant' : 'supplier';
+      html += buildCBAMModule('eu', role, covProds);
+    }
+
+    // UK CBAM MODULE — separate from EU
+    if ((hasCBAM_UK && isProducer) || (isImporter && selDests.has('uk'))) {
+      const role = isImporter ? 'declarant' : 'supplier';
+      html += buildCBAMModule('uk', role, covProds);
+    }
+
+    html += `</div>`;
+  } else {
+    html += `<div style="margin-bottom:24px">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#6b7280;margin-bottom:10px">CBAM obligations</div>
+      <div style="padding:14px 16px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;font-size:12.5px;color:#6b7280">
+        ${selProds.has('none') ? 'You indicated no CBAM-covered goods — no EU or UK CBAM obligations apply.' : !selDests.has('eu') && !selDests.has('uk') ? 'You are not exporting to EU or UK markets — no CBAM supplier obligations at this time. If your export strategy changes, return here to add the CBAM track.' : 'No CBAM obligations identified based on your selections.'}
+      </div></div>`;
+  }
+
+  document.getElementById('obl-content').innerHTML = html;
+  go('obligations');
 }
 
-function togCopy(m){
-  document.getElementById('dct-r').classList.toggle('act',m==='r');
-  document.getElementById('dct-p').classList.toggle('act',m==='p');
-  document.getElementById('fil-doc').style.display=m==='r'?'block':'none';
-  document.getElementById('fil-portal').style.display=m==='p'?'block':'none';
-}
+function buildCBAMModule(geo, role, covProds) {
+  const isEU = geo === 'eu';
+  const flag = isEU ? '🇪🇺' : '🇬🇧';
+  const scheme = isEU ? 'EU CBAM' : 'UK CBAM';
+  const reg = isEU ? 'EU Reg 2023/956 + Implementing Reg 2023/1773' : 'UK Finance Act 2024 + HMRC guidance';
+  const auth = isEU ? 'European Commission / national customs authorities' : 'HMRC / UK ETS Authority';
+  const price = isEU ? '~€75–100/tCO₂e (EU ETS price)' : '~£50–80/tCO₂e (UK ETS price)';
+  const verif = isEU
+    ? 'CBAM-specific independent verifier (not necessarily BEE-empanelled ACVA) — accepted under EU CBAM Implementing Regulation'
+    : 'CBAM-specific independent verifier accepted under UK CBAM regulations — separate from UK ETS verifier list';
+  const verifNote = isEU
+    ? 'The EU CBAM verification step is a distinct evidence-control process. The verifier reviews: product boundary definition, CN code assignment, methodology selection (default vs actual), and per-shipment embedded emissions calculation. This is separate from any domestic ACVA verification.'
+    : 'The UK CBAM verification process is governed by HMRC guidance, not EU CBAM rules. Even if you already hold EU CBAM verification, UK CBAM requires a separate evidence pack and verifier sign-off.';
 
-function bCerts(){
-  const co=COs[cur];
-  document.getElementById('certs-sub').textContent=`${co.ct}s (${co.cn_full}s) from ${co.fac}. Tradeable on IEX, PXIL, and HPX exchanges under BEE/CERC rules.`;
-  document.getElementById('cert-stats').innerHTML=`
-    <div class="stat" style="border-top:3px solid var(--teal-l)"><div class="stat-lbl">Eligible ${co.ct}s</div><div class="stat-val" style="color:var(--teal)">${co.certs.toLocaleString()}</div><div class="stat-unit">${co.cn_full}s</div></div>
-    <div class="stat" style="border-top:3px solid var(--border)"><div class="stat-lbl">Market rate</div><div class="stat-val" style="font-size:18px">${co.rate}</div><div class="stat-unit">per ${co.ct}</div></div>
-    <div class="stat" style="border-top:3px solid var(--green)"><div class="stat-lbl">Revenue potential</div><div class="stat-val" style="color:var(--green);font-size:20px">${co.rev}</div><div class="stat-unit">At current rates</div></div>
-    <div class="stat" style="border-top:3px solid var(--blue)"><div class="stat-lbl">Exchange</div><div class="stat-val" style="font-size:16px;color:var(--blue)">IEX</div><div class="stat-unit">Also: PXIL · HPX</div></div>`;
-  document.getElementById('cert-pipe').innerHTML=`
-    <div class="pipe-step ps-done"><span class="pq">${co.certs.toLocaleString()}</span><span class="pl">Eligible</span></div>
-    <div class="pipe-step ps-active"><span class="pq">—</span><span class="pl">In ACVA review</span></div>
-    <div class="pipe-step ps-pending"><span class="pq">—</span><span class="pl">Issued by BEE</span></div>
-    <div class="pipe-step ps-pending"><span class="pq">—</span><span class="pl">Banked</span></div>
-    <div class="pipe-step ps-pending"><span class="pq">—</span><span class="pl">Traded on IEX</span></div>`;
-  document.getElementById('cert-notice').innerHTML=`<strong>${co.certs.toLocaleString()} ${co.ct}s eligible</strong> after Accredited Carbon Verification Agency (ACVA) sign-off and BEE issuance. Revenue estimated at ${co.rev} at current IEX prices.`;
-  const r600=(co.certs*600/10000000).toFixed(2),r750=(co.certs*750/10000000).toFixed(2),r900=(co.certs*900/10000000).toFixed(2);
-  document.getElementById('cert-rev').innerHTML=`<div class="sec-lbl">Revenue modelling</div>
-    <div style="display:flex;flex-direction:column;gap:5px">
-      <div style="display:flex;justify-content:space-between;padding:7px 12px;background:var(--surface);border-radius:7px"><span style="font-size:12px;color:var(--muted)">Conservative (₹600/${co.ct})</span><span style="font-family:'DM Mono',monospace;font-weight:700">₹${r600} Cr</span></div>
-      <div style="display:flex;justify-content:space-between;padding:7px 12px;background:var(--teal-50);border:1px solid rgba(29,158,117,.2);border-radius:7px"><span style="font-size:12px;font-weight:600;color:var(--teal)">Mid (₹750/${co.ct})</span><span style="font-weight:800;color:var(--teal);font-family:'Plus Jakarta Sans',sans-serif;font-size:16px">₹${r750} Cr</span></div>
-      <div style="display:flex;justify-content:space-between;padding:7px 12px;background:var(--surface);border-radius:7px"><span style="font-size:12px;color:var(--muted)">Optimistic (₹900/${co.ct})</span><span style="font-family:'DM Mono',monospace;font-weight:700">₹${r900} Cr</span></div>
+  const evidence = isEU ? [
+    'Product-level boundary definition (distinct from facility-level domestic boundary)',
+    'CN code assignment and classification confirmation',
+    'Methodology selection: default values vs actual emissions (with justification)',
+    'Per-shipment embedded tCO₂e calculation',
+    'Verification statement from CBAM-accepted independent verifier',
+    'Authorised declarant confirmation from EU customer',
+    'Methodology lock: EU CBAM Implementing Regulation version used'
+  ] : [
+    'Product-level boundary definition per UK CBAM requirements',
+    'CN code classification under UK Global Tariff',
+    'Methodology: UK CBAM default or actual embedded emissions',
+    'Per-shipment embedded tCO₂e calculation',
+    'Verification statement from UK CBAM-accepted verifier',
+    'Authorised declarant confirmation from UK customer (HMRC-registered)',
+    'Methodology lock: UK Finance Act 2024 + HMRC guidance version used'
+  ];
+
+  const roleDesc = role === 'declarant'
+    ? `As the authorised CBAM declarant, you receive supplier emissions packages from your suppliers, aggregate them by CN code and period, compute total CBAM liability, and file the annual declaration with your national authority.`
+    : `As the data supplier, you provide verified embedded emissions data to your ${isEU ? 'EU' : 'UK'} customer. They are the authorised declarant. TerraCAP generates your Supplier Emissions Package per shipment.`;
+
+  let prodRows = '';
+  covProds.forEach(p => {
+    const pd = CBAM_PRODUCTS[p];
+    if (!pd || pd.cn === '—') return;
+    const method = isEU ? pd.euMethod : pd.ukMethod;
+    prodRows += `<div style="padding:9px 12px;background:#fff;border:1px solid rgba(${isEU ? '153,60,29' : '186,117,23'},.15);border-radius:8px;margin-bottom:7px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:16px">${pd.icon}</span>
+        <strong style="font-size:13px">${pd.name}</strong>
+        <span style="font-family:'DM Mono',monospace;font-size:10px;color:#6b7280">${pd.cn}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11.5px">
+        <div><span style="color:#6b7280;font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase">Calculation method</span><div style="margin-top:2px">${method}</div></div>
+        <div><span style="color:#6b7280;font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase">Emissions scope</span><div style="margin-top:2px">${pd.scope}</div></div>
+      </div>
     </div>`;
-  const chainColors=['dc-a','dc-t','dc-b','dc-g','dc-s'];
-  document.getElementById('cert-chain').innerHTML=co.chain.map(([owner,action],i)=>`<div class="dc-step ${chainColors[i]||'dc-s'}"><div class="dc-owner">${owner}</div><div class="dc-action">${action}</div></div>`).join('');
-  document.getElementById('btn-cbam').style.display=co.cbam?'inline-flex':'none';
-}
+  });
 
-function bCBAM(){
-  const co=COs[cur];
-  document.getElementById('cbam-note').textContent=`Your ${co.regime} GHG intensity of ${co.int} ${co.iu} is pre-populated from the verified compliance calculation. No re-entry needed.`;
-  document.getElementById('cbam-prod-opt').textContent=co.cbamProd;
-  document.getElementById('cbam-cn').textContent=co.cbamCN;
-  document.getElementById('cbam-co').textContent=co.name;
-  document.getElementById('cbam-fac').textContent=co.fac;
-  document.getElementById('cbam-dcref').textContent=co.dc+' · '+co.regime;
-  document.getElementById('cbam-int').textContent=co.int+' '+co.iu;
-  document.getElementById('cbam-doc-title').textContent='Supplier Emissions Package — '+co.name;
-  document.getElementById('cbam-doc-sub').textContent='For EU CBAM authorized declarant · FY2026 · '+co.fac;
-  updCBAM();
-}
-
-function updCBAM(){
-  const co=COs[cur];
-  const qty=parseInt(document.getElementById('cbam-qty')?.value||5000);
-  const emb=(qty*co.int).toFixed(0);
-  const liab=(emb*75.36/1000).toFixed(0);
-  document.getElementById('cbam-emb').textContent=Number(emb).toLocaleString()+' tCO₂e';
-  document.getElementById('cbam-calc').textContent=qty.toLocaleString()+'t × '+co.int+' '+co.iu+' = '+Number(emb).toLocaleString()+' tCO₂e';
-  document.getElementById('cbam-exp').textContent='EU declarant exposure: ≈ €'+Number(liab).toLocaleString()+'K (at €75.36/tCO₂e)';
-  document.getElementById('cbam-dqty').textContent=qty.toLocaleString()+' tonnes';
-  document.getElementById('cbam-demb').textContent=Number(emb).toLocaleString()+' tCO₂e';
-  document.getElementById('cbam-dliab').textContent='≈ €'+Number(liab).toLocaleString()+'K';
-}
-
-function wsel(step,label,coKey){
-  const ws=document.getElementById('ws'+step);
-  ws.querySelectorAll('.wz-opt').forEach(b=>b.classList.remove('sel'));
-  event.target.classList.add('sel');
-  ws.className='wz ws-done';
-  const prev=ws.querySelector('.wz-ans'); if(prev) prev.remove();
-  const ans=document.createElement('div'); ans.className='wz-ans'; ans.innerHTML='✓ '+label;
-  ws.querySelector('.wz-hdr').after(ans);
-  if(step===1){
-    if(['cement','steel','aluminium'].includes(coKey)){cur=coKey;document.getElementById('csel').value=coKey;try{buildAll();}catch(e){console.warn('buildAll error:',e);}updSB();}
-    document.getElementById('ws2').className='wz ws-active';
-    document.getElementById('w2o').style.display='flex';
-  }
-  if(step===2){
-    document.getElementById('ws3').className='wz ws-active';
-    document.getElementById('w3o').style.display='flex';
-  }
-  if(step===3){showProf(coKey!=='no');}
-}
-
-function showProf(hasEU){
-  const co=COs[cur];
-  const regs=[`<div class="pcr ${co.regime==='PAT'?'pcr-pat':'pcr-ccts'}">${co.regime==='PAT'?'⚡ PAT — Energy Saving Certificates (ESCerts)':'🏭 CCTS — Carbon Credit Certificates (CCCs)'}</div>`];
-  if(hasEU&&co.cbam) regs.push('<div class="pcr pcr-cbam">🇪🇺 EU CBAM — Supplier emissions package required</div>');
-  const el=document.getElementById('prof-result');
-  el.innerHTML=`<div class="prof">
-    <div class="prof-title">You are likely in scope for:</div>
-    <div class="prof-sub">Screening result · Demo loaded: ${co.name} · ${co.fac}</div>
-    <div class="prof-regs">${regs.join('')}</div>
-    <div class="disclaimer">⚠ Screening guide only — not a legal determination. Final Designated Consumer (DC) status and compliance obligations must be verified against the notified sector schedules, Bureau of Energy Efficiency (BEE) DC registration, and applicable rules for your specific facility type, production capacity, and energy consumption figures.</div>
-    <button class="btn primary" onclick="unlockAll();go('dash')">Start compliance workflow →</button>
+  return `<div class="cbam-module ${isEU ? 'cbam-eu' : 'cbam-uk'}" style="margin-bottom:14px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
+      <div>
+        <div class="cbam-module-title" style="color:${isEU ? '#993c1d' : '#ba7517'}">${flag} ${scheme} — ${role === 'declarant' ? 'Authorised Declarant' : 'Supplier Emissions Package'}</div>
+        <div style="display:flex;gap:6px;margin-top:5px">
+          <span class="tag ${isEU ? 'tg-coral' : 'tg-amber'}">Active Jan 2026</span>
+          <span class="tag tg-gray">${auth}</span>
+        </div>
+      </div>
+      ${role === 'supplier' && selLocKey === 'india' ? `<a href="TerraCAP_Compliance_Workflow.html" class="btn btn-coral" style="font-size:12px;white-space:nowrap;text-decoration:none">Open ${scheme} supplier workflow →</a>` : `<span class="btn" style="font-size:12px;opacity:.6;cursor:default">${role === 'declarant' ? 'Declarant module — coming soon' : 'Coming soon'}</span>`}
+    </div>
+    <div style="font-size:12.5px;color:#6b7280;margin-bottom:12px;line-height:1.6"><strong style="color:#374151">Your role: ${role === 'declarant' ? 'Authorised CBAM declarant' : 'Data supplier'}</strong> — ${roleDesc}</div>
+    <div class="cbam-mod-divider"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div><span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:#6b7280">Legal basis</span><div style="font-size:12px;margin-top:2px">${reg}</div></div>
+      <div><span style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:#6b7280">Carbon price reference</span><div style="font-size:12px;margin-top:2px;font-weight:600;color:${isEU ? '#993c1d' : '#ba7517'}">${price}</div></div>
+    </div>
+    ${covProds.length > 0 ? `<div style="margin-bottom:12px">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:#6b7280;margin-bottom:7px">Product-level calculation — per CN code (distinct from facility-level domestic method)</div>
+      ${prodRows}
+    </div>` : ''}
+    <div style="background:rgba(${isEU ? '153,60,29' : '186,117,23'},.04);border:1px solid rgba(${isEU ? '153,60,29' : '186,117,23'},.15);border-radius:8px;padding:10px 14px;margin-bottom:10px">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:${isEU ? '#993c1d' : '#ba7517'};margin-bottom:6px">${scheme}-specific verifier — not interchangeable with domestic ACVA</div>
+      <div style="font-size:12.5px;font-weight:600;color:#374151;margin-bottom:4px">${verif}</div>
+      <div style="font-size:11.5px;color:#6b7280;line-height:1.5">${verifNote}</div>
+    </div>
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:10px 14px">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:#6b7280;margin-bottom:6px">${scheme} evidence pack — separate from domestic ${GEOS[selLocKey]?.schemes[0]?.name || ''} evidence bundle</div>
+      ${evidence.map(e => `<div style="font-size:12px;color:#374151;padding:2px 0;display:flex;align-items:flex-start;gap:6px"><span style="color:${isEU ? '#993c1d' : '#ba7517'};flex-shrink:0">•</span>${e}</div>`).join('')}
+    </div>
   </div>`;
-  el.style.display='block';
-  unlockAll();
 }
-
-function unlockAll(){document.querySelectorAll('.sb-it.locked').forEach(e=>e.classList.remove('locked'));}
-function unl(id){const e=document.getElementById('nav-'+id);if(e)e.classList.remove('locked');}
-
-const crumbs={learn:'What is required & why',qualify:'Your compliance profile',dash:'Compliance dashboard',data:'Energy & GHG data entry',bridge:'Data consolidation',filing:'Filing pack & document',verify:'Verification & ACVA',certs:'Certificate portfolio',cbam:'Supplier emissions package'};
-
-function go(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.sb-it').forEach(b=>b.classList.remove('active'));
-  const s=document.getElementById('s-'+id); if(s) s.classList.add('active');
-  const nb=document.getElementById('nav-'+id); if(nb) nb.classList.add('active');
-  document.getElementById('bc').textContent=crumbs[id]||id;
-  document.getElementById('content').scrollTop=0;
-}
-
-buildAll(); updSB(); go('learn');
 </script>
 </body>
 </html>
