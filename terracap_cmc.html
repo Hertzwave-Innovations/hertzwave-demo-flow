@@ -1379,7 +1379,7 @@ wfContext = {
           <div style="font-size:14px;color:#6b7280;line-height:1.7;margin-bottom:24px">For ${loc} producers selling within the ${loc}, CBAM does not apply — it is a border mechanism triggered only when goods cross into the EU or UK from outside.<br><br>Your domestic compliance obligation is the <strong>${loc === 'EU' ? 'EU ETS' : 'UK ETS'}</strong>. The ${loc} ETS workflow is on TerraCAP's roadmap but is not yet live.</div>
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
             <button class="btn btn-p" onclick="returnToNavigator()">← Back to navigator</button>
-            <button class="btn btn-s" onclick="alert('Thank you — we will contact you when the ${loc} ETS module is live.')">Request early access to ${loc} ETS module</button>
+            ${selLocKey==='eu'?`<button class="btn btn-p" style="background:#185fa5;border-color:#185fa5" onclick="window.location.href='TerraCAP_EU_ETS.html'">Open EU ETS Compliance Module →</button>`:`<button class="btn btn-s" onclick="alert('Thank you — we will contact you when the ${loc} ETS module is live.')">Request early access to ${loc} ETS module</button>`}
           </div>
         </div>`;
       } else {
@@ -1435,6 +1435,7 @@ wfContext = {
             </div>
             <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
               <button class="btn btn-p" onclick="returnToNavigator()">← Back to navigator</button>
+              ${selLocKey==='eu'?`<button class="btn btn-s" style="color:#185fa5;border-color:#185fa5" onclick="window.location.href='TerraCAP_EU_ETS.html'">EU ETS module →</button>`:''}
               <button class="btn btn-p" style="background:#993c1d;border-color:#993c1d" onclick="launchCBAMOnly()">Generate CBAM supplier package →</button>
             </div>
           </div>`;
@@ -1473,7 +1474,8 @@ wfContext = {
             </div>
             <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
               <button class="btn btn-p" onclick="returnToNavigator()">← Back to navigator</button>
-              <button class="btn btn-s" onclick="alert('CBAM declarant module noted. We will follow up.')">Request early access to declarant module</button>
+              ${selLocKey==='eu'?`<button class="btn btn-p" style="background:#185fa5;border-color:#185fa5" onclick="window.location.href='TerraCAP_EU_ETS.html'">Open EU ETS Compliance Module →</button>`:''}
+              <button class="btn btn-s" onclick="alert('CBAM declarant module noted. We will follow up.')">Request CBAM declarant early access</button>
             </div>
           </div>`;
         }

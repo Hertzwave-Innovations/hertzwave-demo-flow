@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>TerraCAP · EU ETS Compliance Module</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;-webkit-font-smoothing:antialiased}
+body{font-family:'DM Sans',sans-serif;background:#f9fafb;color:#374151;min-height:100vh;padding-top:52px}
+
+/* TOPBAR */
+#topbar{background:#fff;border-bottom:1px solid #e5e7eb;height:52px;display:flex;align-items:center;padding:0 24px;gap:10px;position:fixed;top:0;left:0;right:0;z-index:200;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.tb-logo{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:800;color:#0f7a60;cursor:pointer}
+.tb-mod{font-size:11px;color:#6b7280;font-family:'DM Mono',monospace;padding:2px 8px;background:#f0faf5;border-radius:5px}
+.tb-sp{flex:1}
+.tb-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;border:1px solid #e5e7eb;background:#f9fafb}
+.tb-dot{width:6px;height:6px;border-radius:50%;background:#185fa5}
+.tb-back{font-family:'DM Mono',monospace;font-size:10.5px;color:#6b7280;text-decoration:none;padding:3px 8px;border:1px solid #e5e7eb;border-radius:6px;background:#fff}
+.tb-back:hover{color:#0d1512;border-color:#9ca3af}
+.tb-crumb{font-family:'DM Mono',monospace;font-size:11px;color:#9ca3af}
+.tb-crumb span{color:#374151;font-weight:500}
+
+/* SIDEBAR */
+#sidebar{width:264px;flex-shrink:0;background:#fff;border-right:1px solid #e5e7eb;position:fixed;top:52px;bottom:0;left:0;overflow-y:auto;display:flex;flex-direction:column;z-index:100}
+.nb{padding:14px 16px 11px;border-bottom:1px solid #f3f4f6}
+.nwm{font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;color:#0f7a60}
+.nmod{font-size:11px;color:#185fa5;font-family:'DM Mono',monospace;margin-top:1px}
+.wf-ctx{margin:10px 12px;background:#e6f1fb;border:1px solid rgba(24,95,165,.2);border-radius:8px;padding:9px 12px}
+.wf-ctx-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:#6b7280;margin-bottom:5px;letter-spacing:.08em}
+.wf-ctx-row{display:flex;justify-content:space-between;padding:2px 0;font-size:11.5px}
+.wf-ctx-k{color:#6b7280}.wf-ctx-v{font-weight:500;color:#0d1512;font-family:'DM Mono',monospace;font-size:11px}
+.ng{padding:10px 14px 3px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#9ca3af}
+.ni{display:flex;align-items:center;gap:9px;padding:7px 14px;border:none;background:transparent;width:100%;text-align:left;font-family:'DM Sans',sans-serif;font-size:12.5px;color:#6b7280;border-left:2.5px solid transparent;cursor:pointer;transition:all .12s}
+.ni:hover{background:#f9fafb;color:#374151}
+.ni.active{background:#e6f1fb;color:#185fa5;font-weight:500;border-left-color:#185fa5}
+.ni.done{color:#1d9e75;border-left-color:transparent}
+.ni.locked{opacity:.35;cursor:not-allowed;pointer-events:none}
+.nn{width:20px;height:20px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:9px;flex-shrink:0;opacity:.8}
+.ni.active .nn{background:#185fa5;border-color:#185fa5;color:#fff;opacity:1}
+.ni.done .nn{background:#1d9e75;border-color:#1d9e75;color:#fff;opacity:1}
+.nfoot{padding:10px 14px;margin-top:auto;border-top:1px solid #f3f4f6}
+.nfoot a{font-size:11.5px;text-decoration:none;color:#6b7280}.nfoot a:hover{color:#1d9e75}
+
+/* MAIN CONTENT */
+#main{margin-left:264px;padding:26px 28px 70px;max-width:900px}
+.wf-screen{display:none}.wf-screen.active{display:block;animation:fadeIn .2s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.ps{font-size:13.5px;color:#6b7280;margin-bottom:20px;line-height:1.6;max-width:700px}
+
+/* CARDS */
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px 18px;margin-bottom:14px}
+.ct{font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:#0d1512;margin-bottom:8px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* NOTICES */
+.notice{padding:10px 13px;border-radius:8px;font-size:12.5px;line-height:1.6;margin-bottom:14px;display:flex;gap:8px;align-items:flex-start}
+.nb2{background:#e6f1fb;color:#1e3a8a;border:1px solid rgba(24,95,165,.25)}
+.na{background:#fdf6e8;color:#7c4a03;border:1px solid rgba(186,117,23,.25)}
+.nc{background:#fdf3ef;color:#993c1d;border:1px solid rgba(153,60,29,.2)}
+.nt{background:#f0faf5;color:#0f7a60;border:1px solid rgba(29,158,117,.2)}
+.nni{flex-shrink:0}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;font-family:'DM Mono',monospace;font-size:9.5px;font-weight:500;padding:2px 7px;border-radius:8px;margin-left:6px}
+.t-blue{background:#e6f1fb;color:#185fa5}
+.t-teal{background:#e1f5ee;color:#1d9e75}
+.t-amber{background:#faeeda;color:#ba7517}
+.t-coral{background:#faece7;color:#993c1d}
+.t-gray{background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb}
+
+/* FIELDS */
+.field{margin-bottom:12px}
+.fl{font-size:12.5px;font-weight:500;color:#374151;margin-bottom:5px}
+.fh{font-size:11.5px;color:#6b7280;margin-top:4px;line-height:1.55}
+.fsrc{font-family:'DM Mono',monospace;font-size:10px;color:#185fa5;margin-top:3px}
+.fu{display:flex;border:1.5px solid #e5e7eb;border-radius:7px;overflow:hidden;background:#fff}
+.fu:focus-within{border-color:#185fa5}
+.fu input,.fu select{flex:1;border:none;padding:8px 11px;font-family:'DM Mono',monospace;font-size:13px;outline:none;background:transparent;color:#0d1512}
+.ul{padding:7px 11px;background:#f3f4f6;font-family:'DM Mono',monospace;font-size:10.5px;color:#6b7280;white-space:nowrap;border-left:1px solid #e5e7eb;display:flex;align-items:center}
+.ul-blue{background:#e6f1fb;color:#185fa5}
+
+/* DATA ROWS */
+.dr{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #f3f4f6;font-size:12.5px;align-items:flex-start;gap:12px}
+.dl{color:#6b7280;flex-shrink:0}.dv{font-weight:500;color:#0d1512;font-family:'DM Mono',monospace;font-size:11.5px;text-align:right}
+.dv-hi{color:#185fa5;font-weight:700}
+.dv-g{color:#1d9e75;font-weight:700}
+.dv-r{color:#993c1d;font-weight:700}
+
+/* STEP HEADER */
+.sh{margin-bottom:18px}
+.sh h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:#0d1512;margin-bottom:4px}
+.sh .sr{font-family:'DM Mono',monospace;font-size:10px;color:#185fa5;background:#e6f1fb;padding:2px 8px;border-radius:5px;display:inline-block;margin-bottom:6px}
+
+/* BRIDGE TABLE (calc engine style) */
+.bridge-row{display:grid;grid-template-columns:1fr 24px 1.2fr 24px 1fr;gap:0;padding:9px 14px;border-bottom:1px solid #f3f4f6;align-items:center;font-size:12px}
+.brs{color:#374151}.bra{color:#9ca3af;text-align:center}.brc{color:#6b7280}.bro{font-family:'DM Mono',monospace;font-weight:600;color:#185fa5}
+
+/* CBAM PHASE-OUT TABLE */
+.phase-tbl{width:100%;border-collapse:collapse;font-size:11.5px}
+.phase-tbl th{background:#185fa5;color:#fff;padding:6px 12px;text-align:left;font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase}
+.phase-tbl td{padding:7px 12px;border-bottom:1px solid #f3f4f6}
+.phase-tbl tr:last-child td{border-bottom:none}
+.phase-tbl tr:hover td{background:#f0f8ff}
+
+/* BUTTONS */
+.btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .15s}
+.btn-p{background:#185fa5;color:#fff}.btn-p:hover{background:#1450a3}
+.btn-s{background:transparent;color:#185fa5;border:1.5px solid #185fa5}.btn-s:hover{background:#e6f1fb}
+.btn-row{display:flex;gap:10px;margin-top:20px;align-items:center}
+
+/* KPI CARDS */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:12px 14px;text-align:center}
+.kpi-lbl{font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:#6b7280;margin-bottom:5px}
+.kpi-val{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:#0d1512}
+.kpi-unit{font-family:'DM Mono',monospace;font-size:10px;color:#6b7280;margin-top:2px}
+.kpi.blue{background:#185fa5}.kpi.blue .kpi-lbl{color:rgba(255,255,255,.7)}.kpi.blue .kpi-val,.kpi.blue .kpi-unit{color:#fff}
+.kpi.green{background:#1d9e75}.kpi.green .kpi-lbl{color:rgba(255,255,255,.7)}.kpi.green .kpi-val,.kpi.green .kpi-unit{color:#fff}
+.kpi.red{background:#993c1d}.kpi.red .kpi-lbl{color:rgba(255,255,255,.7)}.kpi.red .kpi-val,.kpi.red .kpi-unit{color:#fff}
+
+/* DELIVERY CHAIN */
+.dc{display:flex;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:6px;align-items:flex-start}
+.dco{font-weight:600;font-size:12px;min-width:120px;color:#0d1512}
+.dca{font-size:12px;color:#6b7280;line-height:1.5}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div class="tb-logo">TerraCAP</div>
+  <div class="tb-mod">EU ETS Compliance</div>
+  <div class="tb-crumb">EU ETS · <span id="bc">Monitoring Plan</span></div>
+  <div class="tb-sp"></div>
+  <a href="terracap_cmc.html" class="tb-back">← CMC Navigator</a>
+  <div class="tb-pill"><div class="tb-dot"></div><span>EU ETS · Phase 4</span></div>
+</div>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <div class="nb">
+    <div class="nwm">TerraCAP</div>
+    <div class="nmod">EU ETS Compliance Module</div>
+  </div>
+  <div class="wf-ctx">
+    <div class="wf-ctx-lbl">Installation context</div>
+    <div class="wf-ctx-row"><span class="wf-ctx-k">Location</span><span class="wf-ctx-v">European Union 🇪🇺</span></div>
+    <div class="wf-ctx-row"><span class="wf-ctx-k">Regime</span><span class="wf-ctx-v">EU ETS Phase 4</span></div>
+    <div class="wf-ctx-row"><span class="wf-ctx-k">Period</span><span class="wf-ctx-v">2024 reporting year</span></div>
+    <div class="wf-ctx-row"><span class="wf-ctx-k">Deadline</span><span class="wf-ctx-v">30 Apr 2025 surrender</span></div>
+  </div>
+  <div class="ng">EU ETS workflow</div>
+  <button class="ni active" id="nav-mp" onclick="go('mp')"><div class="nn">1</div>Monitoring Plan</button>
+  <button class="ni" id="nav-aer" onclick="go('aer')"><div class="nn">2</div>Annual Emissions Report</button>
+  <button class="ni" id="nav-ver" onclick="go('ver')"><div class="nn">3</div>Verification</button>
+  <button class="ni" id="nav-alloc" onclick="go('alloc')"><div class="nn">4</div>Free allocation</button>
+  <button class="ni" id="nav-sur" onclick="go('sur')"><div class="nn">5</div>Surrender &amp; compliance</button>
+  <button class="ni" id="nav-pkg" onclick="go('pkg')"><div class="nn">6</div>Compliance package</button>
+  <div class="nfoot">
+    <a href="terracap_cmc.html">← Back to CMC navigator</a>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="main">
+<!-- SCREEN 1: MONITORING PLAN -->
+<div id="wf-mp" class="wf-screen active">
+  <div class="sh">
+    <div class="sr">MRR EU Reg 2018/2066 (as amended by Reg 2023/2122) · AVR EU Reg 2018/2067 (as amended by Reg 2023/2124)</div>
+    <h2>Monitoring Plan</h2>
+  </div>
+  <div class="ps">The Monitoring Plan (MP) is the cornerstone of EU ETS compliance. It defines exactly how your installation measures and reports emissions — which source streams, which tiers, which calculation factors. It must be approved by your Competent Authority before the first reporting period and updated when material changes occur.</div>
+
+  <div class="notice na"><span class="nni">⚠</span><div><strong>MP approval is a prerequisite.</strong> You cannot submit a valid Annual Emissions Report until your Competent Authority has approved your Monitoring Plan. Any changes to the MP (new source streams, tier changes, methodology updates) require CA re-approval before the next reporting period.</div></div>
+
+  <div class="card">
+    <div class="ct">Section A — Installation identification</div>
+    <div class="g2">
+      <div class="field">
+        <div class="fl">Installation ID (EUTL format)</div>
+        <div class="fu"><input type="text" id="inst-id" placeholder="e.g. DE-123-456789-0" oninput="saveMP()"></div>
+        <div class="fh">EU Transaction Log installation identifier — from your Competent Authority registration. Format varies by member state.</div>
+      </div>
+      <div class="field">
+        <div class="fl">Member State / Competent Authority</div>
+        <div class="fu">
+          <select id="inst-ca" onchange="updateCA()">
+            <option value="">Select member state</option>
+            <option value="AT">Austria — Umweltbundesamt (UBA)</option>
+            <option value="BE">Belgium — BREC / VMM (regional CAs)</option>
+            <option value="BG">Bulgaria — MOEW / ExEA</option>
+            <option value="HR">Croatia — Ministry of Economy and Sustainable Development</option>
+            <option value="CY">Cyprus — Department of Environment</option>
+            <option value="CZ">Czech Republic — Czech Hydrometeorological Institute</option>
+            <option value="DK">Denmark — Danish Energy Agency</option>
+            <option value="EE">Estonia — Environmental Board</option>
+            <option value="FI">Finland — Finnish Meteorological Institute / ELY centres</option>
+            <option value="FR">France — DREAL / DRIEAT (regional)</option>
+            <option value="DE">Germany — Deutsche Emissionshandelsstelle (DEHSt)</option>
+            <option value="GR">Greece — YPEN / Ministry of Environment</option>
+            <option value="HU">Hungary — National Inspectorate for Environment</option>
+            <option value="IE">Ireland — Environmental Protection Agency (EPA)</option>
+            <option value="IT">Italy — GSE / Ministero dell'Ambiente (MASE)</option>
+            <option value="LV">Latvia — State Environmental Service</option>
+            <option value="LT">Lithuania — Environmental Protection Agency</option>
+            <option value="LU">Luxembourg — Administration de l'environnement</option>
+            <option value="MT">Malta — Environment and Resources Authority (ERA)</option>
+            <option value="NL">Netherlands — NEa (Netherlands Emissions Authority)</option>
+            <option value="PL">Poland — KOBIZE / Institute of Environmental Protection</option>
+            <option value="PT">Portugal — APA (Agência Portuguesa do Ambiente)</option>
+            <option value="RO">Romania — Ministry of Environment, Waters and Forests</option>
+            <option value="SK">Slovakia — Slovak Hydrometeorological Institute</option>
+            <option value="SI">Slovenia — Slovenian Environment Agency</option>
+            <option value="ES">Spain — MITECO / OECC</option>
+            <option value="SE">Sweden — Swedish Energy Agency / County Admin Boards</option>
+            <option value="IS">Iceland (EEA/EFTA) — Environment Agency of Iceland</option>
+            <option value="LI">Liechtenstein (EEA/EFTA) — Office of Environmental Protection</option>
+            <option value="NO">Norway (EEA/EFTA) — Norwegian Environment Agency</option>
+          </select>
+        </div>
+        <div class="fh">National Competent Authority is the body that approves your MP and receives your Annual Emissions Report.</div>
+      </div>
+      <div class="field">
+        <div class="fl">Annex I activity category</div>
+        <div class="fu">
+          <select id="inst-act" onchange="updateActivity()">
+            <option value="">Select Annex I activity</option>
+            <option value="cement">Clinker production — threshold &gt;500 t/day</option>
+            <option value="steel">Iron &amp; steel production — threshold &gt;2.5 t/hr</option>
+            <option value="aluminium">Primary aluminium production</option>
+            <option value="refinery">Mineral oil refinery</option>
+            <option value="chemicals">Bulk organic chemicals production</option>
+            <option value="glass">Glass production — threshold &gt;20 t/day</option>
+            <option value="paper">Paper/pulp production — threshold &gt;20 t/day</option>
+            <option value="power">Combustion installation — threshold &gt;20 MW</option>
+          </select>
+        </div>
+        <div class="fh">Determines applicable benchmarks (Reg 2019/331), CBAM exposure, and source stream requirements.</div>
+      </div>
+      <div class="field">
+        <div class="fl">MP version number</div>
+        <div class="fu"><input type="text" id="mp-ver" placeholder="e.g. v3.2" oninput="saveMP()"></div>
+        <div class="fh">Sequential version — increments on every CA-approved amendment. Mandatory audit object: version must be locked at period start.</div>
+      </div>
+      <div class="field">
+        <div class="fl">CA approval date</div>
+        <div class="fu"><input type="date" id="mp-appr-date" oninput="saveMP()"></div>
+        <div class="fh">Date of formal CA written approval. Evidence of approval must be retained for 10 years (MRR Art. 67).</div>
+      </div>
+      <div class="field">
+        <div class="fl">CA reference number</div>
+        <div class="fu"><input type="text" id="mp-ca-ref" placeholder="e.g. DEHSt-2024-MP-12345" oninput="saveMP()"></div>
+        <div class="fh">CA's internal reference for the MP approval — cited in AER and verification statement.</div>
+      </div>
+      <div class="field">
+        <div class="fl">Change trigger (if amendment)</div>
+        <div class="fu">
+          <select id="mp-change" onchange="saveMP()">
+            <option value="none">Initial MP — no amendment</option>
+            <option value="routine">Routine annual update</option>
+            <option value="material">Material change to process (MRR Art. 15)</option>
+            <option value="capacity">Significant capacity change (&gt;10% activity level)</option>
+            <option value="merger">Installation merger or split</option>
+            <option value="ca-request">CA-requested revision</option>
+          </select>
+        </div>
+        <div class="fh">Material changes must be notified to CA within 1 month and re-approved before use in reporting.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">Section B — Monitoring methodology</div>
+    <div class="g2">
+      <div class="field">
+        <div class="fl">Primary methodology</div>
+        <div class="fu">
+          <select id="mp-method" onchange="saveMP()">
+            <option value="calc">Calculation-based (standard) — MRR Title II (Arts 24–50)</option>
+            <option value="meas">Measurement-based (CEMS) — MRR Title III (Arts 40–51)</option>
+            <option value="fallback">Fall-back approach — MRR Art. 23 (where tiers not achievable)</option>
+          </select>
+        </div>
+        <div class="fh">Calculation-based is standard for most industries. CEMS (Continuous Emission Monitoring Systems) requires additional equipment but can reduce uncertainty.</div>
+      </div>
+      <div class="field">
+        <div class="fl">Tier applied (activity data)</div>
+        <div class="fu">
+          <select id="mp-tier" onchange="saveMP()">
+            <option value="3">Tier 3 — highest precision (certified measurement)</option>
+            <option value="2">Tier 2 — laboratory analysis</option>
+            <option value="1">Tier 1 — IPCC defaults / published values</option>
+          </select>
+        </div>
+        <div class="fh">Higher tiers require more rigorous measurement but reduce uncertainty. Category A &amp; B installations may apply for lower tiers under MRR Art. 17.</div>
+      </div>
+    </div>
+    <div style="margin-top:8px">
+      <div class="field">
+        <div class="fl">Source streams (fuel types and process inputs)</div>
+        <div class="fu"><input type="text" id="mp-streams" placeholder="e.g. Coal, Natural gas, Fuel oil, Limestone (calcination)" oninput="saveMP()" style="padding:10px 11px"></div>
+        <div class="fh">List all significant source streams as defined in the approved MP. Each stream needs its own activity data, NCV (if fuel), and emission factor.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="border-left:3px solid #185fa5">
+    <div class="ct">MP status</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:12.5px">
+        <input type="checkbox" id="mp-approved" onchange="saveMP()" style="margin-top:2px">
+        <span>Monitoring Plan approved by Competent Authority</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:12.5px">
+        <input type="checkbox" id="mp-current" onchange="saveMP()" style="margin-top:2px">
+        <span>MP version current — no material changes pending re-approval</span>
+      </label>
+      <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:12.5px">
+        <input type="checkbox" id="mp-notified" onchange="saveMP()" style="margin-top:2px">
+        <span>All source stream changes notified to CA within 1 month</span>
+      </label>
+    </div>
+    <div id="mp-status-note" style="margin-top:10px;font-size:12px;color:#9ca3af">Complete the checklist above to confirm MP status.</div>
+  </div>
+
+  <div class="notice nb2"><span class="nni">ℹ</span><div><strong>Key difference from India PAT/CCTS:</strong> The Monitoring Plan has no direct equivalent in the Indian system. PAT/CCTS uses BEE DC registration and sector-specific M&V guidelines. EU ETS requires a facility-specific, CA-approved document governing every measurement decision — this is the legal foundation for the AER.</div></div>
+
+  <div class="btn-row">
+    <button class="btn btn-p" onclick="go('aer')">Continue to Annual Emissions Report →</button>
+  </div>
+</div>
+
+<!-- SCREEN 2: ANNUAL EMISSIONS REPORT -->
+<div id="wf-aer" class="wf-screen">
+  <div class="sh">
+    <div class="sr">MRR (Reg 2018/2066 as amended by Reg 2023/2122) · EN ISO 14065 verification · Deadline: 31 March</div>
+    <h2>Annual Emissions Report</h2>
+  </div>
+  <div class="ps">The Annual Emissions Report (AER) quantifies your installation's verified GHG emissions for the reporting year, calculated per the approved Monitoring Plan. Submitted to your Competent Authority by <strong>31 March</strong> each year. Must be verified before submission — same deadline.</div>
+
+  <div class="notice nt"><span class="nni">✓</span><div><strong>Values pre-linked from TerraCAP GHG module.</strong> Activity data, emission factors, and production figures from your TerraCAP Scope 1 & 2 records are referenced here. Review and confirm each source stream before generating the AER.</div></div>
+
+  <div class="card">
+    <div class="ct">Reporting year &amp; installation</div>
+    <div class="g2">
+      <div class="field">
+        <div class="fl">Reporting year</div>
+        <div class="fu">
+          <select id="aer-year" onchange="updAER()">
+            <option value="2024">2024 (submit by 31 March 2025)</option>
+            <option value="2023">2023 (submit by 31 March 2024)</option>
+            <option value="2025">2025 (submit by 31 March 2026)</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <div class="fl">Installation category</div>
+        <div class="fu">
+          <select id="aer-cat">
+            <option>Category A — ≤50,000 tCO₂e/yr (simplified uncertainty)</option>
+            <option>Category B — 50,000–500,000 tCO₂e/yr</option>
+            <option>Category C — &gt;500,000 tCO₂e/yr (highest precision required)</option>
+          </select>
+        </div>
+        <div class="fh">Category determines minimum tier requirements and materiality thresholds for verification.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">Source stream emissions — calculation basis <span class="tag t-blue">MRR Art. 24</span></div>
+    <div class="fh" style="margin-bottom:12px">For each source stream: Activity data × Net Calorific Value (if fuel) × Emission Factor × Oxidation Factor = CO₂. Process emissions (calcination, reduction) use stoichiometric factors. All EFs from MRR Annex II or laboratory analysis.</div>
+    <div style="border:1px solid #e5e7eb;border-radius:8px;overflow:hidden">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <div style="font-family:'DM Mono',monospace;font-size:9px;padding:5px 12px;background:#faeeda;color:#ba7517;border-radius:6px 6px 0 0;border:1px solid rgba(186,117,23,.2)">ILLUSTRATIVE TEMPLATE — Emission factors shown are MRR Annex II defaults. Your approved Monitoring Plan may specify laboratory-derived or supplier-certified factors which supersede these defaults.</div>
+        <thead style="background:#185fa5;color:#fff">
+          <tr>
+            <th style="padding:8px 12px;text-align:left;font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase">Source stream</th>
+            <th style="padding:8px 12px;text-align:right;font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase">Activity data</th>
+            <th style="padding:8px 12px;text-align:center;font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase">EF</th>
+            <th style="padding:8px 12px;text-align:center;font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase">Ox. factor</th>
+            <th style="padding:8px 12px;text-align:right;font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase">tCO₂</th>
+          </tr>
+        </thead>
+        <tbody id="aer-streams">
+          <tr style="border-bottom:1px solid #f3f4f6">
+            <td style="padding:8px 12px">Coal — kiln combustion</td>
+            <td style="padding:8px 12px;text-align:right"><input type="text" inputmode="decimal" placeholder="e.g. 45,000 t" style="width:90px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 6px;font-family:'DM Mono',monospace;font-size:11px;text-align:right" oninput="updAER()"></td>
+            <td style="padding:8px 12px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:#6b7280">2.42 tCO₂/t</td>
+            <td style="padding:8px 12px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:#6b7280">0.98</td>
+            <td style="padding:8px 12px;text-align:right;font-family:'DM Mono',monospace;font-size:11px;color:#185fa5" id="ss-coal-co2">—</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f3f4f6">
+            <td style="padding:8px 12px">Limestone — calcination (process)</td>
+            <td style="padding:8px 12px;text-align:right"><input type="text" inputmode="decimal" placeholder="e.g. 120,000 t" style="width:90px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 6px;font-family:'DM Mono',monospace;font-size:11px;text-align:right" oninput="updAER()"></td>
+            <td style="padding:8px 12px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:#6b7280">0.440 tCO₂/t</td>
+            <td style="padding:8px 12px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:#6b7280">N/A</td>
+            <td style="padding:8px 12px;text-align:right;font-family:'DM Mono',monospace;font-size:11px;color:#185fa5" id="ss-calc-co2">—</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f3f4f6">
+            <td style="padding:8px 12px">Fuel oil — auxiliary heating</td>
+            <td style="padding:8px 12px;text-align:right"><input type="text" inputmode="decimal" placeholder="e.g. 2,400 t" style="width:90px;border:1px solid #e5e7eb;border-radius:5px;padding:3px 6px;font-family:'DM Mono',monospace;font-size:11px;text-align:right" oninput="updAER()"></td>
+            <td style="padding:8px 12px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:#6b7280">3.17 tCO₂/t</td>
+            <td style="padding:8px 12px;text-align:center;font-family:'DM Mono',monospace;font-size:11px;color:#6b7280">0.99</td>
+            <td style="padding:8px 12px;text-align:right;font-family:'DM Mono',monospace;font-size:11px;color:#185fa5" id="ss-oil-co2">—</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;font-weight:600;color:#0d1512">Total verified emissions</td>
+            <td colspan="3"></td>
+            <td style="padding:8px 12px;text-align:right;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:#0d1512" id="aer-total">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">Biomass correction <span class="tag t-teal">If applicable</span></div>
+    <div class="g2">
+      <div class="field">
+        <div class="fl">Biomass CO₂ (zero-rated)</div>
+        <div class="fu"><input type="text" inputmode="decimal" id="aer-biomass" placeholder="0" oninput="updAER()"><div class="ul">tCO₂</div></div>
+        <div class="fh">Biomass emissions are zero-rated under EU ETS per MRR Annex IV. Must be separately metered and sustainably sourced per Renewable Energy Directive criteria.</div>
+      </div>
+      <div class="field">
+        <div class="fl">Transferred CO₂ (if applicable)</div>
+        <div class="fu"><input type="text" inputmode="decimal" id="aer-transfer" placeholder="0" oninput="updAER()"><div class="ul">tCO₂</div></div>
+        <div class="fh">CO₂ transferred to another installation under MRR Art. 49 — deducted from your emissions total.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notice na"><span class="nni">⚠</span><div><strong>Key difference from India CCTS:</strong> EU ETS uses a calculation basis of Activity data × EF × Oxidation factor per MRR 2018/2066 — not the "BEE GHG Calculation Pro Forma" used in CCTS. The verification standard is <strong>EN ISO 14065 / AVR (Reg 2018/2067 as amended by Reg 2023/2124)</strong>, not ISO 14064-3 (CCTS). Different standards, different verifiers.</div></div>
+
+  <div class="btn-row">
+    <button class="btn btn-s" onclick="go('mp')">← Monitoring Plan</button>
+    <button class="btn btn-p" onclick="go('ver')">Continue to verification →</button>
+  </div>
+</div>
+<!-- SCREEN 3: VERIFICATION -->
+<div id="wf-ver" class="wf-screen">
+  <div class="sh">
+    <div class="sr">AVR (Reg 2018/2067 (as amended by Reg 2023/2124)) · EN ISO 14065 · Deadline: 31 March</div>
+    <h2>Verification</h2>
+  </div>
+  <div class="ps">EU ETS verification is mandatory every year. The verifier is an independent body accredited under <strong>EN ISO 14065</strong> and EU Accreditation and Verification Regulation AVR (Reg 2018/2067 as amended by Reg 2023/2124). Verification must be complete before you submit the AER to your Competent Authority — both are due <strong>31 March</strong>.</div>
+
+  <div class="notice nc"><span class="nni">⚠</span><div><strong>Not the same as CCTS ACVA.</strong> EU ETS verifiers are accredited under the EU Accreditation and Verification Regulation (AVR 2018/2067) and must be notified to the European Commission. BEE-empanelled ACVAs used for India CCTS are not recognised for EU ETS. A separate EU-accredited verifier must be appointed.</div></div>
+
+  <div class="card">
+    <div class="ct">Select EU ETS accredited verification body</div>
+    <div class="notice nb2" style="margin-bottom:10px"><span class="nni">ℹ</span><div>The examples below are internationally active accredited verifiers. Accreditation is jurisdiction- and scope-specific — confirm accreditation status with your national accreditation body (member of <a href="https://european-accreditation.org" target="_blank" style="color:#185fa5">EA MLA</a>) before appointment. This is not an endorsement of any verifier.</div></div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+      <div id="ver-bv" onclick="selVer('bv',this)" style="border:1.5px solid #e5e7eb;border-radius:9px;padding:11px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:600;font-size:13px;color:#0d1512">Bureau Veritas Certification</div>
+          <div style="font-size:11.5px;color:#6b7280;margin-top:2px">EU ETS accreditation · EN ISO 14065 · France</div>
+        </div>
+        <button style="font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer">Select</button>
+      </div>
+      <div id="ver-sgs" onclick="selVer('sgs',this)" style="border:1.5px solid #e5e7eb;border-radius:9px;padding:11px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:600;font-size:13px;color:#0d1512">SGS SA (EU CBAM &amp; ETS division)</div>
+          <div style="font-size:11.5px;color:#6b7280;margin-top:2px">EU ETS accreditation · EN ISO 14065 · Switzerland</div>
+        </div>
+        <button style="font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer">Select</button>
+      </div>
+      <div id="ver-dnv" onclick="selVer('dnv',this)" style="border:1.5px solid #e5e7eb;border-radius:9px;padding:11px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:600;font-size:13px;color:#0d1512">DNV AS (Climate Change Services)</div>
+          <div style="font-size:11.5px;color:#6b7280;margin-top:2px">EU ETS accreditation · EN ISO 14065 · Norway</div>
+        </div>
+        <button style="font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer">Select</button>
+      </div>
+      <div id="ver-lloyd" onclick="selVer('lloyd',this)" style="border:1.5px solid #e5e7eb;border-radius:9px;padding:11px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:600;font-size:13px;color:#0d1512">Lloyd's Register EMEA</div>
+          <div style="font-size:11.5px;color:#6b7280;margin-top:2px">EU ETS accreditation · EN ISO 14065 · United Kingdom</div>
+        </div>
+        <button style="font-family:'DM Mono',monospace;font-size:10px;padding:4px 10px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer">Select</button>
+      </div>
+    </div>
+    <div class="field">
+      <div class="fl">Verification opinion</div>
+      <div class="fu">
+        <select id="ver-opinion">
+          <option value="">Awaiting verification</option>
+          <option value="ra">Reasonable assurance — no material misstatement</option>
+          <option value="qualified">Qualified — material misstatement identified</option>
+          <option value="adverse">Adverse opinion</option>
+          <option value="disclaimed">Disclaimer of opinion</option>
+        </select>
+      </div>
+      <div class="fh">"Reasonable assurance" is the standard outcome for a compliant installation. Qualified opinions trigger CA review and possible penalty proceedings.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">What the EU ETS verifier reviews</div>
+    <div class="g2" style="font-size:12.5px;color:#374151;line-height:1.7">
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:#6b7280;margin-bottom:6px">Verification scope</div>
+        <div>✓ Monitoring Plan implementation and CA approval status</div>
+        <div>✓ Activity data measurement against approved tiers</div>
+        <div>✓ Source stream completeness — no omissions</div>
+        <div>✓ Emission factor appropriateness (MRR Annex II or lab analysis)</div>
+        <div>✓ Biomass CO₂ zero-rating eligibility per RED II</div>
+        <div>✓ Oxidation factor verification per source stream</div>
+        <div>✓ Calculation methodology consistency with MRR</div>
+      </div>
+      <div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:#6b7280;margin-bottom:6px">Materiality threshold</div>
+        <div>Category A: 5% or 2,000 tCO₂e (whichever lower)</div>
+        <div>Category B: 2% or 5,000 tCO₂e (whichever lower)</div>
+        <div>Category C: 2% of verified emissions</div>
+        <div style="margin-top:8px;color:#6b7280">Errors below materiality: corrected in AER. Above: qualified opinion.</div>
+        <div style="margin-top:8px">
+          <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;color:#6b7280;margin-bottom:4px">Site visit requirement</div>
+          <div>Mandatory in year 1 and at least every 2 years thereafter. Remote assessment permitted for low-risk installations.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;padding:12px 16px;border:1.5px solid #e5e7eb;border-radius:9px;background:#fff;margin-bottom:10px">
+    <input type="checkbox" id="ver-done" onchange="checkVerOpinion()" style="margin-top:2px">
+    <span>Verification body appointed and Annual Emissions Report shared for review. Awaiting verification statement.</span>
+  </label>
+  <div id="ver-findings-block" style="display:none" class="card" style="border-left:3px solid #993c1d">
+    <div class="ct" style="color:#993c1d">Qualified opinion — corrective action required</div>
+    <div class="fh" style="margin-bottom:10px">A qualified opinion means the verifier identified a material misstatement. You must: (1) correct the AER and re-submit to CA, (2) document the misstatement and correction, (3) obtain a revised verification statement before surrender deadline.</div>
+    <div class="field">
+      <div class="fl">Nature of misstatement</div>
+      <div class="fu"><input type="text" placeholder="e.g. Tier 2 emission factor used where Tier 3 required by MP" style="width:100%;border:none;padding:8px 11px;font-family:'DM Mono',monospace;font-size:12px;outline:none"></div>
+    </div>
+    <div class="field">
+      <div class="fl">Corrective action taken</div>
+      <div class="fu"><input type="text" placeholder="e.g. Lab analysis commissioned, revised EF applied, AER corrected" style="width:100%;border:none;padding:8px 11px;font-family:'DM Mono',monospace;font-size:12px;outline:none"></div>
+    </div>
+    <div class="field">
+      <div class="fl">CA notified</div>
+      <div class="fu"><select><option>Pending notification</option><option>Notified — awaiting CA direction</option><option>CA confirmed corrected AER accepted</option></select></div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-s" onclick="go('aer')">← Annual Emissions Report</button>
+    <button class="btn btn-p" onclick="go('alloc')">Continue to free allocation →</button>
+  </div>
+</div>
+
+<!-- SCREEN 4: FREE ALLOCATION + CBAM PHASE-OUT CALCULATOR -->
+<div id="wf-alloc" class="wf-screen">
+  <div class="sh">
+    <div class="sr">Reg 2019/331 (revised 2024) · Benchmark update cycle 2026–2030</div>
+    <h2>Free allocation</h2>
+  </div>
+  <div class="ps">EU ETS is a cap-and-trade system. Every installation receives a number of free EU Allowances (EUAs) based on a product benchmark and historical production. Free allocation is being reduced for CBAM-covered sectors to prevent double protection — enter your data below to calculate your position.</div>
+
+  <div class="notice na"><span class="nni">⚠</span><div><strong>CBAM impact on free allocation.</strong> For cement, steel, aluminium, fertilisers, hydrogen, and electricity, free allocation is being phased out 2026–2034 as CBAM provides equivalent carbon leakage protection. By 2034, CBAM sectors receive zero free allocation. The calculator below shows the year-by-year impact.</div></div>
+
+  <div class="card">
+    <div class="ct">Section 1 — Benchmark and production inputs <span class="tag t-amber">Simplified: single sub-installation model</span></div>
+    <div class="notice na" style="margin-bottom:10px"><span class="nni">⚠</span><div><strong>Sub-installation structure matters.</strong> Reg 2019/331 Art. 4 requires allocation calculations at sub-installation level — not one plantwide benchmark. Installations with multiple product benchmarks (e.g. cement clinker + heat export) must calculate allocation per sub-installation separately. This module currently supports a single sub-installation. Multi-sub-installation modelling is on the roadmap.</div></div>
+    <div class="g3">
+      <div class="field">
+        <div class="fl">Product benchmark <span class="tag t-blue">Reg 2019/331</span></div>
+        <div class="fu"><input type="text" inputmode="decimal" id="alloc-bench" placeholder="e.g. 0.766" oninput="updAlloc()"><div class="ul">tCO₂/t product</div></div>
+        <div class="fh">Cement clinker: <strong>0.766</strong> tCO₂/t (2021–2025 period, updated 2026–2030). Hot metal (BF): 1.328. Aluminium: 1.514. From Reg 2019/331 Annex I — check your sector and sub-installation.</div>
+      </div>
+      <div class="field">
+        <div class="fl">Historical Activity Level (HAL)</div>
+        <div class="fu"><input type="text" inputmode="decimal" id="alloc-hal" placeholder="e.g. 850000" oninput="updAlloc()"><div class="ul">t product/yr</div></div>
+        <div class="fh">Median annual production 2014–2018 baseline period for allocation period 2021–2025. For 2026–2030 period, the baseline and HAL determination rules may differ — subject to updated Commission guidance. HAL is CA-determined and submitted via National Implementation Measure (NIM); you cannot self-declare it.</div>
+      </div>
+      <div class="field">
+        <div class="fl">Cross-Sectoral Correction Factor (CSCF)</div>
+        <div class="fu"><input type="text" inputmode="decimal" id="alloc-cscf" placeholder="e.g. 0.8815" oninput="updAlloc()"><div class="ul">factor (0–1)</div></div>
+        <div class="fh">Applied uniformly to all installations when total preliminary allocations exceed the industrial cap. Published annually by European Commission. 2024 value: approx <strong>0.8815</strong>.</div>
+      </div>
+    </div>
+    <div class="field" style="margin-top:4px">
+      <div class="fl">Calculation year</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <select id="alloc-year" onchange="updAlloc()" style="border:1.5px solid #e5e7eb;border-radius:7px;padding:7px 11px;font-family:'DM Mono',monospace;font-size:12px;outline:none">
+          <option value="2024">2024</option><option value="2025">2025</option>
+          <option value="2026">2026</option><option value="2027">2027</option>
+          <option value="2028">2028</option><option value="2029">2029</option>
+          <option value="2030">2030</option><option value="2031">2031</option>
+          <option value="2032">2032</option><option value="2033">2033</option>
+          <option value="2034">2034</option>
+        </select>
+        <div style="font-size:12px;color:#6b7280;padding:8px 4px">Select year to see CBAM phase-out impact on this year's free allocation</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">Free allocation calculation bridge</div>
+    <div id="alloc-bridge">
+      <div style="color:#9ca3af;font-size:12.5px;padding:12px 0;font-family:'DM Mono',monospace">Enter benchmark, HAL, and CSCF above to see calculation →</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">CBAM phase-out schedule <span class="tag t-coral">Reg 2023/956, Annex VII</span></div>
+    <div class="fh" style="margin-bottom:10px">For CBAM-covered sectors (cement, steel, aluminium, fertilisers, hydrogen, electricity), free allocation reduces each year as CBAM provides equivalent carbon leakage protection. By 2034, free allocation reaches zero for these sectors.</div>
+    <table class="phase-tbl">
+      <thead><tr><th>Year</th><th>Free allocation retained (%)</th><th>CBAM factor applied (%)</th><th>Impact on your installation</th></tr></thead>
+      <tbody id="cbam-phase-tbody">
+        <tr><td>2024–25</td><td style="color:#1d9e75;font-weight:600">100%</td><td>0%</td><td style="color:#6b7280">Full free allocation — CBAM transitional phase</td></tr>
+        <tr><td>2026</td><td style="color:#1d9e75;font-weight:600">97.5%</td><td>2.5%</td><td style="color:#6b7280">Minimal reduction — CBAM definitive phase begins</td></tr>
+        <tr><td>2027</td><td style="color:#ba7517;font-weight:600">95.0%</td><td>5.0%</td><td style="color:#6b7280" id="impact-2027">—</td></tr>
+        <tr><td>2028</td><td style="color:#ba7517;font-weight:600">90.0%</td><td>10.0%</td><td style="color:#6b7280" id="impact-2028">—</td></tr>
+        <tr><td>2029</td><td style="color:#ba7517;font-weight:600">77.5%</td><td>22.5%</td><td style="color:#6b7280" id="impact-2029">—</td></tr>
+        <tr><td>2030</td><td style="color:#993c1d;font-weight:600">61.5%</td><td>38.5%</td><td style="color:#6b7280" id="impact-2030">—</td></tr>
+        <tr><td>2031</td><td style="color:#993c1d;font-weight:600">48.5%</td><td>51.5%</td><td style="color:#6b7280" id="impact-2031">—</td></tr>
+        <tr><td>2032</td><td style="color:#993c1d;font-weight:600">35.5%</td><td>64.5%</td><td style="color:#6b7280" id="impact-2032">—</td></tr>
+        <tr><td>2033</td><td style="color:#993c1d;font-weight:600">22.5%</td><td>77.5%</td><td style="color:#6b7280" id="impact-2033">—</td></tr>
+        <tr><td>2034</td><td style="color:#993c1d;font-weight:600">0%</td><td>100%</td><td style="color:#993c1d;font-weight:600" id="impact-2034">Full exposure — purchase all EUAs at market price</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-s" onclick="go('ver')">← Verification</button>
+    <button class="btn btn-p" onclick="go('sur')">Continue to surrender →</button>
+  </div>
+</div>
+<!-- SCREEN 5: SURRENDER & COMPLIANCE -->
+<div id="wf-sur" class="wf-screen">
+  <div class="sh">
+    <div class="sr">EU ETS Directive 2003/87/EC Art. 12 · Surrender deadline: 30 April</div>
+    <h2>Surrender &amp; compliance</h2>
+  </div>
+  <div class="ps">By <strong>30 April</strong> each year, you must surrender a number of EU Allowances (EUAs) equal to your verified emissions for the previous year. If your free allocation covers your emissions, your net cost is zero or negative (surplus EUAs can be sold). If not, you must purchase EUAs on the carbon market.</div>
+
+  <div class="card">
+    <div class="ct">Compliance position — <span id="sur-year-lbl">2024 reporting year</span></div>
+    <div class="kpi-grid" id="sur-kpis">
+      <div class="kpi"><div class="kpi-lbl">Verified emissions</div><div class="kpi-val" id="sur-emis">—</div><div class="kpi-unit">tCO₂e</div></div>
+      <div class="kpi"><div class="kpi-lbl">Free allocation (EUAs)</div><div class="kpi-val" id="sur-alloc">—</div><div class="kpi-unit">EUAs</div></div>
+      <div class="kpi blue" id="sur-net-card"><div class="kpi-lbl">EUAs to surrender</div><div class="kpi-val" id="sur-net">—</div><div class="kpi-unit" id="sur-net-lbl">enter data above</div></div>
+      <div class="kpi" id="sur-cost-card"><div class="kpi-lbl">Compliance cost (est.)</div><div class="kpi-val" id="sur-cost">—</div><div class="kpi-unit">at ~€70/EUA</div></div>
+    </div>
+
+    <div class="card" style="background:#f9fafb;border:1px solid #f3f4f6;margin-top:4px">
+      <div class="ct" style="font-size:12px;margin-bottom:6px">Verified emissions (from AER)</div>
+      <div class="fu"><input type="text" inputmode="decimal" id="sur-emis-input" placeholder="From Annual Emissions Report" oninput="updSurrender()"><div class="ul">tCO₂e</div></div>
+      <div class="fh" style="margin-top:5px">Auto-linked from your AER total when verification is complete. Enter manually for planning purposes.</div>
+    </div>
+    <div class="card" style="background:#f9fafb;border:1px solid #f3f4f6">
+      <div class="ct" style="font-size:12px;margin-bottom:6px">Free allocation received (EUAs)</div>
+      <div class="fu"><input type="text" inputmode="decimal" id="sur-alloc-input" placeholder="From CA notification / EUTL" oninput="updSurrender()"><div class="ul">EUAs</div></div>
+      <div class="fh" style="margin-top:5px">Number of EUAs allocated to your installation by the CA for this compliance year. Visible in your Union Registry account. The EUTL records all EUA transfers as an EC-managed audit log.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">Registry and surrender mechanics</div>
+    <div class="g2">
+      <div>
+        <div class="dr"><span class="dl">Registry</span><span class="dv">Union Registry (national account)</span></div>
+        <div class="dr"><span class="dl">Operated by</span><span class="dv">European Commission (EUTL audit log) · Member State CAs (national registries)</span></div>
+        <div class="dr"><span class="dl">Allowance type</span><span class="dv">EUAs (EU Allowances) / EUAAs (Aviation)</span></div>
+        <div class="dr"><span class="dl">Surrender deadline</span><span class="dv dv-r">30 April each year</span></div>
+        <div class="dr"><span class="dl">Penalty (non-surrender)</span><span class="dv dv-r">€100/tCO₂e + make good in next period</span></div>
+      </div>
+      <div>
+        <div class="dr"><span class="dl">Market price reference</span><span class="dv dv-hi">~€60–80/EUA (Phase 4)</span></div>
+        <div class="dr"><span class="dl">Exchange platforms</span><span class="dv">ICE (UK ETS cleared), EEX (Leipzig), Nasdaq Commodities</span></div>
+        <div class="dr"><span class="dl">EUA banking</span><span class="dv dv-g">Allowed — surplus EUAs can carry to next year</span></div>
+        <div class="dr"><span class="dl">Borrowing</span><span class="dv dv-r">Not permitted under EU ETS</span></div>
+        <div class="dr"><span class="dl">Compliance status</span><span class="dv" id="sur-status-pill">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notice nb2"><span class="nni">ℹ</span><div><strong>Key difference from India PAT/CCTS:</strong> EU ETS requires surrender of one EUA per tonne of verified emissions (absolute cap). India CCTS is intensity-based — you earn CCCs when intensity is below target, but there is no cap on total emissions. EU ETS compliance cost is therefore directly linked to production volume in a way CCTS compliance is not.</div></div>
+
+  <div class="btn-row">
+    <button class="btn btn-s" onclick="go('alloc')">← Free allocation</button>
+    <button class="btn btn-p" onclick="go('pkg')">Continue to compliance package →</button>
+  </div>
+</div>
+
+<!-- SCREEN 6: COMPLIANCE PACKAGE -->
+<div id="wf-pkg" class="wf-screen">
+  <div class="sh">
+    <div class="sr">Annual compliance package — submitted by 31 March (AER) and 30 April (surrender)</div>
+    <h2>Compliance package</h2>
+  </div>
+  <div class="ps">The EU ETS compliance package consists of four mandatory documents, submitted on different deadlines. TerraCAP assembles all four and tracks their status — the package is locked after surrender confirmation is received from the EUTL.</div>
+
+  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+    <div style="border:1px solid #e5e7eb;border-radius:9px;padding:13px 16px;display:flex;gap:14px;align-items:flex-start;background:#fff">
+      <div style="width:28px;height:28px;border-radius:50%;background:#185fa5;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;flex-shrink:0">①</div>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:13px;color:#0d1512;margin-bottom:2px">Monitoring Plan — CA approved</div>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:6px">Approved monitoring methodology governing all source streams, tiers, and calculation factors for the reporting period. Version-locked at period start.</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9.5px;color:#6b7280">Source: Competent Authority approval record · MRR (Reg 2018/2066 as amended by Reg 2023/2122)</div>
+      </div>
+      <div id="pkg-mp-status" style="font-family:'DM Mono',monospace;font-size:10px;padding:3px 9px;border-radius:6px;background:#faeeda;color:#ba7517;white-space:nowrap;flex-shrink:0">Pending</div>
+    </div>
+    <div style="border:1px solid #e5e7eb;border-radius:9px;padding:13px 16px;display:flex;gap:14px;align-items:flex-start;background:#fff">
+      <div style="width:28px;height:28px;border-radius:50%;background:#185fa5;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;flex-shrink:0">②</div>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:13px;color:#0d1512;margin-bottom:2px">Annual Emissions Report — verified</div>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:6px">Detailed source-stream breakdown with activity data, emission factors, oxidation factors, and verified total. Submitted to CA by <strong>31 March</strong>.</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9.5px;color:#6b7280">CA submission · MRR (Reg 2018/2066 as amended by Reg 2023/2122) · Verified per AVR (Reg 2018/2067 as amended by Reg 2023/2124)</div>
+      </div>
+      <div id="pkg-aer-status" style="font-family:'DM Mono',monospace;font-size:10px;padding:3px 9px;border-radius:6px;background:#faeeda;color:#ba7517;white-space:nowrap;flex-shrink:0">Pending</div>
+    </div>
+    <div style="border:1px solid #e5e7eb;border-radius:9px;padding:13px 16px;display:flex;gap:14px;align-items:flex-start;background:#fff">
+      <div style="width:28px;height:28px;border-radius:50%;background:#185fa5;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;flex-shrink:0">③</div>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:13px;color:#0d1512;margin-bottom:2px">Verification statement</div>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:6px">Signed statement by EU-accredited verifier (EN ISO 14065) confirming reasonable assurance on AER. Not the same as CCTS ACVA report. Submitted alongside AER to CA by <strong>31 March</strong>.</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9.5px;color:#6b7280">AVR (Reg 2018/2067 as amended by Reg 2023/2124) · EN ISO 14065 accredited verifier</div>
+      </div>
+      <div id="pkg-ver-status" style="font-family:'DM Mono',monospace;font-size:10px;padding:3px 9px;border-radius:6px;background:#faeeda;color:#ba7517;white-space:nowrap;flex-shrink:0">Awaiting verifier</div>
+    </div>
+    <div style="border:1px solid #e5e7eb;border-radius:9px;padding:13px 16px;display:flex;gap:14px;align-items:flex-start;background:#fff">
+      <div style="width:28px;height:28px;border-radius:50%;background:#185fa5;color:#fff;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;font-weight:700;flex-shrink:0">④</div>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:13px;color:#0d1512;margin-bottom:2px">EUA surrender confirmation (EUTL)</div>
+        <div style="font-size:12px;color:#6b7280;margin-bottom:6px">Confirmation from EU Transaction Log that EUAs equal to verified emissions have been surrendered to the Union Registry. Deadline: <strong>30 April</strong>. Penalty for non-surrender: €100/tCO₂e.</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9.5px;color:#6b7280">Union Registry surrender confirmation · EUTL transaction audit log</div>
+      </div>
+      <div id="pkg-sur-status" style="font-family:'DM Mono',monospace;font-size:10px;padding:3px 9px;border-radius:6px;background:#faeeda;color:#ba7517;white-space:nowrap;flex-shrink:0">Pending</div>
+    </div>
+  </div>
+
+  <div class="card" style="background:#e6f1fb;border:1px solid rgba(24,95,165,.2)">
+    <div class="ct">CBAM interaction — EU ETS free allocation phase-out</div>
+    <div style="font-size:12.5px;color:#1e3a8a;line-height:1.7">
+      For CBAM-covered goods (cement, steel, aluminium, fertilisers, hydrogen, electricity), your free allocation is being reduced annually from 2026 to zero by 2034. The CBAM charges your EU importers an equivalent carbon price on their imports, replacing the protection previously provided by free allocation.<br><br>
+      <strong>Practical impact:</strong> If you export CBAM-covered goods to EU customers, your free allocation reduces — but your EU customers bear the CBAM certificate cost. This cost may affect bilateral pricing negotiations — the actual commercial effect depends on contract terms, market conditions, and the relative bargaining position of buyer and supplier. TerraCAP's CBAM supplier package (Step 8 in the CMC module) provides the verified embedded-emissions data your EU customers need to calculate their CBAM liability.
+    </div>
+  </div>
+
+  <div style="margin-top:16px;display:flex;gap:10px;justify-content:space-between;align-items:center">
+    <button class="btn btn-s" onclick="go('sur')">← Surrender</button>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-s" onclick="alert('Download EU ETS compliance package — available in production TerraCAP.')">Download compliance package (PDF)</button>
+      <button class="btn btn-p" onclick="window.location.href='terracap_cmc.html'">← Return to CMC Navigator</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+<script>
+const CBAM_FACTORS = {
+  2024:0,2025:0,2026:.025,2027:.05,2028:.10,2029:.225,2030:.385,
+  2031:.515,2032:.645,2033:.775,2034:1.0
+};
+
+let mpData={}, aerTotal=0, allocData={free:0}, verifier=null;
+
+function go(id){
+  document.querySelectorAll('.wf-screen').forEach(s=>s.classList.remove('active'));
+  const el=document.getElementById('wf-'+id);
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.ni').forEach(b=>b.classList.remove('active'));
+  const nb=document.getElementById('nav-'+id);
+  if(nb) nb.classList.add('active');
+  const crumbs={mp:'Monitoring Plan',aer:'Annual Emissions Report',ver:'Verification',alloc:'Free allocation',sur:'Surrender & compliance',pkg:'Compliance package'};
+  document.getElementById('bc').textContent=crumbs[id]||id;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateCA(){
+  const ca = document.getElementById('inst-ca');
+  const sel = ca?.value;
+  // Auto-populate CA reference hint based on member state
+  const caHints = {
+    DE:'DEHSt reference format: DEU-123-456789',
+    FR:'DREAL reference — regional authority depends on installation location',
+    NL:'NEa reference: NL-installation-XXXXXX',
+    PL:'KOBIZE registration number',
+    IT:'GSE/MASE installation ID',
+    ES:'MITECO RENADE registry number',
+    GB:'[UK left EU ETS — UK ETS applies, separate system]'
+  };
+  const caInstField = document.getElementById('inst-id');
+  if(caInstField && caHints[sel]) caInstField.placeholder = caHints[sel];
+  saveMP();
+}
+
+function saveMP(){
+  const approved=document.getElementById('mp-approved')?.checked;
+  const current=document.getElementById('mp-current')?.checked;
+  const notified=document.getElementById('mp-notified')?.checked;
+  const note=document.getElementById('mp-status-note');
+  if(!note) return;
+  if(approved&&current&&notified){
+    note.textContent='✓ Monitoring Plan confirmed — all three conditions met. Proceed to Annual Emissions Report.';
+    note.style.color='#1d9e75';
+    document.getElementById('pkg-mp-status').textContent='Ready';
+    document.getElementById('pkg-mp-status').style.background='#e1f5ee';
+    document.getElementById('pkg-mp-status').style.color='#1d9e75';
+    document.getElementById('nav-mp').classList.add('done');
+  } else {
+    const count=[approved,current,notified].filter(Boolean).length;
+    note.textContent=count+' of 3 conditions met. Complete all three to confirm MP status.';
+    note.style.color='#ba7517';
+  }
+}
+
+function checkVerOpinion(){
+  const op = document.getElementById('ver-opinion')?.value;
+  const block = document.getElementById('ver-findings-block');
+  if(block) block.style.display = (op==='qualified'||op==='adverse') ? 'block' : 'none';
+}
+// Also wire to opinion dropdown change
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('ver-opinion')?.addEventListener('change', checkVerOpinion);
+});
+
+function updAER(){
+  const coalEl=document.querySelectorAll('#aer-streams input')[0];
+  const calcEl=document.querySelectorAll('#aer-streams input')[1];
+  const oilEl=document.querySelectorAll('#aer-streams input')[2];
+  const coal=parseFloat(coalEl?.value?.replace(/,/g,''))||0;
+  const calc=parseFloat(calcEl?.value?.replace(/,/g,''))||0;
+  const oil=parseFloat(oilEl?.value?.replace(/,/g,''))||0;
+  const coalCO2=coal*2.42*0.98;
+  const calcCO2=calc*0.440;
+  const oilCO2=oil*3.17*0.99;
+  const fmt=v=>v>0?Number(v.toFixed(0)).toLocaleString('de-DE')+' tCO₂':'—';
+  const setT=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  setT('ss-coal-co2',fmt(coalCO2));
+  setT('ss-calc-co2',fmt(calcCO2));
+  setT('ss-oil-co2',fmt(oilCO2));
+  aerTotal=coalCO2+calcCO2+oilCO2;
+  setT('aer-total', aerTotal>0?Number(aerTotal.toFixed(0)).toLocaleString('de-DE')+' tCO₂e':'—');
+  if(aerTotal>0){
+    document.getElementById('nav-aer').classList.add('done');
+    document.getElementById('pkg-aer-status').textContent='Ready';
+    document.getElementById('pkg-aer-status').style.background='#e1f5ee';
+    document.getElementById('pkg-aer-status').style.color='#1d9e75';
+  }
+  updSurrender();
+}
+
+function selVer(id,el){
+  document.querySelectorAll('[id^="ver-bv"],[id^="ver-sgs"],[id^="ver-dnv"],[id^="ver-lloyd"]').forEach(e=>{
+    e.style.borderColor='#e5e7eb'; e.style.background='#fff';
+  });
+  el.style.borderColor='#185fa5'; el.style.background='#f0f8ff';
+  verifier=id;
+  el.querySelector('button').textContent='✓ Selected';
+  document.getElementById('nav-ver').classList.add('done');
+  document.getElementById('pkg-ver-status').textContent='Appointed';
+  document.getElementById('pkg-ver-status').style.background='#faeeda';
+  document.getElementById('pkg-ver-status').style.color='#ba7517';
+}
+
+function updAlloc(){
+  const bench=parseFloat(document.getElementById('alloc-bench')?.value)||0;
+  const hal=parseFloat(document.getElementById('alloc-hal')?.value?.replace(/,/g,''))||0;
+  const cscf=parseFloat(document.getElementById('alloc-cscf')?.value)||0;
+  const yr=parseInt(document.getElementById('alloc-year')?.value)||2024;
+  const cbamF=CBAM_FACTORS[yr]||0;
+  const bridge=document.getElementById('alloc-bridge');
+  if(!bridge) return;
+  if(!bench||!hal||!cscf){
+    bridge.innerHTML='<div style="color:#9ca3af;font-size:12.5px;padding:12px 0;font-family:\'DM Mono\',monospace">Enter benchmark, HAL, and CSCF above to see calculation →</div>';
+    return;
+  }
+  const gross=bench*hal*cscf;
+  const cbamReduction=gross*cbamF;
+  const net=gross-cbamReduction;
+  allocData.free=net;
+  const fmt=v=>Number(v.toFixed(0)).toLocaleString('de-DE');
+  bridge.innerHTML=`
+    <div class="bridge-row"><div class="brs">Benchmark: ${bench} tCO₂/t</div><div class="bra">×</div><div class="brc">HAL: ${fmt(hal)} t/yr</div><div class="bra">×</div><div class="bro">CSCF: ${cscf}</div></div>
+    <div class="bridge-row"><div class="brs">Gross allocation</div><div class="bra">=</div><div class="brc">${bench} × ${fmt(hal)} × ${cscf}</div><div class="bra">=</div><div class="bro">${fmt(gross)} EUAs</div></div>
+    ${cbamF>0?`<div class="bridge-row" style="background:#fdf3ef"><div class="brs">CBAM reduction (${yr})</div><div class="bra">−</div><div class="brc">Gross × ${(cbamF*100).toFixed(1)}% CBAM factor (Reg 2023/956)</div><div class="bra">=</div><div class="bro" style="color:#993c1d">−${fmt(cbamReduction)} EUAs</div></div>`:''}
+    <div class="bridge-row" style="background:#e6f1fb"><div class="brs">Net free allocation (${yr})</div><div class="bra">=</div><div class="brc">${cbamF>0?`${fmt(gross)} − ${fmt(cbamReduction)}`:'Full allocation — no CBAM reduction yet'}</div><div class="bra">=</div><div class="bro" style="font-size:14px">${fmt(net)} EUAs</div></div>`;
+
+  // Update phase-out table with actual EUA impact
+  Object.keys(CBAM_FACTORS).forEach(y=>{
+    const el=document.getElementById('impact-'+y);
+    if(!el) return;
+    const f=CBAM_FACTORS[y];
+    const gr=bench*hal*cscf;
+    const red=gr*f;
+    const nt=gr-red;
+    el.textContent=`${fmt(nt)} EUAs free allocation (−${fmt(red)} from gross)`;
+  });
+
+  document.getElementById('nav-alloc').classList.add('done');
+  updSurrender();
+}
+
+function updSurrender(){
+  const emisInput=document.getElementById('sur-emis-input');
+  const allocInput=document.getElementById('sur-alloc-input');
+  const emis=parseFloat(emisInput?.value?.replace(/,/g,''))||aerTotal||0;
+  const alloc=parseFloat(allocInput?.value?.replace(/,/g,''))||allocData.free||0;
+  const fmt=v=>v>0?Number(v.toFixed(0)).toLocaleString('de-DE'):'—';
+  const setT=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  setT('sur-emis',emis>0?fmt(emis)+'  tCO₂e':'—');
+  setT('sur-alloc',alloc>0?fmt(alloc)+' EUAs':'—');
+  if(emis>0&&alloc>0){
+    const net=emis-alloc;
+    const cost=net*70;
+    const netCard=document.getElementById('sur-net-card');
+    const costCard=document.getElementById('sur-cost-card');
+    if(net>0){
+      setT('sur-net',fmt(net));
+      setT('sur-net-lbl','EUAs to purchase (shortfall)');
+      if(netCard){netCard.className='kpi red';}
+      setT('sur-cost','€'+fmt(cost/1000)+'K');
+      if(costCard){costCard.style.borderColor='rgba(153,60,29,.3)';}
+      setT('sur-status-pill','⚠ Deficit — purchase required');
+    } else {
+      setT('sur-net',fmt(Math.abs(net)));
+      setT('sur-net-lbl','EUAs surplus — can sell');
+      if(netCard){netCard.className='kpi green';}
+      setT('sur-cost','Revenue: €'+fmt(Math.abs(cost)/1000)+'K');
+      if(costCard){costCard.style.borderColor='rgba(29,158,117,.3)';}
+      setT('sur-status-pill','✓ Surplus — sell on EEX/ICE');
+    }
+    document.getElementById('nav-sur').classList.add('done');
+    document.getElementById('pkg-sur-status').textContent=net<=0?'Surplus':'Pending purchase';
+    document.getElementById('pkg-sur-status').style.background=net<=0?'#e1f5ee':'#faeeda';
+    document.getElementById('pkg-sur-status').style.color=net<=0?'#1d9e75':'#ba7517';
+  }
+}
+
+function updateActivity(){
+  const act=document.getElementById('inst-act')?.value;
+  const benchMap={cement:'0.766 (cement clinker, Reg 2019/331)',steel:'1.328 (hot metal BF route)',aluminium:'1.514 (primary aluminium)',refinery:'0.295 (refinery products)',chemicals:'Varies by product — see Annex I Reg 2019/331'};
+  const benchEl=document.getElementById('alloc-bench');
+  if(benchEl&&benchMap[act]){
+    benchEl.placeholder='e.g. '+benchMap[act].split(' ')[0];
+    benchEl.title=benchMap[act];
+  }
+}
+
+// Init
+document.addEventListener('DOMContentLoaded',()=>{
+  go('mp');
+});
+</script>
+</body>
+</html>
