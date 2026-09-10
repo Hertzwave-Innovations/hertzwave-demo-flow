@@ -191,6 +191,347 @@ body.mode-workflow #wf-area{display:block;margin-left:264px;min-height:calc(100v
 .obl-engine-hdr{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #f3f4f6}
 .obl-engine-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;font-weight:700;color:#0d1512}
 </style>
+<script>
+// ============================================================
+// TerraCAP Compliance Engine — Stub Layer v1.0
+// ============================================================
+// Purpose: Makes UI call pattern match the CCE architecture
+//   (RMDL → CEL → AVCL) before backend services exist.
+// Usage:   All calculation and regulatory lookups call these
+//   stubs. When backend is ready, replace stub implementations
+//   with real API calls — no UI code changes needed.
+// ============================================================
+
+const TERRACAP_VERSION = '1.0.0-stub';
+
+// ============================================================
+// RMDL — Regulatory Master Data Library (stub)
+// In production: async calls to versioned RMDL API
+// ============================================================
+const RMDL = {
+
+  // RMDL-5: Rule Version Registry
+  getRuleVersion(module) {
+    const versions = {
+      INDIA_CCTS:  { id:'CCTS_Phase1_v1',   primary:'CCTS Rules 2023 + Jan 2026 amendment',    ef_version:'IPCC_AR6_2021+CEA_FY2024-25' },
+      INDIA_PAT:   { id:'PAT_CycleVII_v1',  primary:'PAT Cycle VII notified schedule (BEE)',   ef_version:'BEE_MV_Guidelines_2024'       },
+      CBAM_EU:     { id:'CBAM_DEF_2026_v1', primary:'EU Reg 2023/956 as amended by Reg 2025/2083', ef_version:'IPCC_AR6_2021'            },
+      EU_ETS:      { id:'EU_ETS_P4_2024',   primary:'EU ETS Directive 2003/87/EC + MRR 2018/2066 as amended by Reg 2023/2122', ef_version:'MRR_Annex_II_2024' },
+      CBAM_UK:     { id:'UK_CBAM_2026_v1',  primary:'UK Finance Act 2024 + HMRC guidance',     ef_version:'PENDING_IMPLEMENTING_REGS'    },
+    };
+    return versions[module] || { id:'UNKNOWN', primary:'Unknown rule version', ef_version:'Unknown' };
+  },
+
+  // RMDL-3: India PAT/CCTS emission factors
+  getEmissionFactors(sector, ef_version) {
+    // [STUB] Returns current hardcoded values.
+    // Production: fetch from RMDL database by sector + ef_version
+    return {
+      coal_tCO2_per_t:          2.42,   // IPCC AR6 — updated when IPCC AR7 adopted
+      clinker_calcination:      0.525,  // tCO2/t clinker — IPCC default
+      cea_grid_ef_tCO2_per_MWh: 0.82,   // CEA FY2024-25 national average — ANNUAL UPDATE REQUIRED
+      pfc_cf4_gwp100:           7380,   // IPCC AR6 GWP100
+      pfc_c2f6_gwp100:          12400,  // IPCC AR6 GWP100
+      fuel_oil_toe_per_kl:      0.95,   // Approx conversion
+      ef_version:               ef_version || 'IPCC_AR6_2021+CEA_FY2024-25',
+      source:                   'RMDL-3 stub — update annually from CEA CO2 Baseline Report',
+    };
+  },
+
+  // RMDL-3: India PAT sector schedule
+  getIndiaSectorSchedule(sector_code) {
+    const schedules = {
+      cement:     { scheme:'CCTS+PAT', dc_threshold_tEC:30000, certificate_type_ccts:'CCC', certificate_type_pat:'ESCert', verifier_ccts:'ACVA_CVA', verifier_pat:'EmAEA', registry_ccts:'Grid_India_ICM', registry_pat:'BEE_CERC', filing_ccts:'BEE_MoEFCC_ICM', filing_pat:'SDA_then_BEE' },
+      aluminium:  { scheme:'CCTS+PAT', dc_threshold_tEC:7500,  certificate_type_ccts:'CCC', certificate_type_pat:'ESCert', verifier_ccts:'ACVA_CVA', verifier_pat:'EmAEA', registry_ccts:'Grid_India_ICM', registry_pat:'BEE_CERC', filing_ccts:'BEE_MoEFCC_ICM', filing_pat:'SDA_then_BEE' },
+      fertiliser: { scheme:'CCTS+PAT', dc_threshold_tEC:30000, certificate_type_ccts:'CCC', certificate_type_pat:'ESCert', verifier_ccts:'ACVA_CVA', verifier_pat:'EmAEA', registry_ccts:'Grid_India_ICM', registry_pat:'BEE_CERC', filing_ccts:'BEE_MoEFCC_ICM', filing_pat:'SDA_then_BEE' },
+      steel:      { scheme:'PAT',      dc_threshold_tEC:30000, certificate_type_pat:'ESCert', verifier_pat:'EmAEA', registry_pat:'BEE_CERC', filing_pat:'SDA_then_BEE', ccts_note:'CCTS notification expected H2 FY2026-27' },
+      thermal:    { scheme:'PAT',      dc_threshold_MU:100,    certificate_type_pat:'ESCert', verifier_pat:'EmAEA', registry_pat:'BEE_CERC', filing_pat:'SDA_then_BEE', ccts_note:'Thermal: PAT only — not transitioning to CCTS' },
+      railways:   { scheme:'PAT',      certificate_type_pat:'ESCert', verifier_pat:'EmAEA', filing_pat:'SDA_then_BEE' },
+      chlor:      { scheme:'CCTS+PAT', certificate_type_ccts:'CCC', certificate_type_pat:'ESCert', verifier_ccts:'ACVA_CVA', verifier_pat:'EmAEA' },
+      pulp:       { scheme:'CCTS+PAT', certificate_type_ccts:'CCC', certificate_type_pat:'ESCert', verifier_ccts:'ACVA_CVA', verifier_pat:'EmAEA' },
+      refinery:   { scheme:'CCTS+PAT', certificate_type_ccts:'CCC', certificate_type_pat:'ESCert', verifier_ccts:'ACVA_CVA', verifier_pat:'EmAEA' },
+    };
+    return schedules[sector_code] || { scheme:'PAT', note:'Sector not yet in RMDL — add to RMDL-3' };
+  },
+
+  // RMDL-1: CBAM CN-code master
+  getCNCodeRecord(cn_code_8, as_of_year) {
+    // [STUB] Simplified lookup by category.
+    // Production: full 8-digit TARIC lookup from RMDL database
+    const records = {
+      'cement':    { cn_code_8:'2523xxxx', aggregated_category:'Cement clinker / cement', good_type:'simple', indirect_emissions_in_scope:true,  functional_unit:'tonne', cbam_benchmark:0.766,  default_see:0.82,  production_routes:['dry_kiln','wet_kiln','semi_dry'] },
+      'steel':     { cn_code_8:'7206xxxx', aggregated_category:'Iron and steel',          good_type:'complex',indirect_emissions_in_scope:false, functional_unit:'tonne', cbam_benchmark:1.328,  default_see:1.89,  production_routes:['BF_BOF','EAF','DRI_EAF'] },
+      'aluminium': { cn_code_8:'7601xxxx', aggregated_category:'Aluminium and articles',  good_type:'simple', indirect_emissions_in_scope:false, functional_unit:'tonne', cbam_benchmark:1.514,  default_see:6.72,  production_routes:['primary_electrolysis','secondary'] },
+      'fertiliser':{ cn_code_8:'3102xxxx', aggregated_category:'Fertilisers',             good_type:'complex',indirect_emissions_in_scope:true,  functional_unit:'tonne', cbam_benchmark:0.646,  default_see:2.31,  production_routes:['ammonia_haber_bosch'] },
+      'hydrogen':  { cn_code_8:'2804xxxx', aggregated_category:'Hydrogen',                good_type:'simple', indirect_emissions_in_scope:false, functional_unit:'tonne', cbam_benchmark:0.0,    default_see:10.9,  production_routes:['SMR','electrolysis'] },
+      'electricity':{ cn_code_8:'2716xxxx', aggregated_category:'Electricity',            good_type:'simple', indirect_emissions_in_scope:false, functional_unit:'MWh',   cbam_benchmark:0.0,    default_see:0.493, production_routes:['grid'] },
+    };
+    const key = Object.keys(records).find(k => cn_code_8.startsWith(records[k].cn_code_8.replace('xxxx','')));
+    const rec = key ? records[key] : null;
+    if (rec) { rec.rule_version = 'CBAM_DEF_2026_v1'; rec.source = 'RMDL-1 stub — production uses full 8-digit TARIC lookup'; }
+    return rec;
+  },
+
+  // RMDL-2: CBAM factor table (Reg 2025/2083 Annex VII)
+  getCBAMFactor(production_year) {
+    const factors = { 2024:0, 2025:0, 2026:0.025, 2027:0.05, 2028:0.10,
+                      2029:0.225, 2030:0.385, 2031:0.515, 2032:0.645, 2033:0.775, 2034:1.0 };
+    return {
+      year: production_year,
+      cbam_factor: factors[production_year] ?? 0,
+      free_alloc_retained: 1 - (factors[production_year] ?? 0),
+      source: 'RMDL-2 — CBAM Reg 2023/956 as amended by Reg 2025/2083, Annex VII',
+    };
+  },
+
+  // RMDL-4: EU ETS benchmarks
+  getEUETSBenchmark(benchmark_code, allocation_period) {
+    // [STUB] Simplified — production includes full sub-installation table
+    const benchmarks = {
+      CL: { name:'Cement clinker', value:0.766, unit:'tCO2/t', period:'2021-2025' },
+      HM: { name:'Hot metal (BF)',  value:1.328, unit:'tCO2/t', period:'2021-2025' },
+      AL: { name:'Primary aluminium', value:1.514, unit:'tCO2/t', period:'2021-2025' },
+    };
+    return benchmarks[benchmark_code] || null;
+  },
+};
+
+// ============================================================
+// CEL — Calculation Engine Library (stub)
+// In production: async calls to CEL microservice
+// All functions return structured results with provenance
+// ============================================================
+const CEL = {
+
+  // CEL-4: India CCTS GHG intensity
+  calculateCCTSIntensity(inputs) {
+    const ef = RMDL.getEmissionFactors(inputs.sector);
+    const rv = RMDL.getRuleVersion('INDIA_CCTS');
+    const coalCO2    = (inputs.fuelMT     || 0) * ef.coal_tCO2_per_t;
+    const processCO2 = (inputs.processCO2 || 0);
+    const otherS1    = (inputs.otherScope1|| 0);
+    const pfcCO2eq   = inputs.hasAluminium
+      ? ((inputs.pfcCF4||0) * ef.pfc_cf4_gwp100 + (inputs.pfcC2F6||0) * ef.pfc_c2f6_gwp100) * (inputs.production||0) / 1000
+      : 0;
+    const scope1 = coalCO2 + processCO2 + pfcCO2eq + otherS1;
+    const gridMWh  = (inputs.gridElecMU  || 0) * 1000;
+    const scope2   = gridMWh * (inputs.ceaEF || ef.cea_grid_ef_tCO2_per_MWh);
+    const totalGHG = scope1 + scope2;
+    const intensity = inputs.production ? totalGHG / inputs.production : null;
+    return {
+      scope1_tCO2e: scope1, scope2_tCO2e: scope2,
+      total_ghg_tCO2e: totalGHG,
+      ghg_intensity: intensity,
+      intensity_unit: 'tCO2e_per_tEC',
+      scheme: 'CCTS',
+      rule_version: rv.id,
+      ef_version: ef.ef_version,
+      cbam_usability_note: 'Domestic source reference only — separate CBAM SEE calculation required per IR 2025/2547 before use in CBAM operator emissions report.',
+      is_provisional: true,   // AVCL: becomes false only after ACVA verification
+      status: 'PREPARED',     // AVCL status — UI must display this
+    };
+  },
+
+  // CEL-5: India PAT SEC
+  calculatePATSEC(inputs) {
+    const rv = RMDL.getRuleVersion('INDIA_PAT');
+    const coalTOE = (inputs.coalMT && inputs.coalGCV)
+      ? (inputs.coalMT * 1000 * inputs.coalGCV) / 1e7 : 0;
+    const gridTOE    = (inputs.gridMU       || 0) * 100;
+    const oilTOE     = (inputs.furnaceOilKL || 0) * 0.95;
+    const captiveTOE = (inputs.captiveMU    || 0) * 100;
+    const totalTOE   = coalTOE + gridTOE + oilTOE + captiveTOE;
+    const sec        = inputs.production ? totalTOE / inputs.production : null;
+    return {
+      coal_toe: coalTOE, grid_toe: gridTOE,
+      oil_toe: oilTOE, captive_toe: captiveTOE,
+      total_toe: totalTOE,
+      sec_toe_per_unit: sec,
+      sec_unit: 'TOE_per_unit',
+      scheme: 'PAT',
+      rule_version: rv.id,
+      ef_version: rv.ef_version,
+      is_provisional: true,
+      status: 'PREPARED',
+    };
+  },
+
+  // CEL-2: CBAM SEFA
+  calculateSEFA(cn_product_key, production_year) {
+    const cn = RMDL.getCNCodeRecord(cn_product_key, production_year);
+    const cf = RMDL.getCBAMFactor(production_year);
+    if (!cn) return null;
+    const sefa = cn.cbam_benchmark * (1 - cf.cbam_factor);
+    return {
+      sefa_tCO2_per_unit: sefa,
+      cbam_benchmark_used: cn.cbam_benchmark,
+      cbam_factor_applied: cf.cbam_factor,
+      free_alloc_retained: cf.free_alloc_retained,
+      source_benchmark: 'IR 2025/2620',
+      source_factor: 'CBAM Reg 2025/2083 Annex VII',
+      rule_version: 'CBAM_DEF_2026_v1',
+      is_provisional: true,
+      status: 'PREPARED',
+    };
+  },
+
+  // CEL-3: CBAM obligation formula
+  // Art. 6(2) CBAM Reg as amended by Reg 2025/2083
+  // max(0, SEE - SEFA - SECPP/RP_CBAM) × mass
+  calculateCBAMObligation(inputs) {
+    const { see_tCO2_per_unit, sefa_tCO2_per_unit, secpp_per_unit,
+            secpp_certified, rp_cbam, shipment_mass_tonnes } = inputs;
+    // AVCL gate: SECPP contribution blocked unless certified
+    const secpp_effective = (secpp_certified && secpp_per_unit > 0)
+      ? secpp_per_unit : 0;
+    const secpp_deduction = rp_cbam > 0 ? secpp_effective / rp_cbam : 0;
+    const net = see_tCO2_per_unit - sefa_tCO2_per_unit - secpp_deduction;
+    const certificates = Math.max(0, net) * shipment_mass_tonnes;
+    return {
+      see_used:          see_tCO2_per_unit,
+      sefa_deduction:    sefa_tCO2_per_unit,
+      secpp_deduction:   secpp_deduction,
+      secpp_blocked:     !secpp_certified && secpp_per_unit > 0,
+      rp_cbam_used:      rp_cbam,
+      net_per_unit:      Math.max(0, net),
+      is_zero_obligation: net <= 0,
+      certificates_to_surrender: certificates,
+      embedded_tCO2e:    see_tCO2_per_unit * shipment_mass_tonnes,
+      formula_trace:     `max(0; ${see_tCO2_per_unit.toFixed(4)} − ${sefa_tCO2_per_unit.toFixed(4)} − ${secpp_deduction.toFixed(4)}) × ${shipment_mass_tonnes} = ${certificates.toFixed(0)}`,
+      rule_version:      'CBAM_DEF_2026_v1',
+      source:            'Art. 6(2) CBAM Reg 2023/956 as amended by Reg 2025/2083',
+      is_provisional:    true,
+      status:            'PREPARED',
+    };
+  },
+
+  // CEL-7: India certificate portfolio
+  calculateCertificatePosition(inputs) {
+    const { scheme, actual_metric, bee_notified_target,
+            target_source, production } = inputs;
+    if (!bee_notified_target || !target_source)
+      return { error:'BEE/MoEFCC notified target required — enter from DC registration notification with document reference' };
+    const surplus = (bee_notified_target - actual_metric) * production;
+    const cert_count = Math.round(Math.abs(surplus));
+    const cert_type  = scheme === 'PAT' ? 'ESCert' : 'CCC';
+    return {
+      surplus_or_deficit: surplus,
+      position_type: surplus >= 0 ? 'surplus' : 'deficit',
+      certificate_count: cert_count,
+      certificate_type: cert_type,
+      scheme,
+      revenue_estimate_min: null,  // live market price — not RMDL
+      revenue_estimate_max: null,
+      revenue_note: 'Indicative only — source IEX/PXIL/HPX live price feed. Not available in stub.',
+      formula: `(${bee_notified_target.toFixed(4)} − ${actual_metric.toFixed(4)}) × ${Number(production).toLocaleString('en-IN')} = ${surplus.toFixed(0)}`,
+      target_source,
+      is_provisional: true,
+      status: 'PREPARED',
+    };
+  },
+};
+
+// ============================================================
+// AVCL — Audit & Verification Control Layer (stub)
+// In production: status managed by backend AVCL service
+// Stub: wraps results with status, renders status badges
+// ============================================================
+const AVCL = {
+
+  // Status display config
+  STATUS_CONFIG: {
+    DRAFT:               { label:'Draft',                  color:'#9ca3af', bg:'#f3f4f6', icon:'○' },
+    PREPARED:            { label:'Provisional estimate',   color:'#ba7517', bg:'#faeeda', icon:'◐' },
+    REVIEWED:            { label:'Internally reviewed',    color:'#185fa5', bg:'#e6f1fb', icon:'◑' },
+    APPROVED:            { label:'Approved for verification', color:'#185fa5', bg:'#e6f1fb', icon:'●' },
+    VERIFIED:            { label:'Verified ✓',             color:'#1d9e75', bg:'#e1f5ee', icon:'✓' },
+    DISCLOSED:           { label:'Disclosed',              color:'#1d9e75', bg:'#e1f5ee', icon:'✓' },
+    LOCKED:              { label:'Locked — filed',         color:'#0d1512', bg:'#f3f4f6', icon:'🔒' },
+  },
+
+  // Render a status badge HTML string
+  renderStatusBadge(status, extra_note) {
+    const cfg = AVCL.STATUS_CONFIG[status] || AVCL.STATUS_CONFIG.DRAFT;
+    return `<span style="display:inline-flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:10px;padding:3px 9px;border-radius:6px;background:${cfg.bg};color:${cfg.color};border:1px solid ${cfg.color}30">${cfg.icon} ${cfg.label}${extra_note?' · '+extra_note:''}</span>`;
+  },
+
+  // Wrap a CEL result with AVCL metadata
+  wrapResult(cel_result, { prepared_by, module }) {
+    return {
+      ...cel_result,
+      avcl: {
+        status:        cel_result.status || 'PREPARED',
+        prepared_by,
+        prepared_at:   new Date().toISOString(),
+        reviewed_by:   null,
+        approved_by:   null,
+        verified_by:   null,
+        rule_version:  cel_result.rule_version,
+        module,
+        is_provisional: cel_result.is_provisional !== false,
+      },
+    };
+  },
+
+  // Verification gate check
+  checkVerificationGate(cel_results, filing_type) {
+    const issues = [];
+    cel_results.forEach((r, i) => {
+      if (!r.avcl || r.avcl.status !== 'VERIFIED') {
+        issues.push({
+          item: i,
+          type: 'STATUS_NOT_VERIFIED',
+          message: `Result ${i+1} status is ${r.avcl?.status || 'UNKNOWN'} — must be VERIFIED before entering ${filing_type}`,
+          required_action: 'Submit to accredited verifier and receive verification statement',
+        });
+      }
+      if (r.secpp_blocked) {
+        issues.push({
+          item: i,
+          type: 'SECPP_NOT_CERTIFIED',
+          message: 'SECPP > 0 but independent person certification not confirmed',
+          required_action: 'Obtain Art. 9 CBAM Reg certification before applying SECPP deduction',
+        });
+      }
+    });
+    return {
+      gate_passed: issues.length === 0,
+      blocking_issues: issues,
+      filing_type,
+      checked_at: new Date().toISOString(),
+    };
+  },
+
+  // Render verification gate block for UI
+  renderGateBlock(gate_result) {
+    if (gate_result.gate_passed) return '';
+    const items = gate_result.blocking_issues.map(i =>
+      `<div style="padding:8px 0;border-bottom:1px solid rgba(153,60,29,.15);font-size:12px">
+        <div style="font-weight:600;color:#993c1d;margin-bottom:2px">${i.type}</div>
+        <div style="color:#374151;margin-bottom:2px">${i.message}</div>
+        <div style="color:#6b7280;font-family:'DM Mono',monospace;font-size:10px">Required: ${i.required_action}</div>
+      </div>`
+    ).join('');
+    return `<div style="background:#fdf3ef;border:1.5px solid rgba(153,60,29,.3);border-radius:9px;padding:14px 16px;margin-bottom:14px">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:#993c1d;margin-bottom:10px">⛔ Filing blocked — ${gate_result.blocking_issues.length} issue${gate_result.blocking_issues.length>1?'s':''} must be resolved</div>
+      ${items}
+      <div style="margin-top:10px;font-size:11px;color:#6b7280;font-family:'DM Mono',monospace">AVCL gate · ${gate_result.filing_type} · checked ${new Date(gate_result.checked_at).toLocaleString()}</div>
+    </div>`;
+  },
+};
+
+// ============================================================
+// STUB NOTICE — displayed in dev/demo mode
+// ============================================================
+const STUB_NOTICE_HTML = `<div id="stub-notice" style="position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0d1512;color:rgba(255,255,255,.8);padding:6px 16px;font-family:'DM Mono',monospace;font-size:10px;display:flex;align-items:center;gap:16px">
+  <span style="color:#1d9e75;font-weight:700">TerraCAP CCE v${TERRACAP_VERSION}</span>
+  <span>RMDL: stub · CEL: stub · AVCL: stub</span>
+  <span>|</span>
+  <span>All regulatory values are hardcoded stubs — replace with RMDL API calls in production</span>
+  <span style="margin-left:auto;color:#ba7517">Calculations = ILLUSTRATIVE</span>
+</div>`;
+
+</script>
 </head>
 <body>
 <!-- TOPBAR -->
@@ -222,7 +563,7 @@ body.mode-workflow #wf-area{display:block;margin-left:264px;min-height:calc(100v
   <div class="ng" style="margin-top:10px">Compliance workflow</div>
   <button class="ni active" id="nav-applic" onclick="goWF('applic')"><span class="nn">1</span>Regulatory applicability<span class="nrt rt-ccts" id="nav-rtag">—</span></button>
   <button class="ni locked" id="nav-boundary" onclick="goWF('boundary')"><span class="nn">2</span>Boundary &amp; rule lock</button>
-  <button class="ni locked" id="nav-data" onclick="goWF('data')"><span class="nn">3</span>Data entry &amp; QA</button>
+  <button class="ni locked" id="nav-data" onclick="goWF('data')"><span class="nn">3</span>Data entry &amp; Validation</button>
   <button class="ni locked" id="nav-engine" onclick="goWF('engine')"><span class="nn">4</span>Calculation engine</button>
   <button class="ni locked" id="nav-filing" onclick="goWF('filing')"><span class="nn">5</span>Filing pack</button>
   <button class="ni locked" id="nav-verify" onclick="goWF('verify')"><span class="nn">6</span>Verification &amp; ACVA</button>
@@ -377,6 +718,7 @@ body.mode-workflow #wf-area{display:block;margin-left:264px;min-height:calc(100v
     <div id="rule-lock-area"><button class="btn btn-p" onclick="lockRule()">Lock rule version &amp; period</button></div>
     <div id="rule-locked-badge" style="display:none;font-family:'DM Mono',monospace;font-size:10px;padding:5px 11px;border-radius:6px;background:#eaf3de;color:#3b6d11;display:none">🔒 <span id="rule-locked-text"></span></div>
   </div>
+  <div id="liability-card" style="margin-bottom:14px;padding:12px;border-left:3px solid #185fa5;background:#f9fafb;border-radius:0 8px 8px 0"><div style="color:#6b7280;font-size:12.5px">Select your sector above to see your compliance obligations.</div></div>
   <div class="btn-row"><button class="btn btn-p" onclick="goWF('boundary')">Continue to boundary setup →</button><button class="btn btn-g" onclick="go('qualify')">← Compliance profile</button></div>
 </div>
 
@@ -396,7 +738,7 @@ body.mode-workflow #wf-area{display:block;margin-left:264px;min-height:calc(100v
 </div>
 <!-- S5 DATA -->
 <div class="wf-screen" id="wf-data">
-  <div class="ph"><div class="pt">Data entry &amp; QA</div><div class="ps" id="data-ps">Sector-specific data collection. All values feed the calculation engine — exception queue must be cleared first.</div></div>
+  <div class="ph"><div class="pt">Data entry &amp; Validation</div><div class="ps" id="data-ps">Sector-specific data collection. All values feed the calculation engine — exception queue must be cleared first.</div></div>
   <div class="notice nt"><span class="nni">✓</span><div><strong>Pre-filled from TerraCAP GHG module.</strong> Fuel, electricity, and production data imported from existing Scope 1 &amp; 2 records. Review each field — all values flow to the calculation engine in Step 6.</div></div>
   <div class="card c-coral" style="margin-bottom:18px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div class="ct">Exception queue — data lineage validation gate</div><span style="font-family:'DM Mono',monospace;font-size:10.5px;padding:3px 9px;border-radius:10px" id="exc-badge"></span></div>
@@ -442,7 +784,7 @@ body.mode-workflow #wf-area{display:block;margin-left:264px;min-height:calc(100v
       <tbody>
         <tr><td><strong>PAT</strong></td><td>BEE-empanelled EmAEA (Accredited Energy Auditor) — PAT M&V protocol</td><td>BEE M&V Guidelines (Energy Conservation Act Rules 2012) — EmAEA audit</td><td>PAD: Form A (SEC achieved) + Form B (EmAEA certificate) — to SDA within 4 months of cycle end</td><td>SEC confirmation + ESCert issuance</td></tr>
         <tr><td><strong>CCTS</strong></td><td>Accredited Carbon Verification Agency (ACVA / CVA) — ISO 14064-3 + CCTS MRV framework (MoEFCC). Separate accreditation from PAT EmAEA list.</td><td>ISO 14064-3 + CCTS verification protocol (MoEFCC)</td><td>CCTS compliance report — annually per compliance year</td><td>GHG intensity confirmation + CCC issuance</td></tr>
-        <tr><td><strong>EU CBAM</strong></td><td>Independent verifier accepted under EU CBAM accredited verifier per DR 2025/2551 + IR 2025/2546 — not automatically same as BEE EmAEA or ACVA</td><td>EU CBAM Implementing Regulation 2023/1773 — product-level</td><td>Per shipment/product — feeds annual EU declarant filing</td><td>Supplier emissions package per CN code</td></tr>
+        <tr><td><strong>EU CBAM</strong></td><td>Independent verifier accepted under EU CBAM accredited verifier per DR 2025/2551 + IR 2025/2546 — not automatically same as BEE EmAEA or ACVA</td><td>EU IR 2025/2547 (Methodology Act) — product-level</td><td>Per shipment/product — feeds annual EU declarant filing</td><td>Supplier emissions package per CN code</td></tr>
         <tr><td><strong>UK CBAM</strong></td><td>Independent verifier HMRC-accepted verifier under UK Finance Act 2024 — separate accreditation from EU CBAM verifier under DR 2025/2551 acceptance</td><td>UK CBAM implementing rules — Finance Act 2024</td><td>Per shipment/product — feeds annual UK declarant filing</td><td>UK supplier emissions package (separate from EU)</td></tr>
       </tbody>
     </table></div>
@@ -554,7 +896,7 @@ body.mode-workflow #wf-area{display:block;margin-left:264px;min-height:calc(100v
             <span class="tag t-coral">EU Reg 2023/956</span>
             <span class="tag t-coral">Implementing Reg 2023/1773</span>
             <span class="tag t-gray">European Commission / national customs</span>
-            <span class="tag t-gray">Annual declaration — 31 May each year</span>
+            <span class="tag t-gray">Annual declaration — 30 September each year</span>
           </div>
         </div>
         <div style="text-align:right">
@@ -720,7 +1062,7 @@ body.mode-workflow #wf-area{display:block;margin-left:264px;min-height:calc(100v
         <div class="ct">Step 3 — CBAM-specific independent verification</div>
         <span class="tag t-coral">Not the domestic ACVA</span>
       </div>
-      <div class="notice nc" style="margin-bottom:12px"><span class="nni">⚠</span><div><strong>Different verifier from domestic ACVA.</strong> The EU CBAM verifier is appointed under EU CBAM Implementing Regulation 2023/1773. They are not automatically the same entity or accreditation as the BEE-empanelled ACVA used for PAT/CCTS. The CBAM verifier reviews product boundary, CN code assignment, methodology selection, and per-shipment calculations.</div></div>
+      <div class="notice nc" style="margin-bottom:12px"><span class="nni">⚠</span><div><strong>Different verifier from domestic ACVA.</strong> The EU CBAM verifier is appointed under EU CBAM rules (IR 2025/2546 + DR 2025/2551). They are not automatically the same entity or accreditation as the BEE-empanelled ACVA used for PAT/CCTS. The CBAM verifier reviews product boundary, CN code assignment, methodology selection, and per-shipment calculations.</div></div>
       <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#f9fafb;border-radius:7px;border:1px solid #e5e7eb">
           <div><div style="font-size:13px;font-weight:500">Bureau Veritas Certification Holding SAS</div><div style="font-size:11px;color:#6b7280;font-family:'DM Mono',monospace;margin-top:2px">EU CBAM accreditation · ISO 14065 · France</div></div>
@@ -773,7 +1115,7 @@ body.mode-workflow #wf-area{display:block;margin-left:264px;min-height:calc(100v
         </div>
         <div class="ev-item" data-item="3">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:7px;background:#f0faf5;border:1px solid rgba(29,158,117,.2)">
-            <div><div style="font-size:12.5px;font-weight:500;color:#0d1512">③ Methodology selection statement</div><div style="font-size:11.5px;color:#6b7280;margin-top:2px">Actual emissions or default values — with written justification for methodology chosen, citing Implementing Reg 2023/1773 article reference</div></div>
+            <div><div style="font-size:12.5px;font-weight:500;color:#0d1512">③ Methodology selection statement</div><div style="font-size:11.5px;color:#6b7280;margin-top:2px">Actual emissions or default values — with written justification for methodology chosen, citing IR 2025/2547 article reference</div></div>
             <span class="tag t-teal">Ready</span>
           </div>
         </div>
@@ -791,7 +1133,7 @@ body.mode-workflow #wf-area{display:block;margin-left:264px;min-height:calc(100v
         </div>
         <div class="ev-item" data-item="6">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:7px;background:#fdf6e8;border:1px solid rgba(186,117,23,.2)">
-            <div><div style="font-size:12.5px;font-weight:500;color:#0d1512">⑥ CBAM-specific independent verification statement</div><div style="font-size:11.5px;color:#6b7280;margin-top:2px">Signed by appointed EU CBAM verifier — per EU CBAM Implementing Regulation 2023/1773 · Not the domestic M&V report</div></div>
+            <div><div style="font-size:12.5px;font-weight:500;color:#0d1512">⑥ CBAM-specific independent verification statement</div><div style="font-size:11.5px;color:#6b7280;margin-top:2px">Signed by appointed EU CBAM verifier — per EU IR 2025/2546 + DR 2025/2551 · Not the domestic M&V report</div></div>
             <span class="tag t-amber">Awaiting CBAM verifier</span>
           </div>
         </div>
@@ -856,7 +1198,7 @@ body.mode-workflow #wf-area{display:block;margin-left:264px;min-height:calc(100v
     <div class="dchain" style="margin-bottom:20px">
       <div class="dc" style="background:#faeeda"><div class="dco">Indian exporter (you)</div><div class="dca">TerraCAP generates supplier package — verified intensity + per-shipment calculations + CBAM verifier statement</div></div>
       <div class="dc" style="background:#f0faf5"><div class="dco">EU customer receives</div><div class="dca">Authorised CBAM declarant validates and countersigns the supplier emissions package</div></div>
-      <div class="dc" style="background:#e6f1fb"><div class="dco">EU declarant files</div><div class="dca">Annual CBAM declaration to national authority (by 31 May each year) — aggregating all supplier packages</div></div>
+      <div class="dc" style="background:#e6f1fb"><div class="dco">EU declarant files</div><div class="dca">Annual CBAM declaration to national authority (by 30 September each year) — aggregating all supplier packages</div></div>
       <div class="dc" style="background:#faece7"><div class="dco">Certificates surrendered</div><div class="dca">EU declarant surrenders CBAM certificates at EU ETS prevailing price — your customer's cost, not yours</div></div>
     </div>
   </div>
@@ -956,6 +1298,10 @@ let wfData = {
   // BEE-notified targets (entered in applicability step or certs step)
   targetIntensity:null, targetSEC:null
 };
+const DEMO_DEFAULTS={'wfd-production':'120000','wfd-clinker':'95000','wfd-fuel-mt':'48000','wfd-process-co2':'49875','wfd-grid-elec':'85','wfd-cea-ef':'0.82','wfd-captive':'12','wfd-coal-mt':'60000','wfd-coal-gcv':'4200','wfd-grid-mu':'95','wfd-furnace-oil':'0','wfd-captive-pat':'8','wfd-al-ingots':'5200','wfd-anode-rate':'420','wfd-pfc-cf4':'0.08','wfd-pfc-c2f6':'0.02','wfd-other-s1':'0'};
+let userEntries={...DEMO_DEFAULTS};
+function saveUserEntries(){Object.keys(DEMO_DEFAULTS).forEach(id=>{const el=document.getElementById(id);if(el&&el.value!=='')userEntries[id]=el.value;});}
+function restoreUserEntries(){Object.keys(DEMO_DEFAULTS).forEach(id=>{const el=document.getElementById(id);if(el)el.value=userEntries[id]||'';});}
 
 const INDIA_SECTOR_SCHEMES = {
   cement:     ['ccts','pat'],   // CCTS active Oct 2025, PAT coexisting
@@ -1076,12 +1422,15 @@ function bCertsCalc(){
   const production=wfData.production;
   const certType=isPAT?'ESCerts':'CCCs';
   const certUnit=isPAT?'TOE/unit':'tCO₂e/tEC';
-  const surplus=intensity&&target&&production?(target-intensity)*production:null;
-  const certCount=surplus!=null?Math.round(Math.abs(surplus)):null;
+  const _c7=intensity&&target&&production?CEL.calculateCertificatePosition({scheme:isPAT?'PAT':'CCTS',actual_metric:intensity,bee_notified_target:target,target_source:wfData.beeTargetRef||'DC registration notification',production}):null;
+  const _av7=_c7?AVCL.wrapResult(_c7,{prepared_by:'system',module:isPAT?'INDIA_PAT':'INDIA_CCTS'}):null;
+  const surplus=_c7?_c7.surplus_or_deficit:null;
+  const certCount=_c7?_c7.certificate_count:null;
   const isDeficit=surplus!=null&&surplus<0;
-  const rateMin=isPAT?600:600, rateMax=isPAT?850:900;
+  const rateMin=600,rateMax=isPAT?850:900;
   const revMin=certCount!=null?(certCount*rateMin/1e7).toFixed(2):null;
   const revMax=certCount!=null?(certCount*rateMax/1e7).toFixed(2):null;
+  wfData.cel_cert=_av7;
   const fmt=(v,d=0)=>v!=null?Number(v.toFixed(d)).toLocaleString('en-IN'):'—';
 
   // Update KPI cards
@@ -1368,7 +1717,9 @@ wfContext = {
   if (!workflowLive) {
     // Show a clear "not yet supported" message instead of a broken workflow
     let blockMsg = '';
-    if (selLocKey === 'eu' || selLocKey === 'uk') {
+    const CBAM_EXEMPT_LOCS={'no':'Norway','is':'Iceland','li':'Liechtenstein','ch':'Switzerland'};
+  if(CBAM_EXEMPT_LOCS[selLocKey]){const cN=CBAM_EXEMPT_LOCS[selLocKey];workflowLive=false;document.body.classList.add('mode-workflow');document.getElementById('tb-mod-label').textContent='Carbon Market Compliance';const wc=document.getElementById('wf-content');if(wc){const ex=document.getElementById('wf-block-msg');if(ex)ex.remove();const bd=document.createElement('div');bd.id='wf-block-msg';bd.innerHTML=`<div style="max-width:680px;margin:60px auto;text-align:center"><div style="font-size:22px;font-weight:800;color:#0d1512;margin-bottom:8px">${cN} — exempt from EU CBAM</div><div style="font-size:13px;color:#6b7280;margin-bottom:16px">${cN} applies EU ETS or an ETS fully linked to EU ETS (CBAM Reg Annex III). Goods from ${cN} are exempt from CBAM obligations.</div><button class="btn btn-p" onclick="returnToNavigator()">&#8592; Back</button></div>`;wc.insertBefore(bd,wc.firstChild);}return;}
+  if (selLocKey === 'eu' || selLocKey === 'uk') {
       const loc = selLocKey === 'eu' ? 'EU' : 'UK';
       const hasIntraMarket = selDests.has('domestic') || (!selDests.has('eu') && !selDests.has('uk'));
       if (!hasCBAMObligation) {
@@ -1678,6 +2029,7 @@ function buildAll(){ safe(bApplic); safe(bEngine); safe(bFiling); safe(bCerts); 
 
 
 function readDataFields(){
+  saveUserEntries();
   const g=id=>{const el=document.getElementById(id);return el?(parseFloat(el.value)||null):null;};
   wfData.production=g('wfd-production'); wfData.clinker=g('wfd-clinker');
   wfData.alIngots=g('wfd-al-ingots'); wfData.anodeRate=g('wfd-anode-rate');
@@ -1704,22 +2056,13 @@ function calcEngine(){
   const isPAT=regime==='PAT';
   const hasAl=sectors.includes('aluminium');
   if(isPAT){
-    const coalTOE=(wfData.coalMT&&wfData.coalGCV)?(wfData.coalMT*1000*wfData.coalGCV)/1e7:0;
-    const gridTOE=(wfData.gridMU||0)*100;
-    const oilTOE=(wfData.furnaceOil||0)*0.95;
-    const capTOE=(wfData.captivePAT||0)*100;
-    wfData.totalTOE=coalTOE+gridTOE+oilTOE+capTOE;
-    wfData.sec=wfData.production?(wfData.totalTOE/wfData.production):null;
+    const _c5=CEL.calculatePATSEC({coalMT:wfData.coalMT||0,coalGCV:wfData.coalGCV||0,gridMU:wfData.gridMU||0,furnaceOilKL:wfData.furnaceOil||0,captiveMU:wfData.captivePAT||0,production:wfData.production||0});
+    wfData.totalTOE=_c5.total_toe;wfData.sec=_c5.sec_toe_per_unit;
+    wfData.cel_pat=AVCL.wrapResult(_c5,{prepared_by:'system',module:'INDIA_PAT'});
   } else {
-    const coalCO2=(wfData.fuelMT||0)*2.42;
-    const procCO2=wfData.processCO2||0;
-    const pfcCO2eq=hasAl?(((wfData.pfcCF4||0)*7380+(wfData.pfcC2F6||0)*12400)*(wfData.production||0)/1000):0;
-    const otherS1=wfData.otherScope1||0;
-    wfData.scope1tCO2=coalCO2+procCO2+pfcCO2eq+otherS1;
-    const gridMWh=(wfData.gridElecMU||0)*1000;
-    wfData.scope2tCO2=gridMWh*(wfData.ceaEF||0.82);
-    wfData.totalGHG=wfData.scope1tCO2+wfData.scope2tCO2;
-    wfData.intensity=wfData.production?(wfData.totalGHG/wfData.production):null;
+    const _c4=CEL.calculateCCTSIntensity({sector:wfData.sector||'cement',fuelMT:wfData.fuelMT||0,processCO2:wfData.processCO2||0,otherScope1:wfData.otherScope1||0,hasAluminium:hasAl,pfcCF4:wfData.pfcCF4||0,pfcC2F6:wfData.pfcC2F6||0,gridElecMU:wfData.gridElecMU||0,ceaEF:wfData.ceaEF||null,production:wfData.production||0});
+    wfData.scope1tCO2=_c4.scope1_tCO2e;wfData.scope2tCO2=_c4.scope2_tCO2e;wfData.totalGHG=_c4.total_ghg_tCO2e;wfData.intensity=_c4.ghg_intensity;
+    wfData.cel_ccts=AVCL.wrapResult(_c4,{prepared_by:'system',module:'INDIA_CCTS'});
   }
 }
 function updateLiveCalc(){
@@ -1746,15 +2089,32 @@ function updateLiveCalc(){
 
 function bApplic(){
   const facEl=document.getElementById('applic-fac'); if(!facEl) return;
+  updateLiability();
 }
+function updateLiability(){
+  const sectors=wfContext.sectors||[];
+  const liabEl=document.getElementById('liability-card');
+  if(!liabEl) return;
+  const PAT=['cement','steel','aluminium','fertiliser','thermal','railways','chlor','pulp','refinery'];
+  const CCTS=['cement','aluminium','fertiliser','chlor','pulp','refinery'];
+  const CBAM_S=['cement','steel','aluminium','fertiliser','hydrogen'];
+  const L=[];
+  if(sectors.some(s=>PAT.includes(s)))L.push({s:'PAT — Perform Achieve & Trade',c:'#ba7517',r:'Your sector is notified under PAT Cycle VII. If annual energy consumption &ge; 30,000 TOE, you are a Designated Consumer under the Energy Conservation Act 2001.',m:'SEC = Specific Energy Consumption (TOE per unit)',cert:'ESCert — traded on IEX/PXIL/HPX',v:'BEE-empanelled EmAEA',f:'PAD Form A+B &rarr; State Designated Agency (SDA)'});
+  if(sectors.some(s=>CCTS.includes(s)))L.push({s:'CCTS — Carbon Credit Trading Scheme',c:'#1d9e75',r:'Your sector is notified under CCTS Phase 1 (Oct 2025). Report GHG intensity annually under the Energy Conservation (Amendment) Act 2022.',m:'GHG intensity = tCO&#8322;e per tEC',cert:'CCC — via Grid India ICM Registry',v:'ACVA/CVA — ISO 14064-3',f:'Annual report &rarr; BEE/MoEFCC via ICM Registry'});
+  if(sectors.some(s=>CBAM_S.includes(s)))L.push({s:'EU CBAM (if exporting to EU)',c:'#993c1d',r:'Your sector is in CBAM Annex I. If you export to EU, you are the data supplier. Participation is voluntary but commercially incentivised.',m:'Specific Embedded Emissions (SEE) — tCO&#8322;e per tonne per CN code',cert:'CBAM certificate — surrendered by EU declarant',v:'EU-accredited verifier (DR 2025/2551)',f:'Operator Emissions Report &rarr; CBAM Registry by 30 September'});
+  liabEl.innerHTML=`<div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;color:#0d1512;margin-bottom:12px">Based on your sector, here is what you are liable for:</div>${L.length?L.map(l=>`<div style="border-left:4px solid ${l.c};padding:12px 16px;margin-bottom:10px;background:#fff;border-radius:0 8px 8px 0"><div style="font-weight:700;color:${l.c};margin-bottom:6px">&#10003; ${l.s}</div><div style="font-size:12.5px;color:#374151;line-height:1.7;margin-bottom:8px">${l.r}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11.5px"><div><b>Metric:</b> ${l.m}</div><div><b>Certificate:</b> ${l.cert}</div><div><b>Verifier:</b> ${l.v}</div><div><b>Filing:</b> ${l.f}</div></div></div>`).join(''):'<div style="color:#6b7280;padding:8px">Select your sector above.</div>'}`;}
 
 function bData(){
+  saveUserEntries();
   const dsEl=document.getElementById('data-sections'); if(!dsEl) return;
   const regime=wfContext.regime||'CCTS', sectors=wfContext.sectors||[];
   const isPAT=regime==='PAT', hasAl=sectors.includes('aluminium'), hasCement=sectors.includes('cement');
   const dps=document.getElementById('data-ps');
   if(dps) dps.textContent=`${regime} data entry for ${sectors.join(', ')||'your facility'}. Production quantity is the denominator for the ${isPAT?'SEC (TOE/unit)':'GHG intensity (tCO\u2082e/unit)'} calculation.`;
-  const fld=(id,lbl,ph,unit,hint,src,extra='',step='any',ft='decimal')=>`<div class="field"><div class="fl">${lbl}</div><div class="fu"><input ${ft==='int'?'type="number" step="1" min="0"':'type="text" inputmode="decimal"'} id="${id}" placeholder="${ph||''}" ${extra} oninput="readDataFields()" style="width:100%;border:none;padding:8px 11px;font-family:'DM Mono',monospace;font-size:13px;outline:none"><div class="ul">${unit}</div></div>${hint?`<div class="fh" id="${id}-lbl">${hint}</div>`:''}${src?`<div class="fsrc">Source: ${src}</div>`:''}</div>`;
+  const _dbIds=['wfd-production','wfd-clinker','wfd-fuel-mt','wfd-grid-elec','wfd-cea-ef','wfd-captive','wfd-coal-mt','wfd-coal-gcv','wfd-grid-mu','wfd-al-ingots','wfd-anode-rate','wfd-pfc-cf4','wfd-pfc-c2f6'];
+  const _calcIds=['wfd-process-co2'];
+  const _sb=id=>{const st="font-size:9px;padding:2px 6px;border-radius:4px;display:inline-block;margin-top:2px";if(_calcIds.includes(id))return`<span style="${st};background:#e1f5ee;color:#1d9e75">&#9881; Auto-calc</span>`;if(_dbIds.includes(id))return`<span style="${st};background:#e6f1fb;color:#185fa5">&#128229; GHG module</span>`;return`<span style="${st};background:#faeeda;color:#ba7517">&#9998; Enter manually</span>`;};
+  const fld=(id,lbl,ph,unit,hint,src,extra='',step='any',ft='decimal')=>`<div class="field"><div class="fl">${lbl}<br>${_sb(id)}</div><div class="fu"><input ${ft==='int'?'type="number" step="1" min="0"':'type="text" inputmode="decimal"'} id="${id}" value="${userEntries[id]||''}" placeholder="${ph||''}" ${extra} oninput="readDataFields()" style="width:100%;border:none;padding:8px 11px;font-family:monospace;font-size:13px;outline:none"><div class="ul">${unit}</div></div>${hint?`<div class="fh">${hint}</div>`:''}</div>`;
   const pUnit=isPAT?(sectors.includes('thermal')?'MU':'tonnes'):'tEC (tonnes equivalent product)';
   let html=`<div class="card" style="margin-bottom:14px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><div class="ct">Section 1 \u2014 Production data</div><span class="tag t-coral">Denominator for ${isPAT?'SEC':'GHG intensity'} \u2014 enter first</span></div><div class="fh" style="margin-bottom:12px">${isPAT?'PAT SEC = Total energy (TOE) \u00f7 Production.':'CCTS GHG intensity = (Scope 1 + Scope 2 tCO\u2082e) \u00f7 Production (tEC). Gate-to-gate per BEE GHG Calculation Pro Forma.'}</div><div class="g2">
     ${fld('wfd-production','Annual production','',pUnit,'Must match the unit in your BEE DC registration','Production MIS / dispatch records','','any','int')}
@@ -1783,7 +2143,9 @@ function bData(){
   </div></div>`;}
   html+=`<div class="card c-teal" style="margin-bottom:14px"><div class="ct" style="margin-bottom:8px">Live calculation \u2014 updates as you type</div><div id="live-calc-strip"><div style="color:#9ca3af;font-size:12px;padding:12px 0;font-family:'DM Mono',monospace">Enter production and energy/emissions data above to see live calculation \u2192</div></div></div>`;
   dsEl.innerHTML=html;
+  restoreUserEntries();
   renderExc();
+  readDataFields();
   updateLiveCalc();
 }
 
@@ -1834,6 +2196,7 @@ function toggleExc(id){resolved[id]=!resolved[id];renderExc();}
 function bEngine(){
   const et=document.getElementById('engine-title'); if(!et) return;
   readDataFields();
+  calcEngine();
   const regime=wfContext.regime||'CCTS';
   const sectors=wfContext.sectors||[];
   const isPAT=regime==='PAT';
@@ -1859,7 +2222,7 @@ function bEngine(){
       <div class="bridge-row"><div class="brs">Grid electricity ${fmt(wfData.gridMU,0)} MU</div><div class="bra">\u2192</div><div class="brc">\u00d7 100 TOE/MU (CEA)</div><div class="bra">=</div><div class="bro">${fmt(gridTOE,0)} TOE</div></div>
       <div class="bridge-row" style="background:#fdf6e8"><div class="brs">Total energy ${fmt(wfData.totalTOE,0)} TOE \u00f7 production ${fmt(wfData.production,0)} units</div><div class="bra">\u2192</div><div class="brc">SEC calculation</div><div class="bra">=</div><div class="bro" style="font-weight:700;color:#ba7517">SEC: ${fmt(wfData.sec,4)} TOE/unit</div></div>`;
   } else {
-    const coalCO2=(wfData.fuelMT||0)*2.42;
+    const coalCO2=(wfData.fuelMT||0)*RMDL.getEmissionFactors(wfData.sector||'cement').coal_tCO2_per_t;
     const gridMWh=(wfData.gridElecMU||0)*1000;
     const gridCO2=gridMWh*(wfData.ceaEF||0.82);
     const pfcCO2eq=hasAl?(((wfData.pfcCF4||0)*7380+(wfData.pfcC2F6||0)*12400)*(wfData.production||0)/1000):0;
@@ -2230,5 +2593,6 @@ function updCBAMSteps(){const steps=[{label:'Product boundary lock',done:documen
 // Init
 document.getElementById('tb-back-btn').style.display='none';
 </script>
+<script>document.addEventListener("DOMContentLoaded",()=>{document.body.insertAdjacentHTML("beforeend",STUB_NOTICE_HTML);});</script>
 </body>
 </html>
