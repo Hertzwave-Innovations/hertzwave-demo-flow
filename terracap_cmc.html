@@ -802,7 +802,7 @@ const STUB_NOTICE_HTML = `<div id="stub-notice" style="position:fixed;bottom:0;l
       </div>
     </div>
     <div style="font-size:12.5px;color:#374151;line-height:1.7;margin-bottom:14px">
-      Before engaging the verifier, you must have the complete evidence bundle ready. TerraCAP assembles this from your Step 3–6 inputs. Your authorised signatory (Plant Head / DGM Environment) must review and approve before handoff.
+      Before engaging the verifier, you must have the complete evidence bundle ready. TerraCAP assembles this from your Step 3–6 inputs — the <strong>Filing pack (Step 5)</strong> contains the PAD/CCTS document, and the <strong>Data entry (Step 3)</strong> exports contain your calculation workbook. Download both from their respective steps. Your authorised signatory (Plant Head / DGM Environment) must review and approve before handoff.
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
       <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px">
@@ -1043,18 +1043,120 @@ const STUB_NOTICE_HTML = `<div id="stub-notice" style="position:fixed;bottom:0;l
   </script>
 
   <div class="btn-row">
-    <button class="btn btn-c" id="btn-cbam" onclick="goWF('cbam')" style="display:none">Generate CBAM supplier emissions package →</button>
-    <button class="btn btn-g" onclick="goWF('verify')">← Verification</button>
+    <button class="btn btn-p" onclick="goWF('certs')">Continue to certificate portfolio →</button>
+    <button class="btn btn-g" onclick="goWF('filing')">← Filing pack</button>
   </div>
 </div>
 
 <!-- S10 CBAM -->
+<div class="wf-screen" id="wf-certs">
+  <div class="ph">
+    <div class="pt">Certificate portfolio</div>
+    <div class="ps" id="certs-ps">ESCerts (Energy Saving Certificates) earned by your facility for the compliance period. Tradeable on IEX, PXIL, and HPX under BEE/CERC rules.</div>
+  </div>
+
+  <div class="g3" style="margin-bottom:16px" id="cert-stats"></div>
+
+  <div class="card" style="margin-bottom:14px;border-left:3px solid #185fa5">
+    <div class="ct" style="margin-bottom:8px">Enter BEE/MoEFCC notified target</div>
+    <div style="font-size:12.5px;color:#6b7280;line-height:1.6;margin-bottom:12px">Your cycle-specific target SEC (PAT) or GHG intensity target (CCTS) is issued in your DC registration notification from BEE/MoEFCC. Enter it here to compute your certificate surplus or deficit.</div>
+    <div class="g2">
+      <div class="field">
+        <div class="fl">Target value <span id="cert-target-unit" style="font-family:'DM Mono',monospace;font-size:10px;color:#6b7280">(TOE/unit for PAT / tCO2e/tEC for CCTS)</span></div>
+        <div class="fu"><input type="text" inputmode="decimal" id="wfd-target" placeholder="e.g. 0.545" oninput="updateTarget(this.value)" style="width:100%;border:none;padding:8px 11px;font-family:'DM Mono',monospace;font-size:14px;font-weight:600;outline:none"><div class="ul" id="cert-target-unitlbl">TOE/unit</div></div>
+        <div class="fh">From your BEE/MoEFCC DC registration notification. Must be the cycle-specific target, not a generic sector average.</div>
+      </div>
+      <div class="field">
+        <div class="fl">Annual production (confirmed)</div>
+        <div class="fu"><input type="number" id="wfd-prod-cert" placeholder="e.g. 120000" step="1" min="0" oninput="updateProdCert(this.value)" style="width:100%;border:none;padding:8px 11px;font-family:'DM Mono',monospace;font-size:13px;outline:none"><div class="ul" id="cert-prod-unit">units</div></div>
+        <div class="fh">Confirm production quantity - must match Step 3. This is the multiplier for certificate calculation.</div>
+      </div>
+      <div class="field">
+        <div class="fl">DC notification reference</div>
+        <div class="fu"><input type="text" id="wfd-target-ref" placeholder="e.g. BEE/DC/2025/CEM/00142" style="width:100%;border:none;padding:8px 11px;font-family:'DM Mono',monospace;font-size:12px;outline:none"></div>
+        <div class="fh">Mandatory - the certificate calculation is only valid when traced to an official BEE/MoEFCC notification document.</div>
+      </div>
+      <div class="field">
+        <div class="fl">Baseline (Cycle VI) - reference only</div>
+        <div class="fu"><input type="text" inputmode="decimal" id="wfd-baseline" placeholder="e.g. 0.573" style="width:100%;border:none;padding:8px 11px;font-family:'DM Mono',monospace;font-size:13px;outline:none"><div class="ul">TOE/unit</div></div>
+        <div class="fh">For reference only - the baseline from which the target was derived. Not used in certificate calculation directly.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cert-calc-result"></div>
+  <div class="notice nt" style="margin-top:8px"><span class="nni">&#10003;</span><div id="cert-notice">Enter the BEE/MoEFCC notified target above to compute your certificate position.</div></div>
+  <div class="card" style="margin-bottom:14px" id="cert-rev"></div>
+
+  <div style="font-family:'DM Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#6b7280;margin-bottom:10px">Submission &amp; delivery chain - action tracker</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+    <div style="border:1.5px solid #e5e7eb;border-radius:9px;padding:14px">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:#ba7517;text-transform:uppercase;margin-bottom:8px">PAT - SDA submission</div>
+      <div class="field" style="margin-bottom:8px">
+        <div class="fl">PAD Form A status</div>
+        <div class="fu"><select id="ch-pat-forma" style="width:100%;border:none;padding:6px 9px;font-family:'DM Mono',monospace;font-size:12px;outline:none"><option>Pending</option><option>Prepared</option><option>Submitted to SDA</option><option>Acknowledged by SDA</option></select></div>
+      </div>
+      <div class="field" style="margin-bottom:8px">
+        <div class="fl">SDA acknowledgement ref</div>
+        <div class="fu"><input type="text" id="ch-pat-sdaack" placeholder="SDA acknowledgement reference" style="width:100%;border:none;padding:6px 9px;font-family:'DM Mono',monospace;font-size:12px;outline:none"></div>
+      </div>
+      <div class="field" style="margin-bottom:8px">
+        <div class="fl">BEE registry account no.</div>
+        <div class="fu"><input type="text" id="ch-pat-beereg" placeholder="BEE/CERC registry ID" style="width:100%;border:none;padding:6px 9px;font-family:'DM Mono',monospace;font-size:12px;outline:none"></div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <div class="fl">ESCerts received in registry</div>
+        <div class="fu"><input type="number" id="ch-pat-escerts" placeholder="0" style="width:100%;border:none;padding:6px 9px;font-family:'DM Mono',monospace;font-size:12px;outline:none"><div class="ul">ESCerts</div></div>
+      </div>
+    </div>
+    <div style="border:1.5px solid #e5e7eb;border-radius:9px;padding:14px">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:#1d9e75;text-transform:uppercase;margin-bottom:8px">CCTS - ICM Registry filing</div>
+      <div class="field" style="margin-bottom:8px">
+        <div class="fl">CCTS compliance report</div>
+        <div class="fu"><select id="ch-ccts-report" style="width:100%;border:none;padding:6px 9px;font-family:'DM Mono',monospace;font-size:12px;outline:none"><option>Pending</option><option>Drafted</option><option>Verified</option><option>Submitted to ICM Registry</option><option>Acknowledged</option></select></div>
+      </div>
+      <div class="field" style="margin-bottom:8px">
+        <div class="fl">ICM submission reference</div>
+        <div class="fu"><input type="text" id="ch-ccts-icmref" placeholder="ICM portal submission ID" style="width:100%;border:none;padding:6px 9px;font-family:'DM Mono',monospace;font-size:12px;outline:none"></div>
+      </div>
+      <div class="field" style="margin-bottom:8px">
+        <div class="fl">Grid India ICM account no.</div>
+        <div class="fu"><input type="text" id="ch-ccts-account" placeholder="Grid India ICM account ID" style="width:100%;border:none;padding:6px 9px;font-family:'DM Mono',monospace;font-size:12px;outline:none"></div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <div class="fl">CCCs received in registry</div>
+        <div class="fu"><input type="number" id="ch-ccts-cccs" placeholder="0" style="width:100%;border:none;padding:6px 9px;font-family:'DM Mono',monospace;font-size:12px;outline:none"><div class="ul">CCCs</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="audit-box">
+    <div class="audit-hdr">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:#fff">TerraCAP Filing Audit Record &middot; <span id="audit-ref">TC-AUDIT-FY26</span></div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.5)">Frozen at filing generation &middot; Immutable post-lock</div>
+    </div>
+    <div class="audit-rows" id="audit-rules"></div>
+    <div class="audit-rows" id="audit-boundary"></div>
+    <div class="audit-rows" id="audit-packs"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-c" id="btn-cbam" onclick="goWF('cbam')" style="display:none">Generate CBAM supplier emissions package &#8594;</button>
+    <button class="btn btn-g" onclick="goWF('verify')">&#8592; Verification &amp; ACVA</button>
+  </div>
+</div>
+
 <div class="wf-screen" id="wf-cbam">
   <div class="ph">
     <div class="pt">CBAM Supplier Compliance Module</div>
     <div class="ps">A fully separate compliance engine at product/CN-code level. EU CBAM and UK CBAM are managed as independent modules — different legal instruments, different authorities, different evidence packs, different carbon prices. Neither is a copy of the domestic PAT/CCTS calculation.</div>
   </div>
 
+  <!-- EU vs UK difference note -->
+  <div class="notice ni" style="margin-bottom:12px"><span class="nni">ℹ</span><div style="font-size:12.5px">
+    <strong>Why EU and UK show different numbers:</strong> EU and UK use separate shipment quantities — enter the actual tonnage for each customer/shipment. The EU price (€87.5/tCO₂e) and UK price (£65/tCO₂e illustrative) are also different. If quantities are the same, the embedded emissions will be the same but exposures will differ due to currency and carbon price.
+    <br><strong>PAT users:</strong> CBAM requires GHG intensity (tCO₂e/tonne), not PAT SEC (TOE/unit). If your regime is PAT-only, run the CCTS GHG intensity calculation in Step 4 to get the correct CBAM input.
+  </div></div>
   <!-- Anti-contamination + role notices -->
   <div class="notice nc" style="margin-bottom:10px"><span class="nni">⚠</span><div><strong>Anti-contamination lock active.</strong> CBAM calculations use their own product-level boundary, methodology, and emission factors. PAT/CCTS facility-level factors cannot be silently reused — any carry-over requires explicit review and approval in Step 1 below.</div></div>
   <div class="notice nb2" style="margin-bottom:16px"><span class="nni">ℹ</span><div><strong>Your role: data supplier, not declarant.</strong> Your EU/UK customer is the authorised CBAM declarant who files the annual declaration and surrenders certificates. You supply verified embedded-emissions data per shipment. TerraCAP generates separate packages for EU and UK customers.</div></div>
@@ -2202,7 +2304,16 @@ function goWF(id) {
   if (id==='data')   { safe(bData); }
   if (id==='engine')  { safe(bEngine); }
   if (id==='filing')  { safe(bFiling); }
-  if (id==='certs')   { safe(bCerts); }
+  if (id==='certs')   { 
+    safe(bCerts); 
+    // Pre-populate production from wfData if available
+    const prodEl=document.getElementById('wfd-prod-cert');
+    if(prodEl&&wfData.production&&!prodEl.value) prodEl.value=wfData.production;
+    // Restore target if previously entered
+    const tgtEl=document.getElementById('wfd-target');
+    const tgtVal=wfContext.regime==='PAT'?wfData.targetSEC:wfData.targetIntensity;
+    if(tgtEl&&tgtVal&&!tgtEl.value) { tgtEl.value=tgtVal; updateTarget(String(tgtVal)); }
+  }
   if (id==='cbam')    { safe(bCBAM); }
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -2707,9 +2818,17 @@ function bCBAM(){
 function updCBAM(){
   const qtyEl=document.getElementById('cbam-qty'); if(!qtyEl) return;
   const qty=parseInt(qtyEl.value||5000);
-  // Read actual intensity from wfData — PAT uses SEC, CCTS uses GHG intensity
-  const intensity = wfContext.regime==='PAT' ? wfData.sec : wfData.intensity;
-  const intUnit = wfContext.regime==='PAT' ? 'TOE/unit' : 'tCO₂e/tEC';
+  // CBAM SEE must be in tCO2e/tonne regardless of domestic regime.
+  // For CCTS: GHG intensity (tCO2e/tEC) is directly usable as SEE proxy.
+  // For PAT: SEC is in TOE/unit (energy, not GHG). It CANNOT be used as SEE.
+  //   The correct SEE requires a separate GHG calculation (Scope1+Scope2 / production).
+  //   Use wfData.intensity if available (if CCTS also calculated), else null + warning.
+  const isPAT = wfContext.regime === 'PAT';
+  const intensity = isPAT
+    ? (wfData.intensity || null)   // PAT: only valid if GHG intensity separately computed
+    : wfData.intensity;
+  const intUnit = 'tCO₂e/tonne';  // CBAM always uses GHG units
+  const secProxy = isPAT && !wfData.intensity && wfData.sec;  // flag: using wrong unit
   const setT=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
   const fmt=(v,d=2)=>v!=null?Number(v.toFixed(d)).toLocaleString('en-IN'):'—';
 
@@ -2731,7 +2850,7 @@ function updCBAM(){
     const liabK=(emb*87.5/1000);
     setT('calc-qty', Number(qty).toLocaleString('en-IN'));
     setT('cbam-emb', fmt(emb,0)+' tCO₂e');
-    setT('cbam-calc-str', Number(qty).toLocaleString('en-IN')+'t × '+intensity.toFixed(4)+' '+intUnit+' = '+fmt(emb,0)+' tCO₂e');
+    setT('cbam-calc-str', Number(qty).toLocaleString('en-IN')+'t × '+intensity.toFixed(4)+' tCO₂e/t = '+fmt(emb,0)+' tCO₂e');
     setT('cbam-exp', 'EU declarant exposure: approx €'+fmt(liabK,0)+'K (at €87.5/tCO₂e)');
     setT('cbam-dqty', Number(qty).toLocaleString('en-IN')+' tonnes');
     setT('cbam-demb', fmt(emb,0)+' tCO₂e');
@@ -2744,11 +2863,20 @@ function updCBAM(){
     setT('pkg-eu-exp', '€'+fmt(totExp,0)+'K');
     // Update package header intensity
     setT('cbam-int', intensity.toFixed(4)+' '+intUnit);
-  } else {
-    // No intensity calculated yet
+  } else if(secProxy){
+    // PAT only — SEC available but it's in TOE, not tCO2e. Cannot use for CBAM.
     setT('calc-qty', Number(qty).toLocaleString('en-IN'));
-    setT('cbam-emb', '— (complete Step 4-5 first)');
-    setT('cbam-calc-str', Number(qty).toLocaleString('en-IN')+'t × [intensity from Step 5] = —');
+    setT('cbam-emb', '⚠️ Unit mismatch');
+    setT('cbam-calc-str', 'PAT SEC (' + wfData.sec.toFixed(4) + ' TOE/unit) is energy, not GHG. CBAM SEE requires tCO₂e/tonne. Run CCTS intensity calculation in Step 4 to get the correct value.');
+    setT('cbam-exp', 'Cannot compute EU CBAM exposure from PAT SEC — requires tCO₂e/tonne');
+    setT('cbam-dqty', Number(qty).toLocaleString('en-IN')+' tonnes');
+    setT('cbam-demb', '⚠️ Requires GHG intensity');
+    setT('pkg-total-qty','—'); setT('pkg-total-emb','⚠️ See above'); setT('pkg-eu-exp','—');
+  } else {
+    // No intensity at all
+    setT('calc-qty', Number(qty).toLocaleString('en-IN'));
+    setT('cbam-emb', '— (complete Step 4 first)');
+    setT('cbam-calc-str', Number(qty).toLocaleString('en-IN')+'t × [GHG intensity from Step 4] = —');
     setT('cbam-exp', 'Complete Steps 3–5 to calculate EU declarant exposure');
     setT('cbam-dqty', Number(qty).toLocaleString('en-IN')+' tonnes');
     setT('cbam-demb', '—');
@@ -2791,18 +2919,24 @@ function renderShipments(){
 function addUKShipment(){ukShipments.push({qty:parseInt(document.getElementById('uk-cbam-qty')?.value||2000)});const ev=document.getElementById('uk-ev4');if(ev)ev.textContent=ukShipments.length+' UK shipment'+(ukShipments.length!==1?'s':'')+' logged';}
 function updUKCBAM(){
   const q=parseInt(document.getElementById('uk-cbam-qty')?.value||2000);
-  const intensity=wfContext.regime==='PAT'?wfData.sec:wfData.intensity;
+  const isPATuk=wfContext.regime==='PAT';
+  const intensity=isPATuk?(wfData.intensity||null):wfData.intensity;
+  const secProxyUK=isPATuk&&!wfData.intensity&&wfData.sec;
   const setT=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
   const fmt=(v,d=2)=>v!=null?Number(v.toFixed(d)).toLocaleString('en-IN'):'—';
   if(intensity){
     const e=q*intensity;
     const expK=e*65/1000;
     setT('uk-cbam-emb',fmt(e,0)+' tCO₂e');
-    setT('uk-cbam-str',Number(q).toLocaleString('en-IN')+'t × '+intensity.toFixed(4)+' = '+fmt(e,0)+' tCO₂e');
-    setT('uk-cbam-exp','UK declarant exposure: approx £'+fmt(expK,0)+'K (at £65/tCO₂e)');
+    setT('uk-cbam-str',Number(q).toLocaleString('en-IN')+'t × '+intensity.toFixed(4)+' tCO₂e/t = '+fmt(e,0)+' tCO₂e');
+    setT('uk-cbam-exp','UK declarant exposure: approx £'+fmt(expK,0)+'K (at £65/tCO₂e — illustrative, implementing regs pending)');
+  } else if(secProxyUK){
+    setT('uk-cbam-emb','⚠️ Unit mismatch');
+    setT('uk-cbam-str','PAT SEC is in TOE (energy), not tCO₂e. CBAM requires GHG intensity. Run CCTS calculation in Step 4.');
+    setT('uk-cbam-exp','Cannot compute UK CBAM exposure from PAT SEC — requires tCO₂e/tonne');
   } else {
-    setT('uk-cbam-emb','— (complete Step 4-5 first)');
-    setT('uk-cbam-str',Number(q).toLocaleString('en-IN')+'t × [intensity from Step 5]');
+    setT('uk-cbam-emb','— (complete Step 4 first)');
+    setT('uk-cbam-str',Number(q).toLocaleString('en-IN')+'t × [GHG intensity from Step 4]');
     setT('uk-cbam-exp','Complete Steps 3–5 to calculate UK declarant exposure');
   }
 }
