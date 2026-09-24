@@ -1,0 +1,1991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GreenCo readiness | TerraCAP</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  --ink:#13302A; --muted:#5A716B; --faint:#8AA09A; --line:#D5DFDB; --line-2:#E6EDEA;
+  --bg:#EDF2F0; --card:#FFFFFF; --sunk:#F5F8F7;
+  --green:#1D7456; --green-d:#155840; --claim:#9CCBB6; --green-soft:#E0F0E8;
+  --ai:#4346A0; --ai-soft:#ECECF8; --amber:#935708; --amber-soft:#FBEFD8; --red:#A33131; --red-soft:#F8E2E2;
+  --b-cert:#4F7596; --b-bron:#9A5A2F; --b-silv:#8B959A; --b-gold:#B48710; --b-plat:#2F6B70; --b-none:#C7D2CE;
+  --r-s:5px; --r-m:9px; --r-l:14px;
+  --font:'Manrope', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ink:#E4EEEA; --muted:#A3B8B1; --faint:#71877F; --line:#2E4540; --line-2:#253A35;
+  --bg:#0F1D1A; --card:#162824; --sunk:#12221F; --green:#4DB38A; --green-d:#7CCBAA; --claim:#2F6A55; --green-soft:#1C3B31;
+  --ai:#9EA1F0; --ai-soft:#23244A; --amber:#E0A450; --amber-soft:#3A2C14; --red:#E57B7B; --red-soft:#3D1F1F; --b-none:#34514A;
+}}
+:root[data-theme="dark"]{
+  --ink:#E4EEEA; --muted:#A3B8B1; --faint:#71877F; --line:#2E4540; --line-2:#253A35;
+  --bg:#0F1D1A; --card:#162824; --sunk:#12221F; --green:#4DB38A; --green-d:#7CCBAA; --claim:#2F6A55; --green-soft:#1C3B31;
+  --ai:#9EA1F0; --ai-soft:#23244A; --amber:#E0A450; --amber-soft:#3A2C14; --red:#E57B7B; --red-soft:#3D1F1F; --b-none:#34514A;
+}
+*{box-sizing:border-box}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--font);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+h1,h2,h3,h4{margin:0;line-height:1.25}
+h2{font-size:22px;font-weight:800;letter-spacing:-.01em}
+h3{font-size:16px;font-weight:700}
+h4{font-size:14px;font-weight:700}
+p{margin:0}
+a{color:var(--green)}
+.muted{color:var(--muted)} .small{font-size:12.5px}
+/* top bar */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:18px;padding:10px 20px;background:var(--card);border-bottom:1px solid var(--line)}
+.brand{display:flex;flex-direction:column;line-height:1.15;min-width:150px}
+.brand b{font-size:15px;font-weight:800;color:var(--green-d)}
+.brand span{font-size:12px;color:var(--muted)}
+.plantctx{flex:1;min-width:0}
+.plantctx b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.plantctx span{font-size:12px;color:var(--muted)}
+.lens select{padding:6px 8px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card)}
+.lens label{font-size:12px;color:var(--muted);display:flex;gap:8px;align-items:center}
+.pill{display:flex;align-items:baseline;gap:8px;padding:6px 12px;border-radius:var(--r-m);background:var(--sunk);border:1px solid var(--line)}
+.pill b{font-size:18px;font-weight:800}
+.pill .bn{font-weight:700;font-size:13px}
+/* shell */
+.shell{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:calc(100% - 60px)}
+.rail{border-right:1px solid var(--line);padding:16px 10px;background:var(--card);position:sticky;top:60px;height:calc(100vh - 60px);overflow:auto}
+.rail button{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:start;width:100%;text-align:left;border:0;background:none;padding:9px 10px;border-radius:var(--r-m);cursor:pointer}
+.rail button:hover{background:var(--sunk)}
+.rail button.on{background:var(--green-soft)}
+.rail .n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;border:1.5px solid var(--line);color:var(--muted);background:var(--card)}
+.rail button.on .n{border-color:var(--green);color:var(--green)}
+.rail .n.ok,.rail button.on .n.ok{background:var(--green);border-color:var(--green);color:#fff}
+.rail .n.plain{border:0;background:none;font-size:15px}
+.rail .t b{display:block;font-weight:700;font-size:13.5px}
+.rail .t span{font-size:11.5px;color:var(--muted)}
+.rail hr{border:0;border-top:1px solid var(--line-2);margin:10px 6px}
+main{padding:22px 26px 60px;min-width:0}
+.sechead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.sechead p{color:var(--muted);max-width:70ch;margin-top:4px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r-l);padding:18px}
+.panel+.panel{margin-top:14px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sp{flex:1}
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:var(--r-s);border:1px solid var(--line);background:var(--card);cursor:pointer;font-weight:600;font-size:13px}
+.btn:hover{border-color:var(--green)}
+.btn.pri{background:var(--green);border-color:var(--green);color:#fff}
+.btn.pri:hover{background:var(--green-d)}
+.btn.ai{border-color:var(--ai);color:var(--ai)}
+.btn.ai:hover{background:var(--ai-soft)}
+.btn.ghost{border-color:transparent;background:none;color:var(--muted)}
+.btn.ghost:hover{color:var(--ink);border-color:var(--line)}
+.btn[disabled]{opacity:.55;cursor:progress}
+.btn.sm{padding:4px 9px;font-size:12px}
+/* chips and tags */
+.tag{display:inline-block;padding:1px 8px;border-radius:20px;font-size:11.5px;font-weight:700;border:1px solid transparent;white-space:nowrap}
+.k-computed{background:var(--green-soft);color:var(--green-d)}
+.k-claimed{background:var(--sunk);color:var(--muted);border-color:var(--line)}
+.k-prov{background:var(--amber-soft);color:var(--amber)}
+.k-ai{background:var(--ai-soft);color:var(--ai)}
+.k-bad{background:var(--red-soft);color:var(--red)}
+.k-ok{background:var(--green);color:#fff}
+.st-Planned{background:var(--sunk);color:var(--muted);border-color:var(--line)}
+.st-In\ progress{background:var(--amber-soft);color:var(--amber)}
+.st-Implemented{background:var(--green-soft);color:var(--green-d)}
+.band-t{font-weight:800}
+.bc-plat{color:var(--b-plat)} .bc-gold{color:var(--b-gold)} .bc-silv{color:var(--b-silv)} .bc-bron{color:var(--b-bron)} .bc-cert{color:var(--b-cert)} .bc-none{color:var(--muted)}
+/* notices */
+.note{padding:10px 14px;border-radius:var(--r-m);font-size:13px;border:1px solid var(--line);background:var(--sunk);color:var(--muted)}
+.note.warn{background:var(--amber-soft);border-color:transparent;color:var(--amber)}
+.note.bad{background:var(--red-soft);border-color:transparent;color:var(--red)}
+.note.ai{background:var(--ai-soft);border-color:transparent;color:var(--ai)}
+.note b{color:inherit}
+.disclaim{font-size:12.5px;color:var(--muted);border-left:3px solid var(--amber);padding:6px 12px;background:var(--card);border-radius:0 var(--r-s) var(--r-s) 0;margin-bottom:16px}
+/* hero + ladder */
+.hero{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:26px;align-items:start}
+.hero .big{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.hero .big .num{font-size:64px;font-weight:800;letter-spacing:-.03em;line-height:1}
+.hero .big .of{font-size:16px;color:var(--muted);font-weight:600}
+.hero .big .bn{font-size:26px;font-weight:800}
+.hero .cap{color:var(--muted);margin-top:4px}
+.ladder{margin-top:22px;position:relative;padding-top:48px;padding-bottom:58px}
+.ladder .track{display:flex;height:16px;border-radius:4px;overflow:hidden}
+.ladder .seg{height:100%}
+.ladder .blabels{position:relative;height:30px;margin-top:4px}
+.ladder .blabels span{position:absolute;font-size:11px;line-height:1.25;color:var(--muted);white-space:nowrap;padding-left:3px;border-left:1px solid var(--line)}
+.ladder .mk{position:absolute;top:48px;transform:translateX(-50%)}
+.ladder .mk i{display:block;width:3px;height:16px;background:var(--ink)}
+.ladder .mk em{position:absolute;left:50%;transform:translateX(-50%);bottom:20px;font-style:normal;font-size:11.5px;font-weight:800;white-space:nowrap;background:var(--card);padding:0 4px}
+.ladder .mk.proj i{background:none;border-left:2px dashed var(--ai);width:0}
+.ladder .mk.proj em{bottom:38px;color:var(--ai)}
+.ladder .mk.comp i{background:var(--green-d);width:2px}
+.ladder .mk.comp em{bottom:auto;top:56px;color:var(--green-d);font-weight:600}
+.stats{display:grid;gap:0;border:1px solid var(--line);border-radius:var(--r-m);overflow:hidden}
+.stats div{display:flex;justify-content:space-between;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line-2)}
+.stats div:last-child{border-bottom:0}
+.stats b{font-weight:800}
+/* parameter bars */
+.pbars{display:grid;gap:10px}
+.pbar{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(0,2fr) 92px;gap:14px;align-items:center;cursor:pointer;padding:4px 6px;border-radius:var(--r-s)}
+.pbar:hover{background:var(--sunk)}
+.pbar .nm{font-weight:600;font-size:13px}
+.bar{position:relative;height:12px;background:var(--line-2);border-radius:3px;overflow:hidden;display:flex}
+.bar .c{background:var(--green)} .bar .l{background:var(--claim);background-image:repeating-linear-gradient(135deg,transparent 0 3px,rgba(255,255,255,.35) 3px 5px)}
+.bar .pj{position:absolute;top:-2px;bottom:-2px;border-left:2px dashed var(--ai)}
+.pbar .v{text-align:right;font-weight:700;font-size:13px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:14px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+/* tables */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-weight:700;color:var(--muted);font-size:12px;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--line-2);vertical-align:top}
+.tbl td.r,.tbl th.r{text-align:right}
+.tbl tr.grp td{background:var(--sunk);font-weight:700;color:var(--ink);font-size:12.5px}
+.scroll{overflow-x:auto}
+.tbl input[type=number],.tbl input[type=text]{width:100%;min-width:92px;padding:5px 7px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card);text-align:right}
+.tbl input:focus{border-color:var(--green);outline:none}
+.src{font-size:11px;color:var(--green-d);white-space:nowrap}
+.used{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.used span{font-size:10.5px;padding:0 5px;border-radius:3px;background:var(--line-2);color:var(--muted)}
+/* forms */
+.form{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px 16px}
+.fld label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px}
+.fld input,.fld select,.fld textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card)}
+.fld textarea{min-height:66px;resize:vertical}
+.fld .hint{font-size:11.5px;color:var(--faint);margin-top:3px}
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:13px}
+.chk input{margin-top:3px}
+.vcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.vcard{border:1.5px solid var(--line);border-radius:var(--r-m);padding:12px;cursor:pointer;background:var(--card);text-align:left}
+.vcard.on{border-color:var(--green);background:var(--green-soft)}
+.vcard b{display:block;font-size:14px}
+.vcard span{font-size:12px;color:var(--muted)}
+/* assessment */
+.two{display:grid;grid-template-columns:230px minmax(0,1fr);gap:18px;align-items:start}
+.plist{position:sticky;top:80px;display:grid;gap:2px}
+.plist button{display:grid;grid-template-columns:1fr auto;gap:6px;text-align:left;border:0;background:none;padding:8px 10px;border-radius:var(--r-s);cursor:pointer;font-size:13px}
+.plist button:hover{background:var(--card)}
+.plist button.on{background:var(--card);box-shadow:inset 3px 0 0 var(--green);font-weight:700}
+.plist small{color:var(--muted);font-weight:600}
+.credit{border:1px solid var(--line);border-radius:var(--r-m);padding:14px 16px;background:var(--card);margin-bottom:10px}
+.credit .ch{display:flex;gap:10px;align-items:flex-start}
+.credit .cid{font-weight:800;color:var(--green-d);min-width:58px;font-size:13px}
+.credit h4{flex:1;font-weight:600}
+.credit .pts{font-weight:800;white-space:nowrap}
+.credit .pts small{color:var(--muted);font-weight:600}
+.calc{display:flex;gap:18px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.calc .mv{min-width:110px}
+.calc .mv b{font-size:20px;font-weight:800;display:block;line-height:1.1}
+.calc .mv span{font-size:11.5px;color:var(--muted)}
+.bchips{display:flex;flex-wrap:wrap;gap:5px}
+.bchip{font-size:11.5px;padding:2px 7px;border-radius:var(--r-s);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.bchip b{color:var(--ink)}
+.bchip.on{background:var(--green);border-color:var(--green);color:#fff}
+.bchip.on b{color:#fff}
+.bchip.nx{border-color:var(--ai);color:var(--ai);border-style:dashed}
+.levels{display:flex;flex-wrap:wrap;gap:0;margin-top:10px;border:1px solid var(--line);border-radius:var(--r-s);overflow:hidden;width:fit-content;max-width:100%}
+.levels button{border:0;border-right:1px solid var(--line);background:var(--card);padding:6px 10px;font-size:12px;cursor:pointer}
+.levels button:last-child{border-right:0}
+.levels button.on{background:var(--green);color:#fff;font-weight:700}
+.cfoot{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;padding-top:9px;border-top:1px dashed var(--line-2);font-size:12px;color:var(--muted)}
+.cfoot a{cursor:pointer}
+.gates{display:grid;gap:6px;margin-bottom:14px}
+/* initiatives */
+.ptabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.ptabs button{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:5px 12px;cursor:pointer;font-size:12.5px;font-weight:600}
+.ptabs button.on{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.ptabs button small{opacity:.7;margin-left:4px}
+.init{border:1px solid var(--line);border-radius:var(--r-m);background:var(--card);padding:14px 16px;margin-bottom:10px}
+.init .ih{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.init .ih h4{flex:1;min-width:200px;font-size:15px}
+.init .meta{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:6px}
+.init .meta b{color:var(--ink)}
+.imps{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:4px}
+.imps li{font-size:13px}
+.imps li b{font-weight:700}
+.eff{margin-top:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12.5px}
+.eff .d{font-weight:800;font-size:15px}
+.eff .d.pos{color:var(--green)} .eff .d.zero{color:var(--muted)}
+.basis{font-size:12.5px;color:var(--muted);margin-top:8px}
+.aicard{margin-top:12px;border:1px solid var(--ai);border-radius:var(--r-m);background:var(--ai-soft);padding:12px 14px;color:var(--ink)}
+.aicard .ah{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.aicard .ah b{color:var(--ai)}
+.aicard h5{margin:10px 0 4px;font-size:12px;color:var(--ai)}
+.aicard ul{margin:0;padding-left:18px}
+.aicard li{margin:2px 0;font-size:13px}
+.verdict{font-weight:800;padding:2px 9px;border-radius:20px;font-size:12px;background:var(--card)}
+.v-good{color:var(--green)} .v-mid{color:var(--amber)} .v-bad{color:var(--red)}
+.goal .ok{color:var(--green);font-weight:700} .goal .short{color:var(--amber);font-weight:700} .goal .no{color:var(--red);font-weight:700}
+.goal select{padding:3px 6px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card);font-size:12.5px}
+/* lists */
+.mini{display:grid;gap:8px}
+.mini .it{display:grid;grid-template-columns:62px 1fr auto;gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line-2);font-size:13px;cursor:pointer}
+.mini .it:last-child{border-bottom:0}
+.mini .it b{color:var(--green-d)}
+.mini .it .g{font-weight:800;white-space:nowrap}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(10,25,21,.45);z-index:50;display:grid;place-items:center;padding:20px}
+.modal[hidden]{display:none}
+.mbox{background:var(--card);border-radius:var(--r-l);max-width:760px;width:100%;max-height:calc(100vh - 40px);overflow:auto;padding:20px 22px;border:1px solid var(--line)}
+.mbox h3{margin-bottom:14px}
+.improw{display:grid;grid-template-columns:minmax(0,2fr) 130px minmax(0,1fr) 34px;gap:8px;align-items:center;margin-bottom:6px}
+.improw select,.improw input{padding:7px 8px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card);width:100%}
+.improw .cur{font-size:11.5px;color:var(--muted)}
+.mfoot{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.lv{text-align:right;padding:5px 8px;background:var(--green-soft);color:var(--green-d);border-radius:var(--r-s);font-weight:700;min-width:92px}
+.tbl input.gapin{border-color:var(--amber);background:var(--amber-soft)}
+.linkbtn{border:0;background:none;color:var(--green);cursor:pointer;padding:0;font-size:12px;text-decoration:underline;font-weight:600}
+.ledgerbar{display:flex;gap:26px;align-items:center;flex-wrap:wrap}
+.lstat b{display:block;font-size:24px;font-weight:800;line-height:1.1}
+.lstat span{font-size:12px;color:var(--muted)}
+.aimode{font-size:11.5px;color:var(--muted);margin-top:4px;text-align:right}
+/* evidence */
+.evrow{display:grid;grid-template-columns:64px minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr) auto;gap:12px;padding:10px 0;border-bottom:1px solid var(--line-2);align-items:start;font-size:13px}
+.evrow .files{display:flex;flex-direction:column;gap:3px}
+.evrow .files span{font-size:12px;display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}
+.evhead{display:grid;grid-template-columns:64px minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr) auto;gap:12px;font-size:12px;font-weight:700;color:var(--muted);padding-bottom:6px;border-bottom:1px solid var(--line)}
+@media (max-width:980px){.evhead{display:none}}
+.evrow .files button{border:0;background:none;color:var(--red);cursor:pointer;font-size:12px;padding:0}
+/* pack */
+.doc{background:#fff;color:#1a2a26;border:1px solid var(--line);border-radius:var(--r-m);padding:34px 40px;max-width:1000px}
+.doc h1{font-size:26px;margin-bottom:4px}
+.doc h2{font-size:17px;margin:26px 0 8px;padding-bottom:4px;border-bottom:2px solid #1D7456}
+.doc .tbl th{color:#4d625c} .doc .tbl td{border-color:#e3e9e7}
+.doc .dis{border:1px solid #d9a441;background:#fdf6e7;padding:10px 14px;border-radius:6px;font-size:12.5px;margin:14px 0}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--card);padding:9px 16px;border-radius:var(--r-m);font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
+.toast.show{opacity:1}
+.chartbox{position:relative;height:260px}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp 0.8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.spin{animation:none}}
+@media (max-width: 980px){
+  .shell{grid-template-columns:1fr}
+  .rail{position:static;height:auto;display:flex;overflow-x:auto;gap:4px;padding:8px;border-right:0;border-bottom:1px solid var(--line)}
+  .rail button{width:auto;min-width:150px}
+  .rail hr{display:none}
+  .hero,.grid2,.grid3,.two,.vcards{grid-template-columns:1fr}
+  .plist{position:static;display:flex;overflow-x:auto}
+  .plist button{min-width:150px}
+  .top{flex-wrap:wrap}
+  .hero .big .num{font-size:48px}
+  main{padding:16px 14px 50px}
+  .evrow{grid-template-columns:1fr}
+  .pbar{grid-template-columns:1fr 80px}
+  .pbar .bar{grid-column:1 / -1;order:3}
+}
+@media print{
+  .top,.rail,.noprint,.disclaim{display:none!important}
+  .shell{display:block} main{padding:0} body{background:#fff}
+  .doc{border:0;padding:0;max-width:none}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><b>TerraCAP</b><span>GreenCo readiness</span></div>
+  <div class="plantctx" id="plantctx"></div>
+  <div class="lens"><label for="verSel">Scoring version
+    <select id="verSel" onchange="setVersion(this.value)">
+      <option value="V3">GreenCo V3 (credit-level)</option>
+      <option value="V4">GreenCo V4 (provisional)</option>
+      <option value="LITE">GreenCo Lite (provisional)</option>
+    </select></label></div>
+  <div class="pill" id="scorepill"></div>
+</header>
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="Assessment steps"></nav>
+  <main id="main"></main>
+</div>
+<div id="modal" class="modal" hidden></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<input type="file" id="evFile" multiple hidden>
+<input type="file" id="importFile" accept="application/json" hidden>
+<script>
+/* ==========================================================================
+   GreenCo readiness engine — TerraCAP
+   Pure functions: no DOM. Deterministic scoring; AI never touches scores.
+   Source basis: CII GreenCo Rating System V3 Abridged Reference Guide (June 2018)
+   for credit-level rules; CII GreenCo Annual Report 2024-25 for V4 and Lite
+   parameter weights. V4/Lite credit-level criteria are not public: V4/Lite
+   scores are a provisional projection of V3 credit results (see v4Of()).
+   ========================================================================== */
+'use strict';
+const GC = (() => {
+
+const LEVELS = [
+  { v: 0,    label: 'Not started' },
+  { v: 0.25, label: 'Initiated' },
+  { v: 0.5,  label: 'Partly in place' },
+  { v: 0.75, label: 'Largely in place' },
+  { v: 1,    label: 'Fully evidenced' }
+];
+
+const BANDS = [
+  { min: 750, name: 'Platinum',  cls: 'plat' },
+  { min: 650, name: 'Gold',      cls: 'gold' },
+  { min: 550, name: 'Silver',    cls: 'silv' },
+  { min: 450, name: 'Bronze',    cls: 'bron' },
+  { min: 350, name: 'Certified', cls: 'cert' }
+];
+function bandOf(s) { for (const b of BANDS) if (s >= b.min) return b; return { min: 0, name: 'Below Certified', cls: 'none' }; }
+function nextBand(s) { const asc = [...BANDS].reverse(); for (const b of asc) if (s < b.min) return b; return null; }
+
+/* Sector classification. ee = EE4 category (1-4), re = RE category (1-4),
+   ghg = 'int' | 'non'. null = sector not listed in that V3 table. */
+const SECTORS = {
+  'Automobile':            { seg: 'mfg', ee: 1, re: 1, ghg: 'non' },
+  'Engineering':           { seg: 'mfg', ee: 1, re: 1, ghg: 'non' },
+  'Foundry':               { seg: 'mfg', ee: 1, re: null, ghg: null },
+  'FMCG':                  { seg: 'mfg', ee: 1, re: null, ghg: 'non' },
+  'Food processing':       { seg: 'mfg', ee: null, re: 1, ghg: null },
+  'Textile':               { seg: 'mfg', ee: 1, re: null, ghg: 'non' },
+  'Chemical':              { seg: 'mfg', ee: 2, re: 2, ghg: 'int' },
+  'Pharmaceutical':        { seg: 'mfg', ee: 2, re: 2, ghg: 'non' },
+  'Pulp & Paper':          { seg: 'mfg', ee: 2, re: 2, ghg: 'int' },
+  'Petrochemical':         { seg: 'mfg', ee: 2, re: 2, ghg: 'int' },
+  'Glass':                 { seg: 'mfg', ee: 2, re: null, ghg: null },
+  'Tyre':                  { seg: 'mfg', ee: 2, re: 2, ghg: null },
+  'Non-ferrous metals':    { seg: 'mfg', ee: 2, re: 2, ghg: 'int' },
+  'Cement':                { seg: 'mfg', ee: 3, re: 3, ghg: 'int' },
+  'Iron & steel':          { seg: 'mfg', ee: 3, re: 3, ghg: 'int' },
+  'Chlor-alkali':          { seg: 'mfg', ee: 3, re: null, ghg: null },
+  'Aluminium':             { seg: 'mfg', ee: 4, re: 3, ghg: 'int' },
+  'Fertilizer':            { seg: 'mfg', ee: 4, re: 4, ghg: 'int' },
+  'Refinery':              { seg: 'mfg', ee: 4, re: 4, ghg: 'int' },
+  'IT & ITeS':             { seg: 'svc', ee: 1, re: 1, ghg: 'non' },
+  'Hotels':                { seg: 'svc', ee: 1, re: null, ghg: 'non' },
+  'Logistics':             { seg: 'svc', ee: 1, re: null, ghg: null },
+  'Airports':              { seg: 'svc', ee: 1, re: null, ghg: null },
+  'Ports':                 { seg: 'svc', ee: 1, re: null, ghg: null }
+};
+const EE_STEP = { 1: 2.5, 2: 1, 3: 0.5, 4: 0.25 };
+const RE_EXP  = { 1: 90, 2: 70, 3: 50, 4: 30 };
+
+function classify(prof) {
+  const s = SECTORS[prof.sector] || { seg: 'mfg' };
+  const pick = (ov, auto, dflt) => {
+    if (ov && ov !== 'auto') return { v: isNaN(+ov) ? ov : +ov, src: 'override' };
+    if (auto != null) return { v: auto, src: 'guide' };
+    return { v: dflt, src: 'default' };
+  };
+  return { seg: s.seg, ee: pick(prof.eeCatOv, s.ee, 1), re: pick(prof.reCatOv, s.re, 1), ghg: pick(prof.ghgOv, s.ghg, 'non') };
+}
+
+/* ---------- Parameters ---------- */
+const P3 = [
+  { id: 'EE',    name: 'Energy Efficiency', max: 150 },
+  { id: 'WC',    name: 'Water Conservation', max: 100 },
+  { id: 'RE',    name: 'Renewable Energy', max: 100 },
+  { id: 'GHG',   name: 'GHG Emission Reduction', max: 100 },
+  { id: 'WM',    name: 'Waste Management', max: 100 },
+  { id: 'MCR',   name: 'Material Conservation, Recycling & Recyclability', max: 100 },
+  { id: 'GSC',   name: 'Green Supply Chain', max: 100 },
+  { id: 'PSLCA', name: 'Product Stewardship & Life Cycle Aspects', max: 125 },
+  { id: 'IE',    name: 'Innovation for Environment', max: 50 },
+  { id: 'GI',    name: 'Green Infrastructure & Ecology', max: 75 }
+];
+const P4 = [
+  { id: 'MS',  name: 'Management Systems', w: 75,  lite: 50 },
+  { id: 'EM',  name: 'Energy Management', w: 150, lite: 125 },
+  { id: 'CM',  name: 'Carbon Management', w: 150, lite: 100 },
+  { id: 'WA',  name: 'Water Management', w: 125, lite: 100 },
+  { id: 'MRM', name: 'Material Resource Management', w: 125, lite: 100 },
+  { id: 'GS4', name: 'Green Supply Chain', w: 100, lite: 50 },
+  { id: 'PS4', name: 'Product Stewardship & Life Cycle Approach', w: 125, lite: 75 },
+  { id: 'IE4', name: 'Innovation for Environment', w: 50, lite: 50 },
+  { id: 'GBE', name: 'Green Built Environment & Others', w: 100, lite: 50 }
+];
+/* PROVISIONAL mapping of V3 credits into V4 parameters. Not CII criteria. */
+function v4Of(id) {
+  const m = id.match(/^([A-Z]+)(\d+)?/); const p = m[1]; const n = m[2] ? +m[2] : 0;
+  if (p === 'EE')    return n <= 2 ? 'MS' : 'EM';
+  if (p === 'WC')    return n <= 2 ? 'MS' : 'WA';
+  if (p === 'RE')    return n === 1 ? 'MS' : n === 2 ? 'EM' : 'CM';
+  if (p === 'GHG')   return n <= 3 ? 'MS' : 'CM';
+  if (p === 'WM')    return n <= 3 ? 'MS' : 'MRM';
+  if (p === 'MCR')   return n <= 3 ? 'MS' : 'MRM';
+  if (p === 'GSC')   return n <= 3 ? 'MS' : 'GS4';
+  if (p === 'PSLCA') return 'PS4';
+  if (p === 'IE')    return 'IE4';
+  return 'GBE';
+}
+
+const VERSIONS = {
+  V3:   { id: 'V3', name: 'GreenCo V3', sub: 'June 2018 guide, credit-level', basis: 'Credit rules from the CII V3 reference guide.', provisional: false },
+  V4:   { id: 'V4', name: 'GreenCo V4', sub: '2023, parameter weights only', basis: 'CII has published V4 parameter weights, not credits. Scores project V3 credit results onto V4 weights through a provisional mapping.', provisional: true },
+  LITE: { id: 'LITE', name: 'GreenCo Lite', sub: '700 points, scaled to 1000', basis: 'CII has published Lite parameter weights, not credits. Scores use the same provisional mapping, scaled from 700 to 1000.', provisional: true }
+};
+
+/* ---------- Plant data fields ---------- */
+/* yrs: 3 = baseline / middle / current year; 1 = current value only.
+   ledger: true = auto-filled from the TerraCAP activity ledger in production. */
+const FIELDS = [
+  { k: 'prod', g: 'Production', label: 'Production output', unit: 't', yrs: 3, ledger: true, used: 'EE4 WC4.1 GHG4 GHG6.2 WM4.1 MCR4.1 MCR5 MCR6.1' },
+  { k: 'elec', g: 'Energy', label: 'Electricity consumed (all sources)', unit: 'kWh', yrs: 3, ledger: true, used: 'EE4 RE2 RE3 GHG4' },
+  { k: 'thermal', g: 'Energy', label: 'Fuel energy (thermal)', unit: 'GJ', yrs: 3, ledger: true, used: 'EE4 RE2 RE3 GHG4' },
+  { k: 'onsiteRE', g: 'Energy', label: 'On-site renewable electricity', unit: 'kWh', yrs: 3, ledger: true, used: 'RE2 RE3 GHG4' },
+  { k: 'onsiteTh', g: 'Energy', label: 'On-site renewable thermal', unit: 'GJ', yrs: 3, ledger: true, used: 'RE2' },
+  { k: 'offsiteRE', g: 'Energy', label: 'Off-site renewable electricity (PPA, open access, captive)', unit: 'kWh', yrs: 3, ledger: true, used: 'RE3 GHG4' },
+  { k: 'scope1', g: 'Emissions', label: 'Scope 1 emissions (GHG inventory)', unit: 'tCO2e', yrs: 3, ledger: true, used: 'GHG4 GHG5' },
+  { k: 'scope2', g: 'Emissions', label: 'Scope 2 emissions, location-based (GHG inventory)', unit: 'tCO2e', yrs: 3, ledger: true, used: 'GHG4 GHG5' },
+  { k: 'scope3', g: 'Emissions', label: 'Scope 3 within the GreenCo boundary (categories 4, 5, 6, 7, 9)', unit: 'tCO2e', yrs: 3, ledger: true, used: 'GHG5 GHG6.2' },
+  { k: 'offsets', g: 'Emissions', label: 'Offsets and sequestration', unit: 'tCO2e', yrs: 1, used: 'GHG5' },
+  { k: 's3c1', ledger: true, g: 'Emissions', label: 'Scope 3 inventoried: material logistics', unit: 'yes/no', yrs: 1, bool: true, used: 'GHG6.1' },
+  { k: 's3c2', ledger: true, g: 'Emissions', label: 'Scope 3 inventoried: business travel', unit: 'yes/no', yrs: 1, bool: true, used: 'GHG6.1' },
+  { k: 's3c3', ledger: true, g: 'Emissions', label: 'Scope 3 inventoried: waste disposal', unit: 'yes/no', yrs: 1, bool: true, used: 'GHG6.1' },
+  { k: 's3c4', ledger: true, g: 'Emissions', label: 'Scope 3 inventoried: employee commute', unit: 'yes/no', yrs: 1, bool: true, used: 'GHG6.1' },
+  { k: 'fwProc', g: 'Water', label: 'Fresh water, process', unit: 'm³', yrs: 3, ledger: true, used: 'WC4.1 WC6' },
+  { k: 'fwDom', g: 'Water', label: 'Fresh water, domestic', unit: 'm³', yrs: 3, ledger: true, used: 'WC4.1 WC6' },
+  { k: 'rwhPot', g: 'Water', label: 'Rainwater harvesting potential', unit: 'm³', yrs: 1, used: 'WC5.1' },
+  { k: 'rwhCap', g: 'Water', label: 'Rainwater actually captured', unit: 'm³', yrs: 1, used: 'WC5.1' },
+  { k: 'rwProc', g: 'Water', label: 'Harvested rainwater used in process', unit: 'm³', yrs: 1, used: 'WC5.2' },
+  { k: 'recharge', g: 'Water', label: 'Groundwater recharge beyond the fence', unit: 'm³', yrs: 1, used: 'WC6' },
+  { k: 'rechargeProj', g: 'Water', label: 'Beyond-fence recharge projects completed', unit: 'count', yrs: 1, int: true, used: 'WC6' },
+  { k: 'hazDisp', g: 'Waste', label: 'Hazardous waste disposed', unit: 't', yrs: 3, ledger: true, used: 'WM4.1' },
+  { k: 'hazAFR', g: 'Waste', label: 'Hazardous waste used as alternate fuel or raw material', unit: 't', yrs: 1, used: 'WM4.1' },
+  { k: 'nonHaz', g: 'Waste', label: 'Non-hazardous waste generated', unit: 't', yrs: 3, ledger: true, used: 'WM4.2' },
+  { k: 'landfill', g: 'Waste', label: 'Waste to landfill, including residue at recyclers', unit: 't', yrs: 1, used: 'WM4.3' },
+  { k: 'effl', g: 'Waste', label: 'Process effluent generated', unit: 'm³', yrs: 3, used: 'WM5.1' },
+  { k: 'efflRec', g: 'Waste', label: 'Process effluent recycled into process', unit: 'm³', yrs: 1, used: 'WM5.1' },
+  { k: 'zldProc', g: 'Waste', label: 'Zero liquid discharge, process effluent', unit: 'yes/no', yrs: 1, bool: true, used: 'WM5.1' },
+  { k: 'sew', g: 'Waste', label: 'Domestic sewage generated', unit: 'm³', yrs: 3, used: 'WM5.2' },
+  { k: 'sewRec', g: 'Waste', label: 'Sewage recycled (process or domestic use)', unit: 'm³', yrs: 1, used: 'WM5.2' },
+  { k: 'zldSew', g: 'Waste', label: 'Zero liquid discharge, sewage', unit: 'yes/no', yrs: 1, bool: true, used: 'WM5.2' },
+  { k: 'rm', g: 'Materials', label: 'Raw material consumed', unit: 't', yrs: 3, ledger: true, used: 'MCR4.1' },
+  { k: 'recycledIn', g: 'Materials', label: 'Recycled or waste material share of raw material', unit: '%', yrs: 1, pct: true, used: 'MCR4.2' },
+  { k: 'cons', g: 'Materials', label: 'Major consumables (lube, coolant, chemicals)', unit: 't', yrs: 3, used: 'MCR5' },
+  { k: 'pkg', g: 'Materials', label: 'Outbound packaging material', unit: 't', yrs: 3, used: 'MCR6.1' },
+  { k: 'pkgRec', g: 'Materials', label: 'Recycled content in packaging', unit: '%', yrs: 1, pct: true, used: 'MCR6.2' },
+  { k: 'supCrit', g: 'Supply chain', label: 'Critical suppliers', unit: 'count', yrs: 1, int: true, used: 'GSC4.3 GSC4.5' },
+  { k: 'supAud', g: 'Supply chain', label: 'Critical suppliers audited', unit: 'count', yrs: 1, int: true, used: 'GSC4.3' },
+  { k: 'supRated', g: 'Supply chain', label: 'Critical suppliers GreenCo-rated', unit: 'count', yrs: 1, int: true, used: 'GSC4.5' },
+  { k: 'supImp', g: 'Supply chain', label: 'Supplier improvement over baseline', unit: '%', yrs: 1, pct: true, used: 'GSC4.2' },
+  { k: 'inPkg', g: 'Supply chain', label: 'Incoming packaging from suppliers', unit: 't', yrs: 3, used: 'GSC6.1' },
+  { k: 'transGHG', g: 'Supply chain', label: 'Transport emissions, upstream and downstream', unit: 'tCO2e', yrs: 3, ledger: true, used: 'GSC6.2' },
+  { k: 'emp', g: 'People and site', label: 'Employees', unit: 'count', yrs: 1, int: true, used: 'GI4' },
+  { k: 'certPros', g: 'People and site', label: 'Accredited green professionals', unit: 'count', yrs: 1, int: true, used: 'GI4' },
+  { k: 'housingPct', g: 'People and site', label: 'Employees housed within 5 km', unit: '%', yrs: 1, pct: true, used: 'GI1.3' },
+  { k: 'commutePct', g: 'People and site', label: 'Employees on shuttle, carpool, public transport, walk or cycle', unit: '%', yrs: 1, pct: true, used: 'GI1.3' }
+];
+const FIELD = Object.fromEntries(FIELDS.map(f => [f.k, f]));
+
+/* ---------- Metrics ---------- */
+function num(x) { if (x === '' || x == null) return null; const n = parseFloat(x); return isFinite(n) ? n : null; }
+function val(D, k, i) { const v = D[k]; return Array.isArray(v) ? num(v[i]) : num(v); }
+function red(a, b) { return (a == null || b == null || a === 0) ? null : (a - b) / a * 100; }
+function div(a, b) { return (a == null || b == null || b === 0) ? null : a / b; }
+function pctOf(a, b) { const d = div(a, b); return d == null ? null : d * 100; }
+
+function computeMetrics(D, prof, inits, projected) {
+  const cls = classify(prof);
+  const EF = num(prof.gridEF) || 0, FEF = num(prof.fuelEF) || 0;
+  const Y = [0, 1, 2].map(i => {
+    const g = k => val(D, k, i);
+    const prod = g('prod'), elec = g('elec'), th = g('thermal');
+    const on = g('onsiteRE') || 0, onTh = g('onsiteTh') || 0, off = g('offsiteRE') || 0;
+    const totGJ = (elec == null || th == null) ? null : elec * 0.0036 + th;
+    const grid = elec == null ? null : Math.max(0, elec - on - off);
+    const inv1 = g('scope1'), inv2 = g('scope2');
+    const s2 = inv2 != null ? inv2 : (grid == null ? null : grid / 1000 * EF);
+    const s1 = inv1 != null ? inv1 : (th == null ? null : th * FEF);
+    const fwP = g('fwProc'), fwD = g('fwDom');
+    const fw = (fwP == null && fwD == null) ? null : (fwP || 0) + (fwD || 0);
+    return {
+      prod, elec, th, on, onTh, off, totGJ, grid, s1, s2, fw,
+      sec: div(totGJ, prod),
+      ghgInt: (s1 == null || s2 == null) ? null : div(s1 + s2, prod),
+      s3: g('scope3'), s3Int: div(g('scope3'), prod),
+      swc: div(fw, prod),
+      hazSpec: div(g('hazDisp'), prod), haz: g('hazDisp'),
+      nonHaz: g('nonHaz'), effl: g('effl'), sew: g('sew'),
+      rmSpec: div(g('rm'), prod), consSpec: div(g('cons'), prod), pkgSpec: div(g('pkg'), prod),
+      inPkg: g('inPkg'), trans: g('transGHG')
+    };
+  });
+  const c = Y[2], b = Y[0], g = k => val(D, k, 2);
+  const elecOnly = cls.re.v >= 3;
+  let onsitePct = null, offsitePct = null;
+  if (elecOnly) { onsitePct = pctOf(c.on, c.elec); offsitePct = pctOf(c.off, c.elec); }
+  else if (c.totGJ) { onsitePct = (c.on * 0.0036 + c.onTh) / c.totGJ * 100; offsitePct = c.off * 0.0036 / c.totGJ * 100; }
+  const allGHG = (c.s1 == null || c.s2 == null) ? null : c.s1 + c.s2 + (c.s3 || 0);
+  const innovInits = (inits || []).filter(x => x.innov && (x.status === 'Implemented' || (projected && x.include !== false && (x.status === 'Planned' || x.status === 'In progress'))));
+  const reTotal = (onsitePct == null) ? null : onsitePct + (offsitePct || 0);
+  const M = {
+    Y, elecOnly,
+    secRed: red(b.sec, c.sec),
+    onsitePct, offsitePct, reTotal,
+    reSub: onsitePct == null ? null : (offsitePct || 0) + Math.max(0, onsitePct - 5),
+    ghgRed: red(b.ghgInt, c.ghgInt),
+    offsetPct: pctOf(g('offsets'), allGHG), s3Missing: !c.s3,
+    s3cats: ['s3c1', 's3c2', 's3c3', 's3c4'].filter(k => num(D[k]) > 0).length,
+    s3Red: red(b.s3Int, c.s3Int),
+    swcRed: red(b.swc, c.swc),
+    rwhPct: pctOf(g('rwhCap'), g('rwhPot')),
+    rwProc: g('rwProc'),
+    rechargeRatio: div(g('recharge'), c.fw), rechargeProj: g('rechargeProj'),
+    hazRed: red(b.hazSpec, c.hazSpec), afrPct: pctOf(g('hazAFR'), c.haz),
+    nonHazRed: red(b.nonHaz, c.nonHaz),
+    landfill: g('landfill'),
+    efflRed: red(b.effl, c.effl), efflRecPct: pctOf(g('efflRec'), c.effl), zldProc: num(D.zldProc) > 0,
+    sewRed: red(b.sew, c.sew), sewRecPct: pctOf(g('sewRec'), c.sew), zldSew: num(D.zldSew) > 0,
+    rmRed: red(b.rmSpec, c.rmSpec), recycledIn: g('recycledIn'),
+    consRed: red(b.consSpec, c.consSpec), pkgRed: red(b.pkgSpec, c.pkgSpec), pkgRec: g('pkgRec'),
+    supAudPct: pctOf(g('supAud'), g('supCrit')), supRatedPct: pctOf(g('supRated'), g('supCrit')),
+    supImp: g('supImp'), inPkgRed: red(b.inPkg, c.inPkg), transRed: red(b.trans, c.trans),
+    certPct: pctOf(g('certPros'), g('emp')), housingPct: g('housingPct'), commutePct: g('commutePct'),
+    innovCount: innovInits.length, reBonus: reTotal != null && reTotal > 80
+  };
+  return M;
+}
+
+/* ---------- Banding ---------- */
+function band(v, bands, op) {
+  if (v == null) return { pts: 0, idx: -1 };
+  let pts = 0, idx = -1;
+  bands.forEach((b, i) => { const ok = op === '>' ? v > b[0] : v >= b[0]; if (ok) { pts = b[1]; idx = i; } });
+  return { pts, idx };
+}
+const steps = (arr, ptsStep) => arr.map((t, i) => [t, (i + 1) * ptsStep]);
+
+/* ---------- Credits ---------- */
+const CREDITS = [];
+const J = (id, p, name, max, ev) => CREDITS.push({ id, p, name, max, kind: 'J', ev });
+const O = (id, p, name, max, opts, ev) => CREDITS.push({ id, p, name, max, kind: 'O', opts, ev });
+const C = (id, p, name, max, spec) => CREDITS.push(Object.assign({ id, p, name, max, kind: 'C' }, spec));
+
+// Energy Efficiency 150
+J('EE1.1', 'EE', 'Target-setting method and separate electrical and thermal SEC targets', 10, 'Target-setting method, benchmark source, separate electrical and thermal SEC targets.');
+J('EE1.2', 'EE', 'Budget allocated versus spent on energy projects', 5, 'Approved budget note or ERP budget head; allocated vs spent for three years.');
+J('EE1.3', 'EE', 'Monthly energy reviews chaired by the plant head', 5, 'Twelve sets of minutes comparing SEC with target and previous month.');
+J('EE2.1', 'EE', 'Awareness and employee suggestions', 5, 'Programme records, suggestion list with cost-benefit, rewards given.');
+J('EE2.2', 'EE', 'Annual energy training', 5, 'Training-needs list, attendance, advanced training for the energy cell.');
+J('EE2.3', 'EE', 'Energy scorecard in appraisals', 5, 'Appraisal template showing energy weightage for relevant roles.');
+J('EE3.1', 'EE', 'Metering of consumers above 10% and 5% of load', 10, 'Equipment register and daily monitoring sheets for metered consumers.');
+J('EE3.2', 'EE', 'Daily variance analysis beyond ±10%', 5, 'Daily reports with documented reasons for flagged days.');
+J('EE3.3', 'EE', 'Corrective actions closed with benefits', 5, 'Action log with closure dates and verified benefit.');
+C('EE4', 'EE', 'Reduction in specific energy consumption over 3 years', 50, {
+  m: 'secRed', unit: '%', op: '>', best: true, driver: 'thermal', dir: -1,
+  bands: ctx => steps([1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(k => +(k * EE_STEP[ctx.ee]).toFixed(2)), 5),
+  ev: 'Daily, monthly and yearly SEC for three years; project list with % impact each.' });
+J('EE5', 'EE', 'Equipment-wise efficiency against design or best available', 25, 'Design vs measured efficiency for consumers making up 80% of load; shift-wise displays.');
+J('EE6.1', 'EE', 'Process or equipment benchmarking', 10, 'Benchmarking audit report; comparison with top five market equipment.');
+J('EE6.2', 'EE', 'National and international SEC ranking', 10, 'Verified third-party ranking or national energy award certificate.');
+
+// Water Conservation 100
+J('WC1.1', 'WC', 'Water targets and action plan', 5, 'Specific water targets with basis; projects with anticipated benefits.');
+J('WC1.2', 'WC', 'Monthly water reviews', 5, 'Minutes comparing specific water consumption with target.');
+J('WC2.1', 'WC', 'Water awareness and suggestions', 5, 'Programme records, suggestions and rewards.');
+J('WC2.2', 'WC', 'Water training', 5, 'Training records and industry visits.');
+J('WC3', 'WC', 'Water balance diagram with metering', 10, 'Balance from intake to outlet; metering above 80% of draw and discharge.');
+C('WC4.1', 'WC', 'Reduction in specific fresh water consumption over 3 years', 25, {
+  m: 'swcRed', unit: '%', op: '>=', best: true, driver: 'fwProc', dir: -1,
+  bands: steps([5, 10, 15, 20, 25], 5), ev: 'Three years of process and domestic fresh water with production; projects with % impact.' });
+J('WC4.2', 'WC', 'Water conservation best practices', 5, 'Water stress study, efficient landscaping, WATSCAN or similar with outcomes.');
+C('WC5.1', 'WC', 'Rainwater harvesting against potential', 15, {
+  m: 'rwhPct', unit: '%', op: '>=', driver: 'rwhCap', dir: 1,
+  bands: [[50, 5], [65, 10], [80, 15]], ev: 'Catchment areas, potential calculation, storage design, measured capture.' });
+C('WC5.2', 'WC', 'Harvested rainwater used in process', 5, {
+  driver: 'rwProc', dir: 1, ev: 'Metered rainwater into a process application; recharge alone does not count.',
+  fn: M => ({ val: M.rwProc, pts: M.rwProc > 0 ? 5 : 0, bands: [[0, 5]], op: '>', unit: 'm³' }) });
+C('WC6', 'WC', 'Groundwater augmentation beyond the fence', 20, {
+  driver: 'recharge', dir: 1, ev: 'Project completion records, computed recharge volume, community benefit.',
+  fn: M => {
+    const r = M.rechargeRatio;
+    let pts = 0;
+    if (M.rechargeProj >= 1 && r > 0) pts = 5;
+    if (r >= 1) pts = 10; if (r >= 2) pts = 15; if (r >= 3) pts = 20;
+    return { val: r, pts, bands: [[0.0001, 5], [1, 10], [2, 15], [3, 20]], op: '>=', unit: 'ratio', fmt: v => v.toFixed(2) + ' : 1' };
+  } });
+
+// Renewable Energy 100
+J('RE1.1', 'RE', 'Renewable targets and action plan', 5, 'Absolute MWh and % substitution targets; projects with contribution.');
+J('RE1.2', 'RE', 'Renewable budget allocated and monitored', 5, 'Approved budget for current and ensuing year; three-year spend.');
+C('RE2', 'RE', 'On-site renewable substitution', 25, {
+  m: 'onsitePct', unit: '%', op: '>=', driver: 'onsiteRE', dir: 1,
+  bands: steps([1, 2, 3, 4, 5], 5), ev: 'Generation records for on-site solar, wind, biomass or solar thermal.' });
+C('RE3', 'RE', 'Off-site renewable offsetting against sector expectation', 65, {
+  driver: 'offsiteRE', dir: 1, provisional: 'The V3 guide gives no band table for RE3. Points are pro-rated linearly against the sector expectation; confirm with CII.',
+  ev: 'PPA or open-access agreements, monthly wheeling bills, REC retirement proof.',
+  fn: (M, ctx) => {
+    const exp = RE_EXP[ctx.re] || 90;
+    const noOnsite = !(M.onsitePct > 0);
+    const cap = noOnsite ? 80 : 65;
+    const v = M.reSub;
+    const pts = v == null ? 0 : Math.min(cap, 65 * v / exp);
+    return { val: v, pts, cap, unit: '%', linear: { exp, cap }, note: `Expectation for RE category ${ctx.re}: ${exp}%${M.elecOnly ? ' (electricity only)' : ''}. On-site share above 5% counts here.` };
+  } });
+
+// GHG 100
+J('GHG1.1', 'GHG', 'Emission targets, short and long term', 5, 'Basis (intensity or absolute), baseline year, benchmark comparison.');
+J('GHG1.2', 'GHG', 'Mitigation action plan', 5, 'Projects across Scopes 1-3 ranked by cost per tonne abated.');
+J('GHG2.1', 'GHG', 'Climate awareness activities', 5, 'Contests, environment week, displays of plant emissions.');
+J('GHG2.2', 'GHG', 'Climate capacity building', 5, 'Training content, employees trained, effectiveness check.');
+J('GHG3.1', 'GHG', 'Inventory management system', 5, 'Monthly collection, bill cross-checks, versioned emission factors, boundary.');
+J('GHG3.2', 'GHG', 'Mitigation project monitoring', 5, 'Planned vs realised abatement per project.');
+C('GHG4', 'GHG', 'Scope 1+2 emission intensity reduction over 3 years', 25, {
+  m: 'ghgRed', unit: '%', op: '>', driver: 'offsiteRE', dir: 1,
+  bands: ctx => ctx.ghg === 'int' ? steps([3, 6, 9, 12, 15], 5) : steps([5, 10, 15, 20, 25], 5),
+  ev: 'Three-year Scope 1 and 2 inventory with production; projects behind the reduction.' });
+C('GHG5', 'GHG', 'Carbon neutral approach: offsets against all scopes', 25, {
+  m: 'offsetPct', unit: '%', op: '>=', driver: 'offsets', dir: 1,
+  bands: ctx => ctx.ghg === 'int' ? steps([5, 10, 15, 20, 25], 5) : steps([20, 40, 60, 80, 100], 5),
+  ev: 'Offset and sequestration calculations; Scope 3 must be in the denominator.' });
+C('GHG6.1', 'GHG', 'Scope 3 inventory on the four required categories', 5, {
+  provisional: 'Full points need all four categories; partial counts are pro-rated here.',
+  ev: 'Inventory for material logistics, business travel, waste disposal, employee commute.',
+  fn: M => ({ val: M.s3cats, pts: 5 * M.s3cats / 4, unit: 'of 4', fmt: v => v + ' of 4', bands: [[4, 5]], op: '>=' }) });
+C('GHG6.2', 'GHG', 'Scope 3 intensity reduction over 3 years', 15, {
+  m: 's3Red', unit: '%', op: '>', driver: 'scope3', dir: -1,
+  bands: steps([5, 10, 15], 5), ev: 'Scope 3 intensity on a constant boundary for three years.' });
+
+// Waste Management 100
+J('WM1.1', 'WM', 'Waste targets on three horizons', 5, 'Specific waste targets per stream, including e-waste.');
+J('WM1.2', 'WM', 'Action plan, resources and monthly review', 5, 'Budget, infrastructure, review by environment cell and unit head.');
+J('WM2.1', 'WM', 'Waste awareness and suggestions', 5, 'Programmes, suggestions with cost-benefit, rewards.');
+J('WM2.2', 'WM', 'Waste training over two years', 5, 'Training coverage across all employees in two years.');
+J('WM3.1', 'WM', 'Collection, storage and disposal system', 5, 'Current SOPs, OEM maintenance, hazardous yard with secondary containment.');
+J('WM3.2', 'WM', 'Annual audit of authorised recyclers', 5, 'Site audit report for every recycler.');
+C('WM4.1', 'WM', 'Hazardous waste: disposal reduction or reuse as fuel or raw material', 10, {
+  driver: 'hazDisp', dir: -1, ev: 'Three years of specific hazardous disposal; co-processing records.',
+  fn: M => {
+    const o1 = band(M.hazRed, [[25, 5], [40, 10]], '>=');
+    const o2 = band(M.afrPct, [[50, 5], [80, 10]], '>');
+    const best = o2.pts > o1.pts ? 2 : 1;
+    return { val: best === 1 ? M.hazRed : M.afrPct, pts: Math.max(o1.pts, o2.pts), unit: '%', bands: best === 1 ? [[25, 5], [40, 10]] : [[50, 5], [80, 10]], op: best === 1 ? '>=' : '>',
+      note: `Option 1, specific disposal reduction: ${fmtN(M.hazRed)}% (${o1.pts} pts). Option 2, reuse as fuel or raw material: ${fmtN(M.afrPct)}% (${o2.pts} pts). Higher option counts.` };
+  } });
+C('WM4.2', 'WM', 'Non-hazardous waste: absolute reduction', 10, {
+  m: 'nonHazRed', unit: '%', op: '>=', driver: 'nonHaz', dir: -1,
+  bands: [[25, 5], [40, 10]], ev: 'Absolute tonnes for three years; this credit is not per unit of production.' });
+C('WM4.3', 'WM', 'Zero waste to landfill, including recycler residue', 5, {
+  driver: 'landfill', dir: -1, ev: 'Final disposition of both streams, including residue at recyclers.',
+  fn: M => ({ val: M.landfill, pts: M.landfill === 0 ? 5 : 0, unit: 't', fmt: v => fmtN(v) + ' t to landfill', target: '0 t' }) });
+C('WM5.1a', 'WM', 'Process effluent reduction or zero liquid discharge', 10, {
+  driver: 'effl', dir: -1, ev: 'Three years of process effluent; SPCB conditions met.',
+  fn: M => M.zldProc ? { val: 100, pts: 10, unit: '%', note: 'Zero liquid discharge declared.' } : Object.assign({ val: M.efflRed, unit: '%', bands: [[25, 5], [40, 10]], op: '>=' }, band(M.efflRed, [[25, 5], [40, 10]], '>=')) });
+C('WM5.1b', 'WM', 'Process effluent recycled into process', 5, {
+  driver: 'efflRec', dir: 1, ev: 'Metered recycled effluent into process applications.',
+  fn: M => { const v = M.zldProc ? 100 : M.efflRecPct; return { val: v, unit: '%', bands: [[25, 5]], op: '>=', pts: v >= 25 ? 5 : 0 }; } });
+C('WM5.2a', 'WM', 'Sewage reduction or zero liquid discharge', 5, {
+  driver: 'sew', dir: -1, ev: 'Three years of sewage generation; SPCB conditions met.',
+  fn: M => M.zldSew ? { val: 100, pts: 5, unit: '%', note: 'Zero liquid discharge declared.' } : { val: M.sewRed, unit: '%', bands: [[25, 5]], op: '>=', pts: M.sewRed >= 25 ? 5 : 0 } });
+C('WM5.2b', 'WM', 'Sewage fully recycled', 5, {
+  driver: 'sewRec', dir: 1, ev: 'Treated sewage reuse records; process use weighted above gardening.',
+  fn: M => ({ val: M.sewRecPct, unit: '%', bands: [[100, 5]], op: '>=', pts: M.sewRecPct >= 99.95 ? 5 : 0, note: 'No partial credit below 100%.' }) });
+J('WM6.1', 'WM', 'Air quality monitoring, stack and ambient', 15, 'Stack and ambient results by industry category; NAAQS sampling.');
+J('WM6.2', 'WM', 'Air pollution control technologies', 5, 'Control equipment and best practices with outcomes.');
+
+// Material Conservation 100
+J('MCR1.1', 'MCR', 'Material targets', 5, 'Yield, substitution and consumables targets with method.');
+J('MCR1.2', 'MCR', 'Action plan and resources', 5, 'Project list, manpower and funds, allocated vs utilised.');
+J('MCR2.1', 'MCR', 'Material awareness and kaizens', 5, 'Awareness on recyclability; kaizen records.');
+J('MCR2.2', 'MCR', 'Material training', 5, 'Training-needs, programmes and effectiveness.');
+J('MCR3.1', 'MCR', 'Material balance and framework', 5, 'Material balance and pie chart of raw material, consumables, packaging.');
+J('MCR3.2', 'MCR', 'Systematic monitoring of yield', 5, 'Monitoring and review mechanism with worked cases.');
+C('MCR4.1', 'MCR', 'Specific raw material reduction over 3 years', 20, {
+  m: 'rmRed', unit: '%', op: '>=', driver: 'rm', dir: -1,
+  bands: [[3, 5], [9, 10], [12, 15], [15, 20]], ev: 'Absolute and specific raw material for three years; projects.' });
+C('MCR4.2', 'MCR', 'Recycled or waste material replacing virgin raw material', 15, {
+  m: 'recycledIn', unit: '%', op: '>=', driver: 'recycledIn', dir: 1,
+  bands: [[15, 5], [20, 10], [25, 15]], ev: 'Share of recycled or alternate raw material, excluding fuel.' });
+C('MCR5', 'MCR', 'Specific reduction in major consumables', 15, {
+  m: 'consRed', unit: '%', op: '>=', driver: 'cons', dir: -1,
+  bands: [[5, 5], [10, 10], [15, 15]], ev: 'Major consumables with specific intensity for three years.' });
+C('MCR6.1', 'MCR', 'Packaging material reduction', 10, {
+  m: 'pkgRed', unit: '%', op: '>=', driver: 'pkg', dir: -1,
+  bands: [[15, 5], [30, 10]], ev: 'Packaging materials used and % reduction.' });
+C('MCR6.2', 'MCR', 'Recycled content in packaging', 10, {
+  m: 'pkgRec', unit: '%', op: '>=', driver: 'pkgRec', dir: 1,
+  bands: [[20, 5], [40, 10]], ev: 'Recycled content per material with test certificates.' });
+
+// Green Supply Chain 100
+J('GSC1.1', 'GSC', 'Green supply chain policy and commitment', 5, 'Signed policy, communicated to suppliers.');
+J('GSC1.2', 'GSC', 'Targets, action plan and resources', 5, 'Targets on three horizons with resources.');
+J('GSC2.1', 'GSC', 'Supplier awareness creation', 5, 'Vendor meets, cluster programmes, shared material.');
+J('GSC2.2', 'GSC', 'Supplier training programmes', 5, 'Content, frequency and impact of supplier trainings.');
+J('GSC3', 'GSC', 'Supply chain management systems', 5, 'Systems tracking procurement, packaging, logistics, audits.');
+J('GSC4.1', 'GSC', 'Baselines for all critical suppliers', 10, 'Base year and supplier baselines on energy, water, waste, carbon.');
+C('GSC4.2', 'GSC', 'Supplier improvement over baseline', 15, {
+  m: 'supImp', unit: '%', op: '>=', driver: 'supImp', dir: 1,
+  bands: [[5, 5], [10, 10], [15, 15]], ev: 'Weighted improvement of critical suppliers against baseline.' });
+C('GSC4.3', 'GSC', 'Audits of more than 90% of critical suppliers', 5, {
+  m: 'supAudPct', unit: '%', op: '>', driver: 'supAud', dir: 1, isInt: true,
+  bands: [[90, 5]], ev: 'Audit questionnaire, audit count and sample reports.' });
+J('GSC4.4', 'GSC', 'Supplier recognition programme', 5, 'Evaluation criteria and award records.');
+C('GSC4.5', 'GSC', 'GreenCo-rated suppliers', 5, {
+  driver: 'supRated', dir: 1, isInt: true, provisional: 'Full points at 10% of critical suppliers rated; below that, pro-rated here.',
+  ev: 'List of critical suppliers holding a GreenCo rating.',
+  fn: M => ({ val: M.supRatedPct, unit: '%', pts: M.supRatedPct == null ? 0 : 5 * Math.min(1, M.supRatedPct / 10), bands: [[10, 5]], op: '>=' }) });
+J('GSC5.1', 'GSC', 'Green procurement guidelines implemented', 10, 'Guidelines across seven categories; % procured under them.');
+J('GSC5.2', 'GSC', 'Purchase of certified green products', 5, 'BEE star, GreenPro, FSC or equivalent certificates.');
+C('GSC6.1', 'GSC', 'Incoming packaging reduction', 10, {
+  m: 'inPkgRed', unit: '%', op: '>', driver: 'inPkg', dir: -1,
+  bands: [[15, 5], [30, 10]], ev: 'Incoming packaging by supplier and material; alternates adopted.' });
+C('GSC6.2', 'GSC', 'Transport emission reduction', 10, {
+  m: 'transRed', unit: '%', op: '>', driver: 'transGHG', dir: -1,
+  bands: [[10, 5], [20, 10]], ev: 'Upstream and downstream transport emissions; logistics initiatives.' });
+
+// Product Stewardship & LCA 125
+J('PSLCA1.1', 'PSLCA', 'Strategy and commitment to life-cycle thinking', 5, 'Policy commitment to LCA, eco-design, end-of-life strategy.');
+J('PSLCA1.2', 'PSLCA', 'LCA targets and action plan', 5, 'Dated plan for LCA, substance elimination and EPD.');
+J('PSLCA2.1', 'PSLCA', 'Internal LCA study', 10, 'Internal LCA report with boundary and trained team.');
+J('PSLCA2.2', 'PSLCA', 'External LCA study', 10, 'External LCA on verified software.');
+J('PSLCA2.3', 'PSLCA', 'Peer review of external LCA', 5, 'ISO 14040/44 review and projects using its findings.');
+J('PSLCA3.1', 'PSLCA', 'Product quality and environmental risk across phases', 5, 'Risk assessment across transport, handling, storage, use, disposal.');
+J('PSLCA3.2', 'PSLCA', 'Customer feedback system', 5, 'Feedback capture, failure analysis, design changes.');
+J('PSLCA3.3', 'PSLCA', 'Impact reduction based on LCA', 10, 'Projects reducing LCA impact categories with results.');
+J('PSLCA4.1', 'PSLCA', 'Stakeholder communication on product', 5, 'Customer guidance on use and disposal; joint design work.');
+O('PSLCA4.2', 'PSLCA', 'Environmental product declaration', 15, [['None', 0], ['Self-declared claim (Type II)', 5], ['Verified claim or eco-label (Type I)', 10], ['EPD (Type III)', 15]], 'Published declaration or label certificate.');
+J('PSLCA5.1', 'PSLCA', 'Materials of concern in products', 10, 'RoHS or REACH compliance with concentrations.');
+J('PSLCA5.2', 'PSLCA', 'Materials of concern in process', 10, 'Process substances, elimination results and targets.');
+J('PSLCA6.1', 'PSLCA', 'Design for environment', 10, 'Design changes, including those traced to LCA.');
+J('PSLCA6.2', 'PSLCA', 'Product take-back and recycling', 10, 'Take-back programme evidence and coverage.');
+J('PSLCA6.3', 'PSLCA', 'Safe disposal', 5, 'Disposal method per applicable rules.');
+J('PSLCA7', 'PSLCA', 'Voluntary codes and standards', 5, 'GRI, CDP, Responsible Care or sector codes adopted.');
+
+// Innovation 50
+J('IE1', 'IE', 'Innovation strategy and culture', 5, 'Innovation method, recognition, separation from corrections.');
+J('IE2', 'IE', 'Continual improvement projects', 5, 'Kaizen list with environmental impact, cost benefit, reward.');
+C('IE3', 'IE', 'Innovation projects in the past 3 years (5 points each, up to 8)', 40, {
+  driver: null, ev: 'Per-project template: ideation and implementation dates, benefits, replicability, patent.',
+  fn: M => { const n = M.innovCount + (M.reBonus ? 1 : 0); return { val: n, pts: Math.min(40, 5 * n), unit: 'projects', fmt: v => v + ' of 8', bands: [[8, 40]], op: '>=',
+    note: 'Counted from implemented initiatives flagged as innovation projects in the register.' + (M.reBonus ? ' Includes 5 points for meeting over 80% of energy from renewables.' : '') }; } });
+
+// Green Infrastructure 75
+O('GI1.1', 'GI', 'Fresh air ventilation above minimum', 10, [['Below 20% improvement', 0], ['Over 20% improvement or opening ratio ≥ 8%', 5], ['Over 30% improvement or opening ratio ≥ 10%', 10]], 'Ventilation type and calculation, weighted across areas.');
+J('GI1.2', 'GI', 'Low-VOC materials and eco-friendly housekeeping chemicals', 5, 'Product data sheets and purchase records.');
+C('GI1.3', 'GI', 'Lower-impact employee commute', 10, {
+  driver: 'commutePct', dir: 1, ev: 'Shuttle, carpool or housing records with employee counts.',
+  fn: M => {
+    const h = M.housingPct >= 40, s = M.commutePct;
+    const opt = s > 90 ? 10 : s >= 50 ? 5 : 0;
+    const pts = h ? Math.min(10, 5 + Math.min(5, opt)) : opt;
+    return { val: s, unit: '%', pts, bands: h ? [[50, 10]] : [[50, 5], [90.0001, 10]], op: '>=', note: h ? 'Housing within 5 km for over 40% of employees adds 5 points.' : null };
+  } });
+J('GI1.4.1', 'GI', 'Green belt beyond requirement', 10, 'Green belt area, width, density and native species.');
+J('GI1.4.2', 'GI', 'Biodiversity of native and adaptive species', 5, 'Species survey and conservation actions.');
+J('GI2', 'GI', 'Workplace safety principles', 10, 'Compliance with the safety chapter of the Factories Act.');
+J('GI3', 'GI', 'Sustainability efforts beyond the fence', 15, 'Community projects (non-water) and their continuity.');
+C('GI4', 'GI', 'Accredited green professionals, at least 1% of employees', 10, {
+  m: 'certPct', unit: '%', op: '>=', driver: 'certPros', dir: 1, isInt: true,
+  bands: [[1, 10]], ev: 'List and certificates of accredited professionals.' });
+
+const CREDIT = Object.fromEntries(CREDITS.map(c => [c.id, c]));
+
+const GATES = [
+  { id: 'EE-M1', p: 'EE', label: 'Signed energy policy with short- and long-term targets' },
+  { id: 'EE-M2', p: 'EE', label: 'Energy cell and energy manager reporting to the plant head' },
+  { id: 'EE-I',  p: 'EE', label: 'Energy mix chart and energy flow diagram' },
+  { id: 'WC-M1', p: 'WC', label: 'Signed water policy covering within and beyond the fence' },
+  { id: 'WC-M2', p: 'WC', label: 'Water manager with a cross-functional team' },
+  { id: 'RE-M',  p: 'RE', label: 'Signed renewable energy policy' },
+  { id: 'GHG-M', p: 'GHG', label: 'Annual GHG inventory to GHG Protocol or ISO 14064 (Scope 3 from year two)' },
+  { id: 'WM-M1', p: 'WM', label: 'Waste management policy signed by the unit head' },
+  { id: 'WM-M2', p: 'WM', label: 'Hazardous and non-hazardous inventory, including e-waste, for three years' },
+  { id: 'MCR-M', p: 'MCR', label: 'Material conservation and recyclability policy with annual targets' },
+  { id: 'GSC-M1', p: 'GSC', label: 'Critical suppliers identified with a stated method' },
+  { id: 'GSC-M2', p: 'GSC', label: 'Cross-functional green supply chain cell' }
+];
+
+/* ---------- Scoring ---------- */
+function fmtN(v, d = 1) { return v == null || !isFinite(v) ? '—' : (+v).toLocaleString('en-IN', { maximumFractionDigits: d }); }
+
+function ctxOf(prof) { const k = classify(prof); return { seg: k.seg, ee: k.ee.v, re: k.re.v, ghg: k.ghg.v }; }
+
+function scoreCredit(c, M, ctx, st) {
+  let max = c.max;
+  if (ctx.seg === 'svc') {
+    if (c.p === 'PSLCA') return { excluded: true, pts: 0, max: 0, kind: 'excluded', answered: true };
+    if (c.p === 'MCR' || c.p === 'GSC') max = c.max * 0.75;
+  }
+  const scale = max / c.max;
+  if (st.profile.igbc && /^GI1\./.test(c.id)) return { pts: max, max, kind: 'claimed', answered: true, note: 'Option 1: IGBC Green Factory rated.' };
+  if (c.kind === 'J') { const a = st.judged[c.id]; return { pts: a == null ? 0 : LEVELS[a].v * max, max, kind: 'claimed', answered: a != null, level: a }; }
+  if (c.kind === 'O') { const a = st.options[c.id]; const o = a == null ? null : c.opts[a]; return { pts: o ? o[1] * scale : 0, max, kind: 'claimed', answered: a != null, opt: a }; }
+  let r;
+  if (c.fn) r = c.fn(M, ctx, st);
+  else { const b = typeof c.bands === 'function' ? c.bands(ctx) : c.bands; const x = band(M[c.m], b, c.op); r = { val: M[c.m], pts: x.pts, bands: b, op: c.op, unit: c.unit }; }
+  if (r.bands && r.val != null) { const x = band(r.val, r.bands, r.op || '>='); r.idx = x.idx; r.next = r.bands[x.idx + 1] || null; }
+  let pts = Math.min(c.max, r.pts || 0), kind = 'computed';
+  if (c.best && st.best[c.id]) { pts = c.max; kind = 'claimed'; r.note = 'Best-performer claim: full points if the assessor accepts national-best evidence.'; }
+  return Object.assign({}, r, { pts: pts * scale, raw: pts, max, kind, answered: r.val != null });
+}
+
+function cloneData(D) { return JSON.parse(JSON.stringify(D)); }
+/* Apply a change to the assessment-year value. Energy changes also move the
+   inventoried Scope 1/2 totals by the saved energy times the profile factors,
+   so ledger emissions stay the base and initiatives adjust them. */
+function addField(D, k, d, prof) {
+  const f = FIELD[k]; if (!f) return;
+  const clamp = (v, ff) => { let x = Math.max(0, v); if (ff.pct) x = Math.min(100, x); if (ff.bool) x = x > 0 ? 1 : 0; return x; };
+  const bump = (key, dd) => { const ff = FIELD[key]; if (Array.isArray(D[key])) D[key][2] = clamp((num(D[key][2]) || 0) + dd, ff); else D[key] = clamp((num(D[key]) || 0) + dd, ff); };
+  bump(k, d);
+  if (!prof) return;
+  const EF = num(prof.gridEF) || 0, FEF = num(prof.fuelEF) || 0;
+  const has = key => Array.isArray(D[key]) && num(D[key][2]) != null;
+  if (has('scope2')) {
+    if (k === 'elec') bump('scope2', d / 1000 * EF);
+    if (k === 'onsiteRE' || k === 'offsiteRE') bump('scope2', -d / 1000 * EF);
+  }
+  if (has('scope1') && k === 'thermal') bump('scope1', d * FEF);
+}
+function isActive(i) { return i.include !== false && (i.status === 'Planned' || i.status === 'In progress'); }
+function activeIds(st, opt = {}) {
+  return (st.initiatives || []).filter(i => {
+    if (opt.set) return opt.set.includes(i.id);
+    if (!isActive(i)) return false;
+    if (opt.exclude === i.id) return false;
+    if (opt.only && opt.only !== i.id) return false;
+    return true;
+  }).map(i => i.id);
+}
+function project(st, opt = {}) {
+  const D = cloneData(opt.D || st.data);
+  const ids = activeIds(st, opt);
+  (st.initiatives || []).forEach(i => {
+    if (!ids.includes(i.id)) return;
+    (i.impacts || []).forEach(x => { const d = num(x.d); if (d) addField(D, x.f, d, st.profile); });
+  });
+  return D;
+}
+
+function scoreAll(st, o = {}) {
+  const projected = !!(o.projected || o.only || o.exclude || o.set);
+  const D = o.D || (projected ? project(st, o) : st.data);
+  const ctx = ctxOf(st.profile);
+  const ids = projected ? activeIds(st, o) : [];
+  const counted = (st.initiatives || []).filter(i => i.status === 'Implemented' || ids.includes(i.id)).map(i => Object.assign({}, i, { status: 'Implemented' }));
+  const M = computeMetrics(D, st.profile, counted, false);
+  const R = {};
+  CREDITS.forEach(c => { R[c.id] = scoreCredit(c, M, ctx, st); });
+  const params = P3.map(p => {
+    const cs = CREDITS.filter(c => c.p === p.id && !R[c.id].excluded);
+    const excluded = cs.length === 0;
+    let pts = 0, comp = 0, claim = 0, max = 0, answered = 0;
+    cs.forEach(c => { const r = R[c.id]; pts += r.pts; max += r.max; if (r.kind === 'computed') comp += r.pts; else claim += r.pts; if (r.answered) answered++; });
+    const cap = ctx.seg === 'svc' && (p.id === 'MCR' || p.id === 'GSC') ? 75 : p.max;
+    if (pts > cap) { const f = cap / pts; pts = cap; comp *= f; claim *= f; }
+    return { id: p.id, name: p.name, max: excluded ? 0 : cap, pts, comp, claim, answered, n: cs.length, excluded };
+  });
+  const gates = GATES.filter(g => !(ctx.seg === 'svc' && g.p === 'PSLCA'));
+  const gatesMet = gates.filter(g => st.gates[g.id]).length;
+  const total = params.reduce((a, p) => a + p.pts, 0);
+  const n = params.reduce((a, p) => a + p.n, 0), answered = params.reduce((a, p) => a + p.answered, 0);
+  return { R, M, D, ctx, params, total, max: ctx.seg === 'svc' ? 825 : 1000,
+    comp: params.reduce((a, p) => a + p.comp, 0), claim: params.reduce((a, p) => a + p.claim, 0),
+    coverage: n ? answered / n : 0, gatesMet, gatesN: gates.length };
+}
+
+/* Apply a version lens to a V3 credit-level result */
+function lens(res, ver) {
+  if (ver === 'V3') {
+    const scaled = res.max === 825 ? res.total * 1000 / 825 : res.total;
+    return { ver, params: res.params.filter(p => !p.excluded).map(p => ({ id: p.id, name: p.name, max: p.max, pts: p.pts, comp: p.comp, claim: p.claim })),
+      total: res.total, max: res.max, bandScore: scaled, band: bandOf(scaled), provisional: res.max === 825,
+      note: res.max === 825 ? 'Service sector: rated out of 825. Band shown on a score scaled to 1000; confirm banding with CII.' : null };
+  }
+  const W = ver === 'LITE' ? 'lite' : 'w';
+  const params = P4.map(p => {
+    const ids = CREDITS.filter(c => v4Of(c.id) === p.id && !res.R[c.id].excluded).map(c => c.id);
+    const poss = ids.reduce((a, id) => a + res.R[id].max, 0);
+    const got = ids.reduce((a, id) => a + res.R[id].pts, 0);
+    const comp = ids.reduce((a, id) => a + (res.R[id].kind === 'computed' ? res.R[id].pts : 0), 0);
+    const f = poss ? p[W] / poss : 0;
+    return { id: p.id, name: p.name, max: poss ? p[W] : 0, pts: got * f, comp: comp * f, claim: (got - comp) * f, from: ids };
+  });
+  const total = params.reduce((a, p) => a + p.pts, 0), max = params.reduce((a, p) => a + p.max, 0);
+  const bandScore = max ? total * 1000 / max : 0;
+  return { ver, params, total, max, bandScore, band: bandOf(bandScore), provisional: true,
+    note: VERSIONS[ver].basis + (max !== (ver === 'LITE' ? 700 : 1000) ? ' Parameters with no mapped credits are left out and the score is scaled to 1000 for banding.' : '') };
+}
+
+/* Smallest change in a driver field that reaches targetPts on credit c */
+function requiredDelta(st, c, targetPts, D0) {
+  if (!c.driver) return null;
+  const f = c.driver, dir = c.dir, ctx = ctxOf(st.profile);
+  const test = d => { const D = cloneData(D0); addField(D, f, d, st.profile); const M = computeMetrics(D, st.profile, st.initiatives, false); const r = scoreCredit(c, M, ctx, st); return r.raw >= targetPts - 1e-9; };
+  if (test(0)) return 0;
+  const fd = FIELD[f];
+  const cur = Array.isArray(D0[f]) ? (num(D0[f][2]) || 0) : (num(D0[f]) || 0);
+  let hi = dir < 0 ? cur : (fd.pct ? 100 - cur : Math.max(cur * 6, 1000));
+  if (fd.bool) hi = 1;
+  if (!(hi > 0) || !test(dir * hi)) return null;
+  let lo = 0;
+  for (let k = 0; k < 60; k++) { const mid = (lo + hi) / 2; if (test(dir * mid)) hi = mid; else lo = mid; }
+  let d = dir * hi;
+  if (fd.int || c.isInt) d = dir * Math.ceil(hi - 1e-9);
+  return d;
+}
+
+/* Credit-level effect of one initiative delivered on its own */
+function initiativeEffect(st, id) {
+  const base = scoreAll(st), alone = scoreAll(st, { only: id });
+  const withAll = scoreAll(st, { projected: true }), without = scoreAll(st, { exclude: id });
+  const credits = CREDITS.map(c => ({ id: c.id, d: alone.R[c.id].pts - base.R[c.id].pts })).filter(x => Math.abs(x.d) > 0.001);
+  return { standalone: alone.total - base.total, marginal: withAll.total - without.total, credits };
+}
+
+return { activeIds, LEVELS, BANDS, bandOf, nextBand, SECTORS, classify, ctxOf, P3, P4, v4Of, VERSIONS, FIELDS, FIELD, CREDITS, CREDIT, GATES,
+  computeMetrics, scoreCredit, scoreAll, lens, project, requiredDelta, initiativeEffect, band, num, fmtN, cloneData, addField, isActive, RE_EXP, EE_STEP };
+})();
+if (typeof module !== 'undefined') module.exports = GC;
+</script>
+<script>
+/* Demo plant: self-consistent dataset for a 240-person automotive forging unit.
+   Emissions derive from energy data using the grid and fuel factors in the profile. */
+function gcSeed() {
+  const L = { 'EE1.1':3,'EE1.2':4,'EE1.3':3,'EE2.1':3,'EE2.2':4,'EE2.3':3,'EE3.1':4,'EE3.2':3,'EE3.3':3,'EE5':2,'EE6.1':4,'EE6.2':2,
+    'WC1.1':3,'WC1.2':3,'WC2.1':3,'WC2.2':3,'WC3':4,'WC4.2':4,'RE1.1':4,'RE1.2':4,
+    'GHG1.1':4,'GHG1.2':4,'GHG2.1':3,'GHG2.2':3,'GHG3.1':4,'GHG3.2':3,
+    'WM1.1':3,'WM1.2':3,'WM2.1':3,'WM2.2':3,'WM3.1':3,'WM3.2':1,'WM6.1':3,'WM6.2':3,
+    'MCR1.1':4,'MCR1.2':4,'MCR2.1':3,'MCR2.2':3,'MCR3.1':4,'MCR3.2':4,
+    'GSC1.1':4,'GSC1.2':4,'GSC2.1':4,'GSC2.2':3,'GSC3':3,'GSC4.1':2,'GSC4.4':4,'GSC5.1':3,'GSC5.2':4,
+    'PSLCA1.1':3,'PSLCA1.2':4,'PSLCA2.1':4,'PSLCA2.2':4,'PSLCA2.3':4,'PSLCA3.1':3,'PSLCA3.2':4,'PSLCA3.3':4,'PSLCA4.1':3,
+    'PSLCA5.1':4,'PSLCA5.2':4,'PSLCA6.1':4,'PSLCA6.2':2,'PSLCA6.3':4,'PSLCA7':3,
+    'IE1':4,'IE2':4,'GI1.2':3,'GI1.4.1':3,'GI1.4.2':3,'GI2':4,'GI3':3 };
+  const gates = {}; ['EE-M1','EE-M2','EE-I','WC-M1','WC-M2','RE-M','GHG-M','WM-M1','WM-M2','MCR-M','GSC-M1','GSC-M2'].forEach(g => gates[g] = true);
+  return {
+    schema: 'terracap.greenco.assessment/1',
+    profile: {
+      org: 'Deccan Precision Forgings Pvt Ltd', plant: 'Hosur Unit 2', location: 'Hosur, Tamil Nadu',
+      sector: 'Automobile', version: 'V3', customerLabel: '', years: ['FY 2022-23', 'FY 2023-24', 'FY 2024-25'],
+      gridEF: 0.71, fuelEF: 0.0561, igbc: false, priorRating: 'Gold', climateRisk: false,
+      eeCatOv: 'auto', reCatOv: 'auto', ghgOv: 'auto', productUnit: 't forgings'
+    },
+    data: {
+      prod: [19000, 20500, 22000],
+      elec: [17400000, 17900000, 18000000], thermal: [48685, 49900, 50700],
+      onsiteRE: [1200000, 1700000, 2150000], onsiteTh: [0, 0, 0], offsiteRE: [3000000, 7200000, 11100000],
+      scope1: [3041.2, 3119.4, 3174.3], scope2: [9372, 6390, 3372.5], scope3: [3900, 3700, 3460], offsets: 1450, s3c1: 1, s3c2: 1, s3c3: 1, s3c4: 1,
+      fwProc: [66300, 66000, 66000], fwDom: [18654, 18700, 18600],
+      rwhPot: 28267, rwhCap: 18790, rwProc: 7229, recharge: 22000, rechargeProj: 1,
+      hazDisp: [310, 295, 274.2], hazAFR: 174.1, nonHaz: [1850, 2010, 2220], landfill: 95,
+      effl: [12000, 10500, 9144], efflRec: 3082, zldProc: 0, sew: [15600, 14100, 12995], sewRec: 11630, zldSew: 0,
+      rm: [20938, 22300, 23522], recycledIn: 22, cons: [185, 182, 176.9], pkg: [203.3, 196, 184.8], pkgRec: 81.5,
+      supCrit: 62, supAud: 34, supRated: 2, supImp: 6.8, inPkg: [145, 128, 107.6], transGHG: [1450, 1290, 1100.5],
+      emp: 240, certPros: 4, housingPct: 0, commutePct: 72
+    },
+    judged: L, options: { 'PSLCA4.2': 1, 'GI1.1': 2 }, best: {}, gates, targets: {},
+    evidence: { 'EE4': [{ name: 'SEC_FY23-25_monthly.xlsx', size: 184320, date: '2025-06-12' }], 'WC3': [{ name: 'Water_balance_FY25.pdf', size: 412000, date: '2025-06-20' }] },
+    initiatives: [
+      { id: 'I1', p: 'EE', credit: 'EE4', title: 'Reheating furnace recuperator upgrade', type: 'Energy project', status: 'Planned', owner: 'Utilities', start: '2025-10', end: '2026-03', capex: 85, saving: 42, innov: false,
+        impacts: [{ f: 'thermal', d: -2600 }], basis: 'Vendor estimate: combustion air preheated to 350 °C, 5% fuel saving on the 52,000 GJ furnace load.' },
+      { id: 'I2', p: 'EE', credit: 'EE4', title: 'Compressed air VFD and leak arrest', type: 'Energy project', status: 'Implemented', owner: 'Maintenance', start: '2023-06', end: '2023-11', capex: 22, saving: 31, innov: false,
+        impacts: [{ f: 'elec', d: -420000 }], basis: 'Measured: 48 kW average reduction over 8,760 hours. Already reflected in FY 2024-25 data.' },
+      { id: 'I3', p: 'WC', credit: 'WC4.1', title: 'Cooling tower blowdown recovery through RO', type: 'Water project', status: 'Planned', owner: 'Utilities', start: '2025-09', end: '2026-01', capex: 40, saving: 6, innov: false,
+        impacts: [{ f: 'fwProc', d: -3000 }], basis: '12 m³/day permeate at 70% recovery over 250 days.' },
+      { id: 'I4', p: 'WM', credit: 'WM5.2b', title: 'Monsoon buffer tank for STP overflow', type: 'Water project', status: 'Planned', owner: 'EHS', start: '2025-11', end: '2026-02', capex: 12, saving: 1, innov: false,
+        impacts: [{ f: 'sewRec', d: 1365 }], basis: 'Overflow volume from monsoon months in FY 2024-25 logs.' },
+      { id: 'I5', p: 'WM', credit: 'WM4.1', title: 'Shot-blast dust briquetting for reuse', type: 'Waste project', status: 'Planned', owner: 'EHS', start: '2026-01', end: '2026-05', capex: 18, saving: 4, innov: false,
+        impacts: [{ f: 'hazDisp', d: -10 }], basis: 'Briquettes accepted by the steel supplier as charge material.' },
+      { id: 'I6', p: 'MCR', credit: 'MCR4.1', title: 'Closed-die flash reduction through die redesign', type: 'Design innovation', status: 'Planned', owner: 'Tool room', start: '2025-08', end: '2026-06', capex: 30, saving: 150, innov: true,
+        impacts: [{ f: 'rm', d: -300 }], basis: 'Simulation shows flash falling from 9% to 7.7% of input weight on the top 12 parts.' },
+      { id: 'I7', p: 'GSC', credit: 'GSC4.3', title: 'Critical supplier audit drive', type: 'Supplier programme', status: 'In progress', owner: 'Purchase', start: '2025-07', end: '2026-03', capex: 0, saving: 0, innov: false,
+        impacts: [{ f: 'supAud', d: 23 }], basis: 'Two auditors, 3 audits a month.' },
+      { id: 'I8', p: 'RE', credit: 'RE3', title: 'Group captive solar, 3 MWp share', type: 'Renewable project', status: 'Planned', owner: 'Finance', start: '2025-10', end: '2026-09', capex: 60, saving: 95, innov: false,
+        impacts: [{ f: 'offsiteRE', d: 4200000 }], basis: '3 MWp at 16% capacity factor, wheeled through the state grid.' },
+      { id: 'I9', p: 'IE', credit: 'IE3', title: 'Induction billet heater replacing oil-fired furnace', type: 'Process innovation', status: 'Implemented', owner: 'Production', start: '2023-04', end: '2023-12', capex: 110, saving: 64, innov: true,
+        impacts: [], basis: 'Already in FY 2024-25 data.' },
+      { id: 'I10', p: 'IE', credit: 'IE3', title: 'PVD-coated forging dies for longer die life', type: 'Design innovation', status: 'Implemented', owner: 'Tool room', start: '2024-02', end: '2024-09', capex: 14, saving: 22, innov: true,
+        impacts: [], basis: 'Die life up 38% on trial parts.' },
+      { id: 'I11', p: 'GHG', credit: 'GHG5', title: 'Miyawaki plantation, 4 acres', type: 'Offset project', status: 'Planned', owner: 'EHS', start: '2025-08', end: '2026-08', capex: 9, saving: 0, innov: false,
+        impacts: [{ f: 'offsets', d: 500 }], basis: 'Assumes 125 tCO2e per acre per year sequestration.' }
+    ],
+    ai: {}, catAi: {}, overrides: {}, src: {}, ledger: null
+  };
+}
+
+
+/* Demo stand-in for the TerraCAP activity ledger, filtered to this facility node.
+   INTEGRATION: replace with the ledger API response for the plant and years. */
+function gcDemoLedger() {
+  const y3 = 'FY 2022-23 to FY 2024-25';
+  return {
+    source: 'TerraCAP activity ledger (demo data)', facility: 'Hosur Unit 2', syncedAt: new Date().toISOString(),
+    values: {
+      prod: [19000, 20500, 22000], elec: [17400000, 17900000, 18000000], thermal: [48685, 49900, 50700],
+      onsiteRE: [1200000, 1700000, 2150000], onsiteTh: [0, 0, 0], offsiteRE: [3000000, 7200000, 11100000],
+      scope1: [3041.2, 3119.4, 3174.3], scope2: [9372, 6390, 3372.5], scope3: [3900, 3700, 3460],
+      s3c1: 1, s3c2: 1, s3c3: 1, s3c4: 1,
+      fwProc: [66300, 66000, 66000], fwDom: [null, 18700, 18600],
+      hazDisp: [310, 295, 274.2], nonHaz: [1850, 2010, 2220], transGHG: [1450, 1290, 1100.5]
+    },
+    docs: {
+      prod: [{ name: 'Production MIS extracts', count: 36, period: y3 }],
+      elec: [{ name: 'Electricity bills, HT account', count: 36, period: y3 }],
+      thermal: [{ name: 'Natural gas and LPG purchase invoices', count: 42, period: y3 }],
+      onsiteRE: [{ name: 'Rooftop solar inverter exports', count: 36, period: y3 }],
+      offsiteRE: [{ name: 'Open-access wheeling statements', count: 24, period: 'FY 2023-24 to FY 2024-25' }, { name: 'Wind PPA invoices', count: 36, period: y3 }],
+      scope1: [{ name: 'TerraCAP GHG inventory report', count: 3, period: y3 }],
+      scope2: [{ name: 'TerraCAP GHG inventory report', count: 3, period: y3 }],
+      scope3: [{ name: 'Scope 3 calculation workbooks, categories 4, 5, 6, 7, 9', count: 3, period: y3 }],
+      s3c1: [{ name: 'Scope 3 category coverage register', count: 1, period: 'FY 2024-25' }],
+      fwProc: [{ name: 'Water meter logs and tanker invoices', count: 30, period: 'FY 2023-24 to FY 2024-25' }],
+      fwDom: [{ name: 'Water meter logs and tanker invoices', count: 30, period: 'FY 2023-24 to FY 2024-25' }],
+      hazDisp: [{ name: 'Hazardous waste manifests and annual returns', count: 58, period: y3 }],
+      nonHaz: [{ name: 'Scrap and waste sale invoices', count: 112, period: y3 }],
+      transGHG: [{ name: 'Freight invoices with lane and mode', count: 640, period: y3 }]
+    }
+  };
+}
+
+</script>
+<script>
+'use strict';
+/* ==========================================================================
+   GreenCo readiness module — UI
+   Integration points for the TerraCAP dev team (search "INTEGRATION"):
+   1. persist()/restore(): swap for TerraCAP assessment API.
+   2. aiCall(): set window.TERRACAP_AI_ENDPOINT to the TerraCAP AI proxy.
+   3. Fields marked ledger:true in GC.FIELDS: prefill from the activity ledger.
+   ========================================================================== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+const F = GC.fmtN;
+const MINUS = '\u2212';
+let S = gcSeed();
+const V = { sec: 'dash', param: 'EE', ip: 'EE', evp: 'EE', gapFilter: 'all', busy: {} };
+const CACHE = {};
+let charts = {};
+
+/* ---------- persistence (INTEGRATION: swap for TerraCAP assessment API) ---------- */
+let saveT = null;
+function persist() {
+  clearTimeout(saveT);
+  saveT = setTimeout(async () => {
+    const json = JSON.stringify(S);
+    try { if (window.storage && window.storage.set) { await window.storage.set('gc:assessment', json, false); return; } } catch (e) { }
+    try { window.localStorage.setItem('gc:assessment', json); } catch (e) { /* session only */ }
+  }, 400);
+}
+async function restore() {
+  try { if (window.storage && window.storage.get) { const r = await window.storage.get('gc:assessment', false); if (r && r.value) return JSON.parse(r.value); } } catch (e) { }
+  try { const v = window.localStorage.getItem('gc:assessment'); if (v) return JSON.parse(v); } catch (e) { }
+  return null;
+}
+function migrate(x) {
+  ['judged', 'options', 'best', 'gates', 'targets', 'evidence', 'ai', 'catAi', 'overrides', 'src'].forEach(k => { x[k] = x[k] || {}; });
+  x.initiatives = x.initiatives || [];
+  if (x.data && x.data.scope1 === undefined) { delete x.data.s1Other; x.data.scope1 = [null, null, null]; x.data.scope2 = [null, null, null]; }
+  return x;
+}
+function commit(msg) { persist(); recompute(); render(); if (msg) toast(msg); }
+
+/* ---------- TerraCAP ledger (INTEGRATION: window.TERRACAP_LEDGER) ---------- */
+/* Returns { source, facility, syncedAt, values: {field: [y0,y1,y2] | scalar}, docs: {field: [{name,count,period}]} }
+   filtered to this plant's facility node. null in a year = no ledger record for that year. */
+function ledgerFetch(profile) {
+  if (typeof window.TERRACAP_LEDGER === 'function') return window.TERRACAP_LEDGER(profile);
+  return gcDemoLedger();
+}
+function isArr(k) { return Array.isArray(S.data[k]); }
+function applyLedger() {
+  const L = S.ledger || { values: {}, docs: {} };
+  S.src = {}; S.overrides = S.overrides || {};
+  GC.FIELDS.forEach(f => {
+    if (!f.ledger) { S.src[f.k] = 'manual'; return; }
+    if (S.overrides[f.k]) { S.src[f.k] = 'override'; return; }
+    const lv = L.values[f.k];
+    if (isArr(f.k)) S.src[f.k] = [0, 1, 2].map(i => { const v = Array.isArray(lv) ? lv[i] : null; if (v != null) { S.data[f.k][i] = v; return 'ledger'; } return 'gap'; });
+    else if (lv != null) { S.data[f.k] = lv; S.src[f.k] = 'ledger'; } else S.src[f.k] = 'gap';
+  });
+}
+function srcOf(k, i) { const s = S.src[k]; return Array.isArray(s) ? s[i] : (s || 'manual'); }
+function ledgerStats() {
+  let led = 0, man = 0;
+  GC.FIELDS.forEach(f => { const n = isArr(f.k) ? 3 : 1; for (let i = 0; i < n; i++) srcOf(f.k, i) === 'ledger' ? led++ : man++; });
+  return { led, man };
+}
+function syncLedger() { S.ledger = ledgerFetch(S.profile); applyLedger(); commit('Synced from the TerraCAP ledger'); }
+function overrideRow(k) {
+  const f = GC.FIELD[k];
+  $('#modal').innerHTML = `<div class="mbox" role="dialog" aria-modal="true" aria-labelledby="oTitle" style="max-width:560px"><h3 id="oTitle">Override ledger values</h3>
+    <p>${esc(f.label)} comes from the TerraCAP ledger. An override changes this GreenCo assessment only; the ledger, the GHG inventory and other frameworks keep the ingested values, and the ledger's records stop counting as evidence for this field.</p>
+    <div class="fld" style="margin-top:12px"><label for="ovReason">Reason, shown in the submission pack</label><textarea id="ovReason" placeholder="For example, the ledger includes the canteen block, which is outside the GreenCo plant boundary"></textarea></div>
+    <div class="mfoot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="confirmOverride('${k}')">Override and edit</button></div></div>`;
+  $('#modal').hidden = false; setTimeout(() => $('#ovReason').focus(), 30);
+}
+function confirmOverride(k) { const r = $('#ovReason').value.trim(); if (!r) { toast('Give a reason for the override'); return; } S.overrides[k] = { reason: r, at: new Date().toISOString() }; closeModal(); applyLedger(); commit('Override recorded. Edit the values below.'); }
+function revertRow(k) { delete S.overrides[k]; applyLedger(); commit('Reverted to ledger values'); }
+function usedBy(f, cid) { return f.used.split(' ').some(t => t === cid || cid.replace(/[ab]$/, '') === t); }
+function ledgerDocsForCredit(cid) {
+  const L = S.ledger; if (!L) return [];
+  const out = [], seen = new Set();
+  GC.FIELDS.forEach(f => {
+    if (!f.ledger || !usedBy(f, cid)) return;
+    const s = S.src[f.k]; const fromLedger = Array.isArray(s) ? s.includes('ledger') : s === 'ledger';
+    if (!fromLedger) return;
+    (L.docs[f.k] || []).forEach(d => { if (seen.has(d.name)) return; seen.add(d.name); out.push(Object.assign({ field: f.label }, d)); });
+  });
+  return out;
+}
+let CONFIRM = null;
+function confirmBox(msg, ok, fn) {
+  CONFIRM = fn;
+  $('#modal').innerHTML = `<div class="mbox" role="alertdialog" aria-modal="true" style="max-width:440px"><p>${esc(msg)}</p><div class="mfoot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="const f=CONFIRM;closeModal();if(f)f()">${esc(ok)}</button></div></div>`;
+  $('#modal').hidden = false;
+}
+
+/* ---------- derived ---------- */
+function recompute() {
+  CACHE.res = GC.scoreAll(S);
+  CACHE.proj = GC.scoreAll(S, { projected: true });
+  CACHE.lens = GC.lens(CACHE.res, S.profile.version);
+  CACHE.plens = GC.lens(CACHE.proj, S.profile.version);
+}
+const RES = () => CACHE.res, PROJ = () => CACHE.proj;
+function curVal(D, k) { const v = D[k]; return Array.isArray(v) ? GC.num(v[2]) : GC.num(v); }
+function unitSuffix(u) { return u === '%' ? '%' : (u ? ' ' + u : ''); }
+function fmtVal(c, r) {
+  if (!r || r.val == null) return '—';
+  if (r.fmt) return r.fmt(r.val);
+  const u = r.unit || c.unit || '';
+  return u === '%' ? F(r.val, 2) + '%' : F(r.val, 2) + unitSuffix(u);
+}
+function fmtDelta(k, d) {
+  const f = GC.FIELD[k]; if (!f || d == null) return '—';
+  const a = Math.abs(d);
+  const s = d > 0 ? '+' : d < 0 ? MINUS : '';
+  if (f.bool) return d > 0 ? 'switch to yes' : 'switch to no';
+  return s + F(a, f.int ? 0 : (a < 10 ? 2 : 0)) + unitSuffix(f.unit);
+}
+function pts(x) { return F(x, 1); }
+function bandTag(b) { return `<span class="band-t bc-${b.cls}">${esc(b.name)}</span>`; }
+function kindTag(r) {
+  if (r.kind === 'computed') return '<span class="tag k-computed" title="Scored from plant data">Computed</span>';
+  if (r.kind === 'excluded') return '<span class="tag k-claimed">Not applicable</span>';
+  return '<span class="tag k-claimed" title="Self-claimed readiness; needs assessor acceptance">Self-claimed</span>';
+}
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 2200); }
+function paramName(id) { const p = GC.P3.find(x => x.id === id) || GC.P4.find(x => x.id === id); return p ? p.name : id; }
+function linkedInits(cid) { return S.initiatives.filter(i => i.credit === cid); }
+function destroyCharts() { Object.values(charts).forEach(c => { try { c.destroy(); } catch (e) { } }); charts = {}; }
+function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+
+/* ---------- shell ---------- */
+const NAV = [
+  { id: 'dash', label: 'Overview' },
+  { id: 'profile', n: 1, label: 'Plant profile' },
+  { id: 'data', n: 2, label: 'Plant data' },
+  { id: 'assess', n: 3, label: 'Assessment' },
+  { id: 'inits', n: 4, label: 'Initiatives' },
+  { id: 'gap', n: 5, label: 'Gaps and roadmap' },
+  { id: 'evidence', n: 6, label: 'Evidence' },
+  { id: 'pack', n: 7, label: 'Submission pack' },
+  { id: 'compare', label: 'Compare versions' }
+];
+function dataCompleteness() {
+  let n = 0, f = 0;
+  GC.FIELDS.forEach(fd => { const v = S.data[fd.k]; if (Array.isArray(v)) { n += 3; f += v.filter(x => GC.num(x) != null).length; } else { n++; if (GC.num(v) != null) f++; } });
+  return n ? f / n : 0;
+}
+function evidenceCoverage() {
+  const res = RES(); const cs = GC.CREDITS.filter(c => !res.R[c.id].excluded);
+  return cs.filter(c => (S.evidence[c.id] || []).length || ledgerDocsForCredit(c.id).length).length / cs.length;
+}
+function stepStatus(id) {
+  const res = RES();
+  switch (id) {
+    case 'dash': return GC.VERSIONS[S.profile.version].name;
+    case 'profile': return S.profile.sector ? esc(S.profile.sector) : 'Not set';
+    case 'data': { const s = ledgerStats(); return s.led + ' from ledger, ' + s.man + ' entered here'; }
+    case 'assess': return Math.round(res.coverage * 100) + '% of credits answered';
+    case 'inits': { const a = S.initiatives.filter(GC.isActive).length; return S.initiatives.length + ' logged, ' + a + ' in projection'; }
+    case 'gap': return pts(res.max - res.total) + ' points not yet earned';
+    case 'evidence': return Math.round(evidenceCoverage() * 100) + '% of credits evidenced';
+    case 'pack': return 'Export and print';
+    case 'compare': return 'V3, V4, Lite';
+  }
+  return '';
+}
+function stepDone(id) {
+  const res = RES();
+  return (id === 'profile' && !!S.profile.sector) || (id === 'data' && dataCompleteness() > 0.95) || (id === 'assess' && res.coverage > 0.99) || (id === 'evidence' && evidenceCoverage() > 0.99);
+}
+function renderRail() {
+  $('#rail').innerHTML = NAV.map((n, i) => {
+    const mark = n.n ? `<span class="n ${stepDone(n.id) ? 'ok' : ''}">${stepDone(n.id) ? '✓' : n.n}</span>` : `<span class="n plain" aria-hidden="true">${n.id === 'dash' ? '◎' : '⇄'}</span>`;
+    return (n.id === 'compare' ? '<hr>' : '') + `<button class="${V.sec === n.id ? 'on' : ''}" onclick="go('${n.id}')" ${V.sec === n.id ? 'aria-current="page"' : ''}>${mark}<span class="t"><b>${n.label}</b><span>${stepStatus(n.id)}</span></span></button>`;
+  }).join('');
+}
+function renderTop() {
+  const p = S.profile, L = CACHE.lens;
+  $('#plantctx').innerHTML = `<b>${esc(p.plant)}, ${esc(p.org)}</b><span>${esc(p.sector)} | ${esc(p.years[0])} to ${esc(p.years[2])}${p.customerLabel ? ' | customer label: ' + esc(p.customerLabel) : ''}</span>`;
+  $('#verSel').value = p.version;
+  $('#scorepill').innerHTML = `<span class="muted small">Indicative</span><b>${pts(L.total)}</b><span class="muted small">/ ${F(L.max, 0)}</span><span class="bn bc-${L.band.cls}">${L.band.name}</span>`;
+}
+function go(sec) { V.sec = sec; render(); window.scrollTo({ top: 0 }); }
+function setVersion(v) { S.profile.version = v; commit('Scoring version set to ' + GC.VERSIONS[v].name); }
+function render() {
+  destroyCharts();
+  renderTop(); renderRail();
+  const fn = { dash: rDash, profile: rProfile, data: rData, assess: rAssess, inits: rInits, gap: rGap, evidence: rEvidence, pack: rPack, compare: rCompare }[V.sec];
+  $('#main').innerHTML = fn();
+  const after = { dash: aDash, gap: aGap, evidence: aEvidence, compare: aCompare }[V.sec];
+  if (after && window.Chart) setTimeout(after, 0);
+}
+const DISCLAIMER = 'Indicative self-assessment computed from data entered in TerraCAP. This is not a CII rating. CII assessors and the judges\u2019 panel determine the actual rating.';
+function disclaim() {
+  const v = GC.VERSIONS[S.profile.version];
+  return `<div class="disclaim">${DISCLAIMER}${v.provisional ? ' <b>' + v.name + ' scores are provisional:</b> ' + esc(v.basis) : ''}</div>`;
+}
+
+/* ---------- ladder ---------- */
+function ladder(L, PL) {
+  const f = L.total ? L.bandScore / L.total : 1;
+  const compS = L.params.reduce((a, p) => a + p.comp, 0) * f;
+  const pos = v => Math.max(0, Math.min(100, v / 10));
+  const segs = [[0, 350, 'none', ''], [350, 450, 'cert', 'Certified'], [450, 550, 'bron', 'Bronze'], [550, 650, 'silv', 'Silver'], [650, 750, 'gold', 'Gold'], [750, 1000, 'plat', 'Platinum']];
+  const track = segs.map(s => `<div class="seg" style="width:${(s[1] - s[0]) / 10}%;background:var(--b-${s[2]});${s[2] === 'none' ? '' : 'opacity:.85'}"></div>`).join('');
+  const labels = segs.filter(s => s[3]).map(s => `<span style="left:${s[0] / 10}%">${s[3]}<br>${s[0]}</span>`).join('');
+  const mk = (cls, v, label) => `<div class="mk ${cls}" style="left:${pos(v)}%"><i></i><em>${label}</em></div>`;
+  return `<div class="ladder" role="img" aria-label="Score ${pts(L.bandScore)} of 1000 on the GreenCo band scale">
+    <div class="track">${track}</div><div class="blabels">${labels}</div>
+    ${mk('', L.bandScore, 'Now ' + pts(L.bandScore))}
+    ${PL && Math.abs(PL.bandScore - L.bandScore) > 0.5 ? mk('proj', PL.bandScore, 'With initiatives ' + pts(PL.bandScore)) : ''}
+    ${mk('comp', compS, 'From plant data ' + pts(compS))}
+  </div>`;
+}
+
+/* ---------- overview ---------- */
+function nearMisses() {
+  const res = RES(), out = [];
+  GC.CREDITS.forEach(c => {
+    const r = res.R[c.id];
+    if (c.kind !== 'C' || !r.next || r.val == null || r.kind !== 'computed') return;
+    const gap = r.next[0] - r.val;
+    const lim = r.unit === '%' ? 2 : Math.max(0.15 * Math.abs(r.next[0]), 0.01);
+    if (gap > 0 && gap <= lim) out.push({ c, r, gap, gain: r.next[1] * (r.max / c.max) - r.pts });
+  });
+  return out.sort((a, b) => b.gain - a.gain);
+}
+function biggestGaps(n) {
+  const res = RES();
+  return GC.CREDITS.map(c => ({ c, r: res.R[c.id], lost: res.R[c.id].max - res.R[c.id].pts })).filter(x => !x.r.excluded && x.lost > 0.05).sort((a, b) => b.lost - a.lost).slice(0, n);
+}
+function rDash() {
+  const L = CACHE.lens, PL = CACHE.plens, res = RES();
+  const f = L.total ? L.bandScore / L.total : 1;
+  const comp = L.params.reduce((a, p) => a + p.comp, 0), claim = L.params.reduce((a, p) => a + p.claim, 0);
+  const gatesOk = res.gatesMet === res.gatesN;
+  const plat = platPlus(L);
+  const nm = nearMisses(), gaps = biggestGaps(6);
+  return `${disclaim()}
+  <div class="panel">
+    <div class="hero">
+      <div>
+        <div class="big"><span class="num">${pts(L.total)}</span><span class="of">of ${F(L.max, 0)}</span>${bandTag(L.band)}</div>
+        <p class="cap">${esc(GC.VERSIONS[S.profile.version].name)} ${L.provisional ? '<span class="tag k-prov">Provisional</span>' : ''} ${L.bandScore !== L.total ? '<span class="muted small">Band on scaled score ' + pts(L.bandScore) + ' of 1000</span>' : ''}</p>
+        ${ladder(L, PL)}
+        <div class="legend"><span><i style="background:var(--ink)"></i>Indicative score now</span><span><i style="background:var(--green-d)"></i>Points computed from plant data</span><span><i style="border-top:2px dashed var(--ai);height:0"></i>If planned initiatives deliver</span></div>
+      </div>
+      <div class="stats">
+        <div><span>Computed from plant data</span><b>${pts(comp)}</b></div>
+        <div><span>Self-claimed readiness</span><b>${pts(claim)}</b></div>
+        <div><span>With planned initiatives</span><b>${pts(PL.total)} <span class="bc-${PL.band.cls}">${PL.band.name}</span></b></div>
+        <div><span>Credits answered</span><b>${Math.round(res.coverage * 100)}%</b></div>
+        <div><span>Mandatory requirements met</span><b class="${gatesOk ? '' : 'bc-none'}" style="${gatesOk ? '' : 'color:var(--red)'}">${res.gatesMet} of ${res.gatesN}</b></div>
+        <div><span>Platinum+ readiness</span><b style="font-weight:600;font-size:12.5px;text-align:right">${plat}</b></div>
+      </div>
+    </div>
+    ${gatesOk ? '' : '<div class="note bad" style="margin-top:14px"><b>Mandatory requirements are incomplete.</b> CII will not rate the plant until every mandatory requirement is met, whatever the points total. Open Assessment to see which.</div>'}
+    ${L.note ? '<div class="note warn" style="margin-top:14px">' + esc(L.note) + '</div>' : ''}
+  </div>
+  <div class="grid2" style="margin-top:14px">
+    <div class="panel">
+      <div class="row" style="margin-bottom:12px"><h3>Points by parameter</h3><span class="sp"></span><span class="muted small">Select a row to open it</span></div>
+      <div class="pbars">${L.params.filter(p => p.max > 0).map(p => {
+        const pp = PL.params.find(x => x.id === p.id);
+        return `<div class="pbar" onclick="openParam('${p.id}')" role="button" tabindex="0">
+          <span class="nm">${esc(p.name)}</span>
+          <div class="bar" title="${pts(p.comp)} computed, ${pts(p.claim)} self-claimed"><span class="c" style="width:${p.comp / p.max * 100}%"></span><span class="l" style="width:${p.claim / p.max * 100}%"></span>${pp && pp.pts > p.pts + 0.05 ? `<span class="pj" style="left:${Math.min(100, pp.pts / p.max * 100)}%"></span>` : ''}</div>
+          <span class="v">${pts(p.pts)} <span class="muted small">/ ${F(p.max, 0)}</span></span></div>`;
+      }).join('')}</div>
+      <div class="legend"><span><i style="background:var(--green)"></i>Computed</span><span><i style="background:var(--claim)"></i>Self-claimed</span><span><i style="border-top:2px dashed var(--ai);height:0"></i>With planned initiatives</span></div>
+    </div>
+    <div class="panel">
+      <h3>Close to the next band</h3>
+      <p class="muted small" style="margin:2px 0 8px">Performance credits within two percentage points (or 15%) of the next threshold. These are usually the cheapest points available.</p>
+      <div class="mini">${nm.length ? nm.map(x => `<div class="it" onclick="openCredit('${x.c.id}')"><b>${x.c.id}</b><span>${esc(x.c.name)}<br><span class="muted small">Now ${fmtVal(x.c, x.r)}, next band at ${x.r.op === '>' ? 'over' : 'at least'} ${F(x.r.next[0], 2)}${x.r.unit === '%' ? '%' : ''}</span></span><span class="g" style="color:var(--green)">+${pts(x.gain)}</span></div>`).join('') : '<p class="muted">No performance credit is within reach of its next band.</p>'}</div>
+      <h3 style="margin-top:18px">Largest point gaps</h3>
+      <div class="mini">${gaps.map(x => `<div class="it" onclick="openCredit('${x.c.id}')"><b>${x.c.id}</b><span>${esc(x.c.name)} ${kindTag(x.r)}</span><span class="g" style="color:var(--red)">${MINUS}${pts(x.lost)}</span></div>`).join('')}</div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:14px"><h3>Share of each parameter achieved</h3><div class="chartbox"><canvas id="chDash"></canvas></div></div>`;
+}
+function platPlus(L) {
+  const p = S.profile;
+  if (L.band.name !== 'Platinum') return 'Needs a Platinum score first';
+  const miss = [];
+  if (!['Platinum', 'Platinum+'].includes(p.priorRating)) miss.push('a prior Platinum rating');
+  if (!p.climateRisk) miss.push('a climate risk assessment');
+  return miss.length ? 'Also needs ' + miss.join(' and ') : 'Criteria indicated by CII publications are in place';
+}
+function aDash() {
+  const L = CACHE.lens, el = $('#chDash'); if (!el) return;
+  const ps = L.params.filter(p => p.max > 0);
+  charts.d = new Chart(el, {
+    type: 'bar',
+    data: { labels: ps.map(p => p.id), datasets: [
+      { label: 'Computed', data: ps.map(p => +(p.comp / p.max * 100).toFixed(1)), backgroundColor: cssVar('--green'), stack: 's' },
+      { label: 'Self-claimed', data: ps.map(p => +(p.claim / p.max * 100).toFixed(1)), backgroundColor: cssVar('--claim'), stack: 's' }] },
+    options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, max: 100, ticks: { callback: v => v + '%' } }, x: { stacked: true } },
+      plugins: { tooltip: { callbacks: { title: it => paramName(ps[it[0].dataIndex].id) } } } }
+  });
+}
+function openParam(id) {
+  if (S.profile.version === 'V3') { V.param = id; } else { V.param = id; }
+  go('assess');
+}
+function openCredit(cid) {
+  const c = GC.CREDIT[cid];
+  V.param = S.profile.version === 'V3' ? c.p : GC.v4Of(cid);
+  go('assess');
+  setTimeout(() => { const e = document.getElementById('cr-' + cid.replace(/\./g, '_')); if (e) { e.scrollIntoView({ block: 'center' }); e.style.outline = '2px solid var(--green)'; setTimeout(() => e.style.outline = '', 1600); } }, 60);
+}
+
+/* ---------- profile ---------- */
+function sectorOptions(sel) {
+  const g = { mfg: [], svc: [] };
+  Object.entries(GC.SECTORS).forEach(([k, v]) => g[v.seg].push(k));
+  return `<optgroup label="Manufacturing">${g.mfg.map(k => `<option ${k === sel ? 'selected' : ''}>${esc(k)}</option>`).join('')}</optgroup><optgroup label="Service">${g.svc.map(k => `<option ${k === sel ? 'selected' : ''}>${esc(k)}</option>`).join('')}</optgroup>`;
+}
+function setP(k, v) { S.profile[k] = v; commit(); }
+function setYear(i, v) { S.profile.years[i] = v; commit(); }
+function rProfile() {
+  const p = S.profile, k = GC.classify(p);
+  const srcTag = s => s.src === 'guide' ? '<span class="tag k-computed">From V3 guide</span>' : s.src === 'override' ? '<span class="tag k-ai">Override</span>' : '<span class="tag k-prov">Not listed in V3 guide</span>';
+  const ovSel = (key, cur, opts) => `<select onchange="setP('${key}',this.value)"><option value="auto" ${cur === 'auto' ? 'selected' : ''}>Use sector default</option>${opts.map(o => `<option value="${o[0]}" ${String(cur) === String(o[0]) ? 'selected' : ''}>${o[1]}</option>`).join('')}</select>`;
+  return `<div class="sechead"><div><h2>Plant profile</h2><p>GreenCo rates one plant at a time. The sector sets which targets and thresholds apply; the version sets how the score is presented.</p></div></div>
+  <div class="panel"><h3 style="margin-bottom:12px">Plant</h3>
+    <div class="form">
+      <div class="fld"><label>Organisation</label><input value="${esc(p.org)}" onchange="setP('org',this.value)"></div>
+      <div class="fld"><label>Plant or unit</label><input value="${esc(p.plant)}" onchange="setP('plant',this.value)"></div>
+      <div class="fld"><label>Location</label><input value="${esc(p.location)}" onchange="setP('location',this.value)"></div>
+      <div class="fld"><label>Sector</label><select onchange="setP('sector',this.value)">${sectorOptions(p.sector)}</select><div class="hint">${k.seg === 'svc' ? 'Service sector: rated out of 825; Product Stewardship does not apply.' : 'Manufacturing: rated out of 1000.'}</div></div>
+      <div class="fld"><label>Production unit</label><input value="${esc(p.productUnit)}" onchange="setP('productUnit',this.value)"><div class="hint">Used as the denominator for every specific-consumption credit.</div></div>
+    </div></div>
+  <div class="panel"><h3 style="margin-bottom:12px">Assessment version</h3>
+    <div class="vcards">${Object.values(GC.VERSIONS).map(v => `<button class="vcard ${p.version === v.id ? 'on' : ''}" onclick="setVersion('${v.id}')" aria-pressed="${p.version === v.id}"><b>${v.name}</b><span>${esc(v.sub)}</span>${v.provisional ? '<div style="margin-top:6px"><span class="tag k-prov">Provisional scoring</span></div>' : ''}</button>`).join('')}</div>
+    <p class="muted small" style="margin-top:10px">${esc(GC.VERSIONS[p.version].basis)} Plant data is stored once, so switching version re-scores the same data without re-entry.</p>
+    <div class="form" style="margin-top:12px">
+      <div class="fld"><label>Customer's own version label (optional)</label><input value="${esc(p.customerLabel)}" placeholder="For example V4.1" onchange="setP('customerLabel',this.value)"><div class="hint">Recorded on the pack for reference. Scoring uses the version selected above.</div></div>
+      ${[0, 1, 2].map(i => `<div class="fld"><label>${['Baseline year', 'Middle year', 'Assessment year'][i]}</label><input value="${esc(p.years[i])}" onchange="setYear(${i},this.value)"></div>`).join('')}
+    </div></div>
+  <div class="panel"><h3>Sector classification</h3><p class="muted small" style="margin:2px 0 12px">These three lookups change thresholds by up to 20 points. The assessor accepts or rejects the classification, so justify any override in the pack.</p>
+    <table class="tbl"><thead><tr><th>Lookup</th><th>Applied</th><th>Source</th><th>Override</th></tr></thead><tbody>
+      <tr><td>Energy (EE4) sector category</td><td>Category ${k.ee.v}: each band step is ${GC.EE_STEP[k.ee.v]}%</td><td>${srcTag(k.ee)}</td><td>${ovSel('eeCatOv', p.eeCatOv, [[1, 'Category 1'], [2, 'Category 2'], [3, 'Category 3'], [4, 'Category 4']])}</td></tr>
+      <tr><td>Renewable energy category</td><td>Category ${k.re.v}: ${GC.RE_EXP[k.re.v]}% substitution expected${k.re.v >= 3 ? ', electricity only' : ''}</td><td>${srcTag(k.re)}</td><td>${ovSel('reCatOv', p.reCatOv, [[1, 'Category 1 (90%)'], [2, 'Category 2 (70%)'], [3, 'Category 3 (50%)'], [4, 'Category 4 (30%)']])}</td></tr>
+      <tr><td>GHG intensity class</td><td>${k.ghg.v === 'int' ? 'GHG-intensive: lower reduction thresholds' : 'Non-intensive'}</td><td>${srcTag(k.ghg)}</td><td>${ovSel('ghgOv', p.ghgOv, [['int', 'GHG-intensive'], ['non', 'Non-intensive']])}</td></tr>
+    </tbody></table></div>
+  <div class="panel"><h3 style="margin-bottom:12px">Emission factors and status</h3>
+    <div class="form">
+      <div class="fld"><label>Grid electricity factor (tCO2 per MWh)</label><input type="number" step="any" value="${esc(p.gridEF)}" onchange="setP('gridEF',this.value)"><div class="hint">Plant Scope 2 comes from the ledger inventory. This factor only converts initiative electricity savings into tCO2e.</div></div>
+      <div class="fld"><label>Fuel factor (tCO2 per GJ)</label><input type="number" step="any" value="${esc(p.fuelEF)}" onchange="setP('fuelEF',this.value)"><div class="hint">Converts initiative fuel savings into tCO2e; plant Scope 1 comes from the ledger.</div></div>
+      <div class="fld"><label>Previous GreenCo rating</label><select onchange="setP('priorRating',this.value)">${['None', 'Certified', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Platinum+'].map(o => `<option ${o === p.priorRating ? 'selected' : ''}>${o}</option>`).join('')}</select></div>
+    </div>
+    <div class="row" style="margin-top:12px;gap:22px">
+      <label class="chk"><input type="checkbox" ${p.igbc ? 'checked' : ''} onchange="setP('igbc',this.checked)"> Plant holds an IGBC Green Factory rating (GI1 option 1)</label>
+      <label class="chk"><input type="checkbox" ${p.climateRisk ? 'checked' : ''} onchange="setP('climateRisk',this.checked)"> Climate risk assessment completed (indicated for Platinum+)</label>
+    </div></div>`;
+}
+
+/* ---------- plant data ---------- */
+function setD(k, i, v) {
+  const f = GC.FIELD[k]; const n = v === '' ? '' : (f.bool ? (v ? 1 : 0) : parseFloat(v));
+  if (Array.isArray(S.data[k])) S.data[k][i] = n; else S.data[k] = n;
+  commit();
+}
+function rowSource(f) {
+  if (!f.ledger) return '<span class="muted small">Entered here</span>';
+  const o = S.overrides[f.k];
+  if (o) return `<span class="tag k-prov">Overridden</span><div class="muted small" style="margin-top:3px;max-width:220px">${esc(o.reason)}</div><button class="linkbtn" onclick="revertRow('${f.k}')">Revert to ledger</button>`;
+  const n = isArr(f.k) ? 3 : 1, cells = [...Array(n)].map((_, i) => srcOf(f.k, i));
+  const led = cells.filter(c => c === 'ledger').length;
+  if (!led) return '<span class="small" style="color:var(--amber)">Not in ledger: enter here</span>';
+  return `<span class="src">From ledger${led < n ? `, ${n - led} year${n - led > 1 ? 's' : ''} missing` : ''}</span><br><button class="linkbtn" onclick="overrideRow('${f.k}')">Override</button>`;
+}
+function rData() {
+  const p = S.profile, res = RES(), Y = res.M.Y, st = ledgerStats(), L = S.ledger || {};
+  const groups = [...new Set(GC.FIELDS.map(f => f.g))];
+  const cell = (f, i) => {
+    const v = Array.isArray(S.data[f.k]) ? S.data[f.k][i] : S.data[f.k];
+    const src = srcOf(f.k, i);
+    if (src === 'ledger') return `<div class="lv" title="From the TerraCAP ledger">${f.bool ? (GC.num(v) > 0 ? 'Yes' : 'No') : F(v, 2)}</div>`;
+    const gap = src === 'gap' && f.ledger;
+    if (f.bool) return `<input type="checkbox" aria-label="${esc(f.label)}" ${GC.num(v) > 0 ? 'checked' : ''} onchange="setD('${f.k}',${i},this.checked)">`;
+    return `<input class="${gap ? 'gapin' : ''}" type="number" step="any" aria-label="${esc(f.label)} ${esc(p.years[i])}" title="${gap ? 'No ledger record for this year' : ''}" value="${v == null ? '' : esc(v)}" onchange="setD('${f.k}',${i},this.value)">`;
+  };
+  const s1src = srcOf('scope1', 2) === 'ledger' ? 'ledger inventory' : 'calculated from fuel';
+  const s2src = srcOf('scope2', 2) === 'ledger' ? 'ledger inventory' : 'calculated from grid electricity';
+  const derived = [
+    ['Total energy', Y.map(y => F(y.totGJ, 0) + ' GJ')],
+    ['Specific energy consumption', Y.map(y => F(y.sec, 3) + ' GJ/unit')],
+    ['Grid electricity', Y.map(y => F(y.grid, 0) + ' kWh')],
+    ['Scope 1 (' + s1src + ')', Y.map(y => F(y.s1, 0) + ' tCO2e')],
+    ['Scope 2 (' + s2src + ')', Y.map(y => F(y.s2, 0) + ' tCO2e')],
+    ['Scope 1+2 intensity', Y.map(y => F(y.ghgInt, 4) + ' tCO2e/unit')],
+    ['Specific fresh water', Y.map(y => F(y.swc, 3) + ' m³/unit')]
+  ];
+  return `<div class="sechead"><div><h2>Plant data</h2><p>Values already ingested into TerraCAP for the GHG inventory and other frameworks fill in automatically and are not re-entered. Enter only what the ledger does not hold.</p></div>
+    <button class="btn" onclick="syncLedger()">Sync from ledger</button></div>
+  <div class="panel ledgerbar">
+    <div class="lstat"><b>${st.led}</b><span>values from the TerraCAP ledger</span></div>
+    <div class="lstat"><b>${st.man}</b><span>values entered here</span></div>
+    <div class="lstat"><b>${Object.keys(S.overrides || {}).length}</b><span>ledger fields overridden</span></div>
+    <p class="small muted" style="flex:1;min-width:260px">${esc(L.source || 'No ledger connected')} for ${esc(L.facility || p.plant)}${L.syncedAt ? ', synced ' + new Date(L.syncedAt).toLocaleString() : ''}. Scope 3 is pulled for the categories GreenCo counts (logistics, business travel, waste, commute), not the plant's full Scope 3. Amber cells are years the ledger has no record for.</p>
+  </div>
+  <div class="panel"><h3>Derived figures</h3><p class="muted small" style="margin:2px 0 10px">Calculated from the values below.</p>
+    <div class="scroll"><table class="tbl"><thead><tr><th>Figure</th>${p.years.map(y => `<th class="r">${esc(y)}</th>`).join('')}</tr></thead><tbody>
+    ${derived.map(d => `<tr><td>${d[0]}</td>${d[1].map(x => `<td class="r">${x}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>
+  <div class="panel"><div class="scroll"><table class="tbl"><thead><tr><th style="min-width:250px">Field</th><th>Unit</th>${p.years.map(y => `<th class="r">${esc(y)}</th>`).join('')}<th>Source</th></tr></thead><tbody>
+  ${groups.map(g => `<tr class="grp"><td colspan="6">${esc(g)}</td></tr>` + GC.FIELDS.filter(f => f.g === g).map(f => `<tr>
+    <td>${esc(f.label)}<div class="used">${f.used.split(' ').map(x => `<span>${x}</span>`).join('')}</div></td><td class="muted">${esc(f.unit)}</td>
+    ${f.yrs === 3 ? [0, 1, 2].map(i => `<td>${cell(f, i)}</td>`).join('') : `<td></td><td></td><td>${cell(f, 0)}</td>`}
+    <td>${rowSource(f)}</td></tr>`).join('')).join('')}
+  </tbody></table></div></div>`;
+}
+/* ---------- assessment ---------- */
+function groupsForLens() {
+  if (S.profile.version === 'V3') return GC.P3.filter(p => !(RES().ctx.seg === 'svc' && p.id === 'PSLCA')).map(p => ({ id: p.id, name: p.name, credits: GC.CREDITS.filter(c => c.p === p.id).map(c => c.id) }));
+  return GC.P4.map(p => ({ id: p.id, name: p.name, credits: GC.CREDITS.filter(c => GC.v4Of(c.id) === p.id && !RES().R[c.id].excluded).map(c => c.id) })).filter(g => g.credits.length);
+}
+function setJ(id, lv) { if (S.judged[id] === lv) delete S.judged[id]; else S.judged[id] = lv; commit(); }
+function setO(id, v) { if (v === '') delete S.options[id]; else S.options[id] = +v; commit(); }
+function setGate(id, v) { S.gates[id] = v; commit(); }
+function setBest(id, v) { S.best[id] = v; commit(); }
+function bandChips(r) {
+  if (!r.bands) return '';
+  const op = r.op === '>' ? '>' : '≥';
+  return '<div class="bchips">' + r.bands.map((b, i) => `<span class="bchip ${i <= r.idx ? 'on' : ''} ${i === r.idx + 1 ? 'nx' : ''}">${op} ${F(b[0], 2)}${r.unit === '%' ? '%' : ''} <b>${F(b[1], 1)}</b></span>`).join('') + '</div>';
+}
+function creditCard(cid) {
+  const c = GC.CREDIT[cid], r = RES().R[cid], pr = PROJ().R[cid];
+  if (r.excluded) return '';
+  const inits = linkedInits(cid), ev = (S.evidence[cid] || []).length, ld = ledgerDocsForCredit(cid).length;
+  let body = '';
+  if (c.kind === 'C') {
+    const projTxt = pr.val != null && r.val != null && Math.abs(pr.val - r.val) > 1e-6 ? `<span class="muted small">With planned initiatives: <b style="color:var(--ai)">${fmtVal(c, pr)}</b>, ${pts(pr.pts)} pts</span>` : '';
+    const nextTxt = r.next ? `Next band at ${r.op === '>' ? 'over' : 'at least'} ${F(r.next[0], 2)}${r.unit === '%' ? '%' : ''} for ${F(r.next[1] * (r.max / c.max), 1)} pts.` : (r.linear ? `Pro-rated to ${r.linear.exp}% substitution, capped at ${r.linear.cap}.` : (r.target ? 'Target ' + r.target + '.' : ''));
+    body = `<div class="calc"><div class="mv"><b>${fmtVal(c, r)}</b><span>${r.val == null ? 'Enter plant data' : 'current value'}</span></div>${bandChips(r)}</div>
+      <p class="small" style="margin-top:8px">${nextTxt} ${projTxt}</p>
+      ${r.note ? `<p class="small muted" style="margin-top:4px">${esc(r.note)}</p>` : ''}
+      ${c.provisional ? `<p class="small" style="margin-top:6px"><span class="tag k-prov">Provisional rule</span> <span class="muted">${esc(c.provisional)}</span></p>` : ''}
+      ${c.best ? `<label class="chk small" style="margin-top:8px"><input type="checkbox" ${S.best[cid] ? 'checked' : ''} onchange="setBest('${cid}',this.checked)"> Claim best-performer status (national-best figure, full points subject to assessor acceptance)</label>` : ''}`;
+  } else if (c.kind === 'J') {
+    body = `<div class="levels" role="group" aria-label="Readiness for ${cid}">${GC.LEVELS.map((l, i) => `<button class="${r.level === i ? 'on' : ''}" onclick="setJ('${cid}',${i})" aria-pressed="${r.level === i}">${l.label}</button>`).join('')}</div>`;
+  } else {
+    body = `<div class="fld" style="margin-top:10px;max-width:420px"><select onchange="setO('${cid}',this.value)"><option value="">Not answered</option>${c.opts.map((o, i) => `<option value="${i}" ${r.opt === i ? 'selected' : ''}>${esc(o[0])} (${o[1]} pts)</option>`).join('')}</select></div>`;
+  }
+  if (r.note && c.kind !== 'C') body += `<p class="small muted" style="margin-top:6px">${esc(r.note)}</p>`;
+  return `<div class="credit" id="cr-${cid.replace(/\./g, '_')}">
+    <div class="ch"><span class="cid">${cid}</span><h4>${esc(c.name)}</h4>${kindTag(r)}<span class="pts">${pts(r.pts)} <small>/ ${F(r.max, 1)}</small></span></div>
+    ${body}
+    <div class="cfoot"><span>Evidence: ${esc(c.ev)}</span><span>${ld ? ld + ' ledger record set' + (ld > 1 ? 's' : '') : ''}${ld && ev ? ', ' : ''}${ev ? ev + ' upload' + (ev > 1 ? 's' : '') : ''}${!ld && !ev ? '<span style="color:var(--amber)">No evidence yet</span>' : ''}</span>
+    ${c.kind === 'C' ? `<a onclick="openInits('${c.p}')">${inits.length ? inits.length + ' linked initiative' + (inits.length > 1 ? 's' : '') : 'Add an initiative'}</a>` : ''}</div>
+  </div>`;
+}
+function rAssess() {
+  const groups = groupsForLens();
+  if (!groups.find(g => g.id === V.param)) V.param = groups[0].id;
+  const L = CACHE.lens, g = groups.find(x => x.id === V.param), lp = L.params.find(p => p.id === g.id) || { pts: 0, max: 0 };
+  const gp = [...new Set(g.credits.map(id => GC.CREDIT[id].p))];
+  const gates = GC.GATES.filter(x => gp.includes(x.p));
+  const isV3 = S.profile.version === 'V3';
+  return `<div class="sechead"><div><h2>Assessment</h2><p>Performance credits score themselves from plant data. Governance and system credits are your readiness claim, which the assessor verifies against evidence.</p></div></div>
+  ${disclaim()}
+  <div class="two">
+    <div class="plist">${groups.map(x => { const p = L.params.find(q => q.id === x.id) || { pts: 0, max: 1 }; return `<button class="${x.id === V.param ? 'on' : ''}" onclick="V.param='${x.id}';render()"><span>${esc(x.name)}</span><small>${Math.round(p.max ? p.pts / p.max * 100 : 0)}%</small></button>`; }).join('')}</div>
+    <div>
+      <div class="panel" style="margin-bottom:12px">
+        <div class="row"><h3>${esc(g.name)}</h3><span class="sp"></span><b style="font-size:18px">${pts(lp.pts)}</b><span class="muted">/ ${F(lp.max, 0)}</span></div>
+        <div class="bar" style="margin-top:10px"><span class="c" style="width:${lp.max ? lp.comp / lp.max * 100 : 0}%"></span><span class="l" style="width:${lp.max ? lp.claim / lp.max * 100 : 0}%"></span></div>
+        ${!isV3 ? `<div class="note warn" style="margin-top:12px">CII has not published ${esc(GC.VERSIONS[S.profile.version].name)} credits. The credits below are V3 credits grouped under this parameter through a provisional mapping, and their result is scaled to the parameter weight of ${F(lp.max, 0)}.</div>` : ''}
+        ${gates.length ? `<h4 style="margin:14px 0 8px">Mandatory requirements</h4><div class="gates">${gates.map(x => `<label class="chk"><input type="checkbox" ${S.gates[x.id] ? 'checked' : ''} onchange="setGate('${x.id}',this.checked)"> ${esc(x.label)} <span class="muted small">(${x.p})</span></label>`).join('')}</div>` : ''}
+      </div>
+      ${g.credits.map(creditCard).join('')}
+    </div>
+  </div>`;
+}
+
+/* ---------- initiatives ---------- */
+function openInits(p) { V.ip = p; go('inits'); }
+function targetFor(cid) {
+  const c = GC.CREDIT[cid], r = RES().R[cid];
+  if (S.targets[cid] != null) return S.targets[cid];
+  if (r.next) return r.next[1];
+  if (r.linear) return Math.min(c.max, Math.round((r.raw + 5) / 5) * 5);
+  return c.max;
+}
+function setTarget(cid, v) { S.targets[cid] = +v; commit(); }
+function targetOptions(cid) {
+  const c = GC.CREDIT[cid], r = RES().R[cid];
+  let opts = r.bands ? r.bands.map(b => b[1]) : [];
+  if (r.linear || !opts.length) opts = []; 
+  if (!opts.length) for (let x = 5; x <= c.max; x += 5) opts.push(x);
+  if (!opts.includes(c.max)) opts.push(c.max);
+  return [...new Set(opts)].sort((a, b) => a - b);
+}
+function goalRows(p) {
+  const res = RES(), proj = PROJ(), Dp = GC.project(S);
+  return GC.CREDITS.filter(c => c.p === p && c.kind === 'C' && !res.R[c.id].excluded).map(c => {
+    const r = res.R[c.id], pr = proj.R[c.id], t = targetFor(c.id);
+    let status, need = '';
+    if (r.raw >= t - 1e-9) status = '<span class="ok">Met now</span>';
+    else if (pr.raw >= t - 1e-9) status = '<span class="ok">Met if planned initiatives deliver</span>';
+    else if (!c.driver) { status = '<span class="short">Short</span>'; need = c.id === 'IE3' ? `${Math.ceil((t - pr.raw) / 5)} more implemented innovation project(s)` : ''; }
+    else {
+      const d = GC.requiredDelta(S, c, t, Dp);
+      if (d == null) status = '<span class="no">Not reachable through this driver</span>';
+      else { status = '<span class="short">Short</span>'; need = `${fmtDelta(c.driver, d)} more ${esc(GC.FIELD[c.driver].label.toLowerCase())}`; }
+    }
+    return { c, r, pr, t, status, need };
+  });
+}
+function rInits() {
+  const p = V.ip, res = RES();
+  const list = S.initiatives.filter(i => i.p === p);
+  const rows = goalRows(p);
+  const cat = S.catAi[p];
+  return `<div class="sechead"><div><h2>Initiatives</h2><p>Document each parameter's initiatives with the quantities they claim. The engine works out whether those quantities reach the target band; AI review then checks whether the quantities themselves are realistic and suggests how to tune them. AI never changes a score.</p></div>
+    <div class="row"><button class="btn pri" onclick="editInit()">Add initiative</button></div></div>
+  <div class="ptabs">${GC.P3.filter(x => !(res.ctx.seg === 'svc' && x.id === 'PSLCA')).map(x => { const n = S.initiatives.filter(i => i.p === x.id).length; return `<button class="${x.id === p ? 'on' : ''}" onclick="V.ip='${x.id}';render()">${esc(x.name)}<small>${n || ''}</small></button>`; }).join('')}</div>
+  ${rows.length ? `<div class="panel goal"><div class="row"><h3>Targets for ${esc(paramName(p))}</h3><span class="sp"></span>
+      <button class="btn ai" onclick="aiCategory('${p}')" ${V.busy['cat' + p] ? 'disabled' : ''}>${V.busy['cat' + p] ? '<span class="spin"></span> Reviewing' : 'Review this category with AI'}</button></div>
+    <p class="aimode">AI review runs on ${esc(aiRoute())}. Reviews take up to a minute.</p>
+    <p class="muted small" style="margin:4px 0 10px">Target defaults to the next band. The last column is the extra change still needed after every planned initiative delivers.</p>
+    <div class="scroll"><table class="tbl"><thead><tr><th>Credit</th><th class="r">Now</th><th class="r">Points</th><th>Target points</th><th class="r">With initiatives</th><th>Status</th><th>Still needed</th></tr></thead><tbody>
+    ${rows.map(x => `<tr><td><b>${x.c.id}</b> <span class="muted">${esc(x.c.name)}</span></td><td class="r">${fmtVal(x.c, x.r)}</td><td class="r">${pts(x.r.pts)}</td>
+      <td><select aria-label="Target for ${x.c.id}" onchange="setTarget('${x.c.id}',this.value)">${targetOptions(x.c.id).map(o => `<option value="${o}" ${Math.abs(o - x.t) < 1e-9 ? 'selected' : ''}>${o}</option>`).join('')}</select></td>
+      <td class="r">${fmtVal(x.c, x.pr)} <span class="muted">(${pts(x.pr.pts)})</span></td><td>${x.status}</td><td>${x.need}</td></tr>`).join('')}
+    </tbody></table></div>
+    ${cat ? aiCatCard(cat) : ''}</div>` : `<div class="panel goal"><div class="row"><h3>${esc(paramName(p))}</h3><span class="sp"></span><button class="btn ai" onclick="aiCategory('${p}')" ${V.busy['cat' + p] ? 'disabled' : ''}>${V.busy['cat' + p] ? '<span class="spin"></span> Reviewing' : 'Review this category with AI'}</button></div><p class="muted small" style="margin-top:6px">This parameter is scored on governance and evidence rather than plant data, so initiatives here are documented for the pack and reviewed qualitatively.</p>${cat ? aiCatCard(cat) : ''}</div>`}
+  <div style="margin-top:14px">${list.length ? list.map(initCard).join('') : `<div class="panel"><p><b>No initiatives recorded for ${esc(paramName(p))}.</b></p><p class="muted" style="margin-top:4px">Add one to test whether it reaches the target band.</p><button class="btn pri" style="margin-top:10px" onclick="editInit()">Add initiative</button></div>`}</div>`;
+}
+function shareOfCurrent(x) {
+  const cv = curVal(S.data, x.f); const d = GC.num(x.d);
+  if (!cv || d == null) return '';
+  const f = GC.FIELD[x.f]; if (f.pct || f.bool) return '';
+  return ` <span class="muted">(${d > 0 ? '+' : MINUS}${F(Math.abs(d) / cv * 100, 1)}% of current ${F(cv, 0)})</span>`;
+}
+function initCard(i) {
+  const active = GC.isActive(i);
+  const eff = i.status === 'Implemented' ? null : GC.initiativeEffect(S, i.id);
+  const pay = i.capex && i.saving ? (i.capex / i.saving) : null;
+  const ai = S.ai[i.id];
+  return `<div class="init">
+    <div class="ih"><h4>${esc(i.title)}</h4><span class="tag st-${i.status}">${esc(i.status)}</span>${i.innov ? '<span class="tag k-ai">Innovation project</span>' : ''}${ai ? verdictTag(ai.verdict) : ''}</div>
+    <div class="meta"><span>Type <b>${esc(i.type)}</b></span><span>Credit <b>${esc(i.credit || '—')}</b></span><span>Owner <b>${esc(i.owner || '—')}</b></span><span>Timeline <b>${esc(i.start || '?')} to ${esc(i.end || '?')}</b></span><span>Capex <b>₹${F(i.capex, 1)} lakh</b></span><span>Annual saving <b>₹${F(i.saving, 1)} lakh</b></span>${pay ? `<span>Payback <b>${F(pay, 1)} yrs</b></span>` : ''}</div>
+    ${(i.impacts || []).length ? `<ul class="imps">${i.impacts.map(x => `<li>${esc((GC.FIELD[x.f] || {}).label || x.f)}: <b>${fmtDelta(x.f, GC.num(x.d))}</b>${shareOfCurrent(x)}</li>`).join('')}</ul>` : '<p class="small muted" style="margin-top:8px">No quantified impact recorded.</p>'}
+    ${i.basis ? `<p class="basis">Basis: ${esc(i.basis)}</p>` : ''}
+    <div class="eff">${i.status === 'Implemented' ? '<span class="muted">Implemented: its effect is already in the plant data, so it is not added again.</span>' :
+      `<span>If delivered alone</span><span class="d ${eff.standalone > 0.05 ? 'pos' : 'zero'}">${eff.standalone > 0.05 ? '+' : ''}${pts(eff.standalone)} pts</span>${eff.credits.length ? `<span class="muted">${eff.credits.map(x => x.id + ' ' + (x.d > 0 ? '+' : '') + pts(x.d)).join(', ')}</span>` : '<span class="muted">No credit crosses a threshold.</span>'}
+       ${active ? '' : '<span class="tag k-claimed">Excluded from projection</span>'}`}</div>
+    <div class="row noprint" style="margin-top:12px">
+      <button class="btn ai sm" onclick="aiInit('${i.id}')" ${V.busy[i.id] ? 'disabled' : ''}>${V.busy[i.id] ? '<span class="spin"></span> Reviewing' : (ai ? 'Review again with AI' : 'Review with AI')}</button>
+      <button class="btn sm" onclick="editInit('${i.id}')">Edit</button>
+      ${i.status !== 'Implemented' ? `<button class="btn sm ghost" onclick="toggleInclude('${i.id}')">${active ? 'Exclude from projection' : 'Include in projection'}</button>` : ''}
+      <span class="sp"></span><button class="btn sm ghost" onclick="delInit('${i.id}')">Delete</button></div>
+    ${ai ? aiInitCard(ai) : ''}
+  </div>`;
+}
+function toggleInclude(id) { const i = S.initiatives.find(x => x.id === id); i.include = i.include === false; commit(i.include === false ? 'Excluded from projection' : 'Included in projection'); }
+function delInit(id) { confirmBox('Delete this initiative and its AI review?', 'Delete initiative', () => { S.initiatives = S.initiatives.filter(x => x.id !== id); delete S.ai[id]; commit('Initiative deleted'); }); }
+
+/* ---------- initiative editor ---------- */
+let EDIT = null;
+function editInit(id) {
+  const base = id ? JSON.parse(JSON.stringify(S.initiatives.find(x => x.id === id))) : { id: null, p: V.ip, credit: '', title: '', type: 'Energy project', status: 'Planned', owner: '', start: '', end: '', capex: '', saving: '', innov: false, impacts: [{ f: '', d: '' }], basis: '' };
+  EDIT = base; drawModal();
+}
+function fieldOptions(sel) {
+  const groups = [...new Set(GC.FIELDS.map(f => f.g))];
+  return `<option value="">Choose what changes</option>` + groups.map(g => `<optgroup label="${esc(g)}">${GC.FIELDS.filter(f => f.g === g).map(f => `<option value="${f.k}" ${f.k === sel ? 'selected' : ''}>${esc(f.label)} (${esc(f.unit)})</option>`).join('')}</optgroup>`).join('');
+}
+function drawModal() {
+  const e = EDIT;
+  const credits = GC.CREDITS.filter(c => c.p === e.p);
+  const types = ['Energy project', 'Renewable project', 'Water project', 'Waste project', 'Material project', 'Supplier programme', 'Offset project', 'Process innovation', 'Design innovation', 'Kaizen or continual improvement', 'Systems and governance', 'Other'];
+  $('#modal').innerHTML = `<div class="mbox" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <h3 id="mTitle">${e.id ? 'Edit initiative' : 'Add initiative'}</h3>
+    <div class="form">
+      <div class="fld" style="grid-column:1 / -1"><label>Title</label><input id="e_title" value="${esc(e.title)}" placeholder="For example, waste heat recovery on furnace 2"></div>
+      <div class="fld"><label>Parameter</label><select id="e_p" onchange="EDIT.p=this.value;EDIT.credit='';syncEdit(true)">${GC.P3.map(p => `<option value="${p.id}" ${p.id === e.p ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div>
+      <div class="fld"><label>Main credit it targets</label><select id="e_credit"><option value="">None</option>${credits.map(c => `<option value="${c.id}" ${c.id === e.credit ? 'selected' : ''}>${c.id} ${esc(c.name)}</option>`).join('')}</select></div>
+      <div class="fld"><label>Type</label><select id="e_type">${types.map(t => `<option ${t === e.type ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+      <div class="fld"><label>Status</label><select id="e_status">${['Planned', 'In progress', 'Implemented'].map(t => `<option ${t === e.status ? 'selected' : ''}>${t}</option>`).join('')}</select><div class="hint">Implemented initiatives are assumed to be in the plant data already.</div></div>
+      <div class="fld"><label>Owner</label><input id="e_owner" value="${esc(e.owner)}"></div>
+      <div class="fld"><label>Start (YYYY-MM)</label><input id="e_start" value="${esc(e.start)}"></div>
+      <div class="fld"><label>Completion (YYYY-MM)</label><input id="e_end" value="${esc(e.end)}"></div>
+      <div class="fld"><label>Capex (₹ lakh)</label><input id="e_capex" type="number" step="any" value="${esc(e.capex)}"></div>
+      <div class="fld"><label>Annual saving (₹ lakh)</label><input id="e_saving" type="number" step="any" value="${esc(e.saving)}"></div>
+    </div>
+    <label class="chk" style="margin-top:12px"><input id="e_innov" type="checkbox" ${e.innov ? 'checked' : ''}> Innovation project for IE3 (process or design innovation, not a correction)</label>
+    <h4 style="margin:18px 0 6px">Quantified impact per year</h4>
+    <p class="muted small" style="margin-bottom:8px">Use negative numbers for reductions. Each line changes the assessment-year plant data in the projection.</p>
+    <div id="impRows">${e.impacts.map((x, k) => impRow(x, k)).join('')}</div>
+    <button class="btn sm" onclick="syncEdit();EDIT.impacts.push({f:'',d:''});drawModal()">Add impact line</button>
+    <div class="fld" style="margin-top:14px"><label>Basis of the estimate</label><textarea id="e_basis" placeholder="How the quantity was derived: measurement, vendor estimate, simulation, benchmark">${esc(e.basis)}</textarea><div class="hint">AI review weighs this when judging plausibility.</div></div>
+    <div class="mfoot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="saveInit()">${e.id ? 'Save changes' : 'Add initiative'}</button></div>
+  </div>`;
+  $('#modal').hidden = false;
+  setTimeout(() => { const t = $('#e_title'); if (t) t.focus(); }, 30);
+}
+function impRow(x, k) {
+  const cv = x.f ? curVal(S.data, x.f) : null, f = GC.FIELD[x.f];
+  return `<div class="improw"><select aria-label="Impact field" onchange="syncEdit();EDIT.impacts[${k}].f=this.value;drawModal()">${fieldOptions(x.f)}</select>
+    <input aria-label="Change per year" type="number" step="any" id="imp_${k}" value="${esc(x.d)}" placeholder="${MINUS}1000">
+    <span class="cur">${f ? 'Now ' + F(cv, 2) + ' ' + esc(f.unit) : ''}</span>
+    <button class="btn sm ghost" aria-label="Remove line" onclick="syncEdit();EDIT.impacts.splice(${k},1);drawModal()">✕</button></div>`;
+}
+function syncEdit(redraw) {
+  const g = id => { const el = $('#' + id); return el ? el.value : undefined; };
+  const e = EDIT;
+  ['title', 'type', 'status', 'owner', 'start', 'end', 'basis'].forEach(k => { const v = g('e_' + k); if (v !== undefined) e[k] = v; });
+  const cr = g('e_credit'); if (cr !== undefined && !redraw) e.credit = cr;
+  const cx = g('e_capex'); if (cx !== undefined) e.capex = cx === '' ? '' : +cx;
+  const sv = g('e_saving'); if (sv !== undefined) e.saving = sv === '' ? '' : +sv;
+  const inv = $('#e_innov'); if (inv) e.innov = inv.checked;
+  e.impacts.forEach((x, k) => { const v = g('imp_' + k); if (v !== undefined) x.d = v === '' ? '' : +v; });
+  if (redraw) drawModal();
+}
+function saveInit() {
+  syncEdit();
+  const e = EDIT;
+  if (!e.title.trim()) { toast('Give the initiative a title'); return; }
+  e.impacts = e.impacts.filter(x => x.f && GC.num(x.d) != null);
+  if (e.id) { const k = S.initiatives.findIndex(x => x.id === e.id); S.initiatives[k] = e; delete S.ai[e.id]; }
+  else { e.id = 'I' + Date.now().toString(36); S.initiatives.push(e); }
+  V.ip = e.p; closeModal(); commit(e.id ? 'Initiative saved' : 'Initiative added');
+}
+function closeModal() { $('#modal').hidden = true; $('#modal').innerHTML = ''; EDIT = null; }
+
+/* ---------- AI review ----------
+   Route, in order:
+   1. window.TERRACAP_AI_ENDPOINT (INTEGRATION): TerraCAP's server-side proxy. It receives an Anthropic
+      Messages API body ({model, max_tokens, system, messages}), adds the API key server-side, and returns
+      the Messages API response unchanged. Never put an API key in the page.
+   2. Published Claude artifact: the "sample" capability, billed to the viewer's Claude account.
+   3. Claude chat preview: direct Messages API call, which the preview proxies.
+   A copy of this file opened from disk has none of these, and says so. */
+const CAPS = {};
+function getCap(name) {
+  if (CAPS[name] !== undefined) return Promise.resolve(CAPS[name]);
+  if (!(window.claude && typeof window.claude.use === 'function')) { CAPS[name] = null; return Promise.resolve(null); }
+  return Promise.race([window.claude.use(name), new Promise(r => setTimeout(() => r(null), 11000))])
+    .then(x => (CAPS[name] = x || null), () => (CAPS[name] = null));
+}
+const AI_NET_MSG = 'This page could not reach an AI service. AI review runs on the published TerraCAP demo link, in the Claude preview, or inside TerraCAP once window.TERRACAP_AI_ENDPOINT points to the AI proxy. A copy of the file opened straight from disk cannot call it.';
+const SAMPLE_MSG = { not_granted: 'AI review needs permission to use your Claude account. Allow it when asked, or reload the page to be asked again.', rate_limited: 'Too many AI reviews are running. Wait a minute, then run this one again.', cancelled: 'Review cancelled.' };
+function aiRoute() { if (window.TERRACAP_AI_ENDPOINT) return 'TerraCAP AI proxy'; if (CAPS.sample) return 'your Claude account (the first review asks permission)'; return 'Claude preview connection'; }
+function parseAI(data) {
+  const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').replace(/```json|```/g, '').trim();
+  const a = text.indexOf('{'), z = text.lastIndexOf('}');
+  if (a < 0 || z < a) throw new Error('The AI response was not in the expected format. Run the review again.');
+  return JSON.parse(text.slice(a, z + 1));
+}
+async function aiCall(system, payload) {
+  const body = JSON.stringify(payload);
+  const req = JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system, messages: [{ role: 'user', content: body }] });
+  if (window.TERRACAP_AI_ENDPOINT) {
+    let res;
+    try { res = await fetch(window.TERRACAP_AI_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: req }); }
+    catch (e) { throw new Error('The TerraCAP AI proxy at ' + window.TERRACAP_AI_ENDPOINT + ' could not be reached.'); }
+    if (!res.ok) throw new Error('The TerraCAP AI proxy returned status ' + res.status + '.');
+    return parseAI(await res.json());
+  }
+  const sample = await getCap('sample');
+  if (sample) {
+    try { return await sample.json(system + '\n\nInput (JSON):\n' + body + '\n\nReturn only the JSON object described above.', { modelTier: 'default' }); }
+    catch (e) { throw new Error(SAMPLE_MSG[e && e.code] || ('AI review failed: ' + ((e && e.message) || 'unknown error') + '.')); }
+  }
+  let res;
+  try { res = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: req }); }
+  catch (e) { throw new Error(AI_NET_MSG); }
+  if (!res.ok) throw new Error('The AI service returned status ' + res.status + '. ' + (res.status === 401 || res.status === 403 ? AI_NET_MSG : ''));
+  return parseAI(await res.json());
+}
+const AI_SYS_INIT = `You are a senior energy, water and waste auditor reviewing improvement initiatives at an Indian industrial plant preparing for a CII GreenCo assessment.
+Judge (1) whether each claimed quantity is technically plausible for the described intervention and this plant's scale, and (2) whether the initiative, as quantified, reaches the target band given the deterministic figures supplied.
+Rules: use the deterministic figures as given; never recompute or change GreenCo points. Compare claims with typical industry ranges and cite them numerically. If the basis is weak, say what data would settle it. Suggest concrete tuning with quantities.
+Reply with JSON only, no text outside it, in this shape:
+{"verdict":"achieves_target|marginal|falls_short|implausible|insufficient_data","confidence":"low|medium|high","summary":"","plausibility":[{"claim":"","typical_range":"","assessment":"plausible|optimistic|conservative|implausible","reason":""}],"goal_fit":"","risks":[""],"tuning":[{"action":"","quantity":"","effect":""}],"data_needed":[""]}
+Keep each string under 30 words and each list to at most 3 items.`;
+const AI_SYS_CAT = `You are a senior sustainability auditor reviewing the full set of initiatives for one CII GreenCo parameter at an Indian industrial plant.
+Using the deterministic targets and projections supplied (never recompute points), judge whether the portfolio is realistic and sufficient, where it is thin, and how to re-balance or re-size initiatives to get closest to the targets at reasonable cost.
+Reply with JSON only, no text outside it, in this shape:
+{"verdict":"on_track|partially_on_track|off_track","summary":"","credit_notes":[{"credit":"","note":""}],"portfolio_gaps":[""],"tuning":[{"action":"","quantity":"","effect":""}],"priority":[""]}
+Keep each string under 30 words and each list to at most 4 items.`;
+function plantContext() {
+  const Y = RES().M.Y[2], p = S.profile, k = RES().ctx;
+  return { sector: p.sector, sector_classification: { ee_category: k.ee, re_category: k.re, re_expected_pct: GC.RE_EXP[k.re], ghg_class: k.ghg === 'int' ? 'GHG-intensive' : 'non-intensive' },
+    assessment_year: p.years[2], baseline_year: p.years[0], production: Y.prod + ' ' + p.productUnit, total_energy_GJ: Math.round(Y.totGJ), electricity_kWh: Y.elec, fuel_GJ: Y.th,
+    fresh_water_m3: Y.fw, scope1_t: Math.round(Y.s1), scope2_t: Math.round(Y.s2), scope3_t: Y.s3, employees: S.data.emp };
+}
+function creditContext(cid, withNeed) {
+  const c = GC.CREDIT[cid]; if (!c) return null;
+  const r = RES().R[cid], pr = PROJ().R[cid], t = targetFor(cid);
+  const o = { credit: cid + ' ' + c.name, max_points: c.max, rule: c.provisional || null,
+    bands: r.bands ? r.bands.map(b => (r.op === '>' ? '>' : '>=') + b[0] + (r.unit === '%' ? '%' : '') + ' = ' + b[1] + ' pts') : (r.linear ? `linear to ${r.linear.exp}% expectation, cap ${r.linear.cap}` : null),
+    current_value: r.val == null ? null : fmtVal(c, r), current_points: +r.pts.toFixed(1), target_points: t,
+    value_if_all_planned_deliver: pr.val == null ? null : fmtVal(c, pr), points_if_all_planned_deliver: +pr.pts.toFixed(1) };
+  if (withNeed && c.driver && pr.raw < t) { const d = GC.requiredDelta(S, c, t, GC.project(S)); o.additional_change_needed_after_all_planned = d == null ? 'not reachable through ' + GC.FIELD[c.driver].label : fmtDelta(c.driver, d) + ' of ' + GC.FIELD[c.driver].label; }
+  return o;
+}
+function initPayload(i) {
+  const eff = i.status === 'Implemented' ? null : GC.initiativeEffect(S, i.id);
+  return {
+    plant: plantContext(),
+    target_credit: i.credit ? creditContext(i.credit, true) : null,
+    initiative: { title: i.title, type: i.type, status: i.status, timeline: (i.start || '?') + ' to ' + (i.end || '?'), capex_inr_lakh: i.capex, annual_saving_inr_lakh: i.saving, innovation_project: !!i.innov,
+      impacts_per_year: (i.impacts || []).map(x => ({ what: GC.FIELD[x.f].label, unit: GC.FIELD[x.f].unit, change: x.d, current_plant_value: curVal(S.data, x.f) })), basis: i.basis },
+    deterministic: eff ? { points_if_delivered_alone: +eff.standalone.toFixed(1), points_added_on_top_of_other_planned: +eff.marginal.toFixed(1), credit_changes: eff.credits.map(x => x.id + ' ' + (x.d > 0 ? '+' : '') + x.d.toFixed(1)) } : 'Implemented; already in plant data.'
+  };
+}
+async function aiInit(id) {
+  const i = S.initiatives.find(x => x.id === id); if (!i) return;
+  V.busy[id] = true; render();
+  try { const r = await aiCall(AI_SYS_INIT, initPayload(i)); r._at = new Date().toISOString(); S.ai[id] = r; persist(); toast('AI review ready'); }
+  catch (e) { S.ai[id] = { error: e.message, _at: new Date().toISOString() }; }
+  V.busy[id] = false; recompute(); render();
+}
+async function aiCategory(p) {
+  V.busy['cat' + p] = true; render();
+  const payload = { plant: plantContext(), parameter: paramName(p),
+    targets: GC.CREDITS.filter(c => c.p === p && c.kind === 'C' && !RES().R[c.id].excluded).map(c => creditContext(c.id, true)),
+    governance_credits: GC.CREDITS.filter(c => c.p === p && c.kind !== 'C').map(c => ({ credit: c.id + ' ' + c.name, max: c.max, readiness: RES().R[c.id].level != null ? GC.LEVELS[RES().R[c.id].level].label : 'not answered' })),
+    initiatives: S.initiatives.filter(i => i.p === p).map(i => { const x = initPayload(i); return Object.assign({ target_credit: i.credit }, x.initiative, { deterministic: x.deterministic }); }) };
+  try { const r = await aiCall(AI_SYS_CAT, payload); r._at = new Date().toISOString(); S.catAi[p] = r; persist(); toast('Category review ready'); }
+  catch (e) { S.catAi[p] = { error: e.message, _at: new Date().toISOString() }; }
+  V.busy['cat' + p] = false; recompute(); render();
+}
+function verdictTag(v) {
+  if (!v) return '';
+  const map = { achieves_target: ['Achieves target', 'v-good'], on_track: ['On track', 'v-good'], marginal: ['Marginal', 'v-mid'], partially_on_track: ['Partly on track', 'v-mid'], insufficient_data: ['Needs data', 'v-mid'], falls_short: ['Falls short', 'v-bad'], off_track: ['Off track', 'v-bad'], implausible: ['Implausible claim', 'v-bad'] };
+  const m = map[v] || [v, 'v-mid'];
+  return `<span class="tag k-ai">AI: <span class="${m[1]}">${m[0]}</span></span>`;
+}
+function li(arr, f) { return (arr || []).filter(Boolean).map(x => `<li>${f ? f(x) : esc(x)}</li>`).join(''); }
+function aiHead(a) { return `<div class="ah"><b>AI review</b><span class="tag k-ai">Advisory, does not change scores</span>${a.confidence ? `<span class="small muted">Confidence: ${esc(a.confidence)}</span>` : ''}<span class="sp"></span><span class="small muted">${a._at ? new Date(a._at).toLocaleString() : ''}</span></div>`; }
+function aiInitCard(a) {
+  if (a.error) return `<div class="note bad" style="margin-top:12px">${esc(a.error)}</div>`;
+  return `<div class="aicard">${aiHead(a)}
+    <p>${verdictTag(a.verdict)} ${esc(a.summary)}</p>
+    ${(a.plausibility || []).length ? `<h5>Are the quantities realistic?</h5><ul>${li(a.plausibility, x => `<b>${esc(x.claim)}</b>: ${esc(x.assessment)}. Typical ${esc(x.typical_range)}. ${esc(x.reason)}`)}</ul>` : ''}
+    ${a.goal_fit ? `<h5>Does it reach the target?</h5><p>${esc(a.goal_fit)}</p>` : ''}
+    ${(a.tuning || []).length ? `<h5>How to tune it</h5><ul>${li(a.tuning, x => `<b>${esc(x.action)}</b>${x.quantity ? ' (' + esc(x.quantity) + ')' : ''}: ${esc(x.effect)}`)}</ul>` : ''}
+    ${(a.risks || []).length ? `<h5>Risks</h5><ul>${li(a.risks)}</ul>` : ''}
+    ${(a.data_needed || []).length ? `<h5>Data that would settle it</h5><ul>${li(a.data_needed)}</ul>` : ''}</div>`;
+}
+function aiCatCard(a) {
+  if (a.error) return `<div class="note bad" style="margin-top:12px">${esc(a.error)}</div>`;
+  return `<div class="aicard">${aiHead(a)}
+    <p>${verdictTag(a.verdict)} ${esc(a.summary)}</p>
+    ${(a.credit_notes || []).length ? `<h5>By credit</h5><ul>${li(a.credit_notes, x => `<b>${esc(x.credit)}</b>: ${esc(x.note)}`)}</ul>` : ''}
+    ${(a.portfolio_gaps || []).length ? `<h5>Where the portfolio is thin</h5><ul>${li(a.portfolio_gaps)}</ul>` : ''}
+    ${(a.tuning || []).length ? `<h5>How to re-size or re-balance</h5><ul>${li(a.tuning, x => `<b>${esc(x.action)}</b>${x.quantity ? ' (' + esc(x.quantity) + ')' : ''}: ${esc(x.effect)}`)}</ul>` : ''}
+    ${(a.priority || []).length ? `<h5>Order of work</h5><ul>${li(a.priority)}</ul>` : ''}</div>`;
+}
+
+/* ---------- gaps and roadmap ---------- */
+function movesIt(c, r) {
+  if (r.excluded) return '';
+  if (c.kind === 'J') { const lv = r.level == null ? -1 : r.level; return lv >= 4 ? '' : `Raise readiness from ${lv < 0 ? 'unanswered' : GC.LEVELS[lv].label.toLowerCase()} to fully evidenced`; }
+  if (c.kind === 'O') return 'Move to a higher option with evidence';
+  if (!r.next && !r.linear) return c.id === 'WM4.3' ? 'Eliminate landfill, including recycler residue' : '';
+  if (!c.driver) return c.id === 'IE3' ? 'Implement and document more innovation projects' : '';
+  const t = r.next ? r.next[1] : Math.min(c.max, Math.floor(r.raw / 5) * 5 + 5);
+  const d = GC.requiredDelta(S, c, t, S.data);
+  return d == null ? 'Not reachable through ' + GC.FIELD[c.driver].label.toLowerCase() : `${fmtDelta(c.driver, d)} ${GC.FIELD[c.driver].label.toLowerCase()} for ${F(t * (r.max / c.max), 1)} pts`;
+}
+function rGap() {
+  const res = RES(), nm = new Set(nearMisses().map(x => x.c.id));
+  let rows = GC.CREDITS.map(c => ({ c, r: res.R[c.id], lost: res.R[c.id].max - res.R[c.id].pts })).filter(x => !x.r.excluded && x.lost > 0.05);
+  if (V.gapFilter === 'computed') rows = rows.filter(x => x.r.kind === 'computed');
+  if (V.gapFilter === 'claimed') rows = rows.filter(x => x.r.kind !== 'computed');
+  rows.sort((a, b) => b.lost - a.lost);
+  const active = S.initiatives.filter(GC.isActive).map(i => ({ i, e: GC.initiativeEffect(S, i.id) })).sort((a, b) => b.e.standalone - a.e.standalone);
+  let cum = [], set = [];
+  active.forEach(x => { set.push(x.i.id); const s = GC.lens(GC.scoreAll(S, { set: [...set] }), S.profile.version); cum.push({ x, s }); });
+  const L = CACHE.lens;
+  return `<div class="sechead"><div><h2>Gaps and roadmap</h2><p>Where points are lost, what would move each one, and how the planned initiatives step the score up.</p></div></div>
+  ${disclaim()}
+  <div class="grid2">
+    <div class="panel"><h3>Points not earned, by parameter</h3><div class="chartbox"><canvas id="chGap"></canvas></div></div>
+    <div class="panel"><h3>Roadmap with planned initiatives</h3><p class="muted small" style="margin:2px 0 10px">Initiatives added in order of standalone impact. Each row is the cumulative indicative score.</p>
+      <table class="tbl"><tbody><tr><td>Current</td><td class="r"><b>${pts(L.total)}</b></td><td>${bandTag(L.band)}</td></tr>
+      ${cum.map(y => `<tr><td>+ ${esc(y.x.i.title)} <span class="muted small">(${y.x.i.p})</span></td><td class="r"><b>${pts(y.s.total)}</b></td><td>${bandTag(y.s.band)}</td></tr>`).join('')}
+      </tbody></table>
+      ${cum.length ? '' : '<p class="muted">No planned initiatives are in the projection.</p>'}</div>
+  </div>
+  <div class="panel" style="margin-top:14px">
+    <div class="row"><h3>Where the points are lost (V3 credits)</h3><span class="sp"></span>
+      ${[['all', 'All'], ['computed', 'Computed'], ['claimed', 'Self-claimed']].map(f => `<button class="btn sm ${V.gapFilter === f[0] ? 'pri' : ''}" onclick="V.gapFilter='${f[0]}';render()">${f[1]}</button>`).join('')}</div>
+    <div class="scroll" style="margin-top:10px"><table class="tbl"><thead><tr><th>Credit</th><th>Type</th><th class="r">Points</th><th class="r">Not earned</th><th>What would move it</th><th>Initiatives</th></tr></thead><tbody>
+    ${rows.map(x => `<tr><td><a onclick="openCredit('${x.c.id}')" style="cursor:pointer"><b>${x.c.id}</b></a> ${esc(x.c.name)} ${nm.has(x.c.id) ? '<span class="tag k-ai">Near miss</span>' : ''}</td><td>${kindTag(x.r)}</td>
+      <td class="r">${pts(x.r.pts)} / ${F(x.r.max, 1)}</td><td class="r"><b>${pts(x.lost)}</b></td><td>${esc(movesIt(x.c, x.r))}</td><td>${linkedInits(x.c.id).map(i => esc(i.title)).join('<br>') || '<span class="muted">None</span>'}</td></tr>`).join('')}
+    </tbody></table></div></div>`;
+}
+function aGap() {
+  const L = CACHE.lens, el = $('#chGap'); if (!el) return;
+  const ps = L.params.filter(p => p.max > 0);
+  charts.g = new Chart(el, { type: 'bar', data: { labels: ps.map(p => p.id), datasets: [{ label: 'Points not earned', data: ps.map(p => +(p.max - p.pts).toFixed(1)), backgroundColor: cssVar('--amber') }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { title: it => paramName(ps[it[0].dataIndex].id) } } } } });
+}
+
+/* ---------- evidence ---------- */
+let EVT = null;
+function attach(cid) { EVT = cid; const f = $('#evFile'); f.value = ''; f.click(); }
+function rmEv(cid, k) { S.evidence[cid].splice(k, 1); commit('File removed'); }
+function evCounts(cs) {
+  let led = 0, up = 0, both = 0, none = 0;
+  cs.forEach(c => { const l = ledgerDocsForCredit(c.id).length > 0, x = (S.evidence[c.id] || []).length > 0; if (l && x) both++; else if (l) led++; else if (x) up++; else none++; });
+  return { led, up, both, none };
+}
+function rEvidence() {
+  const res = RES(), p = V.evp;
+  const all = GC.CREDITS.filter(c => !res.R[c.id].excluded), k = evCounts(all);
+  const cs = GC.CREDITS.filter(c => c.p === p && !res.R[c.id].excluded);
+  return `<div class="sechead"><div><h2>Evidence</h2><p>Two kinds of evidence, kept apart. Records already ingested into TerraCAP (bills, invoices, manifests, inventory reports) link automatically to every credit their data feeds. Documents that exist only for GreenCo (policies, minutes, project reports, certificates) are uploaded here.</p></div></div>
+  <div class="panel ledgerbar">
+    <div class="lstat"><b>${k.led + k.both}</b><span>credits backed by ledger records</span></div>
+    <div class="lstat"><b>${k.up + k.both}</b><span>credits with GreenCo uploads</span></div>
+    <div class="lstat"><b style="color:var(--amber)">${k.none}</b><span>credits with no evidence yet</span></div>
+    <p class="small muted" style="flex:1;min-width:260px">Ledger records support the numbers. Most credits also ask for GreenCo-specific documents, so a ledger link alone rarely completes a credit. Overriding a ledger field removes its records from the evidence here.</p>
+  </div>
+  <div class="grid2" style="margin-top:14px"><div class="panel"><h3>Evidence by parameter</h3><div class="chartbox"><canvas id="chEv"></canvas></div></div>
+  <div class="panel"><h3>Mandatory requirements</h3><div class="gates" style="margin-top:10px">${GC.GATES.filter(g => !(res.ctx.seg === 'svc' && g.p === 'PSLCA')).map(g => `<label class="chk"><input type="checkbox" ${S.gates[g.id] ? 'checked' : ''} onchange="setGate('${g.id}',this.checked)"> ${esc(g.label)} <span class="muted small">(${g.p})</span></label>`).join('')}</div></div></div>
+  <div class="ptabs" style="margin-top:14px">${GC.P3.filter(x => !(res.ctx.seg === 'svc' && x.id === 'PSLCA')).map(x => { const c2 = GC.CREDITS.filter(c => c.p === x.id); const d = c2.filter(c => (S.evidence[c.id] || []).length || ledgerDocsForCredit(c.id).length).length; return `<button class="${x.id === p ? 'on' : ''}" onclick="V.evp='${x.id}';render()">${esc(x.name)}<small>${d}/${c2.length}</small></button>`; }).join('')}</div>
+  <div class="panel"><div class="evhead"><span>Credit</span><span>What the assessor looks for</span><span>From TerraCAP ingestion</span><span>Uploaded for GreenCo</span><span></span></div>
+  ${cs.map(c => { const fl = S.evidence[c.id] || [], ld = ledgerDocsForCredit(c.id); return `<div class="evrow"><b style="color:var(--green-d)">${c.id}</b><div><div style="font-weight:600">${esc(c.name)}</div><div class="muted small">${esc(c.ev)}</div></div>
+    <div class="files">${ld.length ? ld.map(d => `<span><span class="tag k-computed">Ledger</span> ${esc(d.name)} <span class="muted">${F(d.count, 0)} records, ${esc(d.period)}</span></span>`).join('') : '<span class="muted">None linked</span>'}</div>
+    <div class="files">${fl.length ? fl.map((f, k2) => `<span>📄 ${esc(f.name)} <span class="muted">${F(f.size / 1024, 0)} KB</span><button onclick="rmEv('${c.id}',${k2})" aria-label="Remove ${esc(f.name)}">Remove</button></span>`).join('') : '<span class="muted">Nothing uploaded</span>'}</div>
+    <button class="btn sm" onclick="attach('${c.id}')">Upload</button></div>`; }).join('')}</div>`;
+}
+function aEvidence() {
+  const res = RES(), el = $('#chEv'); if (!el) return;
+  const ps = GC.P3.filter(x => !(res.ctx.seg === 'svc' && x.id === 'PSLCA'));
+  const ks = ps.map(x => { const c2 = GC.CREDITS.filter(c => c.p === x.id); return { n: c2.length, k: evCounts(c2) }; });
+  const pc = (v, n) => +(v / n * 100).toFixed(0);
+  charts.e = new Chart(el, { type: 'bar', data: { labels: ps.map(x => x.id), datasets: [
+    { label: 'Ledger records only', data: ks.map(x => pc(x.k.led, x.n)), backgroundColor: cssVar('--claim'), stack: 's' },
+    { label: 'Uploads (with or without ledger)', data: ks.map(x => pc(x.k.up + x.k.both, x.n)), backgroundColor: cssVar('--green'), stack: 's' }] },
+    options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, max: 100, ticks: { callback: v => v + '%' } }, x: { stacked: true } } } });
+}
+
+/* ---------- submission pack ---------- */
+async function download(name, text, type) {
+  const dl = await getCap('downloads');
+  if (dl) {
+    try { await dl.save({ filename: name, data: text }); return true; }
+    catch (e) { if (!(e && e.code === 'declined')) toast('Download is not available here (' + ((e && e.code) || 'error') + ').'); return false; }
+  }
+  const b = new Blob([text], { type }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); return true;
+}
+function slug() { return (S.profile.plant || 'plant').replace(/[^a-z0-9]+/gi, '-').toLowerCase(); }
+async function exportJSON() { if (await download('greenco-' + slug() + '.json', JSON.stringify(Object.assign({ exported: new Date().toISOString(), disclaimer: DISCLAIMER }, S), null, 2), 'application/json')) toast('Assessment exported'); }
+async function exportCSV() {
+  const res = RES(), q = s => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
+  const rows = [['credit', 'parameter', 'name', 'type', 'value', 'points', 'max', 'ledger_record_sets', 'uploaded_files', 'v4_parameter_provisional']];
+  GC.CREDITS.forEach(c => { const r = res.R[c.id]; if (r.excluded) return; rows.push([c.id, c.p, c.name, r.kind, c.kind === 'C' ? fmtVal(c, r) : (r.level != null ? GC.LEVELS[r.level].label : (r.opt != null ? c.opts[r.opt][0] : '')), r.pts.toFixed(2), r.max, ledgerDocsForCredit(c.id).length, (S.evidence[c.id] || []).length, GC.v4Of(c.id)]); });
+  if (await download('greenco-credits-' + slug() + '.csv', rows.map(r => r.map(q).join(',')).join('\n'), 'text/csv')) toast('Credit table exported');
+}
+function importJSON() { const f = $('#importFile'); f.value = ''; f.click(); }
+function resetDemo() { confirmBox('Replace the current assessment with the demo plant?', 'Load demo plant', () => { S = gcSeed(); S.ledger = ledgerFetch(S.profile); applyLedger(); commit('Demo plant loaded'); }); }
+function rPack() {
+  const res = RES(), L = CACHE.lens, PL = CACHE.plens, p = S.profile, Y = res.M.Y;
+  const verName = GC.VERSIONS[p.version].name;
+  return `<div class="sechead noprint"><div><h2>Submission pack</h2><p>A TerraCAP-format readiness pack for the plant team and consultant. It is not a CII template; map it to the CII questionnaire or portal for the version the plant registers under.</p></div>
+    <div class="row"><button class="btn pri" onclick="window.print()">Print or save as PDF</button><button class="btn" onclick="exportJSON()">Download assessment (JSON)</button><button class="btn" onclick="exportCSV()">Download credit table (CSV)</button><button class="btn ghost" onclick="importJSON()">Import JSON</button><button class="btn ghost" onclick="resetDemo()">Load demo plant</button></div></div>
+  <div class="doc">
+    <h1>GreenCo readiness pack</h1>
+    <p>${esc(p.plant)}, ${esc(p.org)}, ${esc(p.location)}</p>
+    <p class="small" style="color:#5a6e68">Sector: ${esc(p.sector)}. Scoring version: ${esc(verName)}${p.customerLabel ? ' (customer label: ' + esc(p.customerLabel) + ')' : ''}. Period: ${esc(p.years[0])} to ${esc(p.years[2])}. Generated ${new Date().toLocaleDateString('en-IN')} in TerraCAP.</p>
+    <div class="dis"><b>Indicative only.</b> ${DISCLAIMER} ${GC.VERSIONS[p.version].provisional ? esc(GC.VERSIONS[p.version].basis) : ''} Sector classifications and provisional rules used in this pack are listed in section 6.</div>
+    <h2>1. Summary</h2>
+    <table class="tbl"><tbody>
+      <tr><td>Indicative score</td><td class="r"><b>${pts(L.total)} of ${F(L.max, 0)}</b></td><td>${esc(L.band.name)}${L.bandScore !== L.total ? ' (on ' + pts(L.bandScore) + ' of 1000)' : ''}</td></tr>
+      <tr><td>Computed from plant data</td><td class="r">${pts(L.params.reduce((a, x) => a + x.comp, 0))}</td><td></td></tr>
+      <tr><td>Self-claimed readiness</td><td class="r">${pts(L.params.reduce((a, x) => a + x.claim, 0))}</td><td>Needs assessor acceptance</td></tr>
+      <tr><td>If planned initiatives deliver</td><td class="r">${pts(PL.total)}</td><td>${esc(PL.band.name)}</td></tr>
+      <tr><td>Mandatory requirements met</td><td class="r">${res.gatesMet} of ${res.gatesN}</td><td>${res.gatesMet === res.gatesN ? 'Complete' : 'Incomplete: plant is not ratable until met'}</td></tr>
+      <tr><td>Credits answered</td><td class="r">${Math.round(res.coverage * 100)}%</td><td></td></tr>
+      <tr><td>Credits with evidence attached</td><td class="r">${Math.round(evidenceCoverage() * 100)}%</td><td></td></tr>
+    </tbody></table>
+    <h2>2. Parameters</h2>
+    <table class="tbl"><thead><tr><th>Parameter</th><th class="r">Computed</th><th class="r">Self-claimed</th><th class="r">Total</th><th class="r">Max</th></tr></thead><tbody>
+    ${L.params.filter(x => x.max > 0).map(x => `<tr><td>${esc(x.name)}</td><td class="r">${pts(x.comp)}</td><td class="r">${pts(x.claim)}</td><td class="r"><b>${pts(x.pts)}</b></td><td class="r">${F(x.max, 0)}</td></tr>`).join('')}</tbody></table>
+    <h2>3. Mandatory requirements</h2>
+    <table class="tbl"><tbody>${GC.GATES.filter(g => !(res.ctx.seg === 'svc' && g.p === 'PSLCA')).map(g => `<tr><td>${g.p}</td><td>${esc(g.label)}</td><td>${S.gates[g.id] ? 'Met' : '<b style="color:#a33131">Not met</b>'}</td></tr>`).join('')}</tbody></table>
+    <h2>4. Credit detail (V3 credits)</h2>
+    <table class="tbl"><thead><tr><th>Credit</th><th>Result</th><th>Type</th><th class="r">Points</th><th class="r">Ledger records</th><th class="r">Uploads</th></tr></thead><tbody>
+    ${GC.P3.map(pp => { const cs = GC.CREDITS.filter(c => c.p === pp.id && !res.R[c.id].excluded); if (!cs.length) return ''; return `<tr class="grp"><td colspan="6">${esc(pp.name)}</td></tr>` + cs.map(c => { const r = res.R[c.id]; return `<tr><td><b>${c.id}</b> ${esc(c.name)}</td><td>${c.kind === 'C' ? fmtVal(c, r) : (r.level != null ? GC.LEVELS[r.level].label : (r.opt != null ? esc(c.opts[r.opt][0]) : 'Not answered'))}</td><td>${r.kind === 'computed' ? 'Computed' : 'Self-claimed'}</td><td class="r">${pts(r.pts)} / ${F(r.max, 1)}</td><td class="r">${ledgerDocsForCredit(c.id).length}</td><td class="r">${(S.evidence[c.id] || []).length}</td></tr>`; }).join(''); }).join('')}</tbody></table>
+    <h2>5. Initiatives register</h2>
+    <table class="tbl"><thead><tr><th>Initiative</th><th>Status</th><th>Quantified impact per year</th><th class="r">Capex (₹ lakh)</th><th class="r">Points if delivered</th><th>AI review</th></tr></thead><tbody>
+    ${S.initiatives.map(i => { const e = i.status === 'Implemented' ? null : GC.initiativeEffect(S, i.id); const a = S.ai[i.id]; return `<tr><td><b>${esc(i.title)}</b><br><span style="color:#5a6e68">${esc(paramName(i.p))}${i.credit ? ', ' + i.credit : ''}${i.innov ? ', innovation project' : ''}</span></td><td>${esc(i.status)}</td><td>${(i.impacts || []).map(x => esc(GC.FIELD[x.f].label) + ': ' + fmtDelta(x.f, GC.num(x.d))).join('<br>') || '—'}</td><td class="r">${F(i.capex, 1)}</td><td class="r">${e ? '+' + pts(e.standalone) : 'In data'}</td><td>${a && !a.error ? esc(a.verdict || '').replace(/_/g, ' ') : '—'}</td></tr>`; }).join('')}</tbody></table>
+    <h2>6. Basis and assumptions</h2>
+    <table class="tbl"><tbody>
+      <tr><td>Data source</td><td>${ledgerStats().led} values from ${esc((S.ledger || {}).source || 'the TerraCAP ledger')}${S.ledger && S.ledger.syncedAt ? ', synced ' + new Date(S.ledger.syncedAt).toLocaleDateString('en-IN') : ''}; ${ledgerStats().man} entered in this workflow.${Object.keys(S.overrides || {}).length ? '<br><b>Ledger overrides:</b><br>' + Object.entries(S.overrides).map(([k, o]) => esc(GC.FIELD[k].label) + ': ' + esc(o.reason)).join('<br>') : ' No ledger values overridden.'}</td></tr>
+      <tr><td>Credit rules</td><td>CII GreenCo V3 abridged reference guide (June 2018). V4 and Lite parameter weights from the CII GreenCo annual report 2024-25; their credit criteria are not public, so V4 and Lite scores project V3 credit results through a provisional mapping.</td></tr>
+      <tr><td>Sector classification</td><td>EE4 category ${res.ctx.ee}, renewable category ${res.ctx.re} (${GC.RE_EXP[res.ctx.re]}% expected), ${res.ctx.ghg === 'int' ? 'GHG-intensive' : 'non-intensive'}. Proposed by the plant; accepted or changed by the assessor.</td></tr>
+      <tr><td>Provisional rules</td><td>${GC.CREDITS.filter(c => c.provisional).map(c => '<b>' + c.id + '</b>: ' + esc(c.provisional)).join('<br>')}</td></tr>
+      <tr><td>Emission factors</td><td>Grid ${esc(p.gridEF)} tCO2/MWh; fuel ${esc(p.fuelEF)} tCO2/GJ, applied to all three years.</td></tr>
+      <tr><td>Key figures (${esc(p.years[0])} to ${esc(p.years[2])})</td><td>SEC ${F(Y[0].sec, 3)} to ${F(Y[2].sec, 3)} GJ per unit; Scope 1+2 intensity ${F(Y[0].ghgInt, 4)} to ${F(Y[2].ghgInt, 4)} t per unit; specific fresh water ${F(Y[0].swc, 3)} to ${F(Y[2].swc, 3)} m³ per unit.</td></tr>
+      <tr><td>AI reviews</td><td>Advisory text from a language model on the plausibility of initiative quantities. They do not affect any score in this pack.</td></tr>
+    </tbody></table>
+  </div>`;
+}
+
+/* ---------- compare versions ---------- */
+function rCompare() {
+  const res = RES(), proj = PROJ();
+  const Ls = ['V3', 'V4', 'LITE'].map(v => ({ v, L: GC.lens(res, v), P: GC.lens(proj, v) }));
+  return `<div class="sechead"><div><h2>Compare versions</h2><p>The same plant data scored three ways. Useful when a plant is moving from a V3 cycle to V4, or deciding between the full rating and Lite.</p></div></div>
+  <div class="note warn" style="margin-bottom:14px">Only V3 is scored against published credit rules. V4 and Lite scores are a provisional projection of V3 credit results onto the published parameter weights, and will change once CII's credit criteria for those versions are loaded.</div>
+  <div class="grid3">${Ls.map(x => `<div class="panel" style="${S.profile.version === x.v ? 'border-color:var(--green);border-width:2px' : ''}">
+    <div class="row"><h3>${GC.VERSIONS[x.v].name}</h3><span class="sp"></span>${x.L.provisional && x.v !== 'V3' ? '<span class="tag k-prov">Provisional</span>' : ''}</div>
+    <p class="muted small">${esc(GC.VERSIONS[x.v].sub)}</p>
+    <div class="big" style="display:flex;align-items:baseline;gap:8px;margin-top:10px"><span style="font-size:36px;font-weight:800">${pts(x.L.total)}</span><span class="muted">/ ${F(x.L.max, 0)}</span></div>
+    <p>${bandTag(x.L.band)} <span class="muted small">on ${pts(x.L.bandScore)} of 1000</span></p>
+    <p class="small" style="margin-top:6px">With planned initiatives: <b>${pts(x.P.total)}</b> ${bandTag(x.P.band)}</p>
+    ${S.profile.version !== x.v ? `<button class="btn sm" style="margin-top:10px" onclick="setVersion('${x.v}')">Use this version</button>` : '<p class="small" style="margin-top:10px;color:var(--green-d);font-weight:700">Current scoring version</p>'}
+    <table class="tbl" style="margin-top:12px"><tbody>${x.L.params.filter(q => q.max > 0).map(q => `<tr><td>${esc(q.name)}</td><td class="r">${pts(q.pts)}</td><td class="r muted">${F(q.max, 0)}</td></tr>`).join('')}</tbody></table>
+  </div>`).join('')}</div>
+  <div class="panel" style="margin-top:14px"><h3>Band score on a 1000-point scale</h3><div class="chartbox"><canvas id="chCmp"></canvas></div></div>`;
+}
+function aCompare() {
+  const el = $('#chCmp'); if (!el) return;
+  const res = RES(), proj = PROJ(), vs = ['V3', 'V4', 'LITE'];
+  charts.c = new Chart(el, { type: 'bar', data: { labels: vs.map(v => GC.VERSIONS[v].name), datasets: [
+    { label: 'Now', data: vs.map(v => +GC.lens(res, v).bandScore.toFixed(1)), backgroundColor: cssVar('--green') },
+    { label: 'With planned initiatives', data: vs.map(v => +GC.lens(proj, v).bandScore.toFixed(1)), backgroundColor: cssVar('--ai') }] },
+    options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 1000 } } } });
+}
+
+/* ---------- boot ---------- */
+document.getElementById('evFile').addEventListener('change', e => {
+  if (!EVT) return; S.evidence[EVT] = S.evidence[EVT] || [];
+  [...e.target.files].forEach(f => S.evidence[EVT].push({ name: f.name, size: f.size, date: new Date().toISOString().slice(0, 10) }));
+  commit(e.target.files.length + ' file(s) attached to ' + EVT);
+});
+document.getElementById('importFile').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { const j = JSON.parse(await f.text()); if (!j.profile || !j.data) throw new Error('missing profile or data'); S = migrate(j); if (!S.ledger) S.ledger = ledgerFetch(S.profile); applyLedger(); commit('Assessment imported'); }
+  catch (err) { toast('Import failed: ' + err.message); }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#modal').hidden) closeModal(); });
+document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+(async () => {
+  S.ledger = ledgerFetch(S.profile); applyLedger(); recompute(); render();
+  const saved = await restore();
+  if (saved && saved.profile && saved.data) { S = migrate(saved); if (!S.ledger) S.ledger = ledgerFetch(S.profile); applyLedger(); recompute(); render(); }
+  Promise.all([getCap('sample'), getCap('downloads')]).then(() => { if (V.sec === 'inits') render(); });
+})();
+</script>
+</body></html>

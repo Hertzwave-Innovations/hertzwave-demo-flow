@@ -298,6 +298,15 @@
             text-align: center; font-size: 0.8rem; font-weight: 500;
         }
         .gs-module-card i { display: block; font-size: 1.25rem; color: var(--hz-primary); margin-bottom: 4px; }
+        .tool-intro { font-size: 0.82rem; color: var(--hz-dark); line-height: 1.55; margin-bottom: 0.85rem; }
+        .tool-list { display: flex; flex-direction: column; gap: 0.6rem; }
+        .tool-card { background: white; border: 1px solid var(--stroke); border-radius: 10px; padding: 0.8rem 0.9rem; }
+        .tool-card-title { font-size: 0.85rem; font-weight: 600; color: var(--hz-dark); display: flex; align-items: center; gap: 8px; }
+        .tool-card-title i { color: var(--hz-primary); width: 16px; text-align: center; }
+        .tool-card-path { font-size: 0.7rem; color: var(--subtle); margin: 2px 0 4px 24px; }
+        .tool-card-text { font-size: 0.78rem; color: var(--hz-dark); line-height: 1.5; margin-left: 24px; }
+        .tool-bands { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.5rem; }
+        .tool-bands span { font-size: 0.7rem; background: white; border: 1px solid var(--stroke); border-radius: 12px; padding: 2px 8px; }
 
         /* ══════════════════════════════════
            VIDEOS VIEW
@@ -548,6 +557,15 @@
                     <i class="fas fa-chevron-right menu-item-arrow"></i>
                 </div>
 
+                <div class="menu-item" onclick="setActiveView('tools')">
+                    <div class="menu-item-icon"><i class="fas fa-toolbox"></i></div>
+                    <div>
+                        <div class="menu-item-label">Tool Guides</div>
+                        <div class="menu-item-desc">GreenCo, GreenMetric, NAAC, NZOC and LCA</div>
+                    </div>
+                    <i class="fas fa-chevron-right menu-item-arrow"></i>
+                </div>
+
                 <div class="menu-item" onclick="setActiveView('video-tutorials')">
                     <div class="menu-item-icon"><i class="fas fa-play-circle"></i></div>
                     <div>
@@ -614,14 +632,14 @@
                     <div class="gs-step-num">1</div>
                     <div class="gs-step-content">
                         <div class="gs-step-title">Set up your Organisation Profile</div>
-                        <div class="gs-step-text">Enter your company details, reporting boundary, and baseline year under <em>Administration → Organisation</em>. This drives scope assignments and framework eligibility.</div>
+                        <div class="gs-step-text">Enter your company details, reporting boundary, and baseline year under <em>Facility → Organization Profile</em>. This drives scope assignments and framework eligibility.</div>
                     </div>
                 </div>
                 <div class="gs-step">
                     <div class="gs-step-num">2</div>
                     <div class="gs-step-content">
                         <div class="gs-step-title">Add & ingest emissions data</div>
-                        <div class="gs-step-text">Use <em>Data Management → Add Data</em> or <em>Data Collection Forms</em> to log Scope 1, 2, and 3 activities. Import bulk CSVs via Import/Export for large datasets.</div>
+                        <div class="gs-step-text">Use <em>Data Management → Data Collection Forms</em> to log Scope 1, 2, and 3 activities along with energy, water, waste and other ESG data. Import bulk CSVs via <em>Data Management → Import / Export</em> for large datasets.</div>
                     </div>
                 </div>
                 <div class="gs-step">
@@ -635,14 +653,21 @@
                     <div class="gs-step-num">4</div>
                     <div class="gs-step-content">
                         <div class="gs-step-title">Select compliance frameworks</div>
-                        <div class="gs-step-text">Go to <em>Compliance Mapper</em> and pick from BRSR, GreenCo, CBAM, GRI, CDP, and more. TerraCAP maps your data to each framework automatically.</div>
+                        <div class="gs-step-text">Go to <em>Compliance → Frameworks</em> and pick from BRSR, CBAM, GRI, CDP, and more. TerraCAP maps your data to each framework automatically.</div>
                     </div>
                 </div>
                 <div class="gs-step">
                     <div class="gs-step-num">5</div>
                     <div class="gs-step-content">
                         <div class="gs-step-title">Generate reports & plan NetZero</div>
-                        <div class="gs-step-text">Export board-ready ESG reports from <em>Reports & Compliance</em>. Use <em>NetZero Pathfinder</em> to chart your trajectory to India's 2070 target with financial modeling.</div>
+                        <div class="gs-step-text">Export board-ready ESG reports from <em>Reports → Sustainability Report</em> or <em>Reports → AI Compliance Reports</em>. Use <em>Planning → NetZero Pathfinder</em> to chart your trajectory to India's 2070 target with financial modeling.</div>
+                    </div>
+                </div>
+                <div class="gs-step">
+                    <div class="gs-step-num">6</div>
+                    <div class="gs-step-content">
+                        <div class="gs-step-title">Run ratings and assessments in Tools</div>
+                        <div class="gs-step-text">Plant and campus ratings sit under <em>Tools</em>: GreenCo Readiness, GreenMetric, NAAC Green Audit, CII NZOC, LCA and more. They read the data you have already entered, so nothing is keyed in twice. See <a href="#" onclick="setActiveView('tools'); return false;" style="color:var(--hz-primary);">Tool Guides</a>.</div>
                     </div>
                 </div>
             </div>
@@ -653,11 +678,99 @@
                 <div class="gs-module-card"><i class="fas fa-database"></i>Data Mgmt</div>
                 <div class="gs-module-card"><i class="fas fa-file-alt"></i>Reports</div>
                 <div class="gs-module-card"><i class="fas fa-layer-group"></i>Frameworks</div>
+                <div class="gs-module-card"><i class="fas fa-bullseye"></i>Materiality</div>
                 <div class="gs-module-card"><i class="fas fa-rocket"></i>NetZero</div>
-                <div class="gs-module-card"><i class="fas fa-leaf"></i>Carbon Credits</div>
-                <div class="gs-module-card"><i class="fas fa-industry"></i>Supplier Eval</div>
-                <div class="gs-module-card"><i class="fas fa-clipboard-check"></i>Audit & Assurance</div>
+                <div class="gs-module-card"><i class="fas fa-leaf"></i>Carbon & Markets</div>
+                <div class="gs-module-card"><i class="fas fa-industry"></i>Supplier ESG Data</div>
+                <div class="gs-module-card"><i class="fas fa-clipboard-check"></i>Audit Engagement</div>
+                <div class="gs-module-card"><i class="fas fa-toolbox"></i>Tools</div>
             </div>
+        </div>
+
+        <!-- ── TOOL GUIDES VIEW ── -->
+        <div class="view" id="view-tools">
+            <div class="section-label">GreenCo Readiness</div>
+            <p class="tool-intro">Prepares a plant for the CII GreenCo rating. GreenCo rates one plant at a time on points: under Version 3, manufacturing plants are scored on 10 parameters out of 1000, and service facilities out of 825. Open it from <em>Tools → GreenCo Readiness</em>.</p>
+            <div class="gs-steps">
+                        <div class="gs-step">
+                    <div class="gs-step-num">1</div>
+                    <div class="gs-step-content">
+                        <div class="gs-step-title">Plant profile</div>
+                        <div class="gs-step-text">Choose the plant, sector and scoring version. The sector sets the energy, renewable and GHG thresholds that apply; override a classification only with a reason the assessor will accept.</div>
+                    </div>
+                </div>
+                <div class="gs-step">
+                    <div class="gs-step-num">2</div>
+                    <div class="gs-step-content">
+                        <div class="gs-step-title">Plant data</div>
+                        <div class="gs-step-text">Values already in TerraCAP, such as energy, Scope 1, 2 and 3, water and waste, fill in from the ledger and are locked. Enter only what is missing. To use a different value for GreenCo, override the field and give a reason; the ledger itself does not change.</div>
+                    </div>
+                </div>
+                <div class="gs-step">
+                    <div class="gs-step-num">3</div>
+                    <div class="gs-step-content">
+                        <div class="gs-step-title">Assessment</div>
+                        <div class="gs-step-text">Performance credits score themselves from plant data. For governance and system credits, set how far each is in place; the assessor verifies these against evidence. Tick each mandatory requirement once it is met.</div>
+                    </div>
+                </div>
+                <div class="gs-step">
+                    <div class="gs-step-num">4</div>
+                    <div class="gs-step-content">
+                        <div class="gs-step-title">Initiatives</div>
+                        <div class="gs-step-text">Record each parameter's initiatives with the yearly quantities they claim. The tool shows whether they reach the target band and what is still needed. AI review then checks whether those quantities are realistic and suggests how to tune them. AI never changes a score.</div>
+                    </div>
+                </div>
+                <div class="gs-step">
+                    <div class="gs-step-num">5</div>
+                    <div class="gs-step-content">
+                        <div class="gs-step-title">Gaps and roadmap</div>
+                        <div class="gs-step-text">See where points are lost, what would move each credit, and how the planned initiatives step the score up band by band.</div>
+                    </div>
+                </div>
+                <div class="gs-step">
+                    <div class="gs-step-num">6</div>
+                    <div class="gs-step-content">
+                        <div class="gs-step-title">Evidence</div>
+                        <div class="gs-step-text">Records already ingested into TerraCAP, such as bills, invoices and waste manifests, link automatically to the credits their data feeds. Upload the documents that exist only for GreenCo, such as policies, review minutes and project reports.</div>
+                    </div>
+                </div>
+                <div class="gs-step">
+                    <div class="gs-step-num">7</div>
+                    <div class="gs-step-content">
+                        <div class="gs-step-title">Submission pack</div>
+                        <div class="gs-step-text">Print or export the readiness pack, with the credit table, initiatives register and data sources. It is in TerraCAP format; map it to the CII questionnaire for the version the plant registers under.</div>
+                    </div>
+                </div>
+    </div>
+            <div class="support-note">
+                <i class="fas fa-info-circle"></i>
+                <strong>Scores are indicative.</strong> They are not a CII rating; CII assessors and the judges' panel determine the actual rating. Version 3 is scored against CII's published credit rules. Version 4 and GreenCo Lite scores are provisional, because CII has published their parameter weights but not their credit criteria.
+                <div class="tool-bands"><span>Certified 350</span><span>Bronze 450</span><span>Silver 550</span><span>Gold 650</span><span>Platinum 750</span></div>
+            </div>
+
+            <div class="section-label" style="margin-top:1.25rem;">Other tools</div>
+            <div class="tool-list">
+                        <div class="tool-card">
+                    <div class="tool-card-title"><i class="fas fa-university"></i>GreenMetric Tool</div>
+                    <div class="tool-card-path">Tools → GreenMetric Tool</div>
+                    <div class="tool-card-text">Self-assessment for the UI GreenMetric World University Rankings. Set up the campus profile, score each indicator, review gaps, attach evidence and prepare the submission. Covers the 2025 and 2026 questionnaires.</div>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-card-title"><i class="fas fa-school"></i>NAAC Green Audit</div>
+                    <div class="tool-card-path">Tools → NAAC Green Audit</div>
+                    <div class="tool-card-text">Green audit workflow for higher-education institutions preparing for NAAC accreditation.</div>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-card-title"><i class="fas fa-industry"></i>CII NZOC Tool</div>
+                    <div class="tool-card-path">Tools → CII NZOC Tool (opens in a new tab)</div>
+                    <div class="tool-card-text">Readiness for CII's Net Zero Operational Carbon certification, which is awarded to facilities that bring Scope 1 and 2 emissions to zero through energy efficiency, renewable energy and credible offsets.</div>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-card-title"><i class="fas fa-recycle"></i>LCA Tool</div>
+                    <div class="tool-card-path">Tools → LCA Tool</div>
+                    <div class="tool-card-text">Life cycle assessment of products and processes.</div>
+                </div>
+    </div>
         </div>
 
         <!-- ── VIDEO TUTORIALS VIEW ── -->
@@ -915,10 +1028,10 @@
 <script>
     /* ─── Help knowledge base for local search ─── */
     const HELP_KB = [
-        { title: 'How to add Scope 1 emissions data', section: 'Data Management', view: 'getting-started', excerpt: 'Use Add Data or Data Collection Forms to log fuel combustion, company vehicles and refrigerant usage.' },
-        { title: 'Setting up BRSR reporting', section: 'Frameworks', view: 'getting-started', excerpt: 'Select BRSR in Compliance Mapper. TerraCAP maps your ingested data to all BRSR disclosure fields automatically.' },
+        { title: 'How to add Scope 1 emissions data', section: 'Data Management', view: 'getting-started', excerpt: 'Use Data Management → Data Collection Forms to log fuel combustion, company vehicles and refrigerant usage.' },
+        { title: 'Setting up BRSR reporting', section: 'Frameworks', view: 'getting-started', excerpt: 'Select BRSR under Compliance → Frameworks. TerraCAP maps your ingested data to all BRSR disclosure fields automatically.' },
         { title: 'Importing data via CSV', section: 'Data Management', view: 'getting-started', excerpt: 'Go to Import/Export, download the template, fill in your emissions records, and upload.' },
-        { title: 'GreenCo assessment workflow', section: 'Frameworks', view: 'getting-started', excerpt: 'GreenCo (CII v3) uses a materiality-based scoring system across 9 pillars.' },
+        { title: 'GreenCo readiness assessment', section: 'Tools', view: 'tools', excerpt: 'CII GreenCo rates one plant at a time on points: 10 parameters and 1000 points for manufacturing under Version 3. Use Tools → GreenCo Readiness to score indicatively, plan initiatives and build an evidence pack.' },
         { title: 'How to plan your NetZero trajectory', section: 'Advanced Features', view: 'getting-started', excerpt: 'NetZero Pathfinder builds a Science-Based Target trajectory aligned to India 2070.' },
         { title: 'Understanding scope 2 market-based vs location-based', section: 'Emissions Tracking', view: 'getting-started', excerpt: 'Market-based uses energy attribute certificates; location-based uses regional grid emission factors.' },
         { title: 'Adding users and setting roles', section: 'Administration', view: 'contact-support', excerpt: 'Go to Administration → User Management to invite team members and assign roles.' },
@@ -926,10 +1039,20 @@
         { title: 'Carbon credit marketplace — Track A vs Track B', section: 'Carbon Credits', view: 'getting-started', excerpt: 'Track A is for buying verified credits; Track B is for internal sequestration projects.' },
         { title: 'Contact phone number', section: 'Support', view: 'contact-support', excerpt: '+91 83746 53145 — available Mon–Fri, 9 AM to 6 PM IST.' },
         { title: 'Data quality score — what does it mean?', section: 'Data Management', view: 'getting-started', excerpt: 'The data quality score (0–100%) measures completeness, timeliness, and source reliability across all ingested records.' },
-        { title: 'CBAM compliance for exports', section: 'Frameworks', view: 'getting-started', excerpt: 'CBAM (EU Carbon Border Adjustment Mechanism) tracking is available in the Compliance Mapper for exporters.' },
+        { title: 'CBAM compliance for exports', section: 'Frameworks', view: 'getting-started', excerpt: 'CBAM (EU Carbon Border Adjustment Mechanism) tracking is available under Compliance → Frameworks for exporters.' },
         { title: 'Latest features and releases', section: "What's New", view: 'whats-new', excerpt: 'View the full changelog including v1.2.0 with Agentic Forms, GreenMetric, and LCA tool.' },
         { title: 'Send product feedback', section: 'Feedback', view: 'send-feedback', excerpt: 'Use the feedback form to suggest features, report bugs, or share your experience with TerraCAP.' },
-        { title: 'Supplier evaluation and Scope 3', section: 'Supplier Evaluation', view: 'getting-started', excerpt: 'Supplier Evaluation collects Scope 1/2/3 data from your supply chain and scores suppliers on ESG criteria.' },
+        { title: 'Supplier evaluation and Scope 3', section: 'Supplier Evaluation', view: 'getting-started', excerpt: 'Data Management → Supplier ESG Data collects Scope 1/2/3 data from your supply chain and scores suppliers on ESG criteria.' },
+        { title: 'Is the GreenCo Readiness score a CII rating?', section: 'Tools', view: 'tools', excerpt: 'No. Scores are indicative self-assessments. CII assessors and the judges\' panel determine the actual rating.' },
+        { title: 'GreenCo versions: V3, V4 and Lite', section: 'Tools', view: 'tools', excerpt: 'Version 3 is scored against CII\'s published credit rules. Version 4 and GreenCo Lite scores are provisional until CII publishes their credit criteria.' },
+        { title: 'Why is some GreenCo plant data locked?', section: 'Tools', view: 'tools', excerpt: 'Values already in the TerraCAP ledger fill in automatically and are locked. Override a field with a reason to use a different value for GreenCo; the ledger does not change.' },
+        { title: 'GreenCo initiatives and AI review', section: 'Tools', view: 'tools', excerpt: 'Record initiatives with yearly quantities. The tool shows whether they reach the target band; AI review checks whether the quantities are realistic. AI never changes a score.' },
+        { title: 'GreenCo evidence: ledger records and uploads', section: 'Tools', view: 'tools', excerpt: 'Bills, invoices and manifests already in TerraCAP link automatically. Upload GreenCo-only documents such as policies and review minutes.' },
+        { title: 'UI GreenMetric self-assessment for universities', section: 'Tools', view: 'tools', excerpt: 'Tools → GreenMetric Tool: campus profile, indicator scoring, gap review, evidence and submission for the 2025 and 2026 questionnaires.' },
+        { title: 'NAAC Green Audit', section: 'Tools', view: 'tools', excerpt: 'Tools → NAAC Green Audit: green audit workflow for higher-education institutions preparing for NAAC accreditation.' },
+        { title: 'CII Net Zero Operational Carbon (NZOC)', section: 'Tools', view: 'tools', excerpt: 'Tools → CII NZOC Tool: readiness for the certification awarded to facilities that bring Scope 1 and 2 emissions to zero.' },
+        { title: 'Framework badges on data collection forms', section: 'Data Management', view: 'getting-started', excerpt: 'Each form category shows the disclosure frameworks that use it: BRSR plus GHG Protocol, GRI, CDP, CSRD, CBAM and IFRS S2. Rating tools read the same data from their own Tools entries.' },
+        { title: 'Attaching evidence to a form', section: 'Data Management', view: 'getting-started', excerpt: 'Every sub-category in Data Collection Forms has an Evidence & Documents panel below the form for uploading supporting files.' },
     ];
 
     const POPULAR = HELP_KB.slice(0, 5);
@@ -974,6 +1097,7 @@
     const VIEW_TITLES = {
         'search': 'Search Help',
         'getting-started': 'Getting Started',
+        'tools': 'Tool Guides',
         'video-tutorials': 'Video Tutorials',
         'whats-new': "What's New",
         'contact-support': 'Contact Support',
