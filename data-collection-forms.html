@@ -1010,6 +1010,44 @@
 
         /* ─── Jurisdiction visibility defaults ─── */
         /* India is default jurisdiction — EU and Other sections hidden until switched */
+
+        /* ─── Waste Settings & New Architecture ─── */
+        .ws-settings-section { background:#f8fafb; border:1.5px solid var(--hz-primary,#2d6a4f);
+            border-radius:var(--radius-sm); padding:1rem; margin-bottom:0.75rem; }
+        .ws-settings-title { font-size:0.82rem; font-weight:700; color:var(--hz-primary,#2d6a4f);
+            margin-bottom:0.5rem; display:flex; align-items:center; gap:0.4rem; }
+        .ws-admin-badge { background:#dc2626; color:#fff; font-size:0.6rem; font-weight:700;
+            padding:0.1rem 0.4rem; border-radius:8px; letter-spacing:0.05em; }
+        .ws-tab-bar { display:flex; gap:0; border-bottom:2px solid var(--stroke);
+            margin-bottom:0.6rem; }
+        .ws-tab-btn { padding:0.4rem 1rem; font-size:0.78rem; font-weight:600; cursor:pointer;
+            border:none; background:none; color:var(--ink-soft); border-bottom:2px solid transparent;
+            margin-bottom:-2px; transition:all 0.15s; }
+        .ws-tab-btn.active { color:var(--hz-primary,#2d6a4f);
+            border-bottom-color:var(--hz-primary,#2d6a4f); }
+        .ws-tab-panel { display:none; }
+        .ws-tab-panel.active { display:block; }
+        .ws-gen-row { display:grid; grid-template-columns:2fr 1fr 1fr 1.5fr;
+            gap:0.4rem; align-items:center; margin-bottom:0.35rem; }
+        .ws-gen-label { font-size:0.77rem; color:var(--ink); }
+        .ws-pending-bar { padding:0.45rem 0.75rem; border-radius:var(--radius-sm);
+            font-size:0.75rem; margin-bottom:0.4rem; display:flex; justify-content:space-between; }
+        .ws-pending-bar.ok     { background:#dcfce7; color:#166534; border:1px solid #86efac; }
+        .ws-pending-bar.warn   { background:#fef3c7; color:#92400e; border:1px solid #fcd34d; }
+        .ws-pending-bar.overdue{ background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; }
+        .ws-solid-card { border:1.5px solid var(--stroke); border-radius:var(--radius-sm);
+            overflow:hidden; margin-bottom:0.5rem; }
+        .ws-solid-card-hdr { padding:0.45rem 0.75rem; font-size:0.8rem; font-weight:700;
+            color:#fff; display:flex; align-items:center; gap:0.5rem; }
+        .ws-solid-card-body { padding:0.55rem 0.75rem; background:#fff; }
+        .ws-period-selector { display:grid; grid-template-columns:1fr 1fr; gap:0.4rem;
+            margin-bottom:0.5rem; }
+        .ws-checklist { display:grid; grid-template-columns:1fr 1fr; gap:0.25rem; }
+        .ws-checklist-item { display:flex; align-items:flex-start; gap:0.35rem;
+            font-size:0.75rem; color:var(--ink); padding:0.2rem 0; }
+        .ws-checklist-item input { margin-top:0.1rem; accent-color:var(--hz-primary,#2d6a4f); }
+        .ws-disp-row { display:grid; grid-template-columns:1.5fr 1fr 1fr 1fr auto;
+            gap:0.35rem; align-items:end; margin-bottom:0.35rem; }
         .ws-eu-only    { display: none; }
         .ws-other-only { display: none; }
 
@@ -1281,7 +1319,8 @@ const CATEGORIES = [
         id: 'scope2', label: 'Scope 2', icon: '⚡', color: 'var(--scope-2)',
         badges: ['fw-ghg','fw-gri','fw-brsr','fw-cdp'],
         subs: [
-            { id: '2.1', name: 'Purchased Electricity', desc: 'Grid electricity consumed — location-based & market-based methods. On-site generation captured here as a market-based adjustment attribute.' },
+            { id: 'RI',  name: '⚡ Renewable Instruments', desc: 'Entity-level registry of RECs, I-RECs, Guarantees of Origin, and PPA contracts. Market-based Scope 2 result is derived in the analytics layer from this data.' },
+            { id: '2.1', name: 'Purchased Electricity', desc: 'Grid electricity consumed — location-based method only. Market-based instruments are registered in the Renewable Instruments panel.' },
             { id: '2.2', name: 'Purchased Steam', desc: 'Steam purchased or acquired from an external supplier (utility, CHP plant, or district system)' },
             { id: '2.3', name: 'Purchased Heat', desc: 'Heat energy purchased from an external source — district heating, CHP, waste heat, solar thermal' },
             { id: '2.4', name: 'Purchased Cooling', desc: 'Cooling energy purchased from an external provider — district cooling, chiller plant, chilled water' },
@@ -1335,7 +1374,9 @@ const CATEGORIES = [
         id: 'waste', label: 'Waste', icon: '♻️', color: 'var(--waste)',
         badges: ['fw-gri','fw-brsr'],
         subs: [
-            { id: 'WS.1', name: 'Hazardous Waste', desc: 'HW generation, TSDF disposal, used oil, chemicals (GRI 306-3, CPCB)' },
+            { id: 'WS.0', name: '⚙ Waste Settings', desc: 'Admin-only: configure waste streams, CPCB categories, disposal facilities. Set once — ingestors see only quantity/unit fields.' },
+            { id: 'SW',   name: 'Solid Waste', desc: 'Wet, Dry, Domestic Hazardous, Sanitary waste — SWM Rules 2016 (GRI 306-3)' },
+            { id: 'WS.1', name: 'Hazardous Waste', desc: 'HW generation & disposal — Schedule I categories — 90-day disposal tracking (CPCB)' },
             { id: 'WS.2', name: 'Non-Hazardous Waste', desc: 'MSW, organic, paper, plastic streams (GRI 306-3)' },
             { id: 'WS.3', name: 'E-Waste & Special Waste', desc: 'Electronic, battery, biomedical, C&D waste (E-Waste Rules 2022)' },
             { id: 'WS.4', name: 'Waste Diversion & Recycling', desc: 'Recycling, composting, co-processing, diversion rate (GRI 306-4, GreenCo Waste)' },
@@ -1944,91 +1985,32 @@ const FF = {
     // ═══════════════════════════════════════════════════
     '2.1': { sections: [
 
-        // ─── BLOCK A: Basic Consumption ─────────────────────────────────────
-        { label: 'Block A — Grid Electricity Purchased (feeds both methods)', fields: [
-            { name: 'Total Grid Electricity Purchased', hint: 'GROSS units from DISCOM bill — no netting for RECs, PPAs, or on-site generation. If bill is in kVAh, convert using power-factor or enter kVAh and select unit below.', unit: 'kWh', type: 'number' },
-            { name: 'Billing Unit', hint: 'Confirms what unit appears on the DISCOM bill. India invoices sometimes bill in kVAh, not kWh — this flag prevents unit errors in the EF calculation.', unit: '', type: 'select',
-              options: ['kWh (kilowatt-hours — standard)', 'kVAh (kilovolt-ampere-hours — convert to kWh using power factor)', 'MWh (megawatt-hours)', 'Units (generic — confirm kWh equivalent)'] },
-            { name: 'Consumption: Actual or Estimated?', hint: 'Actual = confirmed DISCOM bill received. Estimated = bill pending, consumption estimated from prior period or sub-meter. True-up = provisional entry to be corrected when bill arrives.', unit: '', type: 'select',
-              options: ['Actual — DISCOM bill received and verified', 'Estimated — bill pending (will true-up)', 'True-up — correcting prior estimated entry', 'Sub-metered (actual reading, no utility bill)'] },
-            { name: 'Billing Period Start', hint: 'Start date of the DISCOM billing cycle. India DISCOM billing cycles do not always align to calendar months or FY quarters — capturing the actual cycle prevents period mismatches.', unit: 'YYYY-MM-DD', type: 'text', placeholder: 'e.g. 2024-07-01' },
-            { name: 'Billing Period End', hint: 'End date of the DISCOM billing cycle.', unit: 'YYYY-MM-DD', type: 'text', placeholder: 'e.g. 2024-09-30' },
-            { name: 'Utility / DISCOM Name', hint: 'Name of the electricity distribution company supplying this connection.', unit: '', type: 'text', placeholder: 'e.g. BESCOM, MSEDCL, TATA Power, EDF, SSE' },
-            { name: 'Account / Meter Reference', hint: 'DISCOM account number or meter ID — links this data record to the physical bill for audit trail.', unit: '', type: 'text', placeholder: 'e.g. KA-BESC-00423871' },
-            { name: 'Electricity Cost', hint: 'Total bill amount including fixed charges and taxes. Finance record only — not used in GHG calculation.', unit: '₹ / local currency', type: 'number' },
+        // ─── Block A: Grid Electricity Purchased ────────────────────────────
+        { label: 'Block A — Grid Electricity Consumed', fields: [
+            { name: 'Total Grid Electricity Purchased', hint: 'GROSS units from the confirmed utility / DISCOM bill. Do not enter estimates — enter when the confirmed bill is in hand. No netting for on-site generation or renewable instruments.', unit: 'kWh', type: 'number' },
+            { name: 'Billing Unit', hint: 'Unit as shown on the bill. India bills sometimes use kVAh — select that if so, enter kVAh quantity above and the system converts.', unit: '', type: 'select',
+              options: ['kWh (kilowatt-hours — standard)', 'kVAh (kilovolt-ampere-hours — India DISCOM billing)', 'MWh (megawatt-hours)'] },
+            { name: 'Billing Period Start', hint: 'Start date of the utility billing cycle (not the reporting period — they may differ).', unit: 'YYYY-MM-DD', type: 'text', placeholder: 'e.g. 2025-04-01' },
+            { name: 'Billing Period End', hint: 'End date of the utility billing cycle.', unit: 'YYYY-MM-DD', type: 'text', placeholder: 'e.g. 2025-06-30' },
+            { name: 'Account / Meter Reference', hint: 'Utility account number or meter ID — links this record to the physical bill for audit trail.', unit: '', type: 'text', placeholder: 'e.g. KA-BESC-00423871' },
         ]},
 
-        // ─── BLOCK B: Location-Based Method ─────────────────────────────────
-        { groupHeader: '📍 BLOCK B — Location-Based Method (Mandatory for ALL reporters)' },
-        { label: 'B.1 Grid Region — drives EF selection', fields: [
-            { name: '', hint: '⚠️ How the location-based calculation works: Your total grid electricity purchased (Block A, in kWh) is multiplied by the national grid average emission factor selected below. The result is your Scope 2 location-based figure. Nothing else enters this calculation — not RECs, not PPAs, not rooftop solar, not T&D losses. These belong elsewhere: RECs and PPAs affect Block C (market-based method only). T&D losses are reported in Scope 3 Category 3. On-site solar is not purchased electricity — it lives in the Energy Management tab.', type: 'note' },
-            { name: 'Grid Macro-Region', hint: 'Select region — populates Grid Country/Zone below. Org profile country pre-selects automatically.', unit: '', type: 'select',
+        // ─── Block B: Location-Based Method ─────────────────────────────────
+        { groupHeader: '📍 Block B — Location-Based Method (mandatory for all reporters)' },
+        { label: 'B.1 Grid Region', fields: [
+            { name: '', hint: '⚠️ How the location-based calculation works: Block A consumption (kWh) × the national/regional grid average emission factor selected below. Nothing else enters this calculation — RECs, PPAs, GOs, and on-site solar are captured in the Renewable Instruments panel (Scope 2 → Renewable Instruments). T&D losses are in Scope 3 Category 3.', type: 'note' },
+            { name: 'Grid Macro-Region', hint: 'Select your grid macro-region — populates the zone dropdown below.', unit: '', type: 'select',
               onchange: 'onGridMacroChange(this)',
-              options: ['India','European Union','United Kingdom','United States','Canada','Australia','Middle East / GCC','Southeast Asia','East Asia','Other Markets'] },
-            { name: 'Grid Country / Zone', hint: 'Cascades from macro-region above. India = single national grid (CEA V21.0). US = EPA eGRID region. EU = country-level.', unit: '', type: 'select',
+              options: ['India', 'European Union', 'United Kingdom', 'United States', 'Canada', 'Australia', 'Middle East / GCC', 'Southeast Asia', 'East Asia', 'Other Markets'] },
+            { name: 'Grid Country / Zone', hint: 'Cascades from macro-region above. India = single national grid (CEA V21.0 FY2024-25 = 0.710 kgCO₂/kWh). US = EPA eGRID region. EU = country-level.', unit: '', type: 'select',
               onchange: 'onGridZoneChange(this)',
-              options: ['Select macro-region first — options will load'] },
+              options: ['Select macro-region first'] },
         ]},
-        { label: 'B.2 Emission Factor — auto-filled, locked by default', fields: [
-            { name: 'Grid EF Applied', hint: 'Auto-filled from GRID_EF_MATRIX when region selected. Unit: kgCO₂/kWh. India CEA V21.0 FY2024-25 = 0.710 kgCO₂/kWh. To override, set Override field below and document justification.', unit: 'kgCO₂/kWh', type: 'number' },
-            { name: 'Gas Coverage of EF', hint: 'CEA India publishes CO₂-ONLY. Do not label as CO₂e without documented CH₄ and N₂O coverage. DEFRA UK, EPA US, and Ember publish CO₂e. Label result accordingly.', unit: '', type: 'select',
-              options: ['CO₂ only (e.g. CEA India — result must be labelled tCO₂ not tCO₂e)', 'CO₂e — CO₂ + CH₄ + N₂O covered (e.g. DEFRA UK, EPA eGRID, Ember)', 'CO₂e — gases covered per source documentation'] },
-            { name: 'EF Source Name', hint: 'Full source name — required for audit trail. e.g. "CEA CO₂ Baseline Database V21.0" or "DEFRA GHG Conversion Factors 2026".', unit: '', type: 'text', placeholder: 'e.g. CEA CO₂ Baseline Database V21.0' },
-            { name: 'EF Publication Year', hint: 'Year the EF document was published (not the data year). e.g. CEA V21.0 published November 2025 for FY2024-25 data.', unit: 'YYYY', type: 'text', placeholder: 'e.g. 2025 (CEA V21.0, FY2024-25 data)' },
-            { name: 'EF Data Year (year the grid data covers)', hint: 'The actual electricity generation year the factor represents — distinct from publication year. CEA V21.0 publication year = 2025, but data year = FY2024-25. When the reporting year changes, verify this field matches the data year of the selected factor version. e.g. for FY2025-26 reporting, check for CEA V22.0 (expected late 2026) and update this field.', unit: 'YYYY or FY', type: 'text', placeholder: 'e.g. FY2024-25 (CEA V21.0) or Calendar 2024 (Ember 2025)' },
-            { name: 'EF Unit', hint: 'Unit of the emission factor as published by the source. Store explicitly — mixing kgCO₂/kWh with tCO₂/MWh in the same dataset causes 1000× errors. CEA publishes in tCO₂/MWh (numerically equal to kgCO₂/kWh). Confirm unit from source document.', unit: '', type: 'select',
-              options: ['kgCO₂/kWh (= tCO₂/MWh — CEA, Ember, DEFRA)', 'tCO₂/MWh (= kgCO₂/kWh — same value, different label)', 'kgCO₂e/kWh (where CH₄ and N₂O are included — DEFRA, EPA eGRID)', 'Other — specify in EF Source Name'] },
-            { name: 'EF Override?', hint: 'Default: No. If you select Yes, the EF field above becomes editable and Override Justification is mandatory. Override is an auditable exception — do not use to apply instruments or adjust for T&D losses.', unit: '', type: 'select',
-              options: ['No — use auto-filled EF from grid region (default)', 'Yes — manually overriding (justification required below)'] },
-            { name: 'Override Justification', hint: 'Required when EF Override = Yes. State the source, version, and reason for overriding the standard grid factor.', unit: '', type: 'text', placeholder: 'e.g. State utility published site-specific factor — [source name and date]' },
-        ]},
-        { label: 'B.3 Location-Based Result (calculated — read only)', fields: [
-            { name: 'Location-Based Scope 2 Emissions', hint: 'CALCULATED: Block A consumption (kWh) × Grid EF (kgCO₂/kWh) ÷ 1000. Result unit follows Gas Coverage: tCO₂ where CEA India EF is used; tCO₂e where source covers all gases. This field is read-only — it is the primary mandatory Scope 2 disclosure number.', unit: 'tCO₂ or tCO₂e (per Gas Coverage field)', type: 'number' },
-        ]},
-
-        // ─── BLOCK C: Market-Based Method ────────────────────────────────────
-        { groupHeader: '📋 BLOCK C — Market-Based Method (Required additionally where instruments held)' },
-        { label: 'C.1 Instrument Gate', fields: [
-            { name: 'Hold any market-based renewable energy instruments?', hint: 'Market-based instruments include: RECs (India CERC), Guarantees of Origin (EU), REGOs (UK), US RECs (Green-e), PPA with contractual EF, green supplier tariff with disclosed EF. If No, residual mix EF applies to full consumption.', unit: '', type: 'select',
-              options: ['No — no instruments held; residual mix EF applies to full consumption', 'Yes — instruments held; complete C.2 fields below'] },
-        ]},
-        { label: 'C.2 Instrument Details (one row per instrument)', fields: [
-            { name: 'Instrument Type', hint: 'Select the instrument type. Matching period (annual/monthly/hourly) describes temporal granularity only — it does not by itself make an instrument valid. C.2 fields below establish validity.', unit: '', type: 'select',
-              options: ['REC India — CERC-certified (Solar / Non-Solar)', 'Guarantee of Origin — EU (AIB framework)', 'REGO — UK Renewable Energy Guarantee of Origin', 'US REC — Green-e certified', 'I-REC — International REC Standard', 'PPA — Power Purchase Agreement (contractual EF)', 'Green supplier tariff — supplier-disclosed EF', 'Other — specify in Certificate / Contract ID'] },
-            { name: 'Quantity Covered by Instrument', hint: 'kWh covered by this specific instrument. SUM of all instrument quantities cannot exceed Block A total grid consumption.', unit: 'kWh', type: 'number' },
-            { name: 'Certificate / Contract ID', hint: 'Registry serial number (for RECs / GOs / REGOs) or contract reference (for PPAs). Mandatory — a quantity without a traceable ID cannot support a market-based claim.', unit: '', type: 'text', placeholder: 'e.g. IEX-REC-2024-00421 or PPA-CONTRACT-REF-001' },
-            { name: 'Issuing Registry Name', hint: 'Registry that issued and tracks this instrument. e.g. IEX (India REC), AIB (EU), Ofgem (UK REGO), Green-e (US), IREC (International).', unit: '', type: 'text', placeholder: 'e.g. IEX (India Energy Exchange), AIB, Ofgem' },
-            { name: 'Retirement / Cancellation Date', hint: 'Date the instrument was retired or cancelled in the registry. Must be within or immediately after the reporting period. Retirement is the act that prevents double counting — a certificate that is not retired cannot be claimed.', unit: 'YYYY-MM-DD', type: 'text', placeholder: 'e.g. 2025-03-31' },
-            { name: 'Geographic Market', hint: 'Must match the consumption location. An Indian facility cannot use a European GO to claim zero-EF in India — instrument must be in the same market boundary as consumption.', unit: '', type: 'text', placeholder: 'e.g. India (CERC market), Great Britain (Ofgem), Germany (AIB)' },
-            { name: 'Generation Facility', hint: 'Name or designation of the generation facility or plant. Required to confirm the energy source.', unit: '', type: 'text', placeholder: 'e.g. XYZ Solar Farm, Rajasthan or GO facility designation' },
-            { name: 'Generation Period (Vintage)', hint: 'Year of electricity generation. Must be within or immediately before the reporting period. Stale vintage (e.g. 2019 certificate used in 2025 report) may not be accepted under all frameworks.', unit: 'YYYY', type: 'text', placeholder: 'e.g. 2024' },
-            { name: 'Instrument EF', hint: 'Emission factor for this instrument. Near-zero (e.g. 0.000) for certified renewable RECs / GOs. For PPAs: contractual EF as stated in agreement. For green tariffs: supplier-disclosed EF with source document.', unit: 'kgCO₂/kWh', type: 'number' },
-            { name: 'Renewable Attributes Sold or Transferred to Another Party?', hint: '⚠️ CRITICAL: If Yes, you have sold the environmental attribute to another buyer. You cannot simultaneously make a zero-EF market-based claim for this electricity. Selecting Yes will block the zero-EF claim for this instrument quantity and apply residual mix EF instead.', unit: '', type: 'select',
-              options: ['No — attributes retained; zero-EF claim permitted for this instrument', 'Yes — attributes sold or transferred; zero-EF claim is NOT permitted for this quantity'] },
-            { name: 'Temporal Matching Granularity', hint: 'Describes matching granularity only — not instrument validity. Annual matching is the GHG Protocol minimum. Hourly matching (24/7 CFE) is required for some SBTi and RE100 pathways.', unit: '', type: 'select',
-              options: ['Annual matching (GHG Protocol minimum)', 'Monthly matching', 'Hourly matching (24/7 CFE — required for some SBTi/RE100 pathways)', 'Not specified'] },
-        ]},
-        { label: 'C.3 Residual (consumption not covered by instruments)', fields: [
-            { name: 'Residual Consumption', hint: 'Auto-calculated: Block A total − sum of all instrument quantities. Cannot be negative. If negative, instrument quantities exceed consumption — validation error.', unit: 'kWh', type: 'number' },
-            { name: 'Residual Mix EF', hint: 'Apply to the residual consumption not covered by instruments. India: no published residual mix identified — CEA national grid average applied as a disclosed proxy for untracked consumption (document this choice explicitly: the grid average reflects generation mix, not the post-contractual-claims residual mix; disclose this proxy in your methodology note). EU: use AIB country-specific residual mix factor (published April each year — distinct from and generally higher than the national location-based average). UK: use DESNZ residual mix (published annually in the GHG Conversion Factors document).', unit: 'kgCO₂/kWh', type: 'number' },
-            { name: 'Residual Mix EF Source and Year', hint: 'e.g. "CEA National Average (proxy) — V21.0 FY2024-25" or "AIB 2024 Residual Mix Factors — Germany 0.334 kgCO₂/kWh".', unit: '', type: 'text', placeholder: 'e.g. CEA National Average (proxy) FY2024-25' },
-        ]},
-        { label: 'C.4 Market-Based Result (calculated — read only)', fields: [
-            { name: 'Market-Based Scope 2 Emissions', hint: 'CALCULATED: (Instrument qty × Instrument EF) + (Residual kWh × Residual Mix EF) ÷ 1000. Unit: tCO₂ or tCO₂e per gas coverage of the EF used. Note: where attributes have been sold (C.2 = Yes), residual mix EF is applied to that quantity instead of instrument EF.', unit: 'tCO₂ or tCO₂e', type: 'number' },
-        ]},
-
-        // ─── BLOCK D: Dual Results Summary ────────────────────────────────────
-        { groupHeader: '📊 BLOCK D — Dual Results (GHG Protocol requires BOTH to be reported)' },
-        { label: 'D — Result Disclosure', fields: [
-            { name: 'Location-Based Scope 2 (Disclosed)', hint: 'Restated from Block B. Primary mandatory number for BRSR Principle 6, GRI 302-2, CDP Scope 2 (LB). Unit: tCO₂ where CEA India EF used; tCO₂e where source covers all gases. Location-based result CANNOT be replaced by market-based.', unit: 'tCO₂ / tCO₂e', type: 'number' },
-            { name: 'Market-Based Scope 2 (Disclosed)', hint: 'Restated from Block C. Required for CDP, SBTi, RE100, and group reporting where instruments are held. If no instruments: equals location-based result with residual mix EF applied. Disclose alongside location-based — not instead of it.', unit: 'tCO₂ / tCO₂e', type: 'number' },
-            { name: '', hint: '⚠️ T&D losses are excluded from end-user Scope 2 for both methods. T&D loss calculation belongs in Scope 3 Category 3 (upstream activities). Do not add T&D losses to either result above.', type: 'note' },
-            { name: '', hint: '⚠️ On-site renewable generation (rooftop solar, captive wind) is not purchased electricity. It is not a Scope 2 source. It is captured in the Energy Management module. A5 (gross grid purchase) already reflects net DISCOM billing after any net-metering export.', type: 'note' },
+        { label: 'B.2 Location-Based Result (system-calculated — read only)', fields: [
+            { name: 'Location-Based Scope 2 Emissions', hint: 'System-calculated: Block A (kWh) × grid EF from GRID_EF_MATRIX for the selected zone. EF value, source, gas coverage, version, and publication year are stored in the EF master table — not collected here. Read-only. Primary mandatory BRSR / GHG Protocol Scope 2 disclosure number.', unit: 'tCO₂ / tCO₂e', type: 'number' },
         ]},
 
     ]},
-
-    // 2.2 Purchased Steam
 
     '2.2': { sections: [
         { label: 'Unit Conversion — Tonnes → GJ (skip if billing is in GJ / kWh)', fields: [
@@ -3127,6 +3109,9 @@ function buildFormFields(subId) {
     if (subId === '1.2')  { renderS1Mobile(body);     return; }
     if (subId === '1.3')  { renderS1Fugitive(body);   return; }
     if (subId === '1.4')  { renderS1Process(body);    return; }
+    if (subId === 'RI')   { renderRI(body);  return; }
+    if (subId === 'WS.0') { renderWS0(body); return; }
+    if (subId === 'SW')   { renderWSSW(body); return; }
     if (subId === 'WS.1') { renderWS1(body); return; }
     if (subId === 'WS.2') { renderWS2(body); return; }
     if (subId === 'WS.3') { renderWS3(body); return; }
@@ -3747,7 +3732,232 @@ const WS_JURISDICTIONS = {
 };
 
 // ── INDIA CPCB — HAZARDOUS WASTE SCHEDULE I GROUPS ───────────────────────────
-const CPCB_HW_GROUPS = {
+
+// ════════════════ WASTE — UPDATED CONSTANTS ═══════════════════════════════════
+
+// CPCB Schedule I — Hazardous Waste (HW Rules 2016) — CFO Form nomenclature
+// Strictly follows Schedule I category numbers used in CPCB Form IV / Form O returns
+const CPCB_SCHEDULE_I = {
+    'Metal Finishing & Surface Treatment': {
+        code: 'HW-2/3', scheduleRef: 'Schedule I — Cat 2, 3 (CFO Form O Group 1)',
+        items: [
+            'Electroplating sludge and spent bath solution — Cat 2',
+            'Spent pickling acids (HCl, H₂SO₄, HNO₃ from metal cleaning) — Cat 2',
+            'Chromium-containing waste (hex and trivalent) — Cat 2',
+            'Cyanide waste from heat treatment / electroplating — Cat 3',
+            'Anodising and passivation waste — Cat 2',
+            'Metal hydroxide sludge from surface treatment — Cat 2',
+            'Zinc bath and galvanising residues — Cat 2'
+        ]
+    },
+    'Spent Oils & Oily Residues': {
+        code: 'HW-12/13/14', scheduleRef: 'Schedule I — Cat 12, 13, 14 (CFO Form O Group 2)',
+        items: [
+            'Used / spent lubricating oil — Cat 12',
+            'Hydraulic oil waste — Cat 12',
+            'Transformer oil waste (non-PCB) — Cat 12',
+            'Oily sludge from sumps, oil-water separators — Cat 14',
+            'Oil/water and hydrocarbon/water emulsion waste — Cat 14',
+            'Acid tar and sludges from petroleum refining — Cat 13',
+            'Cutting fluid / coolant waste — Cat 12'
+        ]
+    },
+    'Organic Solvents & Residues': {
+        code: 'HW-9/10', scheduleRef: 'Schedule I — Cat 9, 10 (CFO Form O Group 3)',
+        items: [
+            'Non-halogenated spent solvents (MEK, acetone, toluene, xylene, IPA) — Cat 9',
+            'Halogenated spent solvents (DCM, TCE, PCE, chloroform, carbon tetrachloride) — Cat 10',
+            'Solvent distillation bottoms and residues — Cat 9/10',
+            'Ink and coating solvent waste — Cat 9',
+            'Waste solvent blends / mixed solvents — Cat 9/10',
+            'Contaminated solvent from parts cleaning — Cat 9'
+        ]
+    },
+    'Inorganic Chemicals & Acids': {
+        code: 'HW-4/5/6/11', scheduleRef: 'Schedule I — Cat 4, 5, 6, 11 (CFO Form O Group 4)',
+        items: [
+            'Spent mineral acids (H₂SO₄, HCl, HNO₃, HF) — Cat 4',
+            'Spent alkaline solutions (NaOH, KOH, lime wash) — Cat 5',
+            'Off-specification / expired inorganic chemicals — Cat 6',
+            'Inorganic fluorine compounds (HF residues, NaF, fluoride sludge) — Cat 11',
+            'Isocyanate waste (MDI, TDI, PAPI residues) — Cat 12 (CPCB cross-ref)',
+            'Strong acid / alkali waste not classified under Cat 2 — Cat 4/5',
+            'Acid sludge and alkaline sludge from treatment operations — Cat 4/5'
+        ]
+    },
+    'Paints, Resins & Coatings': {
+        code: 'HW-7/15/16/17', scheduleRef: 'Schedule I — Cat 7, 15, 16, 17 (CFO Form O Group 5)',
+        items: [
+            'Waste paint and varnish — solvent-based — Cat 17',
+            'Paint booth sludge / paint overspray — Cat 17',
+            'Waste inks and printing residues — Cat 15',
+            'Waste dyes and pigments — Cat 15',
+            'Waste adhesives and sealants — Cat 16',
+            'Waste resins (epoxy, polyester, phenolic) — Cat 16',
+            'Hardener / catalyst waste from resin systems — Cat 16'
+        ]
+    },
+    'Pharmaceutical & Lab Waste': {
+        code: 'HW-8/9', scheduleRef: 'Schedule I — Cat 8, 9 (CFO Form O Group 6)',
+        items: [
+            'Off-specification / expired pharmaceutical products — Cat 8',
+            'Pharmaceutical process waste and mother liquors — Cat 8',
+            'Cytotoxic / cytostatic waste (oncology, chemo drugs) — Cat 8',
+            'Expired / unused pesticide and agrochemical products — Cat 9',
+            'Pesticide process waste and residues — Cat 9',
+            'Laboratory chemical waste (R&D, QC, analytical) — Cat 8',
+            'Empty contaminated pesticide containers — Cat 9'
+        ]
+    },
+    'Heavy Metals & Metal Compounds': {
+        code: 'HW-19/20/21/22/23/24/26/27/28/29', scheduleRef: 'Schedule I — Cat 19–29 (CFO Form O Group 7)',
+        items: [
+            'Mercury and mercury compounds (lamps, thermometers, switches) — Cat 19',
+            'Lead and lead compounds (non-battery, solder dross, cable sheathing) — Cat 20',
+            'Arsenic and arsenic compounds — Cat 21',
+            'Zinc compounds and zinc-bearing sludges — Cat 22',
+            'Copper compounds and copper-bearing waste — Cat 23',
+            'Cadmium and cadmium compounds (non-battery NiCd) — Cat 24',
+            'Chromium (VI) compounds (chromate/dichromate waste) — Cat 26',
+            'Organo-tin compounds — Cat 27',
+            'Metal hydroxide sludge (mixed heavy metals) — Cat 29',
+            'Cobalt-chrome alloy powder waste (3D printing / aerospace) — Cat 29'
+        ]
+    },
+    'Contaminated Materials & Treatment Residues': {
+        code: 'HW-15/19/33/34/35/36/41', scheduleRef: 'Schedule I — Cat 15, 19, 33, 34, 35, 36, 41 (CFO Form O Group 8)',
+        items: [
+            'ETP sludge from industrial effluent treatment — Cat 34',
+            'Oily sludge from oil/water treatment systems — Cat 34',
+            'Acid tar sludge from acid treatment processes — Cat 35',
+            'Residues from solvent recovery operations — Cat 36',
+            'Spent catalyst from chemical/petroleum processes — Cat 36',
+            'PCB-containing electrical equipment (transformers, capacitors) — Cat 33',
+            'PCB-contaminated oil — Cat 33',
+            'Asbestos-containing material (ACM, asbestos cement, fibres) — Cat 41',
+            'Contaminated soil from site remediation — Cat 19',
+            'Reactive metal waste (sodium, potassium, magnesium turnings) — Cat 29'
+        ]
+    },
+    'Other Schedule I Waste': {
+        code: 'HW-Other', scheduleRef: 'Schedule I — Miscellaneous (CFO Form O Group 9)',
+        items: [
+            'Radioactive waste (incidental — refer to AERB) — Cat 40',
+            'Waste organo-phosphorus compounds — Cat 13 (CPCB)',
+            'Peroxides and reactive organic peroxide waste — Cat 29 (CPCB)',
+            'Waste explosive residues — Cat 18',
+            'Spent liquors from wood pulp bleaching — Cat 39',
+            'Any other waste not covered above — specify in notes',
+            'Mixed / unknown waste requiring characterisation — Schedule I General'
+        ]
+    }
+};
+
+// Non-Hazardous Waste — Schedule II/III references
+// Schedule II = wastes permitted for import/recycling; Schedule III = permitted for export
+const CPCB_NON_HAZARDOUS_STREAMS = {
+    'Paper & Cardboard': {
+        code: 'NH-P', scheduleRef: 'SWM Rules 2016',
+        items: ['Paper waste — office, packaging', 'Cardboard / corrugated boxes', 'Newspaper / printed matter', 'Books and records (non-confidential)']
+    },
+    'Plastic Waste': {
+        code: 'NH-PL', scheduleRef: 'PWM Rules 2022 / SWM Rules 2016',
+        items: ['PET bottles and containers', 'HDPE / LDPE packaging', 'Polypropylene waste', 'Multi-layer plastic (MLP)', 'Polystyrene / EPS waste']
+    },
+    'Metal Scrap': {
+        code: 'NH-M', scheduleRef: 'Schedule II — recyclable',
+        items: ['Ferrous / steel scrap', 'Aluminium scrap', 'Copper scrap', 'Brass / bronze scrap', 'Stainless steel scrap', 'Mixed metal swarf']
+    },
+    'Glass Waste': {
+        code: 'NH-G', scheduleRef: 'SWM Rules 2016',
+        items: ['Glass bottles / containers', 'Flat glass / window glass', 'Broken glass', 'Laboratory glassware (non-contaminated)']
+    },
+    'Organic / Food Waste': {
+        code: 'NH-O', scheduleRef: 'SWM Rules 2016',
+        items: ['Food preparation waste (kitchen)', 'Canteen / cafeteria waste', 'Fruit and vegetable peels', 'Garden / horticulture waste']
+    },
+    'Wood & Packaging': {
+        code: 'NH-W', scheduleRef: 'SWM Rules 2016',
+        items: ['Wooden pallets and crates', 'Plywood offcuts', 'Sawdust and wood shavings', 'MDF / particleboard waste']
+    },
+    'Textile & Rubber': {
+        code: 'NH-T', scheduleRef: 'SWM Rules 2016',
+        items: ['Fabric offcuts and trimmings', 'Used PPE (non-contaminated)', 'Rubber offcuts', 'Used conveyor belts / hoses', 'Waste gaskets (non-asbestos)']
+    }
+};
+
+// Solid Waste — SWM Rules 2016 — 4 mandatory categories
+const SOLID_WASTE_CATEGORIES = {
+    'Wet Waste (Green Bin)': {
+        icon: '🌿', color: '#16a34a', rule: 'SWM Rules 2016 — Wet stream',
+        hint: 'Biodegradable waste — food, vegetable peels, fruit waste, canteen organic waste, garden/horticultural waste, tea/coffee waste. Correct route: composting, biogas/AD, or municipal wet waste collection.',
+        routes: ['On-site composting', 'Off-site composting facility', 'Biogas / AD plant', 'Municipal wet waste collection (green bin)', 'Animal feed diversion']
+    },
+    'Dry Waste (Blue Bin)': {
+        icon: '♻️', color: '#2563eb', rule: 'SWM Rules 2016 — Dry stream',
+        hint: 'Non-biodegradable recyclables — paper, cardboard, plastic bottles, glass, metals, packaging, tetra packs. Correct route: dry recyclable collection for segregated recycling.',
+        routes: ['Dry recyclable collector / aggregator', 'Kabadiwala / informal collection (document)', 'Material Recovery Facility (MRF)', 'Municipal dry waste collection (blue bin)']
+    },
+    'Domestic Hazardous Waste (Red Bin)': {
+        icon: '⚠️', color: '#dc2626', rule: 'SWM Rules 2016 — Domestic HW stream',
+        hint: 'Small-volume household/office hazardous items — used batteries (AA, AAA, coin cells), CFL bulbs, paint containers, chemical containers, printer cartridges, cleaning chemical containers. Note: industrial quantities of these → WS.1 Hazardous Waste instead.',
+        routes: ['CPCB-authorised collection centre (red bin)', 'Municipal domestic HW collection', 'Manufacturer / brand take-back (EPR)', 'CPCB-registered recycler']
+    },
+    'Sanitary Waste (Black/Grey Bin — wrapped)': {
+        icon: '🚮', color: '#6b7280', rule: 'SWM Rules 2016 — Sanitary stream',
+        hint: 'Sanitary napkins, diapers/nappies, tampons, adult incontinence products, bandages (non-clinical). Must be wrapped before disposal. Not to be mixed with wet waste. Correct route: municipal solid waste — not recyclable.',
+        routes: ['Municipal solid waste — general stream (wrapped)', 'Sanitary waste collection service', 'Incineration (where available)']
+    }
+};
+
+// Default waste settings structure (populated by admin in WS.0)
+// Stored in localStorage as 'WASTE_SETTINGS' — read by generation/disposal forms
+function wsGetSettings() {
+    try {
+        var stored = localStorage.getItem('WASTE_SETTINGS');
+        return stored ? JSON.parse(stored) : wsDefaultSettings();
+    } catch(e) { return wsDefaultSettings(); }
+}
+
+function wsDefaultSettings() {
+    return {
+        reportingPeriodType: 'quarterly',
+        facility: '',
+        hwStreams: [],
+        nhStreams: [],
+        hwDisposalRoutes: [],
+        nhDisposalRoutes: [],
+        ewDisposalRoutes: [],
+        hwDisposalDays: 90,
+        ewDisposalDays: 180,
+        physicalStates: [],
+        hazardFlags: [],
+        regFlags: [],
+        spcbAuthNo: '',
+        authValidFrom: '',
+        authValidTo: '',
+        mswAuthority: '',
+        mswContractRef: '',
+        ewEprNo: '',
+        generationLog: []
+    };
+}
+
+function wsSaveSettings(settings) {
+    try { localStorage.setItem('WASTE_SETTINGS', JSON.stringify(settings)); } catch(e) {}
+}
+
+// Reporting period options consistent with platform
+function wsPeriodOptions(type) {
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var years = ['FY2022-23','FY2023-24','FY2024-25','FY2025-26','FY2026-27'];
+    var quarters = ['Q1 (Apr–Jun)','Q2 (Jul–Sep)','Q3 (Oct–Dec)','Q4 (Jan–Mar)'];
+    if (type === 'monthly')  return months.map(function(m){return m + ' (select year separately)';});
+    if (type === 'quarterly') return quarters;
+    return years; // annual
+}
+
+const CPCB_HW_GROUPS_LEGACY = {
     'Metal Finishing & Surface Treatment': {
         code: '2.x', scheduleRef: 'Schedule I Cat 2',
         items: ['Electroplating sludge & spent bath','Spent pickling acid/alkali',
@@ -4018,179 +4228,609 @@ function wsFieldRow(label, hint, unit, type, id, opts = null) {
 }
 
 // ── WS.1 — Hazardous Waste (rule-set-first, Schedule I classification) ────────
-function renderWS1(body) {
-    const scheduleGroups = Object.entries(CPCB_HW_GROUPS).map(([group, data]) => {
-        const items = data.items.map(it =>
-            `<div class="ws-record-row" style="grid-template-columns:2fr 1fr 1fr;margin-bottom:0.35rem;">
-                <span style="font-size:0.77rem;color:var(--ink);align-self:center;">${it}</span>
-                <input type="number" placeholder="Qty" title="${it} quantity"
-                    style="padding:0.35rem 0.5rem;border:1px solid var(--stroke);border-radius:var(--radius-sm);font-size:0.78rem;">
-                <select title="Unit" style="padding:0.35rem 0.5rem;border:1px solid var(--stroke);border-radius:var(--radius-sm);font-size:0.75rem;">
-                    <option>Kg</option><option>Tonnes</option><option>Litres</option>
-                </select>
-            </div>`
-        ).join('');
-        return `<div class="ws-cat-group">
-            <div class="ws-cat-group-header" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
-                <span>📁 ${group}</span>
-                <span class="ws-rule-badge">${data.code}</span>
-                <span style="margin-left:auto;font-size:0.65rem;font-weight:400;color:var(--ink-soft);">${data.scheduleRef}</span>
-            </div>
-            <div class="ws-cat-group-body" style="display:none">
-                <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:0.25rem;margin-bottom:0.35rem;font-size:0.68rem;color:var(--ink-soft);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">
-                    <span>Waste Item</span><span>Quantity</span><span>Unit</span>
-                </div>
-                ${items}
-            </div>
-        </div>`;
-    }).join('');
 
-    body.innerHTML = wsJurisdictionBar() +
-    wsMasterRecordHTML('WS1') +
-    `<div class="ws-eu-only">` + wsEU_HazardousHTML() + `</div>` +
-    `<div class="ws-other-only">` + wsGeneric_HazardousHTML() + `</div>` +
-    `<div class="ws-helpbox-india">` +
-    wsHelpBox('Hazardous & Other Waste (Management & Transboundary Movement) Rules 2016',
-        'Applies to all generators of Schedule I hazardous waste. Requires SPCB authorisation, Form 3 annual generation return, Form 10 consignment manifest for each disposal. Disposal only via CPCB/SPCB-authorised TSDF, recycler, or co-processor. Filing via CPCB Parisar portal.') +
-    `</div>` +
-    `<div class="ws-india-only">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.6rem;">
-            ${wsFieldRow('SPCB Authorisation Number', 'Your Hazardous Waste Authorisation from the State Pollution Control Board — mandatory for all Schedule I generators', '', 'text', 'ws1-spcb-auth')}
-            ${wsFieldRow('Authorisation Valid Until', 'Expiry date of HW authorisation — must be renewed before expiry to avoid violation', '', 'date', 'ws1-spcb-expiry')}
-        </div>
-        <div class="field-group" style="margin-bottom:0.65rem;">
-            <label class="field-label">Reporting Quarter</label>
-            <span class="field-hint">Hazardous waste quantities reported annually (Form 3) but tracked quarterly for management records</span>
-            <select style="width:100%;padding:0.45rem 0.6rem;border:1px solid var(--stroke);border-radius:var(--radius-sm);font-size:0.81rem;">
-                <option>Q1 (Apr–Jun)</option><option>Q2 (Jul–Sep)</option><option>Q3 (Oct–Dec)</option><option>Q4 (Jan–Mar)</option><option>Full Year</option>
-            </select>
-        </div>
-        <p style="font-size:0.75rem;font-weight:700;color:var(--ink);margin:0.5rem 0 0.35rem;">Schedule I Waste Quantities — by Category</p>
-        <p style="font-size:0.72rem;color:var(--ink-soft);margin:0 0 0.5rem;">Click any category group to expand and enter quantities. Enter only categories applicable to your operations. Reference: CPCB Hazardous & Other Wastes (Management & Transboundary Movement) Rules 2016, Schedule I.</p>
-        ${scheduleGroups}
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-top:0.65rem;">
-            ${wsFieldRow('TSDF Facility Name', 'Treatment, Storage & Disposal Facility authorised by SPCB/CPCB to receive your hazardous waste', '', 'text', 'ws1-tsdf-name')}
-            ${wsFieldRow('TSDF Authorisation Ref.', 'TSDF authorisation number — required on Form 10 manifest', '', 'text', 'ws1-tsdf-auth')}
-        </div>
-        ${wsFieldRow('Treatment / Disposal Method', 'Primary disposal route for hazardous waste this period', '', 'select', 'ws1-treatment',
-            ['Secured Landfill (TSDF)', 'High-Temperature Incineration (HWI ≥1000°C)', 'Chemical/Physical Treatment (neutralisation, stabilisation)', 'Co-processing (Cement Kiln — Alternative Fuel)', 'Recycling via Authorised Recycler', 'Used Oil Recycling', 'Solvent Recovery / Distillation', 'Land Treatment (SPCB-approved)', 'Export (Basel Convention)'])}
-        ${wsFieldRow('Notes / Manifest Ref.', 'Form 10 manifest reference numbers, any SPCB directions, or additional context', '', 'text', 'ws1-notes')}
-        ${wsHelpBox('GHG Link (Scope 3.5)', 'Hazardous waste disposal contributes to Scope 3 Cat 5 emissions. Use treatment method above to select the matching disposal route in the Scope 3.5 Waste in Operations panel for CO₂e calculation.')}
-    </div>`;
 
-    // Append outcome block (separate from innerHTML assignment to avoid template nesting issues)
-    body.innerHTML += wsOutcomeBlockHTML('WS1');
-    // Apply current jurisdiction immediately after rendering
-    setTimeout(() => wsUpdateJurisdiction(window.wsCurrentJurisdiction || 'India (CPCB)'), 0);
-}
-
-// ── WS.2 — Non-Hazardous / Solid Waste (SWM 2016 4-stream) ───────────────────
-function renderWS2(body) {
-    body.innerHTML = wsJurisdictionBar() +
-    wsMasterRecordHTML('WS2') +
-    `<div class="ws-eu-only">` + wsEU_SolidWasteHTML() + `</div>` +
-    `<div class="ws-other-only">` + wsGeneric_SolidWasteHTML() + `</div>` +
-    `<div class="ws-helpbox-india">` +
-    wsHelpBox('Solid Waste Management Rules 2016',
-        'Requires mandatory source segregation into 3 streams (Wet / Dry Recyclable / Domestic Hazardous). Sanitary waste added in subsequent CPCB guidelines as a 4th stream. All 4 streams must be reported separately under GRI 306-3 and BRSR.') +
-    `</div>` +
-    `<div class="ws-india-only">
-        <div style="margin-bottom:0.6rem;">
-            <label class="field-label">Reporting Period</label>
-            <select style="width:100%;padding:0.45rem 0.6rem;border:1px solid var(--stroke);border-radius:var(--radius-sm);font-size:0.81rem;margin-top:0.2rem;">
-                <option>Q1 (Apr–Jun)</option><option>Q2 (Jul–Sep)</option><option>Q3 (Oct–Dec)</option><option>Q4 (Jan–Mar)</option><option>Full Year</option>
-            </select>
-        </div>
-
-        <div class="ws-cat-group">
-            <div class="ws-cat-group-header">🌿 Stream 1 — Wet / Biodegradable Waste</div>
-            <div class="ws-cat-group-body">
-                <p style="font-size:0.72rem;color:var(--ink-soft);margin:0 0 0.5rem;">Food waste, vegetable/fruit peels, garden/horticulture waste, canteen organic waste. Collection in green bins. Route to composting or biogas plant.</p>
-                <div class="ws-record-row">
-                    ${wsFieldRow('Wet Waste Generated', 'Total biodegradable waste from canteen, kitchen, garden', 'Tonnes', 'number', 'ws2-wet-qty')}
-                    ${wsFieldRow('Disposal Route', '', '', 'select', 'ws2-wet-route', ['Composting (on-site)', 'Composting (off-site)', 'Biogas / Anaerobic Digestion', 'Municipal Wet Waste Collection', 'Other'])}
-                </div>
-            </div>
-        </div>
-
-        <div class="ws-cat-group">
-            <div class="ws-cat-group-header">♻️ Stream 2 — Dry Recyclable Waste</div>
-            <div class="ws-cat-group-body">
-                <p style="font-size:0.72rem;color:var(--ink-soft);margin:0 0 0.5rem;">Plastic, paper, cardboard, metal, glass, wood, rubber, leather. Collection in blue bins. Route to registered recyclers. Enter quantities by material sub-type.</p>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;">
-                    ${wsFieldRow('Paper / Cardboard', '', 'Kg', 'number', 'ws2-dry-paper')}
-                    ${wsFieldRow('Plastic Packaging (flexible)', '', 'Kg', 'number', 'ws2-dry-plastic-flex')}
-                    ${wsFieldRow('Plastic (rigid / hard)', '', 'Kg', 'number', 'ws2-dry-plastic-rigid')}
-                    ${wsFieldRow('Metal Scrap', '', 'Kg', 'number', 'ws2-dry-metal')}
-                    ${wsFieldRow('Glass', '', 'Kg', 'number', 'ws2-dry-glass')}
-                    ${wsFieldRow('Wood / Timber', '', 'Kg', 'number', 'ws2-dry-wood')}
-                </div>
-                ${wsFieldRow('Dry Waste Recycler / Aggregator', 'Name of authorised recycler or municipality-empanelled aggregator', '', 'text', 'ws2-dry-recycler')}
-            </div>
-        </div>
-
-        <div class="ws-cat-group">
-            <div class="ws-cat-group-header">⚗️ Stream 3 — Domestic Hazardous Waste</div>
-            <div class="ws-cat-group-body">
-                <p style="font-size:0.72rem;color:var(--ink-soft);margin:0 0 0.5rem;">Paints, solvents, cleaning agents, mosquito repellents, printer cartridges, medicines, office batteries, used fluorescent tubes — from offices/facilities, not exceeding hazardous waste threshold quantities. Collection in red bins.</p>
-                <div class="ws-record-row">
-                    ${wsFieldRow('Domestic Hazardous Waste Generated', 'Total from offices, pantries, maintenance — below industrial HW threshold', 'Kg', 'number', 'ws2-dhw-qty')}
-                    ${wsFieldRow('Disposal Method', '', '', 'select', 'ws2-dhw-route', ['Municipal Hazardous Waste Facility', 'Authorised HW Recycler / Collector', 'Producer Take-Back (batteries, cartridges)', 'Other'])}
-                </div>
-            </div>
-        </div>
-
-        <div class="ws-cat-group">
-            <div class="ws-cat-group-header">🧴 Stream 4 — Sanitary Waste</div>
-            <div class="ws-cat-group-body">
-                <p style="font-size:0.72rem;color:var(--ink-soft);margin:0 0 0.5rem;">Diapers, sanitary napkins, incontinence products from washrooms. Must be separately wrapped before placing in dry waste stream — not to be mixed with other streams. Route to sanitary landfill or dedicated facility.</p>
-                <div class="ws-record-row">
-                    ${wsFieldRow('Sanitary Waste Generated', '', 'Kg', 'number', 'ws2-san-qty')}
-                    ${wsFieldRow('Disposal Route', '', '', 'select', 'ws2-san-route', ['Separately wrapped → dry waste → municipal', 'Dedicated sanitary waste facility', 'Other'])}
-                </div>
-            </div>
-        </div>
-
-        <div style="margin-top:0.65rem;">
-            ${wsFieldRow('Municipal Solid Waste Authority / ULB', 'Urban Local Body or municipal authority handling collection from your premises', '', 'text', 'ws2-ulb')}
-        </div>
-        ${wsHelpBox('GHG Link (Scope 3.5)', 'Wet waste to landfill contributes to Scope 3 Cat 5 via CH₄ factors. Composted and AD-routed waste has lower but non-zero EFs. Map Stream 1 disposal route to the Organic & Food Waste section in Scope 3.5.')}
-    </div>`;
-
-    // Append outcome block (separate from innerHTML assignment to avoid template nesting issues)
-    body.innerHTML += wsOutcomeBlockHTML('WS2');
-    // Apply current jurisdiction immediately after rendering
-    setTimeout(() => wsUpdateJurisdiction(window.wsCurrentJurisdiction || 'India (CPCB)'), 0);
-}
 
 // ── WS.3 — Special Regulated Waste (routing hub) ─────────────────────────────
-function renderWS3(body) {
-    body.innerHTML = wsJurisdictionBar() +
-    wsMasterRecordHTML('WS3') +
-    `<div class="ws-eu-only">` + wsEU_SpecialWasteHTML() + `</div>` +
-    `<div class="ws-other-only">` + wsGeneric_SpecialWasteHTML() + `</div>` +
-    `<div class="ws-helpbox-india">` +
-    wsHelpBox('Special & Regulated Waste — Rule-Set-First Router',
-        'Select the waste type below. Each type is governed by a separate CPCB rule set with its own mandatory classification. The same facility may generate multiple types — add a separate entry for each.') +
-    `</div>` +
-    `<div class="ws-sub-selector-row" id="ws3-selector">
-        <button class="ws-sub-btn active" onclick="ws3ShowPanel('ewaste',this)">💻 E-Waste (WEEE)</button>
-        <button class="ws-sub-btn" onclick="ws3ShowPanel('biomedical',this)">🏥 Biomedical</button>
-        <button class="ws-sub-btn" onclick="ws3ShowPanel('battery',this)">🔋 Battery</button>
-        <button class="ws-sub-btn" onclick="ws3ShowPanel('cd',this)">🏗️ C&D</button>
-        <button class="ws-sub-btn" onclick="ws3ShowPanel('am',this)">🖨️ 3D Printing / AM</button>
-        <button class="ws-sub-btn" onclick="ws3ShowPanel('plastic',this)">🧴 Plastic (EPR)</button>
-    </div>
-    <div id="ws3-panel-ewaste"  class="ws-sub-panel active">${ws3EwastePanelHTML()}</div>
-    <div id="ws3-panel-biomedical" class="ws-sub-panel">${ws3BiomedPanelHTML()}</div>
-    <div id="ws3-panel-battery"    class="ws-sub-panel">${ws3BatteryPanelHTML()}</div>
-    <div id="ws3-panel-cd"         class="ws-sub-panel">${ws3CDPanelHTML()}</div>
-    <div id="ws3-panel-am"         class="ws-sub-panel">${ws3AMPanelHTML()}</div>
-    <div id="ws3-panel-plastic"    class="ws-sub-panel">${ws3PlasticPanelHTML()}</div>`;
 
-    body.innerHTML += wsOutcomeBlockHTML('WS3');
-    // Apply current jurisdiction immediately after rendering
-    setTimeout(() => wsUpdateJurisdiction(window.wsCurrentJurisdiction || 'India (CPCB)'), 0);
+// ════════════════ WASTE — NEW RENDER FUNCTIONS ════════════════════════════════
+
+function renderWS0(body) {
+    // Admin-only: Waste Settings / Configuration
+    var s = wsGetSettings();
+
+    // Build HW stream checkboxes
+    var hwChecks = Object.keys(CPCB_SCHEDULE_I).map(function(grp) {
+        var checked = s.hwStreams.indexOf(grp) >= 0 ? 'checked' : '';
+        return '<label class="ws-checklist-item"><input type="checkbox" class="ws0-hw-stream" value="' + grp + '" ' + checked + '><span>' + grp + '</span></label>';
+    }).join('');
+
+    // Build NH stream checkboxes
+    var nhChecks = Object.keys(CPCB_NON_HAZARDOUS_STREAMS).map(function(grp) {
+        var checked = s.nhStreams.indexOf(grp) >= 0 ? 'checked' : '';
+        return '<label class="ws-checklist-item"><input type="checkbox" class="ws0-nh-stream" value="' + grp + '" ' + checked + '><span>' + grp + '</span></label>';
+    }).join('');
+
+    // Disposal facility rows
+    var dispRows = (s.hwDisposalRoutes || []).map(function(r, i) {
+        return '<div class="ws-disp-row" id="ws0-hwd-' + i + '">' +
+            '<input type="text" value="' + (r.facility||'') + '" placeholder="Facility name" style="padding:0.35rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;">' +
+            '<input type="text" value="' + (r.regNo||'') + '" placeholder="Reg / Auth No." style="padding:0.35rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;">' +
+            '<select style="padding:0.35rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.74rem;">' +
+            ['TSDF — Secured Landfill','TSDF — Incineration','Co-processing (Cement Kiln)','Authorised Recycler','Chemical Treatment','Other'].map(function(o){ return '<option' + (r.method===o?' selected':'') + '>' + o + '</option>'; }).join('') +
+            '</select>' +
+            '<input type="text" value="' + (r.wasteType||'') + '" placeholder="Applicable waste types" style="padding:0.35rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;">' +
+            '<button onclick="this.parentElement.remove()" style="padding:0.3rem 0.45rem;border:1px solid #fca5a5;border-radius:3px;background:#fee2e2;color:#991b1b;cursor:pointer;">✕</button>' +
+            '</div>';
+    }).join('');
+
+    body.innerHTML = `
+    <div class="ws-settings-section">
+        <div class="ws-settings-title">⚙️ Waste Configuration <span class="ws-admin-badge">ADMIN ONLY</span></div>
+        <p style="font-size:0.72rem;color:var(--ink-soft);margin:0 0 0.6rem;">Set these once. Ingestors will only see the selected categories and enter quantities. Change only when your waste profile changes.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:0.75rem;">
+            <div>
+                <div style="font-size:0.78rem;font-weight:700;color:var(--ink);margin-bottom:0.35rem;">📅 Reporting Period Type</div>
+                <p style="font-size:0.7rem;color:var(--ink-soft);margin:0 0 0.35rem;">Must match the platform reporting period for this entity.</p>
+                <div style="display:flex;flex-direction:column;gap:0.2rem;">
+                    <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.79rem;"><input type="radio" name="ws0-period" value="monthly" ${s.reportingPeriodType==='monthly'?'checked':''}> Monthly</label>
+                    <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.79rem;"><input type="radio" name="ws0-period" value="quarterly" ${s.reportingPeriodType==='quarterly'?'checked':''}> Quarterly</label>
+                    <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.79rem;"><input type="radio" name="ws0-period" value="annual" ${s.reportingPeriodType==='annual'?'checked':''}> Annual</label>
+                </div>
+            </div>
+            <div>
+                <div style="font-size:0.78rem;font-weight:700;color:var(--ink);margin-bottom:0.35rem;">🏭 Facility / Site</div>
+                <p style="font-size:0.7rem;color:var(--ink-soft);margin:0 0 0.35rem;">Facility generating this waste. Waste profile is site-specific.</p>
+                <input id="ws0-facility" type="text" value="${s.facility||''}" placeholder="e.g. Pune Manufacturing Plant — Unit 2"
+                    style="width:100%;padding:0.4rem 0.6rem;border:1px solid var(--stroke);border-radius:var(--radius-sm);font-size:0.79rem;box-sizing:border-box;">
+            </div>
+        </div>
+
+        <div style="margin-bottom:0.75rem;">
+            <div style="font-size:0.78rem;font-weight:700;color:var(--ink);margin-bottom:0.3rem;">🔬 Physical State of Waste Generated</div>
+            <p style="font-size:0.7rem;color:var(--ink-soft);margin:0 0 0.35rem;">Select all physical states of waste this facility generates. Used to validate unit selection in generation forms.</p>
+            <div class="ws-checklist">
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-phys-state" value="solid" ${(s.physicalStates||[]).indexOf('solid')>=0?'checked':''}><span>Solid (dry, powder, granular)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-phys-state" value="liquid" ${(s.physicalStates||[]).indexOf('liquid')>=0?'checked':''}><span>Liquid (solution, suspension)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-phys-state" value="sludge" ${(s.physicalStates||[]).indexOf('sludge')>=0?'checked':''}><span>Sludge (semi-solid, paste)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-phys-state" value="gaseous" ${(s.physicalStates||[]).indexOf('gaseous')>=0?'checked':''}><span>Gaseous / Vapour</span></label>
+            </div>
+        </div>
+
+        <div style="margin-bottom:0.75rem;">
+            <div style="font-size:0.78rem;font-weight:700;color:var(--ink);margin-bottom:0.3rem;">⚡ Nature / Hazard Flags</div>
+            <p style="font-size:0.7rem;color:var(--ink-soft);margin:0 0 0.35rem;">Select all hazardous properties that apply to waste generated at this facility (Schedule II — Hazardous Properties, HW Rules 2016).</p>
+            <div class="ws-checklist">
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="toxic" ${(s.hazardFlags||[]).indexOf('toxic')>=0?'checked':''}><span>H6.1 Toxic (acute / chronic)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="corrosive" ${(s.hazardFlags||[]).indexOf('corrosive')>=0?'checked':''}><span>H8 Corrosive (acid/alkali)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="flammable" ${(s.hazardFlags||[]).indexOf('flammable')>=0?'checked':''}><span>H3 Flammable (flash point &lt;60°C)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="reactive" ${(s.hazardFlags||[]).indexOf('reactive')>=0?'checked':''}><span>H5 Reactive (unstable, water-reactive)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="carcinogenic" ${(s.hazardFlags||[]).indexOf('carcinogenic')>=0?'checked':''}><span>H6.2 Carcinogenic</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="ecotoxic" ${(s.hazardFlags||[]).indexOf('ecotoxic')>=0?'checked':''}><span>H12 Ecotoxic (toxic to environment)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="infectious" ${(s.hazardFlags||[]).indexOf('infectious')>=0?'checked':''}><span>H6.3 Infectious (BMW)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="explosive" ${(s.hazardFlags||[]).indexOf('explosive')>=0?'checked':''}><span>H1 Explosive</span></label>
+            </div>
+        </div>
+
+        <div style="margin-bottom:0.75rem;">
+            <div style="font-size:0.78rem;font-weight:700;color:var(--ink);margin-bottom:0.3rem;">📋 Regulatory Attribute Flags</div>
+            <p style="font-size:0.7rem;color:var(--ink-soft);margin:0 0 0.35rem;">Regulatory categories that apply to this facility's waste — drives which manifests, forms, and portals are required.</p>
+            <div class="ws-checklist">
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="hw_scheduled" ${(s.regFlags||[]).indexOf('hw_scheduled')>=0?'checked':''}><span>Schedule I HW generator (Form IV / HW Authorisation required)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="ewaste_bulk" ${(s.regFlags||[]).indexOf('ewaste_bulk')>=0?'checked':''}><span>Bulk e-waste consumer (CPCB EPR portal quarterly upload)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="bmw" ${(s.regFlags||[]).indexOf('bmw')>=0?'checked':''}><span>Biomedical waste generator (BMW Authorisation + CBWTF contract)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="battery_epr" ${(s.regFlags||[]).indexOf('battery_epr')>=0?'checked':''}><span>Battery EPR registrant (Battery Rules 2022)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="plastic_epr" ${(s.regFlags||[]).indexOf('plastic_epr')>=0?'checked':''}><span>Plastic EPR registrant (PWM Rules 2022 — PIBO)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="msw_notified" ${(s.regFlags||[]).indexOf('msw_notified')>=0?'checked':''}><span>Notified under SWM Rules (bulk waste generator &gt;100 kg/day)</span></label>
+            </div>
+        </div>
+
+        <div style="margin-bottom:0.75rem;">
+            <div style="font-size:0.78rem;font-weight:700;color:var(--ink);margin-bottom:0.3rem;">🏛️ SPCB / CPCB Authorisation</div>
+            <p style="font-size:0.7rem;color:var(--ink-soft);margin:0 0 0.35rem;">HW Authorisation (Form IV) details. Required for all Schedule I HW generators. Renewal is typically 5 years.</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.4rem;">
+                <div>
+                    <div style="font-size:0.68rem;color:var(--ink-soft);margin-bottom:2px;">SPCB Auth Number (Form IV)</div>
+                    <input id="ws0-spcb-no" type="text" value="${s.spcbAuthNo||''}" placeholder="e.g. KSPCB/HW/2023/1234"
+                        style="width:100%;padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.78rem;box-sizing:border-box;">
+                </div>
+                <div>
+                    <div style="font-size:0.68rem;color:var(--ink-soft);margin-bottom:2px;">Authorisation Valid From</div>
+                    <input id="ws0-auth-from" type="date" value="${s.authValidFrom||''}"
+                        style="width:100%;padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.78rem;box-sizing:border-box;">
+                </div>
+                <div>
+                    <div style="font-size:0.68rem;color:var(--ink-soft);margin-bottom:2px;">Authorisation Valid Until</div>
+                    <input id="ws0-auth-to" type="date" value="${s.authValidTo||''}"
+                        style="width:100%;padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.78rem;box-sizing:border-box;">
+                </div>
+                <div>
+                    <div style="font-size:0.68rem;color:var(--ink-soft);margin-bottom:2px;">Municipal Solid Waste Authority</div>
+                    <input id="ws0-msw-auth" type="text" value="${s.mswAuthority||''}" placeholder="e.g. BBMP / PCMC / NMMC"
+                        style="width:100%;padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.78rem;box-sizing:border-box;">
+                </div>
+                <div>
+                    <div style="font-size:0.68rem;color:var(--ink-soft);margin-bottom:2px;">MSW Contract / Agreement Ref</div>
+                    <input id="ws0-msw-ref" type="text" value="${s.mswContractRef||''}" placeholder="Collection agreement / contractor name"
+                        style="width:100%;padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.78rem;box-sizing:border-box;">
+                </div>
+                <div>
+                    <div style="font-size:0.68rem;color:var(--ink-soft);margin-bottom:2px;">E-Waste EPR Registration No.</div>
+                    <input id="ws0-epr-no" type="text" value="${s.ewEprNo||''}" placeholder="CPCB EPR portal registration"
+                        style="width:100%;padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.78rem;box-sizing:border-box;">
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom:0.75rem;">
+            <div style="font-size:0.78rem;font-weight:700;color:var(--ink);margin-bottom:0.3rem;">⚠️ Hazardous Waste Streams (CPCB Schedule I)</div>
+            <p style="font-size:0.7rem;color:var(--ink-soft);margin:0 0 0.35rem;">Select all Schedule I categories generated by this facility. These will appear in the WS.1 generation form.</p>
+            <div class="ws-checklist">${hwChecks}</div>
+        </div>
+
+        <div style="margin-bottom:0.75rem;">
+            <div style="font-size:0.78rem;font-weight:700;color:var(--ink);margin-bottom:0.3rem;">🗑️ Non-Hazardous Waste Streams</div>
+            <p style="font-size:0.7rem;color:var(--ink-soft);margin:0 0 0.35rem;">Select all non-hazardous streams generated. These will appear in the WS.2 generation form.</p>
+            <div class="ws-checklist">${nhChecks}</div>
+        </div>
+
+        <div style="margin-bottom:0.75rem;">
+            <div style="font-size:0.78rem;font-weight:700;color:var(--ink);margin-bottom:0.3rem;">🏭 Hazardous Waste Disposal Facilities</div>
+            <p style="font-size:0.7rem;color:var(--ink-soft);margin:0 0 0.35rem;">Add authorised TSDF / treatment facilities. These appear as disposal route options in WS.1. CPCB mandates HW disposal within <strong>90 days</strong> of generation.</p>
+            <div style="display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr auto;gap:0.35rem;margin-bottom:0.25rem;font-size:0.68rem;color:var(--ink-soft);font-weight:600;text-transform:uppercase;">
+                <span>Facility Name</span><span>Auth/Reg No.</span><span>Treatment Method</span><span>Applicable Waste Types</span><span></span>
+            </div>
+            <div id="ws0-hwd-rows">${dispRows}</div>
+            <button onclick="wsAddDisposalRow('hw')" style="font-size:0.74rem;padding:0.3rem 0.7rem;border:1.5px dashed var(--stroke);border-radius:var(--radius-sm);background:#fff;cursor:pointer;color:var(--hz-primary);margin-top:0.3rem;">+ Add disposal facility</button>
+        </div>
+
+        <div style="margin-bottom:0.75rem;">
+            <div style="font-size:0.78rem;font-weight:700;color:var(--ink);margin-bottom:0.3rem;">💻 E-Waste Disposal Facilities</div>
+            <p style="font-size:0.7rem;color:var(--ink-soft);margin:0 0 0.35rem;">CPCB-registered recyclers or dismantlers. E-waste must be disposed within <strong>180 days</strong> of generation.</p>
+            <div id="ws0-ewd-rows"></div>
+            <button onclick="wsAddDisposalRow('ew')" style="font-size:0.74rem;padding:0.3rem 0.7rem;border:1.5px dashed var(--stroke);border-radius:var(--radius-sm);background:#fff;cursor:pointer;color:#1d4ed8;margin-top:0.3rem;">+ Add e-waste recycler</button>
+        </div>
+
+        <button onclick="ws0SaveSettings()" style="padding:0.5rem 1.5rem;background:var(--hz-primary,#2d6a4f);color:#fff;border:none;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:700;cursor:pointer;margin-top:0.25rem;">
+            💾 Save Waste Configuration
+        </button>
+        <span id="ws0-saved-msg" style="font-size:0.75rem;color:#16a34a;margin-left:0.75rem;display:none;">✓ Saved</span>
+    </div>`;
+}
+
+function wsAddDisposalRow(type) {
+    var container = document.getElementById('ws0-' + type + 'd-rows');
+    if (!container) return;
+    var idx = Date.now();
+    var methodOpts = type === 'ew'
+        ? ['CPCB-Registered Recycler','CPCB-Registered Dismantler','OEM Take-Back / EPR','Refurbished & Resold']
+        : ['TSDF — Secured Landfill','TSDF — Incineration','Co-processing (Cement Kiln)','Authorised Recycler','Chemical Treatment','Other'];
+    var row = document.createElement('div');
+    row.className = 'ws-disp-row'; row.id = 'ws0-' + type + 'd-' + idx;
+    row.innerHTML =
+        '<input type="text" placeholder="Facility name" style="padding:0.35rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;">' +
+        '<input type="text" placeholder="Reg / Auth No." style="padding:0.35rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;">' +
+        '<select style="padding:0.35rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.74rem;">' +
+        methodOpts.map(function(o){return '<option>'+o+'</option>';}).join('') + '</select>' +
+        '<input type="text" placeholder="Applicable waste types" style="padding:0.35rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;">' +
+        '<button onclick="this.parentElement.remove()" style="padding:0.3rem 0.45rem;border:1px solid #fca5a5;border-radius:3px;background:#fee2e2;color:#991b1b;cursor:pointer;">✕</button>';
+    container.appendChild(row);
+}
+
+function ws0SaveSettings() {
+    var s = wsGetSettings();
+    // Period type
+    var periodSel = document.querySelector('input[name="ws0-period"]:checked');
+    if (periodSel) s.reportingPeriodType = periodSel.value;
+    // HW streams
+    s.hwStreams = [];
+    document.querySelectorAll('.ws0-hw-stream:checked').forEach(function(cb){ s.hwStreams.push(cb.value); });
+    // NH streams
+    s.nhStreams = [];
+    document.querySelectorAll('.ws0-nh-stream:checked').forEach(function(cb){ s.nhStreams.push(cb.value); });
+    // HW disposal routes
+    s.hwDisposalRoutes = [];
+    var hwRows = document.querySelectorAll('#ws0-hwd-rows > .ws-disp-row');
+    hwRows.forEach(function(row) {
+        var inps = row.querySelectorAll('input, select');
+        s.hwDisposalRoutes.push({ facility:inps[0]?.value||'', regNo:inps[1]?.value||'', method:inps[2]?.value||'', wasteType:inps[3]?.value||'' });
+    });
+    // EW disposal routes
+    s.ewDisposalRoutes = [];
+    var ewRows = document.querySelectorAll('#ws0-ewd-rows > .ws-disp-row');
+    ewRows.forEach(function(row) {
+        var inps = row.querySelectorAll('input, select');
+        s.ewDisposalRoutes.push({ facility:inps[0]?.value||'', regNo:inps[1]?.value||'', method:inps[2]?.value||'', wasteType:inps[3]?.value||'' });
+    });
+    // New fields
+    var facilityEl = document.getElementById('ws0-facility');
+    if (facilityEl) s.facility = facilityEl.value;
+    var spcbEl = document.getElementById('ws0-spcb-no');
+    if (spcbEl) s.spcbAuthNo = spcbEl.value;
+    var authFromEl = document.getElementById('ws0-auth-from');
+    if (authFromEl) s.authValidFrom = authFromEl.value;
+    var authToEl = document.getElementById('ws0-auth-to');
+    if (authToEl) s.authValidTo = authToEl.value;
+    var mswAuthEl = document.getElementById('ws0-msw-auth');
+    if (mswAuthEl) s.mswAuthority = mswAuthEl.value;
+    var mswRefEl = document.getElementById('ws0-msw-ref');
+    if (mswRefEl) s.mswContractRef = mswRefEl.value;
+    var eprEl = document.getElementById('ws0-epr-no');
+    if (eprEl) s.ewEprNo = eprEl.value;
+    // Physical states
+    s.physicalStates = [];
+    document.querySelectorAll('.ws0-phys-state:checked').forEach(function(cb){ s.physicalStates.push(cb.value); });
+    // Hazard flags
+    s.hazardFlags = [];
+    document.querySelectorAll('.ws0-hazard-flag:checked').forEach(function(cb){ s.hazardFlags.push(cb.value); });
+    // Regulatory flags
+    s.regFlags = [];
+    document.querySelectorAll('.ws0-reg-flag:checked').forEach(function(cb){ s.regFlags.push(cb.value); });
+
+    wsSaveSettings(s);
+    var msg = document.getElementById('ws0-saved-msg');
+    if (msg) { msg.style.display='inline'; setTimeout(function(){msg.style.display='none';}, 2500); }
+}
+
+// ── Solid Waste renderer ───────────────────────────────────────────────────────
+function renderWSSW(body) {
+    var s = wsGetSettings();
+    var periodLabel = wsCurrentPeriodLabel(s);
+
+    var cards = Object.entries(SOLID_WASTE_CATEGORIES).map(function(entry) {
+        var name = entry[0], cat = entry[1];
+        var routeOpts = cat.routes.map(function(r){return '<option>'+r+'</option>';}).join('');
+        return '<div class="ws-solid-card">' +
+            '<div class="ws-solid-card-hdr" style="background:' + cat.color + ';">' +
+            cat.icon + ' ' + name + '<span style="margin-left:auto;font-size:0.65rem;font-weight:400;">' + cat.rule + '</span>' +
+            '</div>' +
+            '<div class="ws-solid-card-body">' +
+            '<p style="font-size:0.7rem;color:var(--ink-soft);margin:0 0 0.4rem;line-height:1.45;">' + cat.hint + '</p>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr 2fr;gap:0.4rem;align-items:end;">' +
+            '<div><div style="font-size:0.68rem;color:var(--ink-soft);margin-bottom:2px;">Quantity Generated</div>' +
+            '<input type="number" placeholder="0" style="width:100%;padding:0.4rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.8rem;"></div>' +
+            '<div><div style="font-size:0.68rem;color:var(--ink-soft);margin-bottom:2px;">Unit</div>' +
+            '<select style="width:100%;padding:0.4rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.78rem;"><option>Kg</option><option>Tonnes</option><option>Bags (50L)</option><option>Litres</option></select></div>' +
+            '<div><div style="font-size:0.68rem;color:var(--ink-soft);margin-bottom:2px;">Disposal Route</div>' +
+            '<select style="width:100%;padding:0.4rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.75rem;">' + routeOpts + '</select></div>' +
+            '</div></div></div>';
+    }).join('');
+
+    body.innerHTML = `
+    <div style="margin-bottom:0.6rem;">
+        <div style="font-size:0.82rem;font-weight:700;color:var(--ink);">🗂️ Solid Waste — SWM Rules 2016</div>
+    </div>
+    <div style="background:#fffbeb;border-left:3px solid #f59e0b;padding:0.45rem 0.75rem;border-radius:0 4px 4px 0;font-size:0.72rem;color:#78350f;margin-bottom:0.65rem;">
+        Solid waste is segregated at source into 4 streams as mandated by SWM Rules 2016. Enter quantities generated in the current ${s.reportingPeriodType} period. These do not overlap with Hazardous Waste (WS.1) or E-Waste (WS.3) — domestic-scale items only.
+    </div>
+    ${cards}`;
+}
+
+// ── HW Generation & Disposal renderer ─────────────────────────────────────────
+function renderWS1(body) {
+    var s = wsGetSettings();
+    var periodLabel = wsCurrentPeriodLabel(s);
+
+    if (s.hwStreams.length === 0) {
+        body.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--ink-soft);">
+            <div style="font-size:2rem;margin-bottom:0.5rem;">⚙️</div>
+            <div style="font-size:0.85rem;font-weight:700;margin-bottom:0.3rem;">Hazardous Waste streams not configured</div>
+            <div style="font-size:0.77rem;">Go to <strong>⚙ Waste Settings</strong> and select the Schedule I categories that apply to this facility.</div>
+        </div>`;
+        return;
+    }
+
+    body.innerHTML = `
+    <div style="margin-bottom:0.5rem;">
+        <div style="font-size:0.82rem;font-weight:700;color:var(--ink);">⚠️ Hazardous Waste — CPCB Schedule I</div>
+    </div>
+    <div class="ws-tab-bar">
+        <button class="ws-tab-btn active" onclick="wsShowTab('ws1','gen',this)">📥 Generation</button>
+        <button class="ws-tab-btn" onclick="wsShowTab('ws1','disp',this)">📤 Disposal</button>
+        <button class="ws-tab-btn" onclick="wsShowTab('ws1','pend',this)">⏱ Pending / Accumulated</button>
+    </div>
+    <div id="ws1-gen" class="ws-tab-panel active">${wsHWGenerationHTML(s)}</div>
+    <div id="ws1-disp" class="ws-tab-panel">${wsHWDisposalHTML(s)}</div>
+    <div id="ws1-pend" class="ws-tab-panel">${wsHWPendingHTML(s)}</div>`;
+}
+
+function wsHWGenerationHTML(s) {
+    var rows = s.hwStreams.map(function(grp) {
+        var data = CPCB_SCHEDULE_I[grp];
+        if (!data) return '';
+        var itemOpts = data.items.map(function(it){return '<option>'+it+'</option>';}).join('');
+        return '<div style="border:1px solid var(--stroke);border-radius:var(--radius-sm);padding:0.5rem 0.65rem;margin-bottom:0.4rem;" data-hw-grp="' + grp.replace(/"/g,'&quot;') + '">' +
+            '<div style="font-size:0.77rem;font-weight:700;color:var(--ink);margin-bottom:0.35rem;">📁 ' + grp + ' <span style="font-size:0.65rem;font-weight:400;color:var(--ink-soft);">' + data.scheduleRef + '</span></div>' +
+            '<div class="ws-gen-row" style="font-size:0.67rem;color:var(--ink-soft);font-weight:600;text-transform:uppercase;margin-bottom:0.2rem;">' +
+            '<span>Waste Item (Schedule I)</span><span>Quantity</span><span>Unit</span><span>Generation Date</span></div>' +
+            '<div class="ws-gen-row">' +
+            '<select style="padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;">' +
+            '<option value="">Select item…</option>' + itemOpts + '</select>' +
+            '<input type="number" placeholder="0" style="padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.8rem;">' +
+            '<select style="padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;"><option>Kg</option><option>Tonnes</option><option>Litres</option><option>KL</option></select>' +
+            '<input type="date" style="padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;">' +
+            '</div>' +
+            '<button onclick="wsAddHWGenRow(this)" data-grp-placeholder="true" style="font-size:0.7rem;padding:0.2rem 0.55rem;border:1.5px dashed var(--stroke);border-radius:3px;background:#fff;cursor:pointer;color:var(--hz-primary);margin-top:0.25rem;">+ Add another entry</button>' +
+            '</div>';
+    }).join('');
+
+    return '<div style="background:#fff8ed;border-left:3px solid #f59e0b;padding:0.4rem 0.75rem;border-radius:0 3px 3px 0;font-size:0.71rem;color:#92400e;margin-bottom:0.5rem;">Enter generation quantities for each configured stream. Select the specific waste item from Schedule I, enter quantity and generation date. CPCB mandates HW disposal within <strong>90 days</strong> of generation.</div>' + rows;
+}
+
+function wsAddHWGenRow(btn, grp) {
+    if (!grp) { grp = btn.closest('[data-hw-grp]')?.dataset.hwGrp || ''; }
+    var data = CPCB_SCHEDULE_I[grp];
+    if (!data) return;
+    var itemOpts = data.items.map(function(it){return '<option>'+it+'</option>';}).join('');
+    var rowDiv = document.createElement('div');
+    rowDiv.className = 'ws-gen-row';
+    rowDiv.style.marginBottom = '0.25rem';
+    rowDiv.innerHTML =
+        '<select style="padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;"><option value="">Select item…</option>' + itemOpts + '</select>' +
+        '<input type="number" placeholder="0" style="padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.8rem;">' +
+        '<select style="padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;"><option>Kg</option><option>Tonnes</option><option>Litres</option><option>KL</option></select>' +
+        '<input type="date" style="padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;">';
+    btn.parentElement.insertBefore(rowDiv, btn);
+}
+
+function wsHWDisposalHTML(s) {
+    var routes = s.hwDisposalRoutes || [];
+    if (routes.length === 0) {
+        return '<div style="text-align:center;padding:1.5rem;color:var(--ink-soft);font-size:0.8rem;">No disposal facilities configured. Go to <strong>⚙ Waste Settings</strong> to add TSDF / recycler details.</div>';
+    }
+    var rows = routes.map(function(r, i) {
+        return '<div style="border:1px solid var(--stroke);border-radius:var(--radius-sm);padding:0.5rem 0.65rem;margin-bottom:0.4rem;">' +
+            '<div style="font-size:0.77rem;font-weight:700;color:var(--ink);margin-bottom:0.1rem;">🏭 ' + (r.facility||'Facility '+i) + '</div>' +
+            '<div style="font-size:0.68rem;color:var(--ink-soft);margin-bottom:0.35rem;">' + (r.method||'') + ' · Reg: ' + (r.regNo||'—') + '</div>' +
+            '<div class="ws-gen-row" style="grid-template-columns:2fr 1fr 1fr 1.5fr;">' +
+            '<div><div style="font-size:0.67rem;color:var(--ink-soft);margin-bottom:2px;">Waste Stream Disposed</div>' +
+            '<select style="width:100%;padding:0.38rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.75rem;">' +
+            (s.hwStreams.map(function(g){return '<option>'+g+'</option>';}).join('')) + '</select></div>' +
+            '<div><div style="font-size:0.67rem;color:var(--ink-soft);margin-bottom:2px;">Quantity</div>' +
+            '<input type="number" placeholder="0" style="width:100%;padding:0.38rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.8rem;"></div>' +
+            '<div><div style="font-size:0.67rem;color:var(--ink-soft);margin-bottom:2px;">Unit</div>' +
+            '<select style="width:100%;padding:0.38rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;"><option>Kg</option><option>Tonnes</option><option>Litres</option><option>KL</option></select></div>' +
+            '<div><div style="font-size:0.67rem;color:var(--ink-soft);margin-bottom:2px;">Disposal Date</div>' +
+            '<input type="date" style="width:100%;padding:0.38rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;"></div>' +
+            '</div></div>';
+    }).join('');
+
+    return '<div style="background:#dcfce7;border-left:3px solid #16a34a;padding:0.4rem 0.75rem;border-radius:0 3px 3px 0;font-size:0.71rem;color:#166534;margin-bottom:0.5rem;">Record disposal quantities and dates. Hazardous waste must leave the premises to an authorised facility within <strong>90 days</strong> of generation date.</div>' + rows;
+}
+
+function wsHWPendingHTML(s) {
+    return '<div style="padding:0.5rem;">' +
+        '<div style="font-size:0.78rem;font-weight:700;color:var(--ink);margin-bottom:0.4rem;">⏱ Accumulated Waste — 90-Day Disposal Tracker</div>' +
+        '<p style="font-size:0.71rem;color:var(--ink-soft);margin:0 0 0.5rem;">CPCB Rule 7: Hazardous waste must be disposed within 90 days of generation. Waste stored beyond 90 days requires SPCB approval. Pending = Generated − Disposed in each period.</p>' +
+        (s.hwStreams.length === 0 ? '<div style="color:var(--ink-soft);font-size:0.78rem;">Configure waste streams in ⚙ Waste Settings first.</div>' :
+        s.hwStreams.map(function(grp) {
+            return '<div class="ws-pending-bar warn">'+
+                '<span>📁 ' + grp + '</span>' +
+                '<span>Pending: <strong>— kg</strong> · Oldest: <strong>—</strong> · Status: <strong>Enter data to calculate</strong></span>' +
+                '</div>';
+        }).join('')) +
+        '</div>';
+}
+
+// ── Non-Hazardous Waste renderer ───────────────────────────────────────────────
+function renderWS2(body) {
+    var s = wsGetSettings();
+
+    if (s.nhStreams.length === 0) {
+        body.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--ink-soft);">' +
+            '<div style="font-size:2rem;margin-bottom:0.5rem;">⚙️</div>' +
+            '<div style="font-size:0.85rem;font-weight:700;margin-bottom:0.3rem;">Non-Hazardous streams not configured</div>' +
+            '<div style="font-size:0.77rem;">Go to <strong>⚙ Waste Settings</strong> and select the non-hazardous waste categories that apply to this facility.</div>' +
+            '</div>';
+        return;
+    }
+
+    var periodLabel = wsCurrentPeriodLabel(s);
+    body.innerHTML = `
+    <div style="margin-bottom:0.5rem;">
+        <div style="font-size:0.82rem;font-weight:700;color:var(--ink);">🗑️ Non-Hazardous Waste</div>
+    </div>
+    <div class="ws-tab-bar">
+        <button class="ws-tab-btn active" onclick="wsShowTab('ws2','gen',this)">📥 Generation</button>
+        <button class="ws-tab-btn" onclick="wsShowTab('ws2','disp',this)">📤 Disposal</button>
+    </div>
+    <div id="ws2-gen" class="ws-tab-panel active">${wsNHGenerationHTML(s)}</div>
+    <div id="ws2-disp" class="ws-tab-panel">${wsNHDisposalHTML(s)}</div>`;
+}
+
+function wsNHGenerationHTML(s) {
+    var rows = s.nhStreams.map(function(grp) {
+        var data = CPCB_NON_HAZARDOUS_STREAMS[grp];
+        if (!data) return '';
+        var itemOpts = data.items.map(function(it){return '<option>'+it+'</option>';}).join('');
+        return '<div style="border:1px solid var(--stroke);border-radius:var(--radius-sm);padding:0.5rem 0.65rem;margin-bottom:0.4rem;" data-nh-grp="' + grp.replace(/"/g,'&quot;') + '">' +
+            '<div style="font-size:0.77rem;font-weight:700;color:var(--ink);margin-bottom:0.35rem;">🗑️ ' + grp + ' <span style="font-size:0.65rem;font-weight:400;color:var(--ink-soft);">' + data.scheduleRef + '</span></div>' +
+            '<div class="ws-gen-row" style="font-size:0.67rem;color:var(--ink-soft);font-weight:600;text-transform:uppercase;margin-bottom:0.2rem;"><span>Waste Sub-Type</span><span>Quantity</span><span>Unit</span><span></span></div>' +
+            '<div class="ws-gen-row">' +
+            '<select style="padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;"><option>Select sub-type…</option>' + itemOpts + '</select>' +
+            '<input type="number" placeholder="0" style="padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.8rem;">' +
+            '<select style="padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;"><option>Kg</option><option>Tonnes</option><option>Litres</option><option>Units</option></select>' +
+            '<button onclick="wsAddNHGenRow(this)" data-grp-placeholder="true" style="font-size:0.7rem;padding:0.2rem 0.55rem;border:1.5px dashed var(--stroke);border-radius:3px;background:#fff;cursor:pointer;color:var(--hz-primary);">+ Add row</button>' +
+            '</div></div>';
+    }).join('');
+    return rows;
+}
+
+function wsAddNHGenRow(btn, grp) {
+    if (!grp) { grp = btn.closest('[data-nh-grp]')?.dataset.nhGrp || ''; }
+    var data = CPCB_NON_HAZARDOUS_STREAMS[grp];
+    if (!data) return;
+    var itemOpts = data.items.map(function(it){return '<option>'+it+'</option>';}).join('');
+    var row = document.createElement('div');
+    row.className = 'ws-gen-row'; row.style.marginBottom = '0.25rem';
+    row.innerHTML =
+        '<select style="padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;"><option>Select sub-type…</option>' + itemOpts + '</select>' +
+        '<input type="number" placeholder="0" style="padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.8rem;">' +
+        '<select style="padding:0.38rem 0.5rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;"><option>Kg</option><option>Tonnes</option><option>Litres</option><option>Units</option></select>' +
+        '<span></span>';
+    btn.parentElement.insertBefore(row, btn);
+}
+
+function wsNHDisposalHTML(s) {
+    var routes = ['Dry Recyclable Collection','Wet Waste / Composting','Municipal Collection','Authorised Recycler / Kabadiwala','Authorised Scrap Dealer','On-site Composting','Biogas / AD Plant'];
+    var streamOpts = s.nhStreams.map(function(g){return '<option>'+g+'</option>';}).join('');
+    var rows = routes.map(function(route) {
+        return '<div style="border:1px solid var(--stroke);border-radius:var(--radius-sm);padding:0.5rem 0.65rem;margin-bottom:0.4rem;">' +
+            '<div style="font-size:0.77rem;font-weight:700;color:var(--ink);margin-bottom:0.35rem;">♻️ ' + route + '</div>' +
+            '<div class="ws-gen-row" style="grid-template-columns:2fr 1fr 1fr;">' +
+            '<select style="padding:0.38rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.75rem;"><option>Select stream…</option>' + streamOpts + '</select>' +
+            '<input type="number" placeholder="0" style="padding:0.38rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.8rem;">' +
+            '<select style="padding:0.38rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;"><option>Kg</option><option>Tonnes</option></select>' +
+            '</div></div>';
+    }).join('');
+    return rows;
+}
+
+// ── Utility functions ──────────────────────────────────────────────────────────
+function wsCurrentPeriodLabel(s) {
+    var now = new Date();
+    var label = '';
+    if (s.reportingPeriodType === 'monthly') {
+        label = now.toLocaleString('en-IN',{month:'long',year:'numeric'});
+    } else if (s.reportingPeriodType === 'quarterly') {
+        var q = Math.ceil((now.getMonth()+1)/3);
+        label = 'Q' + q + ' FY' + (now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear()-1) + '-' + String(now.getMonth() >= 3 ? now.getFullYear()+1 : now.getFullYear()).slice(2);
+    } else {
+        label = 'FY' + (now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear()-1) + '-' + String(now.getMonth() >= 3 ? now.getFullYear()+1 : now.getFullYear()).slice(2);
+    }
+    return '<span style="font-size:0.72rem;background:var(--hz-primary,#2d6a4f);color:#fff;padding:0.2rem 0.6rem;border-radius:12px;font-weight:600;">' + (s.reportingPeriodType.charAt(0).toUpperCase()+s.reportingPeriodType.slice(1)) + ': ' + label + '</span>';
+}
+
+function wsShowTab(prefix, tab, btn) {
+    var panels = document.querySelectorAll('[id^="' + prefix + '-"]');
+    for (var i=0; i<panels.length; i++) {
+        panels[i].classList.remove('active');
+    }
+    var target = document.getElementById(prefix + '-' + tab);
+    if (target) target.classList.add('active');
+    var btns = btn.parentElement.querySelectorAll('.ws-tab-btn');
+    for (var j=0; j<btns.length; j++) btns[j].classList.remove('active');
+    btn.classList.add('active');
+}
+
+function renderWS3(body) {
+    var s = wsGetSettings();
+    var periodLabel = wsCurrentPeriodLabel(s);
+
+    body.innerHTML = `
+    <div style="margin-bottom:0.5rem;">
+        <div style="font-size:0.82rem;font-weight:700;color:var(--ink);">💻 E-Waste & Special Waste</div>
+    </div>
+    <div class="ws-tab-bar">
+        <button class="ws-tab-btn active" onclick="wsShowTab('ws3','ew',this)">💻 E-Waste</button>
+        <button class="ws-tab-btn" onclick="wsShowTab('ws3','bmd',this)">🏥 Biomedical</button>
+        <button class="ws-tab-btn" onclick="wsShowTab('ws3','bat',this)">🔋 Battery</button>
+        <button class="ws-tab-btn" onclick="wsShowTab('ws3','cd',this)">🏗️ C&D Waste</button>
+        <button class="ws-tab-btn" onclick="wsShowTab('ws3','pend',this)">⏱ Pending</button>
+    </div>
+    <div id="ws3-ew" class="ws-tab-panel active">${ws3EwasteHTML(s)}</div>
+    <div id="ws3-bmd" class="ws-tab-panel">${ws3BiomedHTML()}</div>
+    <div id="ws3-bat" class="ws-tab-panel">${ws3BatteryHTML()}</div>
+    <div id="ws3-cd" class="ws-tab-panel">${ws3CDWasteHTML()}</div>
+    <div id="ws3-pend" class="ws-tab-panel">${ws3PendingHTML(s)}</div>`;
+}
+
+function ws3EwasteHTML(s) {
+    var routes = s.ewDisposalRoutes && s.ewDisposalRoutes.length > 0
+        ? s.ewDisposalRoutes.map(function(r){return '<option>'+r.facility+' — '+r.method+'</option>';}).join('')
+        : '<option>CPCB-Registered Recycler</option><option>CPCB-Registered Dismantler</option><option>OEM Take-Back / EPR</option>';
+
+    var groups = Object.entries(CPCB_EEE_GROUPS).map(function(entry) {
+        var name = entry[0], data = entry[1];
+        return '<div style="border:1px solid var(--stroke);border-radius:var(--radius-sm);padding:0.5rem 0.65rem;margin-bottom:0.4rem;" data-ew-grp="'+name.replace(/"/g,'&quot;')+'">' +
+            '<div style="font-size:0.77rem;font-weight:700;color:var(--ink);margin-bottom:0.1rem;">'+name+' <span style="font-size:0.65rem;color:var(--ink-soft);">'+data.code+' · '+data.count+' items · '+data.range+'</span></div>' +
+            '<p style="font-size:0.69rem;color:var(--ink-soft);margin:0 0 0.35rem;line-height:1.4;">'+data.examples+'</p>' +
+            (data.bulkConsumerNote ? '<div style="font-size:0.68rem;background:#fffde7;padding:0.25rem 0.45rem;border-radius:3px;color:#7a6000;margin-bottom:0.35rem;">💡 '+data.bulkConsumerNote+'</div>' : '') +
+            '<div class="ws-gen-row" style="grid-template-columns:1fr 1fr 2fr;">' +
+            '<div><div style="font-size:0.67rem;color:var(--ink-soft);margin-bottom:2px;">Quantity (Kg)</div>' +
+            '<input type="number" placeholder="0" style="width:100%;padding:0.38rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.8rem;"></div>' +
+            '<div><div style="font-size:0.67rem;color:var(--ink-soft);margin-bottom:2px;">Generation Date</div>' +
+            '<input type="date" style="width:100%;padding:0.38rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.77rem;"></div>' +
+            '<div><div style="font-size:0.67rem;color:var(--ink-soft);margin-bottom:2px;">Disposal Route</div>' +
+            '<select style="width:100%;padding:0.38rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.75rem;">' +
+            routes + '</select></div>' +
+            '</div></div>';
+    }).join('');
+
+    return '<div style="background:#dbeafe;border-left:3px solid #2563eb;padding:0.4rem 0.75rem;border-radius:0 3px 3px 0;font-size:0.71rem;color:#1e40af;margin-bottom:0.5rem;">' +
+        'E-Waste (Management) Rules 2022 — 7 EEE groups mandatory. Bulk consumers must upload quarterly on CPCB EPR portal. Disposal within <strong>180 days</strong> of generation.' +
+        '</div>' + groups;
+}
+
+function ws3BiomedHTML() {
+    var COLOR_MAP = { 'Yellow':'#ca8a04', 'Red':'#dc2626', 'White':'#6b7280', 'Blue':'#2563eb' };
+    var ICON_MAP  = { 'Yellow':'🟡', 'Red':'🔴', 'White':'⚪', 'Blue':'🔵' };
+    var cats = Object.entries(CPCB_BMW_CATEGORIES);
+    var rows = cats.map(function(entry) {
+        var name = entry[0], data = entry[1];
+        var color = COLOR_MAP[name] || '#6b7280';
+        var icon  = ICON_MAP[name]  || '⬜';
+        var preview = data.examples ? data.examples.split(',').slice(0,3).join(', ') : data.indiaLabel;
+        return '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.6rem;border:1px solid var(--stroke);border-radius:3px;margin-bottom:0.3rem;">' +
+            '<span style="font-size:1.1rem;">' + icon + '</span>' +
+            '<div style="flex:1;">' +
+            '<div style="font-size:0.76rem;font-weight:700;color:var(--ink);">' + name + ' — ' + data.indiaLabel + '</div>' +
+            '<div style="font-size:0.67rem;color:var(--ink-soft);">' + preview + '</div>' +
+            '<div style="font-size:0.66rem;color:var(--ink-soft);margin-top:2px;">' + data.treatment + '</div>' +
+            '</div>' +
+            '<input type="number" placeholder="0" style="width:70px;padding:0.35rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.79rem;">' +
+            '<select style="padding:0.35rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.74rem;"><option>Kg</option><option>Units</option></select>' +
+            '<input type="date" style="padding:0.35rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.74rem;">' +
+            '</div>';
+    }).join('');
+    return '<div style="background:#fce7f3;border-left:3px solid #db2777;padding:0.4rem 0.75rem;border-radius:0 3px 3px 0;font-size:0.71rem;color:#9d174d;margin-bottom:0.5rem;">' +
+        'BMW Rules 2016 — 4 colour categories. Must go to CBWTF only. Biomedical waste cannot be mixed with other streams.' +
+        '</div>' + rows;
+}
+
+function ws3BatteryHTML() {
+    var types = Object.entries(CPCB_BATTERY_TYPES);
+    var rows = types.map(function(entry) {
+        var name = entry[0], data = entry[1];
+        return '<div style="border:1px solid var(--stroke);border-radius:3px;padding:0.4rem 0.6rem;margin-bottom:0.3rem;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:0.4rem;align-items:center;">' +
+            '<div><div style="font-size:0.76rem;font-weight:700;">'+name+'</div>' +
+            '<div style="font-size:0.67rem;color:var(--ink-soft);">'+data.treatment+'</div></div>' +
+            '<input type="number" placeholder="Qty" style="padding:0.35rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.79rem;">' +
+            '<select style="padding:0.35rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.74rem;"><option>Kg</option><option>Units</option></select>' +
+            '<input type="date" style="padding:0.35rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.74rem;">' +
+            '</div>';
+    }).join('');
+    return '<div style="background:#fef3c7;border-left:3px solid #f59e0b;padding:0.4rem 0.75rem;border-radius:0 3px 3px 0;font-size:0.71rem;color:#92400e;margin-bottom:0.5rem;">' +
+        'Battery Rules 2022 — EPR obligation on producers. Disposal within <strong>180 days</strong>. Only to CPCB-registered recyclers.' +
+        '</div>' + rows;
+}
+
+function ws3CDWasteHTML() {
+    return '<div style="background:#f0fdf4;border-left:3px solid #16a34a;padding:0.4rem 0.75rem;border-radius:0 3px 3px 0;font-size:0.71rem;color:#166534;margin-bottom:0.5rem;">' +
+        'C&D Rules 2016 — Segregate at source into concrete/brick, metal, wood, glass, gypsum. 70% diversion target. Asbestos → WS.1 Hazardous Waste.' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:2fr 1fr 1fr 2fr;gap:0.4rem;align-items:end;margin-bottom:0.35rem;font-size:0.67rem;color:var(--ink-soft);text-transform:uppercase;">' +
+        '<span>C&D Stream</span><span>Quantity</span><span>Unit</span><span>Disposal Route</span></div>' +
+        ['Concrete & Masonry Debris','Structural Steel / Metal Scrap','Wood, Timber & Plywood','Glass (window, curtain wall)','Gypsum / Plasterboard','Mixed C&D (unsegregated)'].map(function(stream) {
+            return '<div style="display:grid;grid-template-columns:2fr 1fr 1fr 2fr;gap:0.4rem;align-items:center;margin-bottom:0.3rem;">' +
+                '<span style="font-size:0.77rem;">'+stream+'</span>' +
+                '<input type="number" placeholder="0" style="padding:0.35rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.79rem;">' +
+                '<select style="padding:0.35rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.74rem;"><option>Tonnes</option><option>Kg</option><option>Cubic M</option></select>' +
+                '<select style="padding:0.35rem;border:1px solid var(--stroke);border-radius:3px;font-size:0.75rem;">' +
+                '<option>Authorised C&D Processing Facility</option><option>On-site Reuse / Rework</option><option>Municipal C&D Collection Point</option></select>' +
+                '</div>';
+        }).join('');
+}
+
+function ws3PendingHTML(s) {
+    return '<div style="padding:0.5rem;">' +
+        '<div style="font-size:0.78rem;font-weight:700;color:var(--ink);margin-bottom:0.4rem;">⏱ E-Waste & Special Waste — 180-Day Disposal Tracker</div>' +
+        '<p style="font-size:0.71rem;color:var(--ink-soft);margin:0 0 0.5rem;">E-Waste Rules 2022 Rule 16: E-waste must be disposed within <strong>180 days</strong> of generation. Battery Rules 2022: same 180-day window. Enter generation and disposal data in the tabs above to calculate pending quantities.</p>' +
+        '<div class="ws-pending-bar caution">💻 E-Waste (all EEE groups) · Pending: <strong>— kg</strong> · Enter generation data to calculate</div>' +
+        '<div class="ws-pending-bar caution">🔋 Battery Waste · Pending: <strong>— kg</strong> · Enter generation data to calculate</div>' +
+        '<div class="ws-pending-bar ok">🏥 Biomedical Waste · No storage permitted — must reach CBWTF same day or next day</div>' +
+        '</div>';
 }
 
 function ws3ShowPanel(id, btn) {
@@ -5764,6 +6404,326 @@ function onGridZoneChange(zoneSel) {
             }
         }
     }
+}
+
+
+// ════════════════ RENEWABLE INSTRUMENTS PANEL ════════════════════════════════
+// Global instrument registry: RECs (India CERC / I-TRACK), I-RECs, Guarantees
+// of Origin (EU AIB), US RECs (WREGIS / PJM-GATS / M-RETS / NAR), LGCs
+// (Australia), TIGR, and PPA contracts (physical / captive / virtual).
+// Market-based Scope 2 result is derived in the analytics layer — not here.
+
+var RI_DATA = []; // in-session store; replace with API call in production
+
+var RI_MARKETS = [
+    'IN — India (CERC / I-TRACK)',
+    'DE — Germany (AIB / Go.de)',
+    'EU — AIB member state (GO)',
+    'GB — Great Britain (REGO / Ofgem)',
+    'US — ERCOT (WREGIS)',
+    'US — WECC (WREGIS)',
+    'US — PJM (PJM-GATS)',
+    'US — MISO (M-RETS)',
+    'US — NEPOOL (NAR)',
+    'US — National (Green-e)',
+    'AU — Australia (LGC / Clean Energy Regulator)',
+    'JP — Japan (J-Credit / Non-Fossil Certificate)',
+    'SG — Singapore (TIGR)',
+    'INTL — I-REC Standard (multi-country)',
+    'Other / International',
+];
+
+var RI_TECHNOLOGIES = ['Solar', 'Wind', 'Hydro / Small Hydro', 'Geothermal',
+    'Nuclear', 'Biomass', 'Biogas', 'Landfill Gas', 'Waste to Energy', 'Hybrid'];
+
+var RI_INSTRUMENT_TYPES = [
+    'I-REC (E) — International REC Standard',
+    'REC — CERC (India, I-TRACK / IEX)',
+    'GO — Guarantee of Origin (EU/EEA, AIB framework)',
+    'REGO — Renewable Energy Guarantee of Origin (UK, Ofgem)',
+    'REC — US WREGIS (Western Interconnection)',
+    'REC — US PJM-GATS',
+    'REC — US M-RETS',
+    'REC — US NAR / Green-e',
+    'LGC — Large-scale Generation Certificate (Australia)',
+    'J-Non-Fossil — Japan Non-Fossil Value Certificate',
+    'TIGR — Tradeable Instrument for Global Renewables (Singapore)',
+    'Other tracked EAC',
+];
+
+var RI_PPA_STRUCTURES = [
+    'Physical / sleeved (open access)',
+    'Group captive (≥26% equity, ≥51% offtake)',
+    'Captive (own-generation, metered delivery)',
+    'Virtual PPA / CfD (financial contract)',
+    'Behind-the-meter (excluded from Scope 2)',
+];
+
+function renderRI(body) {
+    var rows = RI_DATA.map(function(r, i) { return riTableRow(r, i); }).join('');
+    var emptyState = rows ? '' :
+        '<tr><td colspan="8" style="text-align:center;padding:2.5rem;color:var(--ink-soft);font-size:0.8rem;">' +
+        'No instruments registered yet. Click <strong>+ Add Instrument</strong> to register a retired certificate batch or PPA contract.</td></tr>';
+
+    body.innerHTML =
+        '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;">' +
+            '<div>' +
+                '<h3 style="margin:0;font-size:1.05rem;font-weight:700;color:var(--ink);">⚡ Renewable Instruments</h3>' +
+                '<p style="margin:0.25rem 0 0;font-size:0.78rem;color:var(--ink-soft);">Entity-level certificate registry — RECs, I-RECs, Guarantees of Origin and PPA contracts drawn on by the market-based Scope 2 calculation.</p>' +
+                '<p style="margin:0.2rem 0 0;font-size:0.72rem;color:var(--ink-soft);">Balances are shared across every facility and every month within the reporting period.</p>' +
+            '</div>' +
+            '<button id="ri-add-btn" onclick="riOpenModal()" style="white-space:nowrap;padding:0.5rem 1.1rem;background:var(--hz-primary,#2d6a4f);color:#fff;border:none;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:700;cursor:pointer;">+ Add Instrument</button>' +
+        '</div>' +
+
+        '<div style="background:#fffbeb;border-left:3px solid #f59e0b;padding:0.45rem 0.85rem;border-radius:0 4px 4px 0;font-size:0.72rem;color:#78350f;margin-bottom:0.85rem;">' +
+            'A PPA contract carries no claimable volume — only a <strong>retired batch</strong> does. ' +
+            'Each retired batch must carry a registry redemption ID retired in favour of the legal entity on this submission. ' +
+            'Balances deplete org-wide: every facility draws from the same pool. ' +
+            'Market-based Scope 2 result is shown in the analytics chart — not in this panel.' +
+        '</div>' +
+
+        '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem;flex-wrap:wrap;">' +
+            '<button class="ri-filter-btn" data-filter="all" onclick="riFilter(this)" ' +
+                'style="padding:0.3rem 0.85rem;border-radius:14px;border:1px solid var(--hz-primary,#2d6a4f);background:var(--hz-primary,#2d6a4f);color:#fff;font-size:0.74rem;font-weight:600;cursor:pointer;">All <span id="ri-count-all">0</span></button>' +
+            '<button class="ri-filter-btn" data-filter="batch" onclick="riFilter(this)" ' +
+                'style="padding:0.3rem 0.85rem;border-radius:14px;border:1px solid var(--stroke);background:#fff;color:var(--ink-soft);font-size:0.74rem;font-weight:600;cursor:pointer;">Certificates <span id="ri-count-batch">0</span></button>' +
+            '<button class="ri-filter-btn" data-filter="ppa" onclick="riFilter(this)" ' +
+                'style="padding:0.3rem 0.85rem;border-radius:14px;border:1px solid var(--stroke);background:#fff;color:var(--ink-soft);font-size:0.74rem;font-weight:600;cursor:pointer;">PPA Contracts <span id="ri-count-ppa">0</span></button>' +
+            '<span id="ri-record-count" style="margin-left:auto;font-size:0.72rem;color:var(--ink-soft);">0 records</span>' +
+        '</div>' +
+
+        '<div style="border:1px solid var(--stroke);border-radius:var(--radius-sm);overflow:hidden;overflow-x:auto;">' +
+            '<table id="ri-table" style="width:100%;border-collapse:collapse;min-width:820px;">' +
+                '<thead><tr>' +
+                ['Type','Reference / ID','Registry / Counterparty','Technology','Volume','Vintage / Term','Market','Status'].map(function(h) {
+                    return '<th style="padding:8px 10px;text-align:left;font-size:0.68rem;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.04em;border-bottom:1px solid var(--stroke);">' + h + '</th>';
+                }).join('') +
+                '</tr></thead>' +
+                '<tbody id="ri-tbody">' + (rows || emptyState) + '</tbody>' +
+            '</table>' +
+        '</div>' +
+
+        riModal();
+
+    riUpdateCounts();
+}
+
+function riTableRow(r, i) {
+    var typeLabel = r.type === 'batch'
+        ? '<span style="font-size:0.72rem;font-weight:700;color:#2563eb;background:#dbeafe;padding:2px 7px;border-radius:10px;">REC/EAC</span>'
+        : '<span style="font-size:0.72rem;font-weight:700;color:#7c3aed;background:#ede9fe;padding:2px 7px;border-radius:10px;">PPA</span>';
+
+    var statusColors = { 'Active':'#16a34a', 'Partially claimed':'#d97706',
+        'Exhausted':'#6b7280', 'Ineligible':'#dc2626', 'In force':'#16a34a', 'Expired':'#6b7280' };
+    var sc = statusColors[r.status] || '#6b7280';
+
+    return '<tr data-kind="' + r.type + '" style="border-bottom:1px solid var(--stroke);">' +
+        '<td style="padding:8px 10px;">' + typeLabel + '</td>' +
+        '<td style="padding:8px 10px;font-size:0.78rem;font-weight:600;">' + (r.ref || '—') + '</td>' +
+        '<td style="padding:8px 10px;font-size:0.75rem;color:var(--ink-soft);">' + (r.registry || '—') + '</td>' +
+        '<td style="padding:8px 10px;font-size:0.75rem;">' + (r.technology || '—') + '</td>' +
+        '<td style="padding:8px 10px;font-size:0.75rem;">' + (r.volume ? r.volume + ' ' + (r.volUnit||'MWh') : '—') + '</td>' +
+        '<td style="padding:8px 10px;font-size:0.72rem;color:var(--ink-soft);">' + (r.vintage || r.term || '—') + '</td>' +
+        '<td style="padding:8px 10px;font-size:0.72rem;">' + (r.market || '—') + '</td>' +
+        '<td style="padding:8px 10px;">' +
+            '<span style="font-size:0.71rem;font-weight:600;color:' + sc + ';">' + (r.status || 'Pending') + '</span>' +
+            '<button onclick="riDelete(' + i + ')" style="margin-left:8px;font-size:0.65rem;padding:1px 6px;border:1px solid #fca5a5;border-radius:3px;background:#fee2e2;color:#991b1b;cursor:pointer;">✕</button>' +
+        '</td>' +
+        '</tr>';
+}
+
+function riDelete(i) {
+    RI_DATA.splice(i, 1);
+    var body = document.getElementById('formPanelBody');
+    if (body) renderRI(body);
+}
+
+function riUpdateCounts() {
+    var all = RI_DATA.length;
+    var batches = RI_DATA.filter(function(r){ return r.type === 'batch'; }).length;
+    var ppas    = RI_DATA.filter(function(r){ return r.type === 'ppa'; }).length;
+    var el = function(id, v) { var e = document.getElementById(id); if(e) e.textContent = v; };
+    el('ri-count-all', all); el('ri-count-batch', batches); el('ri-count-ppa', ppas);
+    el('ri-record-count', all + (all === 1 ? ' record' : ' records'));
+}
+
+function riFilter(btn) {
+    var f = btn.getAttribute('data-filter');
+    document.querySelectorAll('.ri-filter-btn').forEach(function(b) {
+        var on = b === btn;
+        b.style.background  = on ? 'var(--hz-primary,#2d6a4f)' : '#fff';
+        b.style.color       = on ? '#fff' : 'var(--ink-soft)';
+        b.style.borderColor = on ? 'var(--hz-primary,#2d6a4f)' : 'var(--stroke)';
+    });
+    var n = 0;
+    document.querySelectorAll('#ri-tbody tr[data-kind]').forEach(function(r) {
+        var show = f === 'all' || r.getAttribute('data-kind') === f;
+        r.style.display = show ? '' : 'none';
+        if (show) n++;
+    });
+    var rc = document.getElementById('ri-record-count');
+    if (rc) rc.textContent = n + (n === 1 ? ' record' : ' records');
+}
+
+function riOpenModal(type) {
+    var m = document.getElementById('ri-modal');
+    if (!m) return;
+    m.style.display = 'flex';
+    // Default to batch
+    var batchRadio = m.querySelector('input[value="batch"]');
+    if (batchRadio) { batchRadio.checked = true; riToggleForm('batch'); }
+}
+
+function riCloseModal() {
+    var m = document.getElementById('ri-modal');
+    if (m) m.style.display = 'none';
+}
+
+function riToggleForm(type) {
+    var fb = document.getElementById('ri-form-batch');
+    var fc = document.getElementById('ri-form-ppa');
+    if (fb) fb.style.display = (type === 'batch') ? '' : 'none';
+    if (fc) fc.style.display = (type === 'ppa')   ? '' : 'none';
+}
+
+function riSave() {
+    var m = document.getElementById('ri-modal');
+    var typeEl = m.querySelector('input[name="ri-record"]:checked');
+    if (!typeEl) return;
+    var type = typeEl.value;
+    var g = function(id) { var e = document.getElementById(id); return e ? e.value.trim() : ''; };
+
+    var rec = { type: type };
+    if (type === 'batch') {
+        rec.ref        = g('ri-b-ref');
+        rec.registry   = g('ri-b-registry-other') || g('ri-b-registry-sel');
+        rec.technology = g('ri-b-tech');
+        rec.volume     = g('ri-b-volume');
+        rec.volUnit    = g('ri-b-vol-unit');
+        rec.vintage    = g('ri-b-vintage-start') + (g('ri-b-vintage-end') ? ' → ' + g('ri-b-vintage-end') : '');
+        rec.market     = g('ri-b-market');
+        rec.status     = 'Active';
+    } else {
+        rec.ref          = g('ri-p-ref');
+        rec.registry     = g('ri-p-counterparty');
+        rec.technology   = g('ri-p-tech');
+        rec.term         = g('ri-p-start') + (g('ri-p-end') ? ' → ' + g('ri-p-end') : '');
+        rec.market       = g('ri-p-market');
+        rec.ppaStructure = g('ri-p-structure');
+        rec.status       = 'In force';
+    }
+
+    if (!rec.ref) { alert('Please enter a Reference / Certificate ID or Contract Reference.'); return; }
+    RI_DATA.push(rec);
+    riCloseModal();
+    var body = document.getElementById('formPanelBody');
+    if (body) renderRI(body);
+}
+
+function riModal() {
+    var ss = 'width:100%;padding:0.5rem 0.65rem;border:1px solid var(--stroke);border-radius:var(--radius-sm);font-size:0.82rem;font-family:inherit;';
+    var lbl = function(text, hint) {
+        return '<div style="font-size:0.75rem;font-weight:700;color:var(--ink);margin-bottom:2px;">' + text + '</div>' +
+               (hint ? '<div style="font-size:0.68rem;color:var(--ink-soft);margin-bottom:4px;">' + hint + '</div>' : '');
+    };
+    var sel = function(id, opts, defOpt) {
+        return '<select id="' + id + '" style="' + ss + '"><option value="">' + (defOpt||'Select…') + '</option>' +
+            opts.map(function(o){ return '<option>' + o + '</option>'; }).join('') + '</select>';
+    };
+    var inp = function(id, ph, type) {
+        return '<input id="' + id + '" type="' + (type||'text') + '" placeholder="' + ph + '" style="' + ss + '">';
+    };
+    var row2 = function(a, b) {
+        return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:0.6rem;">' + a + b + '</div>';
+    };
+    var field = function(label, hint, input) {
+        return '<div style="margin-bottom:0.6rem;">' + lbl(label, hint) + input + '</div>';
+    };
+
+    // Registry options with "Other" for free text
+    var regOpts = ['I-TRACK Foundation / Evident','Grid-India REC Registry','AIB member issuing body',
+        'WREGIS','PJM-GATS','M-RETS','NAR (North American Renewables Registry)',
+        'Clean Energy Regulator (Australia)','TIGR (Singapore)','J-Credit / Non-Fossil Registry (Japan)','Other'];
+
+    var batchForm =
+        field('Instrument Type', 'Registry standard the certificate was issued under', sel('ri-b-type', RI_INSTRUMENT_TYPES, 'Select instrument type…')) +
+        row2(
+            field('Registry / Issuing Body', 'Where the retirement can be independently verified',
+                sel('ri-b-registry-sel', regOpts, 'Select registry…') +
+                '<input id="ri-b-registry-other" type="text" placeholder="Other registry name" style="' + ss + 'margin-top:4px;display:none;" oninput="">'),
+            field('Serial / Certificate Range', 'Contiguous serial range exactly as on the redemption statement',
+                inp('ri-b-ref', 'e.g. A1000–A2499 or TX-8800-9199'))
+        ) +
+        row2(
+            field('Retired Volume', 'Take from the redemption statement — never from the purchase invoice',
+                '<div style="display:flex;gap:4px;">' + inp('ri-b-volume','0','number') +
+                '<select id="ri-b-vol-unit" style="width:90px;padding:0.5rem;border:1px solid var(--stroke);border-radius:var(--radius-sm);font-size:0.8rem;"><option>MWh</option><option>kWh</option><option>GWh</option><option>GJ</option></select></div>'),
+            field('Generation Technology', 'Required — resolves the instrument emission factor',
+                sel('ri-b-tech', RI_TECHNOLOGIES, 'Select technology…'))
+        ) +
+        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.6rem;margin-bottom:0.6rem;">' +
+            '<div>' + lbl('Vintage Start', 'Generation period start') + inp('ri-b-vintage-start','YYYY-MM-DD') + '</div>' +
+            '<div>' + lbl('Vintage End', 'Generation period end') + inp('ri-b-vintage-end','YYYY-MM-DD') + '</div>' +
+            '<div>' + lbl('Retirement Date', 'Date retired in the registry — required for a valid claim') + inp('ri-b-ret-date','YYYY-MM-DD') + '</div>' +
+        '</div>' +
+        field('Certificate Market', 'Market where the certificate may be claimed — not always the country of generation',
+            sel('ri-b-market', RI_MARKETS, 'Select market…')) +
+        field('Redemption Statement Reference', 'Registry cancellation / redemption ID — confirms it was retired in favour of this entity',
+            inp('ri-b-evid-ref', 'e.g. RET-2025-IN-00421'));
+
+    var ppaForm =
+        row2(
+            field('Contract Reference', 'Internal or counterparty contract identifier', inp('ri-p-ref','e.g. PPA-2024-017')),
+            field('Counterparty / Generator', 'Named generating company or developer', inp('ri-p-counterparty','e.g. ReNew Power, Orsted, NextEra'))
+        ) +
+        row2(
+            field('PPA Structure', 'Determines what may be claimed — a virtual PPA delivers no physical electricity', sel('ri-p-structure', RI_PPA_STRUCTURES, 'Select structure…')),
+            field('Generation Technology', '', sel('ri-p-tech', RI_TECHNOLOGIES, 'Select technology…'))
+        ) +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:0.6rem;">' +
+            '<div>' + lbl('Contract Start') + inp('ri-p-start','YYYY-MM-DD') + '</div>' +
+            '<div>' + lbl('Contract End') + inp('ri-p-end','YYYY-MM-DD') + '</div>' +
+        '</div>' +
+        field('Market', 'Market / jurisdiction where the generation occurs', sel('ri-p-market', RI_MARKETS, 'Select market…')) +
+        field('Contracted / Nameplate Capacity', 'For disclosure only — capacity is not generation and is not claimable as MWh',
+            '<div style="display:flex;gap:4px;">' + inp('ri-p-cap','0','number') +
+            '<select style="width:80px;padding:0.5rem;border:1px solid var(--stroke);border-radius:var(--radius-sm);font-size:0.8rem;"><option>MW</option><option>kW</option><option>MWh/yr</option></select></div>') +
+        '<div style="background:#f0fdf4;border-left:3px solid #16a34a;padding:0.4rem 0.75rem;border-radius:0 3px 3px 0;font-size:0.71rem;color:#166534;">' +
+            'Claimable volume comes only from <strong>retired batches</strong>, not from the contract itself. Add a separate Retired Batch entry for each retirement event under this PPA.' +
+        '</div>';
+
+    return (
+        '<div id="ri-modal" onclick="if(event.target===this)riCloseModal()" ' +
+            'style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;">' +
+            '<div style="background:#fff;border-radius:var(--radius-sm);width:100%;max-width:620px;box-shadow:0 8px 32px rgba(0,0,0,0.18);">' +
+                '<div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--stroke);">' +
+                    '<div style="font-size:0.95rem;font-weight:700;color:var(--ink);">Add Renewable Instrument</div>' +
+                    '<button onclick="riCloseModal()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--ink-soft);">×</button>' +
+                '</div>' +
+                '<div style="padding:1.25rem;">' +
+                    // Record type selector
+                    '<div style="display:flex;gap:0.75rem;margin-bottom:1rem;">' +
+                        '<label style="flex:1;border:1.5px solid var(--stroke);border-radius:var(--radius-sm);padding:0.6rem 0.85rem;cursor:pointer;display:flex;align-items:center;gap:0.5rem;">' +
+                            '<input type="radio" name="ri-record" value="batch" checked onchange="riToggleForm(this.value)">' +
+                            '<div><div style="font-size:0.8rem;font-weight:700;">Retired Batch</div>' +
+                            '<div style="font-size:0.7rem;color:var(--ink-soft);">REC / I-REC / GO / REGO / LGC / TIGR</div></div>' +
+                        '</label>' +
+                        '<label style="flex:1;border:1.5px solid var(--stroke);border-radius:var(--radius-sm);padding:0.6rem 0.85rem;cursor:pointer;display:flex;align-items:center;gap:0.5rem;">' +
+                            '<input type="radio" name="ri-record" value="ppa" onchange="riToggleForm(this.value)">' +
+                            '<div><div style="font-size:0.8rem;font-weight:700;">PPA Contract</div>' +
+                            '<div style="font-size:0.7rem;color:var(--ink-soft);">Physical / captive / virtual / CfD</div></div>' +
+                        '</label>' +
+                    '</div>' +
+                    '<div id="ri-form-batch">' + batchForm + '</div>' +
+                    '<div id="ri-form-ppa" style="display:none;">' + ppaForm + '</div>' +
+                '</div>' +
+                '<div style="display:flex;justify-content:flex-end;gap:0.6rem;padding:0.85rem 1.25rem;border-top:1px solid var(--stroke);">' +
+                    '<button onclick="riCloseModal()" style="padding:0.5rem 1.1rem;border:1.5px solid var(--stroke);border-radius:var(--radius-sm);background:#fff;cursor:pointer;font-size:0.82rem;">Cancel</button>' +
+                    '<button onclick="riSave()" style="padding:0.5rem 1.25rem;background:var(--hz-primary,#2d6a4f);color:#fff;border:none;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:700;cursor:pointer;">Save Instrument</button>' +
+                '</div>' +
+            '</div>' +
+        '</div>'
+    );
 }
 
 // ═══════════════════ SCOPE 1 — 1.1 STATIONARY COMBUSTION ═══════════════════
