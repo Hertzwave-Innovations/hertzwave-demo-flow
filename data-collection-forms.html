@@ -3900,7 +3900,7 @@ const SOLID_WASTE_CATEGORIES = {
     },
     'Domestic Hazardous Waste (Red Bin)': {
         icon: '⚠️', color: '#dc2626', rule: 'SWM Rules 2016 — Domestic HW stream',
-        hint: 'Small-volume household/office hazardous items — used batteries (AA, AAA, coin cells), CFL bulbs, paint containers, chemical containers, printer cartridges, cleaning chemical containers. Note: industrial quantities of these → WS.1 Hazardous Waste instead.',
+        hint: 'Consumer/office-scale hazardous items that go into the physical red bin at source segregation — covered by SWM Rules 2016. Batteries here means AA, AAA, C, D, 9V and coin cells from remotes, clocks, mice and office devices — NOT UPS, vehicle, EV or laptop batteries (those belong in WS.3 Battery tab under Battery Rules 2022). Printer cartridges here means individual ink/toner units from a single office printer — bulk IT fleet disposal goes to WS.3 E-Waste. Scale and source determine which framework applies.',
         routes: ['CPCB-authorised collection centre (red bin)', 'Municipal domestic HW collection', 'Manufacturer / brand take-back (EPR)', 'CPCB-registered recycler']
     },
     'Sanitary Waste (Black/Grey Bin — wrapped)': {
@@ -4759,7 +4759,8 @@ function ws3EwasteHTML(s) {
     }).join('');
 
     return '<div style="background:#dbeafe;border-left:3px solid #2563eb;padding:0.4rem 0.75rem;border-radius:0 3px 3px 0;font-size:0.71rem;color:#1e40af;margin-bottom:0.5rem;">' +
-        'E-Waste (Management) Rules 2022 — 7 EEE groups mandatory. Bulk consumers must upload quarterly on CPCB EPR portal. Disposal within <strong>180 days</strong> of generation.' +
+        'E-Waste (Management) Rules 2022 — 7 EEE groups. Covers IT equipment, consumer electronics, telecom equipment, and associated bulk consumables at end-of-life. Bulk consumers must upload quarterly on CPCB EPR portal. Disposal within <strong>180 days</strong> of generation.' +
+        '<br><span style="margin-top:3px;display:block;">⚠️ Individual ink/toner cartridges from a single office printer → Solid Waste Domestic HW (Red Bin). Bulk printer fleet disposal (IT refresh, dozens of units) → EEE Group 1 (IT & Telecom) here. Scale is the deciding factor.</span>' +
         '</div>' + groups;
 }
 
@@ -4802,7 +4803,8 @@ function ws3BatteryHTML() {
             '</div>';
     }).join('');
     return '<div style="background:#fef3c7;border-left:3px solid #f59e0b;padding:0.4rem 0.75rem;border-radius:0 3px 3px 0;font-size:0.71rem;color:#92400e;margin-bottom:0.5rem;">' +
-        'Battery Rules 2022 — EPR obligation on producers. Disposal within <strong>180 days</strong>. Only to CPCB-registered recyclers.' +
+        'Battery Waste Management Rules 2022 — covers industrial and bulk batteries (UPS/VRLA, lead-acid, Li-ion EV packs, laptop batteries, industrial NiCd). EPR obligation. Disposal within <strong>180 days</strong> to CPCB-registered recyclers only.' +
+        '<br><span style="margin-top:3px;display:block;">⚠️ Consumer batteries (AA, AAA, coin cells from office use) → Solid Waste — Domestic HW (Red Bin), not here. Scale and source determine which framework applies.</span>' +
         '</div>' + rows;
 }
 
