@@ -3912,12 +3912,9 @@ const SOLID_WASTE_CATEGORIES = {
 
 // Default waste settings structure (populated by admin in WS.0)
 // Stored in localStorage as 'WASTE_SETTINGS' — read by generation/disposal forms
-function wsGetSettings() {
-    try {
-        var stored = localStorage.getItem('WASTE_SETTINGS');
-        return stored ? JSON.parse(stored) : wsDefaultSettings();
-    } catch(e) { return wsDefaultSettings(); }
-}
+// In-memory settings store — primary source of truth within a session.
+// localStorage is secondary: persists between page reloads when available.
+var _WASTE_CFG = null;
 
 function wsDefaultSettings() {
     return {
@@ -3943,8 +3940,37 @@ function wsDefaultSettings() {
     };
 }
 
+function wsGetSettings() {
+    if (_WASTE_CFG) return _WASTE_CFG;          // in-memory first
+    try {
+        var stored = localStorage.getItem('WASTE_SETTINGS');
+        if (stored) { _WASTE_CFG = JSON.parse(stored); return _WASTE_CFG; }
+    } catch(e) {}
+    _WASTE_CFG = wsDefaultSettings();
+    return _WASTE_CFG;
+}
+
 function wsSaveSettings(settings) {
+    _WASTE_CFG = settings;                       // always update in-memory
     try { localStorage.setItem('WASTE_SETTINGS', JSON.stringify(settings)); } catch(e) {}
+}
+
+// Auto-save whenever a settings checkbox or radio changes — no Save button needed
+function wsAutoSave() {
+    var s = wsGetSettings();
+    var periodSel = document.querySelector('input[name="ws0-period"]:checked');
+    if (periodSel) s.reportingPeriodType = periodSel.value;
+    s.hwStreams = [];
+    document.querySelectorAll('.ws0-hw-stream:checked').forEach(function(cb){ s.hwStreams.push(cb.value); });
+    s.nhStreams = [];
+    document.querySelectorAll('.ws0-nh-stream:checked').forEach(function(cb){ s.nhStreams.push(cb.value); });
+    s.physicalStates = [];
+    document.querySelectorAll('.ws0-phys-state:checked').forEach(function(cb){ s.physicalStates.push(cb.value); });
+    s.hazardFlags = [];
+    document.querySelectorAll('.ws0-hazard-flag:checked').forEach(function(cb){ s.hazardFlags.push(cb.value); });
+    s.regFlags = [];
+    document.querySelectorAll('.ws0-reg-flag:checked').forEach(function(cb){ s.regFlags.push(cb.value); });
+    wsSaveSettings(s);
 }
 
 // Reporting period options consistent with platform
@@ -4242,13 +4268,13 @@ function renderWS0(body) {
     // Build HW stream checkboxes
     var hwChecks = Object.keys(CPCB_SCHEDULE_I).map(function(grp) {
         var checked = s.hwStreams.indexOf(grp) >= 0 ? 'checked' : '';
-        return '<label class="ws-checklist-item"><input type="checkbox" class="ws0-hw-stream" value="' + grp + '" ' + checked + '><span>' + grp + '</span></label>';
+        return '<label class="ws-checklist-item"><input type="checkbox" class="ws0-hw-stream" value="' + grp + '" ' + checked + ' onchange="wsAutoSave()"><span>' + grp + '</span></label>';
     }).join('');
 
     // Build NH stream checkboxes
     var nhChecks = Object.keys(CPCB_NON_HAZARDOUS_STREAMS).map(function(grp) {
         var checked = s.nhStreams.indexOf(grp) >= 0 ? 'checked' : '';
-        return '<label class="ws-checklist-item"><input type="checkbox" class="ws0-nh-stream" value="' + grp + '" ' + checked + '><span>' + grp + '</span></label>';
+        return '<label class="ws-checklist-item"><input type="checkbox" class="ws0-nh-stream" value="' + grp + '" ' + checked + ' onchange="wsAutoSave()"><span>' + grp + '</span></label>';
     }).join('');
 
     // Disposal facility rows
@@ -4274,9 +4300,9 @@ function renderWS0(body) {
                 <div style="font-size:0.78rem;font-weight:700;color:var(--ink);margin-bottom:0.35rem;">📅 Reporting Period Type</div>
                 <p style="font-size:0.7rem;color:var(--ink-soft);margin:0 0 0.35rem;">Must match the platform reporting period for this entity.</p>
                 <div style="display:flex;flex-direction:column;gap:0.2rem;">
-                    <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.79rem;"><input type="radio" name="ws0-period" value="monthly" ${s.reportingPeriodType==='monthly'?'checked':''}> Monthly</label>
-                    <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.79rem;"><input type="radio" name="ws0-period" value="quarterly" ${s.reportingPeriodType==='quarterly'?'checked':''}> Quarterly</label>
-                    <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.79rem;"><input type="radio" name="ws0-period" value="annual" ${s.reportingPeriodType==='annual'?'checked':''}> Annual</label>
+                    <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.79rem;"><input type="radio" name="ws0-period" value="monthly" ${s.reportingPeriodType==='monthly'?'checked':''} onchange="wsAutoSave()"> Monthly</label>
+                    <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.79rem;"><input type="radio" name="ws0-period" value="quarterly" ${s.reportingPeriodType==='quarterly'?'checked':''} onchange="wsAutoSave()"> Quarterly</label>
+                    <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.79rem;"><input type="radio" name="ws0-period" value="annual" ${s.reportingPeriodType==='annual'?'checked':''} onchange="wsAutoSave()"> Annual</label>
                 </div>
             </div>
             <div>
@@ -4291,10 +4317,10 @@ function renderWS0(body) {
             <div style="font-size:0.78rem;font-weight:700;color:var(--ink);margin-bottom:0.3rem;">🔬 Physical State of Waste Generated</div>
             <p style="font-size:0.7rem;color:var(--ink-soft);margin:0 0 0.35rem;">Select all physical states of waste this facility generates. Used to validate unit selection in generation forms.</p>
             <div class="ws-checklist">
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-phys-state" value="solid" ${(s.physicalStates||[]).indexOf('solid')>=0?'checked':''}><span>Solid (dry, powder, granular)</span></label>
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-phys-state" value="liquid" ${(s.physicalStates||[]).indexOf('liquid')>=0?'checked':''}><span>Liquid (solution, suspension)</span></label>
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-phys-state" value="sludge" ${(s.physicalStates||[]).indexOf('sludge')>=0?'checked':''}><span>Sludge (semi-solid, paste)</span></label>
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-phys-state" value="gaseous" ${(s.physicalStates||[]).indexOf('gaseous')>=0?'checked':''}><span>Gaseous / Vapour</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-phys-state" value="solid" ${(s.physicalStates||[]).indexOf('solid')>=0?'checked':''} onchange="wsAutoSave()"><span>Solid (dry, powder, granular)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-phys-state" value="liquid" ${(s.physicalStates||[]).indexOf('liquid')>=0?'checked':''} onchange="wsAutoSave()"><span>Liquid (solution, suspension)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-phys-state" value="sludge" ${(s.physicalStates||[]).indexOf('sludge')>=0?'checked':''} onchange="wsAutoSave()"><span>Sludge (semi-solid, paste)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-phys-state" value="gaseous" ${(s.physicalStates||[]).indexOf('gaseous')>=0?'checked':''} onchange="wsAutoSave()"><span>Gaseous / Vapour</span></label>
             </div>
         </div>
 
@@ -4302,14 +4328,14 @@ function renderWS0(body) {
             <div style="font-size:0.78rem;font-weight:700;color:var(--ink);margin-bottom:0.3rem;">⚡ Nature / Hazard Flags</div>
             <p style="font-size:0.7rem;color:var(--ink-soft);margin:0 0 0.35rem;">Select all hazardous properties that apply to waste generated at this facility (Schedule II — Hazardous Properties, HW Rules 2016).</p>
             <div class="ws-checklist">
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="toxic" ${(s.hazardFlags||[]).indexOf('toxic')>=0?'checked':''}><span>H6.1 Toxic (acute / chronic)</span></label>
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="corrosive" ${(s.hazardFlags||[]).indexOf('corrosive')>=0?'checked':''}><span>H8 Corrosive (acid/alkali)</span></label>
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="flammable" ${(s.hazardFlags||[]).indexOf('flammable')>=0?'checked':''}><span>H3 Flammable (flash point &lt;60°C)</span></label>
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="reactive" ${(s.hazardFlags||[]).indexOf('reactive')>=0?'checked':''}><span>H5 Reactive (unstable, water-reactive)</span></label>
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="carcinogenic" ${(s.hazardFlags||[]).indexOf('carcinogenic')>=0?'checked':''}><span>H6.2 Carcinogenic</span></label>
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="ecotoxic" ${(s.hazardFlags||[]).indexOf('ecotoxic')>=0?'checked':''}><span>H12 Ecotoxic (toxic to environment)</span></label>
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="infectious" ${(s.hazardFlags||[]).indexOf('infectious')>=0?'checked':''}><span>H6.3 Infectious (BMW)</span></label>
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="explosive" ${(s.hazardFlags||[]).indexOf('explosive')>=0?'checked':''}><span>H1 Explosive</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="toxic" ${(s.hazardFlags||[]).indexOf('toxic')>=0?'checked':''} onchange="wsAutoSave()"><span>H6.1 Toxic (acute / chronic)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="corrosive" ${(s.hazardFlags||[]).indexOf('corrosive')>=0?'checked':''} onchange="wsAutoSave()"><span>H8 Corrosive (acid/alkali)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="flammable" ${(s.hazardFlags||[]).indexOf('flammable')>=0?'checked':''} onchange="wsAutoSave()"><span>H3 Flammable (flash point &lt;60°C)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="reactive" ${(s.hazardFlags||[]).indexOf('reactive')>=0?'checked':''} onchange="wsAutoSave()"><span>H5 Reactive (unstable, water-reactive)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="carcinogenic" ${(s.hazardFlags||[]).indexOf('carcinogenic')>=0?'checked':''} onchange="wsAutoSave()"><span>H6.2 Carcinogenic</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="ecotoxic" ${(s.hazardFlags||[]).indexOf('ecotoxic')>=0?'checked':''} onchange="wsAutoSave()"><span>H12 Ecotoxic (toxic to environment)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="infectious" ${(s.hazardFlags||[]).indexOf('infectious')>=0?'checked':''} onchange="wsAutoSave()"><span>H6.3 Infectious (BMW)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-hazard-flag" value="explosive" ${(s.hazardFlags||[]).indexOf('explosive')>=0?'checked':''} onchange="wsAutoSave()"><span>H1 Explosive</span></label>
             </div>
         </div>
 
@@ -4317,12 +4343,12 @@ function renderWS0(body) {
             <div style="font-size:0.78rem;font-weight:700;color:var(--ink);margin-bottom:0.3rem;">📋 Regulatory Attribute Flags</div>
             <p style="font-size:0.7rem;color:var(--ink-soft);margin:0 0 0.35rem;">Regulatory categories that apply to this facility's waste — drives which manifests, forms, and portals are required.</p>
             <div class="ws-checklist">
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="hw_scheduled" ${(s.regFlags||[]).indexOf('hw_scheduled')>=0?'checked':''}><span>Schedule I HW generator (Form IV / HW Authorisation required)</span></label>
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="ewaste_bulk" ${(s.regFlags||[]).indexOf('ewaste_bulk')>=0?'checked':''}><span>Bulk e-waste consumer (CPCB EPR portal quarterly upload)</span></label>
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="bmw" ${(s.regFlags||[]).indexOf('bmw')>=0?'checked':''}><span>Biomedical waste generator (BMW Authorisation + CBWTF contract)</span></label>
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="battery_epr" ${(s.regFlags||[]).indexOf('battery_epr')>=0?'checked':''}><span>Battery EPR registrant (Battery Rules 2022)</span></label>
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="plastic_epr" ${(s.regFlags||[]).indexOf('plastic_epr')>=0?'checked':''}><span>Plastic EPR registrant (PWM Rules 2022 — PIBO)</span></label>
-                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="msw_notified" ${(s.regFlags||[]).indexOf('msw_notified')>=0?'checked':''}><span>Notified under SWM Rules (bulk waste generator &gt;100 kg/day)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="hw_scheduled" ${(s.regFlags||[]).indexOf('hw_scheduled')>=0?'checked':''} onchange="wsAutoSave()"><span>Schedule I HW generator (Form IV / HW Authorisation required)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="ewaste_bulk" ${(s.regFlags||[]).indexOf('ewaste_bulk')>=0?'checked':''} onchange="wsAutoSave()"><span>Bulk e-waste consumer (CPCB EPR portal quarterly upload)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="bmw" ${(s.regFlags||[]).indexOf('bmw')>=0?'checked':''} onchange="wsAutoSave()"><span>Biomedical waste generator (BMW Authorisation + CBWTF contract)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="battery_epr" ${(s.regFlags||[]).indexOf('battery_epr')>=0?'checked':''} onchange="wsAutoSave()"><span>Battery EPR registrant (Battery Rules 2022)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="plastic_epr" ${(s.regFlags||[]).indexOf('plastic_epr')>=0?'checked':''} onchange="wsAutoSave()"><span>Plastic EPR registrant (PWM Rules 2022 — PIBO)</span></label>
+                <label class="ws-checklist-item"><input type="checkbox" class="ws0-reg-flag" value="msw_notified" ${(s.regFlags||[]).indexOf('msw_notified')>=0?'checked':''} onchange="wsAutoSave()"><span>Notified under SWM Rules (bulk waste generator &gt;100 kg/day)</span></label>
             </div>
         </div>
 
@@ -4393,7 +4419,7 @@ function renderWS0(body) {
         </div>
 
         <button onclick="ws0SaveSettings()" style="padding:0.5rem 1.5rem;background:var(--hz-primary,#2d6a4f);color:#fff;border:none;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:700;cursor:pointer;margin-top:0.25rem;">
-            💾 Save Waste Configuration
+            ✓ Settings auto-saved (click to confirm & refresh panels)
         </button>
         <span id="ws0-saved-msg" style="font-size:0.75rem;color:#16a34a;margin-left:0.75rem;display:none;">✓ Saved</span>
     </div>`;
