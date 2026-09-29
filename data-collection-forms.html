@@ -4512,13 +4512,10 @@ function renderWS1(body) {
     var s = wsGetSettings();
     var periodLabel = wsCurrentPeriodLabel(s);
 
+    // If no streams configured in settings, default to all Schedule I groups
+    // (admin uses WS.0 Settings to filter down to relevant streams — not a prerequisite)
     if (s.hwStreams.length === 0) {
-        body.innerHTML = `<div style="text-align:center;padding:2rem;color:var(--ink-soft);">
-            <div style="font-size:2rem;margin-bottom:0.5rem;">⚙️</div>
-            <div style="font-size:0.85rem;font-weight:700;margin-bottom:0.3rem;">Hazardous Waste streams not configured</div>
-            <div style="font-size:0.77rem;">Go to <strong>⚙ Waste Settings</strong> and select the Schedule I categories that apply to this facility.</div>
-        </div>`;
-        return;
+        s.hwStreams = Object.keys(CPCB_SCHEDULE_I);
     }
 
     body.innerHTML = `
@@ -4576,8 +4573,13 @@ function wsAddHWGenRow(btn, grp) {
 
 function wsHWDisposalHTML(s) {
     var routes = s.hwDisposalRoutes || [];
+    // If no routes configured, show standard route types as placeholders
     if (routes.length === 0) {
-        return '<div style="text-align:center;padding:1.5rem;color:var(--ink-soft);font-size:0.8rem;">No disposal facilities configured. Go to <strong>⚙ Waste Settings</strong> to add TSDF / recycler details.</div>';
+        routes = [
+            { facility: 'TSDF — Secured Landfill', regNo: '', method: 'TSDF — Secured Landfill', wasteType: 'All Schedule I streams' },
+            { facility: 'TSDF — Incineration / Co-processing', regNo: '', method: 'TSDF — Incineration', wasteType: 'Solvents, Pharma, Organic waste' },
+            { facility: 'Authorised Recycler', regNo: '', method: 'Authorised Recycler', wasteType: 'Oils, Metals, Solvents' },
+        ];
     }
     var rows = routes.map(function(r, i) {
         return '<div style="border:1px solid var(--stroke);border-radius:var(--radius-sm);padding:0.5rem 0.65rem;margin-bottom:0.4rem;">' +
@@ -4617,13 +4619,9 @@ function wsHWPendingHTML(s) {
 function renderWS2(body) {
     var s = wsGetSettings();
 
+    // If no streams configured, default to all non-hazardous streams
     if (s.nhStreams.length === 0) {
-        body.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--ink-soft);">' +
-            '<div style="font-size:2rem;margin-bottom:0.5rem;">⚙️</div>' +
-            '<div style="font-size:0.85rem;font-weight:700;margin-bottom:0.3rem;">Non-Hazardous streams not configured</div>' +
-            '<div style="font-size:0.77rem;">Go to <strong>⚙ Waste Settings</strong> and select the non-hazardous waste categories that apply to this facility.</div>' +
-            '</div>';
-        return;
+        s.nhStreams = Object.keys(CPCB_NON_HAZARDOUS_STREAMS);
     }
 
     var periodLabel = wsCurrentPeriodLabel(s);
