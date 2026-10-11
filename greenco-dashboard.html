@@ -315,6 +315,56 @@ a.btn{text-decoration:none}
 .pcard .inner{padding:0 16px 12px}
 @media (max-width:980px){.tabs{top:0;position:static}.redrow,.pcard summary{grid-template-columns:1fr}}
 @media print{.tabs,.noprint{display:none!important}}
+
+/* ---------- parameter goal chart ---------- */
+:root{--gc-now:#0E8358;--gc-plan:#6B6FD0}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--gc-now:#33A274;--gc-plan:#8286E6}}
+:root[data-theme="dark"]{--gc-now:#33A274;--gc-plan:#8286E6}
+.g-sum{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border:1px solid var(--line);border-radius:var(--r-m);overflow:hidden;margin:12px 0 16px}
+.g-sum>div{padding:10px 14px;border-right:1px solid var(--line-2)}
+.g-sum>div:last-child{border-right:0}
+.g-sum span{display:block;font-size:12px;color:var(--muted)}
+.g-sum b{font-size:22px;font-weight:800;margin-right:6px}
+.g-sum small{font-size:12px;color:var(--muted)}
+.g-chart{display:grid;gap:2px}
+.g-row{display:grid;grid-template-columns:minmax(150px,1.1fr) minmax(0,2.6fr) minmax(170px,1fr);gap:14px;align-items:center;padding:6px 6px;border-radius:var(--r-s)}
+.g-row[data-gtip]:hover,.g-row[data-gtip]:focus-visible{background:var(--sunk)}
+.g-row[role=button]{cursor:pointer}
+.g-name{font-weight:600;font-size:13px;line-height:1.3}
+.g-plot{position:relative;height:28px}
+.g-track{position:absolute;left:0;top:8px;height:12px;background:var(--line-2);border-radius:0 4px 4px 0}
+.g-now{position:absolute;left:0;top:8px;height:12px;background:var(--gc-now);border-radius:0 4px 4px 0}
+.g-now.cut{border-radius:0}
+.g-plan{position:absolute;top:8px;height:12px;background:var(--gc-plan);border-radius:0 4px 4px 0;
+  background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.38) 0 2px,transparent 2px 5px)}
+.g-goal{position:absolute;top:2px;width:2px;height:24px;margin-left:-1px;background:var(--ink);border-radius:1px;box-shadow:0 0 0 2px var(--card)}
+.g-val{font-size:13px;line-height:1.35;text-align:right}
+.g-val b{font-weight:800}
+.g-arrow{color:var(--muted);font-weight:600}
+.g-st{font-size:12px;font-weight:700;white-space:nowrap}
+.g-met{color:var(--green-d)} .g-on{color:var(--amber)} .g-short{color:var(--red)} .g-none{color:var(--muted);font-weight:600}
+.g-axis{padding-top:0}
+.g-ticks{position:relative;height:16px}
+.g-ticks span{position:absolute;transform:translateX(-50%);font-size:11px;color:var(--muted)}
+.g-ticks span:first-child{transform:none}
+.g-axlabel{font-size:11px;color:var(--muted);text-align:right}
+.g-legend i{display:inline-block;width:16px;height:8px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.g-sw-now{background:var(--gc-now)}
+.g-sw-plan{background:var(--gc-plan);background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.38) 0 2px,transparent 2px 5px)}
+.g-sw-goal{width:2px!important;height:14px!important;background:var(--ink)}
+.g-sw-track{background:var(--line-2)}
+.g-table{margin-top:12px}
+.g-table summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--green)}
+.g-tip{position:fixed;z-index:70;display:none;max-width:280px;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:var(--r-m);padding:8px 11px;font-size:12.5px;line-height:1.45;box-shadow:0 6px 18px rgba(10,25,21,.14);pointer-events:none}
+.g-tip b{display:block;margin-bottom:2px}
+.goalline{margin:10px 0 4px;padding:10px 14px;border-radius:var(--r-m);background:var(--sunk);border:1px solid var(--line);font-size:13px}
+.goaltbl input{width:90px;padding:5px 7px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card);text-align:right}
+.goaltbl input:focus{border-color:var(--green);outline:none}
+@media (max-width:980px){.g-sum{grid-template-columns:1fr 1fr}.g-sum>div:nth-child(2){border-right:0}.g-row{grid-template-columns:1fr}.g-val{text-align:left}.g-axis{display:none}}
+@media print{.g-tip{display:none!important}}
+
+/* The Claude artifact viewer cannot open a print dialog; TerraCAP can. */
+html.in-claude [data-print]{display:none!important}
 </style>
 </head>
 <body>
@@ -958,10 +1008,125 @@ function initiativeEffect(st, id) {
   return { standalone: alone.total - base.total, marginal: withAll.total - without.total, credits };
 }
 
-return { activeIds, LEVELS, BANDS, bandOf, nextBand, SECTORS, classify, ctxOf, P3, P4, v4Of, VERSIONS, FIELDS, FIELD, CREDITS, CREDIT, GATES,
+/* ---------- Parameter goals ----------
+   A goal is a points target for one parameter of the selected version.
+   Goals are planning targets set by the plant; CII does not score them. */
+function goalStatus(L, PL, goals) {
+  const g = goals || {};
+  const rows = L.params.filter(p => p.max > 0).map(p => {
+    const pp = (PL && PL.params.find(x => x.id === p.id)) || p;
+    const goal = num(g[p.id]);
+    let status = 'none';
+    if (goal != null) status = p.pts >= goal - 1e-6 ? 'met' : pp.pts >= goal - 1e-6 ? 'ontrack' : 'short';
+    return { id: p.id, name: p.name, max: p.max, now: p.pts, proj: pp.pts, goal, status,
+      gapNow: goal == null ? null : Math.max(0, goal - p.pts), gapProj: goal == null ? null : Math.max(0, goal - pp.pts) };
+  });
+  const set = rows.filter(r => r.goal != null);
+  const goalTotal = set.reduce((a, r) => a + r.goal, 0);
+  const complete = rows.length > 0 && set.length === rows.length;
+  return { rows, set: set.length, n: rows.length, goalTotal, complete,
+    goalBand: complete && L.max ? bandOf(goalTotal * 1000 / L.max) : null,
+    met: set.filter(r => r.status === 'met').length, ontrack: set.filter(r => r.status === 'ontrack').length, short: set.filter(r => r.status === 'short').length };
+}
+/* Starting-point goals that reach a band: the points still needed are spread across
+   parameters in proportion to the points each has not yet earned. A planning aid only;
+   it does not know which points are realistic to win. */
+function suggestGoals(L, bandMin) {
+  const ps = L.params.filter(p => p.max > 0);
+  const need = bandMin * L.max / 1000 - L.total;
+  const head = ps.reduce((a, p) => a + (p.max - p.pts), 0);
+  const out = {};
+  ps.forEach(p => { const add = need > 0 && head > 0 ? need * (p.max - p.pts) / head : 0; out[p.id] = Math.min(p.max, Math.ceil((p.pts + add) * 2) / 2); });
+  return out;
+}
+
+return { goalStatus, suggestGoals, activeIds, LEVELS, BANDS, bandOf, nextBand, SECTORS, classify, ctxOf, P3, P4, v4Of, VERSIONS, FIELDS, FIELD, CREDITS, CREDIT, GATES,
   computeMetrics, scoreCredit, scoreAll, lens, project, requiredDelta, initiativeEffect, band, num, fmtN, cloneData, addField, isActive, RE_EXP, EE_STEP };
 })();
 if (typeof module !== 'undefined') module.exports = GC;
+</script>
+<script>
+'use strict';
+if (window.claude && typeof window.claude.use === 'function') document.documentElement.classList.add('in-claude');
+/* ==========================================================================
+   Parameter goal chart — shared by GreenCo Readiness and the GreenCo Dashboard.
+   Input: GC.goalStatus() result. Output: HTML string. One points axis across
+   all parameters, so a parameter's track length shows what it is worth.
+   ========================================================================== */
+const GCG = (() => {
+  const e = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  const f = v => GC.fmtN(v, 1);
+  const STATUS = {
+    met:     { icon: '✓', cls: 'g-met',   text: () => 'Goal met' },
+    ontrack: { icon: '→', cls: 'g-on',    text: () => 'Met if planned initiatives deliver' },
+    short:   { icon: '!', cls: 'g-short', text: r => 'Short by ' + f(r.gapProj) + (r.proj > r.now + 0.05 ? ' even with initiatives' : '') },
+    none:    { icon: '–', cls: 'g-none',  text: () => 'No goal set' }
+  };
+  function statusHTML(r) { const s = STATUS[r.status]; return `<span class="g-st ${s.cls}"><span aria-hidden="true">${s.icon}</span> ${e(s.text(r))}</span>`; }
+  function tip(r, year) {
+    return [r.name, 'Now: ' + f(r.now) + ' of ' + GC.fmtN(r.max, 0), 'If planned initiatives deliver: ' + f(r.proj),
+      r.goal == null ? 'No goal set' : 'Goal' + (year ? ' for ' + year : '') + ': ' + f(r.goal), STATUS[r.status].text(r)].join('\n');
+  }
+  function summary(G, L, PL, year) {
+    if (!G.set) return '';
+    const parts = [];
+    if (G.met) parts.push(G.met + ' met');
+    if (G.ontrack) parts.push(G.ontrack + ' met if initiatives deliver');
+    if (G.short) parts.push(G.short + ' short');
+    return `<div class="g-sum">
+      <div><span>Goals${year ? ' for ' + e(year) : ''}</span><b>${f(G.goalTotal)}</b>${G.goalBand ? `<span class="band-t bc-${G.goalBand.cls}">${e(G.goalBand.name)}</span>` : `<small>${G.set} of ${G.n} parameters set</small>`}</div>
+      <div><span>Now</span><b>${f(L.total)}</b><span class="band-t bc-${L.band.cls}">${e(L.band.name)}</span></div>
+      <div><span>If planned initiatives deliver</span><b>${f(PL.total)}</b><span class="band-t bc-${PL.band.cls}">${e(PL.band.name)}</span></div>
+      <div><span>Parameters</span><b style="font-size:15px;font-weight:700">${parts.join(', ')}</b></div>
+    </div>`;
+  }
+  function chart(G, opt) {
+    opt = opt || {};
+    const rows = G.rows;
+    if (!rows.length) return '';
+    const axis = Math.ceil(Math.max.apply(null, rows.map(r => r.max)) / 25) * 25;
+    const pc = v => Math.max(0, Math.min(100, v / axis * 100));
+    const ticks = []; for (let t = 0; t <= axis; t += 25) ticks.push(t);
+    const grid = `background-image:${ticks.slice(1, -1).map(t => `linear-gradient(to right, transparent calc(${pc(t)}% - 0.5px), var(--line-2) calc(${pc(t)}% - 0.5px), var(--line-2) calc(${pc(t)}% + 0.5px), transparent calc(${pc(t)}% + 0.5px))`).join(',') || 'none'}`;
+    const body = rows.map(r => {
+      const gain = r.proj - r.now;
+      const plan = gain > 0.05 ? `<div class="g-plan" style="left:calc(${pc(r.now)}% + 2px);width:max(0px, calc(${pc(gain)}% - 2px))"></div>` : '';
+      const goal = r.goal != null ? `<div class="g-goal" style="left:${pc(r.goal)}%"></div>` : '';
+      const click = opt.onRow ? ` onclick="${opt.onRow}('${r.id}')" role="button"` : '';
+      return `<div class="g-row" tabindex="0" data-gtip="${e(tip(r, opt.year))}"${click} aria-label="${e(tip(r, opt.year).replace(/\n/g, '. '))}">
+        <div class="g-name">${e(r.name)}</div>
+        <div class="g-plot" style="${grid}"><div class="g-track" style="width:${pc(r.max)}%"></div><div class="g-now ${gain > 0.05 ? 'cut' : ''}" style="width:${pc(r.now)}%"></div>${plan}${goal}</div>
+        <div class="g-val"><b>${f(r.now)}</b>${gain > 0.05 ? ` <span class="g-arrow">→ ${f(r.proj)}</span>` : ''}<span class="muted"> / ${r.goal == null ? '—' : f(r.goal)}</span><br>${statusHTML(r)}</div>
+      </div>`;
+    }).join('');
+    const axisRow = `<div class="g-row g-axis" aria-hidden="true"><div></div><div class="g-ticks">${ticks.map(t => `<span style="left:${pc(t)}%">${t}</span>`).join('')}</div><div class="g-axlabel">Now → with initiatives / goal</div></div>`;
+    const legend = `<div class="legend g-legend">
+      <span><i class="g-sw-now"></i>Now</span><span><i class="g-sw-plan"></i>Added if planned initiatives deliver</span>
+      <span><i class="g-sw-goal"></i>Goal</span><span><i class="g-sw-track"></i>Points available</span></div>`;
+    const table = `<details class="g-table noprint"><summary>Show as a table</summary><div class="scroll"><table class="tbl"><thead><tr><th>Parameter</th><th class="r">Max</th><th class="r">Now</th><th class="r">With initiatives</th><th class="r">Goal</th><th>Status</th></tr></thead><tbody>
+      ${rows.map(r => `<tr><td>${e(r.name)}</td><td class="r">${GC.fmtN(r.max, 0)}</td><td class="r">${f(r.now)}</td><td class="r">${f(r.proj)}</td><td class="r">${r.goal == null ? '—' : f(r.goal)}</td><td>${statusHTML(r)}</td></tr>`).join('')}
+      <tr class="grp"><td>Total</td><td class="r">${GC.fmtN(rows.reduce((a, r) => a + r.max, 0), 0)}</td><td class="r">${f(rows.reduce((a, r) => a + r.now, 0))}</td><td class="r">${f(rows.reduce((a, r) => a + r.proj, 0))}</td><td class="r">${G.set ? f(G.goalTotal) : '—'}</td><td>${G.goalBand ? e(G.goalBand.name) : ''}</td></tr>
+      </tbody></table></div></details>`;
+    return `<div class="g-chart" role="group" aria-label="Points by parameter against goals">${body}${axisRow}</div>${legend}${table}`;
+  }
+  /* One tooltip for every .g-row on the page (hover and keyboard focus). */
+  let tipEl = null;
+  function show(row, x, y) {
+    if (!tipEl) { tipEl = document.createElement('div'); tipEl.className = 'g-tip'; tipEl.setAttribute('role', 'tooltip'); document.body.appendChild(tipEl); }
+    const lines = (row.getAttribute('data-gtip') || '').split('\n');
+    tipEl.innerHTML = '<b>' + e(lines[0]) + '</b>' + lines.slice(1).map(l => '<div>' + e(l) + '</div>').join('');
+    tipEl.style.display = 'block';
+    const w = tipEl.offsetWidth, h = tipEl.offsetHeight;
+    tipEl.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x + 14)) + 'px';
+    tipEl.style.top = Math.max(8, Math.min(window.innerHeight - h - 8, y + 14)) + 'px';
+  }
+  function hide() { if (tipEl) tipEl.style.display = 'none'; }
+  document.addEventListener('mousemove', ev => { const r = ev.target.closest && ev.target.closest('.g-row[data-gtip]'); if (r) show(r, ev.clientX, ev.clientY); else hide(); });
+  document.addEventListener('focusin', ev => { const r = ev.target.closest && ev.target.closest('.g-row[data-gtip]'); if (r) { const b = r.getBoundingClientRect(); show(r, b.left + b.width * 0.35, b.bottom - 6); } });
+  document.addEventListener('focusout', hide);
+  document.addEventListener('scroll', hide, true);
+  return { chart, summary, statusHTML, STATUS };
+})();
 </script>
 <script>
 /* Demo plant: self-consistent dataset for a 240-person automotive forging unit.
@@ -1024,7 +1189,9 @@ function gcSeed() {
       { id: 'I11', p: 'GHG', credit: 'GHG5', title: 'Miyawaki plantation, 4 acres', type: 'Offset project', status: 'Planned', owner: 'EHS', start: '2025-08', end: '2026-08', capex: 9, saving: 0, innov: false,
         impacts: [{ f: 'offsets', d: 500 }], basis: 'Assumes 125 tCO2e per acre per year sequestration.' }
     ],
-    ai: {}, catAi: {}, overrides: {}, src: {}, ledger: null
+    ai: {}, catAi: {}, overrides: {}, src: {}, ledger: null,
+    goalYear: 'FY 2026-27',
+    goals: { V3: { EE: 125, WC: 65, RE: 80, GHG: 76, WM: 65, MCR: 72, GSC: 66, PSLCA: 105, IE: 35, GI: 62 } }
   };
 }
 
@@ -1090,6 +1257,7 @@ function ledgerFetch(profile) { return typeof window.TERRACAP_LEDGER === 'functi
 function migrate(x) {
   ['judged', 'options', 'best', 'gates', 'targets', 'evidence', 'ai', 'catAi', 'overrides', 'src'].forEach(k => { x[k] = x[k] || {}; });
   x.initiatives = x.initiatives || [];
+  x.goals = x.goals || {}; if (!x.goalYear) x.goalYear = '';
   if (x.data && x.data.scope1 === undefined) { delete x.data.s1Other; x.data.scope1 = [null, null, null]; x.data.scope2 = [null, null, null]; }
   return x;
 }
@@ -1112,6 +1280,7 @@ function hasEvidence(cid) {
 function recompute() {
   C.res = GC.scoreAll(S); C.proj = GC.scoreAll(S, { projected: true });
   C.L = GC.lens(C.res, LENS); C.PL = GC.lens(C.proj, LENS);
+  C.G = GC.goalStatus(C.L, C.PL, (S.goals || {})[LENS]);
 }
 
 /* Monthly series for the assessment year. The demo spreads annual ledger totals over
@@ -1198,6 +1367,7 @@ function rOverview() {
     <div class="kpi"><span>If planned initiatives deliver</span><b>${pts(PL.total)}</b>${bandTag(PL.band)} <small>from ${act} initiative${act === 1 ? '' : 's'}</small></div>
     <div class="kpi"><span>Computed from plant data</span><b>${pts(comp)}</b><small>${pts(claim)} self-claimed</small></div>
     <div class="kpi"><span>Mandatory requirements</span><b style="${res.gatesMet === res.gatesN ? '' : 'color:var(--red)'}">${res.gatesMet} / ${res.gatesN}</b><small>${res.gatesMet === res.gatesN ? 'All met' : 'Not ratable until all are met'}</small></div>
+    <div class="kpi"><span>Parameter goals${S.goalYear ? ' for ' + esc(S.goalYear) : ''}</span>${C.G.set ? `<b>${C.G.met} <small>of ${C.G.set} met</small></b><small>${C.G.ontrack} more if initiatives deliver, ${C.G.short} short</small>` : `<b>—</b><small>Set goals in GreenCo Readiness</small>`}</div>
     <div class="kpi"><span>Credits with evidence</span><b>${Math.round(ev / cs.length * 100)}%</b><small>${ev} of ${cs.length} credits</small></div>
   </div>
   <div class="panel" style="margin-top:14px"><h3>Where the plant sits on the GreenCo scale</h3>${ladder(L, PL)}
@@ -1232,24 +1402,22 @@ function rConsumption() {
     ${card('Production', sum('prod'), esc(S.profile.productUnit), 'prod', false)}
   </div>
   ${m.demo ? '<p class="muted small" style="margin-top:8px">Monthly figures in this demo spread the ledger\u2019s annual totals over typical monthly profiles. In TerraCAP they come from the ledger\u2019s monthly records for this plant.</p>' : ''}
-  <div class="grid2" style="margin-top:14px">
-    <div class="panel"><h3>Energy and emissions by month</h3><div class="chartbox"><canvas id="chM1"></canvas></div></div>
-    <div class="panel"><h3>Water, waste and renewable share by month</h3><div class="chartbox"><canvas id="chM2"></canvas></div></div>
-  </div>
+  <div class="grid3" style="margin-top:14px">${MONTHLY.map(x => `<div class="panel"><h3>${x[1]}</h3><p class="muted small">${x[2]} by month</p><div class="chartbox" style="height:190px"><canvas id="chM_${x[0]}"></canvas></div></div>`).join('')}</div>
   <div class="panel" style="margin-top:14px"><h3>Monthly summary</h3><div class="scroll"><table class="tbl" style="margin-top:8px"><thead><tr><th>Month</th><th class="r">Production (${esc(S.profile.productUnit)})</th><th class="r">Energy (GJ)</th><th class="r">SEC (GJ/unit)</th><th class="r">Fresh water (m³)</th><th class="r">Scope 1+2 (tCO2e)</th><th class="r">Waste (t)</th><th class="r">Renewable share</th></tr></thead><tbody>
   ${R.slice().reverse().map(r => `<tr><td>${esc(r.l)}</td><td class="r">${F(r.prod, 0)}</td><td class="r">${F(r.energy, 0)}</td><td class="r">${F(r.prod ? r.energy / r.prod : null, 3)}</td><td class="r">${F(r.water, 0)}</td><td class="r">${F(r.s12, 0)}</td><td class="r">${F(r.waste, 1)}</td><td class="r">${F(r.re, 1)}%</td></tr>`).join('')}</tbody></table></div></div>`;
 }
+/* One measure per chart, one axis each: [key, title, unit, decimals, type] */
+const MONTHLY = [['energy', 'Energy', 'GJ', 0, 'bar'], ['s12', 'Scope 1+2 emissions', 'tCO2e', 0, 'bar'], ['water', 'Fresh water', 'm³', 0, 'bar'],
+  ['waste', 'Waste generated', 't', 1, 'bar'], ['re', 'Renewable share of electricity', '%', 1, 'line'], ['prod', 'Production', 'units of output', 0, 'bar']];
 function aConsumption() {
-  const m = ledgerMonthly(), R = m.rows;
-  charts.m1 = new Chart($('#chM1'), { data: { labels: m.labels, datasets: [
-    { type: 'bar', label: 'Energy (GJ)', data: R.map(r => Math.round(r.energy)), backgroundColor: cssVar('--green'), yAxisID: 'y' },
-    { type: 'line', label: 'Scope 1+2 (tCO2e)', data: R.map(r => Math.round(r.s12)), borderColor: cssVar('--amber'), backgroundColor: cssVar('--amber'), yAxisID: 'y1', tension: .3 }] },
-    options: { responsive: true, maintainAspectRatio: false, scales: { y: { position: 'left', title: { display: true, text: 'GJ' } }, y1: { position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'tCO2e' } } } } });
-  charts.m2 = new Chart($('#chM2'), { data: { labels: m.labels, datasets: [
-    { type: 'bar', label: 'Fresh water (m³)', data: R.map(r => Math.round(r.water)), backgroundColor: cssVar('--b-cert'), yAxisID: 'y' },
-    { type: 'bar', label: 'Waste (t)', data: R.map(r => +r.waste.toFixed(1)), backgroundColor: cssVar('--b-bron'), yAxisID: 'y2' },
-    { type: 'line', label: 'Renewable share (%)', data: R.map(r => +r.re.toFixed(1)), borderColor: cssVar('--ai'), backgroundColor: cssVar('--ai'), yAxisID: 'y1', tension: .3 }] },
-    options: { responsive: true, maintainAspectRatio: false, scales: { y: { position: 'left', title: { display: true, text: 'm³' } }, y2: { display: false }, y1: { position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false }, title: { display: true, text: '%' } } } } });
+  const m = ledgerMonthly(), R = m.rows, col = cssVar('--gc-now');
+  MONTHLY.forEach(([k, title, unit, d, type]) => {
+    const el = $('#chM_' + k); if (!el) return;
+    charts['m_' + k] = new Chart(el, { type, data: { labels: m.labels.map(l => l.split(' ')[0]), datasets: [{ label: title + ' (' + unit + ')', data: R.map(r => +(+r[k]).toFixed(d)),
+      backgroundColor: col, borderColor: col, borderWidth: type === 'line' ? 2 : 0, borderRadius: type === 'bar' ? 4 : 0, pointRadius: type === 'line' ? 4 : 0, tension: .25, maxBarThickness: 18 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { title: it => m.labels[it[0].dataIndex], label: it => GC.fmtN(it.raw, d) + ' ' + unit } } },
+        scales: { x: { grid: { display: false } }, y: { beginAtZero: true, max: k === 're' ? 100 : undefined, grid: { color: cssVar('--line-2') }, title: { display: true, text: unit } } } } });
+  });
 }
 
 /* ---------- parameters ---------- */
@@ -1257,11 +1425,18 @@ function groupsForLens() {
   if (LENS === 'V3') return GC.P3.filter(p => !(C.res.ctx.seg === 'svc' && p.id === 'PSLCA')).map(p => ({ id: p.id, name: p.name, credits: GC.CREDITS.filter(c => c.p === p.id).map(c => c.id) }));
   return GC.P4.map(p => ({ id: p.id, name: p.name, credits: GC.CREDITS.filter(c => GC.v4Of(c.id) === p.id && !C.res.R[c.id].excluded).map(c => c.id) })).filter(g => g.credits.length);
 }
+function openGoalParam(id) { const d = document.getElementById('pc-' + id); if (d) { d.open = true; d.scrollIntoView({ block: 'center' }); } }
 function rParameters() {
-  const gs = groupsForLens();
-  return `<p class="muted" style="margin-bottom:12px">${LENS === 'V3' ? 'Scores by GreenCo V3 parameter.' : 'V3 credits grouped under the ' + esc(GC.VERSIONS[LENS].name) + ' parameters through a provisional mapping, scaled to each parameter\u2019s published weight.'} Open a parameter to see its credits. Edit scores in GreenCo Readiness.</p>
+  const gs = groupsForLens(), vname = GC.VERSIONS[LENS].name;
+  return `<div class="panel" style="margin-bottom:14px"><h3>Progress against parameter goals</h3>
+    <p class="muted small" style="margin-top:2px">${esc(vname)} parameters on one points scale; each track is as long as the points the parameter is worth. Select a parameter to see its credits below. Goals are set in GreenCo Readiness, on the plant profile.</p>
+    ${C.G.set ? GCG.summary(C.G, C.L, C.PL, S.goalYear) : `<div class="note" style="margin:12px 0">No goals set for ${esc(vname)}. Set them in <a href="greenco-readiness.html">GreenCo Readiness</a> on the plant profile.</div>`}
+    ${GCG.chart(C.G, { year: S.goalYear, onRow: 'openGoalParam' })}
+  </div>
+  <h3 style="margin:18px 0 4px">Credits by parameter</h3>
+  <p class="muted" style="margin-bottom:12px">${LENS === 'V3' ? 'Scores by GreenCo V3 parameter.' : 'V3 credits grouped under the ' + esc(GC.VERSIONS[LENS].name) + ' parameters through a provisional mapping, scaled to each parameter\u2019s published weight.'} Open a parameter to see its credits. Edit scores in GreenCo Readiness.</p>
   ${gs.map(g => { const lp = C.L.params.find(p => p.id === g.id) || { pts: 0, max: 0, comp: 0, claim: 0 }; const pj = C.PL.params.find(p => p.id === g.id) || lp;
-    return `<details class="pcard"><summary><b>${esc(g.name)}</b>
+    return `<details class="pcard" id="pc-${g.id}"><summary><b>${esc(g.name)}</b>
       <div class="bar" title="${pts(lp.comp)} computed, ${pts(lp.claim)} self-claimed"><span class="c" style="width:${lp.max ? lp.comp / lp.max * 100 : 0}%"></span><span class="l" style="width:${lp.max ? lp.claim / lp.max * 100 : 0}%"></span>${pj.pts > lp.pts + .05 ? `<span class="pj" style="left:${Math.min(100, pj.pts / lp.max * 100)}%"></span>` : ''}</div>
       <span class="v" style="text-align:right;font-weight:700">${pts(lp.pts)} <span class="muted small">/ ${F(lp.max, 0)}</span></span></summary>
       <div class="inner"><table class="tbl"><thead><tr><th>Credit</th><th>Result</th><th>Type</th><th class="r">Points</th><th>Evidence</th></tr></thead><tbody>
@@ -1371,7 +1546,7 @@ function rReports() {
   <div class="panel" style="margin-top:14px"><h3>Score by version</h3><p class="muted small" style="margin:2px 0 10px">The same plant data scored three ways. Only V3 uses published credit rules; V4 and Lite are provisional.</p>
     <table class="tbl"><thead><tr><th>Version</th><th class="r">Score</th><th>Band</th><th class="r">With planned initiatives</th></tr></thead><tbody>
     ${vs.map(x => `<tr><td>${esc(GC.VERSIONS[x.v].name)} ${x.v !== 'V3' ? '<span class="tag k-prov">Provisional</span>' : ''}</td><td class="r"><b>${pts(x.L.total)}</b> / ${F(x.L.max, 0)}</td><td>${bandTag(x.L.band)}</td><td class="r">${pts(x.P.total)} ${bandTag(x.P.band)}</td></tr>`).join('')}</tbody></table>
-    <button class="btn noprint" style="margin-top:12px" onclick="window.print()">Print this dashboard</button></div>`;
+    <button class="btn noprint" style="margin-top:12px" data-print onclick="window.print()">Print this dashboard</button></div>`;
 }
 
 /* ---------- boot ---------- */
