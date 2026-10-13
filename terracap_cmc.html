@@ -2898,7 +2898,623 @@ sSEE = function(){ return _sSEEV43().replace('<h1>Embedded emissions</h1>', `<h1
 
 /* customer packages carry the result status in their header (part7 custPackage) — no final issue while draft */
 
+
+/* related standalone modules (Demo, EU ETS) retired in v4.5 — ETS is a track in this module (part9) */
+
 Object.assign(SCREENS, {d_boundary:sBoundary, d_calc:sCalc, c_fa:sFA, c_see:sSEE});
+
+/* ════════════════════════════════════════════════════════════════════════
+   v4.6 — EU ETS and UK ETS as the domestic track for installations in the
+   EU/EEA and the UK. Aligned to design revision 3 (verifier review, 13 Oct 2026).
+   The same screens serve both schemes; ETS_REG holds what differs.
+   Nothing here replaces the competent authority's own templates or IT
+   systems: TerraCAP prepares and checks the data, the operator submits.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ---------- styles ---------- */
+document.head.insertAdjacentHTML('beforeend', `<style>
+.rg-ets{background:var(--teal-bg);color:var(--teal-d)}
+.oc.ets{border-top:3px solid var(--teal)}
+.dest{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;margin-top:10px}
+.dest label{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:9px;padding:9px 10px;font-size:12.5px;cursor:pointer;background:#fff}
+.dest label.on{border-color:var(--teal);background:var(--teal-bg2)}
+.dest label small{display:block;color:var(--mute);font-size:11.5px;margin-top:2px}
+.chipset{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chipset button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 10px;font-size:12px;cursor:pointer}
+.chipset button.on{border-color:var(--teal);background:var(--teal-bg2);color:var(--teal-d);font-weight:600}
+.conf{font-size:10.5px;font-weight:600;border-radius:4px;padding:1px 5px;margin-right:4px;white-space:nowrap}
+.conf.c{background:var(--teal-bg);color:var(--teal-d)} .conf.l{background:var(--blue-bg);color:var(--blue)} .conf.g{background:var(--amber-bg);color:var(--amber)}
+</style>`);
+
+const fmtE = (v,d=0) => (v==null||!isFinite(v)) ? '—' : Number(v).toLocaleString('en-GB',{minimumFractionDigits:d,maximumFractionDigits:d});
+const CONF = {c:'<span class="conf c">Confirmed</span>', l:'<span class="conf l">Likely</span>', g:'<span class="conf g">To confirm</span>', r:'<span class="conf l" style="white-space:normal">Research-supported — pending legal-master approval</span>'};
+
+/* ---------- scheme configuration ---------- */
+const ETS_REG = {
+  EU:{
+    k:'EU', name:'EU ETS', cur:'€', unit:'EUA',
+    law:'Directive 2003/87/EC, as amended (incl. Directive (EU) 2023/959)',
+    authority:'Competent authority of the Member State (e.g. DEHSt in Germany, NEa in the Netherlands, EPA in Ireland)',
+    system:'The competent authority’s own monitoring-plan template or IT system',
+    registry:'Union Registry (transactions logged in the EU Transaction Log)',
+    verifier:'Verifier accredited by a national accreditation body under the Accreditation and Verification Regulation (EU) 2018/2067',
+    aer:'31 March', surrender:'30 September',
+    surrRef:'Art. 12(3) as amended by Directive (EU) 2023/959; first applied to the 2023 obligation (surrendered by 30 Sep 2024)',
+    penalty:'€100 per tCO₂e of excess emissions, raised in line with EU consumer prices (HICP) since 2012, plus surrender of the missing allowances and publication of the operator’s name (Art. 16)',
+    alc:'Verified activity level report every year under Regulation (EU) 2019/1842 as amended by (EU) 2025/772 — allocation is adjusted only where the two-year average activity level differs from the historical level by more than 15% (for heat, fuel and process-emissions sub-installations, the average expected activity level) and the adjustment is at least 300 allowances in aggregate; from 2026',
+    alcDue:'31 March (most competent authorities — check yours)',
+    period:'Second allocation period, 2026–2030',
+    bench:'Implementing Regulation (EU) 2026/1412 (benchmarks 2026–2030)',
+    benchStatus:'Reported values — verify on EUR-Lex before use',
+    cbamFA:true, cond:true,
+    price:{v:84.92, d:'EUA settlement 7 Oct 2026, as reported — indicative only'},
+    records:'10 years (MRR Art. 67)'
+  },
+  UK:{
+    k:'UK', name:'UK ETS', cur:'£', unit:'UKA',
+    law:'Greenhouse Gas Emissions Trading Scheme Order 2020 (SI 2020/1265), as amended',
+    authority:'Environment Agency (England), SEPA (Scotland), Natural Resources Wales, NIEA (Northern Ireland); OPRED offshore',
+    system:'METS (Manage your Emissions Trading Scheme)',
+    registry:'UK ETS Registry',
+    verifier:'Verifier accredited by UKAS',
+    aer:'31 March', surrender:'30 April',
+    surrRef:'UK ETS compliance cycle — annual surrender by 30 April',
+    penalty:'Civil penalty for each tonne of excess emissions under the Order, plus surrender of the missing allowances — amount to confirm before quoting',
+    alc:'Verified activity level report (ALR) every year — allocation changes when activity moves by 15% or more over a two-year period',
+    alcDue:'31 March',
+    period:'2026 is the last year of the 2021–2026 period; 2027–2030 follows the Free Allocation Review',
+    bench:'Benchmarks for 2021–2026; current benchmarks kept for 2027, updated EU values intended from 2028 (subject to impact assessment)',
+    benchStatus:'2021–2025 EU values assumed for 2026 — to confirm with the UK ETS Authority',
+    cbamFA:false, cond:false,
+    price:{v:62.43, d:'UKA settlement 7 Oct 2026, as reported — indicative only'},
+    records:'10 years (UK MRR Art. 67) — to confirm'
+  }
+};
+
+const ETS_ACTIVITIES = [
+  ['comb','Combustion of fuels in installations with a total rated thermal input above 20 MW'],
+  ['coke','Production of coke'],
+  ['sinter','Metal ore roasting or sintering, including pelletisation'],
+  ['steel','Production of pig iron or steel, including continuous casting, above 2.5 t per hour'],
+  ['ferrous','Production or processing of ferrous metals with combustion units above 20 MW'],
+  ['alu','Production of primary aluminium or alumina'],
+  ['clinker','Production of cement clinker in rotary kilns above 500 t per day'],
+  ['lime','Production of lime or calcination of dolomite or magnesite above 50 t per day'],
+  ['glass','Manufacture of glass above 20 t per day'],
+  ['paper','Production of paper or cardboard above 20 t per day'],
+  ['ammonia','Production of ammonia'],
+  ['nitric','Production of nitric acid']
+];
+
+/* ---------- demo installations (fictional) ---------- */
+const ETS_DEMO = {
+  steel:{
+    label:'Integrated steelworks (BF–BOF)',
+    names:{EU:['Rheinhafen Stahl GmbH (demo)','Rheinhafen integrated works'], UK:['Severnmouth Steel Ltd (demo)','Severnmouth integrated works']},
+    acts:['comb','coke','sinter','steel'], approach:'Mass balance (MRR Art. 25) — carbon in, carbon out',
+    streams:[
+      {id:'e1',n:'Coking coal',            t:'mb', ad:1550000, cc:0.72,  sys:'ERP goods receipts · weighbridge'},
+      {id:'e2',n:'PCI coal',               t:'mb', ad:550000,  cc:0.75,  sys:'ERP goods receipts · weighbridge'},
+      {id:'e3',n:'Coke breeze, anthracite (sinter)', t:'mb', ad:260000, cc:0.85, sys:'Sinter plant DCS'},
+      {id:'e4',n:'Limestone',              t:'mb', ad:900000,  cc:0.12,  sys:'ERP · lab CaCO₃ analysis'},
+      {id:'e5',n:'Dolomite',               t:'mb', ad:200000,  cc:0.13,  sys:'ERP · lab analysis'},
+      {id:'e6',n:'Natural gas',            t:'mb', ad:80000,   cc:0.73,  sys:'Supplier invoices · fiscal meter'},
+      {id:'e7',n:'Graphite electrodes',    t:'mb', ad:6000,    cc:0.99,  sys:'ERP'},
+      {id:'e8',n:'Coal for the power plant', t:'mb', ad:350000, cc:0.55, sys:'Power plant DCS · weighbridge'},
+      {id:'e9',n:'Wood pellets (co-firing trial)', t:'mb', ad:5000, cc:0.48, bio:1, sys:'Supplier delivery notes'},
+      {id:'e10',n:'Crude steel (carbon leaving in product)', t:'mb', ad:3200000, cc:0.0015, out:true, sys:'Production MIS'},
+      {id:'e11',n:'Tar and benzol sold', t:'mb', ad:60000, cc:0.90, out:true, sys:'Sales invoices · lab'}
+    ],
+    fa:[ {k:'hot_metal', n:'Hot metal (product benchmark)', bm:{EU:1.248, UK:1.288}, hal:3000000, cbam:true},
+         {k:'sinter', n:'Sintered ore (product benchmark)', bm:{EU:null, UK:null}, hal:4200000, cbam:true},
+         {k:'coke', n:'Coke (product benchmark)', bm:{EU:null, UK:null}, hal:1100000, cbam:false},
+         {k:'fuel', n:'Reheating furnaces (fuel benchmark)', bm:{EU:null, UK:null}, hal:4000, cbam:true, u:'TJ'} ],
+    product:{n:'Crude steel', q:3200000}
+  },
+  cement:{
+    label:'Cement works (grey clinker)',
+    names:{EU:['Altmark Zement GmbH (demo)','Altmark cement works'], UK:['Dunmoor Cement Ltd (demo)','Dunmoor cement works']},
+    acts:['comb','clinker'], approach:'Standard method (MRR Art. 24) — combustion and process emissions per source stream',
+    streams:[
+      {id:'k1',n:'Petroleum coke',   t:'comb', ad:60000, ncv:32.5, ef:0.0975, of:1, sys:'ERP goods receipts · lab NCV'},
+      {id:'k2',n:'Coal',             t:'comb', ad:40000, ncv:25.8, ef:0.0946, of:1, sys:'ERP goods receipts · lab NCV'},
+      {id:'k3',n:'Solid recovered fuel (45% biomass)', t:'comb', ad:50000, ncv:18.0, ef:0.085, of:1, bio:0.45, srf:true, sys:'Supplier certificates · lab ¹⁴C analysis'},
+      {id:'k4',n:'Clinker produced (process emissions, output method)', t:'proc', ad:1000000, ef:0.525, sys:'Kiln DCS · clinker weighfeeder', note:'Default factor; a higher tier uses lab CaO/MgO content'}
+    ],
+    fa:[ {k:'clinker', n:'Grey cement clinker (product benchmark)', bm:{EU:0.656, UK:0.693}, hal:1000000, cbam:true} ],
+    product:{n:'Grey clinker', q:1000000}
+  }
+};
+
+/* ---------- state ---------- */
+S.ets = {
+  sector:'steel', efta:'EEA', loc:'GB', acts:null, permit:null, covered:null,
+  dest:{home:true, uk:false, eu:false, ni:false, row:false},
+  mp:{ver:'', approved:false, date:'', ref:''},
+  bioEvidence:false, verifier:'', contracted:false, site:false, vr:false, aerSubmitted:false, regEntered:false,
+  alcDone:false, cond:{audit:true, cnp:true}, holdings:1000000, sent:[],
+  mpState:'Draft', recon:{stock:false, meters:false, analyses:false, streams:false}, gapsOpen:0, locked:false,
+  reg:{assigned:false, accepted:false, entered:false, confirmed:false, evidence:false}, natAlloc:'', surrendered:false
+};
+
+function etsCountry(){ const c=S.setup.country; return c==='EU' ? 'EU' : c==='GB' ? 'GB' : c==='EFTA' ? 'EFTA' : null; }
+function etsScheme(){
+  const c=etsCountry(); if(!c || !S.setup.countryConfirmed) return null;
+  if(c==='EFTA') return S.ets.efta==='EEA' ? 'EU' : null;   /* Switzerland: linked Swiss ETS, not modelled */
+  return c==='EU' ? 'EU' : 'UK';
+}
+function ER(){ return ETS_REG[etsScheme()||'EU']; }
+function ED(){ return ETS_DEMO[S.ets.sector]; }
+
+/* ---------- flags, setup completion, names ---------- */
+const _flagsV44 = flags;
+flags = function(){
+  const f=_flagsV44(), sch=etsScheme();
+  f.ets = (sch && S.ets.covered===true) ? sch : null;
+  /* a UK plant is not in Annex III, so EU CBAM applies to its sales into the EU */
+  return f;
+};
+const _setupDoneV44 = setupDone;
+setupDone = function(){
+  if(etsCountry() && S.setup.countryConfirmed) return S.ets.covered!==null && Object.values(S.ets.dest).some(Boolean);
+  return _setupDoneV44();
+};
+const _PLAT_NAMES = {entity:PLATFORM.entity, installation:PLATFORM.installation};
+function etsSyncNames(){
+  const sch=etsScheme();
+  if(sch){ const n=ED().names[sch]; PLATFORM.entity=n[0]; PLATFORM.installation=n[1]; }
+  else { PLATFORM.entity=_PLAT_NAMES.entity; PLATFORM.installation=_PLAT_NAMES.installation; }
+}
+const _setCountryV44 = setCountry;
+setCountry = function(k){
+  if(k==='EU'||k==='GB'||k==='EFTA'){ S.ets.covered=null; S.ets.permit=null; S.ets.acts=null; S.setup.eu = (k==='GB') ? null : false; S.setup.uk = (k==='GB') ? false : null; }
+  _setCountryV44(k); etsSyncNames(); render();
+};
+function etsSet(path, v){ const p=path.split('.'); let o=S.ets; for(let i=0;i<p.length-1;i++) o=o[p[i]]; o[p[p.length-1]]=v; etsAfter(); render(); }
+function etsAfter(){
+  const c=etsCountry(); if(!c) return;
+  if(S.ets.acts===null) S.ets.acts=[...ED().acts];
+  S.ets.covered = S.ets.permit===true && S.ets.acts.length>0 && !!etsScheme();
+  if(S.ets.permit===false) S.ets.covered=false;
+  S.setup.uk = (c!=='GB') ? !!S.ets.dest.uk : false;
+  S.setup.eu = (c==='GB') ? !!S.ets.dest.eu : false;
+  etsSyncNames();
+}
+function etsAct(k){ const a=S.ets.acts||[...ED().acts]; const i=a.indexOf(k); if(i<0)a.push(k); else a.splice(i,1); S.ets.acts=a; etsAfter(); render(); }
+function etsSector(k){ S.ets.sector=k; S.ets.acts=[...ETS_DEMO[k].acts]; etsAfter(); render(); }
+function etsDest(k,v){ S.ets.dest[k]=v; etsAfter(); render(); }
+
+/* ---------- calculation ---------- */
+function etsCalc(){
+  const d=ED(), rows=[]; let fossil=0, bioZero=0, bioCounted=0;
+  d.streams.forEach(s=>{
+    let t;
+    if(s.t==='mb') t = s.ad*s.cc*3.664*(s.out?-1:1);
+    else if(s.t==='comb') t = s.ad*s.ncv*s.ef*s.of;
+    else t = s.ad*s.ef;
+    const bioPart = (s.bio||0)*t;
+    const zero = bioPart>0 && S.ets.bioEvidence && !s.srf;   /* SRF / waste-derived zero-rating excluded from the first release */
+    const counted = t - (zero?bioPart:0);
+    if(bioPart>0){ if(zero) bioZero+=bioPart; else bioCounted+=bioPart; }
+    fossil += counted;
+    rows.push({s, t, bioPart, zero, counted});
+  });
+  const total = fossil;
+  const cat = total>500000 ? 'C' : total>50000 ? 'B' : 'A';
+  const low = total<25000;
+  /* MRR Art. 19(3): minor and de minimis are tested JOINTLY, smallest streams first */
+  const deMinLim = Math.max(1000, Math.min(0.02*total, 20000)), minorLim = Math.max(5000, Math.min(0.10*total, 100000));
+  let cum = 0;
+  [...rows].sort((a,b)=>Math.abs(a.counted)-Math.abs(b.counted)).forEach(r=>{ cum += Math.abs(r.counted); r.cls = cum<=deMinLim ? 'De minimis' : cum<=minorLim ? 'Minor' : 'Major'; });
+  return {rows, total, bioZero, bioCounted, cat, low, deMinLim, minorLim};
+}
+function etsFA(){
+  const sch=etsScheme()||'EU', R=ETS_REG[sch], d=ED(), yr=2026;
+  const cbamF = (R.cbamFA ? (REF.cbamFactor ? (REF.cbamFactor[yr]??0.975) : 0.975) : 1);
+  const condF = R.cond && !(S.ets.cond.audit && S.ets.cond.cnp) ? 0.8 : 1;
+  const rows = d.fa.map(x=>{
+    const bm=x.bm[sch]; const f = x.cbam ? cbamF : 1;
+    const alloc = bm==null ? null : bm * x.hal * 1 /*CLEF*/ * 1 /*CSCF*/ * f * condF;
+    return {...x, bm, f, alloc};
+  });
+  const loaded = rows.filter(r=>r.alloc!=null).reduce((a,r)=>a+r.alloc,0);
+  const missing = rows.some(r=>r.alloc==null);
+  return {rows, loaded, missing, cbamF, condF};
+}
+
+/* ---------- separate state objects (design rev. 3, section 3) ---------- */
+function etsStates(){
+  const e=S.ets;
+  return [
+    ['Monitoring plan', e.mpState],
+    ['Annual emissions report', e.aerSubmitted ? 'Submitted' : e.vr ? 'Verified' : e.contracted && e.locked ? 'Under verification' : e.locked ? 'Operator locked' : 'Draft'],
+    ['Registry emissions', e.reg.confirmed && e.reg.evidence ? 'Confirmed' : e.reg.entered ? 'Entered' : 'Not entered'],
+    ['Allocation', e.natAlloc ? 'Authority determined' : 'Preliminary'],
+    ['Surrender', e.surrendered ? 'Completed' : 'Required']
+  ];
+}
+function statesHTML(){ return `<div class="card"><h2>Where each process stands</h2><p class="sub">Separate states, because these run in parallel. A state moves only when its evidence is stored; generating a document never moves it.</p><table class="t"><tbody>${etsStates().map(([k,v])=>`<tr><td style="width:230px">${k}</td><td><span class="tag ${/Draft|Not entered|Preliminary|Required/.test(v)?'t-amber':'t-teal'}">${v}</span></td></tr>`).join('')}</tbody></table></div>`; }
+
+/* ---------- documents ---------- */
+function etsDoc(kind){
+  const R=ER(), d=ED(), c=etsCalc(), fa=etsFA();
+  const tr=(a)=>a.map(r=>`<tr>${r.map(v=>`<td style="border:1px solid #bbb;padding:4px 7px">${v}</td>`).join('')}</tr>`).join('');
+  const th=(a)=>`<tr>${a.map(v=>`<th style="border:1px solid #bbb;padding:4px 7px;background:#eee;text-align:left">${v}</th>`).join('')}</tr>`;
+  const head=(t)=>`<html><head><meta charset="utf-8"></head><body style="font-family:Calibri,Arial;font-size:11pt"><h1 style="font-size:16pt">${t}</h1><p>${esc(PLATFORM.entity)} · ${esc(PLATFORM.installation)} · ${R.name} · reporting year 2026 · prepared by TerraCAP ${new Date().toISOString().slice(0,10)} · <b>${S.ets.vr?'Verified data':'DRAFT — not verified'}</b></p>`;
+  const docs = {
+    mp:()=>head('Monitoring plan — data sheet')+`<p>For transfer into ${esc(R.system)}. The competent authority approves the monitoring plan in its own template; this sheet is not a substitute.</p>
+      <table style="border-collapse:collapse">${th(['Item','Value'])}${tr([['Permit / installation ID','Needs entry'],['Annex I activities',(S.ets.acts||[]).map(k=>ETS_ACTIVITIES.find(a=>a[0]===k)[1]).join('; ')],['Installation category (MRR Art. 19)',c.cat+(c.low?' — low emitter':'')],['Monitoring approach',d.approach],['Laboratory','EN ISO/IEC 17025 accredited, or equivalent under MRR Art. 34'],['Records kept',R.records]])}</table>
+      <h2 style="font-size:13pt">Source streams</h2><table style="border-collapse:collapse">${th(['Source stream','Class','Activity data','Factor basis','Data source'])}${tr(c.rows.map(r=>[r.s.n,r.cls,fmtE(r.s.ad)+' t',r.s.t==='mb'?'Carbon content '+r.s.cc+' tC/t':r.s.t==='comb'?'NCV '+r.s.ncv+' GJ/t; EF '+(r.s.ef*1000)+' tCO₂/TJ (activity data in TJ)':'EF '+r.s.ef+' tCO₂/t',r.s.sys]))}</table></body></html>`,
+    aer:()=>head('Annual emissions — data pack for the verifier')+`<table style="border-collapse:collapse">${th(['Source stream','Activity data (t)','tCO₂','Biomass part','Counted tCO₂'])}${tr(c.rows.map(r=>[r.s.n,fmtE(r.s.ad),fmtE(r.t),r.bioPart?fmtE(r.bioPart)+(r.zero?' (zero-rated)':r.s.srf?' (counted — SRF zero-rating not available in this release)':' (counted — no approved biomass-evidence record)'):'—',fmtE(r.counted)]))}${tr([['<b>Total</b>','','','',`<b>${fmtE(c.total)}</b>`]])}</table><p>Submit the verified report by ${R.aer} through ${esc(R.system)}. Verified emissions must also be entered in the ${esc(R.registry)}.</p></body></html>`,
+    alc:()=>head('Activity level report — data sheet')+`<table style="border-collapse:collapse">${th(['Sub-installation','Historical activity level','2025 activity','Change'])}${tr(fa.rows.map(r=>[r.n,fmtE(r.hal)+' '+(r.u||'t'),'Needs entry','—']))}</table><p>${esc(R.alc)}. Due ${esc(R.alcDue)}, verified.</p></body></html>`,
+    cover:()=>head('Statement of emissions trading coverage')+`<p>The installation named above holds a greenhouse gas emissions permit and is covered by the ${R.name} for the activities listed. Its emissions are monitored under an approved monitoring plan and verified each year by an accredited verifier.</p>
+      <table style="border-collapse:collapse">${th(['Item','Value'])}${tr([['Scheme',R.name+' — '+R.law],['Activities',(S.ets.acts||[]).map(k=>ETS_ACTIVITIES.find(a=>a[0]===k)[1]).join('; ')],['Verified emissions, 2025','Needs entry from the verified report'],['Registry',R.registry]])}</table>
+      <p><i>This statement is information for customers. It is not issued by a public authority and does not certify the carbon content of any product.</i></p></body></html>`,
+    pcf:()=>head('Product carbon data sheet (voluntary)')+`<table style="border-collapse:collapse">${th(['Product','Direct emissions of the installation','Production','Screening value'])}${tr([[d.product.n,fmtE(c.total)+' tCO₂',fmtE(d.product.q)+' t',fmtE(c.total/d.product.q,3)+' tCO₂/t']])}</table>
+      <p><i>Screening value: whole-installation direct emissions divided by the main product. It is not a CBAM embedded-emissions value and not an EPD. For a CBAM value use the CBAM track; for construction products, an EPD to EN 15804 under the Construction Products Regulation (EU) 2024/3110 as the harmonised standards require.</i></p></body></html>`
+  };
+  const names={mp:'Monitoring_plan_data_sheet',aer:'Verifier_data_pack',alc:'Activity_level_data_sheet',cover:'ETS_coverage_statement',pcf:'Product_carbon_data_sheet'};
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([docs[kind]()],{type:'application/msword'})); a.download=`TerraCAP_${R.k}ETS_${names[kind]}_2026.doc`; a.click();
+  S.ets.sent.push({kind, date:new Date().toISOString().slice(0,10)}); render();
+}
+function docBtn(kind,label){ return `<button class="btn btn-g" onclick="etsDoc('${kind}')">⬇ ${label}</button>`; }
+
+/* ---------- setup (EU / EEA / UK installations) ---------- */
+function etsSetupHTML(base){
+  const parts = base.split('\n\n  <div class="q ');
+  if(parts.length<5) return base;
+  const head = parts[0], q5raw = parts[4];
+  const sch=etsScheme(), c=etsCountry(), e=S.ets, R=sch?ETS_REG[sch]:null;
+  if(e.acts===null) e.acts=[...ED().acts];
+  const lock = (b)=> b ? 'locked' : '';
+  const showCN = (c==='GB' && e.dest.eu) || (c!=='GB' && e.dest.uk);
+  const q5 = '<div class="q '+q5raw.replace(/^(locked)?\s*"/,'"').replace('<div class="qn">5</div>','<div class="qn">5</div>').replace(/^"/, (e.covered===null||!showCN)?'locked"':'"');
+  const q2 = `
+  <div class="q ${lock(!S.setup.countryConfirmed)}">
+    <div class="qn">2</div>
+    <div>
+      <div class="qt">Is the installation covered by an emissions trading scheme?</div>
+      ${c==='EFTA'?`<div class="seg mt"><button class="${e.efta==='EEA'?'on':''}" onclick="etsSet('efta','EEA')">Norway, Iceland or Liechtenstein</button><button class="${e.efta==='CH'?'on':''}" onclick="etsSet('efta','CH')">Switzerland</button></div>
+        ${e.efta==='CH'?`<div class="note n-warn"><span class="i">!</span><div>Switzerland runs its own ETS, linked to the EU ETS. TerraCAP does not model the Swiss ETS in this release. Goods made in Switzerland are outside EU CBAM (Annex III).</div></div>`:''}`:''}
+      ${c==='GB'?`<div class="fl mt">Where is the installation?</div><div class="seg"><button class="${e.loc==='GB'?'on':''}" onclick="etsSet('loc','GB')">Great Britain</button><button class="${e.loc==='NI'?'on':''}" onclick="etsSet('loc','NI')">Northern Ireland</button></div>
+        ${e.loc==='NI'?`<div class="note n-warn"><span class="i">!</span><div><b>Northern Ireland.</b> Industrial installations in Northern Ireland are in the UK ETS. Electricity generators are in the EU ETS, because of the Single Electricity Market on the island of Ireland ${CONF.l}. Power generation is not modelled here. Whether EU CBAM applies to goods moving from Great Britain into Northern Ireland depends on a decision under Article 13(4) of the Windsor Framework that TerraCAP could not confirm ${CONF.g} — take legal advice per flow.</div></div>`:''}`:''}
+      ${sch?`
+      <div class="sub mt">The scheme follows the installation, not where the goods are sold. It applies when the site carries out an Annex I activity above its threshold. ${R.name} it is.</div>
+      <div class="fl mt">Demo installation</div>
+      <div class="seg">${Object.entries(ETS_DEMO).map(([k,v])=>`<button class="${e.sector===k?'on':''}" onclick="etsSector('${k}')">${v.label}</button>`).join('')}</div>
+      <div class="fl mt">Annex I activities on site ${PB.plat('Asset register')} <span class="small muted">— pre-selected from the asset register; confirm</span></div>
+      <div class="chipset">${ETS_ACTIVITIES.map(([k,t])=>`<button class="${e.acts.includes(k)?'on':''}" onclick="etsAct('${k}')">${t}</button>`).join('')}</div>
+      <div class="fl mt">Does the installation hold a greenhouse gas emissions permit?</div>
+      <div class="seg"><button class="${e.permit===true?'on':''}" onclick="etsSet('permit',true)">Yes</button><button class="${e.permit===false?'on':''}" onclick="etsSet('permit',false)">No</button></div>
+      ${e.permit===false?`<div class="note n-bad"><span class="i">!</span><div>An installation carrying out an Annex I activity above its threshold must not operate without a permit. Apply to ${esc(R.authority)} before going further. TerraCAP can prepare the monitoring-plan data you need for the application.</div></div>`:''}
+      <details class="help"><summary>How do I tell whether the threshold is crossed?</summary><div class="hb">
+        <p>Add up the rated thermal input of all combustion units on the site, except those below 3 MW and units running only on biomass, against the 20 MW combustion threshold. Production thresholds are capacity figures — the design capacity, not what you produced last year. ${CONF.l}</p>
+        <p>Once one activity is in, the permit covers every source stream of the installation, including combustion units serving it.</p>
+        <p class="src">${esc(R.law)}, Annex I. The competent authority’s permit is the legal determination; TerraCAP’s match is a suggestion.</p></div></details>`:''}
+    </div>
+  </div>`;
+  const destOpts = (c==='GB' && e.loc==='NI')
+    ? [['home','Customers in Northern Ireland or Great Britain','UK internal market. UK ETS covers your emissions.'],['eu','Customers in Ireland or elsewhere in the EU','Windsor Framework — to confirm per flow.'],['row','Customers outside the UK and EU','No UK export adjustment.']]
+    : c==='GB'
+    ? [['home','Customers in Great Britain','No border measure. UK ETS covers your emissions.'],['ni','Customers in Northern Ireland','Check per flow — see the shipments screen.'],['eu','Customers in the EU','EU CBAM applies: the UK is not exempt.'],['row','Customers outside the UK and EU','No UK export adjustment.']]
+    : [['home','Customers in the EU / EEA','Intra-EU shipments: no CBAM, no carbon customs document.'],['uk','Customers in the UK','UK CBAM from 1 Jan 2027, paid by the UK importer.'],['row','Customers outside the EU and UK','No EU export adjustment in force.']];
+  const q3 = `
+  <div class="q ${lock(e.covered===null)}">
+    <div class="qn">3</div>
+    <div>
+      <div class="qt">Where do your goods go?</div>
+      <div class="sub mb0">Destination does not change your ETS obligations. It decides whether a border carbon measure applies and what your customers will ask you for.</div>
+      <div class="dest">${destOpts.map(([k,t,d])=>`<label class="${e.dest[k]?'on':''}"><input type="checkbox" ${e.dest[k]?'checked':''} onchange="etsDest('${k}',this.checked)"><span><b>${t}</b><small>${d}</small></span></label>`).join('')}</div>
+    </div>
+  </div>`;
+  const q4 = `
+  <div class="q ${lock(e.covered===null)}">
+    <div class="qn">4</div>
+    <div>
+      <div class="qt">Do you also import CBAM goods or precursors from outside ${c==='GB'?'the UK':'the EU'}?</div>
+      <div class="sub mb0">For example pig iron, slabs or clinker bought from a third country. That makes your company ${c==='GB'?'a UK CBAM importer from 2027':'an EU CBAM declarant'} for those imports.</div>
+      <div class="note n-info"><span class="i">i</span><div>Importer duties are not handled in this release. The ETS track and any producer data packages below still apply.</div></div>
+    </div>
+  </div>`;
+  return head + q2 + q3 + q4 + '\n\n  ' + q5;
+}
+const _sSetupV44 = SCREENS.setup;
+SCREENS.setup = function(){
+  const base=_sSetupV44();
+  if(!etsCountry() || !S.setup.countryConfirmed) return base;
+  return etsSetupHTML(base).replace(/ <a href="TerraCAP_EU_ETS_v3\.html">Open the EU ETS module ↗<\/a>/g,'')
+    .replace('Use the EU ETS module for the monitoring plan, annual emissions report and surrender.','The EU ETS track below covers the monitoring plan, annual emissions, verification, free allocation and surrender.');
+};
+
+/* ---------- obligations and navigation ---------- */
+const _oblV44 = obligationsHTML;
+obligationsHTML = function(){
+  const f=flags(); let h=_oblV44();
+  if(!f.ets) return h;
+  const R=ETS_REG[f.ets];
+  const card = `<div class="oc ets"><div class="ok" style="color:var(--teal-d)">${R.name} · ${R.k==='EU'?'competent authority':'regulator'}</div><div class="ot">Verified emissions and surrender — 2026</div><div class="od">Approved monitoring plan, verified annual emissions, free allocation and surrender. Applies whatever the destination of your goods.</div><div class="ox">Verified report by ${R.aer} · surrender by ${R.surrender}</div><div><button class="btn btn-p" onclick="go('ets_apply')">Start</button></div></div>`;
+  if(h.includes('<div class="obl">')) return h.replace('<div class="obl">','<div class="obl">'+card);
+  return `<div class="obl">${card}</div>`;
+};
+const _navV44 = navModel;
+navModel = function(){
+  const g=_navV44(), f=flags();
+  if(f.ets){
+    const R=ETS_REG[f.ets];
+    g.splice(1,0,{title:R.name, tag:'domestic', cls:'rg-ets', items:[
+      {k:'ets_apply', t:'Permit & installation', done:S.ets.covered===true},
+      {k:'ets_mp', t:'Monitoring plan', done:S.ets.mp.approved},
+      {k:'ets_aer', t:'Annual emissions'},
+      {k:'ets_ver', t:'Verification & report', done:S.ets.aerSubmitted},
+      {k:'ets_fa', t:'Free allocation', done:S.ets.alcDone},
+      {k:'ets_surr', t:'Surrender & registry'},
+      {k:'ets_ship', t:'Shipments & customer documents'},
+      {k:'ets_rules', t:'ETS rules & versions'}
+    ]});
+  }
+  return g;
+};
+
+/* ---------- screens ---------- */
+const crumb = () => `<div class="crumb">${ER().name} · ${esc(PLATFORM.installation)}</div>`;
+const demoNote = () => `<div class="note n-info"><span class="i">i</span><div>Fictional demo installation. In production every activity figure comes from the TerraCAP ledger with its source system, and every factor from the approved monitoring plan.</div></div>`;
+
+function sEtsApply(){
+  const R=ER(), c=etsCalc(), e=S.ets;
+  return crumb()+`<h1>Permit & installation</h1>
+  <p class="lede">The ${R.name} applies to the installation that holds the permit. Everything after this — monitoring plan, emissions, allocation, surrender — hangs off the permit and two separate assessments: installation category and low-emitter eligibility.</p>
+  <div class="card"><h2>The installation</h2><div class="tw"><table class="t"><tbody>
+    <tr><td style="width:230px">Operator</td><td>${PB.plat('Entity master')} ${esc(PLATFORM.entity)}</td></tr>
+    <tr><td>Installation</td><td>${PB.plat('Asset register')} ${esc(PLATFORM.installation)}</td></tr>
+    <tr><td>Annex I activities</td><td>${(e.acts||[]).map(k=>ETS_ACTIVITIES.find(a=>a[0]===k)[1]).join('<br>')}</td></tr>
+    <tr><td>Permit number</td><td><input class="fi" placeholder="As issued by the authority" style="max-width:320px"> ${PB.entry('From the permit')}</td></tr>
+    <tr><td>Authority</td><td>${esc(R.authority)}</td></tr>
+    <tr><td>Registry account</td><td>${esc(R.registry)} — operator holding account ${PB.entry('Account number')}</td></tr>
+  </tbody></table></div></div>
+  <div class="card"><h2>Installation category assessment</h2>
+    <p class="sub">Decides the tiers the monitoring plan must meet. The assessment stores its basis so the verifier and authority can retrace it.</p>
+    <div class="tw"><table class="t"><tbody>
+      <tr><td style="width:230px">Reference years</td><td>Verified years of the period before the current one ${PB.entry('Years and verified totals')} <span class="small muted">— demo uses the current year</span></td></tr>
+      <tr><td>Emissions basis</td><td>${fmtE(c.total)} tCO₂ ${PB.calc()} — before subtraction of transferred CO₂, zero-rated biomass excluded</td></tr>
+      <tr><td>Representative?</td><td>If history is missing or no longer representative, a conservative estimate is recorded instead ${PB.entry('Representativeness assessment')}</td></tr>
+      <tr><td>Result</td><td><b>Category ${c.cat}</b> — A: up to 50,000 t · B: 50,000–500,000 t · C: above 500,000 t ${CONF.c}</td></tr>
+    </tbody></table></div>
+    <div class="note n-info"><span class="i">i</span><div>Recalculated every year as a review alert. A changed result never changes the approved monitoring plan by itself; it opens the notification and approval workflow.</div></div>
+    <p class="src">MRR (EU) 2018/2066, Art. 19${R.k==='UK'?' — as it applies in the UK':''}.</p></div>
+  <div class="card"><h2>Low-emitter eligibility assessment</h2>
+    <div class="tw"><table class="t"><tbody>
+      <tr><td style="width:230px">Test</td><td>Separate assessment against MRR Art. 47, with its own basis and evidence ${CONF.r}</td></tr>
+      <tr><td>Result</td><td>${c.low?'Possibly eligible — needs authority confirmation':'Not eligible on this emissions level'}</td></tr>
+    </tbody></table></div>
+    <p class="small muted">Eligibility never unlocks lower monitoring requirements automatically.</p></div>
+  <div class="card"><h2>Improvement report</h2>
+    <p class="small">Standard frequency where lower tiers or fall-back methods are used: category C every year, B every two years, A every four years, usually by 30 June. Outstanding verifier non-conformities or recommendations can also trigger one in the year the verification report is issued. ${CONF.r}</p>
+    <p class="small muted">Held as a configurable obligation — not activated until the consolidated provision and the authority’s exceptions are loaded.</p></div>
+  ${demoNote()}
+  <div class="row"><button class="btn btn-p" onclick="go('ets_mp')">Monitoring plan →</button></div>`;
+}
+
+function etsTier(r, cat){ return r.cls==='Major' ? (cat==='C'?'Highest (Annex II)':'Annex II for category '+cat) : r.cls==='Minor' ? 'Lower tier allowed' : 'Conservative estimate allowed'; }
+function sEtsMP(){
+  const R=ER(), d=ED(), c=etsCalc(), e=S.ets;
+  const states=['Draft','Notified','Approval pending','Approved','Superseded'];
+  return crumb()+`<h1>Monitoring plan</h1>
+  <p class="lede">The authority approves how you measure. TerraCAP builds the plan’s content from the ledger — source streams, emission sources, methods, instruments, labs — and keeps it in step with the boundary. The plan itself goes in ${esc(R.system)}.</p>
+  <div class="card"><h2>Monitoring approach</h2><p>${d.approach}</p>
+    <div class="note n-info"><span class="i">i</span><div>${S.ets.sector==='steel'?'Integrated steelworks usually use the mass-balance approach because carbon moves between coke ovens, blast furnaces and the power plant as process gases. Only the carbon that enters and leaves the installation is counted.':'Cement works report combustion per fuel and process emissions from clinker, either from the raw meal (input method) or the clinker produced (output method).'}</div></div></div>
+  <div class="card"><h2>Source streams</h2>
+    <p class="sub">Minor and de minimis are tested jointly, smallest streams first: de minimis up to ${fmtE(c.deMinLim)} t, minor up to ${fmtE(c.minorLim)} t of fossil CO₂ this year (MRR Art. 19(3)) ${CONF.r}. Recalculated each year; a stream that crosses a limit must be reclassified.</p>
+    <div class="tw"><table class="t"><thead><tr><th>Source stream</th><th>Class</th><th>Required tier</th><th>Activity data</th><th>Factor</th></tr></thead><tbody>
+    ${c.rows.map(r=>`<tr><td>${r.s.n}${r.s.bio?` <span class="tag t-amber">biomass ${Math.round(r.s.bio*100)}%</span>`:''}${r.s.out?' <span class="tag t-gray">output</span>':''}</td><td>${r.cls}</td><td class="small">${etsTier(r,c.cat)}</td><td>${r.s.t==='comb'?`${fmtE(r.s.ad*r.s.ncv/1000,1)} TJ <span class="small muted">(${fmtE(r.s.ad)} t × ${r.s.ncv} GJ/t)</span>`:`${fmtE(r.s.ad)} t`} ${PB.plat(r.s.sys)}</td><td class="small">${r.s.t==='mb'?`Carbon content ${r.s.cc} tC/t — lab analysis`:r.s.t==='comb'?`EF ${fmtE(r.s.ef*1000,1)} tCO₂/TJ · OF ${r.s.of}`:`EF ${r.s.ef} tCO₂/t clinker${r.s.note?' — '+r.s.note:''}`} ${PB.ref()}</td></tr>`).join('')}
+    </tbody></table></div>
+    <p class="small muted mt">Combustion activity data is held in TJ, so the calorific value is applied once only. Factors are demo values; in production they come from the approved plan.</p></div>
+  <div class="card"><h2>Emission sources and method assignments</h2>
+    <p class="small">Stacks monitored by continuous emissions measurement (CEMS) are emission sources, not source streams, and have no tiers or factors of their own. A CEMS method runs only on an approved, stream-specific configuration: measurement plan, uncertainty model, calibration and QA evidence, fallback and gap procedure. None in this demo.</p>
+    <p class="small">Each source stream or emission source is linked to its instruments and approved method by a method assignment with effective dates — the record a calculation runs on.</p></div>
+  <div class="card"><h2>Tier shortfalls</h2>
+    <p class="small">A shortfall can always be saved as a draft, so an unresolved non-compliance is documented. It cannot be activated for compliance calculation without a tier-derogation record: MRR provision, feasibility assessment, cost analysis where used, authority approval status, effective date, compensating controls, next review date.</p>
+    <p class="small muted">Demo: no shortfalls recorded.</p></div>
+  <div class="card"><h2>Written procedures</h2><ul class="small">
+    <li>Data flow and control activities, including risk assessment</li><li>Sampling plan for every analysed fuel or material</li><li>Quality assurance of measuring instruments and IT</li><li>Biomass: how the fraction is measured and how legal eligibility is assessed</li></ul></div>
+  <div class="card"><h2>Plan status and changes</h2>
+    <div class="seg">${states.map(x=>`<button class="${e.mpState===x?'on':''}" onclick="S.ets.mpState='${x}';S.ets.mp.approved=('${x}'==='Approved');render()">${x}</button>`).join('')}</div>
+    <p class="small mt">A change is identified, notified, monitored under an interim approach allowed by the MRR while approval is pending, then approved with an effective date. Parallel monitoring or reconciliation is recorded in the meantime. Non-significant changes follow the notification route.</p>
+    <div class="grid2 mt">
+    <div class="f"><div class="fl">Plan version</div><input class="fi" value="${esc(e.mp.ver)}" oninput="S.ets.mp.ver=this.value"></div>
+    <div class="f"><div class="fl">Approval reference and effective date</div><input class="fi" value="${esc(e.mp.ref)}" oninput="S.ets.mp.ref=this.value"></div></div>
+    <div class="row mt">${docBtn('mp','Monitoring plan data sheet')}</div></div>
+  <div class="row"><button class="btn btn-p" onclick="go('ets_aer')">Annual emissions →</button></div>`;
+}
+
+function sEtsAER(){
+  const R=ER(), c=etsCalc(), e=S.ets, st=e.vr?'Verified':'Draft estimate';
+  const rc=[['stock','Fuel use against opening stock, receipts, closing stock and transfers'],['meters','Meter totals against invoices and accounting records'],['analyses','Analyses against batches and the sampling plan'],['streams','Source-stream totals against this report']];
+  const canLock = rc.every(([k])=>e.recon[k]) && e.gapsOpen===0;
+  const srf = c.rows.find(r=>r.s.srf);
+  return crumb()+`<h1>Annual emissions</h1><div class="row" style="margin:-2px 0 10px">${resultChip(st)}<span class="small muted">Becomes “Verified” only when the verifier’s signed positive report is stored.</span></div>
+  <p class="lede">Reporting year 2026, built source stream by source stream so your verifier can retrace every tonne.</p>
+  <div class="card"><h2>How each line is calculated</h2>
+    <p class="small">${S.ets.sector==='steel'?'Mass balance: tCO₂ = activity data (t) × carbon content (tC/t) × 3.664. Carbon leaving in products and sold by-products is subtracted.':'Combustion: tCO₂ = activity data (TJ) × emission factor (tCO₂/TJ) × oxidation factor, where activity data in TJ = quantity × NCV. Process: tCO₂ = clinker (t) × emission factor (tCO₂/t clinker).'}</p>
+    <div class="tw"><table class="t"><thead><tr><th>Source stream</th><th class="r">Activity</th><th class="r">tCO₂</th><th>Biomass</th><th class="r">Counted tCO₂</th></tr></thead><tbody>
+    ${c.rows.map(r=>`<tr><td>${r.s.n}</td><td class="r">${r.s.t==='comb'?fmtE(r.s.ad*r.s.ncv/1000,1)+' TJ':fmtE(r.s.ad)+' t'}</td><td class="r">${fmtE(r.t)}</td><td class="small">${r.bioPart?(r.zero?`${fmtE(r.bioPart)} zero-rated`:`<span style="color:var(--coral)">${fmtE(r.bioPart)} counted as fossil — ${r.s.srf?'SRF zero-rating not available in this release':'no approved biomass-evidence record'}</span>`):'—'}</td><td class="r">${fmtE(r.counted)}</td></tr>`).join('')}
+    <tr><td><b>Total reportable emissions</b></td><td></td><td></td><td></td><td class="r"><b>${fmtE(c.total)}</b></td></tr></tbody></table></div></div>
+  <div class="card"><h2>Biomass</h2>
+    <p class="small">Zero-rated only where the biomass-evidence record shows each legal test met or not applicable: biomass fraction, sustainability criteria, GHG-saving criteria, evidence sufficiency, exemptions, treatment, and a reviewer decision with justification (MRR Art. 38(5)). Approval in TerraCAP is a software control; it does not on its own establish legal eligibility. ${CONF.c}</p>
+    <label class="chk"><input type="checkbox" ${e.bioEvidence?'checked':''} onchange="S.ets.bioEvidence=this.checked;render()"> Biomass-evidence record approved for each batch — every legal test met or not applicable</label>
+    ${srf?`<div class="note n-warn"><span class="i">!</span><div><b>${esc(srf.s.n)}:</b> zero-rating of SRF and other waste-derived fuels is excluded from the first release until its rules are validated, so it stays counted as fossil. The measurement record is still kept:</div></div>
+    <table class="t"><tbody>
+      <tr><td style="width:230px">Fraction method</td><td>Selective dissolution, manual sorting or carbon-14 (EN 15440); carbon-14 where the fraction is below 5% or above 95%</td></tr>
+      <tr><td>Sampling</td><td>Lots of at most 1,500 t; at least 24 increments per combined sample (EN 15442)</td></tr>
+      <tr><td>Lab methods</td><td>Calorific value (EN 15400); carbon content (EN 15407)</td></tr>
+      <tr><td>SRF status</td><td>Producer’s declaration of conformity with EN 15359 ${PB.entry('Declaration of conformity')}</td></tr>
+    </tbody></table><p class="src">ERFO summary of CEN/TC 343 standards (2011 EN editions); current EN ISO numbers to be confirmed.</p>`:''}
+    <p class="small muted mt">Zero-rated biomass memo item: ${fmtE(c.bioZero)} tCO₂ · biomass counted as fossil: ${fmtE(c.bioCounted)} tCO₂</p></div>
+  <div class="card"><h2>Data-gap events</h2>
+    <p class="small">Each gap is recorded with cause, timestamps, affected data, approved method, why the replacement is conservative, the estimate and a reviewer approval. Unresolved missing data, unsupported replacement methods or unresolved compliance-critical exceptions block finalisation, whatever their size; quantified impact stays visible to the verifier.</p>
+    <p class="small"><b>Open events:</b> ${e.gapsOpen} <span class="small muted">(demo)</span></p></div>
+  <div class="card"><h2>Reconciliations and year lock</h2>
+    ${rc.map(([k,t])=>`<label class="chk"><input type="checkbox" ${e.recon[k]?'checked':''} onchange="S.ets.recon.${k}=this.checked;render()"> ${t}</label>`).join('')}
+    <p class="small muted mt">After verification: report against verification report and registry value; allocation estimate against the authority’s determination and allowances issued.</p>
+    <div class="row mt"><button class="btn btn-p" ${canLock&&!e.locked?'':'disabled'} onclick="S.ets.locked=true;render()">${e.locked?'Year locked':'Lock reporting year'}</button>${!canLock?'<span class="small muted">Complete the reconciliations and close all gap events first.</span>':''}</div></div>
+  <div class="card"><h2>What is not in this total</h2><ul class="small">
+    <li>Indirect emissions from purchased electricity — not part of ETS stationary reporting</li><li>Mobile machinery used for transport — excluded from the installation’s emissions</li><li>CO₂ transferred out for permanent geological storage, or permanently bound in a product, can be subtracted only under the specific MRR rules — none in this demo</li></ul></div>
+  ${demoNote()}
+  <div class="row"><button class="btn btn-p" onclick="go('ets_ver')">Verification & report →</button></div>`;
+}
+
+function sEtsVer(){
+  const R=ER(), e=S.ets;
+  const step=(k,t,d,dis)=>`<label class="chk" style="padding:6px 0;border-bottom:1px dashed var(--line)"><input type="checkbox" ${e[k]?'checked':''} ${dis?'disabled':''} onchange="S.ets.${k}=this.checked;render()"> <span><b>${t}</b><br><span class="small muted">${d}</span></span></label>`;
+  return crumb()+`<h1>Verification & report</h1>
+  <p class="lede">An accredited verifier checks the locked report against the approved monitoring plan. The operator submits the verified report; TerraCAP prepares the pack and stores the evidence.</p>
+  ${statesHTML()}
+  <div class="card"><h2>Who verifies</h2><table class="t"><tbody>
+    <tr><td style="width:230px">Verifier</td><td>${esc(R.verifier)}</td></tr>
+    <tr><td>Verifier name</td><td><input class="fi" style="max-width:340px" value="${esc(e.verifier)}" oninput="S.ets.verifier=this.value" placeholder="Accredited verifier"> ${PB.entry()}</td></tr>
+    <tr><td>What the verifier can do</td><td>Read the locked snapshot, evidence and calculations; keep its own segregated working papers, samples, findings and reviews; upload its report. It cannot alter operator data, factors, methods or report versions.</td></tr>
+    <tr><td>Report goes to</td><td>${esc(R.authority)} through ${esc(R.system)}, by <b>${R.aer}</b> ${CONF.c}</td></tr>
+  </tbody></table></div>
+  <div class="card"><h2>Steps</h2>
+    ${step('contracted','Verifier assigned; evidence access active','Before year end, so the verifier can plan the site visit and sampling.')}
+    ${step('site','Site visit recorded','Decision, dates, personnel, scope and evidence. Required unless the authority approved a waiver.')}
+    ${step('vr','Signed positive verification report uploaded by the verifier', e.locked?'Only the verifier uploads it; TerraCAP never generates or preselects an opinion.':'Lock the reporting year first (Annual emissions screen).', !e.locked)}
+    ${step('aerSubmitted','Submission receipt stored','The authority system’s confirmation, by '+R.aer+'.', !e.vr)}
+    <div class="row mt">${docBtn('aer','Verifier data pack')}</div>
+    <p class="small muted mt">This opinion covers the annual emissions report only. The activity level report is verified separately and stays unverified until its own report is stored.</p></div>
+  <div class="row"><button class="btn btn-p" onclick="go('ets_fa')">Free allocation →</button></div>`;
+}
+
+function sEtsFA(){
+  const R=ER(), fa=etsFA(), e=S.ets, sch=R.k;
+  return crumb()+`<h1>Free allocation</h1><div class="row" style="margin:-2px 0 10px">${resultChip(e.natAlloc?'Regulator / Registry confirmed':'Draft estimate','The authority’s allocation table is the figure; TerraCAP’s is a check')}<span class="small muted">The authority’s allocation table is the figure. TerraCAP’s calculation below is a check against it.</span></div>
+  <p class="lede">${R.period}. Allocation is set per sub-installation by the authority; TerraCAP explains and checks it.</p>
+  <div class="card"><h2>Authority allocation for 2026</h2><table class="t"><tbody>
+    <tr><td style="width:280px">National allocation table entry</td><td><input class="fi" style="width:180px;display:inline-block" value="${esc(e.natAlloc)}" placeholder="Allowances" oninput="S.ets.natAlloc=this.value.replace(/[^0-9]/g,'')" onchange="render()"> ${PB.entry('From the authority’s allocation decision')}</td></tr>
+  </tbody></table></div>
+  <div class="card"><h2>How TerraCAP checks it</h2>
+    <p class="small"><b>Check = benchmark × historical activity level, with every applicable adjustment per sub-installation</b> — carbon leakage factor, cross-sectoral correction factor${sch==='EU'?', CBAM adjustment and conditionality':''}. Not released as a quantity until rules and benchmarks are fully loaded and tested.</p>
+    <ul class="small">
+      <li>Carbon leakage factor: 1 for sectors on the carbon leakage list ${CONF.c}</li>
+      <li>Cross-sectoral correction factor: a reference value per allocation period, never typed in; it applies only where preliminary demand exceeds available allowances. ${sch==='EU'?'100% reported for 2026–2030 '+CONF.l:CONF.g}</li>
+      ${sch==='EU'?`<li>CBAM adjustment: CBAM-good sub-installations only — ${Math.round(fa.cbamF*1000)/10}% in 2026 under current law, reaching 0 from 2034 (CBAM Regulation Art. 31). Held as a versioned factor. ${CONF.c}</li>
+      <li>Conditionality: two tracks assessed separately — energy-efficiency measures, and a climate-neutrality plan above the 80th percentile. <b>One 20% reduction where either or both are unmet, once per allocation period, never stacked</b>, subject to exceptions and the authority’s determination (revised FAR recital 24, Art. 22c). Reduced allowances can be recovered once implementation is shown (Reg. 2025/772). ${CONF.c}</li>`:
+      `<li>No CBAM reduction in 2026. From 2027 free allocation for UK CBAM goods is phased out under the Free Allocation Review — decided policy, law pending; percentages not loaded ${CONF.g}</li>
+      <li>No conditionality from 2027 under the Authority’s decision — decided policy ${CONF.l}</li>`}
+    </ul></div>
+  ${sch==='EU'?`<div class="card"><h2>Conditionality evidence</h2>
+    <label class="chk"><input type="checkbox" ${e.cond.audit?'checked':''} onchange="S.ets.cond.audit=this.checked;render()"> Energy-efficiency track met — audit recommendations implemented, or an exception or equivalent measure documented</label>
+    <label class="chk"><input type="checkbox" ${e.cond.cnp?'checked':''} onchange="S.ets.cond.cnp=this.checked;render()"> Climate-neutrality-plan track met, or not applicable</label>
+    <p class="small muted mt">Result: ${fa.condF<1?'one 20% reduction applies':'no reduction'}.</p></div>`:''}
+  <div class="card"><h2>Check by sub-installation — 2026</h2><div class="tw"><table class="t"><thead><tr><th>Sub-installation</th><th class="r">Benchmark</th><th class="r">Historical activity</th><th class="r">Adjustments</th><th class="r">Check</th></tr></thead><tbody>
+    ${fa.rows.map(r=>`<tr><td>${r.n}${r.cbam?' <span class="tag t-blue">CBAM good</span>':''}</td><td class="r">${r.bm==null?`<span class="tag t-amber">not loaded</span>`:fmtE(r.bm,3)}</td><td class="r">${fmtE(r.hal)} ${r.u||'t'} ${PB.plat('Baseline data report')}</td><td class="r small">${sch==='EU'?`${r.cbam?'CBAM '+(Math.round(fa.cbamF*1000)/10)+'%':'—'}${fa.condF<1?' · −20%':''}`:'—'}</td><td class="r">${r.alloc==null?'—':fmtE(r.alloc)}</td></tr>`).join('')}
+    <tr><td><b>Loaded sub-installations</b></td><td></td><td></td><td></td><td class="r"><b>${fmtE(fa.loaded)}</b></td></tr></tbody></table></div>
+    ${fa.missing?`<div class="note n-warn"><span class="i">!</span><div>Some benchmarks are not loaded, so the check is incomplete. Source: ${esc(R.bench)} — ${esc(R.benchStatus)}.</div></div>`:''}</div>
+  <div class="card"><h2>Activity level report</h2><p class="small">${esc(R.alc)}. Due ${esc(R.alcDue)}, verified separately from the emissions report.</p>
+    <p class="small">TerraCAP warns from a 10% movement; the regulatory test is applied exactly, with tests at 15%, just above and just below, and at the 300-allowance minimum. Rules are versioned per allocation period.</p>
+    <label class="chk"><input type="checkbox" ${e.alcDone?'checked':''} onchange="S.ets.alcDone=this.checked;render()"> Verified activity level report submitted for 2025</label>
+    <div class="row mt">${docBtn('alc','Activity level data sheet')}</div></div>
+  ${sch==='EU'?`<div class="note n-info"><span class="i">i</span><div><b>Scenario only:</b> proposal COM(2026) 616 of 17 July 2026 would slow the CBAM phase-down to 2038. It is not law and is not used in any figure. ${CONF.c}</div></div>`:''}
+  <div class="row"><button class="btn btn-p" onclick="go('ets_surr')">Surrender & registry →</button></div>`;
+}
+
+function sEtsSurr(){
+  const R=ER(), c=etsCalc(), fa=etsFA(), e=S.ets;
+  const alloc = e.natAlloc ? +e.natAlloc : fa.loaded;
+  const need = c.total - alloc - e.holdings, buy=Math.max(0,need);
+  const rs=[['assigned','Operator assigns the accredited verifier to the registry account'],['accepted','Verifier confirms the assignment'],['entered','Operator and/or verifier enters verified emissions, as the national set-up allows'],['confirmed','Verifier confirms the figure by '+R.aer],['evidence','Registry confirmation stored and reconciled with the report total']];
+  return crumb()+`<h1>Surrender & registry</h1>
+  <p class="lede">A checklist and reconciliation — TerraCAP never acts in the ${esc(R.registry)} and never holds registry credentials.</p>
+  ${statesHTML()}
+  <div class="card"><h2>Registry emissions — by ${R.aer}</h2>
+    ${rs.map(([k,t])=>`<label class="chk"><input type="checkbox" ${e.reg[k]?'checked':''} onchange="S.ets.reg.${k}=this.checked;S.ets.regEntered=S.ets.reg.confirmed;render()"> ${t}</label>`).join('')}
+    <div class="note n-warn mt"><span class="i">!</span><div>If verified emissions are not entered and confirmed by ${R.aer}, the holding account can be blocked for outgoing transfers until they are. ${CONF.r}</div></div></div>
+  <div class="card"><h2>Position for 2026</h2><table class="t"><tbody>
+    <tr><td style="width:280px">Verified emissions (draft)</td><td class="r">${fmtE(c.total)} t</td></tr>
+    <tr><td>Free allocation — ${e.natAlloc?'authority table':'TerraCAP check, loaded sub-installations'}</td><td class="r">− ${fmtE(alloc)}</td></tr>
+    <tr><td>Allowances already held</td><td class="r">− <input class="fi" style="width:140px;display:inline-block;text-align:right" value="${e.holdings}" onchange="S.ets.holdings=+this.value||0;render()"></td></tr>
+    <tr><td><b>Shortfall to cover</b> <span class="tag t-gray">Compliance arithmetic</span></td><td class="r"><b>${fmtE(buy)} ${R.unit}</b></td></tr>
+    <tr><td>Cost if bought at ${R.cur}${R.price.v} <span class="tag t-gray">Hypothetical scenario</span></td><td class="r">${R.cur}${fmtE(buy*R.price.v)} <span class="small muted">— ${R.price.d}</span></td></tr>
+  </tbody></table>
+  <p class="small muted">Not a recommendation to buy, sell or hedge allowances, or on timing or volume. Emission allowances are financial instruments under MiFID II.</p>
+  ${!e.natAlloc&&fa.missing?`<p class="small muted">Free allocation for some sub-installations is not loaded, so the shortfall is overstated.</p>`:''}</div>
+  <div class="card"><h2>Surrender — by ${R.surrender}</h2>
+    <p class="small">Done in the registry by the account’s representatives, under the approval rules that account is configured with.</p>
+    <label class="chk"><input type="checkbox" ${e.surrendered?'checked':''} onchange="S.ets.surrendered=this.checked;render()"> Surrender transaction confirmation stored</label></div>
+  <div class="card"><h2>If you miss the deadline</h2><p class="small">${esc(R.penalty)}. ${R.k==='EU'?CONF.c:CONF.g}</p><p class="src">${esc(R.surrRef)}</p></div>
+  <div class="row"><button class="btn btn-p" onclick="go('ets_ship')">Shipments & customer documents →</button></div>`;
+}
+
+function etsFlows(){
+  const c=etsCountry(), d=S.ets.dest, out=[];
+  if(c==='GB' && S.ets.loc==='NI'){
+    if(d.home) out.push({t:'Northern Ireland → UK', law:'Movement within the UK. UK ETS covers your emissions; no border carbon measure.', who:'—', docs:[['cover','ETS coverage statement (on request)']], conf:'l'});
+    if(d.eu) out.push({t:'Northern Ireland → Ireland / EU', law:'Northern Ireland applies EU rules for goods under the Windsor Framework, so goods can cross into Ireland without customs formalities. Whether EU CBAM obligations attach to goods made in Northern Ireland, and how the UK ETS price would be credited, is not settled in the sources TerraCAP could check.', who:'To confirm', docs:[['go:c_goods','EU CBAM operator track (prepare in case)']], conf:'g', warn:true});
+    if(d.row) out.push({t:'Northern Ireland → rest of world', law:'No UK export adjustment.', who:'—', docs:[['pcf','Product carbon data sheet (if asked)']], conf:'c'});
+    return out;
+  }
+  if(c==='GB'){
+    if(d.home) out.push({t:'Great Britain → Great Britain', law:'Domestic sale. UK ETS covers your emissions; no border measure.', who:'—', docs:[['cover','ETS coverage statement (on request)'],['pcf','Product carbon data sheet (voluntary)']], conf:'c'});
+    if(d.ni) out.push({t:'Great Britain → Northern Ireland', law:'Movement within the UK internal market under the Windsor Framework. Whether EU CBAM reaches goods entering Northern Ireland depends on an Article 13(4) decision TerraCAP could not confirm. UK CBAM does not apply to goods made in Great Britain.', who:'To confirm per flow', docs:[['cover','ETS coverage statement']], conf:'g', warn:true});
+    if(d.eu) out.push({t:'United Kingdom → EU', law:'EU CBAM applies: the UK is not in Annex III, and no temporary exemption was granted before linking. Your EU customer declares and buys certificates; you supply verified embedded emissions and evidence of the UK ETS price effectively paid, which reduces their obligation (CBAM Art. 9). A UK–EU ETS link with mutual CBAM exemption was reported agreed on 7 Oct 2026 but is not confirmed, not published and not in force.', who:'EU importer / authorised declarant', docs:[['go:c_goods','EU CBAM operator track'],['go:c_fa','Carbon price paid (UK ETS)']], conf:'c'});
+    if(d.row) out.push({t:'United Kingdom → rest of world', law:'No UK export adjustment. The UK decided not to keep free allocation to address export leakage.', who:'—', docs:[['pcf','Product carbon data sheet (if asked)']], conf:'c'});
+  } else {
+    if(d.home) out.push({t:'Within the EU / EEA', law:'Intra-EU shipments carry no CBAM obligation and no carbon customs document. The EU ETS covers your emissions. Customers may ask for an ETS coverage statement or product carbon data for their own reporting; for construction products, environmental declarations are being phased in under the Construction Products Regulation (EU) 2024/3110 as harmonised standards are updated.', who:'—', docs:[['cover','ETS coverage statement'],['pcf','Product carbon data sheet (voluntary)']], conf:'c'});
+    if(d.uk) out.push({t:'EU → United Kingdom', law:'UK CBAM from 1 Jan 2027: the UK importer registers, reports and pays HMRC. You supply embedded emissions under UK rules and a carbon pricing verification form for EU ETS price paid, which reduces the UK liability (Carbon Price Relief). A UK–EU ETS link with mutual exemption was reported agreed on 7 Oct 2026 but is not confirmed or in force.', who:'UK importer', docs:[['go:uk','UK CBAM readiness']], conf:'c'});
+    if(d.row) out.push({t:'EU → rest of world', law:'No EU export adjustment is in force. The CBAM downstream and anti-circumvention amendments are in trilogue (first trilogue 20 Oct 2026); nothing changes for exports today.', who:'—', docs:[['pcf','Product carbon data sheet (if asked)']], conf:'c'});
+  }
+  return out;
+}
+function sEtsShip(){
+  const flows=etsFlows();
+  return crumb()+`<h1>Shipments & customer documents</h1>
+  <p class="lede">Your ETS obligations do not change with the destination. What changes is whether a border measure applies, who is liable for it, and what your customer needs from you.</p>
+  ${flows.length?flows.map(f=>`<div class="card"><div class="row" style="justify-content:space-between"><h2>${f.t}</h2>${CONF[f.conf]}</div>
+    ${f.warn?`<div class="note n-warn"><span class="i">!</span><div>Legal review needed before relying on this flow.</div></div>`:''}
+    <p class="small">${f.law}</p><p class="small"><b>Liable party:</b> ${f.who}</p>
+    <div class="row">${f.docs.map(([k,l])=>k.startsWith('go:')?`<button class="btn btn-p" onclick="go('${k.slice(3)}')">${l} →</button>`:docBtn(k,l)).join('')}</div></div>`).join('')
+  :`<div class="note n-info"><span class="i">i</span><div>Choose destinations in Set up, question 3.</div></div>`}
+  <div class="card"><h2>What these documents are — and are not</h2><ul class="small">
+    <li>The ETS coverage statement is the operator’s own statement. No authority issues a product-level ETS certificate.</li>
+    <li>The product carbon data sheet is a screening value. It is not a CBAM embedded-emissions value and not an EPD.</li>
+    <li>CBAM data for EU or UK importers comes from the CBAM tracks, with their own boundaries and verification.</li></ul></div>
+  ${S.ets.sent.length?`<div class="card"><h2>Issued</h2><table class="t"><tbody>${S.ets.sent.map(x=>`<tr><td>${x.kind}</td><td>${x.date}</td></tr>`).join('')}</tbody></table></div>`:''}`;
+}
+
+const ETS_RULES = [
+  ['EU','Directive 2003/87/EC (EU ETS), consolidated — incl. Directive (EU) 2023/959','In force','Scope (Annex I), permits, surrender by 30 Sep, penalties, free allocation, conditionality','c'],
+  ['EU','Implementing Regulation (EU) 2018/2066 — Monitoring and Reporting (MRR), as amended incl. (EU) 2024/2493','In force','Categories, tiers, calculation, mass balance, biomass, improvement reports','l'],
+  ['EU','Implementing Regulation (EU) 2018/2067 — Accreditation and Verification (AVR), as amended','In force','Verifier accreditation, site visits, verification report','c'],
+  ['EU','Delegated Regulation (EU) 2019/331 — Free Allocation Rules, as amended by (EU) 2024/873','In force','Sub-installations, baseline data, allocation method','c'],
+  ['EU','Implementing Regulation (EU) 2019/1842 — Activity Level Changes, as amended by (EU) 2025/772','In force; 2025/772 applies from 2026','More than 15% trigger, expected activity level for heat, fuel and process sub-installations, 300-allowance minimum','c'],
+  ['EU','Revised Free Allocation Rules — recital 24, Art. 22c (Commission Guidance Document 11)','In force','Conditionality: one 20% reduction where either or both conditions fail, applied once','c'],
+  ['EU','MRR Art. 19(3), Art. 47, Art. 66, Art. 69 — stream classes, low emitters, data gaps, improvement reports','In force','Thresholds and obligations held in the legal master','r'],
+  ['EU','Directive 2014/65/EU (MiFID II) — Art. 2(1)(e), Art. 4(1)(4), Annex I B(5), C(11)','In force (use the consolidated text)','Allowances are financial instruments; no personal recommendations on trading','l'],
+  ['EU','CEN/TC 343 SRF standards — EN 15359, EN 15440, EN 15442, EN 15400, EN 15407','Standards; current EN ISO editions to confirm','Biomass fraction, sampling and lab methods for waste-derived fuels; not legal eligibility','g'],
+  ['EU','Implementing Regulation (EU) 2026/1412 — benchmarks 2026–2030','In force (reported 26 Jun 2026)','Benchmark values — verify on EUR-Lex before loading','l'],
+  ['EU','Regulation (EU) 2023/956 (CBAM), Art. 31','In force','CBAM factor on free allocation 2026–2034','c'],
+  ['EU','Construction Products Regulation (EU) 2024/3110','Applies from 8 Jan 2026, phased','Environmental declarations for construction products as standards are updated','l'],
+  ['EU','Commission proposal for ETS review (17 Jul 2026)','Proposal only','Post-2030 design; CBAM phase-down to 2038 — watch, do not implement','c'],
+  ['EU','CBAM downstream and anti-circumvention amendments','In trilogue (from 20 Oct 2026)','Scope expansion — watch, do not implement','c'],
+  ['UK','Greenhouse Gas Emissions Trading Scheme Order 2020 (SI 2020/1265), as amended','In force','Scope, permits, surrender by 30 April, penalties','c'],
+  ['UK','UK MRR and AVR (retained 2018/2066 and 2018/2067, as amended for the UK)','In force','Monitoring, reporting, verification','l'],
+  ['UK','UK ETS Authority — Free Allocation Review, main response','Decided policy; law pending; applies from 2027','2027–2030 allocation, CBAM-sector phase-out, no conditionality, 15% ALC','l'],
+  ['UK','Finance Act 2026 and UK CBAM regulations','Commence 1 Jan 2027','UK CBAM on imports, incl. from the EU','c'],
+  ['UK/EU','UK–EU ETS linking agreement','Reported agreed 7 Oct 2026 — not confirmed, not in force','Mutual CBAM exemption once in force; UK alignment with EU rules','g'],
+  ['UK/EU','Windsor Framework — Northern Ireland','In force; CBAM application to NI unresolved','EU ETS for NI electricity generation; Art. 13(4) for new EU acts','g']
+];
+function sEtsRules(){
+  return crumb()+`<h1>ETS rules & versions</h1>
+  <p class="lede">Every rule this track uses, with its legal status as at 13 October 2026. A rule marked “To confirm” is shown but never drives a final figure.</p>
+  <div class="card"><div class="tw"><table class="t"><thead><tr><th>Jurisdiction</th><th>Instrument</th><th>Status</th><th>Used for</th><th>Confidence</th></tr></thead><tbody>
+  ${ETS_RULES.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td class="small">${r[2]}</td><td class="small">${r[3]}</td><td>${CONF[r[4]]}</td></tr>`).join('')}</tbody></table></div></div>`;
+}
+
+Object.assign(SCREENS, {ets_apply:sEtsApply, ets_mp:sEtsMP, ets_aer:sEtsAER, ets_ver:sEtsVer, ets_fa:sEtsFA, ets_surr:sEtsSurr, ets_ship:sEtsShip, ets_rules:sEtsRules});
+
+
+/* scheme chip in the header */
+const _renderNavV44 = renderNav;
+renderNav = function(){ _renderNavV44(); const f=flags(); if(f.ets) $('#chips').insertAdjacentHTML('afterbegin', `<span class="chip">${ETS_REG[f.ets].name} <b>2026</b></span>`); };
 render();
 
 </script>
