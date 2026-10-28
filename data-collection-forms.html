@@ -7691,7 +7691,8 @@ var WM_EF = {
     secured_landfill: { label: 'Secured landfill at a TSDF (treatment, storage & disposal facility)', cls: 'landfill', site: 'managed_anaerobic', gri: ['disposal', 'Landfilling'], brsr: 'Landfilling' },
     incin:            { label: 'Incineration without energy recovery (TSDF / CBWTF incinerator)', cls: 'incin', gri: ['disposal', 'Incineration without energy recovery'], brsr: 'Incineration', needs: ['tech'] },
     wte:              { label: 'Waste-to-energy / RDF (refuse-derived fuel) / incineration with energy recovery', cls: 'cutoff', gri: ['disposal', 'Incineration with energy recovery'], brsr: 'Other recovery', esrsNote: 'ESRS E5: other recovery only if the plant qualifies as R1, else disposal (EFRAG Q&A 569/571)' },
-    coproc:           { label: 'Co-processing in cement kiln', cls: 'cutoff', gri: ['diverted', 'Other recovery operations'], brsr: 'Other recovery' },
+    coproc:           { label: 'Co-processing / AFR (alternative fuel & raw material) in cement kiln', cls: 'cutoff', gri: ['diverted', 'Other recovery operations'], brsr: 'Other recovery' },
+    afr_pre:          { label: 'AFR pre-processing platform (blends waste into alternative fuel for cement kilns)', cls: 'cutoff', gri: ['diverted', 'Other recovery operations'], brsr: 'Other recovery', afr: true },
     recycle:          { label: 'Recycling — registered recycler / MRF (material recovery facility) / processor', cls: 'cutoff', gri: ['diverted', 'Recycling'], brsr: 'Recycled', mrf: true },
     rerefine:         { label: 'Re-refining / solvent recovery (registered recycler)', cls: 'cutoff', gri: ['diverted', 'Recycling'], brsr: 'Recycled' },
     reuse:            { label: 'Refurbishment / repair for re-use', cls: 'cutoff', gri: ['diverted', 'Preparation for reuse'], brsr: 'Re-used' },
@@ -7701,6 +7702,7 @@ var WM_EF = {
     autoclave:        { label: 'Autoclave / microwave + shredding + recycling (bio-medical red bag)', cls: 'omit', gri: ['diverted', 'Recycling'], brsr: 'Recycled' },
     muni:             { label: 'Handed to municipality / ULB (urban local body) — treatment unknown', cls: 'muni', gri: ['disposal', 'Other disposal operations'], brsr: 'Other disposal' },
     openburn:         { label: 'Open burning (prohibited — record only if it happened)', cls: 'openburn', gri: ['disposal', 'Other disposal operations'], brsr: 'Other disposal' },
+    inhouse:          { label: 'In-house reuse / recycling — another unit of this organisation (within boundary)', cls: 'internal', gri: ['diverted', 'Recycling'], brsr: 'Recycled', internal: true },
     onsite:           { label: 'Treated on own site (composter, biogas, own incinerator)', cls: 'scope1', gri: ['diverted', 'Other recovery operations'], brsr: 'Other recovery', onsite: true },
     aerb:             { label: 'AERB-authorised disposal (Atomic Energy Regulatory Board — radioactive)', cls: 'out', gri: ['disposal', 'Other disposal operations'], brsr: 'Other disposal' }
   },
@@ -7735,6 +7737,13 @@ function wmFactor(o) {
     return res;
   }
   if (R.cls === 'scope1') { res.total = null; res.cat5 = 'scope1'; res.method = 'Scope 1 hand-off (same equations)'; res.steps.push('Waste treated in your own facility is Scope 1, not Category 5. The same IPCC equations apply; the tool hands the tonnes to the Scope 1 waste-treatment line. Not a zero-emission route.'); return res; }
+  if (R.cls === 'internal') {
+    res.total = 0; res.cat5 = 'internal'; res.method = 'Within organisational boundary — not Category 5';
+    res.steps.push('The material goes to another unit of this organisation and stays inside the reporting boundary, so it is not waste treated by a third party: Category 5 does not apply (GHG Protocol Scope 3 Standard, Category 5 boundary).');
+    res.steps.push('Any reprocessing (e.g. remelting scrap) is already in the receiving unit\'s Scope 1 and 2 through its fuel and electricity — pricing it here would count it twice.');
+    res.steps.push('The receiving unit must not report this material as purchased goods (Scope 3 Category 1). Generation is still reported in GRI 306-3; the transfer is reported as diverted from disposal (GRI 306-4) and in BRSR as recycled / re-used.');
+    return res;
+  }
   if (R.cls === 'out') { res.total = 0; res.cat5 = 'out'; res.method = 'Out of GHG scope (tonnes disclosed only)'; res.steps.push('No GHG factor — radioactive waste is disclosed in tonnes (BRSR category F).'); return res; }
   if (R.cls === 'omit') { res.total = 0; res.cat5 = 'omit'; res.method = 'Not quantified — disclosed Tier 1 omission (F13)'; res.flags.push('Autoclave / microwave energy is the CBWTF\'s Scope 1/2; disclosed as an omission, not a zero'); res.steps.push('Red-category bio-medical waste is disinfected and recycled. The treatment energy is not quantified in this edition — disclose it as an omission.'); return res; }
   if (R.cls === 'muni') {
@@ -7802,7 +7811,7 @@ var WM_MX_ROUTE = {
   'Composting (off site)': 'compost', 'Anaerobic digestion / biogas (off site)': 'ad', 'Landfill / dump': 'landfill', 'Treated on own site': 'onsite',
   'Recycling / MRF / recycler': 'recycle', 'Co-processing / RDF / waste-to-energy': 'wte', 'Incineration, no energy recovery': 'incin',
   'Handed to municipality, treatment unknown (D5)': 'muni', 'Registered C&D processor / recycling': 'recycle', 'Re-refining / solvent recovery (registered recycler)': 'rerefine',
-  'Co-processing in cement kiln': 'coproc', 'Secured landfill (TSDF)': 'secured_landfill', 'Co-processing / metal recovery': 'coproc', 'Decontamination + recycling': 'recycle',
+  'Co-processing in cement kiln': 'coproc', 'AFR pre-processing platform': 'afr_pre', 'In-house reuse / recycling': 'inhouse', 'Secured landfill (TSDF)': 'secured_landfill', 'Co-processing / metal recovery': 'coproc', 'Decontamination + recycling': 'recycle',
   'Deep burial': 'deepburial', 'Autoclave / microwave + shredding + recycling': 'autoclave', 'Autoclave + encapsulation / metal recovery': 'recycle',
   'Disinfection + recycling': 'recycle', 'Registered recycler / refurbisher': 'recycle', 'Registered battery recycler': 'recycle', 'Recycling': 'recycle', 'AERB-authorised disposal': 'aerb'
 };
@@ -7899,7 +7908,7 @@ function wmBuildLibrary() {
     });
   });
   // routes whose factor does not depend on the material: one generic row each
-  Object.keys(E.ROUTES).forEach(function(route) { var c = E.ROUTES[route].cls; if (['cutoff', 'omit', 'scope1', 'out'].indexOf(c) >= 0) push('*', route, null, null); });
+  Object.keys(E.ROUTES).forEach(function(route) { var c = E.ROUTES[route].cls; if (['cutoff', 'omit', 'scope1', 'out', 'internal'].indexOf(c) >= 0) push('*', route, null, null); });
   var lib = { edition: E.EDITIONS[0].id, status: E.EDITIONS[0].status, gwp_set: E.gwpSet, units: 'kg CO2e per tonne as received (wet), excluding transport',
     constants: E.K, municipal_shares: E.MUNI_SHARES, wastewater: { WW: E.WW, MCF: E.WW_MCF }, site_types: E.SITE, technologies: E.TECH, materials: E.MAT, rows: rows };
   // cross-reference: each reviewed matrix row → value re-derived from parameters

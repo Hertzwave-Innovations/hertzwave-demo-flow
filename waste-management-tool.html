@@ -340,6 +340,12 @@ body.wm-demo .wm-topctl button.wm-keep { display:inline-block !important; }
 tr.wm-samplerow td{background:#fdfaff}
 .wm-lockcta{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 14px;margin:0 0 12px;border:1px solid #16a34a;border-left:4px solid #16a34a;border-radius:8px;background:#f0fdf4;font-size:13px}
 .wm-lockcta>div{flex:1 1 320px}
+.wm-usedby{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:12px;color:#374151;margin-left:4px}
+.wm-usedby label{display:inline-flex;gap:3px;align-items:center;background:#f3f4f6;border-radius:12px;padding:1px 8px}
+.ws6-local.wm-need{border-color:#f59e0b;background:#fffbeb}
+.wm-addname{border-style:dashed}
+.ws6-cloneitem{margin-left:22px;border-left:3px solid #a7f3d0}
+.wm-locchip{background:#ecfdf5;color:#065f46}
 
 </style>
 </head>
@@ -1950,7 +1956,8 @@ var WM_EF = {
     secured_landfill: { label: 'Secured landfill at a TSDF (treatment, storage & disposal facility)', cls: 'landfill', site: 'managed_anaerobic', gri: ['disposal', 'Landfilling'], brsr: 'Landfilling' },
     incin:            { label: 'Incineration without energy recovery (TSDF / CBWTF incinerator)', cls: 'incin', gri: ['disposal', 'Incineration without energy recovery'], brsr: 'Incineration', needs: ['tech'] },
     wte:              { label: 'Waste-to-energy / RDF (refuse-derived fuel) / incineration with energy recovery', cls: 'cutoff', gri: ['disposal', 'Incineration with energy recovery'], brsr: 'Other recovery', esrsNote: 'ESRS E5: other recovery only if the plant qualifies as R1, else disposal (EFRAG Q&A 569/571)' },
-    coproc:           { label: 'Co-processing in cement kiln', cls: 'cutoff', gri: ['diverted', 'Other recovery operations'], brsr: 'Other recovery' },
+    coproc:           { label: 'Co-processing / AFR (alternative fuel & raw material) in cement kiln', cls: 'cutoff', gri: ['diverted', 'Other recovery operations'], brsr: 'Other recovery' },
+    afr_pre:          { label: 'AFR pre-processing platform (blends waste into alternative fuel for cement kilns)', cls: 'cutoff', gri: ['diverted', 'Other recovery operations'], brsr: 'Other recovery', afr: true },
     recycle:          { label: 'Recycling — registered recycler / MRF (material recovery facility) / processor', cls: 'cutoff', gri: ['diverted', 'Recycling'], brsr: 'Recycled', mrf: true },
     rerefine:         { label: 'Re-refining / solvent recovery (registered recycler)', cls: 'cutoff', gri: ['diverted', 'Recycling'], brsr: 'Recycled' },
     reuse:            { label: 'Refurbishment / repair for re-use', cls: 'cutoff', gri: ['diverted', 'Preparation for reuse'], brsr: 'Re-used' },
@@ -1960,6 +1967,7 @@ var WM_EF = {
     autoclave:        { label: 'Autoclave / microwave + shredding + recycling (bio-medical red bag)', cls: 'omit', gri: ['diverted', 'Recycling'], brsr: 'Recycled' },
     muni:             { label: 'Handed to municipality / ULB (urban local body) — treatment unknown', cls: 'muni', gri: ['disposal', 'Other disposal operations'], brsr: 'Other disposal' },
     openburn:         { label: 'Open burning (prohibited — record only if it happened)', cls: 'openburn', gri: ['disposal', 'Other disposal operations'], brsr: 'Other disposal' },
+    inhouse:          { label: 'In-house reuse / recycling — another unit of this organisation (within boundary)', cls: 'internal', gri: ['diverted', 'Recycling'], brsr: 'Recycled', internal: true },
     onsite:           { label: 'Treated on own site (composter, biogas, own incinerator)', cls: 'scope1', gri: ['diverted', 'Other recovery operations'], brsr: 'Other recovery', onsite: true },
     aerb:             { label: 'AERB-authorised disposal (Atomic Energy Regulatory Board — radioactive)', cls: 'out', gri: ['disposal', 'Other disposal operations'], brsr: 'Other disposal' }
   },
@@ -1994,6 +2002,13 @@ function wmFactor(o) {
     return res;
   }
   if (R.cls === 'scope1') { res.total = null; res.cat5 = 'scope1'; res.method = 'Scope 1 hand-off (same equations)'; res.steps.push('Waste treated in your own facility is Scope 1, not Category 5. The same IPCC equations apply; the tool hands the tonnes to the Scope 1 waste-treatment line. Not a zero-emission route.'); return res; }
+  if (R.cls === 'internal') {
+    res.total = 0; res.cat5 = 'internal'; res.method = 'Within organisational boundary — not Category 5';
+    res.steps.push('The material goes to another unit of this organisation and stays inside the reporting boundary, so it is not waste treated by a third party: Category 5 does not apply (GHG Protocol Scope 3 Standard, Category 5 boundary).');
+    res.steps.push('Any reprocessing (e.g. remelting scrap) is already in the receiving unit\'s Scope 1 and 2 through its fuel and electricity — pricing it here would count it twice.');
+    res.steps.push('The receiving unit must not report this material as purchased goods (Scope 3 Category 1). Generation is still reported in GRI 306-3; the transfer is reported as diverted from disposal (GRI 306-4) and in BRSR as recycled / re-used.');
+    return res;
+  }
   if (R.cls === 'out') { res.total = 0; res.cat5 = 'out'; res.method = 'Out of GHG scope (tonnes disclosed only)'; res.steps.push('No GHG factor — radioactive waste is disclosed in tonnes (BRSR category F).'); return res; }
   if (R.cls === 'omit') { res.total = 0; res.cat5 = 'omit'; res.method = 'Not quantified — disclosed Tier 1 omission (F13)'; res.flags.push('Autoclave / microwave energy is the CBWTF\'s Scope 1/2; disclosed as an omission, not a zero'); res.steps.push('Red-category bio-medical waste is disinfected and recycled. The treatment energy is not quantified in this edition — disclose it as an omission.'); return res; }
   if (R.cls === 'muni') {
@@ -2061,7 +2076,7 @@ var WM_MX_ROUTE = {
   'Composting (off site)': 'compost', 'Anaerobic digestion / biogas (off site)': 'ad', 'Landfill / dump': 'landfill', 'Treated on own site': 'onsite',
   'Recycling / MRF / recycler': 'recycle', 'Co-processing / RDF / waste-to-energy': 'wte', 'Incineration, no energy recovery': 'incin',
   'Handed to municipality, treatment unknown (D5)': 'muni', 'Registered C&D processor / recycling': 'recycle', 'Re-refining / solvent recovery (registered recycler)': 'rerefine',
-  'Co-processing in cement kiln': 'coproc', 'Secured landfill (TSDF)': 'secured_landfill', 'Co-processing / metal recovery': 'coproc', 'Decontamination + recycling': 'recycle',
+  'Co-processing in cement kiln': 'coproc', 'AFR pre-processing platform': 'afr_pre', 'In-house reuse / recycling': 'inhouse', 'Secured landfill (TSDF)': 'secured_landfill', 'Co-processing / metal recovery': 'coproc', 'Decontamination + recycling': 'recycle',
   'Deep burial': 'deepburial', 'Autoclave / microwave + shredding + recycling': 'autoclave', 'Autoclave + encapsulation / metal recovery': 'recycle',
   'Disinfection + recycling': 'recycle', 'Registered recycler / refurbisher': 'recycle', 'Registered battery recycler': 'recycle', 'Recycling': 'recycle', 'AERB-authorised disposal': 'aerb'
 };
@@ -2158,7 +2173,7 @@ function wmBuildLibrary() {
     });
   });
   // routes whose factor does not depend on the material: one generic row each
-  Object.keys(E.ROUTES).forEach(function(route) { var c = E.ROUTES[route].cls; if (['cutoff', 'omit', 'scope1', 'out'].indexOf(c) >= 0) push('*', route, null, null); });
+  Object.keys(E.ROUTES).forEach(function(route) { var c = E.ROUTES[route].cls; if (['cutoff', 'omit', 'scope1', 'out', 'internal'].indexOf(c) >= 0) push('*', route, null, null); });
   var lib = { edition: E.EDITIONS[0].id, status: E.EDITIONS[0].status, gwp_set: E.gwpSet, units: 'kg CO2e per tonne as received (wet), excluding transport',
     constants: E.K, municipal_shares: E.MUNI_SHARES, wastewater: { WW: E.WW, MCF: E.WW_MCF }, site_types: E.SITE, technologies: E.TECH, materials: E.MAT, rows: rows };
   // cross-reference: each reviewed matrix row → value re-derived from parameters
@@ -2436,6 +2451,7 @@ function wmTotals(L) {
     L.lines.forEach(function(l) {
         var t = l.t || 0; T.t += t; T.tkm += l.tkm || 0; if (l.flags.length) T.flags++;
         if (l.f.cat5 === 'scope1') { T.scope1t += t; return; }
+        if (l.f.cat5 === 'internal') { T.internalT = (T.internalT || 0) + t; return; }
         if (l.f.cat5 === 'omit') T.omitT += t;
         if (l.f.cat5 === 'out') T.outT += t;
         if (l.f.total == null && l.f.cat5 === true) T.noFactor += t;
@@ -2465,7 +2481,8 @@ function wmChecks(s, P) {
     var add = function(sev, area, msg) { out.push({ sev: sev, area: area, msg: msg }); };
     // storage clocks
     WS_KINDS.forEach(function(kind) { wsActiveItems(kind, s).forEach(function(it) {
-        var p = wsPending(kind, it, s), nm = wsDisplayName(kind, it, s).main;
+        if (it.clone && wsActiveItems(kind, s).some(function(x) { return x.id === it.base; })) return;   // shares the category clock below
+        var p = wsPending(kind, it, s), nm = p.group > 1 ? it.label + ' (all ' + p.group + ' names)' : wsDisplayName(kind, it, s).main;
         if (p.status === 'red') add('red', 'Storage clock', WM_KLBL[kind] + ' · ' + it.code + ' ' + nm + ': ' + wsFmt(p.pending) + ' ' + p.unit + ' held ' + p.age + ' days (limit ' + p.limit.days + ')');
         else if (p.status === 'amber') add('amber', 'Storage clock', WM_KLBL[kind] + ' · ' + it.code + ' ' + nm + ': approaching the ' + p.limit.days + '-day limit (' + p.age + ' days)');
         else if (p.status === 'nodate' || p.status === 'over' || p.status === 'err') add('amber', 'Ledger', WM_KLBL[kind] + ' · ' + it.code + ' ' + nm + ': ' + ({ nodate: 'generation dates missing', over: 'dispatched exceeds generated + carried forward', err: p.problems.join('; ') }[p.status]));
@@ -2494,7 +2511,7 @@ function wmChecks(s, P) {
     var need = { hw: 1, ew: 1, bmw: 1 };
     L.lines.forEach(function(l) {
         if (l.sw) return;
-        if (need[l.kind] && !l.r.ref) add('red', 'Manifest', WM_KLBL[l.kind] + ' · ' + l.it.code + ' dispatch ' + (l.date || 'undated') + ': ' + (wsFw(s).manifest[l.kind] || 'reference') + ' is mandatory');
+        if (need[l.kind] && !l.r.ref && !(l.fac && l.fac.loc === 'own_on')) add('red', 'Manifest', WM_KLBL[l.kind] + ' · ' + l.it.code + ' dispatch ' + (l.date || 'undated') + ': ' + (wsFw(s).manifest[l.kind] || 'reference') + ' is mandatory');
         l.flags.forEach(function(m) { if (/expired|not in the receiver|weighbridge|Receiver confirmed|Open burning/.test(m)) add(/expired|not in the|Open burning/.test(m) ? 'red' : 'amber', 'Dispatch', l.it.code + ' ' + (l.date || '') + ': ' + m); });
         if (l.route === 'openburn') add('red', 'Compliance', 'Open burning recorded for ' + l.it.code);
     });
@@ -2607,7 +2624,7 @@ function wmRowFx(kind, it, r, s) {
     var t = conv.t, co2 = t != null && f.total != null && f.cat5 === true ? t * f.total / 1000 : null;
     return '<span class="wm-tier t' + tier + '">Tier ' + tier + '</span> <strong>' + wsEsc((WM_EF.ROUTES[route] || { label: 'no route' }).label) + '</strong> · ' + wsEsc((WM_EF.MAT[cfg.mat] || { label: cfg.mat }).label) +
         ' · ' + (f.total == null ? wsEsc(f.method) : wmF(f.total, 1) + ' kg CO₂e/t') + ' · ' + (t == null ? 'mass unknown' : wmF(t, 3) + ' t') +
-        (co2 != null ? ' → <strong>' + wmF(co2, 3) + ' t CO₂e</strong>' : (f.cat5 === 'scope1' ? ' → Scope 1 hand-off' : '')) +
+        (co2 != null ? ' → <strong>' + wmF(co2, 3) + ' t CO₂e</strong>' : (f.cat5 === 'scope1' ? ' → Scope 1 hand-off' : (f.cat5 === 'internal' ? ' → within boundary, not Category 5' : ''))) +
         (f.flags.length || conv.assumed ? '<div class="wm-fxflags">' + f.flags.concat(conv.assumed ? ['Mass from ' + conv.note] : []).map(function(x) { return '⚠ ' + wsEsc(x); }).join('<br>') + '</div>' : '') +
         '<details class="wm-how"' + (WM_HOWOPEN ? ' open' : '') + ' ontoggle="WM_HOWOPEN=this.open"><summary>How this is computed</summary><ol>' +
         '<li>Quantity: ' + wsFmt(wsNum(r.dq)) + ' ' + (r.du || cfg.unit) + (t == null ? ' — mass unknown (' + wsEsc(conv.note || '') + ')' : ' = ' + wmF(t, 4) + ' t' + (conv.note ? ' (' + wsEsc(conv.note) + ')' : '')) + '</li>' +
@@ -2630,8 +2647,11 @@ function wmMatParams(mk) {
 }
 function wmRouteFormula(f) {
     var R = WM_EF.ROUTES[f.route] || {}, K = WM_EF.K;
+    if (/^own/.test(f.loc || '') && ['landfill', 'incin', 'compost', 'ad', 'openburn', 'muni'].indexOf(R.cls) >= 0) return 'Handled by us: Scope 1 (same equations), not Category 5';
+    if (/^own/.test(f.loc || '') || R.cls === 'internal') return 'Within boundary: not Category 5 (0) — reprocessing is in the receiving unit\'s Scope 1/2; it must not count this material as purchased goods (Scope 3 Cat 1)';
     if (R.cls === 'landfill') { var sk = R.site || f.site || 'uncategorised', S = WM_EF.SITE[sk]; return 'Landfill (§9.1): EF = 1000 × DOC × DOCf × <b>MCF ' + S.mcf + '</b> × F 0.5 × 16/12 × (1 − <b>r ' + ((parseFloat(f.gas) || 0) / 100) + '</b>) × (1 − <b>OX ' + (f.ox ? 0.1 : 0) + '</b>) × GWP 27 — DOC and DOCf come from each item\'s EF basis' + (f.site || R.site ? '' : ' · site type unknown → MCF 0.6 (F1)'); }
     if (R.cls === 'incin') { var T = WM_EF.TECH[f.tech] || WM_EF.TECH.msw_continuous; return 'Incineration (§9.2): EF = 1000 × dm × CF × FCF × 44/12 + <b>CH₄ ' + T.ch4 + '</b> × 27 + <b>N₂O ' + T.n2o + '</b> × 273 (= +' + wmR(T.ch4 * K.GWP_CH4 + T.n2o * K.GWP_N2O, 1) + ' kg CO₂e/t for ' + wsEsc(T.label) + ', F4); biogenic CO₂ as memo'; }
+    if (R.afr) return 'Cut-off (§9.6): 0 kg CO₂e/t at the gate — the cement plant reports the AFR combustion as its own fuel; transport where distance is known';
     if (R.cls === 'cutoff') return 'Cut-off (§9.6): 0 kg CO₂e/t at the gate + transport where distance is known; no avoided-emission credit';
     if (R.cls === 'compost') return 'Composting (§9.4): CH₄ 4 g/kg × 27 + N₂O 0.24 g/kg × 273 = 173.5 kg CO₂e/t';
     if (R.cls === 'ad') return 'Anaerobic digestion (§9.4): CH₄ 0.8 g/kg × 27 = 21.6 kg CO₂e/t';
@@ -2644,7 +2664,7 @@ function wmRouteFormula(f) {
 var WM_NEWRECV = null;
 function wmNewRecvOpen(kind, id) { WM_NEWRECV = { kind: kind, id: id }; wmRender(); }
 function wmNewRecvForm(kind, id) {
-    var routes = Object.keys(WM_EF.ROUTES).filter(function(k) { return k !== 'onsite'; });
+    var routes = Object.keys(WM_EF.ROUTES).filter(function(k) { return k !== 'onsite' && k !== 'inhouse'; });
     return '<div class="wm-newrecv"><strong>New receiver for this item</strong> (saved to step 4 Receivers) ' +
         '<input class="ws6-in ws6-sm" id="wm-nr-name" placeholder="Name, e.g. Mumbai Waste Management TSDF" style="min-width:240px"> ' +
         '<input class="ws6-in ws6-sm" id="wm-nr-auth" placeholder="Authorisation no."> ' +
@@ -2696,7 +2716,7 @@ function wmRerenderCard(sid) {
 // ════════════════ Facility register (receivers) with the EF parameters that belong to the receiver ════════════════
 wsFacAdd = function(kind) { var s = wsGetSettings(); s.fac[kind].push(wmNewFac(kind)); wsSaveSettings(s); wmRender(); };
 wsFacilityBlock = function(kind, title, s) {
-    var routes = Object.keys(WM_EF.ROUTES).filter(function(k) { return k !== 'onsite'; });
+    var routes = Object.keys(WM_EF.ROUTES).filter(function(k) { return k !== 'onsite' && k !== 'inhouse'; });
     var rows = (s.fac[kind] || []).map(function(f0, i) {
         var f = wmFac(kind, i, s), R = WM_EF.ROUTES[f.route] || {};
         var inp = function(fl, ph, type, w) { return '<div' + (w ? ' class="wm-w2"' : '') + '><div class="ws6-lbl">' + ph + '</div><input class="ws6-in" type="' + (type || 'text') + '" data-kind="' + kind + '" data-i="' + i + '" data-f="' + fl + '" value="' + wsEsc(f[fl] == null ? '' : f[fl]) + '" onchange="wmFacChange(this)"></div>'; };
@@ -2712,10 +2732,22 @@ wsFacilityBlock = function(kind, title, s) {
         if (R.cls === 'incin') ef += selx('tech', 'Incinerator technology (sets CH₄ / N₂O)', Object.keys(WM_EF.TECH).map(function(k) { return [k, WM_EF.TECH[k].label]; }), 'Batch incinerators (CBWTF) emit more CH₄ / N₂O per tonne than continuous TSDF plants.');
         if (f.route === 'wte') ef += '<div><div class="ws6-lbl">Qualifies as R1 energy recovery (ESRS)</div><label class="ws-checklist-item"><input type="checkbox" data-kind="' + kind + '" data-i="' + i + '" data-f="r1"' + (f.r1 ? ' checked' : '') + ' onchange="wmFacChange(this)"><span>Yes (operator evidence)</span></label></div>';
         if (R.mrf) ef += inp('rejects', 'MRF / recycler rejects share (%)', 'number');
-        if (R.cls !== 'cutoff' && R.cls !== 'out') ef += inp('sup', 'Supplier-reported kg CO₂e/t (optional, overrides library)', 'number');
-        return '<div class="wm-fac' + (exp ? ' wm-exp' : '') + '"><div class="wm-fachd"><strong>' + wsEsc(f.name || 'New facility') + '</strong> <span class="ws6-chip">' + wsEsc(R.label || 'route not set') + '</span>' + (exp ? ' <span class="ws6-badge st-red">authorisation expired</span>' : '') +
+        var loc = f.loc || 'tp_off', own = /^own/.test(loc);
+        ef = selx('loc', 'Where & by whom', WM_LOC.map(function(o) { return [o[0], o[1]]; }), 'Only waste handled by a third party is Scope 3 Category 5. Waste we reuse, recycle or treat ourselves stays inside our boundary. GRI 306-4 / 306-5 report on-site and off-site separately.') + ef;
+        if (own) {
+            var sites = (wmReg().sites || []).filter(function(x) { return x.id !== wmReg().current; });
+            ef += '<div class="wm-w2"><div class="ws6-lbl">' + (loc === 'own_off' ? 'Receiving unit of our organisation' : 'Shop / plant that reuses or treats it (optional)') + '</div>' +
+                '<input class="ws6-in" list="wm-units-' + kind + i + '" data-kind="' + kind + '" data-i="' + i + '" data-f="unit" value="' + wsEsc(f.unit || '') + '" placeholder="' + (loc === 'own_off' ? 'e.g. Unit 2 — foundry' : 'e.g. Melt shop') + '" onchange="wmFacChange(this)"><datalist id="wm-units-' + kind + i + '">' +
+                sites.map(function(x) { return '<option value="' + wsEsc(x.name) + '">'; }).join('') + (wsGetSettings().depts || []).map(function(d) { return '<option value="' + wsEsc(d.name) + '">'; }).join('') + '</datalist></div>' +
+                '<div class="wm-w2 ws6-alert ' + (kind === 'hw' && loc === 'own_off' ? 'amber' : 'ok') + '">' + (kind === 'hw' && loc === 'own_off' ? 'Hazardous waste moving to other premises still needs a Form 10 manifest, and the receiving unit needs utilisation authorisation (Rule 9) [confirm with SPCB]. ' : '') +
+                (['landfill', 'incin', 'compost', 'ad', 'openburn', 'muni'].indexOf(R.cls) >= 0 ? 'Not Category 5: treated by us, so it belongs in our Scope 1 (same equations).' : 'Not Category 5 (0): the material stays inside our boundary and its reprocessing is already in our own Scope 1/2. Do not count it again as purchased material (Scope 3 Category 1).') +
+                (loc === 'own_on' ? ' Reported as on-site in GRI 306-4 / 306-5.' : '') + '</div>';
+        } else if (loc === 'tp_on') ef += '<div class="wm-w2 ws6-p">Contractor-operated on our premises: still Category 5 (third party), reported as on-site in GRI 306.</div>';
+        if (R.afr) ef += inp('enduser', 'Supplies AFR to (cement plant / kiln)', 'text', true) + '<div class="wm-w2 ws6-p">The platform blends the waste into alternative fuel / raw material and sends it to a cement kiln. Record the kiln it supplies where known; Category 5 is cut-off (0 at the gate) — combustion emissions belong to the cement plant using the fuel.</div>';
+        if (R.cls !== 'cutoff' && R.cls !== 'out' && R.cls !== 'internal') ef += inp('sup', 'Supplier-reported kg CO₂e/t (optional, overrides library)', 'number');
+        return '<div class="wm-fac' + (exp ? ' wm-exp' : '') + '"><div class="wm-fachd"><strong>' + wsEsc(f.name || 'New facility') + '</strong> <span class="ws6-chip">' + wsEsc(R.label || 'route not set') + '</span>' + (/^own|tp_on/.test(f.loc || '') ? ' <span class="ws6-chip wm-locchip">' + wsEsc(WM_LOC.filter(function(o) { return o[0] === f.loc; })[0][1].split(' — ')[0] + ' · ' + (/^own/.test(f.loc) ? 'by us' : 'contractor')) + '</span>' : '') + (exp ? ' <span class="ws6-badge st-red">authorisation expired</span>' : '') +
             '<button class="ws6-x" style="margin-left:auto" title="Remove" onclick="wsFacRemove(\'' + kind + '\',' + i + ')">✕</button></div>' +
-            '<div class="wm-facgrid">' + inp('name', 'Facility name') + inp('auth', 'Authorisation / registration no.') + inp('validTo', 'Authorisation valid until', 'date') +
+            '<div class="wm-facgrid">' + inp('name', /^own/.test(f.loc || '') ? 'Name (e.g. In-house reuse — melt shop)' : 'Facility name') + inp('auth', /^own/.test(f.loc || '') ? 'Authorisation no. (hazardous to another unit only — Rule 9)' : 'Authorisation / registration no.') + inp('validTo', 'Authorisation valid until', 'date') +
             inp('codes', 'Authorised waste categories / codes (comma separated)', 'text', true) + inp('qty', 'Authorised annual quantity per code (e.g. 35.3:500; 33.2:60 — MT)', 'text', true) +
             selx('route', 'Treatment route', routes.map(function(k) { return [k, WM_EF.ROUTES[k].label]; }), 'The route decides the calculation: landfill and incineration are computed; recycling, co-processing and energy recovery are cut-off (0 + transport).') + ef + '</div>' +
             '<div class="wm-formula1">' + wmRouteFormula(f) + '</div></div>';
@@ -2752,7 +2784,7 @@ wsItemPicker = function(kind, title, s) {
         var id = it.id, sid = wsSid(id), raw = s.sel[kind][id], cfg = wsItemCfg(kind, it, s);
         var facOpts = '<option value="">' + (facs.length ? 'Assign receiver…' : 'No receivers yet') + '</option>' + facs.map(function(f, i) { return '<option value="' + i + '"' + (raw && String(raw.fac) === String(i) ? ' selected' : '') + '>' + wsEsc(f.name || ('Facility ' + (i + 1))) + '</option>'; }).join('');
         var head = it.clone
-            ? '<label class="ws6-itemchk ws6-clone"><span class="ws6-code">' + wsEsc(it.code) + '</span><span>another local item under this code</span><button class="ws6-x" title="Remove this line" onclick="wsCloneRemove(\'' + kind + '\',\'' + wsEsc(id) + '\')">✕</button></label>'
+            ? '<label class="ws6-itemchk ws6-clone"><span class="ws6-code">' + wsEsc(it.code) + '</span><span>↳ another waste item under ' + wsEsc(it.code) + ' — ' + wsEsc(it.label) + '</span><button class="ws6-x" title="Remove this item" onclick="wsCloneRemove(\'' + kind + '\',\'' + wsEsc(id) + '\')">✕</button></label>'
             : '<label class="ws6-itemchk"><input type="checkbox" data-k="sel" data-kind="' + kind + '" data-id="' + wsEsc(id) + '"' + (raw ? ' checked' : '') + ' onchange="wsCfgChange(this);wmStepper()"><span class="ws6-code">' + wsEsc(it.code) + '</span><span>' + wsEsc(it.label) + '</span>' +
               (it.note ? '<span class="ws6-verify" title="' + wsEsc(it.note) + '">ⓘ ' + wsEsc(it.note) + '</span>' : '') + '</label>';
         var unit = raw ? raw.unit || it.unit : it.unit;
@@ -2760,13 +2792,14 @@ wsItemPicker = function(kind, title, s) {
                    (unit === 'Nos' ? ' kg/piece <input class="ws6-in ws6-sm wm-num" type="number" step="any" min="0" data-k="selkgpc" data-kind="' + kind + '" data-id="' + wsEsc(id) + '" value="' + wsEsc(raw && raw.kgpc != null ? raw.kgpc : '') + '" placeholder="' + (wmDefaultKgpc(kind, it) || 'required') + '" onchange="wmSelX(this)">' : '');
         return '<div class="ws6-item' + (raw ? ' on' : '') + (it.clone ? ' ws6-cloneitem' : '') + '" id="wsp-' + sid + '">' + head +
             '<span class="ws6-itemcfg">' +
-            '<input class="ws6-in ws6-sm ws6-local" placeholder="Name used on the shop floor" data-k="sellocal" data-kind="' + kind + '" data-id="' + wsEsc(id) + '" value="' + wsEsc(raw && raw.local || '') + '" onchange="wsCfgChange(this)">' +
+            '<input class="ws6-in ws6-sm ws6-local' + (it.clone && !(raw && raw.local) ? ' wm-need' : '') + '" placeholder="' + (it.clone ? 'Item name, e.g. spoons, bolts, risers (required)' : 'Name used on the shop floor') + '" data-k="sellocal" data-kind="' + kind + '" data-id="' + wsEsc(id) + '" value="' + wsEsc(raw && raw.local || '') + '" onchange="wsCfgChange(this)">' +
             ' Unit <select class="ws6-in ws6-sm" data-k="selunit" data-kind="' + kind + '" data-id="' + wsEsc(id) + '" onchange="wsCfgChange(this);wmRender()">' + ['kg', 'MT', 'L', 'KL', 'Nos'].map(function(u) { return '<option' + (unit === u ? ' selected' : '') + '>' + u + '</option>'; }).join('') + '</select>' +
             ' Receiver <select class="ws6-in ws6-sm" data-k="selfac" data-kind="' + kind + '" data-id="' + wsEsc(id) + '" onchange="if(this.value===\'__new\'){wmNewRecvOpen(\'' + kind + '\',\'' + wsEsc(id) + '\');return;}wsCfgChange(this)">' + facOpts + '<option value="__new">＋ Add a new receiver…</option></select>' +
             ' EF basis <select class="ws6-in ws6-sm" title="Material whose IPCC parameters (DOC, DOCf, carbon content) price this waste" data-k="selmat" data-kind="' + kind + '" data-id="' + wsEsc(id) + '" onchange="wmSelX(this)">' + matOpts(cfg.mat) + '</select>' +
             ' <select class="ws6-in ws6-sm" data-k="selrt" data-kind="' + kind + '" data-id="' + wsEsc(id) + '" onchange="wmSelX(this)">' + rtOpts(raw && raw.rt) + '</select>' + conv +
             ' <span class="ws6-chip" title="' + wsEsc(WM_BRSR[cfg.brsr]) + '">BRSR ' + cfg.brsr + '</span>' +
-            (it.clone ? '' : ' <button class="ws6-add ws6-sm" title="Same regulatory code, different local item" onclick="wsCloneAdd(\'' + kind + '\',\'' + wsEsc(id) + '\')">＋ another local item</button>') +
+            (it.clone || (kind !== 'hw' && kind !== 'nh') || !raw ? '' : ' <button class="ws6-add ws6-sm wm-addname" title="Another waste item in this category (e.g. ferrous scrap → spoons, bolts, risers) — each item gets its own ledger line, unit and EF basis; returns and the storage clock add them up under ' + wsEsc(it.code) + '" onclick="wsCloneAdd(\'' + kind + '\',\'' + wsEsc(id) + '\')">＋ Add another item in this category</button>') +
+            (raw && (s.depts || []).length && (kind === 'hw' || kind === 'nh') ? '<span class="wm-usedby">Used by: ' + s.depts.map(function(d, di) { var on = (d.items || []).indexOf(id) >= 0; return '<label><input type="checkbox"' + (on ? ' checked' : '') + ' onchange="wmDeptItem(' + di + ',\'' + wsEsc(id) + '\',this.checked);wmStepper()">' + wsEsc(d.name || 'Department ' + (di + 1)) + '</label>'; }).join('') + '</span>' : '') +
             '<span class="wm-params">' + wmMatParams(cfg.mat) + '</span>' + (WM_NEWRECV && WM_NEWRECV.id === id ? wmNewRecvForm(kind, id) : '') + '</span></div>';
     };
     var groups = wsGroups(kind, s).map(function(g) {
@@ -2776,6 +2809,7 @@ wsItemPicker = function(kind, title, s) {
         return '<details class="ws6-grp"' + (n ? ' open' : '') + '><summary><span>' + wsEsc(g.group) + '</span><span class="ws6-grpref">' + wsEsc(g.ref) + '</span><span class="ws6-grpn">' + n + ' selected</span></summary>' + members.map(row).join('') + '</details>';
     }).join('');
     return '<div class="ws6-sec"><div class="ws6-h">' + wsEsc(title) + '</div>' +
+        (kind === 'hw' || kind === 'nh' ? '<div class="ws6-alert ok" style="margin:0 0 0.5rem">A category often holds several distinct waste items — e.g. <strong>NH-M1 Ferrous / steel scrap</strong> → MS scrap spoons, bolts, risers. Tick the category, then use <strong>＋ Add another item in this category</strong>. Each item has its own ledger line, unit, EF basis, receiver and departments; statutory returns, authorised quantities and the storage clock add them up under the one category code.</div>' : '') +
         '<p class="ws6-p">Tick what this site generates. Per item: the <strong>plant name</strong> staff use, the reporting unit, the usual receiver, the <strong>EF basis</strong> (which material\'s IPCC parameters price it), an optional route override (e.g. CBWTF red bags → autoclave), and the density or kg per piece needed to turn litres or pieces into tonnes.</p>' + groups + '</div>';
 };
 function wmSelX(el) {
@@ -3100,6 +3134,7 @@ function wmLineFormula(l) {
     var f = l.f, M = WM_EF.MAT[l.cfg.mat] || {}, R = l.R || {}, t = l.t, out;
     if (l.ww) out = f.steps.slice(1).join(' · ');
     else if (f.cat5 === 'scope1') out = 'Treated on own site → Scope 1 hand-off (same equations), not Category 5';
+    else if (f.cat5 === 'internal') out = 'Within boundary: ' + wmF(t, 3) + ' t to ' + wsEsc((l.fac && (l.fac.unit || l.fac.name)) || 'another unit') + ' — not Category 5; reprocessing is in that unit\'s Scope 1/2';
     else if (R.cls === 'cutoff') out = 'Cut-off §9.6: ' + wmF(t, 3) + ' t × 0 = 0 (transport ' + (l.tkm ? wmF(l.tkm, 1) + ' t·km, priced in the platform' : 'not recorded') + ')';
     else if (f.method.indexOf('Supplier') === 0) out = 'Supplier-specific §7: ' + wmF(t, 3) + ' t × ' + wmF(f.total, 1) + ' kg/t ÷ 1000 = ' + wmF(l.tco2, 3) + ' t';
     else if (R.cls === 'landfill') { var sk = R.site || (l.fac && l.fac.site) || (l.sw ? ((wsGetSettings().swRoute[l.it.code.replace('SW-', '')] || {}).site) : '') || 'uncategorised', S = WM_EF.SITE[sk];
@@ -3123,14 +3158,14 @@ WM_EM.res = function(el, s) {
     var tierRows = [1, 2, 3, 4, 5].map(function(t) { var v = T.byTier[t]; return '<tr><td><span class="wm-tier t' + t + '">Tier ' + t + '</span></td><td>' + ['', 'Weighbridge + receiver confirmation + e-way bill', 'Weighbridge or manifest + receiver certificate', 'Document only', 'No evidence, assumed conversion or proxy factor', 'Estimated quantity or average-data factor'][t] + '</td><td class="num">' + wmF(v[0], 2) + '</td><td class="num">' + wmPct(v[0], T.cat5t) + '%</td><td class="num">' + wmF(v[1], 3) + '</td></tr>'; }).join('');
     var lines = L.lines.slice().sort(function(a, b) { return b.tco2 - a.tco2; }).map(function(l, i) {
         return '<tr><td>' + wsEsc(l.date || 'period') + '</td><td>' + WM_KLBL[l.kind] + '</td><td><span class="ws6-code">' + wsEsc(l.it.code) + '</span> ' + wsEsc(l.nm.main) + '</td><td class="num">' + (l.t == null ? '—' : wmF(l.t, 3)) + '</td><td>' + wsEsc((l.R || { label: '—' }).label) + '</td><td>' + wmMethodChip(l) + '</td>' +
-            '<td class="num">' + (l.f.total == null ? '—' : wmF(l.f.total, 1)) + '</td><td class="num"><strong>' + (l.f.cat5 === 'scope1' ? 'Scope 1' : wmF(l.tco2, 3)) + '</strong></td><td><span class="wm-tier t' + l.tier + '">' + l.tier + '</span></td>' +
+            '<td class="num">' + (l.f.total == null ? '—' : wmF(l.f.total, 1)) + '</td><td class="num"><strong>' + (l.f.cat5 === 'scope1' ? 'Scope 1' : (l.f.cat5 === 'internal' ? 'In-house' : wmF(l.tco2, 3))) + '</strong></td><td><span class="wm-tier t' + l.tier + '">' + l.tier + '</span></td>' +
             '<td>' + (l.flags.length ? '<span class="ws6-badge st-amber" title="' + wsEsc(l.flags.join(' · ')) + '">' + l.flags.length + ' flag' + (l.flags.length > 1 ? 's' : '') + '</span>' : '') + ' <button class="ws6-add ws6-sm wm-allow" onclick="wmWhy(' + i + ')">why?</button></td></tr>' +
             '<tr class="wm-frow"><td></td><td colspan="9">' + wmLineFormula(l) + '</td></tr>'; }).join('');
     window._wmLinesSorted = L.lines.slice().sort(function(a, b) { return b.tco2 - a.tco2; });
     el.classList.toggle('wm-hidef', !WM_SHOWF);
     el.innerHTML = (lib.proxy ? '<div class="ws6-alert amber">' + wsEsc(lib.note) + '</div>' : '<div class="ws6-note">Factor library: ' + wsEsc(WM_EF.edition) + ' · ' + wsEsc(WM_EF.gwpSet) + '. ' + wsEsc(WM_EF.status) + '</div>') +
         '<div class="wm-kpis">' + kpi(wmF(T.tco2, 2), 't CO₂e — Scope 3 Category 5') + kpi(wmF(T.cat5t, 1), 'tonnes in Category 5') + kpi(wmPct(T.tier12t, T.cat5t) + '% / ' + wmPct(T.tier12c, T.tco2) + '%', 'tonnes / CO₂e at tier 1–2', wmPct(T.tier12t, T.cat5t) >= 60 ? 'good' : 'warn') +
-        kpi(wmPct(T.estT, T.cat5t) + '%', 'estimated tonnes (tier 5)', T.estT ? 'warn' : 'good') + kpi(wmF(T.bio, 2), 't biogenic CO₂ (memo)') + kpi(wmF(T.scope1t, 1), 't treated on site → Scope 1') + '</div>' +
+        kpi(wmPct(T.estT, T.cat5t) + '%', 'estimated tonnes (tier 5)', T.estT ? 'warn' : 'good') + kpi(wmF(T.bio, 2), 't biogenic CO₂ (memo)') + kpi(wmF(T.scope1t, 1), 't treated on site → Scope 1') + (T.internalT ? kpi(wmF(T.internalT, 1), 't reused in-house (within boundary, not Cat 5)') : '') + '</div>' +
         (T.omitT ? '<div class="ws6-alert amber">' + wmF(T.omitT, 3) + ' t of red-category bio-medical waste: autoclave energy not quantified — disclose as a Tier 1 omission (F13).</div>' : '') +
         (T.noFactor ? '<div class="ws6-alert red">' + wmF(T.noFactor, 3) + ' t have no factor (route or EF basis missing) — fix in steps 4–6.</div>' : '') +
         (T.tkm ? '<div class="ws6-note">Waste transport: ' + wmF(T.tkm, 1) + ' t·km recorded. Priced in the platform with the road-freight factor and reported inside Category 5 (D7), not Category 4.</div>' : '') +
@@ -3286,7 +3321,7 @@ function wmGri(s, L) {
 // ════════════════ Report builders added or extended for the tool (Part D 12.3) ════════════════
 function wmRouteClass(route) {
     var c = (WM_EF.ROUTES[route] || {}).cls;
-    if (route === 'onsite') return 'Utilised in-house';
+    if (route === 'onsite' || route === 'inhouse') return 'Utilised in-house';
     if (c === 'cutoff' || c === 'omit' || c === 'compost' || c === 'ad') return 'Recycling / co-processing / recovery';
     if (c === 'landfill' || c === 'incin' || c === 'muni' || c === 'openburn') return 'Disposal';
     return 'Others';
@@ -3301,7 +3336,7 @@ WS_RPT.F4.build = function(s, P) {
         var cfg = wsItemCfg('hw', it, s), ev = wsEvents('hw', s, P).filter(function(e) { return e.it.id === it.id; });
         var g = ev.filter(function(e) { return e.type === 'gen'; }).reduce(function(a, e) { return a + e.q; }, 0);
         var byFac = {};
-        L.filter(function(l) { return l.it.id === it.id; }).forEach(function(l) { var cls = wmRouteClass(l.route), k = cls + '|' + (l.fac ? l.fac.name : 'Not specified') + '|' + (l.fac ? l.fac.auth || '' : ''); byFac[k] = (byFac[k] || 0) + l.q; });
+        L.filter(function(l) { return l.it.id === it.id; }).forEach(function(l) { var cls = wmRouteClass(l.route, l), k = cls + '|' + (l.fac ? l.fac.name : 'Not specified') + '|' + (l.fac ? l.fac.auth || '' : ''); byFac[k] = (byFac[k] || 0) + l.q; });
         var o = wsLogFor(it.id).open, op = wsNum(o.q) ? (wsConv(wsNum(o.q), o.u || cfg.unit, cfg.unit) || 0) : 0, d = 0, name = it.code + ' ' + it.label;
         gen.push([name, wsFmt(g), cfg.unit]); csv.push(['A1 Generated', it.code, it.label, wsFmt(g), cfg.unit, '', '', '']);
         Object.keys(byFac).forEach(function(k) { var p = k.split('|'); d += byFac[k];
@@ -3549,7 +3584,7 @@ function wmSettingsReview(s) {
     ['hw', 'nh', 'ew', 'bmw', 'cd'].forEach(function(k) {
         var F = s.fac[k] || [], used = WS_KINDS.filter(function(x) { return (x === 'bat' ? 'ew' : x) === k; }).some(function(x) { return wsActiveItems(x, s).length; });
         if (!F.length && !used) return;
-        var noRoute = F.filter(function(f) { return !f.route; }).length, noVal = F.filter(function(f, i) { var g = wmFac(k, i, s); return !g.validTo && ['muni', 'landfill'].indexOf(g.route) < 0; }).length,
+        var noRoute = F.filter(function(f) { return !f.route; }).length, noVal = F.filter(function(f, i) { var g = wmFac(k, i, s); return !g.validTo && ['muni', 'landfill'].indexOf(g.route) < 0 && !(/^own/.test(g.loc || '') && !(k === 'hw' && g.loc === 'own_off')); }).length,
             exp = F.filter(function(f) { return f.validTo && f.validTo < today; }).length, lf = F.filter(function(f, i) { var g = wmFac(k, i, s); return g.route === 'landfill' && !g.site; }).length;
         var msg = F.length + ' receiver(s)' + (noRoute ? ' · ' + noRoute + ' without route' : '') + (noVal ? ' · ' + noVal + ' without validity date' : '') + (exp ? ' · ' + exp + ' EXPIRED' : '') + (lf ? ' · ' + lf + ' landfill without site type (MCF 0.6 default)' : '');
         add('Receivers', 'receivers', { hw: 'Hazardous', nh: 'Non-hazardous', ew: 'E-waste & battery', bmw: 'Bio-medical', cd: 'C&D' }[k] + ' receivers', msg, !F.length || noRoute || exp ? 'miss' : (noVal || lf ? 'warn' : 'ok'));
@@ -4573,9 +4608,10 @@ function wmZeroWhy(L) {
     var by = {};
     L.lines.forEach(function(l) {
         if (l.tco2 > 0) return;
-        var c = (l.R || {}).cls, k;
-        if (c === 'cutoff') k = 'cut-off route (recycling, re-refining, co-processing, waste-to-energy): 0 at the gate by method (§9.6)';
+        var c = l.f.cat5 === 'internal' ? 'internal' : (l.f.cat5 === 'scope1' ? 'scope1' : (l.R || {}).cls), k;
+        if (c === 'cutoff') k = 'cut-off route (recycling, re-refining, co-processing / AFR, waste-to-energy): 0 at the gate by method (§9.6)';
         else if (c === 'scope1') k = 'treated on your own site: reported under Scope 1, not Category 5';
+        else if (c === 'internal') k = 'reused / recycled by us (on site or another unit): inside the boundary, so not Category 5 — the reprocessing is in our own Scope 1/2';
         else if (c === 'omit') k = 'red-category bio-medical: disclosed omission (F13)';
         else if (c === 'landfill' && l.cfg.mat === 'haz_generic') k = 'organic hazardous waste in a landfill with the generic hazardous basis (DOC 0): set the industry EF basis in the catalogue (F5) to count its methane';
         else if (c === 'landfill' && (WM_EF.MAT[l.cfg.mat] || {}).doc === 0) k = 'non-degradable waste in a landfill (DOC 0 — metals, ash, inorganic sludge, plastics): no methane by method (§9.1, §9.5)';
@@ -4615,8 +4651,8 @@ function wmStepStatus(k, s) {
         return miss.length ? { done: false, note: 'Missing: ' + miss.join(', ') } : { done: true, note: 'Site and authorisations complete' };
     }
     if (k === 'receivers') {
-        var all = []; Object.keys(s.fac).forEach(function(x) { (s.fac[x] || []).forEach(function(f, i) { all.push(wmFac(x, i, s)); }); });
-        var nv = all.filter(function(f) { return !f.validTo && ['muni', 'landfill'].indexOf(f.route) < 0; }).length, sample = all.filter(function(f) { return /^Sample /.test(f.name || ''); }).length;
+        var all = [], kinds = []; Object.keys(s.fac).forEach(function(x) { (s.fac[x] || []).forEach(function(f, i) { all.push(wmFac(x, i, s)); kinds.push(x); }); });
+        var nv = all.filter(function(f, j) { return !f.validTo && ['muni', 'landfill'].indexOf(f.route) < 0 && !(/^own/.test(f.loc || '') && !(kinds[j] === 'hw' && f.loc === 'own_off')); }).length, sample = all.filter(function(f) { return /^Sample /.test(f.name || ''); }).length;
         if (!all.length) return { done: false, note: 'Add your receivers' };
         return sample ? { done: false, note: sample + ' sample receiver(s) to replace with your own' } : (nv ? { done: false, note: nv + ' without authorisation validity' } : { done: true, note: all.length + ' receivers' });
     }
@@ -4656,7 +4692,7 @@ wmStepper = function() {
 
 // ── Abbreviations: expanded on hover / tap everywhere, and a glossary ──
 var WM_GLOSS = {
-    'TSDF': 'Treatment, Storage and Disposal Facility — common facility for hazardous waste (secured landfill, incinerator)', 'CBWTF': 'Common Bio-medical Waste Treatment Facility', 'ULB': 'Urban Local Body (municipality / municipal council)',
+    'AFR': 'Alternative Fuel and Raw material — waste used in a cement kiln in place of coal or raw material (co-processing), often blended first at an AFR pre-processing platform', 'TSDF': 'Treatment, Storage and Disposal Facility — common facility for hazardous waste (secured landfill, incinerator)', 'CBWTF': 'Common Bio-medical Waste Treatment Facility', 'ULB': 'Urban Local Body (municipality / municipal council)',
     'MRF': 'Material Recovery Facility — sorts dry waste for recycling', 'RDF': 'Refuse-Derived Fuel', 'WtE': 'Waste-to-Energy', 'AD': 'Anaerobic Digestion (biogas)', 'CPCB': 'Central Pollution Control Board', 'SPCB': 'State Pollution Control Board',
     'PCC': 'Pollution Control Committee (Union Territories)', 'CTO': 'Consent to Operate (Air and Water Acts)', 'CTE': 'Consent to Establish', 'HOWM': 'Hazardous and Other Wastes (Management and Transboundary Movement) Rules 2016',
     'HW': 'Hazardous Waste', 'BMW': 'Bio-Medical Waste', 'SWM': 'Solid Waste Management (Rules 2026)', 'BWG': 'Bulk Waste Generator (SWM Rules 2026)', 'EBWGR': 'Extended Bulk Waste Generator Responsibility (SWM Rules 2026)',
@@ -4854,6 +4890,203 @@ function wmClearSample() {
     wsDoc = function(title, sub, body, s, P) { var h = d0(title, sub, body, s, P), n = wmSampleCount(s); return n ? h.replace('<div class="wsr-doc">', '<div class="wsr-doc"><div class="wsr-draft">CONTAINS ' + n + ' SAMPLE ENTRIES — demonstration only, not for filing</div>') : h; };
     var sw0 = renderWSSW;
     renderWSSW = function(body) { sw0(body); var log = wsGetLog(); body.querySelectorAll('[data-sw]').forEach(function(e) { var r = log[e.getAttribute('data-sw')]; if (r && r.sample && !e.closest('.ws-solid-card').querySelector('.wm-samplechip')) e.closest('.ws-solid-card').querySelector('.ws-solid-card-hdr').insertAdjacentHTML('beforeend', ' <span class="wm-samplechip">SAMPLE</span>'); }); };
+})();
+
+// ════════════════ Several waste items under one category (hazardous / non-hazardous) · where & by whom · AFR ════════════════
+// An item is a "clone" (v8 mechanism): own id, own ledger, departments, receiver, unit and EF basis; same category code
+// (e.g. NH-M1 ferrous scrap → spoons, bolts, risers). Returns, authorised quantities and the storage clock add them up.
+
+var WM_GROUPED = 0, WM_RAW = 0;   // GROUPED: building a statutory return (fold names into their category); RAW: bypass folding
+function wmRaw(fn) { WM_RAW++; try { return fn(); } finally { WM_RAW--; } }
+function wmGroupOf(kind, it, s) {
+    var b = it.base || it.id;
+    return wmRaw(function() { return wsActiveItems(kind, s).filter(function(x) { return (x.base || x.id) === b; }); });
+}
+
+// add a name: inherit everything from the category line except the name itself; log it as a setting change
+wsCloneAdd = function(kind, baseId) {
+    var s = wsGetSettings();
+    s.clones[kind] = s.clones[kind] || [];
+    var n = s.clones[kind].filter(function(c) { return c.base === baseId; }).length + 2, id = baseId + '~' + n;
+    while (s.clones[kind].some(function(c) { return c.id === id; })) { n++; id = baseId + '~' + n; }
+    s.clones[kind].push({ id: id, base: baseId });
+    var b = s.sel[kind][baseId] || {}, c = {};
+    ['unit', 'fac', 'mat', 'rt', 'dens', 'kgpc'].forEach(function(k) { if (b[k] != null) c[k] = b[k]; });
+    c.unit = c.unit || 'MT'; c.fac = c.fac == null ? '' : c.fac; c.local = '';
+    s.sel[kind][id] = c;
+    if (!s.sel[kind][baseId]) s.sel[kind][baseId] = { unit: c.unit, fac: '', local: '' };
+    wsSaveSettings(s);
+    wmLogSetting('catalogue item added', baseId.split(':').pop() + ' (item ' + n + ')');
+    wmRender();
+    setTimeout(function() { var el = document.querySelector('#wsp-' + wsSid(id) + ' .ws6-local'); if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); } }, 50);
+};
+// remove a name: its ledger rows move to the category's first name so no recorded quantity is lost
+wsCloneRemove = function(kind, id) {
+    var s = wsGetSettings(), log = wsGetLog(), rec = log[id], base = (s.clones[kind].filter(function(c) { return c.id === id; })[0] || {}).base;
+    var has = rec && rec.rows.some(function(r) { return wsNum(r.gq) || wsNum(r.dq); });
+    if (has && !confirm('This item has ledger entries. Remove it and move its entries to ' + (base || '').split(':').pop() + '?')) return;
+    if (has && base) { var to = wsLogFor(base); rec.rows.filter(function(r) { return wsNum(r.gq) || wsNum(r.dq); }).forEach(function(r) { var u = (s.sel[kind][id] || {}).unit; r.gu = r.gu || u; r.du = r.du || u; to.rows.push(r); }); }
+    delete log[id];
+    s.clones[kind] = s.clones[kind].filter(function(c) { return c.id !== id; });
+    delete s.sel[kind][id];
+    (s.depts || []).forEach(function(d) { d.items = (d.items || []).filter(function(x) { return x !== id; }); });
+    wsSaveSettings(s); wsSaveLog();
+    wmLogSetting('catalogue item removed', id.split(':').pop() + (has ? ' (entries moved)' : ''));
+    wmRender();
+};
+
+// one merged ledger for a category (all its names), rows carrying explicit units
+function wmMergedRec(kind, items, s) {
+    var R = wsItemCfg(kind, items[0], s).unit, open = { q: '', u: '', d: '' }, rows = [];
+    items.forEach(function(x) {
+        var u = wsItemCfg(kind, x, s).unit, rec = wmRaw(function() { return wsLogFor(x.id); });
+        rec.rows.forEach(function(r) { var c = {}; for (var k in r) c[k] = r[k]; c.gu = r.gu || u; c.du = r.du || u; c.fromName = x.id; rows.push(c); });
+        if (wsNum(rec.open.q)) { if (!wsNum(open.q)) open = { q: rec.open.q, u: rec.open.u || u, d: rec.open.d }; else rows.push({ gq: rec.open.q, gu: rec.open.u || u, gd: rec.open.d, dq: '', du: u, dd: '' }); }
+    });
+    return { unit: R, rec: { open: open, rows: rows } };
+}
+
+// storage clock per category: names under one code share the clock (the limit applies to the waste, not to its local names)
+(function() {
+    var p0 = wsPending;
+    wsPending = function(kind, it, s) {
+        s = s || wsGetSettings();
+        var g = wmGroupOf(kind, it, s);
+        if (g.length < 2) return p0(kind, it, s);
+        var m = wmMergedRec(kind, g, s), key = '__grp__' + (it.base || it.id), L = wsGetLog();
+        L[key] = m.rec;
+        try { var res = p0(kind, { id: key, code: it.code, label: it.label, unit: m.unit }, s); } finally { delete L[key]; }
+        res.group = g.length;
+        return res;
+    };
+})();
+
+// statutory returns by category: run the v8 builders with each category's names folded into one item
+(function() {
+    var a0 = wsActiveItems, e0 = wsEvents, l0 = wsLogFor, n0 = wmLines;
+    var on = function() { return WM_GROUPED > 0 && WM_RAW === 0; };
+    var baseOf = function(kind, it, s) { return wmGroupOf(kind, it, s)[0]; };
+    wsActiveItems = function(kind, s) {
+        var all = a0(kind, s); if (!on()) return all;
+        return all.filter(function(it) { return !it.clone || !all.some(function(x) { return x.id === it.base; }); });
+    };
+    wsEvents = function(kind, s, P) {
+        if (!on()) return e0(kind, s, P);
+        return wmRaw(function() { return e0(kind, s, P); }).map(function(e) {
+            var b = baseOf(kind, e.it, s); if (!b || b.id === e.it.id) return e;
+            var to = wsItemCfg(kind, b, s).unit, q = wsConv(e.q, e.unit, to), c = {}; for (var k in e) c[k] = e[k];
+            c.it = b; c.nameIt = e.it; if (q != null) { c.q = q; c.unit = to; }
+            return c;
+        });
+    };
+    wsLogFor = function(id) {
+        if (!on() || id.indexOf('__grp__') === 0) return l0(id);
+        var kind = (id.split(':')[1] || ''), s = wsGetSettings(); if (WS_KINDS.indexOf(kind) < 0) return l0(id);
+        var it = wmRaw(function() { return a0(kind, s).filter(function(x) { return x.id === id; })[0]; }); if (!it) return l0(id);
+        var g = wmGroupOf(kind, it, s); if (g.length < 2) return l0(id);
+        return wmRaw(function() { return wmMergedRec(kind, g, s).rec; });
+    };
+    wmLines = function(s, P) {
+        if (!on()) return n0(s, P);
+        var L = wmRaw(function() { return n0(s, P); });
+        L.lines.forEach(function(l) { if (!l.it || !l.it.clone || l.sw) return; var b = baseOf(l.kind, l.it, s); if (!b) return; var to = wsItemCfg(l.kind, b, s).unit, q = wsConv(l.q, l.unit, to); l.nameIt = l.it; l.it = b; if (q != null) { l.q = q; l.unit = to; } });
+        return L;
+    };
+})();
+function wmGrouped(fn) { return function(s, P) { WM_GROUPED++; try { return fn(s, P); } finally { WM_GROUPED--; } }; }
+['F3', 'F4', 'FV', 'SUMM'].forEach(function(k) { if (WS_RPT[k]) WS_RPT[k].build = wmGrouped(WS_RPT[k].build); });
+
+// department filter: a department mapped to the category sees all its names only until names are assigned to departments
+(function() {
+    var h0 = wsLedgerHTML;
+    wsLedgerHTML = function(kind, s) {
+        var d = WM_CTX.dept ? wmDept(WM_CTX.dept) : null;
+        if (!d || !d.items || !d.items.length) return h0(kind, s);
+        var a0 = wsActiveItems;
+        wsActiveItems = function(k, ss) {
+            var all = a0(k, ss); if (k !== kind) return all;
+            return all.filter(function(it) {
+                if (d.items.indexOf(it.id) >= 0) return true;
+                if (!it.clone || d.items.indexOf(it.base) < 0) return false;
+                return !d.items.some(function(x) { return x.indexOf(it.base + '~') === 0; });   // dept picked specific names → only those
+            });
+        };
+        try { return h0(kind, s); } finally { wsActiveItems = a0; }
+    };
+})();
+
+// ledger card: say when the storage clock is shared by several names
+(function() {
+    var c0 = wsCardHTML;
+    wsCardHTML = function(kind, it, s) {
+        var html = c0(kind, it, s), g = wmGroupOf(kind, it, s || wsGetSettings());
+        if (g.length < 2) return html;
+        var note = '<div class="wm-pendnote">' + g.length + ' items under ' + wsEsc(it.code) + ' (' + g.map(function(x) { return wsEsc(wsDisplayName(kind, x, s || wsGetSettings()).main); }).join(' · ') + '): the storage clock and returns use their combined quantity.</div>';
+        var sid = wsSid(it.id), i = html.indexOf('id="wsp-' + sid + '-pend"');
+        if (i < 0) return html + note;
+        var j = html.lastIndexOf('<', i);
+        return html.slice(0, j) + note + html.slice(j);
+    };
+})();
+
+// ── Where & by whom the waste is handled (one setting per receiver) ──
+// The route says WHAT happens (recycling, landfill, composting…); this says WHERE and BY WHOM. Only third-party handling is
+// Scope 3 Category 5. Our own handling: recovery (recycling / reuse / co-processing) → within boundary, not Category 5;
+// treatment or disposal (landfill, incineration, composting, AD) → Scope 1 (same equations), as for "treated on own site".
+var WM_LOC = [
+    ['tp_off',  'Off-site — third party (recycler, TSDF, processor, municipality)', 'Category 5'],
+    ['tp_on',   'On-site — a contractor operating on our premises', 'Category 5 (third party), reported as on-site'],
+    ['own_on',  'On-site — reused / recycled / treated by us within our premises', 'Not Category 5 — inside our boundary'],
+    ['own_off', 'Off-site — another unit of our organisation', 'Not Category 5 — inside our boundary']
+];
+function wmLoc(f) { return (f && f.loc) || 'tp_off'; }
+function wmOwn(f) { return /^own/.test(wmLoc(f)); }
+function wmOnsiteLoc(f) { return /_on$/.test(wmLoc(f)); }
+(function() {
+    // receivers saved with the earlier "in-house" route become recycling + "another unit of our organisation"
+    var w0 = wmFac;
+    wmFac = function(kind, idx, s) { var f = w0(kind, idx, s); if (f && f.route === 'inhouse') { f.route = 'recycle'; f.loc = f.loc || 'own_off'; } return f; };
+    var n0 = wmLines;
+    wmLines = function(s, P) {
+        var L = n0(s, P);
+        L.lines.forEach(function(l) {
+            if (l.sw || l.ww || !l.fac) return;
+            if (wmOwn(l.fac)) {
+                var cls = (l.R || {}).cls, treat = ['landfill', 'incin', 'compost', 'ad', 'openburn', 'muni'].indexOf(cls) >= 0;
+                var f = wmFactor({ route: treat ? 'onsite' : 'inhouse', mat: l.cfg.mat, region: s.framework });
+                f.steps.unshift('Handled ' + (wmLoc(l.fac) === 'own_on' ? 'within our premises' : 'by another unit of our organisation') + ' (receiver: ' + (l.fac.name || 'not named') + ') — ' + (l.R ? l.R.label : 'route not set') + '.');
+                l.f = f; l.tco2 = 0; l.bio = 0; l.tier = Math.min(l.tier, 3);
+                l.flags = l.flags.filter(function(x) { return !/Treatment shares are illustrative|Landfill site type not recorded/.test(x); });
+                if (!treat) l.flags.push('Receiving unit: do not report this as purchased material (Scope 3 Category 1)');
+                if (l.kind === 'hw' && wmLoc(l.fac) === 'own_off') l.flags.push('Hazardous transfer to other premises: Form 10 manifest and Rule 9 utilisation authorisation at the receiving unit [confirm with SPCB]');
+            }
+            if (l.route === 'afr_pre' && !l.fac.enduser) l.flags.push('AFR platform: record the cement plant it supplies (receivers step)');
+        });
+        return L;
+    };
+    // GRI 306-4 / 306-5 on-site vs off-site
+    var c0 = wmClass;
+    wmClass = function(l) { var c = c0(l); if (l.fac && wmOnsiteLoc(l.fac)) c.site = 'on-site'; return c; };
+    // Form 4: our own handling of hazardous waste is "utilised in-house"
+    var r0 = wmRouteClass;
+    wmRouteClass = function(route, l) { if (l && l.fac && wmOwn(l.fac)) return 'Utilised in-house'; return r0(route); };
+})();
+
+// settings review: names without a name
+(function() {
+    var r0 = wmSettingsReview;
+    wmSettingsReview = function(s) {
+        var out = r0(s), un = [];
+        ['hw', 'nh'].forEach(function(k) { wsActiveItems(k, s).forEach(function(it) { if (it.clone && !((s.sel[k][it.id] || {}).local)) un.push(it.code); }); });
+        if (un.length) out.push({ sec: 'Catalogue', step: 'catalogue', label: 'Additional waste items', val: un.length + ' added item(s) without a name (' + un.join(', ') + ')', st: 'warn' });
+        return out;
+    };
+})();
+
+// a folded event keeps the receiver of the name it was recorded under
+(function() {
+    var f0 = wsFacOf;
+    wsFacOf = function(kind, e, s) { return f0(kind, e.nameIt ? Object.assign({}, e, { it: e.nameIt }) : e, s); };
 })();
 
 
