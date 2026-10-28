@@ -7934,15 +7934,63 @@ var WQ_TYPES = [
   { k: 'usedoil',  label: 'Used oil (DG sets, vehicles)',                 mat: 'fossil_liquid', brsr: 'G', routes: ['rerefine', 'coproc', 'incin'], d: 'rerefine', haz: true, wmt: 'Used oil is hazardous waste (Schedule I 5.1): authorisation, Form 10 manifest and Form 4 — use the Waste Management Tool' },
   { k: 'bmw',      label: 'Bio-medical (first-aid room / small clinic)',  mat: 'clinical',      brsr: 'C', routes: ['incin', 'autoclave'], d: 'incin', tech: 'cbwtf_batch', haz: true, wmt: 'Bio-medical occupiers need the 48-hour clock and Form IV — use the Waste Management Tool' },
   { k: 'cd',       label: 'C&D debris (renovation)',                      mat: 'cd_mixed',      brsr: 'D', routes: ['recycle', 'muni', 'landfill'], d: 'recycle', wmt: 'Construction projects covered by the C&D Rules 2025 file half-yearly returns — use the Waste Management Tool' },
+  { k: 'dry_all',  label: 'Whole bin — not split by material',            mat: 'paper',         brsr: 'H', routes: ['recycle', 'muni', 'landfill', 'wte', 'incin'], d: 'recycle', est: true, note: 'Not split: priced as paper & card, the main degradable dry fraction, so the figure is an upper bound if any of it is landfilled or burnt. Split the bin by material to report accurately.' },
   { k: 'other',    label: 'Other non-hazardous',                          mat: 'ind_other',     brsr: 'H', routes: ['recycle', 'muni', 'landfill', 'incin'], d: 'muni' }
 ];
+// ── Region → bins. Codes, labels and colours mirror the Waste Management Tool's solid-waste streams (WS_FRAMEWORKS[*].sw),
+//    so a site moving to the tool sees the same bins. Types not in any bin of the region fall into "Other streams".
+var WQ_REGIONS = {
+  CPCB:    { label: '🇮🇳 India (CPCB)', segLabel: 'segregated at source into the 4 bins', basis: 'Solid Waste Management Rules 2026 — four-way segregation at source',
+    bins: [ { code: 'WET', label: 'Wet Waste (Green Bin)', icon: '🌿', color: '#16a34a', hint: 'Kitchen, canteen, food, fruit / vegetable peels, garden waste.', types: ['food', 'garden'] },
+            { code: 'DRY', label: 'Dry Waste (Blue Bin)', icon: '♻️', color: '#2563eb', hint: 'Recyclables — paper, cardboard, plastic, metal, glass, wood, clean textiles.', types: ['paper', 'plastic', 'metal', 'glass', 'wood', 'textile', 'dry_all'] },
+            { code: 'SAN', label: 'Sanitary Waste (Red Bin)', icon: '🚮', color: '#dc2626', hint: 'Used diapers, sanitary napkins / pads, tampons — wrapped securely before handover.', types: ['sanitary'] },
+            { code: 'SPC', label: 'Special Care Waste (Black Bin)', icon: '⚠️', color: '#1f2937', hint: 'CFL / tube lights, expired medicines, paint and chemical containers, mercury thermometers from office / canteen use.', types: ['lamps', 'meds', 'paintc', 'mercury', 'special'] } ] },
+  EU:      { label: '🇪🇺 European Union', segLabel: 'separately collected (not residual)', basis: 'Waste Framework Directive — separate collection of paper, metal, plastic, glass, bio-waste (2024) and textiles (2025); national schemes vary',
+    bins: [ { code: 'BIO', label: 'Bio-waste', icon: '🌿', color: '#16a34a', hint: 'Food and kitchen waste, garden waste (LoW 20 01 08 / 20 02 01).', types: ['food', 'garden'] },
+            { code: 'PAP', label: 'Paper & Cardboard', icon: '📦', color: '#2563eb', hint: 'LoW 20 01 01 / 15 01 01.', types: ['paper'] },
+            { code: 'PMP', label: 'Plastic & Metal Packaging', icon: '♻️', color: '#0891b2', hint: 'Packaging covered by EPR schemes.', types: ['plastic', 'metal'] },
+            { code: 'GLS', label: 'Glass', icon: '🍾', color: '#7c3aed', hint: 'LoW 20 01 02 / 15 01 07.', types: ['glass'] },
+            { code: 'RES', label: 'Residual (Mixed Municipal)', icon: '🗑️', color: '#6b7280', hint: 'LoW 20 03 01 — what remains after separate collection, incl. sanitary waste.', types: ['mixed', 'sanitary'] } ] },
+  UK:      { label: '🇬🇧 United Kingdom', segLabel: 'separated from residual', basis: 'Simpler Recycling (England) — workplaces separate food, dry recyclables and residual; Scotland, Wales and Northern Ireland have their own rules',
+    bins: [ { code: 'FOOD', label: 'Food Waste', icon: '🌿', color: '#16a34a', hint: 'Separate food-waste collection for workplaces in scope.', types: ['food'] },
+            { code: 'DRY', label: 'Dry Recyclables', icon: '♻️', color: '#2563eb', hint: 'Glass, metal, plastic, paper & card (paper / card may be collected separately).', types: ['paper', 'plastic', 'metal', 'glass', 'dry_all'] },
+            { code: 'RES', label: 'Residual Waste', icon: '🗑️', color: '#6b7280', hint: 'General waste after separation, incl. sanitary waste.', types: ['mixed', 'sanitary'] } ] },
+  US:      { label: '🇺🇸 United States', segLabel: 'diverted from trash', basis: 'No federal bin rule — recyclables and trash, with organics where a state or city requires it (e.g. California SB 1383, NYC commercial organics)',
+    bins: [ { code: 'ORG', label: 'Organics', icon: '🌿', color: '#16a34a', hint: 'Food and compostables — mandatory separation in some states and cities.', types: ['food', 'garden'] },
+            { code: 'REC', label: 'Recyclables', icon: '♻️', color: '#2563eb', hint: 'Single-stream or source-separated recyclables.', types: ['paper', 'plastic', 'metal', 'glass', 'dry_all'] },
+            { code: 'TRA', label: 'Trash', icon: '🗑️', color: '#6b7280', hint: 'Landfill-bound general waste, incl. sanitary waste.', types: ['mixed', 'sanitary'] } ] },
+  Generic: { label: '🌐 Other country (generic)', segLabel: 'separated from residual', basis: 'Generic four-stream separation — rename to match local rules',
+    bins: [ { code: 'ORG', label: 'Organic', icon: '🌿', color: '#16a34a', hint: 'Food, garden and other biodegradable waste.', types: ['food', 'garden'] },
+            { code: 'REC', label: 'Recyclable', icon: '♻️', color: '#2563eb', hint: 'Paper, plastic, metal, glass.', types: ['paper', 'plastic', 'metal', 'glass', 'dry_all'] },
+            { code: 'SAN', label: 'Sanitary', icon: '🚮', color: '#6b7280', hint: 'Sanitary and hygiene waste.', types: ['sanitary'] },
+            { code: 'RES', label: 'Residual', icon: '🗑️', color: '#374151', hint: 'Everything else.', types: ['mixed'] } ] }
+};
+var WQ_OTHER = { code: 'OTH', label: 'Other streams — not in the bins', icon: '➕', color: '#92400e', hint: 'E-waste, batteries, used oil, first-aid bio-medical waste, C&D debris and anything the region does not collect in a bin. These need their own authorised receivers.' };
+function wqRegion() { var r = wqGet().region; return WQ_REGIONS[r] ? r : 'CPCB'; }
+function wqBins() { return WQ_REGIONS[wqRegion()].bins; }
+function wqBinOf(t) { var b = wqBins().filter(function(x) { return x.types.indexOf(t) >= 0; })[0]; return b ? b.code : 'OTH'; }
+function wqBinTypes(code) {
+    if (code !== 'OTH') return wqBins().filter(function(x) { return x.code === code; })[0].types;
+    var inBins = [].concat.apply([], wqBins().map(function(b) { return b.types; }));
+    var o = WQ_TYPES.filter(function(x) { return inBins.indexOf(x.k) < 0 && x.k !== 'dry_all'; }).map(function(x) { return x.k; });
+    return o.filter(function(k) { return k !== 'mixed'; }).concat(o.indexOf('mixed') >= 0 ? ['mixed'] : []);
+}
+function wqProxy() { var L = WM_EF.REGION_LIB[wqRegion()] || WM_EF.REGION_LIB.Generic; return L.proxy ? L : null; }
 var WQ_SEED = [['food', 'compost'], ['paper', 'recycle'], ['plastic', 'recycle'], ['mixed', 'muni'], ['ewaste', 'recycle']];
 var _WQ = null;
 function wqGet() {
     if (_WQ) return _WQ;
     try { var r = localStorage.getItem('WQ_SIMPLE_V1'); if (r) _WQ = JSON.parse(r); } catch (e) {}
-    if (!_WQ) _WQ = { source: 'simple', rows: WQ_SEED.map(function(x) { return { t: x[0], q: '', u: 'kg', rt: x[1], site: '', rcv: '', ev: '' }; }), self: {} };
+    if (!_WQ) { _WQ = { source: 'simple', region: 'CPCB', rows: [], self: {} }; _WQ.rows = wqSeedRows(); }
+    if (!_WQ.region) _WQ.region = 'CPCB';
     return _WQ;
+}
+function wqSeedRows() { return wqBins().map(function(b) { var T = wqType(b.types[0]); return { t: T.k, q: '', u: 'kg', rt: T.d, site: '', rcv: '', ev: '' }; }); }
+function wqSetRegion(r) {
+    var D = wqGet(); D.region = r;
+    D.rows = D.rows.filter(function(x) { return x.sample || parseFloat(x.q) || x.rcv || x.ev; });   // drop empty starter lines, keep entered data
+    if (!D.rows.length) D.rows = wqSeedRows();
+    wqSave(); renderWQ1(document.getElementById('formPanelBody'));
 }
 function wqSave() { try { localStorage.setItem('WQ_SIMPLE_V1', JSON.stringify(_WQ)); } catch (e) {} }
 function wqType(k) { return WQ_TYPES.filter(function(x) { return x.k === k; })[0] || WQ_TYPES[WQ_TYPES.length - 1]; }
@@ -7953,6 +8001,8 @@ function wqCalc(r) {
     var tier = r.ev === 'weighed' ? 2 : (r.ev === 'documented' ? 3 : (r.ev === 'estimated' ? 5 : 4));
     if (r.u === 'L') tier = Math.max(tier, 4);
     tier = Math.max(tier, f.tierFloor || 1);
+    if (T.est) tier = 5;
+    if (wqProxy()) tier = Math.max(tier, 4);
     var R = WM_EF.ROUTES[r.rt] || {};
     return { T: T, t: t, f: f, tier: tier, tco2: f.cat5 === true && f.total != null ? t * f.total / 1000 : 0, R: R, mth: mth };
 }
@@ -7975,7 +8025,7 @@ function renderWQ1(body) {
     var head = '<div class="ws6-banner" style="background:#eff6ff;border-left-color:#2563eb;"><div class="ws6-banner-t" style="color:#1d4ed8;">👤 Who uses this form</div><div class="ws6-banner-b">' +
         'Offices, IT / ITES, BPOs, banks, retail, warehouses, small enterprises and campuses <strong>without</strong> a hazardous waste authorisation, bulk-generator status, bio-medical occupier status or EPR obligation. ' +
         'You need yearly (or monthly) tonnes by waste type and where each went. That is enough for <strong>Scope 3 Category 5</strong>, <strong>GRI 306-3/4/5</strong> and the <strong>BRSR Principle 6</strong> waste table. ' +
-        'Factors are the same India-specific library the Waste Management Tool uses.</div></div>' +
+        'Factors are the same library the Waste Management Tool uses (India-derived; other regions are flagged as proxy until their national set is loaded).</div></div>' +
         '<details class="ws6-grp"' + (anyTool ? ' open' : '') + '><summary>🧭 Should this site use the Waste Management Tool instead? <span class="ws6-grpn">' + (anyTool ? 'Yes — see below' : 'Tick any that apply') + '</span></summary><div style="padding:0.5rem 0.7rem">' +
         '<div class="ws-checklist" style="grid-template-columns:1fr">' + selfHtml + '</div>' +
         (anyTool ? '<div class="ws6-alert amber" style="margin-top:0.4rem">Recommend the <strong>Waste Management Tool</strong> for this site: these obligations need dispatch-level records (manifest, transporter, receiver, dates, storage clocks) and statutory returns that a tonnes-by-type form cannot produce. <a href="tools/waste-management-tool.html" target="_blank" rel="noopener">Open the tool ↗</a> (paid add-on for manufacturing / regulated sites).</div>'
@@ -7987,25 +8037,52 @@ function renderWQ1(body) {
         return;
     }
     var routeOpts = function(T, v) { return T.routes.map(function(k) { return '<option value="' + k + '"' + (k === v ? ' selected' : '') + '>' + wqEsc(WM_EF.ROUTES[k].label) + '</option>'; }).join(''); };
-    var rows = D.rows.map(function(r, i) {
+    var reg = wqRegion(), RG = WQ_REGIONS[reg], px = wqProxy();
+    var regSel = '<div class="wq-region"><label><span class="ws6-h">Waste region</span> <select class="ws6-in ws6-sm" style="width:auto" onchange="wqSetRegion(this.value)">' +
+        Object.keys(WQ_REGIONS).map(function(k) { return '<option value="' + k + '"' + (k === reg ? ' selected' : '') + '>' + WQ_REGIONS[k].label + '</option>'; }).join('') + '</select></label>' +
+        '<span class="wq-regnote">Sets the bins below: ' + wqEsc(RG.basis) + '.</span></div>' +
+        (px ? '<div class="ws6-alert amber">⚑ <strong>Proxy factors for this region.</strong> The bins follow ' + wqEsc(RG.label.replace(/^\S+\s/, '')) + ' practice, but emissions are priced with the India-derived IPCC library (Indian landfill site types and municipal treatment mix). Results are flagged evidence tier 4 or worse and labelled proxy. ' + wqEsc(px.note) + '</div>' : '');
+    var row = function(r, i, binCode) {
         var c = wqCalc(r), T = c.T, lf = c.R.cls === 'landfill' && !c.R.site;
-        var flags = (T.wmt ? ['⚑ ' + T.wmt] : []).concat(c.f.flags).concat(T.note ? [T.note] : []);
-        return '<tr' + (r.sample ? ' class="wq-samplerow"' : '') + '><td data-l="Waste type">' + (r.sample ? '<span class="wq-samplechip">SAMPLE</span>' : '') + '<select class="ws6-cell" onchange="wqSet(' + i + ',\'t\',this.value,true)">' + WQ_TYPES.filter(function(x) { return !x.legacy || x.k === r.t; }).map(function(x) { return '<option value="' + x.k + '"' + (x.k === r.t ? ' selected' : '') + '>' + wqEsc(x.label) + '</option>'; }).join('') + '</select></td>' +
+        var flags = wqFlags(c);
+        var opts = wqBinTypes(binCode).filter(function(k) { var x = wqType(k); return !x.legacy || x.k === r.t; });
+        if (opts.indexOf(r.t) < 0) opts.unshift(r.t);
+        return '<tr' + (r.sample ? ' class="wq-samplerow"' : '') + '><td data-l="Waste type">' + (r.sample ? '<span class="wq-samplechip">SAMPLE</span>' : '') + '<select class="ws6-cell" onchange="wqSet(' + i + ',\'t\',this.value,true)">' + opts.map(function(k) { var x = wqType(k); return '<option value="' + x.k + '"' + (x.k === r.t ? ' selected' : '') + '>' + wqEsc(x.label) + '</option>'; }).join('') + '</select></td>' +
             '<td data-l="Quantity"><input class="ws6-cell" type="number" min="0" step="any" value="' + wqEsc(r.q) + '" oninput="wqSet(' + i + ',\'q\',this.value)"></td>' +
             '<td data-l="Unit"><select class="ws6-cell ws6-u" onchange="wqSet(' + i + ',\'u\',this.value)">' + ['kg', 't'].concat(T.k === 'usedoil' ? ['L'] : []).map(function(u) { return '<option' + (u === r.u ? ' selected' : '') + '>' + u + '</option>'; }).join('') + '</select></td>' +
             '<td data-l="Where it went"><select class="ws6-cell" onchange="wqSet(' + i + ',\'rt\',this.value,true)">' + routeOpts(T, r.rt) + '</select>' +
             (lf ? '<select class="ws6-cell" style="margin-top:0.2rem" title="Landfill site type sets the methane correction factor" onchange="wqSet(' + i + ',\'site\',this.value)"><option value="">Site type unknown (MCF 0.6)</option>' + Object.keys(WM_EF.SITE).map(function(k) { return '<option value="' + k + '"' + (k === r.site ? ' selected' : '') + '>' + wqEsc(WM_EF.SITE[k].label) + '</option>'; }).join('') + '</select>' : '') + '</td>' +
-            '<td data-l="Receiver"><input class="ws6-cell" value="' + wqEsc(r.rcv) + '" placeholder="Recycler / ULB / CBWTF" oninput="wqSet(' + i + ',\'rcv\',this.value)"></td>' +
+            '<td data-l="Receiver"><input class="ws6-cell" value="' + wqEsc(r.rcv) + '" placeholder="' + (reg === 'CPCB' ? 'Recycler / ULB / CBWTF' : 'Recycler / collector / council') + '" oninput="wqSet(' + i + ',\'rcv\',this.value)"></td>' +
             '<td data-l="Evidence"><select class="ws6-cell" onchange="wqSet(' + i + ',\'ev\',this.value)">' + [['', 'Select…'], ['weighed', 'Weighed'], ['documented', 'Receipt / invoice'], ['estimated', 'Estimated']].map(function(o) { return '<option value="' + o[0] + '"' + (o[0] === r.ev ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></td>' +
             '<td data-l="Result" id="wq-res-' + i + '" class="wq-res">' + wqResHTML(c, flags) + '</td>' +
-            '<td>' + (D.rows.length > 1 ? '<button class="ws6-x" onclick="wqDel(' + i + ')">✕</button>' : '') + '</td></tr>';
+            '<td>' + (D.rows.length > 1 ? '<button class="ws6-x" title="Remove line" onclick="wqDel(' + i + ')">✕</button>' : '') + '</td></tr>';
+    };
+    var sections = wqBins().concat([WQ_OTHER]).map(function(b) {
+        var idx = []; D.rows.forEach(function(r, i) { if (wqBinOf(r.t) === b.code) idx.push(i); });
+        var open = b.code !== 'OTH' || idx.length;
+        return '<details class="wq-bin" data-bin="' + b.code + '" style="--bin:' + b.color + '"' + (open ? ' open' : '') + '><summary><span class="wq-binic">' + b.icon + '</span><span class="wq-binl">' + wqEsc(b.label) + '</span>' +
+            '<span class="wq-binsum" id="wq-binsum-' + b.code + '">' + wqBinSumHTML(b.code) + '</span></summary>' +
+            '<div class="wq-binb"><div class="wq-binh">' + wqEsc(b.hint) + '</div>' +
+            (idx.length ? '<div class="ws6-tblwrap"><table class="ws6-ltbl wq-tbl"><thead><tr><th>Waste type</th><th>Quantity</th><th>Unit</th><th>Where it went</th><th>Receiver</th><th>Evidence</th><th>Factor · t CO₂e · tier</th><th></th></tr></thead><tbody>' + idx.map(function(i) { return row(D.rows[i], i, b.code); }).join('') + '</tbody></table></div>' : '<div class="wq-binempty">Nothing recorded in this ' + (b.code === 'OTH' ? 'group' : 'bin') + '.</div>') +
+            '<button class="ws6-add" onclick="wqAdd(\'' + b.code + '\')">+ Add ' + (b.code === 'OTH' ? 'other stream' : 'line to ' + wqEsc(b.label.replace(/\s*\(.*\)$/, ''))) + '</button></div></details>';
     }).join('');
-    body.innerHTML = head + srcSel +
+    body.innerHTML = head + srcSel + regSel +
         wqSampleBar() +
-        '<p class="ws6-p">One line per waste type and destination — split a type across two lines if part was recycled and part went to the municipality. Quantities are for the reporting period selected at the top of the page. Hand-over to the municipality with unknown treatment uses an average-data factor (evidence tier 5, illustrative until CPCB treatment shares are confirmed).</p>' +
-        '<div class="ws6-tblwrap"><table class="ws6-ltbl wq-tbl"><thead><tr><th>Waste type</th><th>Quantity</th><th>Unit</th><th>Where it went</th><th>Receiver</th><th>Evidence</th><th>Factor · t CO₂e · tier</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
-        '<button class="ws6-add" onclick="wqAdd()">+ Add line</button>' +
+        '<p class="ws6-p">Record by bin, the way the waste is collected. Inside each bin, add one line per material and destination: material and destination set the emission factor, not the bin. If a bin is only weighed as a whole, use <em>Whole bin — not split</em> (estimated, tier 5). Quantities are for the reporting period selected at the top of the page. Hand-over to the municipality with unknown treatment uses an average-data factor (tier 5, illustrative until CPCB treatment shares are confirmed).</p>' +
+        sections +
         '<div class="ws6-sum" id="wq-sum">' + wqSummaryHTML() + '</div>';
+}
+function wqFlags(c) {
+    var T = c.T, f = [];
+    if (T.wmt) f.push('⚑ ' + (wqRegion() === 'CPCB' ? T.wmt : 'Hazardous / producer-responsibility stream — needs dispatch-level records; consider the Waste Management Tool'));
+    if (T.k === 'mixed' && wqRegion() === 'CPCB') f.push('Segregation gap: SWM Rules 2026 require four-way segregation at source — split into the bins where possible');
+    if (wqProxy()) f.push('Proxy factor (India-derived) for a ' + wqRegion() + ' site');
+    return f.concat(c.f.flags).concat(T.note ? [T.note] : []);
+}
+function wqBinSumHTML(code) {
+    var t = 0, co2 = 0, n = 0;
+    wqGet().rows.forEach(function(r) { if (wqBinOf(r.t) !== code) return; var c = wqCalc(r); if (c.t > 0) { t += c.t; co2 += c.tco2; n++; } });
+    return n ? wqF(t, 3) + ' t · ' + wqF(co2, 3) + ' t CO₂e' : '—';
 }
 function wqResHTML(c, flags) {
     var f = c.f;
@@ -8020,12 +8097,13 @@ function wqSet(i, k, v, rerender) {
     wqSave();
     if (rerender) { renderWQ1(document.getElementById('formPanelBody')); return; }
     var c = wqCalc(r), cell = document.getElementById('wq-res-' + i);
-    if (cell) cell.innerHTML = wqResHTML(c, (c.T.wmt ? ['⚑ ' + c.T.wmt] : []).concat(c.f.flags));
+    if (cell) cell.innerHTML = wqResHTML(c, wqFlags(c));
+    var bs = document.getElementById('wq-binsum-' + wqBinOf(r.t)); if (bs) bs.innerHTML = wqBinSumHTML(wqBinOf(r.t));
     var s = document.getElementById('wq-sum'); if (s) s.innerHTML = wqSummaryHTML();
 }
 // ── Sample data: tagged lines that exercise every method (waste-type-specific, average-data, cut-off) through to 3.5 ──
 var WQ_SAMPLE = [['food', 1200, 'kg', 'compost', '', 'Green Earth Composting (sample)', 'weighed'], ['paper', 800, 'kg', 'recycle', '', 'Registered paper recycler (sample)', 'documented'],
-    ['plastic', 300, 'kg', 'recycle', '', 'PWM-registered recycler (sample)', 'documented'], ['mixed', 2.5, 't', 'muni', '', 'ULB collection (sample)', 'estimated'],
+    ['plastic', 300, 'kg', 'recycle', '', 'PWM-registered recycler (sample)', 'documented'], ['sanitary', 300, 'kg', 'muni', '', 'ULB sanitary collection (sample)', 'estimated'], ['lamps', 40, 'kg', 'recycle', '', 'Lamp take-back (sample)', 'documented'],
     ['mixed', 0.9, 't', 'landfill', 'unmanaged_deep', 'City dumpsite (sample)', 'documented'], ['ewaste', 150, 'kg', 'recycle', '', 'Authorised e-waste recycler (sample)', 'documented'],
     ['other', 400, 'kg', 'incin', '', 'Common incinerator (sample)', 'weighed']];
 function wqSampleN() { return wqGet().rows.filter(function(r) { return r.sample; }).length; }
@@ -8044,17 +8122,18 @@ function wqAddSample() {
 function wqClearSample() {
     if (!confirm('Remove the sample lines from WQ.1? Your own lines are kept.')) return;
     var D = wqGet(); D.rows = D.rows.filter(function(r) { return !r.sample; });
-    if (!D.rows.length) D.rows = WQ_SEED.map(function(x) { return { t: x[0], q: '', u: 'kg', rt: x[1], site: '', rcv: '', ev: '' }; });
+    if (!D.rows.length) D.rows = wqSeedRows();
     wqSave(); renderWQ1(document.getElementById('formPanelBody'));
 }
-function wqAdd() { wqGet().rows.push({ t: 'other', q: '', u: 'kg', rt: 'muni', site: '', rcv: '', ev: '' }); wqSave(); renderWQ1(document.getElementById('formPanelBody')); }
+function wqAdd(code) { var T = wqType(wqBinTypes(code || 'OTH')[0] || 'other'); wqGet().rows.push({ t: T.k, q: '', u: 'kg', rt: T.d, site: '', rcv: '', ev: '' }); wqSave(); renderWQ1(document.getElementById('formPanelBody')); }
 function wqDel(i) { wqGet().rows.splice(i, 1); wqSave(); renderWQ1(document.getElementById('formPanelBody')); }
 function wqSelf(k, v) { var D = wqGet(); D.self = D.self || {}; D.self[k] = v; wqSave(); renderWQ1(document.getElementById('formPanelBody')); }
 function wqTotals() {
-    var D = wqGet(), o = { t: 0, tco2: 0, div: 0, dis: 0, s1: 0, t12: 0, est: 0, brsr: {}, rec: { 'Re-used': 0, 'Recycled': 0, 'Other recovery': 0 }, disp: { 'Incineration': 0, 'Landfilling': 0, 'Other disposal': 0 }, haz: 0 };
+    var D = wqGet(), o = { bins: {}, seg: 0, t: 0, tco2: 0, div: 0, dis: 0, s1: 0, t12: 0, est: 0, brsr: {}, rec: { 'Re-used': 0, 'Recycled': 0, 'Other recovery': 0 }, disp: { 'Incineration': 0, 'Landfilling': 0, 'Other disposal': 0 }, haz: 0 };
     D.rows.forEach(function(r) {
         var c = wqCalc(r); if (!(c.t > 0)) return;
-        o.t += c.t; o.tco2 += c.tco2; o.brsr[c.T.brsr] = (o.brsr[c.T.brsr] || 0) + c.t;
+        o.t += c.t; o.tco2 += c.tco2; var bc = wqBinOf(r.t); o.bins[bc] = o.bins[bc] || { t: 0, co2: 0 }; o.bins[bc].t += c.t; o.bins[bc].co2 += c.tco2;
+        if (r.t !== 'mixed' && (wqRegion() === 'CPCB' || ['RES', 'TRA'].indexOf(bc) < 0)) o.seg += c.t; o.brsr[c.T.brsr] = (o.brsr[c.T.brsr] || 0) + c.t;
         if (c.f.cat5 === 'scope1') o.s1 += c.t;
         var g = (c.R.gri || ['disposal'])[0]; if (g === 'diverted') o.div += c.t; else o.dis += c.t;
         if (o.rec[c.R.brsr] != null) o.rec[c.R.brsr] += c.t; else if (o.disp[c.R.brsr] != null) o.disp[c.R.brsr] += c.t;
@@ -8067,11 +8146,13 @@ function wqSummaryHTML() {
     var cats = { A: 'Plastic', B: 'E-waste', C: 'Bio-medical', D: 'C&D', E: 'Battery', F: 'Radioactive', G: 'Other hazardous', H: 'Other non-hazardous' };
     return '<div class="ws6-h">Summary — feeds Scope 3 Category 5 (3.5), GRI 306 and BRSR P6</div>' +
         '<div class="wq-kpis"><div><b>' + wqF(o.tco2, 3) + '</b><span>t CO₂e · Scope 3 Cat 5</span></div><div><b>' + wqF(o.t, 3) + '</b><span>t waste generated</span></div><div><b>' + pct(o.div) + '</b><span>diverted from disposal (GRI 306-4)</span></div>' +
-        '<div><b>' + pct(o.t12) + '</b><span>tonnes weighed (tier ≤ 2)</span></div><div><b>' + pct(o.est) + '</b><span>estimated / average-data (tier 5)</span></div>' + (o.s1 ? '<div><b>' + wqF(o.s1, 3) + '</b><span>t treated on site → Scope 1</span></div>' : '') + '</div>' +
+        '<div><b>' + pct(o.seg) + '</b><span>' + WQ_REGIONS[wqRegion()].segLabel + '</span></div><div><b>' + pct(o.t12) + '</b><span>tonnes weighed (tier ≤ 2)</span></div><div><b>' + pct(o.est) + '</b><span>estimated / average-data (tier 5)</span></div>' + (o.s1 ? '<div><b>' + wqF(o.s1, 3) + '</b><span>t treated on site → Scope 1</span></div>' : '') + '</div>' +
+        '<table class="ws6-stbl"><thead><tr><th>Bin / stream</th><th>t</th><th>t CO₂e</th></tr></thead><tbody>' + wqBins().concat([WQ_OTHER]).filter(function(b) { return o.bins[b.code]; }).map(function(b) { return '<tr><td>' + b.icon + ' ' + wqEsc(b.label) + '</td><td>' + wqF(o.bins[b.code].t, 3) + '</td><td>' + wqF(o.bins[b.code].co2, 3) + '</td></tr>'; }).join('') + '</tbody></table>' +
+        (wqProxy() ? '<p class="ws6-p"><strong>Proxy:</strong> t CO₂e above uses India-derived factors for a ' + wqRegion() + ' site (tier ≥ 4) until the national factor set is loaded.</p>' : '') +
         '<table class="ws6-stbl"><thead><tr><th>BRSR category</th><th>t</th></tr></thead><tbody>' + Object.keys(cats).filter(function(k) { return o.brsr[k]; }).map(function(k) { return '<tr><td>' + k + ' — ' + cats[k] + '</td><td>' + wqF(o.brsr[k], 3) + '</td></tr>'; }).join('') + '</tbody></table>' +
         '<p class="ws6-p">Recovered: re-used ' + wqF(o.rec['Re-used'], 3) + ' · recycled ' + wqF(o.rec['Recycled'], 3) + ' · other recovery ' + wqF(o.rec['Other recovery'], 3) + ' t. Disposed: incineration ' + wqF(o.disp['Incineration'], 3) + ' · landfilling ' + wqF(o.disp['Landfilling'], 3) + ' · other ' + wqF(o.disp['Other disposal'], 3) + ' t.' +
         (o.haz ? ' <strong>' + wqF(o.haz, 3) + ' t hazardous streams recorded — check whether the site needs an authorisation and the Waste Management Tool.</strong>' : '') + '</p>' +
-        (o.t * 1000 / 365 >= 100 ? '<div class="ws6-alert amber">⚑ About ' + Math.round(o.t * 1000 / 365) + ' kg/day on a yearly basis — at or above the 100 kg/day Bulk Waste Generator trigger (SWM Rules 2026). Bulk generators need the Waste Management Tool (EBWGR, portal registration, annual return).</div>' : '');
+        (wqRegion() === 'CPCB' && o.t * 1000 / 365 >= 100 ? '<div class="ws6-alert amber">⚑ About ' + Math.round(o.t * 1000 / 365) + ' kg/day on a yearly basis — at or above the 100 kg/day Bulk Waste Generator trigger (SWM Rules 2026). Bulk generators need the Waste Management Tool (EBWGR, portal registration, annual return).</div>' : '');
 }
 
 // One ledger: when the tool is licensed for the site, WQ.1 shows the tool's published figures read-only
@@ -8108,12 +8189,12 @@ function wqPanel35() {
     div.className = 'ws6-banner'; div.style.cssText = 'background:#f0fdf4;border-left-color:#16a34a;';
     div.innerHTML = '<div class="ws6-banner-t" style="color:#166534;">♻️ Derived from Waste → ' + (D.source === 'tool' ? 'Waste Management Tool' : 'WQ.1') + '</div><div class="ws6-banner-b">' +
         (D.source === 'tool' ? (function() { var S = wqToolSummary(), k = Object.keys(S); return 'Category 5 is calculated in the Waste Management Tool (per dispatch, India-derived factors, evidence tier)' + (k.length ? ': ' + k.map(function(id) { return wqEsc(S[id].site) + ' ' + wqF(S[id].totals.tco2, 3) + ' t CO₂e (' + wqEsc(S[id].edition) + ')'; }).join(' · ') : '') + '. Do not re-enter tonnes below.'; })()
-            : 'WQ.1 currently gives <strong>' + wqF(o.tco2, 3) + ' t CO₂e</strong> from ' + wqF(o.t, 3) + ' t of waste (' + (o.t ? Math.round(o.t12 / o.t * 100) : 0) + '% weighed). ' + (wqSampleN() ? '<strong style="color:#7e22ce">Includes ' + wqSampleN() + ' SAMPLE line(s) — clear them in WQ.1 before reporting.</strong> ' : '') + 'Category 5 should read this derived figure (like the 3.3 pattern); the stream quantity fields below are kept only for method, boundary and legacy data and should not repeat WQ.1 tonnes.') + '</div>';
+            : 'WQ.1 currently gives <strong>' + wqF(o.tco2, 3) + ' t CO₂e</strong>' + (wqProxy() ? ' (proxy — India-derived factors for a ' + wqRegion() + ' site)' : '') + ' from ' + wqF(o.t, 3) + ' t of waste (' + (o.t ? Math.round(o.t12 / o.t * 100) : 0) + '% weighed). ' + (wqSampleN() ? '<strong style="color:#7e22ce">Includes ' + wqSampleN() + ' SAMPLE line(s) — clear them in WQ.1 before reporting.</strong> ' : '') + 'Category 5 should read this derived figure (like the 3.3 pattern); the stream quantity fields below are kept only for method, boundary and legacy data and should not repeat WQ.1 tonnes.') + '</div>';
     body.insertBefore(div, body.firstChild);
 }
 (function() { var o = buildFormFields; buildFormFields = function(id) { o(id); if (id === '3.5') wqPanel35(); }; })();
 
-(function() { var st = document.createElement('style'); st.textContent = '.wq-samplebar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 10px;margin:.5rem 0;border:1px dashed #a855f7;border-radius:8px;background:#faf5ff;font-size:13px}.wq-samplebar span{flex:1 1 240px;font-size:12px;color:#4b5563}.wq-samplechip{display:inline-block;font-size:10px;font-weight:700;color:#6b21a8;background:#f3e8ff;border:1px solid #d8b4fe;border-radius:4px;padding:0 4px;margin:0 0 2px}tr.wq-samplerow td{background:#fdfaff}'; document.head.appendChild(st); })();
+(function() { var st = document.createElement('style'); st.textContent = '.wq-region{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:.4rem 0 .6rem}.wq-regnote{font-size:12px;color:#4b5563;flex:1 1 260px}.wq-bin{border:1px solid #e5e7eb;border-left:5px solid var(--bin);border-radius:8px;margin:.55rem 0;background:#fff}.wq-bin>summary{display:flex;align-items:center;gap:8px;padding:.6rem .8rem;cursor:pointer;font-weight:600;list-style:none}.wq-bin>summary::-webkit-details-marker{display:none}.wq-bin>summary::before{content:"▸";color:#9ca3af;font-size:12px}.wq-bin[open]>summary::before{content:"▾"}.wq-binl{color:var(--bin)}.wq-binsum{margin-left:auto;font-weight:500;font-size:12px;color:#374151}.wq-binb{padding:0 .8rem .7rem}.wq-binh{font-size:12px;color:#6b7280;margin-bottom:.4rem}.wq-tbl td:first-child select{min-width:210px}.wq-tbl td[data-l="Where it went"] select{min-width:190px}.wq-binempty{font-size:12px;color:#9ca3af;padding:.3rem 0 .5rem}.wq-samplebar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:8px 10px;margin:.5rem 0;border:1px dashed #a855f7;border-radius:8px;background:#faf5ff;font-size:13px}.wq-samplebar span{flex:1 1 240px;font-size:12px;color:#4b5563}.wq-samplechip{display:inline-block;font-size:10px;font-weight:700;color:#6b21a8;background:#f3e8ff;border:1px solid #d8b4fe;border-radius:4px;padding:0 4px;margin:0 0 2px}tr.wq-samplerow td{background:#fdfaff}'; document.head.appendChild(st); })();
 
 </script>
 </body>
