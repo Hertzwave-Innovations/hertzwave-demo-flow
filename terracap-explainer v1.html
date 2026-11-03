@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TerraCAP — Carbon Intelligence, Metered &amp; Everywhere</title>
+<style>
+  /* ============================================================
+     HERTZWAVE / TERRACAP — INVESTOR EXPLAINER
+     Self-contained animated HTML deck. No external dependencies.
+     Brand: #4A7C59 primary · #355b3f dark · #A8E6A3 mint · #2F4F3F deep
+     ============================================================ */
+  :root{
+    --hz:#4A7C59; --hz-700:#355b3f; --hz-900:#223c2e; --mint:#A8E6A3;
+    --deep:#2F4F3F; --ink:#20302a; --muted:#5B6E64; --paper:#eef3ef;
+    --card:#ffffff; --line:#d9e4dd; --amber:#d69e2e; --red:#E05B49;
+    --blue:#3182ce;
+    --ease:cubic-bezier(.34,1.1,.4,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    font-family:"Outfit",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:#0f1a14; color:var(--ink); overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* ---- Stage ---- */
+  #stage{
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    background:
+      radial-gradient(1200px 700px at 78% 12%, rgba(74,124,89,.25), transparent 60%),
+      radial-gradient(900px 600px at 10% 90%, rgba(168,230,163,.10), transparent 55%),
+      #0f1a14;
+  }
+  .deck{
+    position:relative; width:min(96vw, calc(96vh * 16/9)); height:min(96vh, calc(96vw * 9/16));
+    background:var(--paper); border-radius:18px; overflow:hidden;
+    box-shadow:0 30px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04);
+  }
+  .slide{
+    position:absolute; inset:0; padding:5.2% 6%; opacity:0; visibility:hidden;
+    transform:translateY(12px) scale(.997); transition:opacity .35s ease, transform .35s var(--ease);
+    display:flex; flex-direction:column;
+  }
+  .slide.active{opacity:1; visibility:visible; transform:none; transition-delay:.05s}
+  .slide.dark{background:
+      radial-gradient(900px 600px at 82% 8%, rgba(74,124,89,.35), transparent 60%),
+      linear-gradient(135deg,#223c2e,#18271f);
+    color:#eaf2ec}
+  .slide.dark .muted{color:#9fb4a7}
+
+  /* ---- Kicker / headings ---- */
+  .kicker{
+    font-size:1.05vh; letter-spacing:.28em; text-transform:uppercase;
+    font-weight:700; color:var(--hz); margin-bottom:1.6vh;
+  }
+  .slide.dark .kicker{color:var(--mint)}
+  h1{font-size:4.4vh; line-height:1.08; font-weight:800; letter-spacing:-.01em; color:var(--hz-900)}
+  .slide.dark h1{color:#fff}
+  h2{font-size:2.5vh; font-weight:700; letter-spacing:-.01em}
+  .lede{font-size:1.95vh; color:var(--muted); max-width:46ch; line-height:1.5; margin-top:1.6vh}
+  .slide.dark .lede{color:#bcd0c4}
+  .muted{color:var(--muted)}
+
+  /* ---- Reusable reveal ---- */
+  .r{opacity:0; transform:translateY(12px); transition:opacity .4s ease, transform .4s var(--ease)}
+  .active .r{opacity:1; transform:none}
+  .active .r.d1{transition-delay:.08s}.active .r.d2{transition-delay:.16s}
+  .active .r.d3{transition-delay:.24s}.active .r.d4{transition-delay:.32s}
+  .active .r.d5{transition-delay:.40s}.active .r.d6{transition-delay:.48s}
+  .active .r.d7{transition-delay:.56s}.active .r.d8{transition-delay:.64s}
+
+  /* ============ COVER ============ */
+  .cover{justify-content:center}
+  .wordmark{display:flex;align-items:center;gap:.6vh;margin-bottom:3.4vh}
+  .hw-logo{height:3.4vh;width:auto;display:block}
+  .cover h1{font-size:6.6vh;max-width:18ch}
+  .cover .sub{font-size:2.3vh;color:var(--mint);font-weight:600;margin-top:2vh;letter-spacing:.02em}
+  .cover .foot{position:absolute;left:6%;bottom:5%;font-size:1.25vh;color:#9fb4a7;letter-spacing:.04em}
+  .cover .foot:before{content:"";display:block;width:52px;height:3px;background:var(--amber);margin-bottom:1.1vh}
+  .orbits{position:absolute;right:-4%;top:-6%;width:52%;height:120%;opacity:.9;pointer-events:none}
+  .dot{position:absolute;border-radius:50%;background:var(--amber);animation:float 7s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+
+  /* ============ EVOLUTION SPINE (morphing metaphor) ============ */
+  .evo{display:grid;grid-template-columns:1fr;gap:2vh;flex:1;min-height:0}
+  .evo-row{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:2.2vh;flex:1;min-height:0;margin-top:2.2vh}
+  .era{
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:14px;
+    padding:2.4vh 2.2vh;display:flex;flex-direction:column;position:relative;overflow:hidden;
+  }
+  .slide:not(.dark) .era{background:var(--card);border-color:var(--line);box-shadow:0 6px 20px rgba(20,40,30,.06)}
+  .era .tag{font-size:1.15vh;letter-spacing:.22em;text-transform:uppercase;font-weight:700;margin-bottom:.8vh}
+  .era h2{font-size:2.3vh;margin-bottom:.6vh}
+  .era p{font-size:1.5vh;line-height:1.45;color:var(--muted)}
+  .slide.dark .era p{color:#bcd0c4}
+  .era .art{height:12vh;margin:1.4vh 0;position:relative}
+  .era .props{margin-top:auto;display:flex;flex-wrap:wrap;gap:.6vh}
+  .era .feat{list-style:none;margin:.4vh 0 1.2vh;display:flex;flex-direction:column;gap:.7vh}
+  .era .feat li{font-size:1.4vh;line-height:1.3;color:var(--muted);padding-left:2.2vh;position:relative}
+  .slide.dark .era .feat li{color:#c4d6ca}
+  .era .feat li:before{content:"";position:absolute;left:0;top:.45vh;width:1.3vh;height:1.3vh;border-radius:4px;
+    background:rgba(168,230,163,.22);border:1px solid var(--hz)}
+  .era .feat li:after{content:"✓";position:absolute;left:.18vh;top:-.05vh;font-size:1vh;color:var(--hz);font-weight:800}
+  .slide.dark .era .feat li:after{color:var(--mint)}
+  .chip{font-size:1.15vh;padding:.5vh 1vh;border-radius:999px;font-weight:600}
+  .chip.good{background:rgba(168,230,163,.22);color:var(--hz-700)}
+  .chip.bad{background:rgba(224,91,73,.14);color:var(--red)}
+  .chip.warn{background:rgba(214,158,46,.16);color:#9a6f14}
+  .slide.dark .chip.good{background:rgba(168,230,163,.18);color:var(--mint)}
+
+  .era.manual .tag{color:var(--muted)}
+  .era.saas .tag{color:var(--blue)}
+  .era.agentic{border-color:rgba(168,230,163,.5)}
+  .era.agentic .tag{color:var(--hz)}
+  .slide.dark .era.agentic{box-shadow:0 0 0 1px rgba(168,230,163,.35),0 10px 30px rgba(0,0,0,.35)}
+
+  /* scattered mini-spreadsheets (manual era) */
+  .sheet{position:absolute;width:11vh;background:#fff;border-radius:5px;overflow:hidden;
+    box-shadow:0 6px 18px rgba(0,0,0,.35);border:1px solid #d7ded9}
+  .sheet .sh-top{height:1.4vh;background:#1f7a4d;display:flex;align-items:center;padding:0 .6vh;gap:.3vh}
+  .sheet .sh-top i{width:.5vh;height:.5vh;border-radius:50%;background:rgba(255,255,255,.55)}
+  .sheet .sh-name{font-size:.82vh;color:#fff;opacity:.9;margin-left:.3vh;white-space:nowrap;overflow:hidden}
+  .sheet table{width:100%;border-collapse:collapse}
+  .sheet td{border:.5px solid #e3e8e5;height:1.15vh;font-size:.7vh;color:#5a6b61;padding:0 .3vh}
+  .sheet thead td{background:#eef3f0;color:#2f4f3f;font-weight:700}
+  .sheet td.err{background:#fde8e5;color:#c0392b;font-weight:700}
+  .sheet td.warn{background:#fdf3e0;color:#9a6f14}
+  .sheet td.na{color:#aab8b0;font-style:italic}
+  .note{position:absolute;max-width:13vh;width:max-content;font-size:1.1vh;font-weight:700;line-height:1.2;
+    background:#ffe08a;color:#6b4e00;padding:.7vh 1vh;border-radius:6px;
+    box-shadow:0 4px 10px rgba(0,0,0,.28);z-index:5}
+  /* SaaS visual: cloud platform + connected browser clients */
+  .saasviz{position:absolute;inset:0}
+  .saasviz .cloud{position:absolute;left:50%;top:14%;transform:translateX(-50%);width:16vh;height:8vh;
+    background:linear-gradient(135deg,#4a93d6,#2a66a8);border-radius:5vh;box-shadow:0 10px 26px rgba(49,130,206,.4);
+    display:flex;align-items:center;justify-content:center;z-index:2}
+  .saasviz .cloud:before,.saasviz .cloud:after{content:"";position:absolute;background:inherit;border-radius:50%}
+  .saasviz .cloud:before{width:6vh;height:6vh;left:1.6vh;top:-2.4vh}
+  .saasviz .cloud:after{width:8vh;height:8vh;right:1.6vh;top:-3.6vh}
+  .saasviz .cloud-label{position:relative;z-index:3;color:#fff;font-weight:800;font-size:1.5vh;text-align:center;line-height:1.05}
+  .saasviz .client{position:absolute;bottom:6%;width:9vh;height:6.6vh;background:#fff;border-radius:7px;
+    box-shadow:0 6px 16px rgba(0,0,0,.28);padding:1vh;display:flex;flex-direction:column;gap:.7vh;z-index:2;border:1px solid #d7ded9}
+  .saasviz .client .cbar{height:.9vh;background:#dfe8e2;border-radius:3px;width:60%}
+  .saasviz .client .crow{height:.7vh;background:#eef3f0;border-radius:3px}
+  .saasviz .client .crow.s{width:70%;background:#A8E6A3}
+  .saasviz .c1{left:4%}.saasviz .c2{left:50%;transform:translateX(-50%)}.saasviz .c3{right:4%}
+  .saasviz .links{position:absolute;inset:0;z-index:1}
+  .saasviz .links path{stroke:rgba(168,230,163,.55);stroke-width:1.2;fill:none;stroke-dasharray:4 3;
+    animation:flow 2.4s linear infinite}
+  @keyframes flow{to{stroke-dashoffset:-14}}
+  /* modular core + radiating tools (agentic) */
+  .core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:6.4vh;height:6.4vh;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,var(--mint),var(--hz));box-shadow:0 0 0 6px rgba(168,230,163,.18)}
+  .node{position:absolute;width:2.4vh;height:2.4vh;border-radius:7px;background:#fff;border:2px solid var(--hz);
+    box-shadow:0 4px 12px rgba(0,0,0,.18)}
+  .slide.dark .node{background:#1c2c23;border-color:var(--mint)}
+  .spark{position:absolute;left:50%;top:50%;height:2px;background:linear-gradient(90deg,var(--mint),transparent);transform-origin:left center;opacity:.7}
+  /* agent ⇄ tool interaction mock (slide 7) */
+  .agentchat{display:flex;flex-direction:column;gap:.9vh;background:rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.1);
+    border-radius:12px;padding:1.4vh}
+  .ac-msg{font-size:1.4vh;padding:.9vh 1.2vh;border-radius:10px;max-width:92%}
+  .ac-msg.user{align-self:flex-end;background:rgba(168,230,163,.16);color:#eaf2ec;border-bottom-right-radius:3px}
+  .ac-msg.bot{align-self:flex-start;background:rgba(74,124,89,.4);color:#fff;border-bottom-left-radius:3px}
+  .ac-call{align-self:center;font-size:1.25vh;color:#cfe3d5;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    display:flex;align-items:center;gap:.6vh;background:rgba(255,255,255,.06);padding:.6vh 1vh;border-radius:8px}
+  .ac-call b{color:var(--mint)}
+  .ac-call .ac-tag{background:var(--hz);color:#fff;font-size:1vh;padding:.1vh .6vh;border-radius:5px;font-family:inherit}
+  .ac-dot{width:.9vh;height:.9vh;border-radius:50%;background:var(--mint);animation:tcDot 1.4s ease-in-out infinite}
+  @keyframes tcDot{0%,100%{opacity:.4}50%{opacity:1}}
+
+  /* ============ AGENTIC ARCHITECTURE DIAGRAM (slide 7) ============ */
+  .arch{flex:1;display:flex;flex-direction:column;gap:.5vh;margin-top:1.8vh;min-height:0;justify-content:center}
+  .arch-layer{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:1.1vh 1.4vh}
+  .arch-layer.mcp{border-color:rgba(168,230,163,.45);background:rgba(168,230,163,.07)}
+  .arch-layer.aws{border-color:rgba(214,158,46,.4);background:rgba(214,158,46,.07)}
+  .arch-lab{font-size:1.2vh;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#9fc7ab;margin-bottom:.8vh;display:flex;align-items:center;gap:.8vh}
+  .arch-layer.aws .arch-lab{color:#e4bc6a}
+  .arch-lab .badge{font-size:1vh;letter-spacing:.04em;text-transform:none;background:var(--hz);color:#fff;padding:.2vh .7vh;border-radius:6px}
+  .arch-lab .badge.ghost{background:rgba(214,158,46,.25);color:#f0cd82}
+  .arch-row{display:flex;gap:.9vh;flex-wrap:wrap}
+  .anode{flex:1;min-width:0;text-align:center;font-size:1.3vh;font-weight:600;padding:.9vh .6vh;border-radius:9px;
+    background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#eaf2ec;display:flex;flex-direction:column;align-items:center;gap:.3vh;white-space:nowrap}
+  .anode span{font-size:1.9vh}
+  .anode.u{background:rgba(255,255,255,.05)}
+  .anode.ai{background:linear-gradient(135deg,rgba(74,124,89,.35),rgba(53,91,63,.35));border-color:rgba(168,230,163,.3);font-weight:700}
+  .anode.tool{background:rgba(168,230,163,.14);border-color:rgba(168,230,163,.4);color:#dff3e4;font-size:1.25vh;font-family:ui-monospace,Menlo,monospace}
+  .anode.core2{background:rgba(214,158,46,.14);border-color:rgba(214,158,46,.4);color:#f3e2c0;font-size:1.4vh}
+  .anode.core2 small{font-weight:500;font-size:1vh;color:#cdb98e;white-space:normal}
+  .skills{margin-top:.9vh;font-size:1.2vh;color:#cfe8d6;background:rgba(74,124,89,.3);border-radius:8px;padding:.7vh 1vh;text-align:center}
+  .arch-flow{display:flex;align-items:center;justify-content:center;gap:1vh;height:2.1vh}
+  .arch-flow .farrow{color:var(--mint);font-size:1.4vh;animation:tcDot 1.8s ease-in-out infinite}
+  .arch-flow .flab{font-size:1.05vh;color:#8fb49c;letter-spacing:.04em}
+
+  /* ============ PROBLEM ============ */
+  .gapgrid{display:grid;grid-template-columns:1.25fr 1fr;gap:3vh;align-items:center;margin-top:2.4vh;flex:1;min-height:0}
+  .gapviz{position:relative;height:30vh;display:flex;align-items:center;justify-content:center}
+  .vault{width:22vh;background:#fff;border-radius:12px;box-shadow:0 14px 36px rgba(20,40,30,.2);overflow:hidden;
+    border:1px solid #d7ded9;position:relative;z-index:3}
+  .vault-top{background:linear-gradient(135deg,var(--hz),var(--hz-700));color:#fff;padding:.9vh 1.2vh;
+    display:flex;align-items:center;gap:.6vh;font-size:1.2vh;font-weight:700}
+  .vault-top .vdot{width:.8vh;height:.8vh;border-radius:50%;background:rgba(255,255,255,.5)}
+  .vault-top b{margin-left:.4vh;font-weight:700}
+  .vault-body{padding:2vh 2vh 2.2vh;display:flex;flex-direction:column;align-items:center;gap:1.2vh;position:relative}
+  .vault-body .vlock{font-size:3.4vh}
+  .vault-body .vfield{width:100%;height:2.2vh;border-radius:6px;background:#eef3f0;border:1px solid #dde7e1}
+  .vault-body .vfield.s{width:100%}
+  .vault-body .vbtn{width:100%;text-align:center;padding:1vh;border-radius:7px;background:var(--hz);color:#fff;font-weight:700;font-size:1.4vh}
+  .vault-body .vhint{font-size:1.1vh;color:var(--muted);font-style:italic}
+  .outside{position:absolute;inset:0;z-index:2}
+  .outside .person{position:absolute;display:flex;flex-direction:column;align-items:center;gap:.3vh;
+    animation:nudge 2.4s ease-in-out infinite;animation-delay:var(--d)}
+  .outside .person .emoji{font-size:2.6vh;filter:grayscale(.3)}
+  .outside .person .plab{font-size:1.05vh;color:var(--muted);font-weight:600;white-space:nowrap}
+  .outside .person:nth-child(1){left:-2%;top:6%}
+  .outside .person:nth-child(2){left:-4%;top:46%}
+  .outside .person:nth-child(3){left:0;bottom:4%}
+  .outside .bounce{position:absolute;right:-2%;top:40%;font-size:1.2vh;font-weight:700;color:var(--red);
+    background:rgba(224,91,73,.1);border:1px dashed rgba(224,91,73,.5);padding:.6vh 1vh;border-radius:8px;transform:rotate(4deg)}
+  @keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(2.2vh)}}
+  .rows{display:flex;flex-direction:column;gap:1.8vh;margin-top:1vh}
+  .prow{display:flex;gap:2vh;align-items:flex-start}
+  .num{flex:0 0 auto;width:4.6vh;height:4.6vh;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:2.2vh;color:#fff}
+  .num.b{background:var(--blue)}.num.r{background:var(--red)}.num.a{background:var(--amber)}
+  .prow h2{font-size:2.3vh;color:var(--hz-900)}
+  .slide.dark .prow h2{color:#fff}
+  .prow p{font-size:1.65vh;color:var(--muted);margin-top:.4vh}
+
+  /* ============ STAT GRID ============ */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:2.4vh;flex:1;align-content:center}
+  .stat{background:var(--card);border-radius:16px;padding:3vh 2.6vh;box-shadow:0 8px 26px rgba(20,40,30,.08);
+    border-top:5px solid var(--hz);position:relative}
+  .slide.dark .stat{background:rgba(255,255,255,.05);box-shadow:none;border:1px solid rgba(255,255,255,.1);border-top:5px solid var(--mint)}
+  .stat .big{font-size:5.2vh;font-weight:800;letter-spacing:-.02em;color:var(--hz-900)}
+  .slide.dark .stat .big{color:#fff}
+  .stat .lab{font-size:1.5vh;color:var(--muted);margin-top:.6vh;line-height:1.35}
+  .stat.r2{border-top-color:var(--amber)} .stat.r3{border-top-color:var(--red)}
+
+  /* ============ FLOW / PIPELINE ============ */
+  .pipe{display:flex;gap:0;margin:2vh 0 2.4vh;flex-wrap:nowrap}
+  .step{flex:1;position:relative;padding:1.8vh 2vh;color:#fff;clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%,18px 50%)}
+  .step:first-child{clip-path:polygon(0 0,calc(100% - 18px) 0,100% 50%,calc(100% - 18px) 100%,0 100%)}
+  .step .n{font-size:1.3vh;opacity:.85;font-weight:700;letter-spacing:.14em}
+  .step .t{font-size:1.9vh;font-weight:700;margin-top:.3vh}
+  .step.s1{background:var(--red)}.step.s2{background:var(--blue)}.step.s3{background:var(--hz)}.step.s4{background:var(--amber)}
+
+  /* ============ TOOLS GALLERY (agentic model) ============ */
+  .tools{display:grid;grid-template-columns:repeat(4,1fr);gap:1.6vh;flex:1;align-content:center}
+  .tool{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:1.8vh;position:relative;overflow:hidden}
+  .slide.dark .tool{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1)}
+  .tool .ic{width:4vh;height:4vh;border-radius:10px;background:rgba(74,124,89,.12);display:flex;align-items:center;justify-content:center;font-size:2vh;margin-bottom:1vh}
+  .slide.dark .tool .ic{background:rgba(168,230,163,.14)}
+  .tool h3{font-size:1.7vh;color:var(--hz-900)}
+  .slide.dark .tool h3{color:#fff}
+  .tool .cr{font-size:1.3vh;color:var(--amber);font-weight:700;margin-top:.5vh}
+  /* 3×4 toolbox grid (expanded) */
+  .tools3{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;gap:1.3vh;flex:1;align-content:stretch}
+  .tools3 .tool{padding:1.4vh 1.5vh;display:flex;flex-direction:column}
+  .tools3 .ic{width:3.4vh;height:3.4vh;border-radius:9px;margin-bottom:.8vh;font-size:1.7vh}
+  .tools3 .tool h3{font-size:1.5vh;line-height:1.25}
+  .tools3 .tool .cr{margin-top:auto;padding-top:.6vh;font-size:1.2vh}
+
+  /* ============ CREDITS ============ */
+  .credits{display:grid;grid-template-columns:1fr 1fr;gap:3vh;flex:1;align-content:center}
+  .wallet{background:linear-gradient(135deg,var(--hz),var(--hz-700));border-radius:18px;padding:3.4vh;color:#fff;position:relative;overflow:hidden}
+  .wallet .bal{font-size:5.6vh;font-weight:800;letter-spacing:-.02em}
+  .wallet .sub{opacity:.85;font-size:1.6vh;margin-top:.4vh}
+  .wallet .bar{height:1.2vh;border-radius:999px;background:rgba(255,255,255,.2);margin-top:2.4vh;overflow:hidden}
+  .wallet .bar i{display:block;height:100%;width:0;background:var(--mint);border-radius:999px;transition:width 1.4s var(--ease) .3s}
+  .active .wallet .bar i{width:62%}
+  .ladder{display:flex;flex-direction:column;gap:1.4vh;justify-content:center}
+  .lstep{display:flex;gap:1.6vh;align-items:flex-start}
+  .lstep .dotm{flex:0 0 auto;width:2.2vh;height:2.2vh;border-radius:50%;background:var(--mint);margin-top:.5vh}
+  .lstep h3{font-size:1.9vh;color:var(--hz-900)} .slide.dark .lstep h3{color:#fff}
+  .lstep p{font-size:1.5vh;color:var(--muted);margin-top:.2vh}
+
+  /* ============ TAM bars ============ */
+  .tam{display:grid;grid-template-columns:1fr 1.3fr;gap:3vh;flex:1;align-items:center}
+  .tam .heds{display:flex;flex-direction:column;gap:1.8vh}
+  .tam .hcard{border-radius:14px;padding:2.4vh;color:#fff}
+  .tam .hcard .hb{font-size:3.8vh;font-weight:800}
+  .tam .hcard .hl{font-size:1.45vh;opacity:.9;margin-top:.3vh}
+  .tam .hcard.a{background:var(--hz-900)} .tam .hcard.b{background:var(--hz-700)} .tam .hcard.c{background:var(--amber)}
+  .bars{display:flex;flex-direction:column;gap:1.3vh}
+  .brow{display:grid;grid-template-columns:8vh 1fr auto;gap:1.2vh;align-items:center;font-size:1.5vh}
+  .brow .name{color:var(--muted);font-weight:600}
+  .brow .track{height:2.4vh;background:rgba(74,124,89,.1);border-radius:6px;overflow:hidden}
+  .slide.dark .brow .track{background:rgba(255,255,255,.08)}
+  .brow .track i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--hz),var(--mint));border-radius:6px;transition:width 1.2s var(--ease)}
+  .active .brow .track i{width:var(--w)}
+  .brow .val{font-weight:700;color:var(--hz-900);min-width:8vh;text-align:right}
+  .slide.dark .brow .val{color:#fff}
+
+  /* ============ REVENUE UPLIFT (slide 10) ============ */
+  .upliftwrap{display:grid;grid-template-columns:1fr 1.35fr;gap:3vh;flex:1;align-items:center}
+  .uheds{display:flex;flex-direction:column;gap:1.6vh}
+  .note-modelled{font-size:1.15vh;font-weight:700;letter-spacing:.08em;color:#9a6f14;
+    background:rgba(214,158,46,.14);border:1px dashed rgba(214,158,46,.5);border-radius:8px;padding:.7vh 1vh;text-align:center}
+  .uplift{display:flex;align-items:flex-end;justify-content:center;gap:2vh;height:34vh}
+  .ucol{display:flex;flex-direction:column;align-items:center;gap:1.2vh;height:100%;justify-content:flex-end}
+  .ubar{width:12vh;height:100%;display:flex;flex-direction:column;justify-content:flex-end;gap:3px}
+  .ustack{width:100%;border-radius:8px 8px 0 0;height:0;transition:height 1.1s var(--ease);position:relative;
+    display:flex;align-items:flex-start;justify-content:center}
+  .ustack.saas{background:linear-gradient(180deg,#5b93c9,#3182ce)}
+  .ustack.saas2{background:linear-gradient(180deg,#5c9470,var(--hz))}
+  .ustack.mcp{background:linear-gradient(180deg,var(--amber),#e8c06a);border-radius:8px 8px 0 0}
+  .ustack .uval{position:absolute;top:-3vh;font-size:2.2vh;font-weight:800;color:var(--hz-900);white-space:nowrap}
+  .ustack .useg-lab{font-size:1.15vh;font-weight:700;color:#6b4e00;padding-top:.8vh}
+  .ulab{text-align:center}
+  .ulab b{display:block;font-size:1.7vh;color:var(--hz-900)} .ulab small{font-size:1.2vh;color:var(--muted)}
+  .uarrow{display:flex;flex-direction:column;align-items:center;font-size:3.2vh;color:var(--hz);font-weight:800;padding-bottom:5vh}
+  .uarrow small{font-size:1.15vh;font-weight:700;color:var(--amber);letter-spacing:.03em;margin-top:.4vh}
+
+  /* ============ DASHBOARD mock (redesigned) ============ */
+  .dash{background:var(--card);border-radius:16px;flex:1;margin-top:2vh;overflow:hidden;
+    box-shadow:0 18px 44px rgba(20,40,30,.16);display:flex;flex-direction:column;border:1px solid #e3ede7}
+  /* browser chrome */
+  .dchrome{display:flex;align-items:center;gap:1vh;background:#eef3ef;border-bottom:1px solid #dde7e1;padding:1.1vh 1.6vh}
+  .dchrome .tl{width:1.3vh;height:1.3vh;border-radius:50%;background:#e05b49;flex:0 0 auto}
+  .dchrome .tl.y{background:#e4b43a}.dchrome .tl.g{background:#43a86b}
+  .dchrome .url{flex:1;margin-left:1vh;background:#fff;border:1px solid #dde7e1;border-radius:8px;
+    padding:.6vh 1.2vh;font-size:1.3vh;color:var(--muted);display:flex;align-items:center;gap:.8vh}
+  .dchrome .hw-dot{height:1.4vh;width:auto;opacity:.9}
+  .dchrome .pills{display:flex;gap:.6vh}
+  .dchrome .pill{background:rgba(74,124,89,.12);color:var(--hz-700);border-radius:7px;padding:.4vh 1vh;font-size:1.15vh;font-weight:600}
+
+  .dgrid{flex:1;display:grid;grid-template-columns:1.15fr 1.7fr 1.15fr;gap:1.6vh;padding:1.8vh;min-height:0}
+  /* two-row dashboard */
+  .dgrid2{flex:1;display:grid;grid-template-columns:1.1fr 1.7fr 1.1fr;grid-template-rows:1.25fr 1fr;gap:1.3vh;padding:1.5vh;min-height:0}
+  .dgrid2 .kcol{grid-row:1}
+  .dgrid2 .panel.wide{grid-column:1 / span 2}
+  /* horizontal Scope 3 bars */
+  .hbars{flex:1;display:flex;flex-direction:column;justify-content:center;gap:1vh}
+  .hrow{display:grid;grid-template-columns:13vh 1fr 4vh;align-items:center;gap:1vh;font-size:1.25vh}
+  .hrow .hn{color:var(--muted);font-weight:600;text-align:right;white-space:nowrap}
+  .hrow .ht{height:1.9vh;background:#eef3f0;border-radius:5px;overflow:hidden}
+  .hrow .ht i{display:block;height:100%;width:0;border-radius:5px;background:linear-gradient(90deg,var(--hz),#6fae84);transition:width 1s var(--ease)}
+  .hrow .hv{font-weight:800;color:var(--hz-900);text-align:right}
+  /* carbon intensity sparkline */
+  .spark{flex:1;display:flex;flex-direction:column}
+  .sparksvg{flex:1;width:100%}
+  .iline{stroke-dasharray:240;stroke-dashoffset:240;animation:draw 1.3s ease .3s forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .sparkax{display:flex;justify-content:space-between;font-size:1vh;color:#9bb0a4;margin-top:.3vh}
+  .intdown{margin-top:.6vh;font-size:1.5vh;font-weight:800;color:var(--hz-700)}
+  .intdown small{font-size:1.05vh;font-weight:600;color:var(--muted)}
+  /* KPI column */
+  .kcol{display:grid;grid-template-rows:repeat(4,1fr);gap:1.2vh}
+  .kpi{border-radius:12px;padding:1.3vh 1.5vh;background:linear-gradient(180deg,#f7fbf8,#f1f7f3);
+    border:1px solid #e6efe9;display:flex;flex-direction:column;justify-content:center}
+  .kpi .ktop{display:flex;align-items:center;justify-content:space-between;margin-bottom:.4vh}
+  .kpi .kic{width:2.6vh;height:2.6vh;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.5vh}
+  .kpi .ktag{font-size:1.1vh;font-weight:700;padding:.2vh .7vh;border-radius:999px}
+  .kpi .ktag.up{color:#b2432f;background:rgba(224,91,73,.12)}
+  .kpi .ktag.down{color:var(--hz-700);background:rgba(74,124,89,.14)}
+  .kpi .ktag.ok{color:var(--hz-700);background:rgba(74,124,89,.14)}
+  .kpi .v{font-size:3vh;font-weight:800;color:var(--hz-900);line-height:1}
+  .kpi .v .pc{font-size:1.8vh;font-weight:700;margin-left:1px}
+  .kpi .l{font-size:1.15vh;color:var(--muted);margin-top:.4vh}
+  /* panels */
+  .panel{background:#fff;border:1px solid #e6efe9;border-radius:12px;padding:1.3vh 1.5vh;display:flex;flex-direction:column;min-height:0}
+  .phead{display:flex;justify-content:space-between;align-items:baseline;font-size:1.4vh;font-weight:700;color:var(--hz-900);margin-bottom:1vh}
+  .phead .unit{font-size:1.1vh;color:var(--muted);font-weight:600}
+  .plot{flex:1;display:flex;gap:1vh;min-height:0}
+  .yaxis{display:flex;flex-direction:column;justify-content:space-between;font-size:1vh;color:#9bb0a4;padding-bottom:2vh}
+  .barchart{flex:1;display:flex;align-items:flex-end;gap:1.6vh;position:relative}
+  .barchart:before,.barchart:after{content:"";position:absolute;left:0;right:0;height:1px;background:#edf3ef}
+  .barchart:before{top:33%}.barchart:after{top:66%}
+  .bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:.5vh;height:100%;justify-content:flex-end}
+  .bc{width:70%;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;height:100%}
+  .bc span{border-radius:4px 4px 0 0;transition:height .9s var(--ease);height:0}
+  .bc .s1{background:var(--red)}.bc .s2{background:var(--blue)}.bc .s3{background:linear-gradient(180deg,#5c9470,var(--hz))}
+  .bcol em{font-style:normal;font-size:1.1vh;color:var(--muted);font-weight:600}
+  .legend{display:flex;gap:1.4vh;margin-top:1vh;font-size:1.1vh;color:var(--muted);flex-wrap:wrap}
+  .legend.sm{justify-content:center}
+  .legend i{display:inline-block;width:1.1vh;height:1.1vh;border-radius:3px;margin-right:.5vh;vertical-align:middle}
+  /* donut */
+  .donut{flex:1;position:relative;display:flex;align-items:center;justify-content:center}
+  .dsvg{width:13.5vh;height:13.5vh;transform:rotate(0deg)}
+  .dtrack{fill:none;stroke:#eef3ef;stroke-width:6}
+  .dseg{fill:none;stroke-width:6;stroke-linecap:round;transition:stroke-dasharray 1.1s var(--ease)}
+  .dcenter{position:absolute;text-align:center}
+  .dcenter b{display:block;font-size:2.6vh;font-weight:800;color:var(--hz-900);line-height:1}
+  .dcenter small{font-size:1.1vh;color:var(--muted)}
+
+  /* ============ CLOSING ============ */
+  .close{justify-content:center;align-items:flex-start}
+  .close h1{font-size:6vh;max-width:20ch}
+  .close .vision{font-size:2.4vh;color:var(--mint);font-weight:600;margin-top:2.2vh;letter-spacing:.01em}
+  .close .streams{display:flex;gap:1.4vh;margin-top:3.4vh;flex-wrap:wrap}
+  .runtime{font-size:1.4vh;color:#9fb4a7;letter-spacing:.03em}
+  .runtime b{color:var(--mint);font-weight:700;font-variant-numeric:tabular-nums;margin-left:.4vh}
+  .close .s{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:1vh 1.8vh;font-size:1.5vh;color:#dcebe1}
+
+  /* ---- footer brand strip ---- */
+  .brandfoot{position:absolute;left:6%;bottom:3.6%;font-size:1.15vh;color:var(--muted);letter-spacing:.03em;display:flex;align-items:center;gap:1vh}
+  .slide.dark .brandfoot{color:#8fa698}
+  .hw-logo-sm{height:1.9vh;width:auto;opacity:.9;display:block}
+  /* The logo PNG is the green wordmark; on light footers keep full opacity,
+     on dark slides it already reads well on the green background. */
+  .slide:not(.dark) .hw-logo-sm{opacity:.85}
+
+  /* ============================================================
+     CONTROLS
+     ============================================================ */
+  .hud{position:fixed;left:0;right:0;bottom:2.2vh;display:flex;justify-content:center;z-index:50;pointer-events:none}
+  .bar-ctl{pointer-events:auto;display:flex;align-items:center;gap:1.4vh;background:rgba(18,28,22,.82);
+    backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:999px;padding:1vh 1.6vh;color:#dcebe1}
+  .btn{width:4vh;height:4vh;border-radius:50%;border:none;background:rgba(255,255,255,.1);color:#eaf2ec;cursor:pointer;
+    font-size:1.8vh;display:flex;align-items:center;justify-content:center;transition:background .2s}
+  .btn:hover{background:var(--hz)}
+  .btn.play{background:var(--hz);width:4.6vh;height:4.6vh}
+  .btn.play:hover{background:var(--hz-700)}
+  .dots{display:flex;gap:.7vh;padding:0 1vh}
+  .pdot{width:.9vh;height:.9vh;border-radius:50%;background:rgba(255,255,255,.25);cursor:pointer;transition:all .25s}
+  .pdot.on{background:var(--mint);transform:scale(1.4)}
+  .meta{font-size:1.25vh;color:#9fb4a7;min-width:5.5vh;text-align:center}
+  .toggle{display:flex;align-items:center;gap:.6vh;font-size:1.3vh;cursor:pointer;user-select:none;padding:0 .4vh}
+  .toggle input{accent-color:var(--mint);width:1.4vh;height:1.4vh}
+  .voicesel{max-width:17vh;font-size:1.15vh;color:#dcebe1;background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.14);border-radius:8px;padding:.5vh .7vh;cursor:pointer;outline:none;font-family:inherit}
+  .voicesel option{color:#12241a;background:#fff}
+  .progress{position:fixed;left:0;top:0;height:3px;background:var(--mint);width:0;z-index:60;transition:width .3s linear}
+  .hint{position:fixed;right:2vh;bottom:2.2vh;font-size:1.15vh;color:#6f8578;z-index:50}
+
+  @media (max-width:640px){ .lede{font-size:2.4vw} }
+</style>
+</head>
+<body>
+  <div class="progress" id="progress"></div>
+  <div id="stage">
+    <div class="deck" id="deck">
+
+      <!-- ============ 1 · COVER ============ -->
+      <section class="slide dark cover active" data-rate="0.9"
+        data-vo="Hertzwave presents TerraCAP — and the story of how carbon accounting is evolving: from manual, to software, to agentic.">
+        <div class="orbits">
+          <span class="dot" style="width:14px;height:14px;top:18%;right:22%"></span>
+          <span class="dot" style="width:22px;height:22px;top:30%;right:8%;animation-delay:.6s"></span>
+          <span class="dot" style="width:9px;height:9px;top:46%;right:30%;animation-delay:1.2s"></span>
+          <span class="dot" style="width:11px;height:11px;top:58%;right:14%;animation-delay:.3s"></span>
+          <span class="dot" style="width:7px;height:7px;top:70%;right:26%;animation-delay:.9s"></span>
+        </div>
+        <div class="wordmark r" style="color:#eaf2ec">__HWMARK__</div>
+        <div class="kicker r d1">Carbon accounting · the evolution</div>
+        <h1 class="r d2">Carbon intelligence,<br/>metered &amp; everywhere.</h1>
+        <div class="sub r d3">Manual → SaaS → Agentic. Why the next model is bigger.</div>
+        <div class="foot">Hertzwave Innovations · TerraCAP · Investor explainer · Confidential</div>
+      </section>
+
+      <!-- ============ 2 · THE SPACE ============ -->
+      <section class="slide"
+        data-vo="For a fast-growing set of companies, reporting carbon is now the law — in India through assurance, the carbon market and the EU border tax, and soon across forty countries. All of it needs one thing: data you can trust and trace.">
+        <div class="kicker r">The space · why carbon accounting matters now</div>
+        <h1 class="r d1">For more companies each year,<br/>reporting carbon is now the law.</h1>
+        <div class="stats" style="margin-top:3vh">
+          <div class="stat r d2"><div class="big" data-count="1000">0</div><div class="lab">listed companies in India need <b>assured</b> sustainability reports (FY26-27)</div></div>
+          <div class="stat r2 r d3"><div class="big" data-count="490">0</div><div class="lab">plants face <b>binding targets</b> under India's new carbon market</div></div>
+          <div class="stat r3 r d4"><div class="big" data-prefix="€" data-count="5.1" data-suffix="B">0</div><div class="lab">of Indian exports hit by the <b>EU carbon border tax</b> from 2026</div></div>
+        </div>
+        <div class="lede r d5" style="margin-top:3vh">The same rules are spreading to <b>~40 countries</b>. The shared requirement: carbon data that can be <b>proven and traced</b>.</div>
+        <div class="brandfoot">__HWMARK_SM__ · TerraCAP · the space</div>
+      </section>
+
+      <!-- ============ 3 · ERA 1 MANUAL ============ -->
+      <section class="slide dark"
+        data-vo="It started by hand — carbon data in spreadsheets, emailed around. Flexible and cheap, but loosely coupled and error-prone. You simply couldn't trust the number.">
+        <div class="kicker r">Era one · the manual age</div>
+        <h1 class="r d1">Spreadsheets. Flexible,<br/>but you can't trust the number.</h1>
+        <div class="evo-row" style="grid-template-columns:1fr">
+          <div class="era manual r d2" style="flex-direction:row;align-items:center;gap:4vh">
+            <div class="art" style="width:40%;height:25vh;position:relative">
+              <!-- fanned, emailed spreadsheets riddled with errors -->
+              <div class="sheet" style="left:1%;top:4%;transform:rotate(-6deg)">
+                <div class="sh-top"><i></i><i></i><span class="sh-name">Scope2_FINAL_v3.xlsx</span></div>
+                <table><thead><tr><td>Site</td><td>kWh</td><td>tCO₂e</td></tr></thead>
+                <tbody><tr><td>A</td><td>124500</td><td>88.4</td></tr>
+                <tr><td>B</td><td class="err">#REF!</td><td class="err">#REF!</td></tr>
+                <tr><td>C</td><td class="na">n/a</td><td class="warn">?</td></tr></tbody></table>
+              </div>
+              <div class="sheet" style="right:1%;top:0;transform:rotate(5deg)">
+                <div class="sh-top"><i></i><i></i><span class="sh-name">Supplier_Q3.xlsx</span></div>
+                <table><thead><tr><td>Vendor</td><td>Qty</td><td>Factor</td></tr></thead>
+                <tbody><tr><td>V1</td><td>5015</td><td>0.71</td></tr>
+                <tr><td>V2</td><td class="warn">TBC</td><td class="na">—</td></tr>
+                <tr><td>V3</td><td>3542</td><td class="err">#DIV/0</td></tr></tbody></table>
+              </div>
+              <div class="sheet" style="left:20%;bottom:2%;transform:rotate(2deg)">
+                <div class="sh-top"><i></i><i></i><span class="sh-name">Freight_dec.csv</span></div>
+                <table><thead><tr><td>Leg</td><td>km</td><td>CO₂e</td></tr></thead>
+                <tbody><tr><td>L1</td><td>410</td><td>4.3</td></tr>
+                <tr><td class="na">old</td><td class="na">?</td><td class="err">#N/A</td></tr></tbody></table>
+              </div>
+              <div class="note" style="left:-2%;top:40%;transform:rotate(-5deg)">Which version?</div>
+              <div class="note" style="right:-3%;bottom:8%;transform:rotate(5deg);background:#ffd1c9;color:#7a2718">Supplier didn't reply</div>
+            </div>
+            <div style="flex:1">
+              <h2 style="color:#fff;font-size:2.4vh;margin-bottom:1vh">Data was digital — the process was not.</h2>
+              <p style="font-size:1.7vh">Hundreds of spreadsheets, emailed between people. No single source, no audit trail. It worked, loosely, for anyone willing to chase and reconcile by hand.</p>
+              <div class="props" style="margin-top:2vh">
+                <span class="chip good">+ Flexible</span>
+                <span class="chip good">+ Loosely coupled</span>
+                <span class="chip good">+ Cheap to start</span>
+                <span class="chip bad">− Error-prone</span>
+                <span class="chip bad">− Manual checks</span>
+                <span class="chip bad">− Not auditable</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="brandfoot">__HWMARK_SM__ · TerraCAP · era one</div>
+      </section>
+
+      <!-- ============ 4 · ERA 2 SAAS ============ -->
+      <section class="slide"
+        data-vo="Then SaaS arrived — cloud-based, connected, validated. The number became trustworthy, but rigid and costly. Great for mature firms; too heavy for most smaller ones, which is why they stay out.">
+        <div class="kicker r">Era two · the SaaS age</div>
+        <h1 class="r d1">Software made the number<br/>trustworthy — but heavy.</h1>
+        <div class="evo-row" style="grid-template-columns:1fr">
+          <div class="era saas r d2" style="flex-direction:row;align-items:center;gap:4vh">
+            <div class="art" style="width:36%;height:22vh;position:relative">
+              <!-- SaaS: a cloud platform with connected browser clients -->
+              <div class="saasviz">
+                <div class="cloud">
+                  <span class="cloud-label">SaaS<br/>cloud</span>
+                </div>
+                <div class="client c1"><span class="cbar"></span><span class="crow"></span><span class="crow s"></span></div>
+                <div class="client c2"><span class="cbar"></span><span class="crow"></span><span class="crow s"></span></div>
+                <div class="client c3"><span class="cbar"></span><span class="crow"></span><span class="crow s"></span></div>
+                <svg class="links" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <path d="M50 42 L18 78" /><path d="M50 42 L50 82" /><path d="M50 42 L82 78" />
+                </svg>
+              </div>
+            </div>
+            <div style="flex:1">
+              <h2 style="font-size:2.4vh;margin-bottom:1vh;color:var(--hz-900)">Connected, validated, cloud-based.</h2>
+              <p style="font-size:1.7vh">One tightly-integrated platform with verification and validation built in. Trustworthy data at last — but rigid, and priced for organisations with mature processes.</p>
+              <div class="props" style="margin-top:2vh">
+                <span class="chip good">+ Validated &amp; trusted</span>
+                <span class="chip good">+ Cloud, connected</span>
+                <span class="chip good">+ Great for mid-large firms</span>
+                <span class="chip warn">~ Tightly coupled</span>
+                <span class="chip bad">− Rigid &amp; costly</span>
+                <span class="chip bad">− Too heavy for MSMEs</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="lede r d4">Micro, small and many mid-size companies stay out — the process overhead and licence cost don't fit how they work.</div>
+        <div class="brandfoot">__HWMARK_SM__ · TerraCAP · era two</div>
+      </section>
+
+      <!-- ============ 5 · TERRACAP TODAY ============ -->
+      <section class="slide dark"
+        data-vo="Hertzwave built TerraCAP as a carbon accounting and intelligence platform — a modular core serving enterprises, consultants and industrial zones. A patent-pending connector even estimates Scope 3 from GST data. The essentials are live and shipping today.">
+        <div class="kicker r">Where we are · TerraCAP today</div>
+        <h1 class="r d1">A carbon accounting &amp;<br/>intelligence platform.</h1>
+        <div class="evo-row" style="margin-top:2.4vh">
+          <div class="era agentic r d2">
+            <div class="tag">Stream 01 · Enterprises</div>
+            <h2>Own your emissions</h2>
+            <ul class="feat">
+              <li>Scope 1–3 carbon accounting</li>
+              <li>Patent-pending GSTN Scope 3 connector</li>
+              <li>BRSR · CCTS · CBAM reporting</li>
+            </ul>
+            <div class="props"><span class="chip good">Live: Rail Wheel Factory</span></div>
+          </div>
+          <div class="era agentic r d3">
+            <div class="tag">Stream 02 · Consultants</div>
+            <h2>Advise at scale</h2>
+            <ul class="feat">
+              <li>Many clients, one console</li>
+              <li>TerraAudit evidence trails</li>
+              <li>AI validation &amp; data-quality scoring</li>
+            </ul>
+            <div class="props"><span class="chip good">GreenXperts · AND · EHS</span></div>
+          </div>
+          <div class="era agentic r d4">
+            <div class="tag">Stream 03 · Industrial zones</div>
+            <h2>Govern a whole zone</h2>
+            <ul class="feat">
+              <li>One licence, every tenant</li>
+              <li>Digital MRV at the base</li>
+              <li>Zone-wide rollups &amp; dashboards</li>
+            </ul>
+            <div class="props"><span class="chip good">AMTZ · live 11 / 168</span></div>
+          </div>
+        </div>
+        <div class="lede r d5" style="margin-top:2vh"><b>Essentials are live and shipping today.</b> Advanced modules — credits management, NetZero modelling — are in progress, <b>due by Dec</b>.</div>
+        <div class="brandfoot">__HWMARK_SM__ · TerraCAP · today</div>
+      </section>
+
+      <!-- ============ 6 · THE GAP ============ -->
+      <section class="slide"
+        data-vo="But even modern SaaS makes everyone log in and learn the app. For a small supplier or a consultant's tiny client, that's friction they won't pay for. The intelligence stays locked inside the interface.">
+        <div class="kicker r">The gap · the ceiling on SaaS</div>
+        <h1 class="r d1">The intelligence is locked<br/>inside the interface.</h1>
+        <div class="gapgrid">
+          <div class="rows r d2">
+            <div class="prow"><div class="num b">1</div><div><h2>You must log in and learn the app</h2><p>Every user adopts the whole platform to get any single answer.</p></div></div>
+            <div class="prow"><div class="num a">2</div><div><h2>Priced and shaped for big workflows</h2><p>A one-factory supplier or a consultant's small client can't justify a full seat.</p></div></div>
+            <div class="prow"><div class="num r">3</div><div><h2>The long tail stays unserved</h2><p>Millions of MSMEs now face carbon rules — but won't adopt heavyweight SaaS.</p></div></div>
+          </div>
+          <!-- visual: a walled app; the long tail locked out -->
+          <div class="gapviz r d3">
+            <div class="vault">
+              <div class="vault-top"><span class="vdot"></span><span class="vdot"></span><span class="vdot"></span><b>TerraCAP · login required</b></div>
+              <div class="vault-body">
+                <div class="vlock">🔒</div>
+                <div class="vfield"></div><div class="vfield s"></div>
+                <div class="vbtn">Sign in</div>
+                <div class="vhint">valuable carbon intelligence inside</div>
+              </div>
+            </div>
+            <div class="outside">
+              <div class="person" style="--d:0s"><span class="emoji">🏭</span><span class="plab">small supplier</span></div>
+              <div class="person" style="--d:.5s"><span class="emoji">🧑‍🔧</span><span class="plab">one-factory MSME</span></div>
+              <div class="person" style="--d:1s"><span class="emoji">🧑‍💼</span><span class="plab">consultant's client</span></div>
+              <div class="bounce">✕ too heavy · won't adopt</div>
+            </div>
+          </div>
+        </div>
+        <div class="lede r d4" style="margin-top:1.6vh">The capability exists. The <b>access model</b> is the bottleneck.</div>
+        <div class="brandfoot">__HWMARK_SM__ · TerraCAP · the gap</div>
+      </section>
+
+      <!-- ============ 7 · ERA 3 AGENTIC — ARCHITECTURE ============ -->
+      <section class="slide dark"
+        data-vo="The third era is agentic. Users just ask in plain language inside the AI tools they already use — or call our API. Our MCP server exposes TerraCAP as tools, our skills do the translation, and underneath, the carbon ledger runs on AWS, keeping everything audit-ready.">
+        <div class="kicker r">Era three · the agentic architecture</div>
+        <h1 class="r d1">Ask in plain language.<br/>The engine does the rest.</h1>
+        <div class="arch r d2">
+
+          <!-- Layer 1: users -->
+          <div class="arch-layer">
+            <div class="arch-lab">Users</div>
+            <div class="arch-row">
+              <div class="anode u"><span>🏭</span>Supplier</div>
+              <div class="anode u"><span>🧑‍💼</span>Consultant</div>
+              <div class="anode u"><span>🏢</span>Enterprise agent</div>
+            </div>
+          </div>
+          <div class="arch-flow"><span class="farrow">▼</span><span class="flab">natural language · or API</span></div>
+
+          <!-- Layer 2: AI interfaces -->
+          <div class="arch-layer">
+            <div class="arch-lab">Entry layer · AI interfaces</div>
+            <div class="arch-row">
+              <div class="anode ai">Claude</div>
+              <div class="anode ai">ChatGPT</div>
+              <div class="anode ai">Gemini</div>
+              <div class="anode ai">Your copilot / ERP</div>
+            </div>
+          </div>
+          <div class="arch-flow"><span class="farrow">▼</span><span class="flab">tool calls</span></div>
+
+          <!-- Layer 3: MCP + skills -->
+          <div class="arch-layer mcp">
+            <div class="arch-lab">Hertzwave MCP server <span class="badge">exposes tools</span></div>
+            <div class="arch-row">
+              <div class="anode tool">ledger</div><div class="anode tool">ingest · dMRV</div>
+              <div class="anode tool">BRSR · CBAM · CCTS</div><div class="anode tool">assessments</div>
+              <div class="anode tool">audit</div><div class="anode tool">net-zero</div>
+            </div>
+            <div class="skills">🧠 Skills &amp; plugins — translate plain-language requests into TerraCAP calls, and results back into plain language</div>
+          </div>
+          <div class="arch-flow"><span class="farrow">▼</span><span class="flab">validated compute</span></div>
+
+          <!-- Layer 4: AWS ledger (background) -->
+          <div class="arch-layer aws">
+            <div class="arch-lab">TerraCAP engine on AWS <span class="badge ghost">invisible to the user</span></div>
+            <div class="arch-row">
+              <div class="anode core2">🔐 Carbon ledger<small>transactions &amp; evidence · audit-ready</small></div>
+              <div class="anode core2">📚 Factor libraries<small>India + global, versioned</small></div>
+              <div class="anode core2">🧮 Emissions engine<small>Scope 1 · 2 · 3</small></div>
+            </div>
+          </div>
+        </div>
+        <div class="brandfoot">__HWMARK_SM__ · TerraCAP · agentic architecture</div>
+      </section>
+
+      <!-- ============ 8 · TOOLS ============ -->
+      <section class="slide"
+        data-vo="Every specialized module that forms Hertzwave's core IP is now a callable tool through the agentic route. The full list is on our website.">
+        <div class="kicker r">The toolbox · capabilities, unbundled</div>
+        <h1 class="r d1">Each module, a tool you can call.</h1>
+        <div class="tools3" style="margin-top:2vh">
+          <div class="tool r d1"><div class="ic">📒</div><h3>Carbon ledger · Scope 1–3</h3><div class="cr">base tool</div></div>
+          <div class="tool r d1"><div class="ic">🔌</div><h3>Ingestion &amp; dMRV validation</h3><div class="cr">per run</div></div>
+          <div class="tool r d1"><div class="ic">🌍</div><h3>Framework reporting · BRSR, GRI, CSRD, ISSB, CDP, SECR</h3><div class="cr">per report</div></div>
+          <div class="tool r d2"><div class="ic">🏭</div><h3>CCTS · carbon market reporting</h3><div class="cr">per filing</div></div>
+          <div class="tool r d2"><div class="ic">⚡</div><h3>PAT · energy-efficiency scheme</h3><div class="cr">per filing</div></div>
+          <div class="tool r d2"><div class="ic">🛃</div><h3>CBAM · EU border reporting</h3><div class="cr">per filing</div></div>
+          <div class="tool r d3"><div class="ic">🪙</div><h3>Carbon credits management</h3><div class="cr">per run</div></div>
+          <div class="tool r d3"><div class="ic">🌿</div><h3>GreenCo &amp; GreenMetric assessment</h3><div class="cr">per assessment</div></div>
+          <div class="tool r d3"><div class="ic">🎯</div><h3>Materiality assessment</h3><div class="cr">per assessment</div></div>
+          <div class="tool r d4"><div class="ic">🔬</div><h3>Life-cycle assessment (LCA)</h3><div class="cr">per product</div></div>
+          <div class="tool r d4"><div class="ic">🔍</div><h3>Independent company audits · TerraAudit</h3><div class="cr">per audit</div></div>
+          <div class="tool r d4"><div class="ic">🚀</div><h3>NetZero modelling &amp; waste</h3><div class="cr">per scenario</div></div>
+        </div>
+        <div class="brandfoot">__HWMARK_SM__ · TerraCAP · the toolbox · full list at www.hertzwave.in</div>
+      </section>
+
+      <!-- ============ 9 · CREDITS MODEL ============ -->
+      <section class="slide dark"
+        data-vo="It's paid with credits. Free credits to start, then prepaid top-ups — no seat, no contract. The natural way to meter agentic usage, so the long tail pays only for what they use.">
+        <div class="kicker r">The model · pay-per-use credits</div>
+        <h1 class="r d1">Free credits to start.<br/>Prepaid credits to scale.</h1>
+        <div class="credits" style="margin-top:2.4vh">
+          <div class="wallet r d2">
+            <div style="font-size:1.4vh;opacity:.85;letter-spacing:.12em;text-transform:uppercase;font-weight:700">TerraCAP credit wallet</div>
+            <div class="bal">1,240 <span style="font-size:2.4vh;font-weight:600;opacity:.8">credits</span></div>
+            <div class="sub">+250 free credits on sign-up · ~1 BRSR gap report</div>
+            <div class="bar"><i></i></div>
+            <div style="display:flex;justify-content:space-between;font-size:1.3vh;opacity:.85;margin-top:1vh"><span>Ingest ·20</span><span>Assess ·60</span><span>BRSR ·120</span><span>Audit ·200</span></div>
+          </div>
+          <div class="ladder">
+            <div class="lstep r d3"><div class="dotm"></div><div><h3>Start free</h3><p>Enough credits to finish one real deliverable — the "aha" with no commitment.</p></div></div>
+            <div class="lstep r d4"><div class="dotm"></div><div><h3>Top up prepaid</h3><p>Buy credit packs. No seats, no contracts, no billing friction or bad debt.</p></div></div>
+            <div class="lstep r d5"><div class="dotm"></div><div><h3>Grow with usage</h3><p>Power users (consultants, zones) buy volume packs. Revenue scales with value delivered.</p></div></div>
+          </div>
+        </div>
+        <div class="brandfoot">__HWMARK_SM__ · TerraCAP · credits model</div>
+      </section>
+
+      <!-- ============ 10 · WHY BIGGER — REVENUE UPLIFT ============ -->
+      <section class="slide"
+        data-vo="And here's why it matters. On the SaaS model alone, we project about one-and-a-half million dollars of recurring revenue by year three. Adding the agentic route roughly doubles that, to about three million — a second revenue curve on the same engine.">
+        <div class="kicker r">Why it's bigger · the revenue upside</div>
+        <h1 class="r d1">The agentic route roughly<br/>doubles Year-3 revenue.</h1>
+        <div class="upliftwrap" style="margin-top:2.2vh">
+          <!-- left: context cards -->
+          <div class="uheds">
+            <div class="hcard b r d2"><div class="hb">~$1B → $4.5B</div><div class="hl">carbon software market, today → 2030</div></div>
+            <div class="hcard c r d3"><div class="hb">$60–90M</div><div class="hl">our serviceable six-region pool</div></div>
+            <div class="note-modelled r d4">MODELLED · illustrative, Hertzwave model</div>
+          </div>
+          <!-- right: X → Y columns -->
+          <div class="uplift r d3" id="uplift">
+            <div class="ucol">
+              <div class="ubar">
+                <div class="ustack saas" data-h="44%"><span class="uval">$1.5M</span></div>
+              </div>
+              <div class="ulab"><b>SaaS only</b><small>seat / licence · Year 3</small></div>
+            </div>
+            <div class="uarrow">→<small>+ agentic MCP / API</small></div>
+            <div class="ucol">
+              <div class="ubar">
+                <div class="ustack mcp" data-h="44%"><span class="useg-lab">agentic + API</span></div>
+                <div class="ustack saas2" data-h="44%"><span class="uval">$3.0M</span></div>
+              </div>
+              <div class="ulab"><b>SaaS + Agentic</b><small>credits + API · Year 3</small></div>
+            </div>
+          </div>
+        </div>
+        <div class="lede r d6" style="margin-top:1.4vh">SaaS seats capture the top. <b>Pay-per-use credits unlock the MSME long tail</b>, plus a new API / data-intelligence stream — a <b>~2× revenue uplift</b> on the same core.</div>
+        <div class="brandfoot">__HWMARK_SM__ · TerraCAP · revenue upside · figures modelled, source: Hertzwave model</div>
+      </section>
+
+      <!-- ============ 11 · TWO MODELS, ONE CORE ============ -->
+      <section class="slide dark"
+        data-vo="These aren't a trade-off — they share one core. Mature firms get the full SaaS; the long tail and consultants get the agentic route. Same engine, two doors in.">
+        <div class="kicker r">The synthesis · two doors, one engine</div>
+        <h1 class="r d1">One core. Two ways in.</h1>
+        <div class="evo-row" style="grid-template-columns:1fr 1fr;margin-top:2.8vh">
+          <div class="era saas r d2">
+            <div class="tag" style="color:var(--blue)">For process-mature firms</div>
+            <h2 style="color:#fff">Full SaaS platform</h2>
+            <ul class="feat">
+              <li>Structured, guided workflows</li>
+              <li>Deep integration &amp; dashboards</li>
+              <li>Enterprises &amp; industrial zones</li>
+              <li>Seat / licence pricing</li>
+            </ul>
+            <div class="props"><span class="chip warn">Tightly coupled</span><span class="chip good">Validated</span></div>
+          </div>
+          <div class="era agentic r d3">
+            <div class="tag">For the long tail &amp; consultants</div>
+            <h2 style="color:#fff">Agentic · MCP tools</h2>
+            <ul class="feat">
+              <li>Call a tool, get an audit-ready result</li>
+              <li>No login, no learning curve</li>
+              <li>MSMEs, suppliers, small clients</li>
+              <li>Pay-per-use credits</li>
+            </ul>
+            <div class="props"><span class="chip good">Loosely coupled</span><span class="chip good">Validated</span></div>
+          </div>
+        </div>
+        <div class="lede r d4" style="margin-top:2.4vh;text-align:center;max-width:none">We recovered the <b>flexibility of the manual age</b> and kept the <b>trust of the SaaS age</b> — on one engine.</div>
+        <div class="brandfoot">__HWMARK_SM__ · TerraCAP · the synthesis</div>
+      </section>
+
+      <!-- ============ 12 · PROOF DASHBOARD ============ -->
+      <section class="slide"
+        data-vo="And it's real today — audit-ready Scope 1 to 3 data, a Scope 3 breakdown, and carbon intensity trending down. The same engine powers both the SaaS and the agentic tools.">
+        <div class="kicker r">Proof · the engine is real</div>
+        <h1 class="r d1">The same engine behind both models.</h1>
+        <div class="dash r d2">
+          <!-- browser chrome -->
+          <div class="dchrome">
+            <span class="tl"></span><span class="tl y"></span><span class="tl g"></span>
+            <div class="url"><img class="hw-dot" src="" alt="" aria-hidden="true"/>app.terracap.io / dashboard</div>
+            <div class="pills"><span class="pill">FY2025-26</span><span class="pill">All facilities</span><span class="pill">Scopes 1–3</span></div>
+          </div>
+          <div class="dgrid2">
+            <!-- ROW 1 -->
+            <!-- KPI column -->
+            <div class="kcol">
+              <div class="kpi"><div class="ktop"><span class="kic" style="background:rgba(74,124,89,.14);color:var(--hz)">◴</span><span class="ktag up">▲ 2.1%</span></div><div class="v">12,480</div><div class="l">tCO₂e total emissions</div></div>
+              <div class="kpi"><div class="ktop"><span class="kic" style="background:rgba(49,130,206,.14);color:var(--blue)">✓</span><span class="ktag ok">good</span></div><div class="v">92<span class="pc">%</span></div><div class="l">data quality score</div></div>
+              <div class="kpi"><div class="ktop"><span class="kic" style="background:rgba(53,91,63,.14);color:var(--hz-700)">⛓</span><span class="ktag ok">87% traced</span></div><div class="v">87<span class="pc">%</span></div><div class="l">evidence traced to source</div></div>
+              <div class="kpi"><div class="ktop"><span class="kic" style="background:rgba(214,158,46,.16);color:#9a6f14">◎</span><span class="ktag down">▼ on track</span></div><div class="v">−8<span class="pc">%</span></div><div class="l">target gap vs plan</div></div>
+            </div>
+            <!-- emissions by quarter -->
+            <div class="panel">
+              <div class="phead"><span>Emissions by quarter</span><span class="unit">tCO₂e</span></div>
+              <div class="plot">
+                <div class="yaxis"><span>4k</span><span>3k</span><span>2k</span><span>1k</span><span>0</span></div>
+                <div class="barchart" id="bc">
+                  <div class="bcol"><div class="bc"><span class="s3" data-h="78%"></span><span class="s2" data-h="16%"></span><span class="s1" data-h="11%"></span></div><em>Q1</em></div>
+                  <div class="bcol"><div class="bc"><span class="s3" data-h="82%"></span><span class="s2" data-h="15%"></span><span class="s1" data-h="11%"></span></div><em>Q2</em></div>
+                  <div class="bcol"><div class="bc"><span class="s3" data-h="72%"></span><span class="s2" data-h="14%"></span><span class="s1" data-h="10%"></span></div><em>Q3</em></div>
+                  <div class="bcol"><div class="bc"><span class="s3" data-h="66%"></span><span class="s2" data-h="13%"></span><span class="s1" data-h="10%"></span></div><em>Q4</em></div>
+                </div>
+              </div>
+              <div class="legend"><span><i style="background:var(--red)"></i>Scope 1</span><span><i style="background:var(--blue)"></i>Scope 2</span><span><i style="background:var(--hz)"></i>Scope 3</span></div>
+            </div>
+            <!-- scope share donut -->
+            <div class="panel">
+              <div class="phead"><span>Scope share</span></div>
+              <div class="donut">
+                <svg viewBox="0 0 42 42" class="dsvg">
+                  <circle class="dtrack" cx="21" cy="21" r="15.9"></circle>
+                  <circle class="dseg" cx="21" cy="21" r="15.9" stroke="var(--hz)"   stroke-dasharray="0 100" data-dash="78 22"  stroke-dashoffset="25"  transform="rotate(-90 21 21)"></circle>
+                  <circle class="dseg" cx="21" cy="21" r="15.9" stroke="var(--blue)" stroke-dasharray="0 100" data-dash="14 86"  stroke-dashoffset="-53" transform="rotate(-90 21 21)"></circle>
+                  <circle class="dseg" cx="21" cy="21" r="15.9" stroke="var(--red)"  stroke-dasharray="0 100" data-dash="8 92"   stroke-dashoffset="-67" transform="rotate(-90 21 21)"></circle>
+                </svg>
+                <div class="dcenter"><b>78%</b><small>Scope 3</small></div>
+              </div>
+              <div class="legend sm"><span><i style="background:var(--hz)"></i>S3·78%</span><span><i style="background:var(--blue)"></i>S2·14%</span><span><i style="background:var(--red)"></i>S1·8%</span></div>
+            </div>
+
+            <!-- ROW 2 -->
+            <!-- Scope 3 category breakdown -->
+            <div class="panel wide">
+              <div class="phead"><span>Scope 3 breakdown</span><span class="unit">% of Scope 3</span></div>
+              <div class="hbars">
+                <div class="hrow"><span class="hn">Purchased goods</span><span class="ht"><i data-w="100%"></i></span><span class="hv">41%</span></div>
+                <div class="hrow"><span class="hn">Transport &amp; logistics</span><span class="ht"><i data-w="63%"></i></span><span class="hv">26%</span></div>
+                <div class="hrow"><span class="hn">Capital goods</span><span class="ht"><i data-w="41%"></i></span><span class="hv">17%</span></div>
+                <div class="hrow"><span class="hn">Business &amp; commuting</span><span class="ht"><i data-w="22%"></i></span><span class="hv">9%</span></div>
+                <div class="hrow"><span class="hn">Use of sold products</span><span class="ht"><i data-w="17%"></i></span><span class="hv">7%</span></div>
+              </div>
+            </div>
+            <!-- Carbon intensity trend -->
+            <div class="panel">
+              <div class="phead"><span>Carbon intensity</span><span class="unit">tCO₂e / ₹ Cr</span></div>
+              <div class="spark">
+                <svg viewBox="0 0 100 46" preserveAspectRatio="none" class="sparksvg">
+                  <defs><linearGradient id="ig" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="rgba(74,124,89,.35)"/><stop offset="1" stop-color="rgba(74,124,89,0)"/>
+                  </linearGradient></defs>
+                  <path class="iarea" d="M0,14 L25,20 L50,24 L75,31 L100,36 L100,46 L0,46 Z" fill="url(#ig)"/>
+                  <path class="iline" d="M0,14 L25,20 L50,24 L75,31 L100,36" fill="none" stroke="var(--hz)" stroke-width="2"/>
+                  <circle cx="100" cy="36" r="2.4" fill="var(--hz)"/>
+                </svg>
+                <div class="sparkax"><span>FY22</span><span>FY26</span></div>
+              </div>
+              <div class="intdown">↓ 34% <small>per ₹ Cr since FY22</small></div>
+            </div>
+          </div>
+        </div>
+        <div class="brandfoot">__HWMARK_SM__ · TerraCAP · illustrative data · essentials live today</div>
+      </section>
+
+      <!-- ============ 13 · CLOSING VISION ============ -->
+      <section class="slide dark close"
+        data-vo="From manual, to SaaS, to agentic. TerraCAP is the engine behind all of it — carbon intelligence, metered, and everywhere the work happens.">
+        <div class="orbits" style="opacity:.6">
+          <span class="dot" style="width:12px;height:12px;top:22%;right:20%"></span>
+          <span class="dot" style="width:20px;height:20px;top:36%;right:9%;animation-delay:.6s"></span>
+          <span class="dot" style="width:8px;height:8px;top:60%;right:24%;animation-delay:1.1s"></span>
+        </div>
+        <div class="wordmark r" style="color:#eaf2ec">__HWMARK__</div>
+        <div class="kicker r d1">Manual → SaaS → Agentic</div>
+        <h1 class="r d2">Carbon intelligence,<br/>metered &amp; everywhere.</h1>
+        <div class="vision r d3">One modular engine. Three customer streams. A pay-per-use layer that reaches the rest.</div>
+        <div class="streams r d4">
+          <span class="s">Enterprises</span><span class="s">Consultants</span><span class="s">Industrial zones</span><span class="s">+ Agentic long tail</span><span class="s">+ Data-intelligence API</span>
+        </div>
+        <div class="foot" style="position:absolute;left:6%;bottom:5%">Hertzwave Innovations · Bengaluru · info@hertzwave.in · www.hertzwave.in</div>
+        <div class="runtime" id="runtime" style="position:absolute;right:6%;bottom:5%">⏱ total <b id="rtVal">0:00</b></div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ============ CONTROLS ============ -->
+  <div class="hud">
+    <div class="bar-ctl">
+      <button class="btn" id="prev" title="Previous (←)">‹</button>
+      <button class="btn play" id="play" title="Play / Pause (Space)">▶</button>
+      <button class="btn" id="next" title="Next (→)">›</button>
+      <div class="dots" id="dots"></div>
+      <div class="meta" id="meta">1 / 13</div>
+      <label class="toggle" title="Toggle narration"><input type="checkbox" id="voice" checked /> 🔊</label>
+      <select id="voiceSel" class="voicesel" title="Choose narration voice (♀ = female)"></select>
+    </div>
+  </div>
+  <div class="hint">← → navigate · Space play/pause · F fullscreen</div>
+
+<script>
+/* Inject the real Hertzwave wordmark (embedded PNG) wherever a placeholder appears.
+   The logo is the light/green wordmark on transparent bg; on dark slides we keep it
+   as-is (reads well on green), on light slides it sits in the muted footer. */
+(function(){
+  const LOGO = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAh8AAAAzCAYAAAA3rGq1AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAABKJSURBVHgB7Z1dcttGEse7QW5V3pY5QZATRL4B5CTPUd5SKX/QFwjpE0Q5gakThLa8qbxZeXeZ2BOYe4LQJ4j2LVUrYLYbACVKxAwAcjCYAeZXpcTiUBIJNGd6uv/dg6ezZ3/CLWKDCOsURhfxYrkBQ3wzn0apSJ4LwBP6dsKPIYqLD4vLBXiM8PX8yVkq8F3+HW4eDF+TbVzvPoDZY5A/hviJxwMYrd8vljFYSmZnkLCNfQEitzNGAIRwFBhWPWN18eZLMEz+ftMIhPiieGgi4O5914Xu9abJ8+kHrmkO+YXmkGvQzOPZ03c0T4Rw9z6uEcQ6xezvbaDHRPNpGEAyEwIjyN+/de+dXuMkSNOZQDiD7DWKTSDwKgmC123Yg4rHc7IVka0pW/h6bYrrtYYOKVvzcsRmdXF5CgNgTG823Pk+FAIizCdoIxeADGSaiOTX/DuxM4KNJ0nP4SSAId5+d88mShH3vhHF70jgdPZ0Q78ntm0xuG9nuhFgG+xM0vt9Bxpo/O74BxBe03+1T/Ap4n9QiLMHf+4ERXJGC9+jPjsg5Hj8TB+16e4dyd47JJ/TP8/AAug+vCPHI9p5KExRRHx/wNCasiUFshUot5Vv5k9O3y/extAB7ETSZ3N1+4p24LkTBsJY8njEF8jEB5k801nXkze/13Gx+02Vu+A0BG2Ia5siOwE5e0LPfQjpt0zpAx7Rgm9N9MoGOzOJgOCky/c7hpuWNg8B2VPyc8nAJIB0Tv+fQw/hOUqIZFo2hgL+AgtgB583r5LhiBb8yOyCn9kKfe73o32JQLahGDogcyIlY7xpAw24sKaNFWOGIg/iBDqCbhB7wSsQySQB42zoy6K0ktiAXjiK9ooiId8JHL3ofEeKZM+drcVoPMSb0kSA0B206wyhBTh0TzYV0z+jh2NCiOf0mT43Hd43QzqVjQQoXoMF0Of9uWrc9ILPdkAOUUyvqywqxBvsiWlbUTmRNEfFx86TLq1pgXzoJoSeQzfpFRhzsuyGcvRXsNVw6IVDrqto/mNnTmbXIKZ/gHFEpzntNhEoZLvDbfSjd1CqSbKw46ar9MEuvOgBSKMet08rnmcMcsIvZGNd2EpQHrXLoL3R0U6kS2taIB9oX3PBXiB0SwSdgVbtzngHQBGKR8C7KOSdutbXF6IYfeSwK3SFgG6uN+1mUhgbj3DFtCBR7v1FC/eyJhhCS8T5Ylv6nij6MYOewekMkITOFY6YUYI8vVHjefIIThvktlIeeWRb4egHGESelsJNvLhcwvFE0BnN5pkxDBu+WJ14iWjhzrQI+U13H4vmP4T5v4JJ/nXLhB3UNPu/CAXgVyDUhk9h13ddiQIFBi9pggzT4nVDq+QprBSSdbz4rbP7XExmy+33+UT7txF7F/BZqw6PQLygaECp9sO8tqBd1OmMUQwdo0wlPKCL1Bg54X+ggLKIC80F2es2sjkoNDFh2RitBzHowZk1bdjOB5KnJkQHNwo3KQZW7FiqiBe/b+o+lychhJtz+rTLJstJnoLJHBCju/HY4hJgUxTXvCd6CDvFhLrJosMiicrGkBzLlQXVPbSARw3kVNvU2DkYQ24r5Ax8B4acD5UTqUto6tKaNvDIR/pvulkb+Xi2Q9ZwI/OdMPdLoBzkJ9qtLPtYEriNnETzp2vaafACUHbtwkBkec+X4PEcSJWYsC/RD1VlhEVC05+bPT9LdyxMbUBssBWVE6lDaHqHO2vaoJ2P1eLtFDzaoXD/Ipr/GKMYcS37/m4DYE7jr7tMSXjch8WECHhWPhbw4zE4jkoj8H5xGUPH5M0JGzfp43QH358lGKJrW1E5kTqEpltcWtMU1S4YgsdzIOxYCBQvZOOBGPVOGOgxS4WY8LlpMaFuXBCapln/HAmKyExVWa5uurQV/t2SqAtoFJo6RwAeT0vQB/6KwnJXZWPk7Z+5vjgMES6VPJ09XfEXLY6vuq5YYzGhZGgrJnQWF4SmIKuuoFSCgDFrO2Splch09ZvaVtoruy2iPKVznUahqXN458PTKimOZNqObejVer6lBffr+fTs8Xw65S8YKJmgOG8LHfEXLY7zQkDcoRPJYkJZ2W0mJnQS1cLOQlMbNGNVPSvy8n2U9tkohMEGUdmKaC0SIxTRIW1CUwfxzoenVYpJMi4fvXfok3VEtDOjHf5fNyL5mPKZFSL5VbR2Pozd7DgeDx2NcAw3nd1HXuAQpfn6VnfX7JS2FflRLewWCU2j8pHdVIJ8wYeiyygYosJWwjZshd5fJO3irVVo6h7e+fC0DqJEUCXEP8FSeFJEgexo+NQQZJ0T+VqEZWM3MN5Ah6i6WCo1CQfCDsfp7MlHdkrpuvz5+Kdn2nfwaqFp91U8Kj3KbiqhKvphusuoylbaiMSQEymNqOgUmrqIdz48rZNK8tOUgw3BXni3EoIHonxxjcrGbEgBKMWELeyu86jEXdROoDjXuWt2QWjarGdFsJD/HrNdRlW2ApptJW++dr9p4x3DFZpu6dT5GHLIaUj4++wu2UFVtLiWj3JjITty1qbEhLIFReeu2XWh6cPPe9HPI5b8OuPCYIWtaI3EcPM12diQhaZbfOTD4ymBW7HDwMlTT8k72Tjvwu1xLJViQm2pF4UWQ8uuuQ9C09LHFRGbNsWe5ZixFVXztSELTbd458PTOqZPsvTogRYZPiEzLB+1K2xcISac6EiLqMPoenbN/RGa3qc4DDCW/NyJybJbQ7YSgeyzQ5EXHw32zofHACO4CSVD/wVrwRAGTHEI1lQ2LjA4BctoW0wYCPXJrTp2zU4LTVEtoKTohzVlt63bilJoKpbgGW57dd7FjABOxG01QzKB1k47FRTiG13DgXxYLJfgMAKwtN8CguoMAk9XFKeUSidgpBC6DQeaPYR316ezZ2tJaWOWFjnmPBFujFfxlKNO1FWdemqP0JSrh8obhacQLFU/y00HT2dPZaeu8v0JTUUE2rSVvKNpoupoegUt4NqapsX5oA/NXBxc0ibANI9nz1+RccxTMPlaEjgUMipn68GLhUxypkKzI5g9ZijOoQjLR3HzYXF5DpaiOD4djjlNVeUY7HLMibqqhd0SoekJiETWs6JWKoHLblGIUseW7s8UDJ5225atcPNEIetoiu2U17q4pmlKu7B3JcLDvswjDNeWa8DdXhNpyuFHyevvfkI9gIO9fReIfno2cy3dcp92xIQNziI5SHia66LKm1FZJDSVXr8RiAXU+y3K+2O2W247r0XZ0bQiOnQoLq5pQ9V8OLWA0IfeScGmskzTXdFVb52PrIuptKw2T7fYfs/aEBMqS0tLOER4qlrYbRCaVh2OVjfVVNF0zGjZbZWtjOAmgoaonMiW5zzn1jRNzofYgEMgomOd5TAExyjaccvLNGHkmqfee4ouppLdHq4/LN6egwPoFhOqKlDKaLpr1rWwt4nqcLTmehT57t902a3u7rgqJ7JNoamLa5oW5yOFkVO5ewp9nVO+7wV5vVfcFIfu3Obel20I8QU4xDfzaVScAxKWjdMO+sKXmtmFqosp3THarQbfgyPo7mIpr0CR0mgHr3dhbwe1pq9Z+rTqvCezZbeVtlI76lzlRLLgFlrCxTVNi+CUjGn9eP7kQrRwjkIbFCrmZfHl0QR/+AIhfk5Eoohq4Iac1XPwWEMRpTqXjQtMKN3yZgMOoUtMqBKaIsCVrAKmOFG3lg7CAaFpJBOash7lkMondqpQYFQ2doxo9xAqbGVK/6sVpVUJTdt2Il1c07SV2lJIdh7Nf1zSLaBwSlDcyJRLfZSHh6nEbR57KXaPk7y0Kwlp7vyKq1qEUhyb7aBPjyl39OiniFJJBrld9r9qLaJ2wWLCLAS+Z49FWmRRxw5VQtOAIni0UPLvj0qGozplt6oKkkMXdt1wzwqZayTTo2znB1pgwvQ2ArpT+kk7X5HrFGRltxNz84TSVp7TazmvZyt2O5G2obXPR7z4jcNX/FU7vHQ6y5rWeCwji2Jw6JidimzyyCaN4sMpyNnIy6zSBr9TYPq9azvovpOnW2RVZ7gRELwAB+HFgqIWsSQMvhUTKuepTGgqZOdz4Pr94jKO5k9AtoOnUDj/7RgUsEag6cJukqJUflo+ynqUy/jh8zPtUHHd9osx65V+HlPq2pTcVp69llRDbVNoSgfcBSfSNnyHU88eX8+fnNEE8hdN3K9oqphCtrNjBfeh5dEc8Rg9ii0QznnuqKpusevsluYcKyZUnmFSdOtUnqib75qlkUBHhKaRbKwslVBcM+nP1EXnGSt1SCGVOqJFCk2J7dVKNuKdD88eqU7tDoXtKdXyiHVB4LEKVbol7y3h9pHfVWLCKmFj3TNMhHxxobTDjVSw6IbQFBSVPvupBLkz1ZiJeeGpNEp1lK3Y4ETaiHc+PPsgfoKj4WhH+nK1uDz1lS32UVS3hOWjuOnLqZuq49OLtEgpyjNM9o5DHy1B0meB/kYEstcmd/K5dXXt1HVbqA5HUzQ+U2i+mpEA1hJ66qINW7HFibQR73x49qA8/zkc3LSGnQ7xC0U7vnRTqNh/+p5uuY+yi6U0LaISmj50zPLGWdBokanoaHplgyhbdTiaoVTCP8EocifyUFvxQlM53vnw7MELD02mLyufmNeQr7lvBz9fYPJodfHmcwphnvuKFnvpe7pll7yLpbQBU2k/DmVH06z6Z98xo2u2uL/LxWt+bpo7P3uoNAI2RJ1yoamsErHNVAJfN9xwvwoBI6Ni52pb2e9cq7IVW9ri28pgT7X1qOEFKJo/CVHVEVJAVjq7WrzxjoYjVFW3pBj0LkzMYkKE8hRHWT+O4mC9Uuhx6Y4/zjvAnkfzH0KAz65lDrjy1FOJc2MaFppKr4EilSDwf19CTeLF7xuwDLWtZN1Xz3cfU9mKF5qq8c6HRwpPpkUpocQBESco0hVNpr53hwNUNxPrU7rljvz49Kcx1OjHUX0c+pslVP499aKqbEYFYMWC1VRousVGh6IJFbYSNrGVh2XInvv4tItHCTsgatHUrQMSgsdqhpRueYhKTLh73ouqAmVfaHrga5EKTe9X0XTFgULT3qDDVrzQtBrvfHgqqeeAJN4BsZihVLfIkYsJYee8F9WOX8c1UgtN9Tg3x2KB0LRjKm0l5H+onEgbqpVsx6ddasAT0z9o4k5g2/8/Dev/tOCyOUkZnh353TpUp2AgLBwQX1prGUNNt+xS0cUy66hJ1ykGkYSlv0CTFkPV0dQeoam0o+l6CKmEGrYypet0Je9oKuKVA2nob8kR7nJNUzgfYgOe7cS9upHuGuuQlD4aILCaewmO4B0QN6lKt6x6nG7ZpUJMOCPH4KtDhKZNkDajolC/A0LTCxgIKQRLlFQkVdmK7VHE2zVN5mjX4vg1zYa0i9UeYtEuOIR20NaQxxTVKZhbBySEPoKwAYfw6ZY7KrpYTmQn1OrSYiibUYFYggUo0k5WND4zRdGROZYMy23FkmolFbasad07H4hWOx/ytrk6QOecD2bwDogjDKuZWD0O2b0jaot6SLQU7Ny87Xxh5zOdQC40taLxmUkOEY3aUq2kwpY1zQtOqwmhNYSzH2bvgNjPkKtb5IxjaBht5RA8HImqGZU157gAqrq6DiblsqWIlDWwFTuqlWoQQmvUX9O889EhqeNhTO+A2Is63QLXKSaDW0yYvBU61n7vukpLVSfk2tCCu+hoKks7rYd6MGQjW0H7ox5t02RNG8t/ibu7cmvg9uN7iA1NaBu6vq/7EPL2IlT7KARlc8VTJihGH09nT3ceKrNV3vWp5wHMd4Z7z6Gd8kt7w/Tc8lzlDOw8U1NpqSzUnQt+bfhcpFPZyJCEpvvUtxUdETLr0bimjRUDZiYOYbfgdHVxieBR4h0QuyhaPjfUE8larlf8lOTxMdzwoh2DhbBTpOhiuYOe0lIWmpLzEZaN2SL4xbx1eNlIra6ufaWurdjjRFZjy5pmQdrFR1j6gE/B2IH6QDBzpIAhWEwdnYWuHb9UaGpJZYSqCseWxmddUsdW/DkuzZE6HzcwNpPjQ/wEnl7gHRAbkJ014dmlouwWdIkHlUJTe85xUQlNB1OKLaOGrazbO+W3v0icD/7gmcnXCu9Z9wrvgHSNLc0BMQTLEQqBoMYKlLD8YasqI6LSRx3oWWGKClsZsCbmcO47H4gbRFjyMelgCP4A5h/0UsGbx0H66YDgdfb5EHY3GeN+EYK7DNLCkYvDOuujY30Pm/K5B68Fpi81OgZruBeSZzuC2OQcW8XeZ5XtBnFNG0O/qBaU2gpdJ822Mii8mNLjKSE/aOxv+vrsuk/Nle7eV9u4dd2216XNI+Gj+Q+h60fOe7a2kotRwXMw/wf0HiPnfvmcZAAAAABJRU5ErkJggg==';
+  const big = '<img class="hw-logo" src="'+LOGO+'" alt="Hertzwave" />';
+  const sm  = '<img class="hw-logo-sm" src="'+LOGO+'" alt="Hertzwave" />';
+  document.querySelectorAll('.wordmark').forEach(el=>{ el.innerHTML = el.innerHTML.replace('__HWMARK__', big); });
+  document.querySelectorAll('.brandfoot').forEach(el=>{ el.innerHTML = el.innerHTML.replace('__HWMARK_SM__', sm); });
+  document.querySelectorAll('.hw-dot').forEach(img=>{ img.src = LOGO; });
+})();
+</script>
+<script>
+/* ============================================================
+   TerraCAP explainer — controller
+   - manual nav (arrows, dots, buttons)
+   - autoplay with per-slide timing driven by narration length
+   - Web Speech API narration (prefers an Indian-English female voice)
+   ============================================================ */
+(function(){
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const dotsWrap = document.getElementById('dots');
+  const meta = document.getElementById('meta');
+  const progress = document.getElementById('progress');
+  const btnPrev = document.getElementById('prev');
+  const btnNext = document.getElementById('next');
+  const btnPlay = document.getElementById('play');
+  const voiceChk = document.getElementById('voice');
+  let i = 0, playing = false, timer = null, countersDone = new Set();
+
+  // build progress dots
+  slides.forEach((s,idx)=>{
+    const d=document.createElement('span'); d.className='pdot'+(idx===0?' on':'');
+    d.addEventListener('click',()=>{stopAuto();go(idx);} ); dotsWrap.appendChild(d);
+  });
+  const dots = Array.from(dotsWrap.children);
+
+  /* ---------- Speech (female voice, with modulation) ---------- */
+  const synth = window.speechSynthesis;
+  const voiceSel = document.getElementById('voiceSel');
+  let voice = null, voiceList = [];
+
+  // Known female voice names across OSes/browsers (used to detect & rank female voices)
+  const FEMALE = /(female|woman|neerja|aditi|heera|swara|kavya|priya|raveena|veena|female|samantha|victoria|karen|moira|tessa|fiona|serena|allison|ava|susan|zira|hazel|catherine|linda|heera|google us english|google uk english female|libby|sonia|jenny|aria|jane|nanci|paulina|monica|zuzana|amelie|anna|female)/i;
+  const MALE = /(\bmale\b|\bman\b|david|mark|guy|ravi|rishi|hemant|george|daniel|fred|alex|oliver|thomas|james|google uk english male|rajesh|prabhat|madhur)/i;
+
+  function isFemale(v){ const n=(v.name||''); return FEMALE.test(n) && !MALE.test(n); }
+
+  function buildVoiceList(){
+    if(!synth) return;
+    const vs = synth.getVoices();
+    if(!vs.length) return;
+    // Rank: en-IN female > any female en-* > other en-IN > any en > female anything
+    const score = v => {
+      let s=0; const l=(v.lang||'').toLowerCase(); const fem=isFemale(v);
+      if(fem) s+=50;
+      if(l==='en-in') s+=20; else if(l.startsWith('en-gb')) s+=14; else if(l.startsWith('en-au')) s+=12;
+      else if(l.startsWith('en-us')) s+=10; else if(l.startsWith('en')) s+=6;
+      if(/google/i.test(v.name)) s+=3;          // Google voices sound more natural
+      if(/natural|neural|premium|enhanced/i.test(v.name)) s+=5;
+      if(MALE.test(v.name)) s-=60;
+      return s;
+    };
+    voiceList = vs.slice().sort((a,b)=>score(b)-score(a));
+    // Populate dropdown (female voices first, marked)
+    if(voiceSel){
+      voiceSel.innerHTML = '';
+      voiceList.forEach((v,idx)=>{
+        const o=document.createElement('option'); o.value=v.name;
+        o.textContent = (isFemale(v)?'♀ ':'  ') + v.name + ' · ' + v.lang;
+        voiceSel.appendChild(o);
+      });
+    }
+    // default selection = top-ranked (female preferred)
+    voice = voiceList[0] || null;
+    if(voiceSel && voice) voiceSel.value = voice.name;
+  }
+  if(synth){ buildVoiceList(); synth.onvoiceschanged = buildVoiceList; }
+  if(voiceSel){
+    voiceSel.addEventListener('change',()=>{
+      voice = voiceList.find(v=>v.name===voiceSel.value) || voice;
+      // sample so the user hears the pick
+      if(synth){ synth.cancel(); const u=new SpeechSynthesisUtterance('TerraCAP. Carbon intelligence, metered and everywhere.'); styleUtter(u,0); synth.speak(u); }
+    });
+  }
+
+  // Per-run rate multiplier (lets specific slides, e.g. the cover, speak slower).
+  let rateMul = 1;
+  // Apply a female-leaning, modulated voice profile to an utterance.
+  // variant alternates pitch/rate slightly per sentence for natural modulation.
+  function styleUtter(u, variant){
+    if(voice) u.voice = voice;
+    u.lang = (voice && voice.lang) || 'en-GB';
+    // base warm female profile; nudge pitch up a touch to lift flat voices
+    const basePitch = 1.12, baseRate = 1.19;
+    const pitchJitter = [0, 0.06, -0.04, 0.09, -0.02][variant % 5];
+    const rateJitter  = [0, -0.03, 0.04, -0.02, 0.03][variant % 5];
+    u.pitch = Math.max(0.6, Math.min(2, basePitch + pitchJitter));
+    u.rate  = Math.max(0.6, Math.min(1.4, (baseRate + rateJitter) * rateMul));
+    u.volume = 1;
+  }
+
+  // Normalise text for speech: render acronyms phonetically (run-together, no gaps)
+  // so the TTS says them quickly and clearly. Keep on-screen text untouched.
+  function forSpeech(text){
+    return (text||'')
+      .replace(/\bA P I\b/gi, 'AyePeeEye')
+      .replace(/\bAPIs\b/g, 'AyePeeEyes')
+      .replace(/\bAPI\b/g, 'AyePeeEye')
+      .replace(/\bM C P\b/gi, 'EmSeePee')
+      .replace(/\bMCP\b/g, 'EmSeePee')
+      .replace(/\bA W S\b/gi, 'AyeDoubleyouEss')
+      .replace(/\bAWS\b/g, 'AyeDoubleyouEss')
+      .replace(/\bdMRV\b/g, 'digital EmArrVee')
+      .replace(/\bDMRV\b/g, 'DeeEmArrVee')
+      .replace(/\bM R V\b/gi, 'EmArrVee')
+      .replace(/\bG S T\b/gi, 'GeeEssTee')
+      .replace(/\bG-S-T\b/g, 'GeeEssTee')
+      .replace(/\bGST\b/g, 'GeeEssTee')
+      .replace(/\bF-?Y\b/g, 'F Y')
+      .replace(/\bSaaS\b/g, 'software as a service')
+      .replace(/\bMSMEs\b/g, 'EmEssEmEees')
+      .replace(/\bMSME\b/g, 'EmEssEmEee')
+      .replace(/\btCO₂e\b/gi, 'tonnes of CO2 equivalent')
+      .replace(/\bCBAM\b/g, 'C-BAM');
+  }
+  // Split narration into sentence-ish chunks so each gets its own modulation + micro-pause.
+  function chunk(text){
+    return forSpeech(text)
+      .replace(/\s+/g,' ')
+      .match(/[^.!?—:]+[.!?—:]*/g) || [text||''];
+  }
+
+  // Speak a full narration as a modulated sequence of chunks.
+  // Completion is driven by the LAST chunk finishing (onend), never by a timer that
+  // could cut the voice short. The guard is only a very generous safety net in case
+  // a browser silently drops an utterance.
+  function speak(text, onend){
+    if(!synth){ if(onend) setTimeout(onend, estDur(text)); return; }
+    // honor an optional per-slide speaking rate (e.g. the cover reads slower)
+    const r = parseFloat(slides[i] && slides[i].getAttribute('data-rate'));
+    rateMul = (r>0) ? r : 1;
+    synth.cancel();
+    const parts = chunk(text).map(s=>s.trim()).filter(Boolean);
+    let k = 0, cancelled = false, done = false, guard = null;
+    function armGuard(){ // reset a generous watchdog on every chunk boundary
+      clearTimeout(guard);
+      guard = setTimeout(()=>{ finish(); }, 20000); // 20s of total silence => assume stuck
+    }
+    function finish(){ if(done||cancelled) return; done=true; clearTimeout(guard); if(onend) onend(); }
+    function next(){
+      if(cancelled) return;
+      if(k >= parts.length){ finish(); return; }
+      const u = new SpeechSynthesisUtterance(parts[k]);
+      styleUtter(u, k);
+      u.onend = ()=>{ armGuard(); setTimeout(next, 90); };  // tighter beat between sentences
+      u.onerror = ()=>{ armGuard(); setTimeout(next, 50); };
+      k++;
+      armGuard();
+      synth.speak(u);
+    }
+    speak._cancel = ()=>{ cancelled=true; clearTimeout(guard); };
+    next();
+  }
+  function cancelSpeech(){ if(speak._cancel) speak._cancel(); if(synth) synth.cancel(); }
+  // Chrome bug workaround: speechSynthesis can silently pause during long speech.
+  // Tick pause()/resume() while it's speaking to keep it alive.
+  if(synth){ setInterval(()=>{ if(synth.speaking && !synth.paused){ try{ synth.pause(); synth.resume(); }catch(e){} } }, 9000); }
+
+  function estDur(t){ // used when speech is OFF (and as a timing estimate)
+    const words = forSpeech(t||'').trim().split(/\s+/).length;
+    const sentences = (chunk(t).length)||1;
+    return Math.max(3000, Math.round(words/188*60000) + sentences*120);
+  }
+
+  /* ---------- counters ---------- */
+  function runCounters(slide, idx){
+    if(countersDone.has(idx)) return; countersDone.add(idx);
+    slide.querySelectorAll('[data-count]').forEach(el=>{
+      const target=parseFloat(el.getAttribute('data-count'));
+      const pre=el.getAttribute('data-prefix')||''; const suf=el.getAttribute('data-suffix')||'';
+      const dec=(target%1!==0)?1:0; const dur=1100; const t0=performance.now();
+      function tick(now){
+        const p=Math.min(1,(now-t0)/dur); const e=1-Math.pow(1-p,3);
+        const val=(target*e);
+        el.textContent=pre+(dec?val.toFixed(1):Math.round(val).toLocaleString('en-IN'))+suf;
+        if(p<1) requestAnimationFrame(tick);
+        else el.textContent=pre+(dec?target.toFixed(1):Math.round(target).toLocaleString('en-IN'))+suf;
+      }
+      requestAnimationFrame(tick);
+    });
+    // dashboard stacked bars
+    slide.querySelectorAll('#bc .bc span[data-h]').forEach((s,k)=>{ setTimeout(()=>{ s.style.height=s.getAttribute('data-h'); }, 300+k*50); });
+    // dashboard donut segments (animate from 0)
+    slide.querySelectorAll('.dseg[data-dash]').forEach((c,k)=>{ setTimeout(()=>{ c.setAttribute('stroke-dasharray', c.getAttribute('data-dash')); }, 400+k*220); });
+    // revenue uplift bars (slide 10)
+    slide.querySelectorAll('.ustack[data-h]').forEach((s,k)=>{ setTimeout(()=>{ s.style.height=s.getAttribute('data-h'); }, 350+k*160); });
+    // Scope 3 horizontal bars (slide 12 row 2)
+    slide.querySelectorAll('.hrow .ht i[data-w]').forEach((b,k)=>{ setTimeout(()=>{ b.style.width=b.getAttribute('data-w'); }, 300+k*90); });
+  }
+
+  /* ---------- agentic hub spokes ---------- */
+  function buildHub(){
+    const hub=document.getElementById('hub'); if(!hub||hub.dataset.built) return; hub.dataset.built='1';
+    const labels=['📒','🔌','📑','🌿','🔍','🌍','♻️','🎯'];
+    const R=10.5; // vh radius
+    labels.forEach((lab,k)=>{
+      const ang=(k/labels.length)*Math.PI*2 - Math.PI/2;
+      const x=Math.cos(ang), y=Math.sin(ang);
+      const spark=document.createElement('span'); spark.className='spark';
+      spark.style.width=R+'vh'; spark.style.transform=`rotate(${ang}rad)`;
+      spark.style.animation=`pulse 2.6s ease-in-out ${k*0.18}s infinite`;
+      hub.appendChild(spark);
+      const node=document.createElement('span'); node.className='node';
+      node.style.left=`calc(50% + ${x*R}vh - 1.2vh)`;
+      node.style.top=`calc(50% + ${y*R}vh - 1.2vh)`;
+      node.style.display='flex'; node.style.alignItems='center'; node.style.justifyContent='center'; node.style.fontSize='1.3vh';
+      node.textContent=lab;
+      hub.appendChild(node);
+    });
+    const st=document.createElement('style');
+    st.textContent='@keyframes pulse{0%,100%{opacity:.25}50%{opacity:.9}}';
+    document.head.appendChild(st);
+  }
+
+  /* ---------- navigation ---------- */
+  function go(n){
+    n=(n+slides.length)%slides.length;
+    slides[i].classList.remove('active');
+    i=n;
+    slides[i].classList.add('active');
+    dots.forEach((d,k)=>d.classList.toggle('on',k===i));
+    meta.textContent=(i+1)+' / '+slides.length;
+    progress.style.width=((i)/(slides.length-1)*100)+'%';
+    runCounters(slides[i], i);
+    if(slides[i].querySelector('#hub')) buildHub();
+    if(playing) runSlideAuto();
+    else if(voiceChk.checked) speak(slides[i].dataset.vo||'');
+    else cancelSpeech();
+  }
+
+  function runSlideAuto(){
+    clearTimeout(timer);
+    const txt = slides[i].dataset.vo||'';
+    if(voiceChk.checked){
+      speak(txt, ()=>{ if(playing){ timer=setTimeout(()=>advance(), 250); } });
+    }else{
+      timer=setTimeout(()=>advance(), estDur(txt));
+    }
+  }
+  function advance(){ if(i<slides.length-1) go(i+1); else stopAuto(true); }
+
+  /* ---------- runtime timer (total playback time) ---------- */
+  let rtAccum = 0, rtStart = 0, rtTick = null;
+  const rtVal = document.getElementById('rtVal');
+  function fmt(ms){ const s=Math.round(ms/1000); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+  function rtRender(){ const live = rtAccum + (rtStart?performance.now()-rtStart:0); if(rtVal) rtVal.textContent = fmt(live); }
+  function rtStartClock(){ if(!rtStart){ rtStart=performance.now(); rtTick=setInterval(rtRender,500); } }
+  function rtStopClock(){ if(rtStart){ rtAccum+=performance.now()-rtStart; rtStart=0; } clearInterval(rtTick); rtRender(); }
+  function rtReset(){ rtStopClock(); rtAccum=0; rtRender(); }
+
+  function startAuto(){ playing=true; btnPlay.textContent='❚❚'; if(i===0) rtReset(); rtStartClock(); runSlideAuto(); }
+  function stopAuto(finished){ playing=false; btnPlay.textContent='▶'; clearTimeout(timer); cancelSpeech(); rtStopClock(); }
+
+  btnPrev.addEventListener('click',()=>{stopAuto();go(i-1);});
+  btnNext.addEventListener('click',()=>{stopAuto();go(i+1);});
+  btnPlay.addEventListener('click',()=>{ playing?stopAuto():startAuto(); });
+  voiceChk.addEventListener('change',()=>{ if(!voiceChk.checked) cancelSpeech(); else if(voiceChk.checked && !playing) speak(slides[i].dataset.vo||''); });
+
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'){stopAuto();go(i+1);}
+    else if(e.key==='ArrowLeft'){stopAuto();go(i-1);}
+    else if(e.code==='Space'){e.preventDefault(); playing?stopAuto():startAuto();}
+    else if(e.key.toLowerCase()==='f'){ const d=document.documentElement; if(!document.fullscreenElement) d.requestFullscreen&&d.requestFullscreen(); else document.exitFullscreen(); }
+  });
+
+  // init
+  runCounters(slides[0],0);
+  window.addEventListener('beforeunload',()=>{ cancelSpeech(); });
+})();
+</script>
+</body>
+</html>
