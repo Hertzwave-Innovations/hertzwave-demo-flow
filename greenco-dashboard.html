@@ -363,8 +363,62 @@ a.btn{text-decoration:none}
 @media (max-width:980px){.g-sum{grid-template-columns:1fr 1fr}.g-sum>div:nth-child(2){border-right:0}.g-row{grid-template-columns:1fr}.g-val{text-align:left}.g-axis{display:none}}
 @media print{.g-tip{display:none!important}}
 
+/* ---------- goals v2: plan rows, investment columns ---------- */
+.g-name small{display:block;font-weight:500;font-size:11.5px;color:var(--muted);margin-top:1px}
+.g-plan.solo{left:0;border-radius:0 4px 4px 0}
+.g-tk{position:absolute;top:3px;width:2px;height:22px;margin-left:-1px;background:var(--ink);border-radius:1px;box-shadow:0 0 0 2px var(--card)}
+.g-tk em{position:absolute;top:-13px;left:50%;transform:translateX(-50%);font-style:normal;font-size:10px;font-weight:700;color:var(--muted);white-space:nowrap}
+.g-end{position:absolute;right:0;top:22px;font-size:10px;color:var(--faint)}
+.g-plot{margin-top:6px}
+.ic{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;align-items:end;height:200px;padding-top:6px;border-bottom:1px solid var(--line)}
+.ic-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;min-width:0;cursor:default}
+.ic-col:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.ic-bar{width:min(56px,70%);border-radius:4px 4px 0 0;min-height:1px}
+.ic-col.past .ic-bar{background:var(--gc-now)}
+.ic-col.next .ic-bar{background:var(--gc-plan);background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.38) 0 2px,transparent 2px 5px)}
+.ic-v{font-size:12px;font-weight:700;margin-bottom:4px;white-space:nowrap}
+.ic-y{font-size:11px;color:var(--muted);margin-top:6px;margin-bottom:-22px;white-space:nowrap}
+.ic{margin-bottom:24px}
+.ro{padding:8px 10px;border:1px dashed var(--line);border-radius:var(--r-s);background:var(--sunk);min-height:37px}
+.srcnote{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;font-size:12.5px;color:var(--muted)}
+.goalgrid input{width:74px;padding:5px 7px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card);text-align:right}
+.goalgrid input.bad{border-color:var(--red);background:var(--red-soft)}
+.goalgrid input:focus{border-color:var(--green);outline:none}
+.goalgrid td{vertical-align:middle}
+.mstone input{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card)}
+.invtbl input{width:84px;padding:5px 7px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card);text-align:right}
+.engine{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:4px}
+.engine b{color:var(--ink);font-weight:700}
+.engopt{display:grid;grid-template-columns:22px 1fr;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-m);margin-bottom:8px;cursor:pointer}
+.engopt.off{opacity:.6;cursor:not-allowed}
+.engopt b{display:block}
+.engopt span{font-size:12.5px;color:var(--muted)}
+.mtrack{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.mtrack .panel{margin:0}
+.mtrack h4{font-size:13.5px}
+.mtrack .chartbox{height:170px}
+.mleg{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:6px 0 12px}
+.mleg i{display:inline-block;vertical-align:middle;margin-right:6px}
+@media (max-width:980px){.ic{gap:4px}.ic-y{font-size:10px}}
+
 /* The Claude artifact viewer cannot open a print dialog; TerraCAP can. */
 html.in-claude [data-print]{display:none!important}
+/* v3: plain-language goals, investment by initiative, assistant reviews */
+.legend i.tick{width:3px;height:14px;border-radius:0;margin-right:7px}
+.legend i.tick.dash{width:0;background:none;border-left:2px dashed var(--ai)}
+.goalgrid .gunit{display:block;font-size:10.5px;color:var(--faint);margin-top:2px}
+.goalgrid .gval{font-size:11.5px;color:var(--ink);margin-top:2px;white-space:nowrap}
+.goalgrid th.gl,.goalgrid td.gl{background:var(--green-soft, rgba(14,131,88,.07))}
+.note.howto{color:var(--ink);line-height:1.5}
+.itbl tr.sub td{font-weight:700;color:var(--ink);padding-top:12px;border-bottom:1px solid var(--line)}
+.itbl tr.subt td{color:var(--muted);font-weight:600;font-size:12px}
+.evsrc{margin:6px 0 0 18px;font-size:13.5px;color:var(--muted);line-height:1.5}
+.evsrc li{margin-bottom:4px}.evsrc b{color:var(--ink)}
+.enggrp{margin:14px 0 4px;font-size:13.5px}
+.asteps{margin:0 0 10px 18px;font-size:13.5px;line-height:1.5}
+.asteps li{margin-bottom:12px}
+.asbox{display:block;width:100%;min-height:96px;margin-top:6px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--sunk);color:var(--ink);font:12px/1.45 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
+.g-val .g-st{white-space:normal;display:inline-block}
 </style>
 </head>
 <body>
@@ -1040,7 +1094,171 @@ function suggestGoals(L, bandMin) {
   return out;
 }
 
-return { goalStatus, suggestGoals, activeIds, LEVELS, BANDS, bandOf, nextBand, SECTORS, classify, ctxOf, P3, P4, v4Of, VERSIONS, FIELDS, FIELD, CREDITS, CREDIT, GATES,
+/* ---------- Performance goals ----------
+   GreenCo target-setting credits (EE1.1, WC1.1, RE1.1, GHG1.1, WM1.1, MCR1.1, GSC1.2) ask for
+   performance targets over short and long horizons, not points. A goal here is a % improvement
+   against the base year (the latest assessed year) for year 1, year 2 and year 3 (long term).
+   Every metric is computed from a period record, so annual and monthly data use one definition. */
+const GJ_PER_KWH = 0.0036;
+function fyStart(label) { const m = String(label || '').match(/(20\d\d)/); return m ? +m[1] : null; }
+function fyLabel(y) { return 'FY ' + y + '-' + String((y + 1) % 100).padStart(2, '0'); }
+function goalYears(prof) { const s0 = fyStart(prof.years[2]); return s0 ? [1, 2, 3].map(k => fyLabel(s0 + k)) : ['Year 1', 'Year 2', 'Year 3']; }
+const REC_FIELDS = ['prod', 'elec', 'thermal', 'onsiteRE', 'onsiteTh', 'offsiteRE', 'scope1', 'scope2', 'fwProc', 'fwDom', 'hazDisp', 'rm', 'transGHG'];
+/* One period's record from plant data (index 0..2), with Scope 1/2 falling back to energy x factors. */
+function recordOf(D, i, prof) {
+  const r = {}; REC_FIELDS.forEach(k => { r[k] = val(D, k, i); });
+  const EF = num(prof.gridEF) || 0, FEF = num(prof.fuelEF) || 0;
+  if (r.scope1 == null && r.thermal != null) r.scope1 = r.thermal * FEF;
+  if (r.scope2 == null && r.elec != null) r.scope2 = Math.max(0, r.elec - (r.onsiteRE || 0) - (r.offsiteRE || 0)) / 1000 * EF;
+  return r;
+}
+function sumRecords(list) { const r = {}; REC_FIELDS.forEach(k => { const v = list.map(x => x[k]).filter(x => x != null); r[k] = v.length ? v.reduce((a, b) => a + b, 0) : null; }); return r; }
+const nz = v => v == null ? 0 : v;
+const GOAL_METRICS = [
+  { id: 'secE', p: 'EE', name: 'Electrical specific energy', unit: 'kWh/unit', kind: 'ratio', num: r => r.elec, den: r => r.prod, field: 'elec', fieldUnit: 'kWh', fieldName: 'electricity', credit: 'EE4' },
+  { id: 'secT', p: 'EE', name: 'Thermal specific energy', unit: 'GJ/unit', kind: 'ratio', num: r => r.thermal, den: r => r.prod, field: 'thermal', fieldUnit: 'GJ', fieldName: 'fuel energy', credit: 'EE4' },
+  { id: 'swc', p: 'WC', name: 'Specific fresh water', unit: 'm³/unit', kind: 'ratio', num: r => (r.fwProc == null && r.fwDom == null) ? null : nz(r.fwProc) + nz(r.fwDom), den: r => r.prod, field: 'fwProc', fieldUnit: 'm³', fieldName: 'fresh water', credit: 'WC4.1' },
+  { id: 'reShare', p: 'RE', name: 'Renewable share of energy', unit: '%', kind: 'share',
+    num: (r, c) => c.elecOnly ? nz(r.onsiteRE) + nz(r.offsiteRE) : (nz(r.onsiteRE) + nz(r.offsiteRE)) * GJ_PER_KWH + nz(r.onsiteTh),
+    den: (r, c) => c.elecOnly ? r.elec : (r.elec == null || r.thermal == null ? null : r.elec * GJ_PER_KWH + r.thermal),
+    toField: (d, c) => c.elecOnly ? d : d / GJ_PER_KWH, field: 'offsiteRE', fieldUnit: 'kWh', fieldName: 'renewable electricity', credit: 'RE' },
+  { id: 'ghgInt', p: 'GHG', name: 'Scope 1+2 emission intensity', unit: 'tCO2e/unit', kind: 'ratio', num: r => (r.scope1 == null || r.scope2 == null) ? null : r.scope1 + r.scope2, den: r => r.prod, field: null, fieldUnit: 'tCO2e', fieldName: 'Scope 1+2 emissions', credit: 'GHG4' },
+  { id: 'hazSpec', p: 'WM', name: 'Specific hazardous waste disposed', unit: 't/unit', kind: 'ratio', num: r => r.hazDisp, den: r => r.prod, field: 'hazDisp', fieldUnit: 't', fieldName: 'hazardous waste disposed', credit: 'WM4.1', bands: [[25, 5], [40, 10]], op: '>=' },
+  { id: 'rmSpec', p: 'MCR', name: 'Specific raw material', unit: 't/unit', kind: 'ratio', num: r => r.rm, den: r => r.prod, field: 'rm', fieldUnit: 't', fieldName: 'raw material', credit: 'MCR4.1' },
+  { id: 'transGHG', p: 'GSC', name: 'Transport emissions', unit: 'tCO2e', kind: 'absolute', num: r => r.transGHG, den: null, field: 'transGHG', fieldUnit: 'tCO2e', fieldName: 'transport emissions', credit: 'GSC6.2' }
+];
+const GOAL_METRIC = Object.fromEntries(GOAL_METRICS.map(m => [m.id, m]));
+const MILESTONE_PARAMS = ['PSLCA', 'IE', 'GI'];
+function goalCtx(prof) { const k = classify(prof); return { seg: k.seg, ee: k.ee.v, re: k.re.v, ghg: k.ghg.v, elecOnly: k.re.v >= 3 }; }
+function metricValue(m, r, c) {
+  const n = m.num(r, c); if (n == null) return null;
+  if (!m.den) return n;
+  const d = m.den(r, c); if (!d) return null;
+  return n / d * (m.kind === 'share' ? 100 : 1);
+}
+/* Improvement from a base value: % reduction for ratio and absolute metrics, percentage points for shares. */
+function improvement(m, base, v) { if (base == null || v == null) return null; if (m.kind === 'share') return v - base; return base ? (base - v) / base * 100 : null; }
+function targetValue(m, base, g) { if (g == null || base == null) return null; return m.kind === 'share' ? g : base * (1 - g / 100); }
+function targetImprovement(m, base, g) { if (g == null) return null; return m.kind === 'share' ? g - base : g; }
+function bandPts(bands, op, v) { if (v == null) return 0; let p = 0; bands.forEach(b => { if (op === '>' ? v > b[0] : v >= b[0]) p = b[1]; }); return p; }
+function creditBands(cid, c) { const cr = CREDIT[cid]; if (!cr || !cr.bands) return null; return { bands: typeof cr.bands === 'function' ? cr.bands(c) : cr.bands, op: cr.op || '>=' }; }
+/* Points a goal would earn at the next rating, which reads the three years Y1..Y3:
+   the scored reduction is Y3 against Y1, not Y3 against today's base year. */
+function windowReduction(y1, y3) { const a = 1 - (y1 || 0) / 100, b = 1 - (y3 || 0) / 100; return a > 0 ? (1 - b / a) * 100 : null; }
+function impliedPoints(id, goals, ctx, baseRec) {
+  const g = goals || {};
+  if (id === 'EE') {
+    const e = g.secE || {}, t = g.secT || {};
+    if (e.y3 == null && t.y3 == null) return null;
+    const eG = nz(baseRec.elec) * GJ_PER_KWH, tG = nz(baseRec.thermal);
+    const at = k => eG * (1 - nz(e[k]) / 100) + tG * (1 - nz(t[k]) / 100);
+    const w = at('y1') ? (1 - at('y3') / at('y1')) * 100 : null;
+    const b = creditBands('EE4', ctx);
+    return { credit: 'EE4', window: w, pts: bandPts(b.bands, b.op, w), max: CREDIT.EE4.max };
+  }
+  if (id === 'reShare') {
+    const x = g.reShare || {}; if (x.y3 == null) return null;
+    const den = GOAL_METRIC.reShare.den(baseRec, ctx);
+    const onsite = den ? (ctx.elecOnly ? nz(baseRec.onsiteRE) : nz(baseRec.onsiteRE) * GJ_PER_KWH + nz(baseRec.onsiteTh)) / den * 100 : 0;
+    const exp = RE_EXP[ctx.re] || 90, cap = onsite > 0 ? 65 : 80;
+    const re2 = bandPts([[1, 5], [2, 10], [3, 15], [4, 20], [5, 25]], '>=', onsite);
+    const re3 = Math.min(cap, 65 * Math.max(0, x.y3 - Math.min(onsite, 5)) / exp);
+    return { credit: 'RE2 + RE3', window: x.y3, pts: re2 + re3, max: 90, level: true };
+  }
+  const m = GOAL_METRIC[id], x = g[id] || {};
+  if (!m || x.y3 == null) return null;
+  const b = m.bands ? { bands: m.bands, op: m.op } : creditBands(m.credit, ctx); if (!b) return null;
+  const w = windowReduction(x.y1, x.y3);
+  return { credit: m.credit, window: w, pts: bandPts(b.bands, b.op, w), max: CREDIT[m.credit].max };
+}
+/* Starting-point goals: year 3 set so the linked credit keeps its current points over the Y1..Y3
+   window (or reaches its first band), with years 1 and 2 at one and two thirds of it.
+   A planning aid, not a feasibility check. */
+function suggestGoal(id, ctx, baseRec, res) {
+  const m = GOAL_METRIC[id];
+  const solve = th => { let lo = 0, hi = 60; for (let k = 0; k < 50; k++) { const mid = (lo + hi) / 2; if (windowReduction(mid / 3, mid) >= th) hi = mid; else lo = mid; } return Math.ceil(hi * 2) / 2; };
+  if (m.kind === 'share') {
+    const base = metricValue(m, baseRec, ctx); if (base == null) return null;
+    const top = Math.min(RE_EXP[ctx.re] || 90, Math.ceil((base + 20) / 5) * 5);
+    const step = (top - base) / 3, r5 = v => Math.round(v * 2) / 2;
+    return { y1: r5(base + step), y2: r5(base + 2 * step), y3: r5(top) };
+  }
+  const b = m.bands ? { bands: m.bands, op: m.op } : creditBands(m.credit, ctx); if (!b) return null;
+  /* Hold the credit's current points at the next rating; a credit at zero aims for its first band. */
+  const cur = res && res.R[m.credit] ? res.R[m.credit].raw : 0;
+  const next = cur > 0 ? (b.bands.find(x => x[1] >= cur) || b.bands[b.bands.length - 1]) : b.bands[0];
+  const th = next[0] + (b.op === '>' ? 0.25 : 0);
+  const r5 = v => Math.round(v * 2) / 2;
+  let y3 = solve(th), out = null;
+  for (let k = 0; k < 40; k++) {  /* rounding year 1 shrinks the window, so step year 3 up until the band is met */
+    out = { y1: r5(y3 / 3), y2: r5(2 * y3 / 3), y3 };
+    if (bandPts(b.bands, b.op, windowReduction(out.y1, out.y3)) >= next[1]) break;
+    y3 += 0.5;
+  }
+  return out;
+}
+/* Goal plan for the Readiness tool: past three years, base, targets, what planned initiatives deliver. */
+function goalPlan(st) {
+  const prof = st.profile, ctx = goalCtx(prof), goals = st.perfGoals || {};
+  const r0 = recordOf(st.data, 0, prof), base = recordOf(st.data, 2, prof), proj = recordOf(project(st), 2, prof);
+  const res = scoreAll(st);
+  const rows = GOAL_METRICS.filter(m => !(ctx.seg === 'svc' && m.p === 'PSLCA')).map(m => {
+    const g = goals[m.id] || {};
+    const bv = metricValue(m, base, ctx), pv = metricValue(m, proj, ctx), v0 = metricValue(m, r0, ctx);
+    const tv = ['y1', 'y2', 'y3'].map(k => targetValue(m, bv, g[k]));
+    const ti = ['y1', 'y2', 'y3'].map(k => targetImprovement(m, bv, g[k]));
+    const delivered = improvement(m, bv, pv);
+    let status = 'none';
+    if (g.y3 != null || g.y1 != null) {
+      const reach = ti.map(t => t != null && delivered != null && delivered >= t - 1e-6);
+      status = reach[2] ? 'y3' : reach[1] ? 'y2' : reach[0] ? 'y1' : 'short';
+    }
+    let need = null;
+    const tgt = tv[2] != null ? tv[2] : tv[0];
+    if (tgt != null && pv != null && status !== 'y3') {
+      const den = m.den ? m.den(proj, ctx) : 1, curN = m.num(proj, ctx);
+      if (den != null && curN != null) {
+        let d = tgt * den / (m.kind === 'share' ? 100 : 1) - curN;
+        if (m.toField) d = m.toField(d, ctx);
+        need = { delta: d, unit: m.fieldUnit, what: m.fieldName, year: tv[2] != null ? 3 : 1 };
+      }
+    }
+    const implied = impliedPoints(m.p === 'EE' ? 'EE' : m.id, goals, ctx, base);
+    return { m, id: m.id, p: m.p, goal: g, base: bv, past: improvement(m, v0, bv), targets: tv, timp: ti, proj: pv, delivered, status, need, implied };
+  });
+  return { rows, years: goalYears(prof), baseYear: prof.years[2], firstYear: prof.years[0], ctx,
+    set: rows.filter(r => r.goal.y3 != null).length, n: rows.length,
+    reachY3: rows.filter(r => r.status === 'y3').length, short: rows.filter(r => r.status === 'short').length };
+}
+/* Monthly tracking: progress of year-to-date against the target for the tracking year (k = 1..3). */
+function trackStatus(m, base, target, ytd, frac) {
+  if (ytd == null) return 'nodata';
+  if (target == null) return 'nogoal';
+  if (m.kind === 'absolute') { const due = target * frac; return ytd <= due + 1e-9 ? 'on' : ytd <= base * frac + 1e-9 ? 'behind' : 'worse'; }
+  if (m.kind === 'share') return ytd >= target - 1e-9 ? 'on' : ytd > base ? 'behind' : 'worse';
+  return ytd <= target + 1e-12 ? 'on' : ytd < base ? 'behind' : 'worse';
+}
+/* Investment by parameter: past three years from the plant's own summary, next three years from
+   planned and in-progress initiatives, with each initiative's capex spread over the years it spans. */
+function fyOfMonth(ym) { const m = String(ym || '').match(/^(\d{4})-(\d{1,2})/); if (!m) return null; const y = +m[1], mo = +m[2]; return mo >= 4 ? y : y - 1; }
+function investment(st) {
+  const prof = st.profile, pastYears = prof.years.slice(), nextYears = goalYears(prof), ps = P3.map(p => p.id);
+  const past = {}, next = {}, unplaced = {}, items = [];
+  ps.forEach(p => { past[p] = pastYears.map(y => num((((st.past || {})[p] || {}).years || {})[y] && st.past[p].years[y].spent)); next[p] = [0, 0, 0]; unplaced[p] = 0; });
+  const n0 = fyStart(nextYears[0]);
+  (st.initiatives || []).filter(isActive).forEach(i => {
+    const c = num(i.capex); if (!c || !next[i.p]) return;
+    let a = fyOfMonth(i.start), b = fyOfMonth(i.end);
+    if (a == null && b == null) { unplaced[i.p] += c; items.push({ id: i.id, title: i.title, p: i.p, status: i.status, start: i.start, end: i.end, capex: c, alloc: [0, 0, 0], outside: c }); return; }
+    if (a == null) a = b; if (b == null) b = a; if (b < a) b = a;
+    const span = b - a + 1, it = { id: i.id, title: i.title, p: i.p, status: i.status, start: i.start, end: i.end, capex: c, alloc: [0, 0, 0], outside: 0 };
+    for (let y = a; y <= b; y++) { const k = n0 == null ? -1 : y - n0; if (k >= 0 && k < 3) { next[i.p][k] += c / span; it.alloc[k] += c / span; } else { unplaced[i.p] += c / span; it.outside += c / span; } }
+    items.push(it);
+  });
+  return { pastYears, nextYears, past, next, unplaced, items };
+}
+
+return { goalStatus, suggestGoals, GOAL_METRICS, GOAL_METRIC, MILESTONE_PARAMS, fyStart, fyLabel, goalYears, recordOf, sumRecords, metricValue, improvement, targetValue, targetImprovement, windowReduction, impliedPoints, suggestGoal, goalPlan, trackStatus, investment, goalCtx, fyOfMonth, activeIds, LEVELS, BANDS, bandOf, nextBand, SECTORS, classify, ctxOf, P3, P4, v4Of, VERSIONS, FIELDS, FIELD, CREDITS, CREDIT, GATES,
   computeMetrics, scoreCredit, scoreAll, lens, project, requiredDelta, initiativeEffect, band, num, fmtN, cloneData, addField, isActive, RE_EXP, EE_STEP };
 })();
 if (typeof module !== 'undefined') module.exports = GC;
@@ -1049,71 +1267,118 @@ if (typeof module !== 'undefined') module.exports = GC;
 'use strict';
 if (window.claude && typeof window.claude.use === 'function') document.documentElement.classList.add('in-claude');
 /* ==========================================================================
-   Parameter goal chart — shared by GreenCo Readiness and the GreenCo Dashboard.
-   Input: GC.goalStatus() result. Output: HTML string. One points axis across
-   all parameters, so a parameter's track length shows what it is worth.
+   Goal and investment charts — shared by GreenCo Readiness and the GreenCo Dashboard.
+   Inputs come from GC.goalPlan() and GC.investment(); outputs are HTML strings,
+   so the charts render without a chart library and print cleanly.
    ========================================================================== */
 const GCG = (() => {
   const e = s => String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
-  const f = v => GC.fmtN(v, 1);
-  const STATUS = {
-    met:     { icon: '✓', cls: 'g-met',   text: () => 'Goal met' },
-    ontrack: { icon: '→', cls: 'g-on',    text: () => 'Met if planned initiatives deliver' },
-    short:   { icon: '!', cls: 'g-short', text: r => 'Short by ' + f(r.gapProj) + (r.proj > r.now + 0.05 ? ' even with initiatives' : '') },
-    none:    { icon: '–', cls: 'g-none',  text: () => 'No goal set' }
+  const f1 = v => GC.fmtN(v, 1);
+  const pname = id => (GC.P3.find(p => p.id === id) || {}).name || id;
+  /* value formatting per metric kind */
+  function fmtVal(m, v) { if (v == null) return '—'; if (m.kind === 'share') return GC.fmtN(v, 1) + '%'; const d = Math.abs(v) < 1 ? 4 : Math.abs(v) < 10 ? 3 : Math.abs(v) < 100 ? 2 : 0; return GC.fmtN(v, d) + ' ' + m.unit; }
+  function fmtImp(m, v) { if (v == null) return '—'; return m.kind === 'share' ? (v >= 0 ? '+' : '−') + GC.fmtN(Math.abs(v), 1) + ' pts' : GC.fmtN(v, 1) + '%'; }
+  function fmtGoal(m, g) { return g == null ? '—' : m.kind === 'share' ? GC.fmtN(g, 1) + '%' : GC.fmtN(g, 1) + '%'; }
+  /* Plain-language change. Reductions read "6% lower" (or "2% higher" when worse); renewable share reads "41.3% to 49.1%",
+     because a share is a level, not a reduction. from = the starting level, needed only for shares. */
+  function fmtChange(m, imp, from) {
+    if (imp == null) return '—';
+    if (m.kind === 'share') return from == null ? GC.fmtN(imp, 1) + ' points' : GC.fmtN(from, 1) + '% to ' + GC.fmtN(from + imp, 1) + '%';
+    return Math.abs(imp) < 0.05 ? '0% (no change)' : GC.fmtN(Math.abs(imp), 1) + '% ' + (imp > 0 ? 'lower' : 'higher');
+  }
+  /* A goal in words: "6% lower than FY 2025-26" or "65% share". */
+  function goalWord(m, g, base) { return g == null ? '—' : m.kind === 'share' ? GC.fmtN(g, 1) + '% share' : GC.fmtN(g, 1) + '% lower' + (base ? ' than ' + base : ''); }
+  const gw = (r, k) => goalWord(r.m, r.goal[k]);
+  const PLAN = {
+    y3:    { icon: '✓', cls: 'g-met',   text: r => 'Enough for the long-term goal (' + gw(r, 'y3') + ')' },
+    y2:    { icon: '→', cls: 'g-on',    text: r => 'Enough for year 2 (' + gw(r, 'y2') + '), not the long-term goal (' + gw(r, 'y3') + ')' },
+    y1:    { icon: '→', cls: 'g-on',    text: r => 'Enough for year 1 (' + gw(r, 'y1') + '), not year 2 (' + gw(r, 'y2') + ')' },
+    short: { icon: '!', cls: 'g-short', text: r => 'Not enough even for year 1 (' + gw(r, r.goal.y1 != null ? 'y1' : 'y3') + ')' },
+    none:  { icon: '–', cls: 'g-none',  text: () => 'No goal set' }
   };
-  function statusHTML(r) { const s = STATUS[r.status]; return `<span class="g-st ${s.cls}"><span aria-hidden="true">${s.icon}</span> ${e(s.text(r))}</span>`; }
-  function tip(r, year) {
-    return [r.name, 'Now: ' + f(r.now) + ' of ' + GC.fmtN(r.max, 0), 'If planned initiatives deliver: ' + f(r.proj),
-      r.goal == null ? 'No goal set' : 'Goal' + (year ? ' for ' + year : '') + ': ' + f(r.goal), STATUS[r.status].text(r)].join('\n');
+  const TRACK = {
+    on:     { icon: '✓', cls: 'g-met',   text: 'On track' },
+    behind: { icon: '→', cls: 'g-on',    text: 'Improving, behind goal' },
+    worse:  { icon: '!', cls: 'g-short', text: 'Worse than base year' },
+    nogoal: { icon: '–', cls: 'g-none',  text: 'No goal set' },
+    nodata: { icon: '–', cls: 'g-none',  text: 'No data yet' }
+  };
+  const tag = (s, text) => `<span class="g-st ${s.cls}"><span aria-hidden="true">${s.icon}</span> ${e(text)}</span>`;
+  function planStatus(r) { const s = PLAN[r.status]; return tag(s, s.text(r)); }
+  function trackStatus(k) { const s = TRACK[k]; return tag(s, s.text); }
+  function needText(r, years) {
+    if (!r.need) return '';
+    const n = r.need, sign = n.delta > 0 ? '+' : '−', a = Math.abs(n.delta);
+    const amt = GC.fmtN(a, a < 10 ? 1 : 0) + ' ' + n.unit;
+    return `To reach ${n.year === 3 ? 'the long-term goal' : 'the year-1 goal'} (${e(years[n.year - 1])}), add initiatives that ${n.delta > 0 ? 'add' : 'cut'} a further ${amt} of ${e(n.what)} a year`;
   }
-  function summary(G, L, PL, year) {
-    if (!G.set) return '';
-    const parts = [];
-    if (G.met) parts.push(G.met + ' met');
-    if (G.ontrack) parts.push(G.ontrack + ' met if initiatives deliver');
-    if (G.short) parts.push(G.short + ' short');
-    return `<div class="g-sum">
-      <div><span>Goals${year ? ' for ' + e(year) : ''}</span><b>${f(G.goalTotal)}</b>${G.goalBand ? `<span class="band-t bc-${G.goalBand.cls}">${e(G.goalBand.name)}</span>` : `<small>${G.set} of ${G.n} parameters set</small>`}</div>
-      <div><span>Now</span><b>${f(L.total)}</b><span class="band-t bc-${L.band.cls}">${e(L.band.name)}</span></div>
-      <div><span>If planned initiatives deliver</span><b>${f(PL.total)}</b><span class="band-t bc-${PL.band.cls}">${e(PL.band.name)}</span></div>
-      <div><span>Parameters</span><b style="font-size:15px;font-weight:700">${parts.join(', ')}</b></div>
-    </div>`;
-  }
-  function chart(G, opt) {
+  /* Goals against what planned initiatives deliver. Each row has its own scale because the measures differ;
+     the scale end is labelled on every row. */
+  function planChart(P, opt) {
     opt = opt || {};
-    const rows = G.rows;
-    if (!rows.length) return '';
-    const axis = Math.ceil(Math.max.apply(null, rows.map(r => r.max)) / 25) * 25;
-    const pc = v => Math.max(0, Math.min(100, v / axis * 100));
-    const ticks = []; for (let t = 0; t <= axis; t += 25) ticks.push(t);
-    const grid = `background-image:${ticks.slice(1, -1).map(t => `linear-gradient(to right, transparent calc(${pc(t)}% - 0.5px), var(--line-2) calc(${pc(t)}% - 0.5px), var(--line-2) calc(${pc(t)}% + 0.5px), transparent calc(${pc(t)}% + 0.5px))`).join(',') || 'none'}`;
+    const rows = P.rows; if (!rows.length) return '';
     const body = rows.map(r => {
-      const gain = r.proj - r.now;
-      const plan = gain > 0.05 ? `<div class="g-plan" style="left:calc(${pc(r.now)}% + 2px);width:max(0px, calc(${pc(gain)}% - 2px))"></div>` : '';
-      const goal = r.goal != null ? `<div class="g-goal" style="left:${pc(r.goal)}%"></div>` : '';
-      const click = opt.onRow ? ` onclick="${opt.onRow}('${r.id}')" role="button"` : '';
-      return `<div class="g-row" tabindex="0" data-gtip="${e(tip(r, opt.year))}"${click} aria-label="${e(tip(r, opt.year).replace(/\n/g, '. '))}">
-        <div class="g-name">${e(r.name)}</div>
-        <div class="g-plot" style="${grid}"><div class="g-track" style="width:${pc(r.max)}%"></div><div class="g-now ${gain > 0.05 ? 'cut' : ''}" style="width:${pc(r.now)}%"></div>${plan}${goal}</div>
-        <div class="g-val"><b>${f(r.now)}</b>${gain > 0.05 ? ` <span class="g-arrow">→ ${f(r.proj)}</span>` : ''}<span class="muted"> / ${r.goal == null ? '—' : f(r.goal)}</span><br>${statusHTML(r)}</div>
+      const m = r.m, t = r.timp, d = r.delivered;
+      const top = Math.max(1, ...t.filter(x => x != null), d != null ? d : 0) * 1.18;
+      const pc = v => Math.max(0, Math.min(100, v / top * 100));
+      const bar = d != null && d > 0.05 ? `<div class="g-plan solo" style="width:${pc(d)}%"></div>` : '';
+      const ticks = t.map((x, k) => x == null ? '' : `<div class="g-tk" style="left:${pc(x)}%"><em>Y${k + 1}</em></div>`).join('');
+      const tip = [m.name + ' (' + pname(m.p) + ')', 'Base ' + P.baseYear + ': ' + fmtVal(m, r.base),
+        'Goals: ' + ['y1', 'y2', 'y3'].map((k, i) => (i === 2 ? 'long term ' : 'year ' + (i + 1) + ' ') + goalWord(m, r.goal[k])).join(', '),
+        'Planned initiatives would give: ' + fmtChange(m, d, r.base), PLAN[r.status].text(r)].join('\n');
+      const click = opt.onRow ? ` onclick="${opt.onRow}('${r.p}')" role="button"` : '';
+      return `<div class="g-row" tabindex="0" data-gtip="${e(tip)}"${click} aria-label="${e(tip.replace(/\n/g, '. '))}">
+        <div class="g-name">${e(m.name)}<small>${e(pname(m.p))} · ${m.kind === 'share' ? 'renewable share, from ' + f1(r.base) + '% in the base year' : '% lower than the base year'}</small></div>
+        <div class="g-plot"><div class="g-track" style="width:100%"></div>${bar}${ticks}<span class="g-end">${m.kind === 'share' ? f1(r.base + top) + '%' : f1(top) + '%'}</span></div>
+        <div class="g-val"><b>${fmtChange(m, d, r.base)}</b><span class="muted"> · goal ${goalWord(m, r.goal.y3)}</span><br>${planStatus(r)}</div>
       </div>`;
     }).join('');
-    const axisRow = `<div class="g-row g-axis" aria-hidden="true"><div></div><div class="g-ticks">${ticks.map(t => `<span style="left:${pc(t)}%">${t}</span>`).join('')}</div><div class="g-axlabel">Now → with initiatives / goal</div></div>`;
-    const legend = `<div class="legend g-legend">
-      <span><i class="g-sw-now"></i>Now</span><span><i class="g-sw-plan"></i>Added if planned initiatives deliver</span>
-      <span><i class="g-sw-goal"></i>Goal</span><span><i class="g-sw-track"></i>Points available</span></div>`;
-    const table = `<details class="g-table noprint"><summary>Show as a table</summary><div class="scroll"><table class="tbl"><thead><tr><th>Parameter</th><th class="r">Max</th><th class="r">Now</th><th class="r">With initiatives</th><th class="r">Goal</th><th>Status</th></tr></thead><tbody>
-      ${rows.map(r => `<tr><td>${e(r.name)}</td><td class="r">${GC.fmtN(r.max, 0)}</td><td class="r">${f(r.now)}</td><td class="r">${f(r.proj)}</td><td class="r">${r.goal == null ? '—' : f(r.goal)}</td><td>${statusHTML(r)}</td></tr>`).join('')}
-      <tr class="grp"><td>Total</td><td class="r">${GC.fmtN(rows.reduce((a, r) => a + r.max, 0), 0)}</td><td class="r">${f(rows.reduce((a, r) => a + r.now, 0))}</td><td class="r">${f(rows.reduce((a, r) => a + r.proj, 0))}</td><td class="r">${G.set ? f(G.goalTotal) : '—'}</td><td>${G.goalBand ? e(G.goalBand.name) : ''}</td></tr>
+    const legend = `<div class="legend g-legend"><span><i class="g-sw-plan"></i>What planned initiatives would give, against ${e(P.baseYear)}</span>
+      <span><i class="g-sw-goal"></i>Goals: Y1 ${e(P.years[0])}, Y2 ${e(P.years[1])}, Y3 = long term ${e(P.years[2])}</span><span><i class="g-sw-track"></i>Each row has its own scale</span></div>`;
+    const table = `<details class="g-table noprint"><summary>Show as a table</summary><div class="scroll"><table class="tbl"><thead><tr><th>Measure</th><th class="r">Base ${e(P.baseYear)}</th><th class="r">Long-term goal</th><th class="r">Year 1</th><th class="r">Year 2</th><th class="r">Planned initiatives give</th><th>Status</th><th>Still needed</th></tr></thead><tbody>
+      ${rows.map(r => `<tr><td>${e(r.m.name)}</td><td class="r">${fmtVal(r.m, r.base)}</td><td class="r">${goalWord(r.m, r.goal.y3)}</td><td class="r">${goalWord(r.m, r.goal.y1)}</td><td class="r">${goalWord(r.m, r.goal.y2)}</td><td class="r">${fmtChange(r.m, r.delivered, r.base)}</td><td>${planStatus(r)}</td><td class="small">${needText(r, P.years)}</td></tr>`).join('')}
       </tbody></table></div></details>`;
-    return `<div class="g-chart" role="group" aria-label="Points by parameter against goals">${body}${axisRow}</div>${legend}${table}`;
+    return `<div class="g-chart" role="group" aria-label="Goals against planned initiatives">${body}</div>${legend}${table}`;
   }
-  /* One tooltip for every .g-row on the page (hover and keyboard focus). */
+  /* Investment over six financial years: three past (spent) and three next (planned from initiatives). */
+  function investChart(inv, opt) {
+    opt = opt || {};
+    const ps = Object.keys(inv.past);
+    const sum = arr => arr.reduce((a, b) => a + (b || 0), 0);
+    const pastT = inv.pastYears.map((y, i) => sum(ps.map(p => inv.past[p][i]))), nextT = inv.nextYears.map((y, i) => sum(ps.map(p => inv.next[p][i])));
+    const cols = inv.pastYears.map((y, i) => ({ y, v: pastT[i], kind: 'past' })).concat(inv.nextYears.map((y, i) => ({ y, v: nextT[i], kind: 'next' })));
+    const top = Math.max(1, ...cols.map(c => c.v)) * 1.12;
+    const chart = `<div class="ic" role="img" aria-label="Investment by year: ${e(cols.map(c => c.y + ' ' + GC.fmtN(c.v, 0) + ' lakh').join(', '))}">
+      ${cols.map(c => `<div class="ic-col ${c.kind}" data-gtip="${e(c.y + '\n' + (c.kind === 'past' ? 'Spent' : 'Planned from initiatives') + ': ₹' + GC.fmtN(c.v, 1) + ' lakh')}" tabindex="0">
+        <span class="ic-v">₹${GC.fmtN(c.v, 0)}</span><div class="ic-bar" style="height:${c.v / top * 100}%"></div><span class="ic-y">${e(c.y.replace('FY ', ''))}</span></div>`).join('')}
+    </div>
+    <div class="legend g-legend"><span><i class="g-sw-now"></i>Spent (plant's own summary)</span><span><i class="g-sw-plan"></i>Planned capex from initiatives</span><span class="muted">₹ lakh</span></div>`;
+    const rows = ps.filter(p => inv.past[p].some(x => x) || inv.next[p].some(x => x) || inv.unplaced[p]);
+    const table = `<div class="scroll" style="margin-top:10px"><table class="tbl"><thead><tr><th>Parameter</th>${inv.pastYears.map(y => `<th class="r">${e(y)}</th>`).join('')}<th class="r">Past 3 years</th>${inv.nextYears.map(y => `<th class="r">${e(y)}</th>`).join('')}<th class="r">Next 3 years</th></tr></thead><tbody>
+      ${rows.map(p => `<tr><td>${e(pname(p))}</td>${inv.past[p].map(v => `<td class="r">${v == null ? '<span class="muted">—</span>' : GC.fmtN(v, 1)}</td>`).join('')}<td class="r"><b>${GC.fmtN(sum(inv.past[p]), 1)}</b></td>${inv.next[p].map(v => `<td class="r">${v ? GC.fmtN(v, 1) : '<span class="muted">0</span>'}</td>`).join('')}<td class="r"><b>${GC.fmtN(sum(inv.next[p]), 1)}</b>${inv.unplaced[p] ? `<br><span class="muted small">+${GC.fmtN(inv.unplaced[p], 1)} outside these years</span>` : ''}</td></tr>`).join('')}
+      <tr class="grp"><td>Total</td>${pastT.map(v => `<td class="r">${GC.fmtN(v, 1)}</td>`).join('')}<td class="r">${GC.fmtN(sum(pastT), 1)}</td>${nextT.map(v => `<td class="r">${GC.fmtN(v, 1)}</td>`).join('')}<td class="r">${GC.fmtN(sum(nextT), 1)}</td></tr>
+    </tbody></table></div>`;
+    return chart + (opt.noTable ? '' : table);
+  }
+  /* Planned capex by initiative and financial year: the rows behind the "next three years" columns above,
+     so the two always add up to the same totals. p limits it to one parameter. */
+  function investItems(inv, p) {
+    const sum = a => a.reduce((x, y) => x + (y || 0), 0), its = inv.items.filter(x => !p || x.p === p);
+    const ps = GC.P3.map(x => x.id).filter(q => its.some(x => x.p === q));
+    const money = v => v ? GC.fmtN(v, 1) : '<span class="muted">—</span>';
+    if (!its.length) return `<p class="muted small">No planned or in-progress initiative${p ? ' for this parameter' : ''} has capex entered.</p>`;
+    const row = x => `<tr><td>${e(x.title)}<br><span class="muted small">${e(x.status)}, ${e(x.start || '?')} to ${e(x.end || '?')}</span></td>${x.alloc.map(v => `<td class="r">${money(v)}</td>`).join('')}<td class="r"><b>${GC.fmtN(sum(x.alloc), 1)}</b>${x.outside ? `<br><span class="muted small">+${GC.fmtN(x.outside, 1)} outside these years</span>` : ''}</td></tr>`;
+    const subtotal = (label, list, cls) => { const t = [0, 1, 2].map(k => sum(list.map(x => x.alloc[k]))); return `<tr class="${cls}"><td>${e(label)}</td>${t.map(v => `<td class="r">${GC.fmtN(v, 1)}</td>`).join('')}<td class="r">${GC.fmtN(sum(t), 1)}</td></tr>`; };
+    return `<div class="scroll"><table class="tbl itbl"><thead><tr><th>Initiative</th>${inv.nextYears.map(y => `<th class="r">${e(y)}</th>`).join('')}<th class="r">Total, next 3 years</th></tr></thead><tbody>
+      ${ps.map(q => (p ? '' : `<tr class="sub"><td colspan="5">${e(pname(q))}</td></tr>`) + its.filter(x => x.p === q).map(row).join('') + (p || its.filter(x => x.p === q).length < 2 ? '' : subtotal('Subtotal, ' + pname(q), its.filter(x => x.p === q), 'subt'))).join('')}
+      ${subtotal(p ? 'Total, ' + pname(p) : 'Total, all parameters', its, 'grp')}
+    </tbody></table></div><p class="muted small" style="margin-top:6px">₹ lakh. Each initiative's capex is spread evenly over the financial years from its start date to its end date. Implemented and dropped initiatives are left out.</p>`;
+  }
+  /* One tooltip for every [data-gtip] element on the page (hover and keyboard focus). */
   let tipEl = null;
-  function show(row, x, y) {
+  function show(el, x, y) {
     if (!tipEl) { tipEl = document.createElement('div'); tipEl.className = 'g-tip'; tipEl.setAttribute('role', 'tooltip'); document.body.appendChild(tipEl); }
-    const lines = (row.getAttribute('data-gtip') || '').split('\n');
+    const lines = (el.getAttribute('data-gtip') || '').split('\n');
     tipEl.innerHTML = '<b>' + e(lines[0]) + '</b>' + lines.slice(1).map(l => '<div>' + e(l) + '</div>').join('');
     tipEl.style.display = 'block';
     const w = tipEl.offsetWidth, h = tipEl.offsetHeight;
@@ -1121,11 +1386,11 @@ const GCG = (() => {
     tipEl.style.top = Math.max(8, Math.min(window.innerHeight - h - 8, y + 14)) + 'px';
   }
   function hide() { if (tipEl) tipEl.style.display = 'none'; }
-  document.addEventListener('mousemove', ev => { const r = ev.target.closest && ev.target.closest('.g-row[data-gtip]'); if (r) show(r, ev.clientX, ev.clientY); else hide(); });
-  document.addEventListener('focusin', ev => { const r = ev.target.closest && ev.target.closest('.g-row[data-gtip]'); if (r) { const b = r.getBoundingClientRect(); show(r, b.left + b.width * 0.35, b.bottom - 6); } });
+  document.addEventListener('mousemove', ev => { const r = ev.target.closest && ev.target.closest('[data-gtip]'); if (r) show(r, ev.clientX, ev.clientY); else hide(); });
+  document.addEventListener('focusin', ev => { const r = ev.target.closest && ev.target.closest('[data-gtip]'); if (r) { const b = r.getBoundingClientRect(); show(r, b.left + b.width * 0.35, b.bottom - 6); } });
   document.addEventListener('focusout', hide);
   document.addEventListener('scroll', hide, true);
-  return { chart, summary, statusHTML, STATUS };
+  return { planChart, investChart, investItems, fmtChange, goalWord, planStatus, trackStatus, needText, fmtVal, fmtImp, fmtGoal, PLAN, TRACK, pname };
 })();
 </script>
 <script>
@@ -1146,7 +1411,7 @@ function gcSeed() {
     schema: 'terracap.greenco.assessment/1',
     profile: {
       org: 'Deccan Precision Forgings Pvt Ltd', plant: 'Hosur Unit 2', location: 'Hosur, Tamil Nadu',
-      sector: 'Automobile', version: 'V3', customerLabel: '', years: ['FY 2022-23', 'FY 2023-24', 'FY 2024-25'],
+      sector: 'Automobile', version: 'V3', customerLabel: '', years: ['FY 2023-24', 'FY 2024-25', 'FY 2025-26'],
       gridEF: 0.71, fuelEF: 0.0561, igbc: false, priorRating: 'Gold', climateRisk: false,
       eeCatOv: 'auto', reCatOv: 'auto', ghgOv: 'auto', productUnit: 't forgings'
     },
@@ -1164,34 +1429,51 @@ function gcSeed() {
       emp: 240, certPros: 4, housingPct: 0, commutePct: 72
     },
     judged: L, options: { 'PSLCA4.2': 1, 'GI1.1': 2 }, best: {}, gates, targets: {},
-    evidence: { 'EE4': [{ name: 'SEC_FY23-25_monthly.xlsx', size: 184320, date: '2025-06-12' }], 'WC3': [{ name: 'Water_balance_FY25.pdf', size: 412000, date: '2025-06-20' }] },
+    evidence: { 'EE4': [{ name: 'SEC_FY24-26_monthly.xlsx', size: 184320, date: '2026-06-12' }], 'WC3': [{ name: 'Water_balance_FY26.pdf', size: 412000, date: '2026-06-20' }] },
     initiatives: [
-      { id: 'I1', p: 'EE', credit: 'EE4', title: 'Reheating furnace recuperator upgrade', type: 'Energy project', status: 'Planned', owner: 'Utilities', start: '2025-10', end: '2026-03', capex: 85, saving: 42, innov: false,
+      { id: 'I1', p: 'EE', credit: 'EE4', title: 'Reheating furnace recuperator upgrade', type: 'Energy project', status: 'Planned', owner: 'Utilities', start: '2026-10', end: '2027-03', capex: 85, saving: 42, innov: false,
         impacts: [{ f: 'thermal', d: -2600 }], basis: 'Vendor estimate: combustion air preheated to 350 °C, 5% fuel saving on the 52,000 GJ furnace load.' },
-      { id: 'I2', p: 'EE', credit: 'EE4', title: 'Compressed air VFD and leak arrest', type: 'Energy project', status: 'Implemented', owner: 'Maintenance', start: '2023-06', end: '2023-11', capex: 22, saving: 31, innov: false,
-        impacts: [{ f: 'elec', d: -420000 }], basis: 'Measured: 48 kW average reduction over 8,760 hours. Already reflected in FY 2024-25 data.' },
-      { id: 'I3', p: 'WC', credit: 'WC4.1', title: 'Cooling tower blowdown recovery through RO', type: 'Water project', status: 'Planned', owner: 'Utilities', start: '2025-09', end: '2026-01', capex: 40, saving: 6, innov: false,
+      { id: 'I2', p: 'EE', credit: 'EE4', title: 'Compressed air VFD and leak arrest', type: 'Energy project', status: 'Implemented', owner: 'Maintenance', start: '2024-06', end: '2024-11', capex: 22, saving: 31, innov: false,
+        impacts: [{ f: 'elec', d: -420000 }], basis: 'Measured: 48 kW average reduction over 8,760 hours. Already reflected in FY 2025-26 data.' },
+      { id: 'I3', p: 'WC', credit: 'WC4.1', title: 'Cooling tower blowdown recovery through RO', type: 'Water project', status: 'Planned', owner: 'Utilities', start: '2026-09', end: '2027-01', capex: 40, saving: 6, innov: false,
         impacts: [{ f: 'fwProc', d: -3000 }], basis: '12 m³/day permeate at 70% recovery over 250 days.' },
-      { id: 'I4', p: 'WM', credit: 'WM5.2b', title: 'Monsoon buffer tank for STP overflow', type: 'Water project', status: 'Planned', owner: 'EHS', start: '2025-11', end: '2026-02', capex: 12, saving: 1, innov: false,
-        impacts: [{ f: 'sewRec', d: 1365 }], basis: 'Overflow volume from monsoon months in FY 2024-25 logs.' },
-      { id: 'I5', p: 'WM', credit: 'WM4.1', title: 'Shot-blast dust briquetting for reuse', type: 'Waste project', status: 'Planned', owner: 'EHS', start: '2026-01', end: '2026-05', capex: 18, saving: 4, innov: false,
+      { id: 'I4', p: 'WM', credit: 'WM5.2b', title: 'Monsoon buffer tank for STP overflow', type: 'Water project', status: 'Planned', owner: 'EHS', start: '2026-11', end: '2027-02', capex: 12, saving: 1, innov: false,
+        impacts: [{ f: 'sewRec', d: 1365 }], basis: 'Overflow volume from monsoon months in FY 2025-26 logs.' },
+      { id: 'I5', p: 'WM', credit: 'WM4.1', title: 'Shot-blast dust briquetting for reuse', type: 'Waste project', status: 'Planned', owner: 'EHS', start: '2027-01', end: '2027-05', capex: 18, saving: 4, innov: false,
         impacts: [{ f: 'hazDisp', d: -10 }], basis: 'Briquettes accepted by the steel supplier as charge material.' },
-      { id: 'I6', p: 'MCR', credit: 'MCR4.1', title: 'Closed-die flash reduction through die redesign', type: 'Design innovation', status: 'Planned', owner: 'Tool room', start: '2025-08', end: '2026-06', capex: 30, saving: 150, innov: true,
+      { id: 'I6', p: 'MCR', credit: 'MCR4.1', title: 'Closed-die flash reduction through die redesign', type: 'Design innovation', status: 'Planned', owner: 'Tool room', start: '2026-08', end: '2027-06', capex: 30, saving: 150, innov: true,
         impacts: [{ f: 'rm', d: -300 }], basis: 'Simulation shows flash falling from 9% to 7.7% of input weight on the top 12 parts.' },
-      { id: 'I7', p: 'GSC', credit: 'GSC4.3', title: 'Critical supplier audit drive', type: 'Supplier programme', status: 'In progress', owner: 'Purchase', start: '2025-07', end: '2026-03', capex: 0, saving: 0, innov: false,
+      { id: 'I7', p: 'GSC', credit: 'GSC4.3', title: 'Critical supplier audit drive', type: 'Supplier programme', status: 'In progress', owner: 'Purchase', start: '2026-07', end: '2027-03', capex: 0, saving: 0, innov: false,
         impacts: [{ f: 'supAud', d: 23 }], basis: 'Two auditors, 3 audits a month.' },
-      { id: 'I8', p: 'RE', credit: 'RE3', title: 'Group captive solar, 3 MWp share', type: 'Renewable project', status: 'Planned', owner: 'Finance', start: '2025-10', end: '2026-09', capex: 60, saving: 95, innov: false,
+      { id: 'I8', p: 'RE', credit: 'RE3', title: 'Group captive solar, 3 MWp share', type: 'Renewable project', status: 'Planned', owner: 'Finance', start: '2026-10', end: '2027-09', capex: 60, saving: 95, innov: false,
         impacts: [{ f: 'offsiteRE', d: 4200000 }], basis: '3 MWp at 16% capacity factor, wheeled through the state grid.' },
-      { id: 'I9', p: 'IE', credit: 'IE3', title: 'Induction billet heater replacing oil-fired furnace', type: 'Process innovation', status: 'Implemented', owner: 'Production', start: '2023-04', end: '2023-12', capex: 110, saving: 64, innov: true,
-        impacts: [], basis: 'Already in FY 2024-25 data.' },
-      { id: 'I10', p: 'IE', credit: 'IE3', title: 'PVD-coated forging dies for longer die life', type: 'Design innovation', status: 'Implemented', owner: 'Tool room', start: '2024-02', end: '2024-09', capex: 14, saving: 22, innov: true,
+      { id: 'I9', p: 'IE', credit: 'IE3', title: 'Induction billet heater replacing oil-fired furnace', type: 'Process innovation', status: 'Implemented', owner: 'Production', start: '2024-04', end: '2024-12', capex: 110, saving: 64, innov: true,
+        impacts: [], basis: 'Already in FY 2025-26 data.' },
+      { id: 'I10', p: 'IE', credit: 'IE3', title: 'PVD-coated forging dies for longer die life', type: 'Design innovation', status: 'Implemented', owner: 'Tool room', start: '2025-02', end: '2025-09', capex: 14, saving: 22, innov: true,
         impacts: [], basis: 'Die life up 38% on trial parts.' },
-      { id: 'I11', p: 'GHG', credit: 'GHG5', title: 'Miyawaki plantation, 4 acres', type: 'Offset project', status: 'Planned', owner: 'EHS', start: '2025-08', end: '2026-08', capex: 9, saving: 0, innov: false,
+      { id: 'I11', p: 'GHG', credit: 'GHG5', title: 'Miyawaki plantation, 4 acres', type: 'Offset project', status: 'Planned', owner: 'EHS', start: '2026-08', end: '2027-08', capex: 9, saving: 0, innov: false,
         impacts: [{ f: 'offsets', d: 500 }], basis: 'Assumes 125 tCO2e per acre per year sequestration.' }
     ],
     ai: {}, catAi: {}, overrides: {}, src: {}, ledger: null,
-    goalYear: 'FY 2026-27',
-    goals: { V3: { EE: 125, WC: 65, RE: 80, GHG: 76, WM: 65, MCR: 72, GSC: 66, PSLCA: 105, IE: 35, GI: 62 } }
+    perfGoals: {
+      secE: { y1: 2, y2: 4, y3: 6 }, secT: { y1: 3, y2: 7, y3: 11 }, swc: { y1: 2, y2: 4, y3: 6 }, reShare: { y1: 45, y2: 55, y3: 65 },
+      ghgInt: { y1: 4, y2: 8, y3: 12 }, hazSpec: { y1: 5, y2: 10, y3: 15 }, rmSpec: { y1: 1, y2: 2, y3: 3 }, transGHG: { y1: 5, y2: 10, y3: 15 }
+    },
+    milestones: {
+      PSLCA: { y1: 'Cradle-to-gate LCA for the top three forged parts', y2: 'Third-party peer review of the LCA', y3: 'Type III EPD published for the top product' },
+      IE: { y1: 'Two more innovation projects implemented', y2: 'Four innovation projects in the three-year window', y3: 'Six projects in the window and one patent filed' },
+      GI: { y1: 'Green belt extended to 33% of site area', y2: 'Two staff accredited as IGBC Accredited Professionals', y3: 'IGBC Green Factory rating' }
+    },
+    past: {
+      EE:  { years: { 'FY 2023-24': { alloc: 90, spent: 76, projects: 4, saving: 38 }, 'FY 2024-25': { alloc: 120, spent: 101, projects: 5, saving: 52 }, 'FY 2025-26': { alloc: 180, spent: 152, projects: 6, saving: 71 } }, files: [{ name: 'Energy_budget_vs_spend_FY24-26.pdf', size: 238000, date: '2026-07-04' }] },
+      WC:  { years: { 'FY 2023-24': { alloc: 20, spent: 14, projects: 2, saving: 3 }, 'FY 2024-25': { alloc: 25, spent: 22, projects: 2, saving: 4 }, 'FY 2025-26': { alloc: 35, spent: 31, projects: 3, saving: 6 } }, files: [] },
+      RE:  { years: { 'FY 2023-24': { alloc: 150, spent: 140, projects: 1, saving: 38 }, 'FY 2024-25': { alloc: 60, spent: 55, projects: 1, saving: 21 }, 'FY 2025-26': { alloc: 40, spent: 36, projects: 1, saving: 14 } }, files: [{ name: 'Rooftop_solar_PO_and_commissioning.pdf', size: 512000, date: '2026-07-04' }] },
+      GHG: { years: { 'FY 2023-24': { alloc: 5, spent: 4, projects: 1, saving: 0 }, 'FY 2024-25': { alloc: 8, spent: 7, projects: 1, saving: 0 }, 'FY 2025-26': { alloc: 10, spent: 9, projects: 2, saving: 0 } }, files: [] },
+      WM:  { years: { 'FY 2023-24': { alloc: 18, spent: 15, projects: 2, saving: 5 }, 'FY 2024-25': { alloc: 22, spent: 20, projects: 2, saving: 6 }, 'FY 2025-26': { alloc: 30, spent: 24, projects: 3, saving: 8 } }, files: [] },
+      MCR: { years: { 'FY 2023-24': { alloc: 25, spent: 21, projects: 3, saving: 60 }, 'FY 2024-25': { alloc: 30, spent: 28, projects: 3, saving: 72 }, 'FY 2025-26': { alloc: 35, spent: 33, projects: 4, saving: 85 } }, files: [] },
+      GSC: { years: { 'FY 2023-24': { alloc: 6, spent: 5, projects: 1, saving: 2 }, 'FY 2024-25': { alloc: 8, spent: 8, projects: 2, saving: 4 }, 'FY 2025-26': { alloc: 12, spent: 10, projects: 2, saving: 6 } }, files: [] }
+    },
+    aiEngine: { id: 'claude', model: '' }
   };
 }
 
@@ -1199,7 +1481,7 @@ function gcSeed() {
 /* Demo stand-in for the TerraCAP activity ledger, filtered to this facility node.
    INTEGRATION: replace with the ledger API response for the plant and years. */
 function gcDemoLedger() {
-  const y3 = 'FY 2022-23 to FY 2024-25';
+  const y3 = 'FY 2023-24 to FY 2025-26';
   return {
     source: 'TerraCAP activity ledger (demo data)', facility: 'Hosur Unit 2', syncedAt: new Date().toISOString(),
     values: {
@@ -1215,13 +1497,13 @@ function gcDemoLedger() {
       elec: [{ name: 'Electricity bills, HT account', count: 36, period: y3 }],
       thermal: [{ name: 'Natural gas and LPG purchase invoices', count: 42, period: y3 }],
       onsiteRE: [{ name: 'Rooftop solar inverter exports', count: 36, period: y3 }],
-      offsiteRE: [{ name: 'Open-access wheeling statements', count: 24, period: 'FY 2023-24 to FY 2024-25' }, { name: 'Wind PPA invoices', count: 36, period: y3 }],
+      offsiteRE: [{ name: 'Open-access wheeling statements', count: 24, period: 'FY 2024-25 to FY 2025-26' }, { name: 'Wind PPA invoices', count: 36, period: y3 }],
       scope1: [{ name: 'TerraCAP GHG inventory report', count: 3, period: y3 }],
       scope2: [{ name: 'TerraCAP GHG inventory report', count: 3, period: y3 }],
       scope3: [{ name: 'Scope 3 calculation workbooks, categories 4, 5, 6, 7, 9', count: 3, period: y3 }],
-      s3c1: [{ name: 'Scope 3 category coverage register', count: 1, period: 'FY 2024-25' }],
-      fwProc: [{ name: 'Water meter logs and tanker invoices', count: 30, period: 'FY 2023-24 to FY 2024-25' }],
-      fwDom: [{ name: 'Water meter logs and tanker invoices', count: 30, period: 'FY 2023-24 to FY 2024-25' }],
+      s3c1: [{ name: 'Scope 3 category coverage register', count: 1, period: 'FY 2025-26' }],
+      fwProc: [{ name: 'Water meter logs and tanker invoices', count: 30, period: 'FY 2024-25 to FY 2025-26' }],
+      fwDom: [{ name: 'Water meter logs and tanker invoices', count: 30, period: 'FY 2024-25 to FY 2025-26' }],
       hazDisp: [{ name: 'Hazardous waste manifests and annual returns', count: 58, period: y3 }],
       nonHaz: [{ name: 'Scrap and waste sale invoices', count: 112, period: y3 }],
       transGHG: [{ name: 'Freight invoices with lane and mode', count: 640, period: y3 }]
@@ -1229,6 +1511,45 @@ function gcDemoLedger() {
   };
 }
 
+
+/* Demo stand-in for Organization Profile, including the production data form.
+   INTEGRATION: replace with window.TERRACAP_ORG_PROFILE(profile), returning the same shape. */
+function gcDemoOrgProfile() {
+  return { source: 'Organization Profile (demo data)', org: 'Deccan Precision Forgings Pvt Ltd', plant: 'Hosur Unit 2', location: 'Hosur, Tamil Nadu',
+    productionUnit: 't forgings', productionBasis: 'Weight of forgings despatched', updatedAt: '2026-10-05T09:30:00Z' };
+}
+
+/* Demo stand-in for the ledger's monthly records for one financial year, up to the last completed month.
+   Built from the base-year totals with a plausible trend per field, so some goals are on track and some behind.
+   INTEGRATION: replace with window.TERRACAP_LEDGER_MONTHLY(profile, fyLabel) returning
+   [{ month: 'YYYY-MM', rec: { prod, elec, thermal, onsiteRE, onsiteTh, offsiteRE, scope1, scope2, fwProc, fwDom, hazDisp, rm, transGHG } }]. */
+function gcDemoMonthly(S, fy, today) {
+  const y0 = GC.fyStart(fy); if (y0 == null) return [];
+  const now = today || new Date();
+  const base = GC.recordOf(S.data, 2, S.profile);
+  const W = { flat: [.083, .085, .080, .082, .084, .083, .081, .084, .085, .083, .080, .090], water: [.095, .100, .085, .075, .075, .078, .080, .080, .080, .083, .084, .085],
+    solar: [.100, .100, .080, .060, .060, .070, .080, .085, .085, .090, .090, .100], wind: [.060, .070, .100, .120, .120, .100, .070, .070, .070, .070, .080, .090] };
+  ['solar', 'wind'].forEach(k => { W[k] = W[k].map((v, i) => 0.4 * v + 0.6 * W.flat[i]); });  /* damp seasonality so demo intensities stay plausible */
+  const nzv = v => v == null ? 0 : v, wobble = (m, ph) => 1 + 0.012 * Math.sin(1.7 * m + ph);
+  const out = [];
+  for (let m = 0; m < 12; m++) {
+    const y = m < 9 ? y0 : y0 + 1, mo = (m + 3) % 12 + 1;
+    if (new Date(y, mo, 1) > now) break;  /* month not yet complete */
+    const t = (m + 1) / 12, prod = nzv(base.prod) * W.flat[m] * 1.04 * wobble(m, 0.3);
+    const perUnit = (k, a, b, ph) => base.prod ? nzv(base[k]) / base.prod * prod * (1 - (a + b * t)) * wobble(m, ph) : 0;
+    const elec = perUnit('elec', 0.010, 0.010, 1.1), thermal = perUnit('thermal', 0.030, 0.020, 2.0);
+    const onsiteRE = nzv(base.onsiteRE) * W.solar[m], offsiteRE = nzv(base.offsiteRE) * W.wind[m] * 1.06, onsiteTh = nzv(base.onsiteTh) * W.flat[m];
+    const grid0 = Math.max(1, nzv(base.elec) - nzv(base.onsiteRE) - nzv(base.offsiteRE)), grid = Math.max(0, elec - onsiteRE - offsiteRE);
+    const rec = { prod, elec, thermal, onsiteRE, onsiteTh, offsiteRE,
+      scope1: base.thermal ? nzv(base.scope1) / base.thermal * thermal : null, scope2: nzv(base.scope2) / grid0 * grid,
+      fwProc: base.prod ? nzv(base.fwProc) / base.prod * prod * 0.975 * (W.water[m] / W.flat[m]) * wobble(m, 0.7) : null,
+      fwDom: nzv(base.fwDom) * W.water[m] * wobble(m, 1.4),
+      hazDisp: perUnit('hazDisp', 0.020, 0.000, 2.6), rm: perUnit('rm', 0.012, 0.000, 0.4),
+      transGHG: nzv(base.transGHG) * W.flat[m] * 1.04 * 0.93 * wobble(m, 1.9) };
+    out.push({ month: y + '-' + String(mo).padStart(2, '0'), rec });
+  }
+  return out;
+}
 </script>
 <script>
 'use strict';
@@ -1249,15 +1570,16 @@ const C = {}; let charts = {};
 
 /* ---------- data ---------- */
 async function loadAssessment() {
-  try { if (window.storage && window.storage.get) { const r = await window.storage.get('gc:assessment', false); if (r && r.value) return JSON.parse(r.value); } } catch (e) { }
-  try { const v = window.localStorage.getItem('gc:assessment'); if (v) return JSON.parse(v); } catch (e) { }
+  try { if (window.storage && window.storage.get) { const r = await window.storage.get('gc:assessment:v2', false); if (r && r.value) return JSON.parse(r.value); } } catch (e) { }
+  try { const v = window.localStorage.getItem('gc:assessment:v2'); if (v) return JSON.parse(v); } catch (e) { }
   return null;
 }
 function ledgerFetch(profile) { return typeof window.TERRACAP_LEDGER === 'function' ? window.TERRACAP_LEDGER(profile) : gcDemoLedger(); }
 function migrate(x) {
   ['judged', 'options', 'best', 'gates', 'targets', 'evidence', 'ai', 'catAi', 'overrides', 'src'].forEach(k => { x[k] = x[k] || {}; });
   x.initiatives = x.initiatives || [];
-  x.goals = x.goals || {}; if (!x.goalYear) x.goalYear = '';
+  ['perfGoals', 'milestones', 'past', 'fieldEvidence'].forEach(k => { x[k] = x[k] || {}; });
+  if (!x.aiEngine) x.aiEngine = { id: 'claude', model: '' };
   if (x.data && x.data.scope1 === undefined) { delete x.data.s1Other; x.data.scope1 = [null, null, null]; x.data.scope2 = [null, null, null]; }
   return x;
 }
@@ -1280,7 +1602,7 @@ function hasEvidence(cid) {
 function recompute() {
   C.res = GC.scoreAll(S); C.proj = GC.scoreAll(S, { projected: true });
   C.L = GC.lens(C.res, LENS); C.PL = GC.lens(C.proj, LENS);
-  C.G = GC.goalStatus(C.L, C.PL, (S.goals || {})[LENS]);
+  C.plan = GC.goalPlan(S); C.inv = GC.investment(S); C.T = tracking();
 }
 
 /* Monthly series for the assessment year. The demo spreads annual ledger totals over
@@ -1326,7 +1648,7 @@ function ladder(L, PL) {
 }
 
 /* ---------- shell ---------- */
-const TABS = [['overview', 'Overview'], ['consumption', 'Consumption'], ['parameters', 'Parameters'], ['trends', 'Performance trends'], ['initiatives', 'Initiatives'], ['reports', 'Reports']];
+const TABS = [['overview', 'Overview'], ['goals', 'Goals'], ['consumption', 'Consumption'], ['parameters', 'Parameters'], ['trends', 'Performance trends'], ['initiatives', 'Initiatives'], ['reports', 'Reports']];
 function setLens(v) { LENS = v; recompute(); render(); }
 function go(t) { TAB = t; render(); window.scrollTo({ top: 0 }); }
 function render() {
@@ -1335,9 +1657,9 @@ function render() {
   $('#plantctx').innerHTML = `<b>${esc(p.plant)}, ${esc(p.org)}</b><span>${esc(p.sector)} | ${esc(p.years[0])} to ${esc(p.years[2])}</span>`;
   $('#verSel').value = LENS;
   $('#tabs').innerHTML = TABS.map(t => `<button class="${TAB === t[0] ? 'on' : ''}" onclick="go('${t[0]}')" ${TAB === t[0] ? 'aria-current="page"' : ''}>${t[1]}</button>`).join('');
-  const fn = { overview: rOverview, consumption: rConsumption, parameters: rParameters, trends: rTrends, initiatives: rInitiatives, reports: rReports }[TAB];
+  const fn = { overview: rOverview, goals: rGoals, consumption: rConsumption, parameters: rParameters, trends: rTrends, initiatives: rInitiatives, reports: rReports }[TAB];
   $('#main').innerHTML = srcLine() + fn();
-  const after = { overview: aOverview, consumption: aConsumption, trends: aTrends, initiatives: aInitiatives }[TAB];
+  const after = { overview: aOverview, goals: aGoals, consumption: aConsumption, trends: aTrends, initiatives: aInitiatives }[TAB];
   if (after && window.Chart) setTimeout(after, 0);
 }
 function srcLine() {
@@ -1367,11 +1689,11 @@ function rOverview() {
     <div class="kpi"><span>If planned initiatives deliver</span><b>${pts(PL.total)}</b>${bandTag(PL.band)} <small>from ${act} initiative${act === 1 ? '' : 's'}</small></div>
     <div class="kpi"><span>Computed from plant data</span><b>${pts(comp)}</b><small>${pts(claim)} self-claimed</small></div>
     <div class="kpi"><span>Mandatory requirements</span><b style="${res.gatesMet === res.gatesN ? '' : 'color:var(--red)'}">${res.gatesMet} / ${res.gatesN}</b><small>${res.gatesMet === res.gatesN ? 'All met' : 'Not ratable until all are met'}</small></div>
-    <div class="kpi"><span>Parameter goals${S.goalYear ? ' for ' + esc(S.goalYear) : ''}</span>${C.G.set ? `<b>${C.G.met} <small>of ${C.G.set} met</small></b><small>${C.G.ontrack} more if initiatives deliver, ${C.G.short} short</small>` : `<b>—</b><small>Set goals in GreenCo Readiness</small>`}</div>
+    <div class="kpi"><span>Goals on track, ${esc(C.T.fy)} so far</span>${C.T.set ? `<b>${C.T.on} <small>of ${C.T.set}</small></b><small>${C.T.behind} behind, ${C.T.worse} worse than base; ${C.T.n} month${C.T.n === 1 ? '' : 's'} of data</small>` : `<b>—</b><small>Set goals in GreenCo Readiness</small>`}</div>
     <div class="kpi"><span>Credits with evidence</span><b>${Math.round(ev / cs.length * 100)}%</b><small>${ev} of ${cs.length} credits</small></div>
   </div>
   <div class="panel" style="margin-top:14px"><h3>Where the plant sits on the GreenCo scale</h3>${ladder(L, PL)}
-    <div class="legend"><span><i style="background:var(--ink)"></i>Indicative score now</span><span><i style="background:var(--green-d)"></i>Computed from plant data</span><span><i style="border-top:2px dashed var(--ai);height:0"></i>If planned initiatives deliver</span></div></div>
+    <div class="legend"><span><i class="tick" style="background:var(--ink)"></i>Indicative score now</span><span><i class="tick" style="background:var(--green-d);width:2px"></i>Computed from plant data</span><span><i class="tick dash"></i>If planned initiatives deliver</span></div></div>
   <div class="grid2" style="margin-top:14px">
     <div class="panel"><h3>Points by parameter</h3><div class="chartbox" style="height:320px"><canvas id="chParams"></canvas></div></div>
     <div class="panel"><h3>Close to the next band</h3><p class="muted small" style="margin:2px 0 8px">Performance credits within two percentage points (or 15%) of their next threshold.</p>
@@ -1381,11 +1703,11 @@ function rOverview() {
 function aOverview() {
   const ps = C.L.params.filter(p => p.max > 0), pp = C.PL.params;
   charts.p = new Chart($('#chParams'), { type: 'bar', data: { labels: ps.map(p => p.id), datasets: [
-    { label: 'Computed', data: ps.map(p => +p.comp.toFixed(1)), backgroundColor: cssVar('--green'), stack: 'n' },
-    { label: 'Self-claimed', data: ps.map(p => +p.claim.toFixed(1)), backgroundColor: cssVar('--claim'), stack: 'n' },
-    { label: 'Maximum', data: ps.map(p => p.max), type: 'line', showLine: false, pointStyle: 'line', pointRadius: 14, pointBorderWidth: 2, borderColor: cssVar('--muted') },
-    { label: 'With planned initiatives', data: ps.map(p => +((pp.find(x => x.id === p.id) || {}).pts || 0).toFixed(1)), type: 'line', showLine: false, pointStyle: 'line', pointRadius: 14, pointBorderWidth: 2, borderColor: cssVar('--ai'), borderDash: [4, 3] }] },
-    options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: false, beginAtZero: true } }, plugins: { tooltip: { callbacks: { title: it => paramName(ps[it[0].dataIndex].id) } } } } });
+    { label: 'Computed', data: ps.map(p => +p.comp.toFixed(1)), backgroundColor: cssVar('--green'), stack: 'n', pointStyle: 'rect' },
+    { label: 'Self-claimed', data: ps.map(p => +p.claim.toFixed(1)), backgroundColor: cssVar('--claim'), stack: 'n', pointStyle: 'rect' },
+    { label: 'Maximum', data: ps.map(p => p.max), type: 'line', showLine: false, pointStyle: 'line', pointRadius: 14, pointBorderWidth: 2, borderColor: cssVar('--muted'), backgroundColor: cssVar('--muted') },
+    { label: 'With planned initiatives', data: ps.map(p => +((pp.find(x => x.id === p.id) || {}).pts || 0).toFixed(1)), type: 'line', showLine: false, pointStyle: 'line', pointRadius: 14, pointBorderWidth: 2.5, borderColor: cssVar('--ai'), backgroundColor: cssVar('--ai') }] },
+    options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: false, beginAtZero: true } }, plugins: { legend: { labels: { usePointStyle: true, pointStyleWidth: 18, boxHeight: 8 } }, tooltip: { callbacks: { title: it => paramName(ps[it[0].dataIndex].id) } } } } });
 }
 
 /* ---------- consumption ---------- */
@@ -1420,20 +1742,101 @@ function aConsumption() {
   });
 }
 
+/* ---------- goals: monthly tracking (INTEGRATION: window.TERRACAP_LEDGER_MONTHLY) ---------- */
+function monthlyFetch(fy) { return typeof window.TERRACAP_LEDGER_MONTHLY === 'function' ? window.TERRACAP_LEDGER_MONTHLY(S.profile, fy) : gcDemoMonthly(S, fy); }
+const MON = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
+/* The goal year that contains today is tracked; before year 1 nothing is tracked yet, after year 3 the last year is shown. */
+function trackingYear() {
+  const Ys = C.plan.years, now = new Date();
+  for (let k = 0; k < 3; k++) { const y0 = GC.fyStart(Ys[k]); if (y0 != null && now >= new Date(y0, 3, 1) && now < new Date(y0 + 1, 3, 1)) return { k, fy: Ys[k] }; }
+  const y1 = GC.fyStart(Ys[0]);
+  return (y1 != null && now < new Date(y1, 3, 1)) ? { k: -1, fy: Ys[0] } : { k: 2, fy: Ys[2] };
+}
+function tracking() {
+  const ty = trackingYear(), ctx = C.plan.ctx;
+  const months = ty.k < 0 ? [] : (monthlyFetch(ty.fy) || []);
+  const n = months.length, ytdRec = n ? GC.sumRecords(months.map(x => x.rec)) : null;
+  const rows = C.plan.rows.map(r => {
+    const tk = Math.max(0, ty.k), target = r.targets[tk];
+    const ytd = ytdRec ? GC.metricValue(r.m, ytdRec, ctx) : null;
+    const st = r.goal.y1 == null && r.goal.y3 == null ? 'nogoal' : GC.trackStatus(r.m, r.base, target, ytd, n / 12);
+    let cum = []; const acc = [];
+    months.forEach(x => { acc.push(x.rec); cum.push(GC.metricValue(r.m, GC.sumRecords(acc), ctx)); });
+    const mon = months.map(x => GC.metricValue(r.m, x.rec, ctx));
+    return { r, target, ytd, st, mon, cum, imp: r.m.kind === 'absolute' ? (ytd == null ? null : GC.improvement(r.m, r.base * n / 12, ytd)) : GC.improvement(r.m, r.base, ytd) };
+  });
+  const set = rows.filter(x => x.st !== 'nogoal');
+  return { fy: ty.fy, k: ty.k, n, months, rows, set: set.length, on: set.filter(x => x.st === 'on').length, behind: set.filter(x => x.st === 'behind').length, worse: set.filter(x => x.st === 'worse').length, nodata: set.filter(x => x.st === 'nodata').length };
+}
+let PATH = 'secT';
+function setPath(id) { PATH = id; render(); }
+function rGoals() {
+  const T = C.T, P = C.plan, Y = P.years;
+  const label = T.months.length ? MON[0] + ' to ' + MON[T.n - 1] : 'none yet';
+  if (!P.set) return `<div class="panel"><h3>No goals set yet</h3><p class="muted" style="margin-top:6px">Set performance goals in <a href="greenco-readiness.html">GreenCo Readiness</a>, under Goals. Progress against them is tracked here month by month.</p></div>`;
+  return `<div class="kpis">
+    <div class="kpi"><span>Tracking year</span><b>${esc(T.fy)}</b><small>${T.k < 0 ? 'Starts in April' : 'Year ' + (T.k + 1) + ' of 3, against base ' + esc(P.baseYear)}</small></div>
+    <div class="kpi"><span>Months with data</span><b>${T.n} <small>of 12</small></b><small>${esc(label)}</small></div>
+    <div class="kpi"><span>On track</span><b style="color:var(--green-d)">${T.on} <small>of ${T.set}</small></b><small>Year to date meets this year's goal</small></div>
+    <div class="kpi"><span>Behind goal</span><b style="color:var(--amber)">${T.behind}</b><small>Better than base, not yet at goal</small></div>
+    <div class="kpi"><span>Worse than base year</span><b style="color:var(--red)">${T.worse}</b><small>Needs attention</small></div>
+  </div>
+  <div class="panel" style="margin-top:14px"><h3>Progress against this year's goals</h3>
+    <p class="muted small" style="margin:2px 0 10px">Every goal is measured from the base year ${esc(P.baseYear)}; the years are not added together. Year to date is the total of the months so far (for example, energy so far divided by production so far), so a single unusual month does not swing it. Transport emissions are compared with the goal pro-rated to the months elapsed. Select a measure to see its three-year path.</p>
+    <div class="scroll"><table class="tbl"><thead><tr><th>Measure</th><th class="r">Base ${esc(P.baseYear)}</th><th class="r">Goal ${esc(T.fy)}</th><th class="r">Year to date</th><th class="r">Change on base year</th><th>Status</th><th class="r">Long-term goal, ${esc(Y[2])}</th></tr></thead><tbody>
+    ${T.rows.map(x => `<tr style="cursor:pointer" onclick="setPath('${x.r.id}')"><td><b>${esc(x.r.m.name)}</b> <span class="muted small">${esc(GCG.pname(x.r.p))}</span></td><td class="r">${GCG.fmtVal(x.r.m, x.r.base)}</td><td class="r">${GCG.fmtVal(x.r.m, x.target)}<br><span class="muted small">${GCG.goalWord(x.r.m, x.r.goal[['y1', 'y2', 'y3'][Math.max(0, T.k)]])}</span></td><td class="r">${GCG.fmtVal(x.r.m, x.ytd)}${x.r.m.kind === 'absolute' && x.target != null && T.n ? `<br><span class="muted small">${T.n} months; goal to date ${GCG.fmtVal(x.r.m, x.target * T.n / 12)}</span>` : ''}</td><td class="r">${GCG.fmtChange(x.r.m, x.imp, x.r.base)}</td><td>${GCG.trackStatus(x.st)}</td><td class="r">${GCG.goalWord(x.r.m, x.r.goal.y3)}</td></tr>`).join('')}
+    </tbody></table></div></div>
+  <div class="panel" style="margin-top:14px"><h3>Monthly progress, ${esc(T.fy)}</h3>
+    <div class="mleg"><span><i style="width:8px;height:8px;border-radius:50%;background:var(--faint)"></i>Month</span><span><i style="width:16px;height:2px;background:var(--gc-now)"></i>Year to date</span><span><i style="width:16px;border-top:2px dashed var(--ink)"></i>Goal for ${esc(T.fy)}</span><span><i style="width:16px;height:1px;background:var(--muted)"></i>Base year ${esc(P.baseYear)}</span></div>
+    <div class="mtrack">${T.rows.map((x, i) => `<div class="panel"><div class="row"><h4>${esc(x.r.m.name)}</h4><span class="sp"></span>${GCG.trackStatus(x.st)}</div><p class="muted small">${esc(x.r.m.kind === 'absolute' ? 'tCO2e per month; year to date as a monthly average' : x.r.m.unit)}</p><div class="chartbox"><canvas id="mt_${i}" aria-label="${esc(x.r.m.name)} by month"></canvas></div></div>`).join('')}</div>
+    ${T.months.length && T.months[0].demo !== false && typeof window.TERRACAP_LEDGER_MONTHLY !== 'function' ? '<p class="muted small" style="margin-top:10px">Demo: monthly figures are generated from the base-year totals. In TerraCAP they come from the ledger records each data owner ingests monthly.</p>' : ''}
+  </div>
+  <div class="panel" style="margin-top:14px"><div class="row"><h3>Three-year path</h3><span class="sp"></span>
+    <label class="small muted" for="pathSel">Measure</label><select id="pathSel" onchange="setPath(this.value)" style="padding:6px 8px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card)">${C.plan.rows.map(r => `<option value="${r.id}" ${r.id === PATH ? 'selected' : ''}>${esc(r.m.name)}</option>`).join('')}</select></div>
+    <p class="muted small" style="margin:4px 0 10px">Actuals for the last three years, this year so far, and the goal path from the base year.</p>
+    <div class="chartbox" style="height:260px"><canvas id="pathChart"></canvas></div></div>
+  <div class="panel" style="margin-top:14px"><h3>Investment: last three years and next three</h3><p class="muted small" style="margin:2px 0 12px">Spent, from the plant's own summary, against planned capex from initiatives. Same figures as Goals in GreenCo Readiness.</p>${GCG.investChart(C.inv)}<h4 style="margin:18px 0 6px">Next three years, by initiative</h4>${GCG.investItems(C.inv)}</div>`;
+}
+function aGoals() {
+  const T = C.T, P = C.plan, g = cssVar('--gc-now'), ink = cssVar('--ink'), mut = cssVar('--muted'), faint = cssVar('--faint'), grid = cssVar('--line-2');
+  T.rows.forEach((x, i) => {
+    const el = $('#mt_' + i); if (!el) return;
+    const abs = x.r.m.kind === 'absolute', per = v => v == null ? null : (abs ? v : v);
+    const mon = x.mon.map(per), cum = x.cum.map((v, k) => v == null ? null : abs ? v / (k + 1) : v);
+    const tgt = x.target == null ? null : abs ? x.target / 12 : x.target, base = x.r.base == null ? null : abs ? x.r.base / 12 : x.r.base;
+    const pad = a => a.concat(Array(12 - a.length).fill(null));
+    const d = x.r.m.kind === 'share' ? 1 : (Math.abs(base || 1) < 1 ? 4 : Math.abs(base || 1) < 10 ? 3 : 1);
+    charts['mt' + i] = new Chart(el, { type: 'line', data: { labels: MON, datasets: [
+      { label: 'Month', data: pad(mon), borderColor: faint, backgroundColor: faint, pointRadius: 4, borderWidth: 1, showLine: true, tension: 0 },
+      { label: 'Year to date', data: pad(cum), borderColor: g, backgroundColor: g, pointRadius: 0, borderWidth: 2.5, tension: 0.2 },
+      { label: 'Goal', data: Array(12).fill(tgt), borderColor: ink, borderDash: [5, 4], borderWidth: 1.5, pointRadius: 0 },
+      { label: 'Base year', data: Array(12).fill(base), borderColor: mut, borderWidth: 1, pointRadius: 0 }] },
+      options: { responsive: true, maintainAspectRatio: false, animation: false, interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: it => it.dataset.label + ': ' + (it.raw == null ? '—' : GC.fmtN(it.raw, d)) } } },
+        scales: { x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 6 } }, y: { grace: '8%', grid: { color: grid }, ticks: { maxTicksLimit: 5 } } } } });
+  });
+  const pe = $('#pathChart'), r = C.plan.rows.find(x => x.id === PATH) || C.plan.rows[0]; if (!pe || !r) return;
+  const ctx = P.ctx, past = [0, 1, 2].map(i => GC.metricValue(r.m, GC.recordOf(S.data, i, S.profile), ctx));
+  const tr = T.rows.find(x => x.r.id === r.id), ytd = tr ? (r.m.kind === 'absolute' && T.n ? tr.ytd * 12 / T.n : tr.ytd) : null;
+  const labels = S.profile.years.concat(P.years), k = T.k;
+  const actual = past.concat([null, null, null]); if (k >= 0 && ytd != null) actual[3 + k] = ytd;
+  const goal = [null, null, r.base].concat(r.targets);
+  charts.path = new Chart(pe, { type: 'line', data: { labels, datasets: [
+    { label: 'Actual' + (r.m.kind === 'absolute' ? ' (this year annualised)' : '') + (k >= 0 ? ', ' + T.fy + ' year to date' : ''), data: actual, borderColor: cssVar('--gc-now'), backgroundColor: cssVar('--gc-now'), pointRadius: 5, borderWidth: 2.5, spanGaps: true, tension: 0 },
+    { label: 'Goal path', data: goal, borderColor: cssVar('--ink'), backgroundColor: cssVar('--ink'), borderDash: [5, 4], pointRadius: 4, pointStyle: 'rectRot', borderWidth: 1.5, spanGaps: true }] },
+    options: { responsive: true, maintainAspectRatio: false, animation: false,
+      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxHeight: 7 } }, tooltip: { callbacks: { label: it => it.dataset.label.split(' (')[0].split(',')[0] + ': ' + GCG.fmtVal(r.m, it.raw) } } },
+      scales: { x: { grid: { display: false } }, y: { grace: '10%', grid: { color: cssVar('--line-2') }, title: { display: true, text: r.m.unit } } } } });
+}
+
 /* ---------- parameters ---------- */
 function groupsForLens() {
   if (LENS === 'V3') return GC.P3.filter(p => !(C.res.ctx.seg === 'svc' && p.id === 'PSLCA')).map(p => ({ id: p.id, name: p.name, credits: GC.CREDITS.filter(c => c.p === p.id).map(c => c.id) }));
   return GC.P4.map(p => ({ id: p.id, name: p.name, credits: GC.CREDITS.filter(c => GC.v4Of(c.id) === p.id && !C.res.R[c.id].excluded).map(c => c.id) })).filter(g => g.credits.length);
 }
-function openGoalParam(id) { const d = document.getElementById('pc-' + id); if (d) { d.open = true; d.scrollIntoView({ block: 'center' }); } }
 function rParameters() {
-  const gs = groupsForLens(), vname = GC.VERSIONS[LENS].name;
-  return `<div class="panel" style="margin-bottom:14px"><h3>Progress against parameter goals</h3>
-    <p class="muted small" style="margin-top:2px">${esc(vname)} parameters on one points scale; each track is as long as the points the parameter is worth. Select a parameter to see its credits below. Goals are set in GreenCo Readiness, on the plant profile.</p>
-    ${C.G.set ? GCG.summary(C.G, C.L, C.PL, S.goalYear) : `<div class="note" style="margin:12px 0">No goals set for ${esc(vname)}. Set them in <a href="greenco-readiness.html">GreenCo Readiness</a> on the plant profile.</div>`}
-    ${GCG.chart(C.G, { year: S.goalYear, onRow: 'openGoalParam' })}
-  </div>
-  <h3 style="margin:18px 0 4px">Credits by parameter</h3>
+  const gs = groupsForLens();
+  return `<h3 style="margin:0 0 4px">Credits by parameter</h3>
   <p class="muted" style="margin-bottom:12px">${LENS === 'V3' ? 'Scores by GreenCo V3 parameter.' : 'V3 credits grouped under the ' + esc(GC.VERSIONS[LENS].name) + ' parameters through a provisional mapping, scaled to each parameter\u2019s published weight.'} Open a parameter to see its credits. Edit scores in GreenCo Readiness.</p>
   ${gs.map(g => { const lp = C.L.params.find(p => p.id === g.id) || { pts: 0, max: 0, comp: 0, claim: 0 }; const pj = C.PL.params.find(p => p.id === g.id) || lp;
     return `<details class="pcard" id="pc-${g.id}"><summary><b>${esc(g.name)}</b>
@@ -1531,6 +1934,12 @@ async function exportCSV() {
   GC.CREDITS.forEach(c => { const r = C.res.R[c.id]; if (r.excluded) return; rows.push([c.id, c.p, c.name, r.kind, c.kind === 'C' ? fmtVal(c, r) : (r.level != null ? GC.LEVELS[r.level].label : (r.opt != null ? c.opts[r.opt][0] : '')), r.pts.toFixed(2), r.max, hasEvidence(c.id) ? 'yes' : 'no', GC.v4Of(c.id)]); });
   if (await download('greenco-credits-' + slug() + '.csv', rows.map(r => r.map(q).join(',')).join('\n'), 'text/csv')) toast('Credit table exported');
 }
+async function exportGoals() {
+  const q = s => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"', T = C.T;
+  const rows = [['measure', 'unit', 'base_' + C.plan.baseYear, 'goal_' + T.fy, 'goal_y3_' + C.plan.years[2]].concat(T.months.map(x => x.month)).concat(['year_to_date', 'status'])];
+  T.rows.forEach(x => rows.push([x.r.m.name, x.r.m.unit, x.r.base, x.target, x.r.goal.y3 == null ? '' : x.r.goal.y3 + (x.r.m.kind === 'share' ? '% share' : '% reduction')].concat(x.mon.map(v => v == null ? '' : +v.toFixed(5))).concat([x.ytd == null ? '' : +x.ytd.toFixed(5), GCG.TRACK[x.st].text])));
+  if (await download('greenco-goal-tracking-' + slug() + '.csv', rows.map(r => r.map(q).join(',')).join('\n'), 'text/csv')) toast('Goal tracking exported');
+}
 async function exportMonthly() {
   const m = ledgerMonthly(), q = s => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
   const rows = [['month', 'production', 'energy_GJ', 'fresh_water_m3', 'scope12_tCO2e', 'waste_t', 'renewable_share_pct']].concat(m.rows.map(r => [r.l, r.prod.toFixed(1), r.energy.toFixed(1), r.water.toFixed(1), r.s12.toFixed(2), r.waste.toFixed(2), r.re.toFixed(2)]));
@@ -1541,6 +1950,7 @@ function rReports() {
   return `<div class="grid3">
     <div class="panel"><h3>Submission pack</h3><p class="muted small" style="margin:6px 0 12px">Printable readiness pack with the credit table, initiatives register, mandatory requirements and data sources. Built in GreenCo Readiness.</p><a class="btn pri" href="greenco-readiness.html">Open GreenCo Readiness</a></div>
     <div class="panel"><h3>Credit table</h3><p class="muted small" style="margin:6px 0 12px">Every credit with its result, points, type and evidence status, as CSV.</p><button class="btn" onclick="exportCSV()">Download CSV</button></div>
+    <div class="panel"><h3>Goal tracking</h3><p class="muted small" style="margin:6px 0 12px">Each goal measure by month for ${esc(C.T.fy)}, with year to date, this year's goal and status, as CSV.</p><button class="btn" onclick="exportGoals()">Download CSV</button></div>
     <div class="panel"><h3>Monthly consumption</h3><p class="muted small" style="margin:6px 0 12px">Monthly production, energy, water, emissions, waste and renewable share for ${esc(S.profile.years[2])}, as CSV.</p><button class="btn" onclick="exportMonthly()">Download CSV</button></div>
   </div>
   <div class="panel" style="margin-top:14px"><h3>Score by version</h3><p class="muted small" style="margin:2px 0 10px">The same plant data scored three ways. Only V3 uses published credit rules; V4 and Lite are provisional.</p>
@@ -1549,13 +1959,16 @@ function rReports() {
     <button class="btn noprint" style="margin-top:12px" data-print onclick="window.print()">Print this dashboard</button></div>`;
 }
 
+function orgFetch(profile) { return typeof window.TERRACAP_ORG_PROFILE === 'function' ? window.TERRACAP_ORG_PROFILE(profile) : gcDemoOrgProfile(); }
+function applyOrg() { const o = orgFetch(S.profile); if (!o) return; if (o.org) S.profile.org = o.org; if (o.plant) S.profile.plant = o.plant; if (o.location) S.profile.location = o.location; if (o.productionUnit) S.profile.productUnit = o.productionUnit; }
+
 /* ---------- boot ---------- */
 (async () => {
   const saved = await loadAssessment();
   if (saved && saved.profile && saved.data) { S = migrate(saved); SRC = { kind: 'saved', at: null }; }
-  else { S = gcSeed(); }
+  else { S = migrate(gcSeed()); }
   if (!S.ledger) S.ledger = ledgerFetch(S.profile);
-  applyLedger();
+  applyLedger(); applyOrg();
   LENS = S.profile.version || 'V3';
   recompute(); render();
 })();
