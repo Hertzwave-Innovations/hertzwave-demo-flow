@@ -1129,6 +1129,26 @@ const GOAL_METRICS = [
 ];
 const GOAL_METRIC = Object.fromEntries(GOAL_METRICS.map(m => [m.id, m]));
 const MILESTONE_PARAMS = ['PSLCA', 'IE', 'GI'];
+/* Milestone goals: one per goal year, each with a status the plant updates. Older saves hold plain text. */
+const MS_STATUS = ['Not started', 'In progress', 'Done', 'Dropped'];
+function msItem(v) { if (v == null || v === '') return { text: '', status: 'Not started' }; if (typeof v === 'string') return { text: v, status: 'Not started' }; return { text: v.text || '', status: MS_STATUS.includes(v.status) ? v.status : 'Not started', note: v.note || '' }; }
+/* flag: done | dropped | overdue (goal year over, not done) | due (goal year in progress) | upcoming | empty */
+function milestonePlan(st, today) {
+  const Y = goalYears(st.profile), now = today || new Date(), seg = ctxOf(st.profile).seg;
+  const rows = MILESTONE_PARAMS.filter(p => !(seg === 'svc' && p === 'PSLCA')).map(p => {
+    const items = ['y1', 'y2', 'y3'].map((k, i) => {
+      const it = msItem(((st.milestones || {})[p] || {})[k]), y0 = fyStart(Y[i]);
+      const phase = y0 == null ? 'future' : now >= new Date(y0 + 1, 3, 1) ? 'past' : now >= new Date(y0, 3, 1) ? 'current' : 'future';
+      const flag = !it.text ? 'empty' : it.status === 'Done' ? 'done' : it.status === 'Dropped' ? 'dropped' : phase === 'past' ? 'overdue' : phase === 'current' ? 'due' : 'upcoming';
+      return Object.assign({ k, year: Y[i], phase, flag }, it);
+    });
+    return { p, items, set: items.some(x => x.text) };
+  });
+  const all = rows.flatMap(r => r.items).filter(x => x.text);
+  return { years: Y, rows, set: rows.filter(r => r.set).length, n: rows.length,
+    dueNow: all.filter(x => x.phase === 'current').length, doneNow: all.filter(x => x.phase === 'current' && x.flag === 'done').length,
+    overdue: all.filter(x => x.flag === 'overdue').length, done: all.filter(x => x.flag === 'done').length };
+}
 function goalCtx(prof) { const k = classify(prof); return { seg: k.seg, ee: k.ee.v, re: k.re.v, ghg: k.ghg.v, elecOnly: k.re.v >= 3 }; }
 function metricValue(m, r, c) {
   const n = m.num(r, c); if (n == null) return null;
@@ -1258,7 +1278,7 @@ function investment(st) {
   return { pastYears, nextYears, past, next, unplaced, items };
 }
 
-return { goalStatus, suggestGoals, GOAL_METRICS, GOAL_METRIC, MILESTONE_PARAMS, fyStart, fyLabel, goalYears, recordOf, sumRecords, metricValue, improvement, targetValue, targetImprovement, windowReduction, impliedPoints, suggestGoal, goalPlan, trackStatus, investment, goalCtx, fyOfMonth, activeIds, LEVELS, BANDS, bandOf, nextBand, SECTORS, classify, ctxOf, P3, P4, v4Of, VERSIONS, FIELDS, FIELD, CREDITS, CREDIT, GATES,
+return { goalStatus, suggestGoals, GOAL_METRICS, GOAL_METRIC, MILESTONE_PARAMS, MS_STATUS, msItem, milestonePlan, fyStart, fyLabel, goalYears, recordOf, sumRecords, metricValue, improvement, targetValue, targetImprovement, windowReduction, impliedPoints, suggestGoal, goalPlan, trackStatus, investment, goalCtx, fyOfMonth, activeIds, LEVELS, BANDS, bandOf, nextBand, SECTORS, classify, ctxOf, P3, P4, v4Of, VERSIONS, FIELDS, FIELD, CREDITS, CREDIT, GATES,
   computeMetrics, scoreCredit, scoreAll, lens, project, requiredDelta, initiativeEffect, band, num, fmtN, cloneData, addField, isActive, RE_EXP, EE_STEP };
 })();
 if (typeof module !== 'undefined') module.exports = GC;
@@ -1390,7 +1410,15 @@ const GCG = (() => {
   document.addEventListener('focusin', ev => { const r = ev.target.closest && ev.target.closest('[data-gtip]'); if (r) { const b = r.getBoundingClientRect(); show(r, b.left + b.width * 0.35, b.bottom - 6); } });
   document.addEventListener('focusout', hide);
   document.addEventListener('scroll', hide, true);
-  return { planChart, investChart, investItems, fmtChange, goalWord, planStatus, trackStatus, needText, fmtVal, fmtImp, fmtGoal, PLAN, TRACK, pname };
+  /* Milestone status chip and a read-only milestone table (dashboard and pack). */
+  const MSF = { done: ['✓', 'g-met', 'Done'], due: ['→', 'g-on', 'Due this year'], overdue: ['!', 'g-short', 'Overdue'], upcoming: ['·', 'g-none', 'Later year'], dropped: ['–', 'g-none', 'Dropped'], empty: ['–', 'g-none', 'Not set'] };
+  function msChip(it) { const f = MSF[it.flag]; return `<span class="g-st ${f[1]}"><span aria-hidden="true">${f[0]}</span> ${f[2]}${it.flag === 'due' || it.flag === 'overdue' || it.flag === 'upcoming' ? ' · ' + e(it.status.toLowerCase()) : ''}</span>`; }
+  function msTable(MP) {
+    return `<div class="scroll"><table class="tbl mstone"><thead><tr><th style="min-width:150px">Parameter</th>${MP.years.map((y, i) => `<th>Year ${i + 1}${i === 2 ? ' (long term)' : ''}, ${e(y)}</th>`).join('')}</tr></thead><tbody>
+      ${MP.rows.map(r => `<tr><td>${e(pname(r.p))}</td>${r.items.map(it => `<td>${it.text ? e(it.text) + '<br>' + msChip(it) : '<span class="muted">—</span>'}</td>`).join('')}</tr>`).join('')}
+    </tbody></table></div>`;
+  }
+  return { msChip, msTable, planChart, investChart, investItems, fmtChange, goalWord, planStatus, trackStatus, needText, fmtVal, fmtImp, fmtGoal, PLAN, TRACK, pname };
 })();
 </script>
 <script>
@@ -1460,9 +1488,9 @@ function gcSeed() {
       ghgInt: { y1: 4, y2: 8, y3: 12 }, hazSpec: { y1: 5, y2: 10, y3: 15 }, rmSpec: { y1: 1, y2: 2, y3: 3 }, transGHG: { y1: 5, y2: 10, y3: 15 }
     },
     milestones: {
-      PSLCA: { y1: 'Cradle-to-gate LCA for the top three forged parts', y2: 'Third-party peer review of the LCA', y3: 'Type III EPD published for the top product' },
-      IE: { y1: 'Two more innovation projects implemented', y2: 'Four innovation projects in the three-year window', y3: 'Six projects in the window and one patent filed' },
-      GI: { y1: 'Green belt extended to 33% of site area', y2: 'Two staff accredited as IGBC Accredited Professionals', y3: 'IGBC Green Factory rating' }
+      PSLCA: { y1: { text: 'Cradle-to-gate LCA for the top three forged parts', status: 'In progress' }, y2: { text: 'Third-party peer review of the LCA', status: 'Not started' }, y3: { text: 'Type III EPD published for the top product', status: 'Not started' } },
+      IE: { y1: { text: 'Two more innovation projects implemented', status: 'Done' }, y2: { text: 'Four innovation projects in the three-year window', status: 'In progress' }, y3: { text: 'Six projects in the window and one patent filed', status: 'Not started' } },
+      GI: { y1: { text: 'Green belt extended to 33% of site area', status: 'In progress' }, y2: { text: 'Two staff accredited as IGBC Accredited Professionals', status: 'Not started' }, y3: { text: 'IGBC Green Factory rating', status: 'Not started' } }
     },
     past: {
       EE:  { years: { 'FY 2023-24': { alloc: 90, spent: 76, projects: 4, saving: 38 }, 'FY 2024-25': { alloc: 120, spent: 101, projects: 5, saving: 52 }, 'FY 2025-26': { alloc: 180, spent: 152, projects: 6, saving: 71 } }, files: [{ name: 'Energy_budget_vs_spend_FY24-26.pdf', size: 238000, date: '2026-07-04' }] },
@@ -1507,6 +1535,13 @@ function gcDemoLedger() {
       hazDisp: [{ name: 'Hazardous waste manifests and annual returns', count: 58, period: y3 }],
       nonHaz: [{ name: 'Scrap and waste sale invoices', count: 112, period: y3 }],
       transGHG: [{ name: 'Freight invoices with lane and mode', count: 640, period: y3 }]
+    },
+    /* Factors the platform already applies in the GHG inventory. The tool uses them only to turn planned initiatives'
+       energy savings into tCO2e, and as a fallback for a year with no Scope 1 or 2. Fuel is weighted by the plant's fuel mix. */
+    factors: {
+      grid: { value: 0.71, unit: 'tCO2/MWh', source: 'Grid factor used for the plant’s Scope 2 in TerraCAP (CEA CO2 Baseline Database; demo value)' },
+      fuel: { value: 0.0572, unit: 'tCO2/GJ', source: 'TerraCAP factor library, weighted by the plant’s fuel mix for the assessment year (demo values)',
+        mix: [{ fuel: 'Natural gas', share: 85, ef: 0.0561 }, { fuel: 'LPG', share: 15, ef: 0.0631 }] }
     }
   };
 }
@@ -1516,7 +1551,11 @@ function gcDemoLedger() {
    INTEGRATION: replace with window.TERRACAP_ORG_PROFILE(profile), returning the same shape. */
 function gcDemoOrgProfile() {
   return { source: 'Organization Profile (demo data)', org: 'Deccan Precision Forgings Pvt Ltd', plant: 'Hosur Unit 2', location: 'Hosur, Tamil Nadu',
-    productionUnit: 't forgings', productionBasis: 'Weight of forgings despatched', updatedAt: '2026-10-05T09:30:00Z' };
+    productionUnit: 't forgings', productionBasis: 'Weight of forgings despatched', updatedAt: '2026-10-05T09:30:00Z',
+    /* Certifications held by the plant, from Organization Profile. Leave the array out if the profile does not track them. */
+    certifications: [{ scheme: 'CII GreenCo', level: 'Gold', awarded: '2023-07', validTo: '2026-07', file: 'GreenCo_Gold_certificate_2023.pdf' }],
+    /* IFRS S2 climate risk assessment status from the TerraCAP climate risk module. Leave out if unknown. */
+    climateRisk: { done: false, note: 'No IFRS S2 climate risk assessment recorded for this plant in TerraCAP' } };
 }
 
 /* Demo stand-in for the ledger's monthly records for one financial year, up to the last completed month.
@@ -1559,7 +1598,8 @@ function gcDemoMonthly(S, fy, today) {
    the same engine (GC) as the Readiness tool, so both always agree.
    INTEGRATION points:
    1. loadAssessment(): replace with the TerraCAP assessment API (same record the tool saves).
-   2. ledgerMonthly(): replace with the ledger's monthly series for the plant's facility node.
+   2. window.TERRACAP_LEDGER_MONTHLY(profile, fyLabel): monthly records, used by the Goals tab (tracking year)
+      and the Consumption tab (assessment year). Without it both fall back to demo series.
    3. ledgerFetch(): same ledger feed the tool uses (window.TERRACAP_LEDGER).
    ========================================================================== */
 const $ = s => document.querySelector(s);
@@ -1593,6 +1633,8 @@ function applyLedger() {
     if (Array.isArray(S.data[f.k])) S.src[f.k] = [0, 1, 2].map(i => { const v = Array.isArray(lv) ? lv[i] : null; if (v != null) { S.data[f.k][i] = v; return 'ledger'; } return 'gap'; });
     else if (lv != null) { S.data[f.k] = lv; S.src[f.k] = 'ledger'; } else S.src[f.k] = 'gap';
   });
+  /* Same rule as GreenCo Readiness: factors come from TerraCAP unless overridden there with a reason. */
+  [['gridEF', 'grid'], ['fuelEF', 'fuel']].forEach(([k, lk]) => { const lf = (L.factors || {})[lk]; if (!S.overrides[k] && lf && lf.value != null) S.profile[k] = lf.value; });
 }
 function usedBy(f, cid) { return f.used.split(' ').some(t => t === cid || cid.replace(/[ab]$/, '') === t); }
 function hasEvidence(cid) {
@@ -1602,7 +1644,7 @@ function hasEvidence(cid) {
 function recompute() {
   C.res = GC.scoreAll(S); C.proj = GC.scoreAll(S, { projected: true });
   C.L = GC.lens(C.res, LENS); C.PL = GC.lens(C.proj, LENS);
-  C.plan = GC.goalPlan(S); C.inv = GC.investment(S); C.T = tracking();
+  C.plan = GC.goalPlan(S); C.inv = GC.investment(S); C.ms = GC.milestonePlan(S); C.T = tracking();
 }
 
 /* Monthly series for the assessment year. The demo spreads annual ledger totals over
@@ -1615,7 +1657,16 @@ const W = {
 };
 function spread(total, w) { const s = w.reduce((a, b) => a + b, 0); return w.map(x => total == null ? null : total * x / s); }
 function ledgerMonthly() {
-  if (typeof window.TERRACAP_LEDGER_MONTHLY === 'function') return window.TERRACAP_LEDGER_MONTHLY(S.profile);
+  /* One hook, one shape: the same monthly records the Goals tab uses, here for the assessment year. */
+  if (typeof window.TERRACAP_LEDGER_MONTHLY === 'function') {
+    const ms = window.TERRACAP_LEDGER_MONTHLY(S.profile, S.profile.years[2]) || [];
+    const MN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], nz = v => v == null ? 0 : v;
+    const rows = ms.map(x => { const r = x.rec || {}, [yy, mm] = String(x.month).split('-'); const elec = r.elec;
+      return { l: MN[+mm - 1] + ' ' + String(yy).slice(2), prod: r.prod, elec, energy: elec == null && r.thermal == null ? null : nz(elec) * 0.0036 + nz(r.thermal),
+        water: r.fwProc == null && r.fwDom == null ? null : nz(r.fwProc) + nz(r.fwDom), s12: r.scope1 == null && r.scope2 == null ? null : nz(r.scope1) + nz(r.scope2),
+        waste: r.hazDisp == null && r.nonHaz == null ? null : nz(r.hazDisp) + nz(r.nonHaz), re: elec ? (nz(r.onsiteRE) + nz(r.offsiteRE)) / elec * 100 : null }; });
+    return { labels: rows.map(r => r.l), demo: false, rows };
+  }
   const g = k => { const v = S.data[k]; return Array.isArray(v) ? GC.num(v[2]) : GC.num(v); };
   const y = parseInt((S.profile.years[2].match(/(\d{4})/) || [0, 2024])[1], 10);
   const mn = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
@@ -1780,6 +1831,7 @@ function rGoals() {
     <div class="kpi"><span>On track</span><b style="color:var(--green-d)">${T.on} <small>of ${T.set}</small></b><small>Year to date meets this year's goal</small></div>
     <div class="kpi"><span>Behind goal</span><b style="color:var(--amber)">${T.behind}</b><small>Better than base, not yet at goal</small></div>
     <div class="kpi"><span>Worse than base year</span><b style="color:var(--red)">${T.worse}</b><small>Needs attention</small></div>
+    <div class="kpi"><span>Milestones due ${esc(T.fy)}</span><b>${C.ms.doneNow} <small>of ${C.ms.dueNow} done</small></b><small>${C.ms.overdue ? `<span style="color:var(--red)">${C.ms.overdue} overdue from earlier years</span>` : 'None overdue'}</small></div>
   </div>
   <div class="panel" style="margin-top:14px"><h3>Progress against this year's goals</h3>
     <p class="muted small" style="margin:2px 0 10px">Every goal is measured from the base year ${esc(P.baseYear)}; the years are not added together. Year to date is the total of the months so far (for example, energy so far divided by production so far), so a single unusual month does not swing it. Transport emissions are compared with the goal pro-rated to the months elapsed. Select a measure to see its three-year path.</p>
@@ -1795,6 +1847,7 @@ function rGoals() {
     <label class="small muted" for="pathSel">Measure</label><select id="pathSel" onchange="setPath(this.value)" style="padding:6px 8px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card)">${C.plan.rows.map(r => `<option value="${r.id}" ${r.id === PATH ? 'selected' : ''}>${esc(r.m.name)}</option>`).join('')}</select></div>
     <p class="muted small" style="margin:4px 0 10px">Actuals for the last three years, this year so far, and the goal path from the base year.</p>
     <div class="chartbox" style="height:260px"><canvas id="pathChart"></canvas></div></div>
+  <div class="panel" style="margin-top:14px"><h3>Milestone goals</h3><p class="muted small" style="margin:2px 0 12px">Product stewardship, innovation and green infrastructure are scored on studies, projects and certifications, so their goals are yearly milestones. The plant updates each status in GreenCo Readiness, under Goals; one still open after its year ends shows as overdue.</p>${C.ms.set ? GCG.msTable(C.ms) : '<p class="muted">No milestone goals set yet.</p>'}</div>
   <div class="panel" style="margin-top:14px"><h3>Investment: last three years and next three</h3><p class="muted small" style="margin:2px 0 12px">Spent, from the plant's own summary, against planned capex from initiatives. Same figures as Goals in GreenCo Readiness.</p>${GCG.investChart(C.inv)}<h4 style="margin:18px 0 6px">Next three years, by initiative</h4>${GCG.investItems(C.inv)}</div>`;
 }
 function aGoals() {
@@ -1967,7 +2020,7 @@ function applyOrg() { const o = orgFetch(S.profile); if (!o) return; if (o.org) 
   const saved = await loadAssessment();
   if (saved && saved.profile && saved.data) { S = migrate(saved); SRC = { kind: 'saved', at: null }; }
   else { S = migrate(gcSeed()); }
-  if (!S.ledger) S.ledger = ledgerFetch(S.profile);
+  if (!S.ledger || !S.ledger.factors) S.ledger = ledgerFetch(S.profile);
   applyLedger(); applyOrg();
   LENS = S.profile.version || 'V3';
   recompute(); render();

@@ -346,6 +346,59 @@ tr.wm-samplerow td{background:#fdfaff}
 .wm-addname{border-style:dashed}
 .ws6-cloneitem{margin-left:22px;border-left:3px solid #a7f3d0}
 .wm-locchip{background:#ecfdf5;color:#065f46}
+/* ── Compact view (wm_app13) ── */
+body.wm-compact .wm-stept small{display:none}
+body.wm-compact .wm-step{padding-top:8px;padding-bottom:8px}
+body.wm-compact .ws6-sec{margin-bottom:14px}
+body.wm-compact .wm-clamp{overflow:hidden;position:relative;margin-bottom:0}
+body.wm-compact .wm-clamp.wm-open{max-height:none}
+body.wm-compact .wm-clamp:not(.wm-open)::after{content:"";position:absolute;right:0;bottom:0;width:30%;height:1.45em;background:linear-gradient(90deg,rgba(255,255,255,0),var(--wm-fade,#fff))}
+body.wm-compact .ws6-alert.ok.wm-clamp{--wm-fade:#ecfdf5}
+body.wm-compact .wm-samplebar .wm-clamp{--wm-fade:#faf5ff}
+.wm-more{background:none;border:0;padding:0 2px;margin:0 0 6px;color:var(--hz-primary,#4A7C59);font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.wm-more:hover{text-decoration:underline}
+body.wm-compact .wm-line1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+body.wm-compact .wm-line1.wm-open{white-space:normal;overflow:visible}
+body.wm-compact .wm-fac.wm-collapsed .wm-facgrid,body.wm-compact .wm-fac.wm-collapsed .wm-formula1{display:none}
+body.wm-compact .wm-fac.wm-collapsed{padding-top:8px;padding-bottom:8px}
+body.wm-compact .wm-fac.wm-collapsed .wm-fachd{cursor:pointer;margin-bottom:2px}
+.wm-facsum{display:none}
+body.wm-compact .wm-fac.wm-collapsed .wm-facsum{display:block;font-size:12px;color:#5B6E64;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wm-facedit{display:none}
+body.wm-compact .wm-facedit{display:inline-block;margin-left:auto}
+body.wm-compact .wm-fachd .wm-facedit + .ws6-x{margin-left:6px !important}
+.wm-foldbar{display:none}
+body.wm-compact .wm-foldbar{display:flex;gap:8px;align-items:center;font-size:12px;color:#5B6E64;margin:0 0 10px}
+body.wm-compact .wm-foldbar span{margin-right:auto}
+body.wm-compact .wm-samplebar{padding:6px 10px;gap:6px 10px}
+body.wm-compact .wm-samplebar .wm-sbn{flex-basis:100%}
+body.wm-compact .wm-usedby{font-size:11px}
+body.wm-compact .wm-reg .ws6-p{font-size:12.5px}
+body.wm-compact .wm-hide{display:none !important}
+body.wm-compact .wm-foldhd{cursor:pointer;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.wm-foldtg{display:none}
+body.wm-compact .wm-foldtg{display:inline-block;margin-left:auto;background:none;border:1px solid var(--stroke,#E5E9E6);border-radius:6px;padding:1px 8px;font:inherit;font-size:11.5px;color:var(--hz-primary,#4A7C59);cursor:pointer}
+body.wm-compact .ws6-cardhd .wm-foldtg{order:9}
+body.wm-compact .wm-foldsum{font-size:12px;font-weight:500;color:#5B6E64}
+body.wm-compact .wm-fold.wm-shut{padding-bottom:6px}
+body.wm-compact .ws6-sec.wm-fold.wm-shut{margin-bottom:6px}
+body.wm-compact .ws6-card.wm-shut{margin-bottom:8px}
+.wm-regno{margin-top:8px;border:1px dashed var(--stroke,#E5E9E6);border-radius:8px;padding:6px 10px;grid-column:1/-1}
+.wm-regnohd{font-size:12.5px;color:#5B6E64}
+.wm-regnohd span{margin-left:6px}
+body.wm-compact .wm-secrow.wm-foldhd td{cursor:pointer}
+body.wm-compact .wm-secrow .wm-foldtg{float:right}
+body.wm-compact .wm-moreitems{margin:4px 0 6px 28px}
+
+body.wm-compact .wm-secrow .wm-foldsum{text-transform:none;letter-spacing:0;font-weight:500;margin-left:8px}
+.wm-viewsw{display:flex;align-items:center;gap:0;margin:0 0 10px;font-size:12px;color:#5B6E64}
+.wm-viewsw span{margin-right:8px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:11px}
+.wm-viewsw button{border:1px solid var(--stroke,#E5E9E6);background:#fff;padding:3px 10px;font:inherit;font-size:12px;cursor:pointer;color:#22302A}
+.wm-viewsw button:first-of-type{border-radius:6px 0 0 6px}.wm-viewsw button:last-of-type{border-radius:0 6px 6px 0;border-left:0}
+.wm-viewsw button.on{background:var(--hz-primary,#4A7C59);color:#fff;border-color:var(--hz-primary,#4A7C59)}
+.wm-fachd .ws6-chip{white-space:normal;max-width:100%}
+#formPanelBody select{max-width:100%}
+.wm-inrow{flex-wrap:wrap}
 
 </style>
 </head>
@@ -3157,7 +3210,7 @@ WM_EM.res = function(el, s) {
         return '<tr><td>' + wsEsc((WM_EF.ROUTES[k] || { label: 'No route' }).label) + '</td><td class="num">' + wmF(v[0], 2) + '</td><td class="num">' + wmF(v[1], 3) + '</td><td><div class="wm-bar"><i style="width:' + w.toFixed(1) + '%"></i></div></td></tr>'; }).join('');
     var tierRows = [1, 2, 3, 4, 5].map(function(t) { var v = T.byTier[t]; return '<tr><td><span class="wm-tier t' + t + '">Tier ' + t + '</span></td><td>' + ['', 'Weighbridge + receiver confirmation + e-way bill', 'Weighbridge or manifest + receiver certificate', 'Document only', 'No evidence, assumed conversion or proxy factor', 'Estimated quantity or average-data factor'][t] + '</td><td class="num">' + wmF(v[0], 2) + '</td><td class="num">' + wmPct(v[0], T.cat5t) + '%</td><td class="num">' + wmF(v[1], 3) + '</td></tr>'; }).join('');
     var lines = L.lines.slice().sort(function(a, b) { return b.tco2 - a.tco2; }).map(function(l, i) {
-        return '<tr><td>' + wsEsc(l.date || 'period') + '</td><td>' + WM_KLBL[l.kind] + '</td><td><span class="ws6-code">' + wsEsc(l.it.code) + '</span> ' + wsEsc(l.nm.main) + '</td><td class="num">' + (l.t == null ? '—' : wmF(l.t, 3)) + '</td><td>' + wsEsc((l.R || { label: '—' }).label) + '</td><td>' + wmMethodChip(l) + '</td>' +
+        return '<tr><td>' + wsEsc(l.date || 'period') + '</td><td>' + (WM_KLBL[l.kind] || (l.ww ? 'Wastewater' : wsEsc(l.kind || ''))) + '</td><td><span class="ws6-code">' + wsEsc(l.it.code) + '</span> ' + wsEsc(l.nm.main) + '</td><td class="num">' + (l.t == null ? '—' : wmF(l.t, 3)) + '</td><td>' + wsEsc((l.R || { label: '—' }).label) + '</td><td>' + wmMethodChip(l) + '</td>' +
             '<td class="num">' + (l.f.total == null ? '—' : wmF(l.f.total, 1)) + '</td><td class="num"><strong>' + (l.f.cat5 === 'scope1' ? 'Scope 1' : (l.f.cat5 === 'internal' ? 'In-house' : wmF(l.tco2, 3))) + '</strong></td><td><span class="wm-tier t' + l.tier + '">' + l.tier + '</span></td>' +
             '<td>' + (l.flags.length ? '<span class="ws6-badge st-amber" title="' + wsEsc(l.flags.join(' · ')) + '">' + l.flags.length + ' flag' + (l.flags.length > 1 ? 's' : '') + '</span>' : '') + ' <button class="ws6-add ws6-sm wm-allow" onclick="wmWhy(' + i + ')">why?</button></td></tr>' +
             '<tr class="wm-frow"><td></td><td colspan="9">' + wmLineFormula(l) + '</td></tr>'; }).join('');
@@ -5087,6 +5140,242 @@ function wmOnsiteLoc(f) { return /_on$/.test(wmLoc(f)); }
 (function() {
     var f0 = wsFacOf;
     wsFacOf = function(kind, e, s) { return f0(kind, e.nameIt ? Object.assign({}, e, { it: e.nameIt }) : e, s); };
+})();
+
+// ════════════════ Compact view: same tool, less on screen ════════════════
+// Nothing is removed. Long explanations show one or two lines with "more"; receiver cards show a one-line summary until
+// opened; abbreviations are spelled out once per page (hover / tap / Glossary for the rest); the sidebar shows step
+// names and status only (the description is the tooltip). "Detailed view" in the header switches all of this off.
+
+var WM_VIEW = (function() { try { return localStorage.getItem('WM_VIEW_V1') || 'compact'; } catch (e) { return 'compact'; } })();
+var WM_OPENFAC = {};
+var WM_CLAMP_SEL = '.ws6-p, .ws6-note, .ws6-alert.ok, .wm-sbn, .wm-oblig, .wm-rec, .wm-intro, .wm-regnote';
+
+function wmCompact() { return WM_VIEW === 'compact'; }
+function wmSetView(v) {
+    WM_VIEW = v; try { localStorage.setItem('WM_VIEW_V1', v); } catch (e) {}
+    document.body.classList.toggle('wm-compact', v === 'compact');
+    wmViewBtn(); wmRender();
+}
+function wmViewBtn() {
+    var b = document.getElementById('wm-viewbtn'), steps = document.getElementById('wm-steps');
+    if (!b) {
+        if (!steps) return;
+        var w = document.createElement('div'); w.className = 'wm-viewsw';
+        w.innerHTML = '<span>View</span><button type="button" data-v="compact">Compact</button><button type="button" data-v="detailed">Detailed</button>';
+        w.querySelectorAll('button').forEach(function(x) { x.onclick = function() { if (x.dataset.v !== WM_VIEW) wmSetView(x.dataset.v); }; });
+        steps.insertBefore(w, steps.firstChild); b = w; b.id = 'wm-viewbtn';
+    }
+    b.querySelectorAll('button').forEach(function(x) { x.classList.toggle('on', x.dataset.v === WM_VIEW); x.setAttribute('aria-pressed', x.dataset.v === WM_VIEW); });
+    b.title = wmCompact() ? 'Show every explanation, formula and receiver field in full' : 'Shorten explanations and fold receiver cards (nothing is removed)';
+}
+
+// long text → two lines + "more"
+function wmClamp(root) {
+    root.querySelectorAll(WM_CLAMP_SEL).forEach(function(e) {
+        if (e.dataset.wmc || e.offsetParent === null) return;
+        var outer = e.parentElement && e.parentElement.closest('.wm-clamp'); if (outer) return;
+        if (e.querySelector('input, select, textarea, button, table')) return;
+        if (e.closest('.wsr-doc, #wsr-mbody, .ws6-alert.red, .ws6-alert.amber, .wm-gloss, .wm-samplebar .wm-sbn strong')) return;
+        if ((e.textContent || '').trim().length < 120) return;
+        e.dataset.wmc = '1';
+        var cs = getComputedStyle(e), fs = parseFloat(cs.fontSize) || 14, lh = parseFloat(cs.lineHeight) || fs * 1.45;
+        var lines = e.classList.contains('wm-sbn') ? 1 : 2, h = Math.ceil((parseFloat(cs.paddingTop) || 0) + lh * lines + 1);
+        if (e.scrollHeight <= h + 4) return;
+        e.classList.add('wm-clamp'); e.style.maxHeight = h + 'px';
+        var m = document.createElement('button'); m.type = 'button'; m.className = 'wm-more'; m.textContent = 'more ▾';
+        m.onclick = function() { var o = e.classList.toggle('wm-open'); e.style.maxHeight = o ? 'none' : h + 'px'; m.textContent = o ? 'less ▴' : 'more ▾'; };
+        e.insertAdjacentElement('afterend', m);
+    });
+    // one-line technical lines (formula, EF parameters): click to unfold
+    root.querySelectorAll('.wm-formula1, .wm-params').forEach(function(e) {
+        if (e.dataset.wmc) return; e.dataset.wmc = '1'; e.classList.add('wm-line1'); e.title = 'Click to show in full';
+        e.addEventListener('click', function() { e.classList.toggle('wm-open'); });
+    });
+}
+
+// receiver and transporter cards → one-line summary until opened
+function wmFacFold(root) {
+    if (WM_STEP !== 'receivers') return;
+    var cards = root.querySelectorAll('.wm-fac'); if (!cards.length) return;
+    cards.forEach(function(card) {
+        var hd = card.querySelector('.wm-fachd'), grid = card.querySelector('.wm-facgrid'), x = hd && hd.querySelector('.ws6-x');
+        if (!hd || !grid || !x || card.dataset.wmf) return;
+        card.dataset.wmf = '1';
+        var key = x.getAttribute('onclick') || '', val = function(f) { var el = grid.querySelector('[data-f="' + f + '"]'); return el ? (el.value || '').trim() : ''; };
+        var dflt = !val('name') || card.classList.contains('wm-exp');
+        if (!val('name')) WM_OPENFAC[key] = true;   // a card being filled in stays open while it is completed
+        var parts = [];
+        [['auth', ''], ['reg', ''], ['validTo', 'valid to '], ['codes', 'codes '], ['veh', ''], ['unit', 'unit: '], ['enduser', 'supplies ']].forEach(function(p) { var v = val(p[0]); if (v) parts.push(p[1] + v); });
+        var fm = card.querySelector('.wm-formula1');
+        var sum = document.createElement('div'); sum.className = 'wm-facsum';
+        sum.textContent = (parts.length ? parts.join(' · ') : 'No details yet') + (fm ? ' · ' + fm.textContent.split(/[:—=]/)[0].trim() : '');
+        hd.insertAdjacentElement('afterend', sum);
+        var tg = document.createElement('button'); tg.type = 'button'; tg.className = 'ws6-add ws6-sm wm-facedit';
+        var set = function(open) { WM_OPENFAC[key] = open; card.classList.toggle('wm-collapsed', !open); tg.textContent = open ? 'Close ▴' : 'Edit ▾'; };
+        tg.onclick = function(ev) { ev.stopPropagation(); set(card.classList.contains('wm-collapsed')); };
+        x.insertAdjacentElement('beforebegin', tg);
+        hd.addEventListener('click', function(ev) { if (ev.target.closest('button, input, select, a, abbr')) return; set(card.classList.contains('wm-collapsed')); });
+        if (WM_OPENFAC[key] == null) { card.classList.toggle('wm-collapsed', !dflt); tg.textContent = dflt ? 'Close ▴' : 'Edit ▾'; } else set(!!WM_OPENFAC[key]);
+    });
+    // one bar per step: open / fold all
+    if (!root.querySelector('.wm-foldbar')) {
+        var first = cards[0].closest('.ws6-sec') || cards[0].parentElement, bar = document.createElement('div'); bar.className = 'wm-foldbar';
+        bar.innerHTML = '<span>Cards show a one-line summary — <em>Edit</em> opens one.</span><button type="button" class="ws6-add ws6-sm">Open all</button><button type="button" class="ws6-add ws6-sm">Fold all</button>';
+        var bs = bar.querySelectorAll('button');
+        bs[0].onclick = function() { root.querySelectorAll('.wm-fac').forEach(function(c) { if (c.classList.contains('wm-collapsed') && c.querySelector('.wm-facedit')) c.querySelector('.wm-facedit').click(); }); };
+        bs[1].onclick = function() { root.querySelectorAll('.wm-fac').forEach(function(c) { if (!c.classList.contains('wm-collapsed') && c.querySelector('.wm-facedit')) c.querySelector('.wm-facedit').click(); }); };
+        first.parentNode.insertBefore(bar, first);
+    }
+}
+
+// spell an abbreviation out once per page; later "(…)" expansions go (hover, tap or the Glossary still explain it)
+function wmAbbrOnce(root) {
+    var seen = {};
+    root.querySelectorAll('abbr.wm-abbr').forEach(function(a) {
+        var k = a.textContent, n = a.nextSibling;
+        if (!n || n.nodeType !== 3 || !/^\s?\(/.test(n.nodeValue)) return;
+        var t = n.nodeValue, i = t.indexOf('('), depth = 0, j = i;
+        for (; j < t.length; j++) { if (t[j] === '(') depth++; else if (t[j] === ')') { depth--; if (!depth) break; } }
+        if (j >= t.length) return;
+        var inner = t.slice(i + 1, j).toLowerCase(), g = (WM_GLOSS[k] || '').toLowerCase();
+        var w = inner.replace(/[^a-z ]/g, ' ').trim().split(/\s+/)[0];
+        if (!w || w.length < 3 || g.indexOf(w) < 0) return;   // not the expansion of this abbreviation
+        if (seen[k]) n.nodeValue = t.slice(0, i).replace(/\s$/, '') + t.slice(j + 1);
+        else seen[k] = 1;
+    });
+}
+
+var _wmShowFAuto = null;
+function wmShowFDefault() { if (typeof WM_SHOWF === 'undefined') return; if (_wmShowFAuto === null || WM_SHOWF === _wmShowFAuto) { WM_SHOWF = !wmCompact(); _wmShowFAuto = WM_SHOWF; } }
+function wmDeclutter() {
+    var body = document.getElementById('formPanelBody');
+    document.body.classList.toggle('wm-compact', wmCompact());
+    wmViewBtn();
+    // sidebar: description as tooltip
+    document.querySelectorAll('#wm-steps .wm-step').forEach(function(b) { var sm = b.querySelector('.wm-stept small'); if (sm && !b.title) b.title = sm.textContent; });
+    if (!wmCompact() || !body) return;
+    wmAbbrOnce(body); wmFacFold(body); wmFoldStep(body); wmClamp(body);
+}
+
+// ── structural folds: generic helper + per step ──
+var WM_OPEN = {};
+function wmFold(box, head, parts, key, dflt, sumText) {
+    if (!box || !head || box.dataset.wmfold) return;
+    box.dataset.wmfold = '1'; box.classList.add('wm-fold');
+    var open = WM_OPEN[key] != null ? WM_OPEN[key] : dflt;
+    var tg = document.createElement('button'); tg.type = 'button'; tg.className = 'wm-foldtg';
+    var sum = null;
+    if (sumText) { sum = document.createElement('span'); sum.className = 'wm-foldsum'; sum.textContent = sumText; head.appendChild(sum); }
+    head.appendChild(tg); head.classList.add('wm-foldhd');
+    var set = function(o, user) { if (user) WM_OPEN[key] = o; box.classList.toggle('wm-shut', !o); parts.forEach(function(p) { p.classList.toggle('wm-hide', !o); }); tg.textContent = o ? 'Fold ▴' : 'Open ▾'; tg.setAttribute('aria-expanded', o); };
+    tg.onclick = function(ev) { ev.stopPropagation(); set(box.classList.contains('wm-shut'), true); };
+    head.addEventListener('click', function(ev) { if (ev.target.closest('button, input, select, a, label, abbr')) return; set(box.classList.contains('wm-shut'), true); });
+    set(open);
+}
+function wmFoldBar(root, before, label) {
+    if (root.querySelector('.wm-foldbar')) return;
+    var bar = document.createElement('div'); bar.className = 'wm-foldbar';
+    bar.innerHTML = '<span>' + label + '</span><button type="button" class="ws6-add ws6-sm">Open all</button><button type="button" class="ws6-add ws6-sm">Fold all</button>';
+    var bs = bar.querySelectorAll('button');
+    bs[0].onclick = function() { root.querySelectorAll('.wm-fold.wm-shut > .wm-foldhd .wm-foldtg, .wm-fold.wm-shut .wm-foldhd .wm-foldtg').forEach(function(b) { b.click(); }); };
+    bs[1].onclick = function() { root.querySelectorAll('.wm-fold:not(.wm-shut) .wm-foldhd .wm-foldtg').forEach(function(b) { b.click(); }); };
+    before.parentNode.insertBefore(bar, before);
+}
+function wmFoldStep(root) {
+    var st = WM_STEP;
+    if (st === 'record') {
+        var cards = [].slice.call(root.querySelectorAll('.ws6-card[id^="wsc-"]')).filter(function(c) { return c.offsetParent !== null; });
+        cards.forEach(function(c) {
+            var hd = c.querySelector('.ws6-cardhd'); if (!hd) return;
+            var parts = [].slice.call(c.children).filter(function(x) { return x !== hd && !/-pend$/.test(x.id || ''); });
+            var rows = c.querySelectorAll('tbody tr').length;
+            wmFold(c, hd, parts, 'rec:' + c.id, cards.length <= 3, '');
+        });
+        if (cards.length > 3) wmFoldBar(root, cards[0], 'Items are folded — open one to record. The status line under each shows what is pending.');
+    }
+    if (st === 'site') {
+        var secs = [].slice.call(root.querySelectorAll('#wm-inner > .ws6-sec'));
+        secs.forEach(function(sec, i) {
+            var hd = sec.querySelector(':scope > .ws6-h'); if (!hd) return;
+            var parts = [].slice.call(sec.children).filter(function(x) { return x !== hd; });
+            var ins = [].slice.call(sec.querySelectorAll('input:not([type=checkbox]):not([type=radio]), select, textarea')).filter(function(x) { return !x.disabled; });
+            var chk = sec.querySelectorAll('input[type=checkbox]'), on = sec.querySelectorAll('input[type=checkbox]:checked').length;
+            var filled = ins.filter(function(x) { return (x.value || x.placeholder || '').trim() !== ''; }).length;
+            var sum = ins.length ? filled + ' of ' + ins.length + ' filled' : (chk.length ? on + ' ticked' : (sec.querySelectorAll('.wm-fac, tr').length ? sec.querySelectorAll('.wm-fac, tbody tr').length + ' entries' : ''));
+            wmFold(sec, hd, parts, 'site:' + i, i === 0 || (ins.length && filled < ins.length), sum);
+        });
+        if (secs.length > 2) wmFoldBar(root, secs[0], 'Complete sections are folded — the count shows what is filled.');
+    }
+    if (st === 'catalogue') {
+        root.querySelectorAll('details.ws6-grp').forEach(function(d) {
+            if (d.dataset.wmfold) return; d.dataset.wmfold = '1';
+            var k = 'cat:' + (d.querySelector('summary') || {}).textContent;
+            var sel = d.querySelectorAll('.ws6-itemchk input[type=checkbox]:checked, input[data-k="selitem"]:checked').length;
+            if (WM_OPEN[k] != null) d.open = WM_OPEN[k]; else if (!sel) d.open = false;
+            d.addEventListener('toggle', function() { WM_OPEN[k] = d.open; });
+            var off = [].slice.call(d.querySelectorAll(':scope > .ws6-item:not(.on)'));
+            if (sel && off.length) {
+                var kk = k + ':more', b = document.createElement('button'); b.type = 'button'; b.className = 'ws6-add ws6-sm wm-moreitems';
+                var set = function(o) { WM_OPEN[kk] = o; off.forEach(function(x) { x.classList.toggle('wm-hide', !o); }); b.textContent = o ? 'Hide unticked items' : '＋ ' + off.length + ' more item' + (off.length > 1 ? 's' : '') + ' in this group'; };
+                b.onclick = function() { set(!WM_OPEN[kk]); }; d.appendChild(b); set(!!WM_OPEN[kk]);
+            }
+        });
+    }
+    if (st === 'review') {
+        var t = root.querySelector('table'); if (t) {
+            var trs = [].slice.call(t.querySelectorAll('tbody > tr, tr')), groups = [], g = null;
+            trs.forEach(function(r) { if (r.classList.contains('wm-secrow')) { g = { hd: r, rows: [] }; groups.push(g); } else if (g && r.parentElement.tagName !== 'THEAD') g.rows.push(r); });
+            groups.forEach(function(gr) {
+                if (gr.hd.dataset.wmfold || !gr.rows.length) return; gr.hd.dataset.wmfold = '1';
+                var ok = gr.rows.every(function(r) { var c = r.cells[2]; return c && /^\s*✓\s*$/.test(c.textContent); });
+                var key = 'rev:' + gr.hd.textContent.trim(), open = WM_OPEN[key] != null ? WM_OPEN[key] : !ok;
+                var cell = gr.hd.cells[0]; if (gr.hd.cells.length === 1) cell.colSpan = Math.max(cell.colSpan, (t.rows[0] || {}).cells ? t.rows[0].cells.length : 4);
+                var sum = document.createElement('span'); sum.className = 'wm-foldsum'; sum.textContent = ok ? '  ✓ all ' + gr.rows.length + ' complete' : '';
+                var tg = document.createElement('button'); tg.type = 'button'; tg.className = 'wm-foldtg';
+                cell.appendChild(sum); cell.appendChild(tg); gr.hd.classList.add('wm-foldhd');
+                var set = function(o, user) { if (user) WM_OPEN[key] = o; gr.rows.forEach(function(r) { r.classList.toggle('wm-hide', !o); }); tg.textContent = o ? 'Fold ▴' : 'Open ▾'; };
+                tg.onclick = function(ev) { ev.stopPropagation(); set(gr.rows[0].classList.contains('wm-hide'), true); };
+                gr.hd.addEventListener('click', function(ev) { if (ev.target.closest('button')) return; set(gr.rows[0].classList.contains('wm-hide'), true); });
+                set(open);
+            });
+        }
+    }
+    if (st === 'screen') {
+        var no = [].slice.call(root.querySelectorAll('.wm-reg.no'));
+        if (no.length && !root.querySelector('.wm-regno')) {
+            var box = document.createElement('div'); box.className = 'wm-regno';
+            var hd = document.createElement('div'); hd.className = 'wm-regnohd'; hd.innerHTML = '<strong>' + no.length + ' rule' + (no.length > 1 ? 's do' : ' does') + ' not apply</strong> <span>' + no.map(function(e) { return (e.querySelector('strong') || {}).textContent; }).join(' · ') + '</span>';
+            no[0].parentNode.appendChild(box); box.appendChild(hd); no.forEach(function(e) { box.appendChild(e); });
+            wmFold(box, hd, no, 'screen:no', false, '');
+        }
+    }
+    if (st === 'emissions') {
+        root.querySelectorAll('#wm-em > .ws6-sec').forEach(function(sec) {
+            var hd = sec.querySelector('.ws6-h'); if (!hd) return;
+            var rows = [].slice.call(sec.querySelectorAll('tbody > tr:not(.wm-frow)'));
+            if (/Every priced line/.test(hd.textContent) && rows.length > 12 && !sec.querySelector('.wm-showall')) {
+                var key = 'em:lines', open = !!WM_OPEN[key];
+                var b = document.createElement('button'); b.type = 'button'; b.className = 'ws6-add ws6-sm wm-showall';
+                var set = function(o) { WM_OPEN[key] = o; rows.forEach(function(r, i) { var h = !o && i >= 12; r.classList.toggle('wm-hide', h); var f = r.nextElementSibling; if (f && f.classList.contains('wm-frow')) f.classList.toggle('wm-hide', h); }); b.textContent = o ? 'Show the 12 largest only' : 'Show all ' + rows.length + ' lines (12 largest shown)'; };
+                b.onclick = function() { set(!WM_OPEN[key]); };
+                (sec.querySelector('table') || sec).insertAdjacentElement('afterend', b); set(open);
+            }
+            if (/By department/.test(hd.textContent) && hd.parentElement === sec) wmFold(sec, hd, [].slice.call(sec.children).filter(function(x) { return x !== hd; }), 'em:dept', false, '');
+        });
+    }
+}
+
+(function() {
+    var r0 = wmRender;
+    wmRender = function() { wmShowFDefault(); r0(); wmDeclutter(); };
+    var s0 = wmStepper;
+    wmStepper = function() { s0(); wmViewBtn(); document.querySelectorAll('#wm-steps .wm-step').forEach(function(b) { var sm = b.querySelector('.wm-stept small'); if (sm && !b.title) b.title = sm.textContent; }); };
+    var c0 = wmRerenderCard;
+    wmRerenderCard = function(sid) { c0(sid); var el = document.getElementById('wsc-' + sid); if (el && wmCompact()) wmClamp(el); };
+    var first = function() { document.body.classList.toggle('wm-compact', wmCompact()); wmDeclutter(); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', first); else setTimeout(first, 0);
+    if (document.body) { document.body.classList.toggle('wm-compact', wmCompact()); }
 })();
 
 
