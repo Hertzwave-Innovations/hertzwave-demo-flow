@@ -390,6 +390,47 @@ html.in-claude [data-print]{display:none!important}
 .asbox{display:block;width:100%;min-height:96px;margin-top:6px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--sunk);color:var(--ink);font:12px/1.45 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
 .g-val .g-st{white-space:normal;display:inline-block}
 .mstone .mstext{width:100%;min-width:170px;padding:6px 8px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card);color:var(--ink);font:inherit;font-size:13px;resize:vertical}
+/* v5: decisions, progress, read-only */
+.st-planned{background:var(--sunk);color:var(--muted);border-color:var(--line)}
+.st-inprogress{background:var(--amber-soft);color:var(--amber)}
+.st-implemented{background:var(--green-soft);color:var(--green-d)}
+.ap-proposed{background:var(--sunk);color:var(--ink);border:1px dashed var(--muted)}
+.ap-approved{background:var(--green-soft);color:var(--green-d)}
+.ap-hold{background:var(--amber-soft);color:var(--amber)}
+.ap-rejected{background:var(--red-soft, rgba(196,50,50,.1));color:var(--red)}
+.init.na{border-style:dashed}
+.init.na .imps,.init.na .meta{opacity:.85}
+.decide{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--line-2)}
+.segs{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.segs .seg{border:0;background:var(--card);color:var(--muted);font:inherit;font-size:12.5px;padding:5px 11px;cursor:pointer;border-right:1px solid var(--line)}
+.segs .seg:last-child{border-right:0}
+.segs .seg.on{font-weight:700}
+.segs .seg:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.decide select{padding:4px 8px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card);color:var(--ink);font:inherit;font-size:12.5px}
+.decnote{margin:10px 0 0;font-size:12.5px;padding:7px 10px;border-radius:var(--r-s);background:var(--sunk)}
+.ap-hold-n{border-left:3px solid var(--amber)}.ap-rejected-n{border-left:3px solid var(--red)}.ap-approved-n{border-left:3px solid var(--green)}.ap-proposed-n{border-left:3px dashed var(--muted)}
+.dstrip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+.dstrip>div{display:flex;flex-direction:column;gap:3px}.dstrip b{font-size:20px}.dstrip small{color:var(--muted);font-size:11.5px}
+.dstrip p{grid-column:1/-1;margin:0}
+.dstrip .tag{align-self:flex-start}
+@media (max-width:700px){.dstrip{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ifilter{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.ifilter button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:12.5px;cursor:pointer}
+.ifilter button small{color:var(--muted);margin-left:3px}
+.ifilter button.on{background:var(--ink);color:var(--card);border-color:var(--ink)}.ifilter button.on small{color:inherit;opacity:.8}
+.rolebox{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rolebox b{font-size:12.5px}
+html.ro .ro-hide{display:none!important}
+.ro-note{margin-bottom:14px;border-left:3px solid var(--ai)}
+.segs .seg.on{background:var(--sunk);color:var(--ink)}
+.segs .seg.on.ap-approved{background:var(--green-soft);color:var(--green-d)}
+.segs .seg.on.ap-hold{background:var(--amber-soft);color:var(--amber)}
+.segs .seg.on.ap-rejected{background:var(--red-soft);color:var(--red)}
+html.ro #main input:disabled,html.ro #main select:disabled,html.ro #main textarea:disabled{background:transparent;border-color:transparent;color:var(--ink);opacity:1;-webkit-text-fill-color:var(--ink);appearance:none;-webkit-appearance:none;cursor:default}
+html.ro #main input[type=checkbox]:disabled{appearance:auto;-webkit-appearance:auto}
+
+.grid2>*,.grid3>*{min-width:0}
+@media (max-width:700px){#main .panel>table.tbl,#main .doc table.tbl{display:block;overflow-x:auto;max-width:100%}}
 </style>
 </head>
 <body>
@@ -402,6 +443,7 @@ html.in-claude [data-print]{display:none!important}
       <option value="V4">GreenCo V4 (provisional)</option>
       <option value="LITE">GreenCo Lite (provisional)</option>
     </select></label></div>
+  <div class="lens rolebox" id="roleBox"></div>
   <div class="pill" id="scorepill"></div>
 </header>
 <div class="shell">
@@ -620,7 +662,7 @@ function computeMetrics(D, prof, inits, projected) {
   if (elecOnly) { onsitePct = pctOf(c.on, c.elec); offsitePct = pctOf(c.off, c.elec); }
   else if (c.totGJ) { onsitePct = (c.on * 0.0036 + c.onTh) / c.totGJ * 100; offsitePct = c.off * 0.0036 / c.totGJ * 100; }
   const allGHG = (c.s1 == null || c.s2 == null) ? null : c.s1 + c.s2 + (c.s3 || 0);
-  const innovInits = (inits || []).filter(x => x.innov && (x.status === 'Implemented' || (projected && x.include !== false && (x.status === 'Planned' || x.status === 'In progress'))));
+  const innovInits = (inits || []).filter(x => x.innov && (isImplemented(x) || (projected && isActive(x))));
   const reTotal = (onsitePct == null) ? null : onsitePct + (offsitePct || 0);
   const M = {
     Y, elecOnly,
@@ -941,10 +983,21 @@ function addField(D, k, d, prof) {
   }
   if (has('scope1') && k === 'thermal') bump('scope1', d * FEF);
 }
-function isActive(i) { return i.include !== false && (i.status === 'Planned' || i.status === 'In progress'); }
+/* Two statuses per initiative. Decision: Proposed (awaiting a decision), Approved, On hold or Rejected.
+   Progress, for approved initiatives only: Planned, In progress or Implemented.
+   Only approved initiatives count in projections, goals, investment and the roadmap.
+   Saves made before decisions existed have no 'approval': treat them as approved, and an old 'Dropped' as rejected. */
+const APPROVAL = ['Proposed', 'Approved', 'On hold', 'Rejected'];
+const PROGRESS = ['Planned', 'In progress', 'Implemented'];
+function approvalOf(i) { return APPROVAL.includes(i.approval) ? i.approval : (i.status === 'Dropped' ? 'Rejected' : 'Approved'); }
+function isApproved(i) { return approvalOf(i) === 'Approved'; }
+function isImplemented(i) { return isApproved(i) && i.status === 'Implemented'; }
+function isActive(i) { return i.include !== false && isApproved(i) && (i.status === 'Planned' || i.status === 'In progress'); }
 function activeIds(st, opt = {}) {
   return (st.initiatives || []).filter(i => {
     if (opt.set) return opt.set.includes(i.id);
+    /* 'only' asks what one initiative would add on its own, so it also answers for one not yet approved */
+    if (opt.only) return opt.only === i.id && i.status !== 'Implemented';
     if (!isActive(i)) return false;
     if (opt.exclude === i.id) return false;
     if (opt.only && opt.only !== i.id) return false;
@@ -966,7 +1019,7 @@ function scoreAll(st, o = {}) {
   const D = o.D || (projected ? project(st, o) : st.data);
   const ctx = ctxOf(st.profile);
   const ids = projected ? activeIds(st, o) : [];
-  const counted = (st.initiatives || []).filter(i => i.status === 'Implemented' || ids.includes(i.id)).map(i => Object.assign({}, i, { status: 'Implemented' }));
+  const counted = (st.initiatives || []).filter(i => isImplemented(i) || ids.includes(i.id)).map(i => Object.assign({}, i, { status: 'Implemented' }));
   const M = computeMetrics(D, st.profile, counted, false);
   const R = {};
   CREDITS.forEach(c => { R[c.id] = scoreCredit(c, M, ctx, st); });
@@ -1238,9 +1291,12 @@ function trackStatus(m, base, target, ytd, frac) {
 function fyOfMonth(ym) { const m = String(ym || '').match(/^(\d{4})-(\d{1,2})/); if (!m) return null; const y = +m[1], mo = +m[2]; return mo >= 4 ? y : y - 1; }
 function investment(st) {
   const prof = st.profile, pastYears = prof.years.slice(), nextYears = goalYears(prof), ps = P3.map(p => p.id);
-  const past = {}, next = {}, unplaced = {}, items = [];
+  const past = {}, next = {}, unplaced = {}, items = [], pending = {};
   ps.forEach(p => { past[p] = pastYears.map(y => num((((st.past || {})[p] || {}).years || {})[y] && st.past[p].years[y].spent)); next[p] = [0, 0, 0]; unplaced[p] = 0; });
   const n0 = fyStart(nextYears[0]);
+  ps.forEach(p => { pending[p] = 0; });
+  /* Capex not yet approved (awaiting a decision or on hold) is reported apart and never placed in a year. */
+  (st.initiatives || []).filter(i => ['Proposed', 'On hold'].includes(approvalOf(i)) && i.status !== 'Implemented').forEach(i => { const c = num(i.capex); if (c && pending[i.p] != null) pending[i.p] += c; });
   (st.initiatives || []).filter(isActive).forEach(i => {
     const c = num(i.capex); if (!c || !next[i.p]) return;
     let a = fyOfMonth(i.start), b = fyOfMonth(i.end);
@@ -1250,11 +1306,11 @@ function investment(st) {
     for (let y = a; y <= b; y++) { const k = n0 == null ? -1 : y - n0; if (k >= 0 && k < 3) { next[i.p][k] += c / span; it.alloc[k] += c / span; } else { unplaced[i.p] += c / span; it.outside += c / span; } }
     items.push(it);
   });
-  return { pastYears, nextYears, past, next, unplaced, items };
+  return { pastYears, nextYears, past, next, unplaced, items, pending };
 }
 
 return { goalStatus, suggestGoals, GOAL_METRICS, GOAL_METRIC, MILESTONE_PARAMS, MS_STATUS, msItem, milestonePlan, fyStart, fyLabel, goalYears, recordOf, sumRecords, metricValue, improvement, targetValue, targetImprovement, windowReduction, impliedPoints, suggestGoal, goalPlan, trackStatus, investment, goalCtx, fyOfMonth, activeIds, LEVELS, BANDS, bandOf, nextBand, SECTORS, classify, ctxOf, P3, P4, v4Of, VERSIONS, FIELDS, FIELD, CREDITS, CREDIT, GATES,
-  computeMetrics, scoreCredit, scoreAll, lens, project, requiredDelta, initiativeEffect, band, num, fmtN, cloneData, addField, isActive, RE_EXP, EE_STEP };
+  computeMetrics, scoreCredit, scoreAll, lens, project, requiredDelta, initiativeEffect, band, num, fmtN, cloneData, addField, isActive, APPROVAL, PROGRESS, approvalOf, isApproved, isImplemented, RE_EXP, EE_STEP };
 })();
 if (typeof module !== 'undefined') module.exports = GC;
 </script>
@@ -1367,7 +1423,7 @@ const GCG = (() => {
     return `<div class="scroll"><table class="tbl itbl"><thead><tr><th>Initiative</th>${inv.nextYears.map(y => `<th class="r">${e(y)}</th>`).join('')}<th class="r">Total, next 3 years</th></tr></thead><tbody>
       ${ps.map(q => (p ? '' : `<tr class="sub"><td colspan="5">${e(pname(q))}</td></tr>`) + its.filter(x => x.p === q).map(row).join('') + (p || its.filter(x => x.p === q).length < 2 ? '' : subtotal('Subtotal, ' + pname(q), its.filter(x => x.p === q), 'subt'))).join('')}
       ${subtotal(p ? 'Total, ' + pname(p) : 'Total, all parameters', its, 'grp')}
-    </tbody></table></div><p class="muted small" style="margin-top:6px">₹ lakh. Each initiative's capex is spread evenly over the financial years from its start date to its end date. Implemented and dropped initiatives are left out.</p>`;
+    </tbody></table></div><p class="muted small" style="margin-top:6px">₹ lakh. Each initiative's capex is spread evenly over the financial years from its start date to its end date. Only approved initiatives that are planned or in progress are included.</p>`;
   }
   /* One tooltip for every [data-gtip] element on the page (hover and keyboard focus). */
   let tipEl = null;
@@ -1434,28 +1490,36 @@ function gcSeed() {
     judged: L, options: { 'PSLCA4.2': 1, 'GI1.1': 2 }, best: {}, gates, targets: {},
     evidence: { 'EE4': [{ name: 'SEC_FY24-26_monthly.xlsx', size: 184320, date: '2026-06-12' }], 'WC3': [{ name: 'Water_balance_FY26.pdf', size: 412000, date: '2026-06-20' }] },
     initiatives: [
-      { id: 'I1', p: 'EE', credit: 'EE4', title: 'Reheating furnace recuperator upgrade', type: 'Energy project', status: 'Planned', owner: 'Utilities', start: '2026-10', end: '2027-03', capex: 85, saving: 42, innov: false,
+      { id: 'I1', p: 'EE', credit: 'EE4', title: 'Reheating furnace recuperator upgrade', type: 'Energy project', approval: 'Approved', status: 'Planned', owner: 'Utilities', start: '2026-10', end: '2027-03', capex: 85, saving: 42, innov: false,
         impacts: [{ f: 'thermal', d: -2600 }], basis: 'Vendor estimate: combustion air preheated to 350 °C, 5% fuel saving on the 52,000 GJ furnace load.' },
-      { id: 'I2', p: 'EE', credit: 'EE4', title: 'Compressed air VFD and leak arrest', type: 'Energy project', status: 'Implemented', owner: 'Maintenance', start: '2024-06', end: '2024-11', capex: 22, saving: 31, innov: false,
+      { id: 'I2', p: 'EE', credit: 'EE4', title: 'Compressed air VFD and leak arrest', type: 'Energy project', approval: 'Approved', status: 'Implemented', owner: 'Maintenance', start: '2024-06', end: '2024-11', capex: 22, saving: 31, innov: false,
         impacts: [{ f: 'elec', d: -420000 }], basis: 'Measured: 48 kW average reduction over 8,760 hours. Already reflected in FY 2025-26 data.' },
-      { id: 'I3', p: 'WC', credit: 'WC4.1', title: 'Cooling tower blowdown recovery through RO', type: 'Water project', status: 'Planned', owner: 'Utilities', start: '2026-09', end: '2027-01', capex: 40, saving: 6, innov: false,
+      { id: 'I3', p: 'WC', credit: 'WC4.1', title: 'Cooling tower blowdown recovery through RO', type: 'Water project', approval: 'Approved', status: 'Planned', owner: 'Utilities', start: '2026-09', end: '2027-01', capex: 40, saving: 6, innov: false,
         impacts: [{ f: 'fwProc', d: -3000 }], basis: '12 m³/day permeate at 70% recovery over 250 days.' },
-      { id: 'I4', p: 'WM', credit: 'WM5.2b', title: 'Monsoon buffer tank for STP overflow', type: 'Water project', status: 'Planned', owner: 'EHS', start: '2026-11', end: '2027-02', capex: 12, saving: 1, innov: false,
+      { id: 'I4', p: 'WM', credit: 'WM5.2b', title: 'Monsoon buffer tank for STP overflow', type: 'Water project', approval: 'Approved', status: 'Planned', owner: 'EHS', start: '2026-11', end: '2027-02', capex: 12, saving: 1, innov: false,
         impacts: [{ f: 'sewRec', d: 1365 }], basis: 'Overflow volume from monsoon months in FY 2025-26 logs.' },
-      { id: 'I5', p: 'WM', credit: 'WM4.1', title: 'Shot-blast dust briquetting for reuse', type: 'Waste project', status: 'Planned', owner: 'EHS', start: '2027-01', end: '2027-05', capex: 18, saving: 4, innov: false,
+      { id: 'I5', p: 'WM', credit: 'WM4.1', title: 'Shot-blast dust briquetting for reuse', type: 'Waste project', approval: 'Approved', status: 'Planned', owner: 'EHS', start: '2027-01', end: '2027-05', capex: 18, saving: 4, innov: false,
         impacts: [{ f: 'hazDisp', d: -10 }], basis: 'Briquettes accepted by the steel supplier as charge material.' },
-      { id: 'I6', p: 'MCR', credit: 'MCR4.1', title: 'Closed-die flash reduction through die redesign', type: 'Design innovation', status: 'Planned', owner: 'Tool room', start: '2026-08', end: '2027-06', capex: 30, saving: 150, innov: true,
+      { id: 'I6', p: 'MCR', credit: 'MCR4.1', title: 'Closed-die flash reduction through die redesign', type: 'Design innovation', approval: 'Approved', status: 'Planned', owner: 'Tool room', start: '2026-08', end: '2027-06', capex: 30, saving: 150, innov: true,
         impacts: [{ f: 'rm', d: -300 }], basis: 'Simulation shows flash falling from 9% to 7.7% of input weight on the top 12 parts.' },
-      { id: 'I7', p: 'GSC', credit: 'GSC4.3', title: 'Critical supplier audit drive', type: 'Supplier programme', status: 'In progress', owner: 'Purchase', start: '2026-07', end: '2027-03', capex: 0, saving: 0, innov: false,
+      { id: 'I7', p: 'GSC', credit: 'GSC4.3', title: 'Critical supplier audit drive', type: 'Supplier programme', approval: 'Approved', status: 'In progress', owner: 'Purchase', start: '2026-07', end: '2027-03', capex: 0, saving: 0, innov: false,
         impacts: [{ f: 'supAud', d: 23 }], basis: 'Two auditors, 3 audits a month.' },
-      { id: 'I8', p: 'RE', credit: 'RE3', title: 'Group captive solar, 3 MWp share', type: 'Renewable project', status: 'Planned', owner: 'Finance', start: '2026-10', end: '2027-09', capex: 60, saving: 95, innov: false,
+      { id: 'I8', p: 'RE', credit: 'RE3', title: 'Group captive solar, 3 MWp share', type: 'Renewable project', approval: 'Approved', status: 'Planned', owner: 'Finance', start: '2026-10', end: '2027-09', capex: 60, saving: 95, innov: false,
         impacts: [{ f: 'offsiteRE', d: 4200000 }], basis: '3 MWp at 16% capacity factor, wheeled through the state grid.' },
-      { id: 'I9', p: 'IE', credit: 'IE3', title: 'Induction billet heater replacing oil-fired furnace', type: 'Process innovation', status: 'Implemented', owner: 'Production', start: '2024-04', end: '2024-12', capex: 110, saving: 64, innov: true,
+      { id: 'I9', p: 'IE', credit: 'IE3', title: 'Induction billet heater replacing oil-fired furnace', type: 'Process innovation', approval: 'Approved', status: 'Implemented', owner: 'Production', start: '2024-04', end: '2024-12', capex: 110, saving: 64, innov: true,
         impacts: [], basis: 'Already in FY 2025-26 data.' },
-      { id: 'I10', p: 'IE', credit: 'IE3', title: 'PVD-coated forging dies for longer die life', type: 'Design innovation', status: 'Implemented', owner: 'Tool room', start: '2025-02', end: '2025-09', capex: 14, saving: 22, innov: true,
+      { id: 'I10', p: 'IE', credit: 'IE3', title: 'PVD-coated forging dies for longer die life', type: 'Design innovation', approval: 'Approved', status: 'Implemented', owner: 'Tool room', start: '2025-02', end: '2025-09', capex: 14, saving: 22, innov: true,
         impacts: [], basis: 'Die life up 38% on trial parts.' },
-      { id: 'I11', p: 'GHG', credit: 'GHG5', title: 'Miyawaki plantation, 4 acres', type: 'Offset project', status: 'Planned', owner: 'EHS', start: '2026-08', end: '2027-08', capex: 9, saving: 0, innov: false,
-        impacts: [{ f: 'offsets', d: 500 }], basis: 'Assumes 125 tCO2e per acre per year sequestration.' }
+      { id: 'I11', p: 'GHG', credit: 'GHG5', title: 'Miyawaki plantation, 4 acres', type: 'Offset project', approval: 'Approved', status: 'Planned', owner: 'EHS', start: '2026-08', end: '2027-08', capex: 9, saving: 0, innov: false,
+        impacts: [{ f: 'offsets', d: 500 }], basis: 'Assumes 125 tCO2e per acre per year sequestration.' },
+      { id: 'I12', p: 'RE', credit: 'RE2', title: 'Rooftop solar on the machine shop, 600 kWp', type: 'Renewable project', approval: 'Proposed', status: 'Planned', owner: 'Utilities', start: '2027-04', end: '2027-10', capex: 270, saving: 58, innov: false,
+        impacts: [{ f: 'onsiteRE', d: 840000 }], basis: '600 kWp at 16% capacity factor; roof load study pending.' },
+      { id: 'I13', p: 'EE', credit: 'EE4', title: 'Waste heat recovery from forging furnace flue gas', type: 'Energy project', approval: 'On hold', status: 'Planned', owner: 'Utilities', start: '2027-06', end: '2028-03', capex: 120, saving: 38, innov: false,
+        impacts: [{ f: 'thermal', d: -4200 }], basis: 'Flue gas at 650 °C; recovered heat preheats billets.',
+        decision: { by: 'Plant Head (demo)', at: '2026-10-14', note: 'Deferred to the FY 2027-28 capex cycle; revisit after the recuperator results.' } },
+      { id: 'I14', p: 'WM', credit: 'WM4.2', title: 'Canteen food waste to biogas', type: 'Waste project', approval: 'Rejected', status: 'Planned', owner: 'Admin', start: '2026-12', end: '2027-03', capex: 14, saving: 2, innov: false,
+        impacts: [{ f: 'nonHaz', d: -18 }], basis: '50 kg a day of food waste.',
+        decision: { by: 'Plant Head (demo)', at: '2026-09-30', note: 'Food waste volume too low for a stable digester; composting through the municipal vendor instead.' } }
     ],
     ai: {}, catAi: {}, overrides: {}, src: {}, ledger: null,
     perfGoals: {
@@ -1530,7 +1594,49 @@ function gcDemoOrgProfile() {
     /* Certifications held by the plant, from Organization Profile. Leave the array out if the profile does not track them. */
     certifications: [{ scheme: 'CII GreenCo', level: 'Gold', awarded: '2023-07', validTo: '2026-07', file: 'GreenCo_Gold_certificate_2023.pdf' }],
     /* IFRS S2 climate risk assessment status from the TerraCAP climate risk module. Leave out if unknown. */
-    climateRisk: { done: false, note: 'No IFRS S2 climate risk assessment recorded for this plant in TerraCAP' } };
+    climateRisk: { done: false, note: 'No IFRS S2 climate risk assessment recorded for this plant in TerraCAP' },
+    /* Facilities and their departments as set up in Organization Profile; facilityId is the plant under assessment. */
+    facilityId: 'HSR2',
+    facilities: [
+      { id: 'HSR2', name: 'Hosur Unit 2', departments: [{ id: 'FRG', name: 'Forge shop' }, { id: 'HT', name: 'Heat treatment' }, { id: 'MCH', name: 'Machine shop' }, { id: 'UTL', name: 'Utilities' }, { id: 'ADM', name: 'Administration and canteen' }] },
+      { id: 'HSR1', name: 'Hosur Unit 1', departments: [{ id: 'FRG', name: 'Forge shop' }, { id: 'MCH', name: 'Machine shop' }, { id: 'UTL', name: 'Utilities' }, { id: 'ADM', name: 'Administration' }] }
+    ] };
+}
+
+/* Demo stand-in for monthly records by facility and department.
+   INTEGRATION: window.TERRACAP_LEDGER_MONTHLY(profile, fyLabel, { facility, department }) with department null for the
+   whole facility. A department record holds what is metered or allocated to it; production is normally recorded only for
+   the facility, and renewables only at the facility's supply point. Shares below leave a few % unassigned, as real sub-metering does. */
+const GC_DEMO_SHARES = {
+  HSR2: { FRG: { elec: .38, thermal: .62, fw: .12, hazDisp: .25, nonHaz: .40 }, HT: { elec: .12, thermal: .33, fw: .16, hazDisp: .30, nonHaz: .10 },
+          MCH: { elec: .22, thermal: 0, fw: .10, hazDisp: .35, nonHaz: .30 }, UTL: { elec: .18, thermal: .02, fw: .42, hazDisp: .05, nonHaz: .05 },
+          ADM: { elec: .05, thermal: .01, fw: .15, hazDisp: 0, nonHaz: .10 } },
+  HSR1: { FRG: { elec: .46, thermal: .80, fw: .18, hazDisp: .40, nonHaz: .50 }, MCH: { elec: .28, thermal: 0, fw: .14, hazDisp: .45, nonHaz: .30 },
+          UTL: { elec: .16, thermal: .15, fw: .45, hazDisp: .05, nonHaz: .05 }, ADM: { elec: .06, thermal: .02, fw: .18, hazDisp: 0, nonHaz: .12 } }
+};
+function gcDemoYearMonthly(S, k) {
+  /* A closed assessment year: the year's ledger totals spread over typical monthly profiles. */
+  const y0 = GC.fyStart(S.profile.years[k]); if (y0 == null) return [];
+  const r = GC.recordOf(S.data, k, S.profile), nzv = v => v == null ? null : v;
+  const W = { flat: [.083, .085, .080, .082, .084, .083, .081, .084, .085, .083, .080, .090], water: [.095, .100, .085, .075, .075, .078, .080, .080, .080, .083, .084, .085],
+    solar: [.100, .100, .080, .060, .060, .070, .080, .085, .085, .090, .090, .100], wind: [.060, .070, .100, .120, .120, .100, .070, .070, .070, .070, .080, .090] };
+  const nh = GC.num(Array.isArray(S.data.nonHaz) ? S.data.nonHaz[k] : S.data.nonHaz);
+  return W.flat.map((w, m) => { const y = m < 9 ? y0 : y0 + 1, mo = (m + 3) % 12 + 1, sc = (v, ww) => v == null ? null : v * ww;
+    return { month: y + '-' + String(mo).padStart(2, '0'), rec: { prod: sc(nzv(r.prod), w), elec: sc(nzv(r.elec), w), thermal: sc(nzv(r.thermal), w), onsiteRE: sc(nzv(r.onsiteRE), W.solar[m]), onsiteTh: sc(nzv(r.onsiteTh), w),
+      offsiteRE: sc(nzv(r.offsiteRE), W.wind[m]), scope1: sc(nzv(r.scope1), w), scope2: sc(nzv(r.scope2), w), fwProc: sc(nzv(r.fwProc), W.water[m]), fwDom: sc(nzv(r.fwDom), W.water[m]),
+      hazDisp: sc(nzv(r.hazDisp), w), nonHaz: sc(nh, w), rm: sc(nzv(r.rm), w), transGHG: sc(nzv(r.transGHG), w) } }; });
+}
+function gcDemoScopedMonthly(S, fy, scope) {
+  const k = S.profile.years.indexOf(fy);
+  let ms = k >= 0 ? gcDemoYearMonthly(S, k) : gcDemoMonthly(S, fy);
+  if (k < 0) { const nh = GC.num(Array.isArray(S.data.nonHaz) ? S.data.nonHaz[2] : S.data.nonHaz); ms.forEach(x => { x.rec.nonHaz = nh == null ? null : nh * x.rec.prod / (GC.recordOf(S.data, 2, S.profile).prod || 1) * 0.97; }); }
+  const fac = (scope && scope.facility) || 'HSR2', dep = scope && scope.department;
+  if (fac === 'HSR1') ms = ms.map(x => ({ month: x.month, rec: Object.fromEntries(Object.entries(x.rec).map(([f, v]) => [f, v == null ? null : v * ({ prod: .52, thermal: .61, onsiteRE: 0, offsiteRE: .3, fwProc: .58, fwDom: .7 }[f] ?? .55)])) }));
+  if (!dep) return ms;
+  const sh = ((GC_DEMO_SHARES[fac] || {})[dep]) || { elec: 0, thermal: 0, fw: 0, hazDisp: 0, nonHaz: 0 };
+  return ms.map(x => { const r = x.rec, m = (v, s) => v == null ? null : v * s;
+    return { month: x.month, rec: { prod: null, elec: m(r.elec, sh.elec), thermal: m(r.thermal, sh.thermal), onsiteRE: null, onsiteTh: null, offsiteRE: null,
+      scope1: m(r.scope1, sh.thermal), scope2: m(r.scope2, sh.elec), fwProc: m(r.fwProc, sh.fw), fwDom: m(r.fwDom, sh.fw), hazDisp: m(r.hazDisp, sh.hazDisp), nonHaz: m(r.nonHaz, sh.nonHaz), rm: null, transGHG: null } }; });
 }
 
 /* Demo stand-in for the ledger's monthly records for one financial year, up to the last completed month.
@@ -1586,16 +1692,17 @@ let charts = {};
 /* ---------- persistence (INTEGRATION: swap for TerraCAP assessment API) ---------- */
 let saveT = null;
 function persist() {
+  if (!canEdit()) return;  /* viewers never write */
   clearTimeout(saveT);
   saveT = setTimeout(async () => {
     const json = JSON.stringify(S);
-    try { if (window.storage && window.storage.set) { await window.storage.set('gc:assessment:v2', json, false); return; } } catch (e) { }
-    try { window.localStorage.setItem('gc:assessment:v2', json); } catch (e) { /* session only */ }
+    try { if (window.storage && window.storage.set) { await window.storage.set('gc:assessment:v3', json, false); return; } } catch (e) { }
+    try { window.localStorage.setItem('gc:assessment:v3', json); } catch (e) { /* session only */ }
   }, 400);
 }
 async function restore() {
-  try { if (window.storage && window.storage.get) { const r = await window.storage.get('gc:assessment:v2', false); if (r && r.value) return JSON.parse(r.value); } } catch (e) { }
-  try { const v = window.localStorage.getItem('gc:assessment:v2'); if (v) return JSON.parse(v); } catch (e) { }
+  try { if (window.storage && window.storage.get) { const r = await window.storage.get('gc:assessment:v3', false); if (r && r.value) return JSON.parse(r.value); } } catch (e) { }
+  try { const v = window.localStorage.getItem('gc:assessment:v3'); if (v) return JSON.parse(v); } catch (e) { }
   return null;
 }
 function migrate(x) {
@@ -1603,10 +1710,37 @@ function migrate(x) {
   x.initiatives = x.initiatives || [];
   ['perfGoals', 'milestones', 'past', 'fieldEvidence'].forEach(k => { x[k] = x[k] || {}; });
   if (!x.aiEngine) x.aiEngine = { id: 'claude', model: '' };
+  /* Decision and progress statuses: older saves had one status, with 'Dropped' for abandoned work. */
+  x.initiatives.forEach(i => { i.approval = GC.approvalOf(i); if (!GC.PROGRESS.includes(i.status)) i.status = 'Planned'; });
   if (x.data && x.data.scope1 === undefined) { delete x.data.s1Other; x.data.scope1 = [null, null, null]; x.data.scope2 = [null, null, null]; }
   return x;
 }
-function commit(msg) { persist(); recompute(); render(); if (msg) toast(msg); }
+function commit(msg) {
+  if (!canEdit()) { toast('View only. Changes are made by the person who edits this assessment.'); render(); return; }
+  persist(); recompute(); render(); if (msg) toast(msg);
+}
+
+/* ---------- who is using the tool (INTEGRATION: window.TERRACAP_USER) ----------
+   TerraCAP passes { name, role: 'editor' | 'viewer', facility?, department? } for the signed-in user.
+   Editors change data, goals and initiative decisions; viewers see every figure and status but change nothing.
+   Without the hook (this demo) a switch in the top bar lets you try both roles. */
+function userFetch() { const u = typeof window.TERRACAP_USER === 'function' ? window.TERRACAP_USER() : window.TERRACAP_USER; return u && u.role ? u : null; }
+const HOST_USER = userFetch();
+let DEMO_ROLE = 'editor';
+function currentUser() { return HOST_USER || { name: DEMO_ROLE === 'editor' ? 'GreenCo coordinator (demo)' : 'Viewer (demo)', role: DEMO_ROLE, demo: true }; }
+function canEdit() { return currentUser().role === 'editor'; }
+function setDemoRole(r) { DEMO_ROLE = r; render(); toast(r === 'editor' ? 'Viewing as the editor' : 'Viewing as a read-only user'); }
+/* Read-only: disable every form control and hide every action that changes the assessment.
+   View controls (navigation, filters, exports) stay usable. */
+const EDIT_ACTION = /^(aiCategory|aiInit|attach\w*|clearGoals|confirm\w*|copyAssist|decide\w*|delInit|editInit|factorOverride|importJSON|openEngines|overrideRow|resetDemo|revert\w*|rm\w*|save\w*|setVersion|suggestGoals|syncEdit|syncLedger|toggleInclude)\b/;
+function applyRO(root) {
+  const ro = !canEdit();
+  document.documentElement.classList.toggle('ro', ro);
+  const vs = $('#verSel'); if (vs) vs.disabled = ro;
+  if (!ro) return;
+  (root || document).querySelectorAll('#main input, #main select, #main textarea, #modal input, #modal select, #modal textarea').forEach(el => { if (!el.closest('[data-view]')) el.disabled = true; });
+  (root || document).querySelectorAll('#main [onclick], #modal [onclick]').forEach(el => { if (EDIT_ACTION.test((el.getAttribute('onclick') || '').trim())) el.classList.add('ro-hide'); });
+}
 
 /* ---------- TerraCAP ledger (INTEGRATION: window.TERRACAP_LEDGER) ---------- */
 /* Returns { source, facility, syncedAt, values: {field: [y0,y1,y2] | scalar}, docs: {field: [{name,count,period}]} }
@@ -1773,7 +1907,7 @@ function stepStatus(id) {
     case 'data': { const s = ledgerStats(); return s.led + ' from ledger, ' + s.man + ' entered here'; }
     case 'goals': { const P = CACHE.plan, M = CACHE.ms; return P.set + ' of ' + P.n + ' measures, ' + M.set + ' of ' + M.n + ' milestone sets' + (M.overdue ? ', ' + M.overdue + ' overdue' : ''); }
     case 'assess': return Math.round(res.coverage * 100) + '% of credits answered';
-    case 'inits': { const a = S.initiatives.filter(GC.isActive).length; return S.initiatives.length + ' logged, ' + a + ' in projection'; }
+    case 'inits': { const n = k => S.initiatives.filter(i => GC.approvalOf(i) === k).length; return n('Approved') + ' approved, ' + n('Proposed') + ' awaiting decision' + (n('On hold') ? ', ' + n('On hold') + ' on hold' : ''); }
     case 'gap': return pts(res.max - res.total) + ' points not yet earned';
     case 'evidence': return Math.round(evidenceCoverage() * 100) + '% of credits evidenced';
     case 'pack': return 'Export and print';
@@ -1795,6 +1929,8 @@ function renderTop() {
   const p = S.profile, L = CACHE.lens;
   $('#plantctx').innerHTML = `<b>${esc(p.plant)}, ${esc(p.org)}</b><span>${esc(p.sector)} | ${esc(p.years[0])} to ${esc(p.years[2])}${p.customerLabel ? ' | customer label: ' + esc(p.customerLabel) : ''}</span>`;
   $('#verSel').value = p.version;
+  $('#roleBox').innerHTML = HOST_USER ? `<span class="muted small">Signed in as</span><b>${esc(HOST_USER.name || '')}</b><span class="tag ${canEdit() ? 'ap-approved' : 'ap-proposed'}">${canEdit() ? 'Editor' : 'View only'}</span>`
+    : `<label for="roleSel">View as (demo)<select id="roleSel" data-view onchange="setDemoRole(this.value)"><option value="editor" ${DEMO_ROLE === 'editor' ? 'selected' : ''}>Editor</option><option value="viewer" ${DEMO_ROLE === 'viewer' ? 'selected' : ''}>Viewer, read only</option></select></label>`;
   $('#scorepill').innerHTML = `<span class="muted small">Indicative</span><b>${pts(L.total)}</b><span class="muted small">/ ${F(L.max, 0)}</span><span class="bn bc-${L.band.cls}">${L.band.name}</span>`;
 }
 function go(sec) { V.sec = sec; render(); window.scrollTo({ top: 0 }); }
@@ -1803,10 +1939,13 @@ function render() {
   destroyCharts();
   renderTop(); renderRail();
   const fn = { dash: rDash, profile: rProfile, data: rData, goals: rGoals, assess: rAssess, inits: rInits, gap: rGap, evidence: rEvidence, pack: rPack, compare: rCompare }[V.sec];
-  $('#main').innerHTML = fn();
+  $('#main').innerHTML = (canEdit() ? '' : `<div class="note ro-note" role="status"><b>View only.</b> You can see every figure, goal and initiative status. Changes and initiative decisions are made by the person who edits this assessment.</div>`) + fn();
+  applyRO();
   const after = { dash: aDash, gap: aGap, evidence: aEvidence, compare: aCompare }[V.sec];
-  if (after && window.Chart) setTimeout(after, 0);
+  const tok = ++RENDER_TOK;
+  if (after && window.Chart) setTimeout(() => { if (tok === RENDER_TOK) after(); }, 0);
 }
+let RENDER_TOK = 0;
 const DISCLAIMER = 'Indicative self-assessment computed from data entered in TerraCAP. This is not a CII rating. CII assessors and the judges\u2019 panel determine the actual rating.';
 function disclaim() {
   const v = GC.VERSIONS[S.profile.version];
@@ -2080,6 +2219,7 @@ function rGoals() {
     ${GCG.investChart(CACHE.inv)}
     <h4 style="margin:18px 0 6px">Next three years, by initiative</h4>
     ${GCG.investItems(CACHE.inv)}
+    ${(() => { const t = Object.values(CACHE.inv.pending).reduce((a, b) => a + b, 0); return t ? `<p class="muted small" style="margin-top:6px">Not included: ₹${F(t, 1)} lakh of capex on initiatives awaiting a decision or on hold. It moves into these tables once they are approved.</p>` : ''; })()}
   </div>`;
 }
 function goalLineInits(p) {
@@ -2289,7 +2429,7 @@ function goalRows(p) {
 }
 function rInits() {
   const p = V.ip, res = RES();
-  const list = S.initiatives.filter(i => i.p === p);
+  const all = S.initiatives.filter(i => i.p === p), list = all.filter(IF_OK[IFILTER] || IF_OK.all);
   const rows = goalRows(p);
   const cat = S.catAi[p];
   return `<div class="sechead"><div><h2>Initiatives</h2><p>Document each parameter's initiatives with the quantities they claim. The engine works out whether those quantities reach the target band; AI review then checks whether the quantities themselves are realistic and suggests how to tune them. AI never changes a score.</p></div>
@@ -2307,7 +2447,9 @@ function rInits() {
     </tbody></table></div>
     ${cat ? aiCatCard(cat) : ''}</div>` : `<div class="panel goal"><div class="row"><h3>${esc(paramName(p))}</h3><span class="sp"></span><button class="btn ai" onclick="aiCategory('${p}')" ${V.busy['cat' + p] ? 'disabled' : ''}>${V.busy['cat' + p] ? '<span class="spin"></span> Reviewing' : 'Review this category with AI'}</button></div>${engineChip()}${goalLineInits(p)}<p class="muted small" style="margin-top:6px">This parameter is scored on governance and evidence rather than plant data, so initiatives here are documented for the pack and reviewed qualitatively.</p>${cat ? aiCatCard(cat) : ''}</div>`}
   ${pastPanel(p)}
-  <div style="margin-top:14px">${list.length ? list.map(initCard).join('') : `<div class="panel"><p><b>No initiatives recorded for ${esc(paramName(p))}.</b></p><p class="muted" style="margin-top:4px">Add one to test whether it reaches the target band.</p><button class="btn pri" style="margin-top:10px" onclick="editInit()">Add initiative</button></div>`}</div>`;
+  ${decisionStrip()}
+  <div class="ifilter" role="group" aria-label="Show ${esc(paramName(p))} initiatives"><span class="muted small" style="align-self:center">${esc(paramName(p))}:</span>${[['all', 'All'], ['Approved', 'Approved'], ['Proposed', 'Awaiting decision'], ['On hold', 'On hold'], ['Rejected', 'Rejected']].map(([k, l]) => `<button class="${IFILTER === k ? 'on' : ''}" aria-pressed="${IFILTER === k}" onclick="setIFilter('${k}')">${l} <small>${all.filter(IF_OK[k]).length}</small></button>`).join('')}</div>
+  <div style="margin-top:10px">${list.length ? list.map(initCard).join('') : all.length ? `<div class="panel"><p class="muted">No ${esc(paramName(p))} initiatives with this status.</p></div>` : `<div class="panel"><p><b>No initiatives recorded for ${esc(paramName(p))}.</b></p><p class="muted" style="margin-top:4px">Add one to test whether it reaches the target band.</p><button class="btn pri" style="margin-top:10px" onclick="editInit()">Add initiative</button></div>`}</div>`;
 }
 function shareOfCurrent(x) {
   const cv = curVal(S.data, x.f); const d = GC.num(x.d);
@@ -2315,23 +2457,80 @@ function shareOfCurrent(x) {
   const f = GC.FIELD[x.f]; if (f.pct || f.bool) return '';
   return ` <span class="muted">(${d > 0 ? '+' : MINUS}${F(Math.abs(d) / cv * 100, 1)}% of current ${F(cv, 0)})</span>`;
 }
+/* ---------- initiative decisions ----------
+   Decision (who decides: an editor): Proposed = awaiting decision, Approved, On hold, Rejected.
+   Progress (approved only): Planned, In progress, Implemented. Only approved initiatives count. */
+const AP = { 'Proposed': ['ap-proposed', 'Awaiting decision'], 'Approved': ['ap-approved', 'Approved'], 'On hold': ['ap-hold', 'On hold'], 'Rejected': ['ap-rejected', 'Rejected'] };
+const stCls = s => 'st-' + String(s).toLowerCase().replace(/[^a-z]/g, '');
+function apTag(i) { const a = GC.approvalOf(i); return `<span class="tag ${AP[a][0]}">${AP[a][1]}</span>`; }
+function stTag(i) { return GC.isApproved(i) ? `<span class="tag ${stCls(i.status)}">${esc(i.status)}</span>` : ''; }
+function decisionLine(i) {
+  const d = i.decision, a = GC.approvalOf(i); if (!d) return '';
+  return `<p class="decnote ${AP[a][0]}-n"><b>${esc(AP[a][1])}</b>${d.by ? ' by ' + esc(d.by) : ''}${d.at ? ', ' + esc(d.at) : ''}${d.note ? ': ' + esc(d.note) : ''}</p>`;
+}
+function decideInit(id, a) {
+  const i = S.initiatives.find(x => x.id === id); if (!i || GC.approvalOf(i) === a) return;
+  if (i.status === 'Implemented' && a !== 'Approved') { toast('An implemented initiative stays approved. Change its progress first if it was recorded by mistake.'); return; }
+  if (a === 'On hold' || a === 'Rejected') {
+    $('#modal').innerHTML = `<div class="mbox" role="dialog" aria-modal="true" aria-labelledby="dTitle" style="max-width:520px"><h3 id="dTitle">${a === 'On hold' ? 'Put on hold' : 'Reject'}: ${esc(i.title)}</h3>
+      <p>${a === 'On hold' ? 'It stays in the register but is not counted in projections, goals or investment until it is approved.' : 'It stays in the register for the record but is not counted anywhere.'}</p>
+      <div class="fld" style="margin-top:12px"><label for="decNote">Reason, shown to everyone who views the initiative</label><textarea id="decNote" placeholder="${a === 'On hold' ? 'For example, deferred to next year\u2019s capex cycle' : 'For example, payback too long at current tariffs'}"></textarea></div>
+      <div class="mfoot"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="confirmDecision('${id}','${a}')">${a === 'On hold' ? 'Put on hold' : 'Reject'}</button></div></div>`;
+    $('#modal').hidden = false; setTimeout(() => { const el = $('#decNote'); if (el) el.focus(); }, 30); return;
+  }
+  setDecision(i, a, a === 'Proposed' ? 'Returned for a decision' : '');
+  commit(a === 'Approved' ? 'Approved: now counted in projections, goals and investment' : 'Returned to awaiting a decision');
+}
+function confirmDecision(id, a) {
+  const note = $('#decNote').value.trim(); if (!note) { toast('Give a reason'); return; }
+  const i = S.initiatives.find(x => x.id === id); setDecision(i, a, note); closeModal(); commit(a === 'On hold' ? 'Put on hold' : 'Rejected');
+}
+function setDecision(i, a, note) {
+  const at = new Date().toISOString().slice(0, 10), by = currentUser().name;
+  i.history = (i.history || []).concat([{ at, by, from: GC.approvalOf(i), to: a, note }]);
+  i.approval = a; i.decision = { by, at, note };
+  if (a === 'Approved' && !GC.PROGRESS.includes(i.status)) i.status = 'Planned';
+}
+function setProgress(id, s) { const i = S.initiatives.find(x => x.id === id); if (!i || !GC.isApproved(i)) return; i.status = s; commit('Progress set to ' + s.toLowerCase()); }
+function decisionBar(i) {
+  const cur = GC.approvalOf(i), impl = i.status === 'Implemented';
+  return `<div class="decide noprint">
+    ${impl ? '' : `<span class="muted small">Decision</span><span class="segs">${GC.APPROVAL.map(a => `<button class="seg ${a === cur ? 'on ' + AP[a][0] : ''}" aria-pressed="${a === cur}" onclick="decideInit('${i.id}','${a}')">${AP[a][1]}</button>`).join('')}</span>`}
+    ${GC.isApproved(i) ? `<label class="small muted">Progress <select aria-label="Progress of ${esc(i.title)}" onchange="setProgress('${i.id}',this.value)">${GC.PROGRESS.map(s => `<option ${s === i.status ? 'selected' : ''}>${s}</option>`).join('')}</select></label>` : ''}
+  </div>`;
+}
+let IFILTER = 'all';
+function setIFilter(f) { IFILTER = f; render(); }
+const IF_OK = { all: () => true, Approved: i => GC.isApproved(i), Proposed: i => GC.approvalOf(i) === 'Proposed', 'On hold': i => GC.approvalOf(i) === 'On hold', Rejected: i => GC.approvalOf(i) === 'Rejected' };
+function decisionStrip() {
+  const I = S.initiatives, n = f => I.filter(f), cap = a => a.reduce((x, i) => x + (GC.num(i.capex) || 0), 0);
+  const ap = n(GC.isApproved), pr = s => ap.filter(i => i.status === s).length;
+  return `<div class="dstrip">
+    <div><span class="tag ap-approved">Approved</span><b>${ap.length}</b><small>${pr('Planned')} planned, ${pr('In progress')} in progress, ${pr('Implemented')} implemented</small></div>
+    <div><span class="tag ap-proposed">Awaiting decision</span><b>${n(IF_OK.Proposed).length}</b><small>₹${F(cap(n(IF_OK.Proposed)), 1)} lakh capex</small></div>
+    <div><span class="tag ap-hold">On hold</span><b>${n(IF_OK['On hold']).length}</b><small>₹${F(cap(n(IF_OK['On hold'])), 1)} lakh capex</small></div>
+    <div><span class="tag ap-rejected">Rejected</span><b>${n(IF_OK.Rejected).length}</b><small>Kept for the record</small></div>
+    <p class="muted small">All parameters. Only approved initiatives count in projections, goals, investment and the roadmap.</p></div>`;
+}
 function initCard(i) {
-  const active = GC.isActive(i);
+  const active = GC.isActive(i), appr = GC.isApproved(i), apv = GC.approvalOf(i);
   const eff = i.status === 'Implemented' ? null : GC.initiativeEffect(S, i.id);
   const pay = i.capex && i.saving ? (i.capex / i.saving) : null;
   const ai = S.ai[i.id];
-  return `<div class="init">
-    <div class="ih"><h4>${esc(i.title)}</h4><span class="tag st-${i.status}">${esc(i.status)}</span>${i.innov ? '<span class="tag k-ai">Innovation project</span>' : ''}${ai ? verdictTag(ai.verdict) : ''}</div>
+  return `<div class="init ${appr ? '' : 'na'}">
+    <div class="ih"><h4>${esc(i.title)}</h4>${apTag(i)}${stTag(i)}${i.innov ? '<span class="tag k-ai">Innovation project</span>' : ''}${ai ? verdictTag(ai.verdict) : ''}</div>
     <div class="meta"><span>Type <b>${esc(i.type)}</b></span><span>Credit <b>${esc(i.credit || '—')}</b></span><span>Owner <b>${esc(i.owner || '—')}</b></span><span>Timeline <b>${esc(i.start || '?')} to ${esc(i.end || '?')}</b></span><span>Capex <b>₹${F(i.capex, 1)} lakh</b></span><span>Annual saving <b>₹${F(i.saving, 1)} lakh</b></span>${pay ? `<span>Payback <b>${F(pay, 1)} yrs</b></span>` : ''}</div>
     ${(i.impacts || []).length ? `<ul class="imps">${i.impacts.map(x => `<li>${esc((GC.FIELD[x.f] || {}).label || x.f)}: <b>${fmtDelta(x.f, GC.num(x.d))}</b>${shareOfCurrent(x)}</li>`).join('')}</ul>` : '<p class="small muted" style="margin-top:8px">No quantified impact recorded.</p>'}
     ${i.basis ? `<p class="basis">Basis: ${esc(i.basis)}</p>` : ''}
+    ${decisionLine(i)}
     <div class="eff">${i.status === 'Implemented' ? '<span class="muted">Implemented: its effect is already in the plant data, so it is not added again.</span>' :
-      `<span>If delivered alone</span><span class="d ${eff.standalone > 0.05 ? 'pos' : 'zero'}">${eff.standalone > 0.05 ? '+' : ''}${pts(eff.standalone)} pts</span>${eff.credits.length ? `<span class="muted">${eff.credits.map(x => x.id + ' ' + (x.d > 0 ? '+' : '') + pts(x.d)).join(', ')}</span>` : '<span class="muted">No credit crosses a threshold.</span>'}
-       ${active ? '' : '<span class="tag k-claimed">Excluded from projection</span>'}`}</div>
+      `<span>${appr ? 'If delivered alone' : apv === 'Rejected' ? 'Would have added alone' : 'If approved and delivered alone'}</span><span class="d ${eff.standalone > 0.05 ? 'pos' : 'zero'}">${eff.standalone > 0.05 ? '+' : ''}${pts(eff.standalone)} pts</span>${eff.credits.length ? `<span class="muted">${eff.credits.map(x => x.id + ' ' + (x.d > 0 ? '+' : '') + pts(x.d)).join(', ')}</span>` : '<span class="muted">No credit crosses a threshold.</span>'}
+       ${!appr ? `<span class="muted small">${apv === 'Rejected' ? 'Rejected, so not counted anywhere.' : 'Not counted in projections, goals or investment until approved.'}</span>` : active ? '' : '<span class="tag k-claimed">Excluded from projection</span>'}`}</div>
+    ${decisionBar(i)}
     <div class="row noprint" style="margin-top:12px">
       <button class="btn ai sm" onclick="aiInit('${i.id}')" ${V.busy[i.id] ? 'disabled' : ''}>${V.busy[i.id] ? '<span class="spin"></span> Reviewing' : (ai ? 'Review again with AI' : 'Review with AI')}</button>
       <button class="btn sm" onclick="editInit('${i.id}')">Edit</button>
-      ${i.status !== 'Implemented' ? `<button class="btn sm ghost" onclick="toggleInclude('${i.id}')">${active ? 'Exclude from projection' : 'Include in projection'}</button>` : ''}
+      ${appr && i.status !== 'Implemented' ? `<button class="btn sm ghost" onclick="toggleInclude('${i.id}')">${active ? 'Exclude from projection' : 'Include in projection'}</button>` : ''}
       <span class="sp"></span><button class="btn sm ghost" onclick="delInit('${i.id}')">Delete</button></div>
     ${ai ? aiInitCard(ai) : ''}
   </div>`;
@@ -2342,7 +2541,7 @@ function delInit(id) { confirmBox('Delete this initiative and its AI review?', '
 /* ---------- initiative editor ---------- */
 let EDIT = null;
 function editInit(id) {
-  const base = id ? JSON.parse(JSON.stringify(S.initiatives.find(x => x.id === id))) : { id: null, p: V.ip, credit: '', title: '', type: 'Energy project', status: 'Planned', owner: '', start: '', end: '', capex: '', saving: '', innov: false, impacts: [{ f: '', d: '' }], basis: '' };
+  const base = id ? JSON.parse(JSON.stringify(S.initiatives.find(x => x.id === id))) : { id: null, p: V.ip, credit: '', title: '', type: 'Energy project', approval: 'Proposed', status: 'Planned', owner: '', start: '', end: '', capex: '', saving: '', innov: false, impacts: [{ f: '', d: '' }], basis: '' };
   EDIT = base; drawModal();
 }
 function fieldOptions(sel) {
@@ -2360,7 +2559,7 @@ function drawModal() {
       <div class="fld"><label>Parameter</label><select id="e_p" onchange="EDIT.p=this.value;EDIT.credit='';syncEdit(true)">${GC.P3.map(p => `<option value="${p.id}" ${p.id === e.p ? 'selected' : ''}>${esc(p.name)}</option>`).join('')}</select></div>
       <div class="fld"><label>Main credit it targets</label><select id="e_credit"><option value="">None</option>${credits.map(c => `<option value="${c.id}" ${c.id === e.credit ? 'selected' : ''}>${c.id} ${esc(c.name)}</option>`).join('')}</select></div>
       <div class="fld"><label>Type</label><select id="e_type">${types.map(t => `<option ${t === e.type ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
-      <div class="fld"><label>Status</label><select id="e_status">${['Planned', 'In progress', 'Implemented'].map(t => `<option ${t === e.status ? 'selected' : ''}>${t}</option>`).join('')}</select><div class="hint">Implemented initiatives are assumed to be in the plant data already.</div></div>
+      <div class="fld"><label>${GC.isApproved(e) ? 'Progress' : 'Decision'}</label>${GC.isApproved(e) ? `<select id="e_status">${GC.PROGRESS.map(t => `<option ${t === e.status ? 'selected' : ''}>${t}</option>`).join('')}</select><div class="hint">Implemented initiatives are assumed to be in the plant data already.</div>` : `<div class="ro">${esc(AP[GC.approvalOf(e)][1])}</div><div class="hint">${e.id ? 'Change the decision on the initiative card.' : 'New initiatives start as awaiting a decision. Approve, hold or reject them on the initiative card; progress is set once approved.'}</div>`}</div>
       <div class="fld"><label>Owner</label><input id="e_owner" value="${esc(e.owner)}"></div>
       <div class="fld"><label>Start (YYYY-MM)</label><input id="e_start" value="${esc(e.start)}"></div>
       <div class="fld"><label>Completion (YYYY-MM)</label><input id="e_end" value="${esc(e.end)}"></div>
@@ -2401,9 +2600,10 @@ function saveInit() {
   const e = EDIT;
   if (!e.title.trim()) { toast('Give the initiative a title'); return; }
   e.impacts = e.impacts.filter(x => x.f && GC.num(x.d) != null);
-  if (e.id) { const k = S.initiatives.findIndex(x => x.id === e.id); S.initiatives[k] = e; delete S.ai[e.id]; }
-  else { e.id = 'I' + Date.now().toString(36); S.initiatives.push(e); }
-  V.ip = e.p; closeModal(); commit(e.id ? 'Initiative saved' : 'Initiative added');
+  const isNew = !e.id;
+  if (!isNew) { const k = S.initiatives.findIndex(x => x.id === e.id); S.initiatives[k] = e; delete S.ai[e.id]; }
+  else { e.id = 'I' + Date.now().toString(36); e.history = [{ at: new Date().toISOString().slice(0, 10), by: currentUser().name, from: null, to: 'Proposed', note: 'Added' }]; S.initiatives.push(e); }
+  V.ip = e.p; closeModal(); commit(isNew ? 'Initiative added, awaiting a decision' : 'Initiative saved');
 }
 function closeModal() { $('#modal').hidden = true; $('#modal').innerHTML = ''; EDIT = null; }
 
@@ -2591,7 +2791,7 @@ function initPayload(i) {
     plant: plantContext(),
     target_credit: i.credit ? creditContext(i.credit, true) : null,
     parameter_goals: goalContext(i.p),
-    initiative: { title: i.title, type: i.type, status: i.status, timeline: (i.start || '?') + ' to ' + (i.end || '?'), capex_inr_lakh: i.capex, annual_saving_inr_lakh: i.saving, innovation_project: !!i.innov,
+    initiative: { title: i.title, type: i.type, decision: AP[GC.approvalOf(i)][1], status: GC.isApproved(i) ? i.status : 'not approved', decision_note: (i.decision || {}).note || null, timeline: (i.start || '?') + ' to ' + (i.end || '?'), capex_inr_lakh: i.capex, annual_saving_inr_lakh: i.saving, innovation_project: !!i.innov,
       impacts_per_year: (i.impacts || []).map(x => ({ what: GC.FIELD[x.f].label, unit: GC.FIELD[x.f].unit, change: x.d, current_plant_value: curVal(S.data, x.f) })), basis: i.basis },
     deterministic: eff ? { points_if_delivered_alone: +eff.standalone.toFixed(1), points_added_on_top_of_other_planned: +eff.marginal.toFixed(1), credit_changes: eff.credits.map(x => x.id + ' ' + (x.d > 0 ? '+' : '') + x.d.toFixed(1)) } : 'Implemented; already in plant data.'
   };
@@ -2676,7 +2876,7 @@ function rGap() {
   </div>
   <div class="grid2">
     <div class="panel"><h3>Points not earned, by parameter</h3><div class="chartbox"><canvas id="chGap"></canvas></div></div>
-    <div class="panel"><h3>Roadmap with planned initiatives</h3><p class="muted small" style="margin:2px 0 10px">Initiatives added in order of standalone impact. Each row is the cumulative indicative score.</p>
+    <div class="panel"><h3>Roadmap with planned initiatives</h3><p class="muted small" style="margin:2px 0 10px">Approved initiatives, added in order of standalone impact. Each row is the cumulative indicative score.${(() => { const w = S.initiatives.filter(i => ['Proposed', 'On hold'].includes(GC.approvalOf(i))).length; return w ? ' ' + w + ' awaiting a decision or on hold are left out.' : ''; })()}</p>
       <table class="tbl"><tbody><tr><td>Current</td><td class="r"><b>${pts(L.total)}</b></td><td>${bandTag(L.band)}</td></tr>
       ${cum.map(y => `<tr><td>+ ${esc(y.x.i.title)} <span class="muted small">(${y.x.i.p})</span></td><td class="r"><b>${pts(y.s.total)}</b></td><td>${bandTag(y.s.band)}</td></tr>`).join('')}
       </tbody></table>
@@ -2796,8 +2996,8 @@ function rPack() {
     <table class="tbl"><thead><tr><th>Credit</th><th>Result</th><th>Type</th><th class="r">Points</th><th class="r">Records in TerraCAP</th><th class="r">Uploaded for GreenCo</th></tr></thead><tbody>
     ${GC.P3.map(pp => { const cs = GC.CREDITS.filter(c => c.p === pp.id && !res.R[c.id].excluded); if (!cs.length) return ''; return `<tr class="grp"><td colspan="6">${esc(pp.name)}</td></tr>` + cs.map(c => { const r = res.R[c.id]; return `<tr><td><b>${c.id}</b> ${esc(c.name)}</td><td>${c.kind === 'C' ? fmtVal(c, r) : (r.level != null ? GC.LEVELS[r.level].label : (r.opt != null ? esc(c.opts[r.opt][0]) : 'Not answered'))}</td><td>${r.kind === 'computed' ? 'Computed' : 'Self-claimed'}</td><td class="r">${pts(r.pts)} / ${F(r.max, 1)}</td><td class="r">${ledgerDocsForCredit(c.id).length}</td><td class="r">${(S.evidence[c.id] || []).length + fieldDocsForCredit(c.id).length + pastDocsForCredit(c.id).length}</td></tr>`; }).join(''); }).join('')}</tbody></table>
     <h2>6. Initiatives register</h2>
-    <table class="tbl"><thead><tr><th>Initiative</th><th>Status</th><th>Quantified impact per year</th><th class="r">Capex (₹ lakh)</th><th class="r">Points if delivered</th><th>AI review</th></tr></thead><tbody>
-    ${S.initiatives.map(i => { const e = i.status === 'Implemented' ? null : GC.initiativeEffect(S, i.id); const a = S.ai[i.id]; return `<tr><td><b>${esc(i.title)}</b><br><span style="color:#5a6e68">${esc(paramName(i.p))}${i.credit ? ', ' + i.credit : ''}${i.innov ? ', innovation project' : ''}</span></td><td>${esc(i.status)}</td><td>${(i.impacts || []).map(x => esc(GC.FIELD[x.f].label) + ': ' + fmtDelta(x.f, GC.num(x.d))).join('<br>') || '—'}</td><td class="r">${F(i.capex, 1)}</td><td class="r">${e ? '+' + pts(e.standalone) : 'In data'}</td><td>${a && !a.error ? esc(a.verdict || '').replace(/_/g, ' ') : '—'}</td></tr>`; }).join('')}</tbody></table>
+    <table class="tbl"><thead><tr><th>Initiative</th><th>Decision and progress</th><th>Quantified impact per year</th><th class="r">Capex (₹ lakh)</th><th class="r">Points if delivered</th><th>AI review</th></tr></thead><tbody>
+    ${S.initiatives.map(i => { const e = i.status === 'Implemented' ? null : GC.initiativeEffect(S, i.id); const a = S.ai[i.id]; return `<tr><td><b>${esc(i.title)}</b><br><span style="color:#5a6e68">${esc(paramName(i.p))}${i.credit ? ', ' + i.credit : ''}${i.innov ? ', innovation project' : ''}</span></td><td>${esc(AP[GC.approvalOf(i)][1])}${GC.isApproved(i) ? ', ' + esc(i.status.toLowerCase()) : ''}${i.decision && i.decision.note ? '<br><span style="color:#5a6e68">' + esc(i.decision.note) + '</span>' : ''}</td><td>${(i.impacts || []).map(x => esc(GC.FIELD[x.f].label) + ': ' + fmtDelta(x.f, GC.num(x.d))).join('<br>') || '—'}</td><td class="r">${F(i.capex, 1)}</td><td class="r">${e ? '+' + pts(e.standalone) + (GC.isApproved(i) ? '' : ' if approved') : 'In data'}</td><td>${a && !a.error ? esc(a.verdict || '').replace(/_/g, ' ') : '—'}</td></tr>`; }).join('')}</tbody></table>
     <h2>7. Basis and assumptions</h2>
     <table class="tbl"><tbody>
       <tr><td>Data source</td><td>${ledgerStats().led} values from ${esc((S.ledger || {}).source || 'the TerraCAP ledger')}${S.ledger && S.ledger.syncedAt ? ', synced ' + new Date(S.ledger.syncedAt).toLocaleDateString('en-IN') : ''}; ${ledgerStats().man} entered in this workflow.${Object.keys(S.overrides || {}).length ? '<br><b>Ledger overrides:</b><br>' + Object.entries(S.overrides).map(([k, o]) => esc(GC.FIELD[k].label) + ': ' + esc(o.reason)).join('<br>') : ' No ledger values overridden.'}</td></tr>
@@ -2855,6 +3055,7 @@ document.getElementById('importFile').addEventListener('change', async e => {
 });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#modal').hidden) closeModal(); });
 document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+new MutationObserver(() => { if (!canEdit()) applyRO($('#modal')); }).observe(document.getElementById('modal'), { childList: true });
 (async () => {
   S = migrate(S); S.ledger = ledgerFetch(S.profile); applyLedger(); applyOrg(); recompute(); render();
   const saved = await restore();

@@ -419,6 +419,57 @@ html.in-claude [data-print]{display:none!important}
 .asteps li{margin-bottom:12px}
 .asbox{display:block;width:100%;min-height:96px;margin-top:6px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--sunk);color:var(--ink);font:12px/1.45 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
 .g-val .g-st{white-space:normal;display:inline-block}
+/* v5: decisions, progress, read-only */
+.st-planned{background:var(--sunk);color:var(--muted);border-color:var(--line)}
+.st-inprogress{background:var(--amber-soft);color:var(--amber)}
+.st-implemented{background:var(--green-soft);color:var(--green-d)}
+.ap-proposed{background:var(--sunk);color:var(--ink);border:1px dashed var(--muted)}
+.ap-approved{background:var(--green-soft);color:var(--green-d)}
+.ap-hold{background:var(--amber-soft);color:var(--amber)}
+.ap-rejected{background:var(--red-soft, rgba(196,50,50,.1));color:var(--red)}
+.init.na{border-style:dashed}
+.init.na .imps,.init.na .meta{opacity:.85}
+.decide{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--line-2)}
+.segs{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.segs .seg{border:0;background:var(--card);color:var(--muted);font:inherit;font-size:12.5px;padding:5px 11px;cursor:pointer;border-right:1px solid var(--line)}
+.segs .seg:last-child{border-right:0}
+.segs .seg.on{font-weight:700}
+.segs .seg:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.decide select{padding:4px 8px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card);color:var(--ink);font:inherit;font-size:12.5px}
+.decnote{margin:10px 0 0;font-size:12.5px;padding:7px 10px;border-radius:var(--r-s);background:var(--sunk)}
+.ap-hold-n{border-left:3px solid var(--amber)}.ap-rejected-n{border-left:3px solid var(--red)}.ap-approved-n{border-left:3px solid var(--green)}.ap-proposed-n{border-left:3px dashed var(--muted)}
+.dstrip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+.dstrip>div{display:flex;flex-direction:column;gap:3px}.dstrip b{font-size:20px}.dstrip small{color:var(--muted);font-size:11.5px}
+.dstrip p{grid-column:1/-1;margin:0}
+.dstrip .tag{align-self:flex-start}
+@media (max-width:700px){.dstrip{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ifilter{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.ifilter button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:12.5px;cursor:pointer}
+.ifilter button small{color:var(--muted);margin-left:3px}
+.ifilter button.on{background:var(--ink);color:var(--card);border-color:var(--ink)}.ifilter button.on small{color:inherit;opacity:.8}
+.rolebox{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rolebox b{font-size:12.5px}
+html.ro .ro-hide{display:none!important}
+.ro-note{margin-bottom:14px;border-left:3px solid var(--ai)}
+.segs .seg.on{background:var(--sunk);color:var(--ink)}
+.segs .seg.on.ap-approved{background:var(--green-soft);color:var(--green-d)}
+.segs .seg.on.ap-hold{background:var(--amber-soft);color:var(--amber)}
+.segs .seg.on.ap-rejected{background:var(--red-soft);color:var(--red)}
+/* v5 dashboard: consumption filters, department table */
+.consel{padding:12px 14px}
+.fsel{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);min-width:180px}
+.fsel select{padding:7px 9px;border:1px solid var(--line);border-radius:var(--r-s);background:var(--card);color:var(--ink);font:inherit;font-size:13.5px}
+.ctxline{margin:14px 0 10px;font-size:14px}
+.dtbl tr.click{cursor:pointer}.dtbl tr.click:hover td,.dtbl tr.click:focus td{background:var(--sunk)}
+.dtbl tr.click:focus{outline:2px solid var(--ink);outline-offset:-2px}
+.sbar{display:block;height:4px;background:var(--line-2);border-radius:2px;margin-top:3px;min-width:60px}
+.sbar i{display:block;height:100%;background:var(--gc-now);border-radius:2px}
+tr.na td{color:var(--muted)}tr.na td b{color:var(--ink)}
+
+.grid2>*,.grid3>*{min-width:0}
+@media (max-width:700px){#main .panel>table.tbl,#main .doc table.tbl{display:block;overflow-x:auto;max-width:100%}}
+.kpi span .tag{display:inline-block;width:auto}
+th.grpth{text-align:center;border-bottom:1px solid var(--line)}
 </style>
 </head>
 <body>
@@ -645,7 +696,7 @@ function computeMetrics(D, prof, inits, projected) {
   if (elecOnly) { onsitePct = pctOf(c.on, c.elec); offsitePct = pctOf(c.off, c.elec); }
   else if (c.totGJ) { onsitePct = (c.on * 0.0036 + c.onTh) / c.totGJ * 100; offsitePct = c.off * 0.0036 / c.totGJ * 100; }
   const allGHG = (c.s1 == null || c.s2 == null) ? null : c.s1 + c.s2 + (c.s3 || 0);
-  const innovInits = (inits || []).filter(x => x.innov && (x.status === 'Implemented' || (projected && x.include !== false && (x.status === 'Planned' || x.status === 'In progress'))));
+  const innovInits = (inits || []).filter(x => x.innov && (isImplemented(x) || (projected && isActive(x))));
   const reTotal = (onsitePct == null) ? null : onsitePct + (offsitePct || 0);
   const M = {
     Y, elecOnly,
@@ -966,10 +1017,21 @@ function addField(D, k, d, prof) {
   }
   if (has('scope1') && k === 'thermal') bump('scope1', d * FEF);
 }
-function isActive(i) { return i.include !== false && (i.status === 'Planned' || i.status === 'In progress'); }
+/* Two statuses per initiative. Decision: Proposed (awaiting a decision), Approved, On hold or Rejected.
+   Progress, for approved initiatives only: Planned, In progress or Implemented.
+   Only approved initiatives count in projections, goals, investment and the roadmap.
+   Saves made before decisions existed have no 'approval': treat them as approved, and an old 'Dropped' as rejected. */
+const APPROVAL = ['Proposed', 'Approved', 'On hold', 'Rejected'];
+const PROGRESS = ['Planned', 'In progress', 'Implemented'];
+function approvalOf(i) { return APPROVAL.includes(i.approval) ? i.approval : (i.status === 'Dropped' ? 'Rejected' : 'Approved'); }
+function isApproved(i) { return approvalOf(i) === 'Approved'; }
+function isImplemented(i) { return isApproved(i) && i.status === 'Implemented'; }
+function isActive(i) { return i.include !== false && isApproved(i) && (i.status === 'Planned' || i.status === 'In progress'); }
 function activeIds(st, opt = {}) {
   return (st.initiatives || []).filter(i => {
     if (opt.set) return opt.set.includes(i.id);
+    /* 'only' asks what one initiative would add on its own, so it also answers for one not yet approved */
+    if (opt.only) return opt.only === i.id && i.status !== 'Implemented';
     if (!isActive(i)) return false;
     if (opt.exclude === i.id) return false;
     if (opt.only && opt.only !== i.id) return false;
@@ -991,7 +1053,7 @@ function scoreAll(st, o = {}) {
   const D = o.D || (projected ? project(st, o) : st.data);
   const ctx = ctxOf(st.profile);
   const ids = projected ? activeIds(st, o) : [];
-  const counted = (st.initiatives || []).filter(i => i.status === 'Implemented' || ids.includes(i.id)).map(i => Object.assign({}, i, { status: 'Implemented' }));
+  const counted = (st.initiatives || []).filter(i => isImplemented(i) || ids.includes(i.id)).map(i => Object.assign({}, i, { status: 'Implemented' }));
   const M = computeMetrics(D, st.profile, counted, false);
   const R = {};
   CREDITS.forEach(c => { R[c.id] = scoreCredit(c, M, ctx, st); });
@@ -1263,9 +1325,12 @@ function trackStatus(m, base, target, ytd, frac) {
 function fyOfMonth(ym) { const m = String(ym || '').match(/^(\d{4})-(\d{1,2})/); if (!m) return null; const y = +m[1], mo = +m[2]; return mo >= 4 ? y : y - 1; }
 function investment(st) {
   const prof = st.profile, pastYears = prof.years.slice(), nextYears = goalYears(prof), ps = P3.map(p => p.id);
-  const past = {}, next = {}, unplaced = {}, items = [];
+  const past = {}, next = {}, unplaced = {}, items = [], pending = {};
   ps.forEach(p => { past[p] = pastYears.map(y => num((((st.past || {})[p] || {}).years || {})[y] && st.past[p].years[y].spent)); next[p] = [0, 0, 0]; unplaced[p] = 0; });
   const n0 = fyStart(nextYears[0]);
+  ps.forEach(p => { pending[p] = 0; });
+  /* Capex not yet approved (awaiting a decision or on hold) is reported apart and never placed in a year. */
+  (st.initiatives || []).filter(i => ['Proposed', 'On hold'].includes(approvalOf(i)) && i.status !== 'Implemented').forEach(i => { const c = num(i.capex); if (c && pending[i.p] != null) pending[i.p] += c; });
   (st.initiatives || []).filter(isActive).forEach(i => {
     const c = num(i.capex); if (!c || !next[i.p]) return;
     let a = fyOfMonth(i.start), b = fyOfMonth(i.end);
@@ -1275,11 +1340,11 @@ function investment(st) {
     for (let y = a; y <= b; y++) { const k = n0 == null ? -1 : y - n0; if (k >= 0 && k < 3) { next[i.p][k] += c / span; it.alloc[k] += c / span; } else { unplaced[i.p] += c / span; it.outside += c / span; } }
     items.push(it);
   });
-  return { pastYears, nextYears, past, next, unplaced, items };
+  return { pastYears, nextYears, past, next, unplaced, items, pending };
 }
 
 return { goalStatus, suggestGoals, GOAL_METRICS, GOAL_METRIC, MILESTONE_PARAMS, MS_STATUS, msItem, milestonePlan, fyStart, fyLabel, goalYears, recordOf, sumRecords, metricValue, improvement, targetValue, targetImprovement, windowReduction, impliedPoints, suggestGoal, goalPlan, trackStatus, investment, goalCtx, fyOfMonth, activeIds, LEVELS, BANDS, bandOf, nextBand, SECTORS, classify, ctxOf, P3, P4, v4Of, VERSIONS, FIELDS, FIELD, CREDITS, CREDIT, GATES,
-  computeMetrics, scoreCredit, scoreAll, lens, project, requiredDelta, initiativeEffect, band, num, fmtN, cloneData, addField, isActive, RE_EXP, EE_STEP };
+  computeMetrics, scoreCredit, scoreAll, lens, project, requiredDelta, initiativeEffect, band, num, fmtN, cloneData, addField, isActive, APPROVAL, PROGRESS, approvalOf, isApproved, isImplemented, RE_EXP, EE_STEP };
 })();
 if (typeof module !== 'undefined') module.exports = GC;
 </script>
@@ -1392,7 +1457,7 @@ const GCG = (() => {
     return `<div class="scroll"><table class="tbl itbl"><thead><tr><th>Initiative</th>${inv.nextYears.map(y => `<th class="r">${e(y)}</th>`).join('')}<th class="r">Total, next 3 years</th></tr></thead><tbody>
       ${ps.map(q => (p ? '' : `<tr class="sub"><td colspan="5">${e(pname(q))}</td></tr>`) + its.filter(x => x.p === q).map(row).join('') + (p || its.filter(x => x.p === q).length < 2 ? '' : subtotal('Subtotal, ' + pname(q), its.filter(x => x.p === q), 'subt'))).join('')}
       ${subtotal(p ? 'Total, ' + pname(p) : 'Total, all parameters', its, 'grp')}
-    </tbody></table></div><p class="muted small" style="margin-top:6px">₹ lakh. Each initiative's capex is spread evenly over the financial years from its start date to its end date. Implemented and dropped initiatives are left out.</p>`;
+    </tbody></table></div><p class="muted small" style="margin-top:6px">₹ lakh. Each initiative's capex is spread evenly over the financial years from its start date to its end date. Only approved initiatives that are planned or in progress are included.</p>`;
   }
   /* One tooltip for every [data-gtip] element on the page (hover and keyboard focus). */
   let tipEl = null;
@@ -1459,28 +1524,36 @@ function gcSeed() {
     judged: L, options: { 'PSLCA4.2': 1, 'GI1.1': 2 }, best: {}, gates, targets: {},
     evidence: { 'EE4': [{ name: 'SEC_FY24-26_monthly.xlsx', size: 184320, date: '2026-06-12' }], 'WC3': [{ name: 'Water_balance_FY26.pdf', size: 412000, date: '2026-06-20' }] },
     initiatives: [
-      { id: 'I1', p: 'EE', credit: 'EE4', title: 'Reheating furnace recuperator upgrade', type: 'Energy project', status: 'Planned', owner: 'Utilities', start: '2026-10', end: '2027-03', capex: 85, saving: 42, innov: false,
+      { id: 'I1', p: 'EE', credit: 'EE4', title: 'Reheating furnace recuperator upgrade', type: 'Energy project', approval: 'Approved', status: 'Planned', owner: 'Utilities', start: '2026-10', end: '2027-03', capex: 85, saving: 42, innov: false,
         impacts: [{ f: 'thermal', d: -2600 }], basis: 'Vendor estimate: combustion air preheated to 350 °C, 5% fuel saving on the 52,000 GJ furnace load.' },
-      { id: 'I2', p: 'EE', credit: 'EE4', title: 'Compressed air VFD and leak arrest', type: 'Energy project', status: 'Implemented', owner: 'Maintenance', start: '2024-06', end: '2024-11', capex: 22, saving: 31, innov: false,
+      { id: 'I2', p: 'EE', credit: 'EE4', title: 'Compressed air VFD and leak arrest', type: 'Energy project', approval: 'Approved', status: 'Implemented', owner: 'Maintenance', start: '2024-06', end: '2024-11', capex: 22, saving: 31, innov: false,
         impacts: [{ f: 'elec', d: -420000 }], basis: 'Measured: 48 kW average reduction over 8,760 hours. Already reflected in FY 2025-26 data.' },
-      { id: 'I3', p: 'WC', credit: 'WC4.1', title: 'Cooling tower blowdown recovery through RO', type: 'Water project', status: 'Planned', owner: 'Utilities', start: '2026-09', end: '2027-01', capex: 40, saving: 6, innov: false,
+      { id: 'I3', p: 'WC', credit: 'WC4.1', title: 'Cooling tower blowdown recovery through RO', type: 'Water project', approval: 'Approved', status: 'Planned', owner: 'Utilities', start: '2026-09', end: '2027-01', capex: 40, saving: 6, innov: false,
         impacts: [{ f: 'fwProc', d: -3000 }], basis: '12 m³/day permeate at 70% recovery over 250 days.' },
-      { id: 'I4', p: 'WM', credit: 'WM5.2b', title: 'Monsoon buffer tank for STP overflow', type: 'Water project', status: 'Planned', owner: 'EHS', start: '2026-11', end: '2027-02', capex: 12, saving: 1, innov: false,
+      { id: 'I4', p: 'WM', credit: 'WM5.2b', title: 'Monsoon buffer tank for STP overflow', type: 'Water project', approval: 'Approved', status: 'Planned', owner: 'EHS', start: '2026-11', end: '2027-02', capex: 12, saving: 1, innov: false,
         impacts: [{ f: 'sewRec', d: 1365 }], basis: 'Overflow volume from monsoon months in FY 2025-26 logs.' },
-      { id: 'I5', p: 'WM', credit: 'WM4.1', title: 'Shot-blast dust briquetting for reuse', type: 'Waste project', status: 'Planned', owner: 'EHS', start: '2027-01', end: '2027-05', capex: 18, saving: 4, innov: false,
+      { id: 'I5', p: 'WM', credit: 'WM4.1', title: 'Shot-blast dust briquetting for reuse', type: 'Waste project', approval: 'Approved', status: 'Planned', owner: 'EHS', start: '2027-01', end: '2027-05', capex: 18, saving: 4, innov: false,
         impacts: [{ f: 'hazDisp', d: -10 }], basis: 'Briquettes accepted by the steel supplier as charge material.' },
-      { id: 'I6', p: 'MCR', credit: 'MCR4.1', title: 'Closed-die flash reduction through die redesign', type: 'Design innovation', status: 'Planned', owner: 'Tool room', start: '2026-08', end: '2027-06', capex: 30, saving: 150, innov: true,
+      { id: 'I6', p: 'MCR', credit: 'MCR4.1', title: 'Closed-die flash reduction through die redesign', type: 'Design innovation', approval: 'Approved', status: 'Planned', owner: 'Tool room', start: '2026-08', end: '2027-06', capex: 30, saving: 150, innov: true,
         impacts: [{ f: 'rm', d: -300 }], basis: 'Simulation shows flash falling from 9% to 7.7% of input weight on the top 12 parts.' },
-      { id: 'I7', p: 'GSC', credit: 'GSC4.3', title: 'Critical supplier audit drive', type: 'Supplier programme', status: 'In progress', owner: 'Purchase', start: '2026-07', end: '2027-03', capex: 0, saving: 0, innov: false,
+      { id: 'I7', p: 'GSC', credit: 'GSC4.3', title: 'Critical supplier audit drive', type: 'Supplier programme', approval: 'Approved', status: 'In progress', owner: 'Purchase', start: '2026-07', end: '2027-03', capex: 0, saving: 0, innov: false,
         impacts: [{ f: 'supAud', d: 23 }], basis: 'Two auditors, 3 audits a month.' },
-      { id: 'I8', p: 'RE', credit: 'RE3', title: 'Group captive solar, 3 MWp share', type: 'Renewable project', status: 'Planned', owner: 'Finance', start: '2026-10', end: '2027-09', capex: 60, saving: 95, innov: false,
+      { id: 'I8', p: 'RE', credit: 'RE3', title: 'Group captive solar, 3 MWp share', type: 'Renewable project', approval: 'Approved', status: 'Planned', owner: 'Finance', start: '2026-10', end: '2027-09', capex: 60, saving: 95, innov: false,
         impacts: [{ f: 'offsiteRE', d: 4200000 }], basis: '3 MWp at 16% capacity factor, wheeled through the state grid.' },
-      { id: 'I9', p: 'IE', credit: 'IE3', title: 'Induction billet heater replacing oil-fired furnace', type: 'Process innovation', status: 'Implemented', owner: 'Production', start: '2024-04', end: '2024-12', capex: 110, saving: 64, innov: true,
+      { id: 'I9', p: 'IE', credit: 'IE3', title: 'Induction billet heater replacing oil-fired furnace', type: 'Process innovation', approval: 'Approved', status: 'Implemented', owner: 'Production', start: '2024-04', end: '2024-12', capex: 110, saving: 64, innov: true,
         impacts: [], basis: 'Already in FY 2025-26 data.' },
-      { id: 'I10', p: 'IE', credit: 'IE3', title: 'PVD-coated forging dies for longer die life', type: 'Design innovation', status: 'Implemented', owner: 'Tool room', start: '2025-02', end: '2025-09', capex: 14, saving: 22, innov: true,
+      { id: 'I10', p: 'IE', credit: 'IE3', title: 'PVD-coated forging dies for longer die life', type: 'Design innovation', approval: 'Approved', status: 'Implemented', owner: 'Tool room', start: '2025-02', end: '2025-09', capex: 14, saving: 22, innov: true,
         impacts: [], basis: 'Die life up 38% on trial parts.' },
-      { id: 'I11', p: 'GHG', credit: 'GHG5', title: 'Miyawaki plantation, 4 acres', type: 'Offset project', status: 'Planned', owner: 'EHS', start: '2026-08', end: '2027-08', capex: 9, saving: 0, innov: false,
-        impacts: [{ f: 'offsets', d: 500 }], basis: 'Assumes 125 tCO2e per acre per year sequestration.' }
+      { id: 'I11', p: 'GHG', credit: 'GHG5', title: 'Miyawaki plantation, 4 acres', type: 'Offset project', approval: 'Approved', status: 'Planned', owner: 'EHS', start: '2026-08', end: '2027-08', capex: 9, saving: 0, innov: false,
+        impacts: [{ f: 'offsets', d: 500 }], basis: 'Assumes 125 tCO2e per acre per year sequestration.' },
+      { id: 'I12', p: 'RE', credit: 'RE2', title: 'Rooftop solar on the machine shop, 600 kWp', type: 'Renewable project', approval: 'Proposed', status: 'Planned', owner: 'Utilities', start: '2027-04', end: '2027-10', capex: 270, saving: 58, innov: false,
+        impacts: [{ f: 'onsiteRE', d: 840000 }], basis: '600 kWp at 16% capacity factor; roof load study pending.' },
+      { id: 'I13', p: 'EE', credit: 'EE4', title: 'Waste heat recovery from forging furnace flue gas', type: 'Energy project', approval: 'On hold', status: 'Planned', owner: 'Utilities', start: '2027-06', end: '2028-03', capex: 120, saving: 38, innov: false,
+        impacts: [{ f: 'thermal', d: -4200 }], basis: 'Flue gas at 650 °C; recovered heat preheats billets.',
+        decision: { by: 'Plant Head (demo)', at: '2026-10-14', note: 'Deferred to the FY 2027-28 capex cycle; revisit after the recuperator results.' } },
+      { id: 'I14', p: 'WM', credit: 'WM4.2', title: 'Canteen food waste to biogas', type: 'Waste project', approval: 'Rejected', status: 'Planned', owner: 'Admin', start: '2026-12', end: '2027-03', capex: 14, saving: 2, innov: false,
+        impacts: [{ f: 'nonHaz', d: -18 }], basis: '50 kg a day of food waste.',
+        decision: { by: 'Plant Head (demo)', at: '2026-09-30', note: 'Food waste volume too low for a stable digester; composting through the municipal vendor instead.' } }
     ],
     ai: {}, catAi: {}, overrides: {}, src: {}, ledger: null,
     perfGoals: {
@@ -1555,7 +1628,49 @@ function gcDemoOrgProfile() {
     /* Certifications held by the plant, from Organization Profile. Leave the array out if the profile does not track them. */
     certifications: [{ scheme: 'CII GreenCo', level: 'Gold', awarded: '2023-07', validTo: '2026-07', file: 'GreenCo_Gold_certificate_2023.pdf' }],
     /* IFRS S2 climate risk assessment status from the TerraCAP climate risk module. Leave out if unknown. */
-    climateRisk: { done: false, note: 'No IFRS S2 climate risk assessment recorded for this plant in TerraCAP' } };
+    climateRisk: { done: false, note: 'No IFRS S2 climate risk assessment recorded for this plant in TerraCAP' },
+    /* Facilities and their departments as set up in Organization Profile; facilityId is the plant under assessment. */
+    facilityId: 'HSR2',
+    facilities: [
+      { id: 'HSR2', name: 'Hosur Unit 2', departments: [{ id: 'FRG', name: 'Forge shop' }, { id: 'HT', name: 'Heat treatment' }, { id: 'MCH', name: 'Machine shop' }, { id: 'UTL', name: 'Utilities' }, { id: 'ADM', name: 'Administration and canteen' }] },
+      { id: 'HSR1', name: 'Hosur Unit 1', departments: [{ id: 'FRG', name: 'Forge shop' }, { id: 'MCH', name: 'Machine shop' }, { id: 'UTL', name: 'Utilities' }, { id: 'ADM', name: 'Administration' }] }
+    ] };
+}
+
+/* Demo stand-in for monthly records by facility and department.
+   INTEGRATION: window.TERRACAP_LEDGER_MONTHLY(profile, fyLabel, { facility, department }) with department null for the
+   whole facility. A department record holds what is metered or allocated to it; production is normally recorded only for
+   the facility, and renewables only at the facility's supply point. Shares below leave a few % unassigned, as real sub-metering does. */
+const GC_DEMO_SHARES = {
+  HSR2: { FRG: { elec: .38, thermal: .62, fw: .12, hazDisp: .25, nonHaz: .40 }, HT: { elec: .12, thermal: .33, fw: .16, hazDisp: .30, nonHaz: .10 },
+          MCH: { elec: .22, thermal: 0, fw: .10, hazDisp: .35, nonHaz: .30 }, UTL: { elec: .18, thermal: .02, fw: .42, hazDisp: .05, nonHaz: .05 },
+          ADM: { elec: .05, thermal: .01, fw: .15, hazDisp: 0, nonHaz: .10 } },
+  HSR1: { FRG: { elec: .46, thermal: .80, fw: .18, hazDisp: .40, nonHaz: .50 }, MCH: { elec: .28, thermal: 0, fw: .14, hazDisp: .45, nonHaz: .30 },
+          UTL: { elec: .16, thermal: .15, fw: .45, hazDisp: .05, nonHaz: .05 }, ADM: { elec: .06, thermal: .02, fw: .18, hazDisp: 0, nonHaz: .12 } }
+};
+function gcDemoYearMonthly(S, k) {
+  /* A closed assessment year: the year's ledger totals spread over typical monthly profiles. */
+  const y0 = GC.fyStart(S.profile.years[k]); if (y0 == null) return [];
+  const r = GC.recordOf(S.data, k, S.profile), nzv = v => v == null ? null : v;
+  const W = { flat: [.083, .085, .080, .082, .084, .083, .081, .084, .085, .083, .080, .090], water: [.095, .100, .085, .075, .075, .078, .080, .080, .080, .083, .084, .085],
+    solar: [.100, .100, .080, .060, .060, .070, .080, .085, .085, .090, .090, .100], wind: [.060, .070, .100, .120, .120, .100, .070, .070, .070, .070, .080, .090] };
+  const nh = GC.num(Array.isArray(S.data.nonHaz) ? S.data.nonHaz[k] : S.data.nonHaz);
+  return W.flat.map((w, m) => { const y = m < 9 ? y0 : y0 + 1, mo = (m + 3) % 12 + 1, sc = (v, ww) => v == null ? null : v * ww;
+    return { month: y + '-' + String(mo).padStart(2, '0'), rec: { prod: sc(nzv(r.prod), w), elec: sc(nzv(r.elec), w), thermal: sc(nzv(r.thermal), w), onsiteRE: sc(nzv(r.onsiteRE), W.solar[m]), onsiteTh: sc(nzv(r.onsiteTh), w),
+      offsiteRE: sc(nzv(r.offsiteRE), W.wind[m]), scope1: sc(nzv(r.scope1), w), scope2: sc(nzv(r.scope2), w), fwProc: sc(nzv(r.fwProc), W.water[m]), fwDom: sc(nzv(r.fwDom), W.water[m]),
+      hazDisp: sc(nzv(r.hazDisp), w), nonHaz: sc(nh, w), rm: sc(nzv(r.rm), w), transGHG: sc(nzv(r.transGHG), w) } }; });
+}
+function gcDemoScopedMonthly(S, fy, scope) {
+  const k = S.profile.years.indexOf(fy);
+  let ms = k >= 0 ? gcDemoYearMonthly(S, k) : gcDemoMonthly(S, fy);
+  if (k < 0) { const nh = GC.num(Array.isArray(S.data.nonHaz) ? S.data.nonHaz[2] : S.data.nonHaz); ms.forEach(x => { x.rec.nonHaz = nh == null ? null : nh * x.rec.prod / (GC.recordOf(S.data, 2, S.profile).prod || 1) * 0.97; }); }
+  const fac = (scope && scope.facility) || 'HSR2', dep = scope && scope.department;
+  if (fac === 'HSR1') ms = ms.map(x => ({ month: x.month, rec: Object.fromEntries(Object.entries(x.rec).map(([f, v]) => [f, v == null ? null : v * ({ prod: .52, thermal: .61, onsiteRE: 0, offsiteRE: .3, fwProc: .58, fwDom: .7 }[f] ?? .55)])) }));
+  if (!dep) return ms;
+  const sh = ((GC_DEMO_SHARES[fac] || {})[dep]) || { elec: 0, thermal: 0, fw: 0, hazDisp: 0, nonHaz: 0 };
+  return ms.map(x => { const r = x.rec, m = (v, s) => v == null ? null : v * s;
+    return { month: x.month, rec: { prod: null, elec: m(r.elec, sh.elec), thermal: m(r.thermal, sh.thermal), onsiteRE: null, onsiteTh: null, offsiteRE: null,
+      scope1: m(r.scope1, sh.thermal), scope2: m(r.scope2, sh.elec), fwProc: m(r.fwProc, sh.fw), fwDom: m(r.fwDom, sh.fw), hazDisp: m(r.hazDisp, sh.hazDisp), nonHaz: m(r.nonHaz, sh.nonHaz), rm: null, transGHG: null } }; });
 }
 
 /* Demo stand-in for the ledger's monthly records for one financial year, up to the last completed month.
@@ -1610,8 +1725,8 @@ const C = {}; let charts = {};
 
 /* ---------- data ---------- */
 async function loadAssessment() {
-  try { if (window.storage && window.storage.get) { const r = await window.storage.get('gc:assessment:v2', false); if (r && r.value) return JSON.parse(r.value); } } catch (e) { }
-  try { const v = window.localStorage.getItem('gc:assessment:v2'); if (v) return JSON.parse(v); } catch (e) { }
+  try { if (window.storage && window.storage.get) { const r = await window.storage.get('gc:assessment:v3', false); if (r && r.value) return JSON.parse(r.value); } } catch (e) { }
+  try { const v = window.localStorage.getItem('gc:assessment:v3'); if (v) return JSON.parse(v); } catch (e) { }
   return null;
 }
 function ledgerFetch(profile) { return typeof window.TERRACAP_LEDGER === 'function' ? window.TERRACAP_LEDGER(profile) : gcDemoLedger(); }
@@ -1647,37 +1762,55 @@ function recompute() {
   C.plan = GC.goalPlan(S); C.inv = GC.investment(S); C.ms = GC.milestonePlan(S); C.T = tracking();
 }
 
-/* Monthly series for the assessment year. The demo spreads annual ledger totals over
-   typical monthly profiles; TerraCAP's ledger holds the real monthly records. */
-const W = {
-  flat:  [.083, .085, .080, .082, .084, .083, .081, .084, .085, .083, .080, .090],
-  water: [.095, .100, .085, .075, .075, .078, .080, .080, .080, .083, .084, .085],
-  solar: [.100, .100, .080, .060, .060, .070, .080, .085, .085, .090, .090, .100],
-  wind:  [.060, .070, .100, .120, .120, .100, .070, .070, .070, .070, .080, .090]
-};
-function spread(total, w) { const s = w.reduce((a, b) => a + b, 0); return w.map(x => total == null ? null : total * x / s); }
-function ledgerMonthly() {
-  /* One hook, one shape: the same monthly records the Goals tab uses, here for the assessment year. */
-  if (typeof window.TERRACAP_LEDGER_MONTHLY === 'function') {
-    const ms = window.TERRACAP_LEDGER_MONTHLY(S.profile, S.profile.years[2]) || [];
-    const MN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], nz = v => v == null ? 0 : v;
-    const rows = ms.map(x => { const r = x.rec || {}, [yy, mm] = String(x.month).split('-'); const elec = r.elec;
-      return { l: MN[+mm - 1] + ' ' + String(yy).slice(2), prod: r.prod, elec, energy: elec == null && r.thermal == null ? null : nz(elec) * 0.0036 + nz(r.thermal),
-        water: r.fwProc == null && r.fwDom == null ? null : nz(r.fwProc) + nz(r.fwDom), s12: r.scope1 == null && r.scope2 == null ? null : nz(r.scope1) + nz(r.scope2),
-        waste: r.hazDisp == null && r.nonHaz == null ? null : nz(r.hazDisp) + nz(r.nonHaz), re: elec ? (nz(r.onsiteRE) + nz(r.offsiteRE)) / elec * 100 : null }; });
-    return { labels: rows.map(r => r.l), demo: false, rows };
-  }
-  const g = k => { const v = S.data[k]; return Array.isArray(v) ? GC.num(v[2]) : GC.num(v); };
-  const y = parseInt((S.profile.years[2].match(/(\d{4})/) || [0, 2024])[1], 10);
-  const mn = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
-  const labels = mn.map((m, i) => m + ' ' + String(i < 9 ? y : y + 1).slice(2));
-  const prod = spread(g('prod'), W.flat), elec = spread(g('elec'), W.flat), th = spread(g('thermal'), W.flat);
-  const on = spread(g('onsiteRE'), W.solar), off = spread(g('offsiteRE'), W.wind);
-  const Y = C.res.M.Y[2];
-  const s12 = spread((Y.s1 || 0) + (Y.s2 || 0), W.flat);
-  const water = spread((g('fwProc') || 0) + (g('fwDom') || 0), W.water);
-  const waste = spread((g('hazDisp') || 0) + (g('nonHaz') || 0), W.flat);
-  return { labels, demo: true, rows: labels.map((l, i) => ({ l, prod: prod[i], energy: elec[i] * 0.0036 + th[i], elec: elec[i], water: water[i], s12: s12[i], waste: waste[i], re: elec[i] ? (on[i] + off[i]) / elec[i] * 100 : null })) };
+/* ---------- monthly records by facility and department (INTEGRATION) ----------
+   Facilities and departments: Organization Profile -> facilities: [{ id, name, departments: [{ id, name }] }], facilityId = assessed plant.
+   Records: window.TERRACAP_LEDGER_MONTHLY(profile, fyLabel, { facility, department }) -> [{ month: 'YYYY-MM', rec }],
+   department null = the whole facility. Without the hook the demo stand-ins in seed.js are used. */
+function units() {
+  const o = S.orgProfile || {}, f = Array.isArray(o.facilities) && o.facilities.length ? o.facilities : [{ id: o.facilityId || 'plant', name: S.profile.plant, departments: [] }];
+  return { list: f, assessed: o.facilityId || f[0].id };
+}
+function scopedMonths(fy, scope) {
+  if (typeof window.TERRACAP_LEDGER_MONTHLY === 'function') return window.TERRACAP_LEDGER_MONTHLY(S.profile, fy, scope) || [];
+  return gcDemoScopedMonthly(S, fy, scope);
+}
+const MN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function rowOf(x) {
+  const r = x.rec || {}, [yy, mm] = String(x.month).split('-'), nz = v => v == null ? 0 : v, any = (...a) => a.some(v => v != null);
+  return { l: MN[+mm - 1] + ' ' + String(yy).slice(2), month: x.month, prod: r.prod, elec: r.elec,
+    energy: any(r.elec, r.thermal) ? nz(r.elec) * 0.0036 + nz(r.thermal) : null, thermal: r.thermal,
+    water: any(r.fwProc, r.fwDom) ? nz(r.fwProc) + nz(r.fwDom) : null, s12: any(r.scope1, r.scope2) ? nz(r.scope1) + nz(r.scope2) : null,
+    waste: any(r.hazDisp, r.nonHaz) ? nz(r.hazDisp) + nz(r.nonHaz) : null,
+    ren: any(r.onsiteRE, r.offsiteRE) ? nz(r.onsiteRE) + nz(r.offsiteRE) : null, re: r.elec && any(r.onsiteRE, r.offsiteRE) ? (nz(r.onsiteRE) + nz(r.offsiteRE)) / r.elec * 100 : null };
+}
+/* Years offered: the three assessment years and any goal year that has started. */
+function consYears() {
+  const now = new Date(), ys = S.profile.years.slice();
+  GC.goalYears(S.profile).forEach(y => { const y0 = GC.fyStart(y); if (y0 != null && now >= new Date(y0, 4, 1)) ys.push(y); });
+  return ys;
+}
+let CONS = null;
+function consState() {
+  if (CONS) return CONS;
+  const U = units(), ys = consYears(), u = (typeof window.TERRACAP_USER === 'function' ? window.TERRACAP_USER() : window.TERRACAP_USER) || {};
+  let saved = {}; try { saved = JSON.parse(localStorage.getItem('gc:dash:consumption') || '{}'); } catch (e) { }
+  const fac = [u.facility, saved.fac, U.assessed].find(f => f && U.list.some(x => x.id === f));
+  const facObj = U.list.find(x => x.id === fac);
+  const dept = [u.department, saved.dept].find(d => d && (facObj.departments || []).some(x => x.id === d)) || '';
+  const fy = ys.includes(saved.fy) ? saved.fy : ys[ys.length - 1];
+  return CONS = { fy, fac, dept };
+}
+function setCons(k, v) {
+  const c = consState(); c[k] = v;
+  if (k === 'fac') c.dept = '';
+  try { localStorage.setItem('gc:dash:consumption', JSON.stringify(c)); } catch (e) { }
+  render();
+}
+function consData() {
+  const c = consState(), U = units(), f = U.list.find(x => x.id === c.fac) || U.list[0], d = (f.departments || []).find(x => x.id === c.dept);
+  const months = scopedMonths(c.fy, { facility: f.id, department: d ? d.id : null });
+  const rows = months.map(rowOf);
+  return { c, U, f, d, rows, labels: rows.map(r => r.l), demo: typeof window.TERRACAP_LEDGER_MONTHLY !== 'function' };
 }
 
 /* ---------- helpers ---------- */
@@ -1711,8 +1844,11 @@ function render() {
   const fn = { overview: rOverview, goals: rGoals, consumption: rConsumption, parameters: rParameters, trends: rTrends, initiatives: rInitiatives, reports: rReports }[TAB];
   $('#main').innerHTML = srcLine() + fn();
   const after = { overview: aOverview, goals: aGoals, consumption: aConsumption, trends: aTrends, initiatives: aInitiatives }[TAB];
-  if (after && window.Chart) setTimeout(after, 0);
+  /* only the latest render draws charts, so quick successive changes never draw twice on one canvas */
+  const tok = ++RENDER_TOK;
+  if (after && window.Chart) setTimeout(() => { if (tok === RENDER_TOK) after(); }, 0);
 }
+let RENDER_TOK = 0;
 function srcLine() {
   const v = GC.VERSIONS[LENS];
   return `<div class="srcline">${SRC.kind === 'saved' ? `<span class="tag k-computed">Live</span> From the GreenCo Readiness assessment${SRC.at ? ', saved ' + esc(new Date(SRC.at).toLocaleString()) : ''}.` : '<span class="tag k-prov">Demo</span> No saved GreenCo Readiness assessment found, so the demo plant is shown.'}
@@ -1763,30 +1899,62 @@ function aOverview() {
 
 /* ---------- consumption ---------- */
 function rConsumption() {
-  const m = ledgerMonthly(), R = m.rows, sum = k => R.reduce((a, r) => a + (r[k] || 0), 0);
+  const m = consData(), R = m.rows, isDept = !!m.d, sum = k => R.reduce((a, r) => a + (r[k] || 0), 0);
+  const ys = consYears(), U = m.U;
+  const sel = `<div class="panel consel" data-view><div class="row" style="gap:12px;flex-wrap:wrap;align-items:flex-end">
+      <label class="fsel">Year<select onchange="setCons('fy',this.value)">${ys.map(y => `<option ${y === m.c.fy ? 'selected' : ''}>${esc(y)}</option>`).join('')}</select></label>
+      <label class="fsel">Facility<select onchange="setCons('fac',this.value)">${U.list.map(f => `<option value="${esc(f.id)}" ${f.id === m.f.id ? 'selected' : ''}>${esc(f.name)}${f.id === U.assessed ? ' (GreenCo plant)' : ''}</option>`).join('')}</select></label>
+      <label class="fsel">Department<select onchange="setCons('dept',this.value)" ${(m.f.departments || []).length ? '' : 'disabled'}><option value="">All departments (facility total)</option>${(m.f.departments || []).map(d => `<option value="${esc(d.id)}" ${m.d && d.id === m.d.id ? 'selected' : ''}>${esc(d.name)}</option>`).join('')}</select></label>
+      <span class="sp"></span><span class="muted small">${R.length ? esc(R[0].l) + ' to ' + esc(R[R.length - 1].l) + ', ' + R.length + ' month' + (R.length === 1 ? '' : 's') : 'No monthly records'}</span></div>
+    ${m.f.id !== U.assessed ? `<p class="note" style="margin-top:10px">${esc(m.f.name)} is shown for consumption only. Scores, goals and initiatives on the other tabs are for ${esc((U.list.find(x => x.id === U.assessed) || {}).name || S.profile.plant)}, the plant under GreenCo assessment.</p>` : ''}</div>`;
+  if (!R.length) return sel + `<div class="panel" style="margin-top:14px"><p class="muted">No monthly records for this selection yet.</p></div>`;
   const last = R[R.length - 1], prev = R[R.length - 2];
-  const d = k => prev[k] ? ((last[k] - prev[k]) / prev[k] * 100) : null;
-  const card = (label, v, unit, k, lowerBetter = true) => { const x = d(k); const good = x == null ? null : (lowerBetter ? x <= 0 : x >= 0);
-    return `<div class="kpi"><span>${label}, ${esc(S.profile.years[2])}</span><b>${F(v, 0)} <small>${unit}</small></b><small style="color:${good == null ? 'var(--muted)' : good ? 'var(--green)' : 'var(--red)'}">${x == null ? '' : (x > 0 ? '+' : MINUS) + F(Math.abs(x), 1) + '% in ' + esc(last.l) + ' vs ' + esc(prev.l)}</small></div>`; };
-  const reYr = C.res.M.reTotal;
-  return `<div class="kpis">
-    ${card('Energy', sum('energy'), 'GJ', 'energy')}${card('Fresh water', sum('water'), 'm³', 'water')}${card('Scope 1+2', sum('s12'), 'tCO2e', 's12')}${card('Waste', sum('waste'), 't', 'waste')}
-    <div class="kpi"><span>Renewable share, ${esc(S.profile.years[2])}</span><b>${F(reYr, 1)}%</b><small>On-site and off-site renewables</small></div>
-    ${card('Production', sum('prod'), esc(S.profile.productUnit), 'prod', false)}
-  </div>
-  ${m.demo ? '<p class="muted small" style="margin-top:8px">Monthly figures in this demo spread the ledger\u2019s annual totals over typical monthly profiles. In TerraCAP they come from the ledger\u2019s monthly records for this plant.</p>' : ''}
-  <div class="grid3" style="margin-top:14px">${MONTHLY.map(x => `<div class="panel"><h3>${x[1]}</h3><p class="muted small">${x[2]} by month</p><div class="chartbox" style="height:190px"><canvas id="chM_${x[0]}"></canvas></div></div>`).join('')}</div>
-  <div class="panel" style="margin-top:14px"><h3>Monthly summary</h3><div class="scroll"><table class="tbl" style="margin-top:8px"><thead><tr><th>Month</th><th class="r">Production (${esc(S.profile.productUnit)})</th><th class="r">Energy (GJ)</th><th class="r">SEC (GJ/unit)</th><th class="r">Fresh water (m³)</th><th class="r">Scope 1+2 (tCO2e)</th><th class="r">Waste (t)</th><th class="r">Renewable share</th></tr></thead><tbody>
-  ${R.slice().reverse().map(r => `<tr><td>${esc(r.l)}</td><td class="r">${F(r.prod, 0)}</td><td class="r">${F(r.energy, 0)}</td><td class="r">${F(r.prod ? r.energy / r.prod : null, 3)}</td><td class="r">${F(r.water, 0)}</td><td class="r">${F(r.s12, 0)}</td><td class="r">${F(r.waste, 1)}</td><td class="r">${F(r.re, 1)}%</td></tr>`).join('')}</tbody></table></div></div>`;
+  const d = k => prev && prev[k] ? ((last[k] - prev[k]) / prev[k] * 100) : null;
+  const card = (label, v, unit, k, lowerBetter = true, dec = 0) => { const x = d(k); const good = x == null ? null : (lowerBetter ? x <= 0 : x >= 0);
+    return `<div class="kpi"><span>${label}</span><b>${F(v, dec)} <small>${unit}</small></b><small style="color:${good == null ? 'var(--muted)' : good ? 'var(--green)' : 'var(--red)'}">${x == null ? 'Total for the months shown' : (x > 0 ? '+' : MINUS) + F(Math.abs(x), 1) + '% in ' + esc(last.l) + ' vs ' + esc(prev.l)}</small></div>`; };
+  let facE = null;
+  if (isDept) facE = scopedMonths(m.c.fy, { facility: m.f.id, department: null }).map(rowOf).reduce((a, r) => a + (r.energy || 0), 0);
+  const reShare = sum('elec') ? sum('ren') / sum('elec') * 100 : null;
+  const kp = isDept
+    ? card('Energy', sum('energy'), 'GJ', 'energy') + card('Electricity', sum('elec'), 'kWh', 'elec') + card('Fresh water', sum('water'), 'm³', 'water') + card('Scope 1+2, allocated', sum('s12'), 'tCO2e', 's12') + card('Waste', sum('waste'), 't', 'waste', true, 1)
+      + `<div class="kpi"><span>Share of facility energy</span><b>${F(facE ? sum('energy') / facE * 100 : null, 1)}%</b><small>of ${esc(m.f.name)}, same months</small></div>`
+    : card('Energy', sum('energy'), 'GJ', 'energy') + card('Fresh water', sum('water'), 'm³', 'water') + card('Scope 1+2', sum('s12'), 'tCO2e', 's12') + card('Waste', sum('waste'), 't', 'waste', true, 1)
+      + `<div class="kpi"><span>Renewable share of electricity</span><b>${F(reShare, 1)}%</b><small>On-site and off-site, months shown</small></div>` + card('Production', sum('prod'), esc(S.profile.productUnit), 'prod', false);
+  const charts = MONTHLY.filter(x => isDept ? !['re', 'prod'].includes(x[0]) : x[0] !== 'elec');
+  return sel + `<p class="ctxline"><b>${esc(m.f.name)}${m.d ? ' › ' + esc(m.d.name) : ''}</b>, ${esc(m.c.fy)}</p>
+  <div class="kpis">${kp}</div>
+  ${isDept ? `<p class="muted small" style="margin-top:8px">Department figures are what TerraCAP records against ${esc(m.d.name)}: sub-meter readings and allocations. Production and renewables are recorded for the facility, so specific consumption (per unit of output) and renewable share are shown at facility level only. Scope 1+2 is the department's electricity and fuel use at the facility's emission rates.</p>` : ''}
+  ${m.demo ? '<p class="muted small" style="margin-top:8px">Demo data. Closed years spread the ledger’s annual totals over typical monthly profiles, and departments take a fixed share. In TerraCAP these are the monthly records each data owner ingests.</p>' : ''}
+  ${!isDept && (m.f.departments || []).length ? deptBreakdown(m) : ''}
+  <div class="grid3" style="margin-top:14px">${charts.map(x => `<div class="panel"><h3>${x[1]}</h3><p class="muted small">${x[2]} by month</p><div class="chartbox" style="height:190px"><canvas id="chM_${x[0]}"></canvas></div></div>`).join('')}</div>
+  <div class="panel" style="margin-top:14px"><h3>Monthly summary</h3><div class="scroll"><table class="tbl" style="margin-top:8px"><thead><tr><th>Month</th>${isDept ? '<th class="r">Energy (GJ)</th><th class="r">Electricity (kWh)</th><th class="r">Fresh water (m³)</th><th class="r">Scope 1+2 (tCO2e)</th><th class="r">Waste (t)</th>'
+    : `<th class="r">Production (${esc(S.profile.productUnit)})</th><th class="r">Energy (GJ)</th><th class="r">SEC (GJ/unit)</th><th class="r">Fresh water (m³)</th><th class="r">Scope 1+2 (tCO2e)</th><th class="r">Waste (t)</th><th class="r">Renewable share</th>`}</tr></thead><tbody>
+  ${R.slice().reverse().map(r => `<tr><td>${esc(r.l)}</td>${isDept ? `<td class="r">${F(r.energy, 0)}</td><td class="r">${F(r.elec, 0)}</td><td class="r">${F(r.water, 0)}</td><td class="r">${F(r.s12, 1)}</td><td class="r">${F(r.waste, 2)}</td>`
+    : `<td class="r">${F(r.prod, 0)}</td><td class="r">${F(r.energy, 0)}</td><td class="r">${F(r.prod ? r.energy / r.prod : null, 3)}</td><td class="r">${F(r.water, 0)}</td><td class="r">${F(r.s12, 0)}</td><td class="r">${F(r.waste, 1)}</td><td class="r">${r.re == null ? '—' : F(r.re, 1) + '%'}</td>`}</tr>`).join('')}</tbody></table></div></div>`;
+}
+/* Facility view: each department's total for the months shown, and what is not assigned to any department. */
+function deptBreakdown(m) {
+  const K = [['energy', 'Energy (GJ)', 0], ['elec', 'Electricity (kWh)', 0], ['water', 'Fresh water (m³)', 0], ['s12', 'Scope 1+2 (tCO2e)', 1], ['waste', 'Waste (t)', 1]];
+  const tot = k => m.rows.reduce((a, r) => a + (r[k] || 0), 0), facT = Object.fromEntries(K.map(([k]) => [k, tot(k)]));
+  const ds = m.f.departments.map(d => { const rs = scopedMonths(m.c.fy, { facility: m.f.id, department: d.id }).map(rowOf); return { d, t: Object.fromEntries(K.map(([k]) => [k, rs.reduce((a, r) => a + (r[k] || 0), 0)])) }; });
+  const un = Object.fromEntries(K.map(([k]) => [k, facT[k] - ds.reduce((a, x) => a + x.t[k], 0)]));
+  const bar = v => `<span class="sbar" aria-hidden="true"><i style="width:${Math.max(0, Math.min(100, v))}%"></i></span>`;
+  const cell = (k, v, dec) => `<td class="r">${F(v, dec)}${k === 'energy' && facT.energy ? `<br><span class="muted small">${F(v / facT.energy * 100, 1)}%</span>${bar(v / facT.energy * 100)}` : ''}</td>`;
+  return `<div class="panel" style="margin-top:14px"><h3>By department, ${esc(m.c.fy)}</h3><p class="muted small" style="margin:2px 0 10px">Totals for the months shown. Select a department to see its monthly charts.</p>
+    <div class="scroll"><table class="tbl dtbl"><thead><tr><th>Department</th>${K.map(x => `<th class="r">${x[1]}</th>`).join('')}</tr></thead><tbody>
+    ${ds.map(x => `<tr class="click" tabindex="0" onclick="setCons('dept','${esc(x.d.id)}')" onkeydown="if(event.key==='Enter')setCons('dept','${esc(x.d.id)}')"><td><b>${esc(x.d.name)}</b></td>${K.map(([k, , dec]) => cell(k, x.t[k], dec)).join('')}</tr>`).join('')}
+    ${K.some(([k]) => Math.abs(un[k]) > 0.005 * Math.max(1, facT[k])) ? `<tr><td class="muted">Not assigned to a department</td>${K.map(([k, , dec]) => cell(k, un[k], dec)).join('')}</tr>` : ''}
+    <tr class="grp"><td>${esc(m.f.name)} total</td>${K.map(([k, , dec]) => `<td class="r">${F(facT[k], dec)}</td>`).join('')}</tr>
+    </tbody></table></div></div>`;
 }
 /* One measure per chart, one axis each: [key, title, unit, decimals, type] */
-const MONTHLY = [['energy', 'Energy', 'GJ', 0, 'bar'], ['s12', 'Scope 1+2 emissions', 'tCO2e', 0, 'bar'], ['water', 'Fresh water', 'm³', 0, 'bar'],
-  ['waste', 'Waste generated', 't', 1, 'bar'], ['re', 'Renewable share of electricity', '%', 1, 'line'], ['prod', 'Production', 'units of output', 0, 'bar']];
+const MONTHLY = [['energy', 'Energy', 'GJ', 0, 'bar'], ['elec', 'Electricity', 'kWh', 0, 'bar'], ['s12', 'Scope 1+2 emissions', 'tCO2e', 1, 'bar'], ['water', 'Fresh water', 'm³', 0, 'bar'],
+  ['waste', 'Waste generated', 't', 2, 'bar'], ['re', 'Renewable share of electricity', '%', 1, 'line'], ['prod', 'Production', 'units of output', 0, 'bar']];
 function aConsumption() {
-  const m = ledgerMonthly(), R = m.rows, col = cssVar('--gc-now');
+  const m = consData(), R = m.rows, col = cssVar('--gc-now');
   MONTHLY.forEach(([k, title, unit, d, type]) => {
     const el = $('#chM_' + k); if (!el) return;
-    charts['m_' + k] = new Chart(el, { type, data: { labels: m.labels.map(l => l.split(' ')[0]), datasets: [{ label: title + ' (' + unit + ')', data: R.map(r => +(+r[k]).toFixed(d)),
+    charts['m_' + k] = new Chart(el, { type, data: { labels: m.labels.map(l => l.split(' ')[0]), datasets: [{ label: title + ' (' + unit + ')', data: R.map(r => r[k] == null ? null : +(+r[k]).toFixed(d)),
       backgroundColor: col, borderColor: col, borderWidth: type === 'line' ? 2 : 0, borderRadius: type === 'bar' ? 4 : 0, pointRadius: type === 'line' ? 4 : 0, tension: .25, maxBarThickness: 18 }] },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { title: it => m.labels[it[0].dataIndex], label: it => GC.fmtN(it.raw, d) + ' ' + unit } } },
         scales: { x: { grid: { display: false } }, y: { beginAtZero: true, max: k === 're' ? 100 : undefined, grid: { color: cssVar('--line-2') }, title: { display: true, text: unit } } } } });
@@ -1794,7 +1962,7 @@ function aConsumption() {
 }
 
 /* ---------- goals: monthly tracking (INTEGRATION: window.TERRACAP_LEDGER_MONTHLY) ---------- */
-function monthlyFetch(fy) { return typeof window.TERRACAP_LEDGER_MONTHLY === 'function' ? window.TERRACAP_LEDGER_MONTHLY(S.profile, fy) : gcDemoMonthly(S, fy); }
+function monthlyFetch(fy) { return typeof window.TERRACAP_LEDGER_MONTHLY === 'function' ? window.TERRACAP_LEDGER_MONTHLY(S.profile, fy, { facility: units().assessed, department: null }) : gcDemoMonthly(S, fy); }
 const MON = ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'];
 /* The goal year that contains today is tracked; before year 1 nothing is tracked yet, after year 3 the last year is shown. */
 function trackingYear() {
@@ -1940,31 +2108,46 @@ function aTrends() {
 }
 
 /* ---------- initiatives ---------- */
+/* Initiative decisions: Proposed (awaiting decision), Approved, On hold, Rejected; progress for approved ones.
+   The dashboard only shows them; decisions are made in GreenCo Readiness by its editor. */
+const AP = { 'Proposed': ['ap-proposed', 'Awaiting decision'], 'Approved': ['ap-approved', 'Approved'], 'On hold': ['ap-hold', 'On hold'], 'Rejected': ['ap-rejected', 'Rejected'] };
+const stCls = s => 'st-' + String(s).toLowerCase().replace(/[^a-z]/g, '');
+let DIF = 'all';
+function setDIF(f) { DIF = f; render(); }
+const DIF_OK = { all: () => true, Approved: i => GC.isApproved(i), Proposed: i => GC.approvalOf(i) === 'Proposed', 'On hold': i => GC.approvalOf(i) === 'On hold', Rejected: i => GC.approvalOf(i) === 'Rejected' };
 function rInitiatives() {
-  const I = S.initiatives, by = st => I.filter(i => i.status === st);
+  const I = S.initiatives, ap = I.filter(GC.isApproved), pr = s => ap.filter(i => i.status === s);
+  const byA = a => I.filter(i => GC.approvalOf(i) === a);
   const act = I.filter(GC.isActive), sum = (a, k) => a.reduce((x, i) => x + (GC.num(i[k]) || 0), 0);
   const eff = Object.fromEntries(I.filter(i => i.status !== 'Implemented').map(i => [i.id, GC.initiativeEffect(S, i.id)]));
   const vmap = { achieves_target: ['Achieves target', 'v-good'], marginal: ['Marginal', 'v-mid'], insufficient_data: ['Needs data', 'v-mid'], falls_short: ['Falls short', 'v-bad'], implausible: ['Implausible claim', 'v-bad'] };
-  const rows = I.slice().sort((a, b) => ((eff[b.id] || {}).standalone || -1) - ((eff[a.id] || {}).standalone || -1));
+  const order = { Approved: 0, Proposed: 1, 'On hold': 2, Rejected: 3 };
+  const rows = I.filter(DIF_OK[DIF]).sort((a, b) => order[GC.approvalOf(a)] - order[GC.approvalOf(b)] || ((eff[b.id] || {}).standalone || -1) - ((eff[a.id] || {}).standalone || -1));
+  const waiting = byA('Proposed').concat(byA('On hold'));
   return `<div class="kpis">
-    <div class="kpi"><span>Planned</span><b>${by('Planned').length}</b></div>
-    <div class="kpi"><span>In progress</span><b>${by('In progress').length}</b></div>
-    <div class="kpi"><span>Implemented</span><b>${by('Implemented').length}</b></div>
-    <div class="kpi"><span>Capex, planned and in progress</span><b>₹${F(sum(act, 'capex'), 1)} <small>lakh</small></b></div>
-    <div class="kpi"><span>Annual saving, planned and in progress</span><b>₹${F(sum(act, 'saving'), 1)} <small>lakh</small></b></div>
-    <div class="kpi"><span>Points if they deliver</span><b style="color:var(--green)">+${pts(C.proj.total - C.res.total)}</b><small>on the V3 scale</small></div>
+    <div class="kpi"><span><span class="tag ap-approved">Approved</span></span><b>${ap.length}</b><small>${pr('Planned').length} planned, ${pr('In progress').length} in progress, ${pr('Implemented').length} implemented</small></div>
+    <div class="kpi"><span><span class="tag ap-proposed">Awaiting decision</span></span><b>${byA('Proposed').length}</b><small>₹${F(sum(byA('Proposed'), 'capex'), 1)} lakh capex</small></div>
+    <div class="kpi"><span><span class="tag ap-hold">On hold</span></span><b>${byA('On hold').length}</b><small>₹${F(sum(byA('On hold'), 'capex'), 1)} lakh capex</small></div>
+    <div class="kpi"><span><span class="tag ap-rejected">Rejected</span></span><b>${byA('Rejected').length}</b><small>Kept for the record</small></div>
+    <div class="kpi"><span>Capex, approved and not yet implemented</span><b>₹${F(sum(act, 'capex'), 1)} <small>lakh</small></b><small>Annual saving ₹${F(sum(act, 'saving'), 1)} lakh</small></div>
+    <div class="kpi"><span>Points if approved initiatives deliver</span><b style="color:var(--green)">+${pts(C.proj.total - C.res.total)}</b><small>${waiting.length ? waiting.length + ' awaiting a decision or on hold not counted' : 'on the V3 scale'}</small></div>
   </div>
-  <div class="grid2" style="margin-top:14px">
-    <div class="panel"><h3>Points each initiative would add</h3><div class="chartbox" style="height:${Math.max(220, act.length * 34)}px"><canvas id="chI"></canvas></div></div>
-    <div class="panel"><h3>Initiatives by parameter</h3><table class="tbl" style="margin-top:8px"><thead><tr><th>Parameter</th><th class="r">Planned</th><th class="r">In progress</th><th class="r">Implemented</th></tr></thead><tbody>
-      ${GC.P3.map(p => { const x = I.filter(i => i.p === p.id); if (!x.length) return ''; return `<tr><td>${esc(p.name)}</td>${['Planned', 'In progress', 'Implemented'].map(s => `<td class="r">${x.filter(i => i.status === s).length || ''}</td>`).join('')}</tr>`; }).join('')}
-    </tbody></table></div>
+  <div style="margin-top:14px">
+    <div class="panel"><h3>Points each approved initiative would add</h3><p class="muted small">If each one delivered on its own, on the V3 scale.</p><div class="chartbox" style="height:${Math.max(220, act.length * 34)}px"><canvas id="chI"></canvas></div></div>
+    <div class="panel" style="margin-top:14px"><h3>Initiatives by parameter</h3><div class="scroll"><table class="tbl" style="margin-top:8px"><thead><tr><th rowspan="2">Parameter</th><th colspan="3" class="c grpth">Approved</th><th colspan="3" class="c grpth">Not approved</th></tr><tr><th class="r">Planned</th><th class="r">In progress</th><th class="r">Implemented</th><th class="r">Awaiting decision</th><th class="r">On hold</th><th class="r">Rejected</th></tr></thead><tbody>
+      ${GC.P3.map(p => { const x = I.filter(i => i.p === p.id); if (!x.length) return ''; const a = x.filter(GC.isApproved);
+        return `<tr><td>${esc(p.name)}</td>${['Planned', 'In progress', 'Implemented'].map(s => `<td class="r">${a.filter(i => i.status === s).length || ''}</td>`).join('')}${['Proposed', 'On hold', 'Rejected'].map(s => `<td class="r">${x.filter(i => GC.approvalOf(i) === s).length || ''}</td>`).join('')}</tr>`; }).join('')}
+    </tbody></table></div></div>
   </div>
-  <div class="panel" style="margin-top:14px"><h3>Initiative register</h3><div class="scroll"><table class="tbl" style="margin-top:8px"><thead><tr><th>Initiative</th><th>Credit</th><th>Status</th><th>Completion</th><th class="r">Capex (₹ lakh)</th><th class="r">Points if delivered alone</th><th>AI review</th></tr></thead><tbody>
-    ${rows.map(i => { const e = eff[i.id], a = S.ai[i.id], v = a && !a.error && vmap[a.verdict];
-      return `<tr><td><b>${esc(i.title)}</b>${i.include === false ? ' <span class="tag k-claimed">Excluded</span>' : ''}<br><span class="muted small">${esc(paramName(i.p))}</span></td><td>${esc(i.credit || '—')}</td><td><span class="tag st-${esc(i.status)}">${esc(i.status)}</span></td><td>${esc(i.end || '—')}</td><td class="r">${F(i.capex, 1)}</td>
-        <td class="r">${e ? (e.standalone > 0.05 ? '<b style="color:var(--green)">+' + pts(e.standalone) + '</b>' : '0') : '<span class="muted">In data</span>'}</td><td>${v ? `<span class="${v[1]}" style="font-weight:700">${v[0]}</span>` : '<span class="muted">Not reviewed</span>'}</td></tr>`; }).join('')}
-  </tbody></table></div><p class="muted small" style="margin-top:8px">Add, edit and review initiatives in GreenCo Readiness.</p></div>`;
+  <div class="panel" style="margin-top:14px"><h3>Initiative register</h3>
+    <div class="ifilter" role="group" aria-label="Show initiatives">${[['all', 'All'], ['Approved', 'Approved'], ['Proposed', 'Awaiting decision'], ['On hold', 'On hold'], ['Rejected', 'Rejected']].map(([k, l]) => `<button class="${DIF === k ? 'on' : ''}" aria-pressed="${DIF === k}" onclick="setDIF('${k}')">${l} <small>${I.filter(DIF_OK[k]).length}</small></button>`).join('')}</div>
+    <div class="scroll"><table class="tbl" style="margin-top:10px"><thead><tr><th>Initiative</th><th>Decision</th><th>Progress</th><th>Completion</th><th class="r">Capex (₹ lakh)</th><th class="r">Points if delivered alone</th><th>AI review</th></tr></thead><tbody>
+    ${rows.map(i => { const e = eff[i.id], a = S.ai[i.id], v = a && !a.error && vmap[a.verdict], apv = GC.approvalOf(i), appr = apv === 'Approved';
+      return `<tr class="${appr ? '' : 'na'}"><td><b>${esc(i.title)}</b>${appr && i.include === false ? ' <span class="tag k-claimed">Excluded</span>' : ''}<br><span class="muted small">${esc(paramName(i.p))}${i.owner ? ', ' + esc(i.owner) : ''}</span></td>
+        <td><span class="tag ${AP[apv][0]}">${AP[apv][1]}</span>${i.decision && (i.decision.note || i.decision.at) ? `<br><span class="muted small">${i.decision.at ? esc(i.decision.at) + (i.decision.note ? ': ' : '') : ''}${esc(i.decision.note || '')}</span>` : ''}</td>
+        <td>${appr ? `<span class="tag ${stCls(i.status)}">${esc(i.status)}</span>` : '<span class="muted">—</span>'}</td><td>${esc(i.end || '—')}</td><td class="r">${F(i.capex, 1)}</td>
+        <td class="r">${e ? (e.standalone > 0.05 ? (appr ? '<b style="color:var(--green)">+' : '<span class="muted">+') + pts(e.standalone) + (appr ? '</b>' : ' if approved</span>') : '0') : '<span class="muted">In data</span>'}</td><td>${v ? `<span class="${v[1]}" style="font-weight:700">${v[0]}</span>` : '<span class="muted">Not reviewed</span>'}</td></tr>`; }).join('') || '<tr><td colspan="7" class="muted">No initiatives with this status.</td></tr>'}
+  </tbody></table></div><p class="muted small" style="margin-top:8px">Decisions and progress are set in GreenCo Readiness by the person who edits the assessment. Only approved initiatives count in the score projection, goals and investment.</p></div>`;
 }
 function aInitiatives() {
   const act = S.initiatives.filter(GC.isActive).map(i => ({ i, e: GC.initiativeEffect(S, i.id) })).sort((a, b) => b.e.standalone - a.e.standalone);
@@ -1994,9 +2177,10 @@ async function exportGoals() {
   if (await download('greenco-goal-tracking-' + slug() + '.csv', rows.map(r => r.map(q).join(',')).join('\n'), 'text/csv')) toast('Goal tracking exported');
 }
 async function exportMonthly() {
-  const m = ledgerMonthly(), q = s => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
-  const rows = [['month', 'production', 'energy_GJ', 'fresh_water_m3', 'scope12_tCO2e', 'waste_t', 'renewable_share_pct']].concat(m.rows.map(r => [r.l, r.prod.toFixed(1), r.energy.toFixed(1), r.water.toFixed(1), r.s12.toFixed(2), r.waste.toFixed(2), r.re.toFixed(2)]));
-  if (await download('greenco-monthly-' + slug() + '.csv', rows.map(r => r.map(q).join(',')).join('\n'), 'text/csv')) toast('Monthly data exported');
+  const m = consData(), q = s => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"', n = (v, d) => v == null ? '' : (+v).toFixed(d);
+  const rows = [['facility', 'department', 'month', 'production', 'energy_GJ', 'electricity_kWh', 'fresh_water_m3', 'scope12_tCO2e', 'waste_t', 'renewable_share_pct']]
+    .concat(m.rows.map(r => [m.f.name, m.d ? m.d.name : 'All departments', r.month, n(r.prod, 1), n(r.energy, 1), n(r.elec, 0), n(r.water, 1), n(r.s12, 2), n(r.waste, 2), n(r.re, 2)]));
+  if (await download('greenco-monthly-' + slug() + '-' + (m.d ? m.d.id : m.f.id) + '.csv', rows.map(r => r.map(q).join(',')).join('\n'), 'text/csv')) toast('Monthly data exported');
 }
 function rReports() {
   const vs = ['V3', 'V4', 'LITE'].map(v => ({ v, L: GC.lens(C.res, v), P: GC.lens(C.proj, v) }));
@@ -2004,7 +2188,7 @@ function rReports() {
     <div class="panel"><h3>Submission pack</h3><p class="muted small" style="margin:6px 0 12px">Printable readiness pack with the credit table, initiatives register, mandatory requirements and data sources. Built in GreenCo Readiness.</p><a class="btn pri" href="greenco-readiness.html">Open GreenCo Readiness</a></div>
     <div class="panel"><h3>Credit table</h3><p class="muted small" style="margin:6px 0 12px">Every credit with its result, points, type and evidence status, as CSV.</p><button class="btn" onclick="exportCSV()">Download CSV</button></div>
     <div class="panel"><h3>Goal tracking</h3><p class="muted small" style="margin:6px 0 12px">Each goal measure by month for ${esc(C.T.fy)}, with year to date, this year's goal and status, as CSV.</p><button class="btn" onclick="exportGoals()">Download CSV</button></div>
-    <div class="panel"><h3>Monthly consumption</h3><p class="muted small" style="margin:6px 0 12px">Monthly production, energy, water, emissions, waste and renewable share for ${esc(S.profile.years[2])}, as CSV.</p><button class="btn" onclick="exportMonthly()">Download CSV</button></div>
+    <div class="panel"><h3>Monthly consumption</h3><p class="muted small" style="margin:6px 0 12px">Monthly figures for the selection on the Consumption tab, now ${(() => { const m = consData(); return esc(m.f.name + (m.d ? ', ' + m.d.name : '') + ', ' + m.c.fy); })()}, as CSV.</p><button class="btn" onclick="exportMonthly()">Download CSV</button></div>
   </div>
   <div class="panel" style="margin-top:14px"><h3>Score by version</h3><p class="muted small" style="margin:2px 0 10px">The same plant data scored three ways. Only V3 uses published credit rules; V4 and Lite are provisional.</p>
     <table class="tbl"><thead><tr><th>Version</th><th class="r">Score</th><th>Band</th><th class="r">With planned initiatives</th></tr></thead><tbody>
@@ -2013,7 +2197,7 @@ function rReports() {
 }
 
 function orgFetch(profile) { return typeof window.TERRACAP_ORG_PROFILE === 'function' ? window.TERRACAP_ORG_PROFILE(profile) : gcDemoOrgProfile(); }
-function applyOrg() { const o = orgFetch(S.profile); if (!o) return; if (o.org) S.profile.org = o.org; if (o.plant) S.profile.plant = o.plant; if (o.location) S.profile.location = o.location; if (o.productionUnit) S.profile.productUnit = o.productionUnit; }
+function applyOrg() { const o = S.orgProfile = orgFetch(S.profile); if (!o) return; if (o.org) S.profile.org = o.org; if (o.plant) S.profile.plant = o.plant; if (o.location) S.profile.location = o.location; if (o.productionUnit) S.profile.productUnit = o.productionUnit; }
 
 /* ---------- boot ---------- */
 (async () => {
