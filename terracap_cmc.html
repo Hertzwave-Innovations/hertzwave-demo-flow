@@ -4430,8 +4430,8 @@ function domFiled(sch){ return stepIsDone('d_verify') || (typeof domVerOk==='fun
 /* M2: the earliest UNRESOLVED overdue own obligation first; otherwise the next unresolved one; null = nothing open */
 function ovObligation(dls){
   const open=dls.filter(d=>OWN_DUTY(d.cls) && !(d.done && d.done())).sort((a,b)=>a.due.localeCompare(b.due));
-  const od=open.find(d=>ovDays(d.due)<0); if(od) return {d:od, overdue:true, days:-ovDays(od.due)};
-  const nx=open.find(d=>ovDays(d.due)>=0); return nx ? {d:nx, overdue:false, days:ovDays(nx.due)} : null;
+  const od=open.find(d=>ovDays(d.due,d.tz)<0); if(od) return {d:od, overdue:true, days:-ovDays(od.due,od.tz)};
+  const nx=open.find(d=>ovDays(d.due,d.tz)>=0); return nx ? {d:nx, overdue:false, days:ovDays(nx.due,nx.tz)} : null;
 }
 /* specific next actions, by step — "Open step" is the fallback */
 const STEP_ACTION = {d_boundary:'Complete boundary', d_data:'Review activity data', d_calc:'Review calculation', d_verify:'Record verification and filing',
@@ -4444,7 +4444,10 @@ const SCHEME_NAME = {ccts:'CCTS', pat:'PAT', cbam:'EU CBAM', EU:'EU ETS', UK:'UK
 const SCHEME_PERIOD = {ccts:'FY2026-27 (Apr–Mar)', pat:'PAT cycle (see notification)', cbam:'CY2026 (Jan–Dec)', EU:'CY2026 (Jan–Dec)', UK:'CY2026 (Jan–Dec)'};
 const RAIL_OF = {ccts:'India — domestic', pat:'India — domestic', cbam:'EU CBAM', EU:'EU ETS', UK:'UK ETS'};
 function ovToday(){ return new Date(); }
-function ovDays(iso){ return Math.ceil((Date.parse(iso+'T23:59:59') - ovToday().getTime())/864e5); }
+/* calendar days from today to the due date, both read in the obligation's governing time zone */
+function ovTodayIn(tz){ try{ return new Intl.DateTimeFormat('en-CA',{timeZone:tz||'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(ovToday()); }catch(e){ return ovToday().toISOString().slice(0,10); } }
+function ovDays(iso, tz){ return Math.round((Date.parse(iso+'T00:00:00Z') - Date.parse(ovTodayIn(tz)+'T00:00:00Z'))/864e5); }
+function dueLabel(days){ return days<0 ? `${-days} day${days===-1?'':'s'} overdue` : days===0 ? 'Due today' : days===1 ? 'Due tomorrow' : `${days} days`; }
 function ovDate(iso){ const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return `${Number(iso.slice(8))} ${m.at(Number(iso.slice(5,7))-1)} ${iso.slice(0,4)}`; }
 function ovHash(o){ const s=JSON.stringify(o); let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))|0; return (h>>>0).toString(16).padStart(8,'0'); }
 
@@ -4507,13 +4510,14 @@ function assuranceOf(k){
   if(k==='EU'||k==='UK') return S.ets.vr ? {assurance:'verified', scope:'annual emissions only — not holdings'} : {assurance:'unverified'};
   return {assurance:'unverified'};      /* domestic: verification applies to the filed annual figure, never to a projection */
 }
+const PINNED_WF = ['frozen','verified','submitted','shared with customer','replacement required'];   /* a download alone pins nothing */
 function complianceResult(k){
   const engine = k==='ccts'||k==='pat' ? domEngine(k) : k==='cbam' ? cbamEngine() : (()=>{ const p=etsPosition(); return {state:'ok', emissions:p.emissions, alloc:p.alloc, allocMissing:p.allocMissing, structural:p.structural, unit:'tCO₂e'}; })();
   const wf=wfOf(k), a=assuranceOf(k);
   const values=JSON.parse(JSON.stringify(engine));
   const hash=ovHash({k, values, ruleset:RULESET.id});
   let res={id:`R-${k}-${hash}`, scheme:k, period:SCHEME_PERIOD[k], wf, ...a, hash, values, pinned:false, drift:false};
-  if(wf!=='open'){
+  if(PINNED_WF.includes(wf)){
     const P=S.ov.pinned[k];
     if(!P) S.ov.pinned[k]={...res, pinnedAt:ovToday().toISOString()};
     else { res={...P, wf, drift: P.hash!==hash, liveHash:hash}; }
@@ -4642,7 +4646,7 @@ function ovStrip(snap){
   const W=760, L=120, R=24, X=d=>L+(t(d)-lo)/(hi-lo)*(W-L-R), H=48+lanes.length*34;
   const today=ovToday().toISOString().slice(0,10);
   const months=[]; { const a=new Date(lo*864e5); for(let d=new Date(Date.UTC(a.getUTCFullYear(),a.getUTCMonth()+1,1)); d.getTime()/864e5<hi; d=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+3,1))) months.push(d.toISOString().slice(0,10)); }
-  const mark=(d,y)=>{ const past=ovDays(d.due)<0, late=past&&OWN_DUTY(d.cls)&&!(d.done&&d.done()), x=X(d.due), c=late?'var(--coral)':past?'var(--faint)':'var(--ink2)', tip=`<title>${esc(d.what)} · ${ovDate(d.due)} (${esc(d.tz)}) · ${DL_CLASS[d.cls]} · ${esc(d.ref)}</title>`;
+  const mark=(d,y)=>{ const past=ovDays(d.due,d.tz)<0, late=past&&OWN_DUTY(d.cls)&&!(d.done&&d.done()), x=X(d.due), c=late?'var(--coral)':past?'var(--faint)':'var(--ink2)', tip=`<title>${esc(d.what)} · ${ovDate(d.due)} (${esc(d.tz)}) · ${DL_CLASS[d.cls]} · ${esc(d.ref)}</title>`;
     if(d.cls==='importer') return `<path d="M${x} ${y-7}l7 7l-7 7l-7 -7z" fill="#fff" stroke="${c}" stroke-width="1.5">${tip}</path>`;
     if(d.cls==='customer') return `<circle cx="${x}" cy="${y}" r="6.5" fill="${past?'var(--faint)':'var(--teal)'}">${tip}</circle>`;
     return `<path d="M${x} ${y-7}l7 7l-7 7l-7 -7z" fill="${c}">${tip}</path>`; };
@@ -4741,7 +4745,7 @@ function sOverview(){
     ${snap.schemes.map(s=>{ const ob=ovObligation(s.deadlines), nd=ob&&ob.d; const r=s.rail||{done:0,total:0,blockers:[]}; const bl=r.blockers[0];
       return `<tr data-scheme="${s.key}"><td><b>${esc(s.name)}</b><br><span class="small muted">${esc(s.period)}</span></td>
         <td class="ov-steps" data-done="${r.done}" data-total="${r.total}">${ovNum('M1.'+s.key, s.name+' · step progress', `${r.done}/${r.total}`, 0, 'steps', null, r.firstOpen?r.firstOpen.k:'')}<div style="height:5px;background:var(--line2);border-radius:3px;margin-top:4px;width:90px"><div style="height:5px;width:${r.total?r.done/r.total*90:0}px;background:var(--teal);border-radius:3px"></div></div><span class="small muted">progress, not a score</span></td>
-        <td class="ov-deadline" data-class="${nd?nd.cls:''}" data-overdue="${ob&&ob.overdue?1:0}">${nd?(ob.overdue?`<span class="tag t-red">${ob.days} days overdue</span> <b>${esc(nd.what)}</b><br><span class="small">was due ${ovDate(nd.due)} · owner: ${esc(OWNER[s.key])}</span>`:`${esc(nd.what)}<br><span class="small"><b>${ovDate(nd.due)}</b> · ${ob.days} days · ${DL_CLASS[nd.cls]} · owner: ${esc(OWNER[s.key])}</span>`):'<span class="muted">No open obligations</span>'}</td>
+        <td class="ov-deadline" data-class="${nd?nd.cls:''}" data-overdue="${ob&&ob.overdue?1:0}">${nd?(ob.overdue?`<span class="tag t-red">${dueLabel(-ob.days)}</span> <b>${esc(nd.what)}</b><br><span class="small">was due ${ovDate(nd.due)} · owner: ${esc(OWNER[s.key])}</span>`:`${esc(nd.what)}<br><span class="small"><b>${ovDate(nd.due)}</b> · ${dueLabel(ob.days)} · ${DL_CLASS[nd.cls]} · owner: ${esc(OWNER[s.key])}</span>`):'<span class="muted">No open obligations</span>'}</td>
         <td class="ov-blocker" data-step="${bl?bl.k:''}">${bl?`<span class="small"><b>${esc(bl.step)}:</b> ${esc(bl.text)}</span>`:'<span class="tag t-teal">No blockers</span>'}</td>
         <td>${bl?`<button class="btn" onclick="go('${bl.k}')">${esc(actionFor(bl.k))} →</button>`:''}</td></tr>`; }).join('')}
     </tbody></table></div>
@@ -4870,9 +4874,9 @@ const DEMO_GROUP = [
    ccts:{intensity:1.172, target:1.21, q:2400000, ref:'draft'}, overdue:{what:'CCTS monitoring plan', due:'2026-06-30'}}
 ];
 function slackOf(keys, openSteps){
-  const nd=OV_DEADLINES.filter(d=>keys.includes(d.s)&&d.cls==='statutory'&&ovDays(d.due)>=0).sort((a,b)=>a.due.localeCompare(b.due))[0];
+  const nd=OV_DEADLINES.filter(d=>keys.includes(d.s)&&d.cls==='statutory'&&ovDays(d.due,d.tz)>=0).sort((a,b)=>a.due.localeCompare(b.due))[0];
   const lead=openSteps.reduce((a,k)=>a+(LEAD_DAYS[k]||7),0);
-  return {nd, lead, slack: nd? ovDays(nd.due)-lead : null};
+  return {nd, lead, slack: nd? ovDays(nd.due,nd.tz)-lead : null};
 }
 function portfolioRows(){
   const rows=[], cur=computeSnapshot();
@@ -4913,7 +4917,7 @@ function sPortfolio(){
   <p class="sub">One row per installation, riskiest first: overdue statutory filings, then the least slack between the nearest statutory deadline and the estimated time to finish the open steps.</p>
   <div class="tw"><table class="t" data-portfolio="group"><thead><tr><th>Installation</th><th>Nearest statutory deadline</th><th>Slack</th><th>CCTS position (FY2026-27)</th><th>Workflow</th><th></th></tr></thead><tbody>
   ${rows.map(r=>`<tr data-row="${r.k||'live'}" data-slack="${r.slack??''}" ${r.fictional?'data-fictional="1"':''}><td><b>${esc(r.name)}</b><br><span class="small muted">${esc(r.place)}${r.sector?' · '+esc(r.sector):''}</span></td>
-    <td>${r.overdue?`<span class="tag t-red">overdue</span> ${esc(r.overdue.what)}<br><span class="small muted">was due ${ovDate(r.overdue.due)}</span>`:r.nd?`${esc(SCHEME_NAME[r.nd.s])}: ${esc(r.nd.what)}<br><span class="small muted">${ovDate(r.nd.due)} · ${ovDays(r.nd.due)} days</span>`:'<span class="muted">—</span>'}</td>
+    <td>${r.overdue?`<span class="tag t-red">overdue</span> ${esc(r.overdue.what)}<br><span class="small muted">was due ${ovDate(r.overdue.due)}</span>`:r.nd?`${esc(SCHEME_NAME[r.nd.s])}: ${esc(r.nd.what)}<br><span class="small muted">${ovDate(r.nd.due)} · ${ovDays(r.nd.due,r.nd.tz)} days</span>`:'<span class="muted">—</span>'}</td>
     <td>${r.overdue?'<span class="tag t-red">overdue</span>':r.slack!=null?`<b>${r.slack}</b> days<br><span class="small muted">after ~${r.lead} days of work</span>`:'—'}</td>
     <td>${r.pos==null?'<span class="muted">no position</span>':`<b>${r.pos>0?'Short':'Surplus'} ${fmt(Math.abs(r.pos))}</b> CCC<br>${trustChip(r.tr)}`}</td>
     <td>${wf(r)}</td>
@@ -5177,7 +5181,7 @@ function levelsHTML(k){
 /* ---------- rail: calmer states ---------- */
 function stepInvalid(k){
   const f=flags(), on={ccts:f.ccts, pat:f.pat, cbam:f.eu, EU:f.ets==='EU', UK:f.ets==='UK'};
-  const od=OV_DEADLINES.find(d=>d.step===k && on[d.s] && OWN_DUTY(d.cls) && !(d.done&&d.done()) && ovDays(d.due)<0);
+  const od=OV_DEADLINES.find(d=>d.step===k && on[d.s] && OWN_DUTY(d.cls) && !(d.done&&d.done()) && ovDays(d.due,d.tz)<0);
   if(od) return `Overdue: ${SCHEME_NAME[od.s]} ${od.what.toLowerCase()} was due ${ovDate(od.due)}`;
   if(k==='c_factors' && f.eu && dVis(k) && factorIssues().length) return `${factorIssues().length} source stream(s) on a factor not accepted for CBAM`;
   if(k==='c_prec' && f.eu && dVis(k) && Object.values(S.cbam.prec||{}).flat().some(p=>p.src==='buy'&&p.basis==='supplier'&&!p.vr)) return 'A supplier value has no verification report';
@@ -5275,6 +5279,245 @@ render = (function(orig){ return function(){
 RULESET.items && RULESET.items.push({k:'pilot', name:'Usability review fixes', ver:'v4.13', status:'Pilot candidate', use:'Step levels, N/A steps, CBAM sharing states, Registry routes, overdue-first Overview'});
 render();
 if(setupDone()) go('overview');
+
+/* ===== v4.14 · final review fixes =====
+   One story everywhere: the Overview, the rail and the screens read the same state machines.
+   A. CBAM workflow state comes from the sharing state machine, not from "a dispatch exists".
+   B. Package identity covers the whole payload and the verification report it relies on.
+   C. Handoff completes only when every in-scope customer holds the current package.
+   D. Invalidation is driven by changes to calculation inputs (hashed), not by a list of UI functions;
+      earlier verification evidence is kept in history against the version it covered.
+   E. "Verified" comes from one version-bound predicate, never from a single checkbox.                          */
+
+/* ---------- E. one verification predicate per scheme, bound to the version it covered ---------- */
+function cbamCalcHash(){
+  const c=S.cbam;
+  return ovHash({cns:S.setup.cns, cn8:c.cn8, method:c.method, route:c.route, act:c.activity, prec:c.prec, elec:c.elecBasis, cp:c.cp, year:c.year,
+    st:PLATFORM.streams.map(s=>[s.id, s.qty, s.fsrc])});
+}
+function domCalcHash(){
+  return ovHash({a:S.dom.assetDec, reg:S.setup.regime, sec:S.setup.sector, st:PLATFORM.streams.map(s=>[s.id, s.qty, s.fsrc]),
+    demo:S.demo?[S.demo.co, S.demo.scen, S.demo.out]:null, t:S.dom.target});
+}
+if(S.cbam.verCovers===undefined) S.cbam.verCovers=null; S.cbam.verHistory=S.cbam.verHistory||[]; S.dom.verHistory=S.dom.verHistory||[];
+function cbamStagesDone(){ const v=S.cbam.ver||{}; return Object.keys(v).length>0 && Object.values(v).every(Boolean) && !!(S.cbam.verReportVer||'').trim(); }
+function cbamVerified(){ return flags().eu && !STEP_NA.c_verify() && cbamStagesDone() && S.cbam.verCovers===cbamCalcHash(); }
+function domVerified(k){
+  const v=S.dom.ver, fb=v.formB[k]||{}, who=k==='ccts'?v.acva:v.emaea;
+  return !!(who||'').trim() && !!(fb.ver||'').trim() && !!fb.date && fb.covers===domCalcHash();
+}
+function etsVerified(){ return !!S.ets.vr && !!S.ets.locked && !!(S.ets.verifier||'').trim(); }
+assuranceOf = function(k){
+  if(k==='cbam') return cbamVerified() ? {assurance:'verified', scope:`annual ${S.cbam.year} report ${S.cbam.verReportVer}`} : {assurance:'unverified'};
+  if(k==='EU'||k==='UK') return etsVerified() ? {assurance:'verified', scope:'annual emissions only — not holdings'} : {assurance:'unverified'};
+  return {assurance:'unverified'};
+};
+const _R414 = Object.assign({}, STEP_RULES);
+STEP_RULES.c_verify = ()=>{
+  if(STEP_NA.c_verify()) return [];
+  const t=_R414.c_verify();
+  if(!t.length && S.cbam.verCovers && S.cbam.verCovers!==cbamCalcHash()) t.push('The recorded verification covers an earlier version of the data — record the re-verified report');
+  return t;
+};
+domVerOk = function(sch){ const v=S.dom.ver, ack=sch==='ccts'?v.icmRef:v.sdaRef; return domVerified(sch) && !!(ack||'').trim() && (v.filedVer[sch]||'').trim()===(v.formB[sch].ver||'').trim(); };
+STEP_RULES.d_verify = (function(orig){ return ()=>{ const t=orig(); const f=flags();
+  ['ccts','pat'].filter(k=>f[k]).forEach(k=>{ const fb=S.dom.ver.formB[k]; if((fb.ver||'').trim() && fb.date && fb.covers && fb.covers!==domCalcHash()) t.push(`${k==='ccts'?'CCTS':'PAT'}: the recorded Form B covers an earlier version of the data — record the re-verified report`); });
+  return t; }; })(STEP_RULES.d_verify);
+STEP_RULES.ets_ver = ()=>{ const t=[]; if(!(S.ets.verifier||'').trim()) t.push('Name the verifier'); if(!S.ets.vr) t.push('Store the verifier’s signed verification report'); if(!S.ets.aerSubmitted) t.push('Store the authority’s submission receipt for the verified report'); return t; };
+LV_VERIF.c_verify = ()=> STEP_NA.c_verify() ? null : cbamVerified();
+LV_VERIF.d_verify = ()=> ['ccts','pat'].filter(k=>flags()[k]).every(domVerified);
+LV_VERIF.ets_ver = ()=> etsVerified();
+LV_VERIF.c_handoff = ()=> handoffActual() ? cbamVerified() : null;
+/* structure-only sectors: validation was not performed — say so instead of showing it as passed */
+['d_data','d_calc'].forEach(k=>{ const f=LV_VALID[k]; LV_VALID[k]=()=> domHasData() ? f() : 'skip'; });
+/* a monitoring-only year (no notified target) is legitimate: the calculation check no longer demands a target */
+domCalcChecks = function(){ if(!domHasData()) return []; const D=domCalc(), t=[]; if(!isFinite(D.gei)||!isFinite(D.sec)) t.push('the calculation did not produce a finite result'); return t; };
+stepLevels = function(k){
+  const st=(f)=> f ? (v=>v===null?'na':v==='skip'?'skip':v?'ok':'todo')(f()) : 'na';
+  return [['Viewed', (dVis(k)||S.screen===k)?'ok':'todo'], ['Reviewed by operator', REVIEW_STEPS.includes(k)?(dRev(k)?'ok':'todo'):'na'],
+    ['Validated', st(LV_VALID[k])], ['Verified externally', st(LV_VERIF[k])], ['Submitted / shared', st(LV_SUBM[k])]];
+};
+levelsHTML = function(k){
+  const L=stepLevels(k), sym={ok:'✓',todo:'○',na:'—',skip:'⊘'}, txt={skip:' (not performed — no plant ledger in the demo)'};
+  return `<div class="levels" data-levels="${k}">${L.map(([t,s])=>`<span class="lv lv-${s}" data-level="${t}" data-state="${s}">${sym[s]} ${t}${txt[s]||''}</span>`).join('')}
+    <div class="small muted" style="margin-top:4px">The rail ticks when every ○ here is met. “Continue” saves your review; it never counts as validation or verification. — does not apply · ⊘ not performed.</div></div>`;
+};
+
+/* ---------- D. invalidation from changes to calculation inputs ---------- */
+function retireCbamVerification(reason){
+  const v=S.cbam.ver||{};
+  if(!(v.vr||v.closed||S.cbam.verReportVer||S.cbam.verCovers)) return false;
+  S.cbam.verHistory.push({ver:S.cbam.verReportVer||'(no version)', covered:S.cbam.verCovers, stages:Object.assign({},v), ev:Object.assign({},S.cbam.verEv), retired:today413(), reason});
+  v.vr=false; v.closed=false; delete S.cbam.verEv.vr; delete S.cbam.verEv.closed; S.cbam.verReportVer=''; S.cbam.verCovers=null; return true;
+}
+function retireDomVerification(reason){
+  let any=false; ['ccts','pat'].forEach(k=>{ const fb=S.dom.ver.formB[k]; if(fb && (fb.ver||fb.date)){ S.dom.ver.verHistory=S.dom.ver.verHistory||[];
+    S.dom.verHistory.push({scheme:k, ver:fb.ver, date:fb.date, covered:fb.covers, retired:today413(), reason}); S.dom.ver.formB[k]={ver:'',date:''}; S.dom.ver.filedVer[k]=''; any=true; } });
+  return any;
+}
+function cbamInputsChanged(){
+  const reset=[];
+  if(S.cbam.locked){ S.cbam.locked=false; reset.push('EU CBAM period lock — relock after review'); }
+  ['c_see','c_fa'].forEach(k=>{ if(S.reviewed[k]){ S.reviewed[k]=false; reset.push(stepTitle(k)+' — review again'); } });
+  if(retireCbamVerification('calculation inputs changed')) reset.push('CBAM verification — the earlier report is kept in history against the version it covered; record the re-verified report');
+  const hit=(S.cbam.dispatch||[]).filter(d=>d.state==='Shared').map(d=>d.to); if(hit.length) reset.push(`Customer packages to replace: ${[...new Set(hit)].join(', ')}`);
+  return reset;
+}
+function domInputsChanged(){
+  const reset=[];
+  ['d_data','d_calc'].forEach(k=>{ if(S.reviewed[k]){ S.reviewed[k]=false; reset.push(stepTitle(k)+' — review again'); } });
+  if(retireDomVerification('calculation inputs changed')) reset.push('Form B — the earlier report is kept in history; record the re-verified version before filing');
+  return reset;
+}
+/* setup changes keep the original wrapper (country, schemes, sector), but now preserve verification history */
+invalidate413 = function(kind, what){
+  if(kind!=='setup') return;          /* goods, codes and methods are caught by the input hash below */
+  const reset=[];
+  if(S.dom.boundaryLocked){ S.dom.boundaryLocked=false; reset.push('Domestic boundary lock'); }
+  if(S.ets.locked){ S.ets.locked=false; reset.push('ETS emissions lock'); }
+  ['ets_apply','ets_ship'].forEach(k=>{ if(S.reviewed[k]){ S.reviewed[k]=false; reset.push(stepTitle(k)+' — review again'); } });
+  reset.push(...domInputsChanged(), ...cbamInputsChanged());
+  if(reset.length) S.ov.invalid={what, reset};
+};
+function checkInputs414(){
+  if(flags().eu && typeof seedCbam==='function') seedCbam();
+  const hc=cbamCalcHash(), hd=domCalcHash(), H=S.ov.inHash;
+  if(H){
+    const reset=[];
+    if(H.c!==hc) reset.push(...cbamInputsChanged());
+    if(H.d!==hd) reset.push(...domInputsChanged());
+    if(reset.length) S.ov.invalid={what:'Calculation inputs changed', reset};
+  }
+  S.ov.inHash={c:hc, d:hd};
+  /* bind verification to the version it covered, at the moment it is complete */
+  if(cbamStagesDone() && !S.cbam.verCovers) S.cbam.verCovers=hc;
+  ['ccts','pat'].forEach(k=>{ const fb=S.dom.ver.formB[k]; if(fb && (fb.ver||'').trim() && fb.date && !fb.covers) fb.covers=hd; });
+}
+
+/* ---------- B. package identity: the whole payload plus the report it relies on ---------- */
+handoffHash = function(){
+  const rows=handoffRows().map(r=>[r.g.cn8, S.cbam.route[r.g.cat]||'', r.s.method, r.s.see!=null?+(+r.s.see).toFixed(6):null, r.s.indirect!=null?+(+r.s.indirect).toFixed(6):null,
+    r.o?+(+r.o.sefa||0).toFixed(6):null, r.o?!!r.o.secppEligible:null, r.o?+(+r.o.secpp||0).toFixed(4):null]);
+  return ovHash({rows, year:S.cbam.year, cp:S.cbam.cp, inst:(S.reg.inst||{}).id||'', ruleset:RULESET.id, report: handoffActual()?(S.cbam.verReportVer||''):'n/a (default values)'});
+};
+shareState = function(d){
+  if(d.state==='Superseded') return 'Superseded';
+  if(d.state==='Shared') return d.hash!==handoffHash() ? 'Replacement required' : 'Shared';
+  const stale = d.hash!==handoffHash();
+  return (!stale && !handoffGates().length) ? 'Ready to share' : 'Draft downloaded';
+};
+handoffGates = function(){
+  if(!handoffActual()) return [];
+  const t=[]; if(!S.cbam.locked) t.push('lock the period (step 7)');
+  if(!cbamVerified()) t.push('record the verification of this exact version (step 8)');
+  if(!dRev('c_fa')) t.push('review the free-allocation adjustment (step 9)'); return t;
+};
+
+/* ---------- C. recipient scope: every in-scope customer holds the current package ---------- */
+S.cbam.scope = S.cbam.scope || {};
+const inScope = ()=> CUSTOMERS.filter(c=>S.cbam.scope[c.n]!==false).map(c=>c.n);
+function custState(name){
+  const list=(S.cbam.dispatch||[]).filter(d=>d.to===name); if(!list.length) return {st:'Not prepared', d:null};
+  const cur=list.find(d=>shareState(d)==='Shared'), latest=list[list.length-1], ls=shareState(latest), repl=list.find(d=>shareState(d)==='Replacement required');
+  if(cur) return {st:'Shared', d:cur};
+  if(ls==='Ready to share') return {st:'Ready to share', d:latest, repl};
+  if(repl && ls!=='Draft downloaded') return {st:'Replacement required', d:repl};
+  return {st: repl?'Replacement required':ls, d:latest, repl};
+}
+function handoffCounts(){
+  const c={current:0, awaiting:0, replace:0}, sc=inScope();
+  sc.forEach(n=>{ const s=custState(n).st; if(s==='Shared') c.current++; else if(s==='Replacement required') c.replace++; else c.awaiting++; });
+  return {...c, total:sc.length};
+}
+STEP_RULES.c_handoff = ()=>{
+  const n=handoffCounts(), t=[], g=handoffGates();
+  if(!n.total) return ['Choose at least one customer in scope for this year'];
+  if(n.current===n.total) return [];
+  if(g.length) t.push('Before an actual-data package can be shared: '+g.join('; '));
+  if(n.replace) t.push(`${n.replace} customer${n.replace>1?'s hold':' holds'} an out-of-date package — prepare a replacement and record the share`);
+  if(n.awaiting) t.push(`${n.awaiting} of ${n.total} in-scope customer${n.total>1?'s':''} still to receive the current package — prepare it, then record the share (downloading is not sharing)`);
+  return t;
+};
+LV_SUBM.c_handoff = ()=>{ const n=handoffCounts(); return n.total>0 && n.current===n.total; };
+const _inv414 = stepInvalid;
+stepInvalid = function(k){ if(k==='c_handoff' && handoffCounts().replace) return 'A customer holds an out-of-date package'; return _inv414(k); };
+sHandoff = (function(orig){ return function(){
+  let h=orig(); const s0=h.indexOf('<div class="card" data-share="1">'); if(s0>=0){ const e0=h.indexOf('</div>\n    ', s0); }
+  /* replace the v4.13 sharing card with the recipient-scoped one */
+  h=h.replace(/<div class="card" data-share="1">[\s\S]*?(?=<div class="card">)/, '');
+  const n=handoffCounts(), g=handoffGates();
+  const card=`<div class="card" data-share="2"><h2>Sharing status</h2>
+    <p class="sub">${handoffActual()?'This package carries actual data, so it can be shared only from a locked period whose verification covers this exact version.':'All codes use default values, so the package can be shared without verification.'} Downloading creates a draft; record the share when the customer has it. A package version covers every value in it and the report it relies on.</p>
+    <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px" data-counts="${n.current}/${n.awaiting}/${n.replace}"><span class="tag t-teal">${n.current} current</span><span class="tag t-gray">${n.awaiting} awaiting share</span><span class="tag ${n.replace?'t-red':'t-gray'}">${n.replace} replacement required</span>${n.current>0&&n.current<n.total?'<span class="tag t-amber">milestone: at least one shared</span>':''}</div>
+    ${g.length?`<div class="note n-warn"><span class="i">!</span><div><b>Not ready to share yet:</b> ${esc(g.join('; '))}.</div></div>`:''}
+    <div class="tw"><table class="t"><thead><tr><th>In scope</th><th>Customer</th><th>Version</th><th>State</th><th></th></tr></thead><tbody>
+      ${CUSTOMERS.map(c=>{ const on=S.cbam.scope[c.n]!==false, cs=custState(c.n), d=cs.d, cls={'Shared':'t-teal','Ready to share':'t-gray','Draft downloaded':'t-gray','Not prepared':'t-gray','Replacement required':'t-red'}[cs.st]||'t-gray';
+        const act = !on ? '' : cs.st==='Ready to share' ? `<button class="btn btn-p" onclick='recordShared(${JSON.stringify(c.n)})'>Record as shared</button>` : cs.st==='Shared' ? '' : (cs.st==='Draft downloaded' && cs.d && cs.d.hash===handoffHash()) ? '<span class="small muted">draft is current — waiting for the conditions above</span>' : `<button class="btn" onclick='custPackage(${JSON.stringify(c.n)})'>${cs.st==='Replacement required'?'Prepare replacement':'Prepare package'}</button>`;
+        return `<tr data-share-state="${on?cs.st:'out of scope'}" data-cust="${esc(c.n)}"><td><input type="checkbox" ${on?'checked':''} onchange='S.cbam.scope[${JSON.stringify(c.n)}]=this.checked;render()'></td><td>${esc(c.n)}</td><td>${d?esc(d.v)+' · '+esc(d.date):'—'}</td>
+          <td>${on?`<span class="tag ${cls}">${cs.st}</span>${cs.repl&&cs.st!=='Replacement required'?'<div class="small muted">customer still holds an out-of-date version</div>':''}`:'<span class="muted">out of scope this year</span>'}</td><td>${act}</td></tr>`; }).join('')}
+    </tbody></table></div></div>`;
+  const i=h.indexOf('<div class="card">'); return i>0 ? h.slice(0,i)+card+h.slice(i) : h+card;
+}; })(sHandoff);
+SCREENS.c_handoff = sHandoff;
+
+/* ---------- A. CBAM workflow state from the state machines ---------- */
+wfOf = (function(orig){ return function(k){
+  if(k!=='cbam') return orig(k);
+  const n=handoffCounts(), any=(S.cbam.dispatch||[]).length>0;
+  if(n.replace) return 'replacement required';
+  if(n.current>0) return 'shared with customer';
+  if(S.cbam.locked && cbamVerified()) return 'verified';
+  if(S.cbam.locked) return 'frozen';
+  if(any) return 'draft prepared';
+  return 'open';
+}; })(wfOf);
+
+/* ---------- convenience: default-only route skips actual-data work ---------- */
+['c_process','c_factors','c_prec','c_see','c_lock'].forEach(k=>{ STEP_NA[k]=()=>flags().eu && cbamDefaultOnly(); });
+STEP_NA_WHY.c_process=STEP_NA_WHY.c_factors=STEP_NA_WHY.c_prec=STEP_NA_WHY.c_see='Every selected CN code uses default values, so no plant monitoring data is needed for the package.';
+STEP_NA_WHY.c_lock='Every selected CN code uses default values, so there is no actual-data period to lock.';
+['c_process','c_factors','c_prec','c_see','c_lock'].forEach(k=>{ const f=STEP_RULES[k]; STEP_RULES[k]=()=> STEP_NA[k]() ? [] : f(); });
+Object.defineProperty(STEP_DEPS, 'c_handoff', {get:()=> handoffActual() ? ['c_see','c_verify','c_fa'] : ['c_goods'], configurable:true, enumerable:true});
+Object.defineProperty(STEP_DEPS, 'c_fa', {get:()=> handoffActual() ? ['c_see'] : ['c_goods'], configurable:true, enumerable:true});
+/* default-only verification screen: no checklist to wade through */
+sCVerify = (function(orig){ return function(){
+  if(STEP_NA.c_verify()) return `<div class="crumb">EU CBAM · operator</div><h1>Verification</h1><div class="note n-info"><span class="i">i</span><div><b>Not applicable this year.</b> ${STEP_NA_WHY.c_verify}</div></div><div class="btns"><button class="btn btn-p" onclick="go('c_fa')">Free allocation & carbon price →</button></div>`;
+  return orig().replace('Ticking a stage records its evidence: who recorded it and when. Production also stores the document.','Ticking a stage records your confirmation — who and when. Production requires the supporting document for each stage.')
+               .replace('Signed verification report — version','Signed verification report — version (binds the verification to this exact data version)');
+}; })(sCVerify);
+SCREENS.c_verify = sCVerify;
+sRegistry = (function(orig){ return function(){
+  let h=orig(); if(!handoffActual()) h=h.replace('will receive the verified report and supporting documents directly','will receive the report (default values) and supporting documents directly'); return h;
+}; })(sRegistry);
+SCREENS.c_registry = sRegistry;
+/* generic N/A screen for actual-data steps on the default-only route */
+['c_process','c_factors','c_prec','c_see','c_lock'].forEach(k=>{ const f=SCREENS[k]; if(!f) return;
+  SCREENS[k]=function(){ if(STEP_NA[k]()) return `<div class="crumb">EU CBAM · operator</div><h1>${esc(stepTitle(k).replace(/^\d+ · /,''))}</h1><div class="note n-info"><span class="i">i</span><div><b>Not applicable.</b> ${STEP_NA_WHY[k]}</div></div>`; return f.apply(this, arguments); }; });
+
+/* ---------- refresh status when an evidence field is left (blur), so readiness never needs a guess ---------- */
+document.addEventListener('change', e=>{
+  const el=e.target; if(!el || !el.matches || !el.matches('#main input')) return; if(el.type==='checkbox'||el.type==='date') return;
+  if(/S\.(dom|cbam|reg|ets)\./.test(el.getAttribute('oninput')||'')) refreshStatus414();
+});
+/* update only the status bar and the rail, in place — a full re-render here would swallow the click that caused the blur */
+function refreshStatus414(){
+  try{ renderNav(); }catch(e){}
+  const k=S.screen, bar=document.querySelector('#main .stepbar'); if(!bar || !STEP_RULES[k] || (STEP_NA[k]&&STEP_NA[k]())) return;
+  const st=stepStatus(k);
+  bar.className='stepbar '+(st.done?'ok':'todo');
+  bar.innerHTML = st.done ? `<span>✓</span><div><b>This step is complete.</b>${levelsHTML(k)}</div>`
+    : `<span>!</span><div><b>To complete this step:</b><ul>${st.todo.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>${levelsHTML(k)}</div>`;
+}
+
+/* ---------- labels: demo-fixed periods ---------- */
+render = (function(orig){ return function(){
+  checkInputs414();
+  orig();
+  const bar=document.querySelector('#main .ctxbar'); if(bar) bar.innerHTML=bar.innerHTML.replace('data through Sep 2026','data through Sep 2026 (fixed in the demo)');
+}; })(render);
+
+RULESET.items && RULESET.items.push({k:'final', name:'Final review fixes', ver:'v4.14', status:'Pilot candidate', use:'Sharing-driven CBAM state, full package identity, recipient scope, input-hash invalidation, version-bound verification'});
+render();
 
 </script>
 </body></html>
