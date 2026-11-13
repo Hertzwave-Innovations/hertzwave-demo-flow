@@ -730,6 +730,7 @@ function render(){
 /* ════════════════════════════════════════════════════════════════════════
    SCREEN: SET UP
    ════════════════════════════════════════════════════════════════════════ */
+function isSetV(v){ return v!==null && v!==undefined && String(v).trim()!==''; }
 function setCountry(k){ S.setup.country=k; S.setup.countryConfirmed=true; if(k!=='IN') S.setup.regime=null; if(k==='GB') S.setup.uk=false; render(); }
 function setRegime(r){ S.setup.regime=r; render(); }
 function setMarket(m,v){ S.setup[m]=v; render(); }
@@ -745,7 +746,7 @@ function cnListHTML(){
     if(!q) return true;
     return r[0].replace(/\s/g,'').includes(q) || r[1].toLowerCase().includes(q) || CATS[r[2]].name.toLowerCase().includes(q);
   });
-  if(!rows.length) return `<div class="empty">No CBAM good matches “${esc(S.setup.search)}”. If your product is not in Annex I, it is outside CBAM — no operator data is needed for it.</div>`;
+  if(!rows.length) return `<div class="empty">No match in the loaded list for “${esc(S.setup.search)}”. That does not mean the product is outside CBAM: check the code against Annex I, or ask us to load it.</div>`;
   const by={}; rows.forEach(r=>{ const g=CATS[r[2]].name; (by[g]=by[g]||[]).push(r); });
   return Object.entries(by).map(([g,list])=>`<div class="cn-g">${g} · ${CATS[list[0][2]].indirect?'direct + indirect':'direct only'}</div>`+
     list.map(r=>`<label class="cn-i"><input type="checkbox" ${S.setup.cns.includes(r[0])?'checked':''} onchange="toggleCN('${r[0]}')"><code>${r[0]}</code><span>${r[1]}</span><span class="tag t-gray">${SECTORS[CATS[r[2]].sector]}</span></label>`).join('')
@@ -3129,7 +3130,7 @@ function etsStates(){
     ['Monitoring plan', e.mpState],
     ['Annual emissions report', e.aerSubmitted ? 'Submitted' : e.vr ? 'Verified' : e.contracted && e.locked ? 'Under verification' : e.locked ? 'Operator locked' : 'Draft'],
     ['Registry emissions', e.reg.confirmed && e.reg.evidence ? 'Confirmed' : e.reg.entered ? 'Entered' : 'Not entered'],
-    ['Allocation', e.natAlloc ? 'Authority determined' : 'Preliminary'],
+    ['Allocation', isSetV(e.natAlloc) ? 'Authority determined' : 'Preliminary'],
     ['Surrender', e.surrendered ? 'Completed' : 'Required']
   ];
 }
@@ -3386,7 +3387,7 @@ function sEtsVer(){
 
 function sEtsFA(){
   const R=ER(), fa=etsFA(), e=S.ets, sch=R.k;
-  return crumb()+`<h1>Free allocation</h1><div class="row" style="margin:-2px 0 10px">${resultChip(e.natAlloc?'Regulator / Registry confirmed':'Draft estimate','The authority’s allocation table is the figure; TerraCAP’s is a check')}<span class="small muted">The authority’s allocation table is the figure. TerraCAP’s calculation below is a check against it.</span></div>
+  return crumb()+`<h1>Free allocation</h1><div class="row" style="margin:-2px 0 10px">${resultChip(isSetV(e.natAlloc)?'Regulator / Registry confirmed':'Draft estimate','The authority’s allocation table is the figure; TerraCAP’s is a check')}<span class="small muted">The authority’s allocation table is the figure. TerraCAP’s calculation below is a check against it.</span></div>
   <p class="lede">${R.period}. Allocation is set per sub-installation by the authority; TerraCAP explains and checks it.</p>
   <div class="card"><h2>Authority allocation for 2026</h2><table class="t"><tbody>
     <tr><td style="width:280px">National allocation table entry</td><td><input class="fi" style="width:180px;display:inline-block" value="${esc(e.natAlloc)}" placeholder="Allowances" oninput="S.ets.natAlloc=this.value.replace(/[^0-9]/g,'')" onchange="render()"> ${PB.entry('From the authority’s allocation decision')}</td></tr>
@@ -3419,8 +3420,9 @@ function sEtsFA(){
 
 function sEtsSurr(){
   const R=ER(), c=etsCalc(), fa=etsFA(), e=S.ets;
-  const alloc = e.natAlloc ? +e.natAlloc : fa.loaded;
-  const need = c.total - alloc - e.holdings, buy=Math.max(0,need);
+  const alloc = isSetV(e.natAlloc) ? +e.natAlloc : fa.loaded;
+  /* v4.12 review fix (M11): registry holdings already include free allocation once it is issued — never subtract both */
+  const P=etsPosition(), buy=P.fundingGap;
   const rs=[['assigned','Operator assigns the accredited verifier to the registry account'],['accepted','Verifier confirms the assignment'],['entered','Operator and/or verifier enters verified emissions, as the national set-up allows'],['confirmed','Verifier confirms the figure by '+R.aer],['evidence','Registry confirmation stored and reconciled with the report total']];
   return crumb()+`<h1>Surrender & registry</h1>
   <p class="lede">A checklist and reconciliation — TerraCAP never acts in the ${esc(R.registry)} and never holds registry credentials.</p>
@@ -3430,13 +3432,17 @@ function sEtsSurr(){
     <div class="note n-warn mt"><span class="i">!</span><div>If verified emissions are not entered and confirmed by ${R.aer}, the holding account can be blocked for outgoing transfers until they are. ${CONF.r}</div></div></div>
   <div class="card"><h2>Position for 2026</h2><table class="t"><tbody>
     <tr><td style="width:280px">Verified emissions (draft)</td><td class="r">${fmtE(c.total)} t</td></tr>
-    <tr><td>Free allocation — ${e.natAlloc?'authority table':'TerraCAP check, loaded sub-installations'}</td><td class="r">− ${fmtE(alloc)}</td></tr>
-    <tr><td>Allowances already held</td><td class="r">− <input class="fi" style="width:140px;display:inline-block;text-align:right" value="${e.holdings}" onchange="S.ets.holdings=+this.value||0;render()"></td></tr>
-    <tr><td><b>Shortfall to cover</b> <span class="tag t-gray">Compliance arithmetic</span></td><td class="r"><b>${fmtE(buy)} ${R.unit}</b></td></tr>
+    <tr><td>Free allocation — ${isSetV(e.natAlloc)?'authority table':'TerraCAP check, loaded sub-installations'}</td><td class="r">${fmtE(alloc)}</td></tr>
+    <tr><td>Emissions less free allocation <span class="tag t-gray">Structural exposure — not a purchase requirement</span></td><td class="r">${fmtE(P.structural)}</td></tr>
+    <tr><td>Remaining surrender obligation <span class="small muted">(required − already surrendered)</span></td><td class="r">${fmtE(P.remaining)}</td></tr>
+    <tr><td>Allowances in the holding account <span class="small muted">as of</span> <input class="fi" type="date" style="width:140px;display:inline-block" value="${esc(e.holdingsAsOf||'')}" onchange="S.ets.holdingsAsOf=this.value;render()"></td><td class="r"><input class="fi" style="width:140px;display:inline-block;text-align:right" value="${e.holdings}" onchange="S.ets.holdings=+this.value||0;render()"></td></tr>
+    <tr><td colspan="2"><label class="chk" style="margin:0"><input type="checkbox" ${e.holdingsInclFA===true?'checked':''} onchange="S.ets.holdingsInclFA=this.checked;render()"> This year’s free allocation has already been issued into this balance</label></td></tr>
+    ${P.expectedFA?`<tr><td>Gap after the expected free allocation is issued <span class="tag t-amber">Projected</span></td><td class="r">${fmtE(P.gapAfterExpected)}</td></tr>`:''}
+    <tr><td><b>Remaining surrender funding gap</b> <span class="tag t-gray">Compliance arithmetic</span></td><td class="r"><b>${fmtE(buy)} ${R.unit}</b></td></tr>
     <tr><td>Cost if bought at ${R.cur}${R.price.v} <span class="tag t-gray">Hypothetical scenario</span></td><td class="r">${R.cur}${fmtE(buy*R.price.v)} <span class="small muted">— ${R.price.d}</span></td></tr>
   </tbody></table>
   <p class="small muted">Not a recommendation to buy, sell or hedge allowances, or on timing or volume. Emission allowances are financial instruments under MiFID II.</p>
-  ${!e.natAlloc&&fa.missing?`<p class="small muted">Free allocation for some sub-installations is not loaded, so the shortfall is overstated.</p>`:''}</div>
+  ${!isSetV(e.natAlloc)&&fa.missing?`<p class="small muted">Free allocation for some sub-installations is not loaded, so the shortfall is overstated.</p>`:''}</div>
   <div class="card"><h2>Surrender — by ${R.surrender}</h2>
     <p class="small">Done in the registry by the account’s representatives, under the approval rules that account is configured with.</p>
     <label class="chk"><input type="checkbox" ${e.surrendered?'checked':''} onchange="S.ets.surrendered=this.checked;render()"> Surrender transaction confirmation stored</label></div>
@@ -3921,7 +3927,7 @@ function demoCalcHTML(){
       <label class="small">SEC vs cycle baseline (%) ${demoInput('sp',S.demo.scen.pat,'0.1','setScenP')}</label>
       <div class="grid3 mt">
         <div class="stat"><div class="sl">Scenario SEC</div><div class="sv">${fmt(sec,4)}</div><div class="su">toe / t equivalent product</div></div>
-        <div class="stat ${(sec-L[7])>0?'hi':'ok'}"><div class="sl">${(sec-L[7])>0?'ESCerts to buy':'ESCerts earned'}</div><div class="sv">${fmt(Math.abs((sec-L[7])*patOut(c)))}</div><div class="su">1 ESCert = 1 toe · before normalisation</div></div>
+        <div class="stat ${(sec-L[7])>0?'hi':'ok'}"><div class="sl">${(sec-L[7])>0?'Planning shortfall':'Planning surplus'}</div><div class="sv">${fmt(Math.abs((sec-L[7])*patOut(c)))}</div><div class="su">toe · pre-normalisation planning gap — not final ESCert entitlement</div></div>
         <div class="stat"><div class="sl">Output used</div><div class="sv" style="font-size:15px">${fmt(patOut(c),0)} t</div><div class="su">cycle baseline output from the Gazette</div></div>
       </div>`
     :`<div class="note n-info mt"><span class="i">i</span><div>Refinery PAT targets are in MBN (thousand BTU per barrel per NRGF). The ESCert position needs the MBN normalisation, which this demo does not compute.</div></div>`}
@@ -4089,7 +4095,7 @@ window._PG = {};
 function pgTip(ev,key,i){
   const d=_PG[key], p=d.rows[i], box=document.getElementById('tip_'+key); if(!box) return;
   const f=v=>fmt(v,d.dp);
-  box.innerHTML=`<b>${p.m} ${i<9?'2026':'2027'}</b> · ${p.act?'actual':'<i>projected</i>'}<br>Month: ${f(p.mi)}<br>Year to date: <b>${f(p.ytd)}</b><br>Notified target: ${f(d.target)} <span class="muted">(${p.ytd>d.target?'+':''}${fmt((p.ytd-d.target)/d.target*100,1)}%)</span><br>Internal goal: ${f(d.goal)} <span class="muted">(${p.ytd>d.goal?'+':''}${fmt((p.ytd-d.goal)/d.goal*100,1)}%)</span>`;
+  box.innerHTML=`<b>${p.m} ${i<9?'2026':'2027'}</b> · ${p.act?(window.PG_ACT_WORD||'actual'):'<i>projected</i>'}<br>Month: ${f(p.mi)}<br>Year to date: <b>${f(p.ytd)}</b><br>Notified target: ${f(d.target)} <span class="muted">(${p.ytd>d.target?'+':''}${fmt((p.ytd-d.target)/d.target*100,1)}%)</span><br>Internal goal: ${f(d.goal)} <span class="muted">(${p.ytd>d.goal?'+':''}${fmt((p.ytd-d.goal)/d.goal*100,1)}%)</span>`;
   const wrap=box.parentElement.getBoundingClientRect(); let x=ev.clientX-wrap.left+14; if(x>wrap.width-210) x=ev.clientX-wrap.left-214;
   box.style.left=x+'px'; box.style.top=Math.max(0,ev.clientY-wrap.top-30)+'px'; box.style.display='block';
   document.getElementById('hl_'+key).setAttribute('x1',d.xs[i]); document.getElementById('hl_'+key).setAttribute('x2',d.xs[i]); document.getElementById('hl_'+key).style.display='';
@@ -4124,13 +4130,13 @@ function progressChart(key, rows, target, goal, dp, unit){
     ${rows.map((r,i)=>`<rect x="${X(i)-iw/24}" y="${mt}" width="${iw/12}" height="${ih}" fill="transparent" onmousemove="pgTip(event,'${key}',${i})"/>`).join('')}
   </svg></div><div class="pg-tip" id="tip_${key}"></div></div>
   <details class="mt"><summary class="small">Show as table</summary><div class="tw"><table class="t"><thead><tr><th>Month</th><th></th><th class="r">Monthly</th><th class="r">Year to date</th><th class="r">vs target</th><th class="r">vs goal</th></tr></thead><tbody>
-    ${rows.map((r,i)=>`<tr><td>${r.m} ${i<9?'2026':'2027'}</td><td class="small muted">${r.act?'actual':'projected'}</td><td class="r">${fmt(r.mi,dp)}</td><td class="r">${fmt(r.ytd,dp)}</td><td class="r">${fmt((r.ytd-target)/target*100,1)}%</td><td class="r">${fmt((r.ytd-goal)/goal*100,1)}%</td></tr>`).join('')}
+    ${rows.map((r,i)=>`<tr><td>${r.m} ${i<9?'2026':'2027'}</td><td class="small muted">${r.act?(window.PG_ACT_WORD||'actual'):'projected'}</td><td class="r">${fmt(r.mi,dp)}</td><td class="r">${fmt(r.ytd,dp)}</td><td class="r">${fmt((r.ytd-target)/target*100,1)}%</td><td class="r">${fmt((r.ytd-goal)/goal*100,1)}%</td></tr>`).join('')}
   </tbody></table></div></details>`;
 }
 function progressCSV(key,label,unit){
   const d=_PG[key]; if(!d) return;
   const lines=[['Month','Status',`Monthly ${unit}`,`YTD ${unit}`,'Notified target','Internal goal','YTD vs target %','YTD vs goal %'].join(',')]
-    .concat(d.rows.map((r,i)=>[r.m+' '+(i<9?'2026':'2027'),r.act?'actual':'projected',r.mi.toFixed(d.dp+1),r.ytd.toFixed(d.dp+1),d.target,d.goal.toFixed(d.dp+1),((r.ytd-d.target)/d.target*100).toFixed(2),((r.ytd-d.goal)/d.goal*100).toFixed(2)].join(',')));
+    .concat(d.rows.map((r,i)=>[r.m+' '+(i<9?'2026':'2027'),r.act?(window.PG_ACT_WORD||'actual'):'projected',r.mi.toFixed(d.dp+1),r.ytd.toFixed(d.dp+1),d.target,d.goal.toFixed(d.dp+1),((r.ytd-d.target)/d.target*100).toFixed(2),((r.ytd-d.goal)/d.goal*100).toFixed(2)].join(',')));
   const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/csv'})); a.download=`TerraCAP_${label}_progress_FY2026-27.csv`; a.click();
 }
 function goalCardHTML(key, label, metricUnit, annualI, annualQ, target, certName, dp, scenario, draft){
@@ -4355,6 +4361,920 @@ render = function(){
 /* typing into a field (e.g. an acknowledgement number) updates the rail at once, without re-rendering the screen */
 document.addEventListener('input', ()=>{ try{ renderNav(); }catch(e){} }); document.addEventListener('change', ()=>{ try{ renderNav(); }catch(e){} });
 render();
+
+/* ===== v4.12 · Overview, compliance results, dashboard snapshot, portfolio =====
+   Reference implementation of "TerraCAP CMC Overview & Dashboards" rev. 2 (after expert review).
+   Rules this code demonstrates for the production build:
+     1. TWO LAYERS. A compliance result (per scheme and period) comes from the scheme engine and is pinned once
+        the period is frozen or submitted. The dashboard snapshot REFERENCES those results and adds deadlines,
+        goals, prices, projections and blockers. A price or goal change moves the snapshot, never the result.
+     2. The Overview never computes a regulatory figure itself: M6 reads the CCTS/PAT engine, M9 the CBAM engine,
+        M11 the ETS position function the workflow screen also uses.
+     3. Trust is five attributes (basis, assurance, reference, workflow, freshness), shown as ONE line.
+     4. Units are never mixed; own exposure and customer-side value are never added together.
+     5. Status (steps, blockers) comes from the workflow's own step rules.                                        */
+const IS_DEMO_TENANT = true;          /* production: false — placeholders then show a reason, not a number */
+S.ov = S.ov || {partner:false, trace:null, version:0, hash:null, pinned:{}, prices:{
+  ccc:{price:null, source:'', asOf:''}, escert:{price:null, source:'', asOf:''},
+  eua:{price:null, source:'', asOf:''}, uka:{price:null, source:'', asOf:''}, cbam:{price:null, source:'', asOf:''}}};
+const hasPrice = pr => pr && pr.price!==null && pr.price!==undefined && pr.price!=='';     /* 0 is a price; blank is not */
+window.PG_ACT_WORD = IS_DEMO_TENANT ? 'illustrative profile' : 'actual';
+if(S.ets.holdingsInclFA===undefined) S.ets.holdingsInclFA=false;   /* demo balance stated before this year's allocation is issued */   /* demo balance (1 Mt) is stated before this year's allocation */
+if(S.ets.holdingsAsOf===undefined) S.ets.holdingsAsOf='';
+const CUR = {ccc:'₹', escert:'₹', eua:'€', uka:'£', cbam:'€'};
+function money(v, pk){ const c=CUR[pk]; return c==='₹' ? `${c}${fmt(v/1e7,2)} cr` : `${c}${fmt(v/1e6,2)}M`; }
+
+/* ---------- M7 sign convention: "improvement below target", positive = stricter ---------- */
+goalVal = function(k,target){ return target*(1+S.goal[k].pct/100); };          /* storage unchanged: pct = −improvement */
+function goalImp(k){ return -S.goal[k].pct; }
+setGoal = function(k,v){ const x=parseFloat(v); if(isFinite(x)) S.goal[k].pct=-x; render(); };
+goalCardHTML = (function(orig){ return function(){ const key=arguments[0];
+  return orig.apply(this, arguments)
+    .replace('Goal vs notified target (%)', 'Improvement below target (%, + = stricter)')
+    .replace(`value="${S.goal[key].pct}" style="width:110px`, `value="${goalImp(key)}" style="width:110px`); }; })(goalCardHTML);
+
+/* ---------- trust: five attributes, one label ---------- */
+function trust(o){ return Object.assign({basis:'actual', assurance:'unverified', scope:'', ref:'in-force', wf:'open', fresh:'current'}, o||{}); }
+function trustText(t){
+  const p=[{actual:'Actual', estimated:'Estimated', projected:'Projected', scenario:'Scenario'}[t.basis]];
+  if(t.ref==='draft') p.push('draft target'); if(t.ref==='illustrative') p.push('illustrative reference'); if(t.ref==='unavailable') p.push('reference not loaded');
+  if(t.wf!=='open') p.push(t.wf);
+  if(t.extra) p.push(t.extra);
+  p.push(t.assurance==='verified' ? `verified${t.scope?' ('+t.scope+')':''}` : 'unverified');
+  if(t.fresh!=='current') p.push(t.fresh==='pending'?'update pending':'stale');
+  return p.join(' · ');
+}
+function trustChip(t){
+  const cls = t.ref==='unavailable' ? 't-red' : (t.basis==='scenario'||t.basis==='projected'||t.ref==='draft'||t.ref==='illustrative'||t.fresh!=='current') ? 't-amber' : t.assurance==='verified' ? 't-teal' : 't-gray';
+  return `<span class="tag ${cls}" data-trust="1" data-basis="${t.basis}" data-assurance="${t.assurance}" data-ref="${t.ref}" data-wf="${t.wf}" data-fresh="${t.fresh}">${esc(trustText(t))}</span>`;
+}
+
+/* ---------- deadlines: classified, with their governing time zone (M2) ---------- */
+const OV_DEADLINES = [
+  {s:'ccts', what:'Monitoring plan',                        due:'2026-06-30', cls:'statutory', tz:'Asia/Kolkata', ref:'CCTS Procedure §4(2): within 3 months of the start of FY2026-27. Demo: resolved when the boundary is locked; production reads the plan’s filing record', step:'d_boundary', done:()=>!!S.dom.boundaryLocked},
+  {s:'ccts', what:'Annual return: Form A + ACVA Form B (ICM portal)', due:'2027-06-30', cls:'statutory', tz:'Asia/Kolkata', ref:'CCTS Procedure §5(1): FY2026-27, unless BEE notifies otherwise', step:'d_verify', done:()=>domFiled('ccts')},
+  {s:'pat',  what:'Form A + EmAEA Form B to the SDA',       due:'2027-06-30', cls:'statutory', tz:'Asia/Kolkata', ref:'Within 3 months of the year end; check the cycle notification', step:'d_verify', done:()=>domFiled('pat')},
+  {s:'cbam', what:'Emissions report shared with EU customers', due:'2027-09-30', cls:'customer', tz:'Europe/Brussels', ref:'Customer commitment: the importer needs it for their 2026 declaration. Agree an earlier contract date.', step:'c_handoff', done:()=>stepIsDone('c_handoff')},
+  {s:'cbam', what:'Importer: certificate sales open',       due:'2027-02-01', cls:'importer', tz:'Europe/Brussels', ref:'Importer duty, shown for context — not an operator filing'},
+  {s:'cbam', what:'Importer: first annual CBAM declaration', due:'2027-09-30', cls:'importer', tz:'Europe/Brussels', ref:'Importer duty, shown for context — not an operator filing'},
+  {s:'EU',   what:'Verified emissions report',              due:'2027-03-31', cls:'statutory', tz:'Europe/Brussels', ref:'Most competent authorities: 31 March — check your member state', step:'ets_ver', done:()=>!!S.ets.aerSubmitted},
+  {s:'EU',   what:'Surrender allowances',                   due:'2027-09-30', cls:'statutory', tz:'Europe/Brussels', ref:'Directive 2003/87/EC Art. 12(3) as amended: 30 September', step:'ets_surr', done:()=>!!S.ets.surrendered},
+  {s:'UK',   what:'Verified emissions report',              due:'2027-03-31', cls:'statutory', tz:'Europe/London',   ref:'UK ETS: 31 March', step:'ets_ver', done:()=>!!S.ets.aerSubmitted},
+  {s:'UK',   what:'Surrender allowances',                   due:'2027-04-30', cls:'statutory', tz:'Europe/London',   ref:'UK ETS: 30 April', step:'ets_surr', done:()=>!!S.ets.surrendered}
+];
+const DL_CLASS = {statutory:'Statutory', customer:'Customer commitment', verifier:'Verifier milestone', internal:'Internal target', importer:'Importer duty (context)'};
+const OWN_DUTY = c => c!=='importer';
+const OWNER = {ccts:'Compliance lead', pat:'Energy manager', cbam:'Export compliance lead', EU:'Compliance lead', UK:'Compliance lead'};   /* demo roles */
+function stepIsDone(k){ const s=typeof stepStatus==='function' && STEP_RULES[k] ? stepStatus(k) : null; return !!(s && s.done); }
+function domFiled(sch){ return stepIsDone('d_verify') || (typeof domVerOk==='function' && domVerOk(sch)); }
+/* M2: the earliest UNRESOLVED overdue own obligation first; otherwise the next unresolved one; null = nothing open */
+function ovObligation(dls){
+  const open=dls.filter(d=>OWN_DUTY(d.cls) && !(d.done && d.done())).sort((a,b)=>a.due.localeCompare(b.due));
+  const od=open.find(d=>ovDays(d.due)<0); if(od) return {d:od, overdue:true, days:-ovDays(od.due)};
+  const nx=open.find(d=>ovDays(d.due)>=0); return nx ? {d:nx, overdue:false, days:ovDays(nx.due)} : null;
+}
+/* specific next actions, by step — "Open step" is the fallback */
+const STEP_ACTION = {d_boundary:'Complete boundary', d_data:'Review activity data', d_calc:'Review calculation', d_verify:'Record verification and filing',
+  c_mp:'Approve monitoring plan', c_goods:'Choose CN codes', c_process:'Enter activity levels', c_factors:'Review missing factors', c_prec:'Add supplier report',
+  c_see:'Review embedded emissions', c_lock:'Lock the period', c_verify:'Record verification evidence', c_fa:'Review adjustments', c_registry:'Choose registry route',
+  c_handoff:'Share customer package', ets_apply:'Confirm coverage', ets_mp:'Record plan approval', ets_aer:'Lock annual emissions', ets_ver:'Record verified report',
+  ets_fa:'Handle allocation', ets_surr:'Record surrender', ets_ship:'Review shipments'};
+const actionFor = k => STEP_ACTION[k] || 'Open step';
+const SCHEME_NAME = {ccts:'CCTS', pat:'PAT', cbam:'EU CBAM', EU:'EU ETS', UK:'UK ETS'};
+const SCHEME_PERIOD = {ccts:'FY2026-27 (Apr–Mar)', pat:'PAT cycle (see notification)', cbam:'CY2026 (Jan–Dec)', EU:'CY2026 (Jan–Dec)', UK:'CY2026 (Jan–Dec)'};
+const RAIL_OF = {ccts:'India — domestic', pat:'India — domestic', cbam:'EU CBAM', EU:'EU ETS', UK:'UK ETS'};
+function ovToday(){ return new Date(); }
+function ovDays(iso){ return Math.ceil((Date.parse(iso+'T23:59:59') - ovToday().getTime())/864e5); }
+function ovDate(iso){ const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return `${Number(iso.slice(8))} ${m.at(Number(iso.slice(5,7))-1)} ${iso.slice(0,4)}`; }
+function ovHash(o){ const s=JSON.stringify(o); let h=5381; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))|0; return (h>>>0).toString(16).padStart(8,'0'); }
+
+/* ---------- ETS position — ONE function, used by the workflow screen and the Overview (M11a, M11b) ---------- */
+function etsFundingGap(x){
+  /* x: {required, surrenderedQty, holdings, inclFA, alloc}. Available = what is in the account now. Registry holdings
+     include free allocation once it is issued; allocation not yet issued is EXPECTED, shown separately as a projection,
+     and never counted as available today. */
+  const remaining=Math.max(0, x.required-(x.surrenderedQty||0));
+  const available=x.holdings, expected = x.inclFA ? 0 : x.alloc;
+  return {remaining, available, expected, gap:Math.max(0, remaining-available), gapAfterExpected:Math.max(0, remaining-available-expected)};
+}
+function etsPosition(){
+  const E=etsCalc(), FA=etsFA(), e=S.ets, auth=isSetV(e.natAlloc), alloc = auth ? +e.natAlloc : FA.loaded;   /* 0 from the authority is a real 0 */
+  const g=etsFundingGap({required:E.total, surrenderedQty: e.surrendered?E.total:0, holdings:e.holdings, inclFA:e.holdingsInclFA===true, alloc});
+  return {emissions:E.total, alloc, allocAuth:auth, allocMissing:!auth&&FA.missing, structural:E.total-alloc, remaining:g.remaining, holdings:e.holdings,
+          available:g.available, expectedFA:g.expected, fundingGap:g.gap, gapAfterExpected:g.gapAfterExpected, asOf:e.holdingsAsOf, inclFA:e.holdingsInclFA===true};
+}
+
+/* ---------- layer 1: compliance results from the scheme engines ---------- */
+function domEngine(k){
+  const c=(typeof demoCo==='function')?demoCo():null;
+  if(c){
+    if(k==='pat'){ const P=REGLOOK.pat[c.pat], L=P[P.length-1];
+      return {state:'ended', why:`PAT Cycle ${L[0]} ended in ${L[6]} (target ${fmt(L[7],4)} ${L[5]}). No later cycle is in the loaded notifications, so there is no PAT position for FY2026-27.`}; }
+    const r=demoCctsRow(c), draft=!REGLOOK.ccts[c.ccts];
+    const [,sector,,base,,t2,out0,,nrgf,page,notifNo]=r, ref=sector==='Petroleum Refinery';
+    const denom=(S.demo.out||out0)*(ref?(nrgf||1):1), gei=base*(1+S.demo.scen.ccts/100);
+    /* identical to the Calculation & position screen: (gei − target) × denominator */
+    return {state: denom>0?'ok':'undefined', intensity:gei, q:denom, target:t2, position:(gei-t2)*denom, unit: ref?'tCO₂e/MBBLS/NRGF':'tCO₂e/t', dp:4,
+            basis:'scenario', ref: draft?'draft':'in-force', source:`${notifNo}, p.${page}`, cert:'CCC', certUnit:'tCO₂e', pk:'ccc', baseline:base,
+            note:'Performance is a scenario: the Gazette gives targets, not this year’s actuals.'};
+  }
+  if(S.setup.sector!=='steel') return {state:'nodata', why:`The demo has a meter-level dataset for iron & steel only. For ${(SECTOR_ARCH[S.setup.sector]||{}).name||S.setup.sector}, the position appears once the plant’s ledger is connected — or pick a demo company in Set up.`};
+  const D=domCalc();
+  if(!(D.eqProd>0)) return {state:'undefined'};
+  if(k==='ccts') return {state:'ok', intensity:D.gei, q:D.eqProd, target:S.dom.target.ccts, position:D.cctsGap, unit:'tCO₂e/t', dp:3, basis:'projected',
+    ref:S.dom.target.cctsStatus==='draft'?'draft':'in-force', source:'Calculation & position (domestic engine)', cert:'CCC', certUnit:'tCO₂e', pk:'ccc', note:''};
+  return {state:'ok', intensity:D.sec, q:D.eqProd, target:S.dom.target.pat, position:D.patGap, unit:'toe/t', dp:3, basis:'projected', ref:'in-force',
+    source:'Calculation & position (domestic engine)', cert:'ESCert', certUnit:'toe', pk:'escert', preNorm:true, note:'Pre-normalisation planning gap — not final ESCert entitlement.'};
+}
+function cbamEngine(){
+  /* the SAME rows as the customer package: one per selected 8-digit CN code, with its own method (actual or default) */
+  const c=S.cbam;
+  const rows=handoffRows().map(r=>{ const g=r.g, share=(c.cn8[g.heading]||[]).length||1, qty=(c.exportQty[g.heading]||0)/share;
+    const dflt=defaultSEE(g.cat), see = r.s.method==='actual' ? r.s.see : null;
+    return {code:g.cn8, heading:g.heading, k:g.cat, name:(CATS[g.cat]||{}).name||g.cat, method:r.s.method, see, dflt, qty,
+            diffT: see!=null&&dflt!=null ? (dflt-see)*qty : null};   /* M9 read from the engine; M10 gross, actual-method codes only */
+  });
+  return {state: rows.length?'ok':'nodata', why:'Pick 8-digit CN codes in step 2.', rows, unit:'tCO₂e/t', year:S.cbam.year};
+}
+function wfOf(k){
+  if(k==='ccts') return S.dom.ver.icmRef ? 'submitted' : 'open';
+  if(k==='pat')  return S.dom.ver.sdaRef ? 'submitted' : 'open';
+  if(k==='cbam') return (S.cbam.dispatch||[]).length ? 'submitted' : S.cbam.locked ? 'frozen' : 'open';
+  return S.ets.aerSubmitted ? 'submitted' : S.ets.locked ? 'frozen' : 'open';
+}
+function assuranceOf(k){
+  if(k==='cbam') return S.cbam.ver && S.cbam.ver.vr ? {assurance:'verified', scope:'annual 2026 report, verifier opinion'} : {assurance:'unverified'};
+  if(k==='EU'||k==='UK') return S.ets.vr ? {assurance:'verified', scope:'annual emissions only — not holdings'} : {assurance:'unverified'};
+  return {assurance:'unverified'};      /* domestic: verification applies to the filed annual figure, never to a projection */
+}
+function complianceResult(k){
+  const engine = k==='ccts'||k==='pat' ? domEngine(k) : k==='cbam' ? cbamEngine() : (()=>{ const p=etsPosition(); return {state:'ok', emissions:p.emissions, alloc:p.alloc, allocMissing:p.allocMissing, structural:p.structural, unit:'tCO₂e'}; })();
+  const wf=wfOf(k), a=assuranceOf(k);
+  const values=JSON.parse(JSON.stringify(engine));
+  const hash=ovHash({k, values, ruleset:RULESET.id});
+  let res={id:`R-${k}-${hash}`, scheme:k, period:SCHEME_PERIOD[k], wf, ...a, hash, values, pinned:false, drift:false};
+  if(wf!=='open'){
+    const P=S.ov.pinned[k];
+    if(!P) S.ov.pinned[k]={...res, pinnedAt:ovToday().toISOString()};
+    else { res={...P, wf, drift: P.hash!==hash, liveHash:hash}; }
+    res.pinned=true;
+  } else delete S.ov.pinned[k];
+  return res;
+}
+
+/* ---------- layer 2: the dashboard snapshot ---------- */
+function ovRail(title){
+  const G=navModel().find(g=>g.title===title); if(!G) return null;
+  const st=G.items.filter(i=>STEP_RULES[i.k] && !i.na);
+  const open=st.filter(i=>!i.done);
+  const blockers=[];
+  open.forEach(i=>{ const s=stepStatus(i.k); const t=(s.todo||[]).find(x=>!/^Waiting on/.test(x)); if(t) blockers.push({k:i.k, step:i.t, text:t}); });
+  return {done:st.length-open.length, total:st.length, blockers, firstOpen: open[0] ? {k:open[0].k, step:open[0].t} : null};
+}
+function computeSnapshot(){
+  const f=flags(), now=ovToday(), schemes=[], nAct=PLATFORM.monthsFY;
+  const add=(k)=>{
+    const res=complianceResult(k), v=res.values, sc={key:k, name:SCHEME_NAME[k], period:SCHEME_PERIOD[k], rail:ovRail(RAIL_OF[k]), deadlines:OV_DEADLINES.filter(d=>d.s===k), result:res};
+    if((k==='ccts'||k==='pat') && v.state==='ok'){
+      const rows=monthly(v.intensity, v.q, nAct);            /* M4/M5: Σ emissions ÷ Σ output, numerator and denominator projected separately */
+      sc.plan={rows, ytd:rows[nAct-1].ytd, proj:rows[11].ytd, goal:goalVal(k, v.target), imp:goalImp(k)};
+      sc.plan.vsGoal=sc.plan.ytd-sc.plan.goal; sc.plan.vsGoalPct=sc.plan.vsGoal/sc.plan.goal*100;   /* M7: absolute and % */
+      const pr=S.ov.prices[v.pk]; sc.money = hasPrice(pr) ? v.position*pr.price : null;                  /* M8 */
+    }
+    if(k==='cbam' && v.state==='ok'){
+      const withData=v.rows.filter(r=>r.diffT!=null);
+      sc.diffT=withData.reduce((a,r)=>a+r.diffT,0);          /* M10: gross tCO₂e, may be negative */
+      const pr=S.ov.prices.cbam; sc.money = hasPrice(pr) ? sc.diffT*pr.price : null;
+    }
+    if(k==='EU'||k==='UK'){ sc.ets=etsPosition(); const pr=S.ov.prices[k==='UK'?'uka':'eua']; sc.money = hasPrice(pr) ? sc.ets.fundingGap*pr.price : null; }
+    schemes.push(sc);
+  };
+  if(f.ccts) add('ccts'); if(f.pat) add('pat'); if(f.eu) add('cbam'); if(f.ets) add(f.ets);
+  /* band 5 */
+  const streams=PLATFORM.streams.filter(s=>s.tco2>0), totT=streams.reduce((a,s)=>a+s.tco2,0);
+  const mixBy = w => { const tot=PLATFORM.streams.reduce((a,s)=>a+w(s),0);
+    return ['lab','national','standard','corporate'].map(k=>({k, t:FSRC[k].t, share: tot? PLATFORM.streams.filter(s=>s.fsrc===k).reduce((a,s)=>a+w(s),0)/tot : 0})); };
+  const mix = mixBy(s=>s.tco2>0?s.tco2:0);                                  /* M12a provenance, tCO₂e basis (CCTS, CBAM, ETS) */
+  const mixE = mixBy(s=>s.gcv>0 ? s.qty*1000*s.gcv/1e7 : 0);                /* M12a provenance, energy basis (PAT, toe) */
+  const energyOnly = f.pat && !f.ccts && !f.eu && !f.ets;
+  const issues=factorIssues(); const issueT=issues.reduce((a,s)=>a+s.tco2,0);                                                                              /* M12b eligibility */
+  const precs=Object.values(S.cbam.prec||{}).flat().filter(p=>p.src==='buy'), pt=p=>(p.qty||0)*(p.basis==='default' ? (defaultSEE(p.cat)||0) : (p.see||0))   /* defaults weighted by the default SEE */, precT=precs.reduce((a,p)=>a+pt(p),0);
+  const cov = precs.length && precT>0 ? {                                                                                                                  /* M14 split */
+      verified: precs.filter(p=>p.basis==='supplier'&&p.vr).reduce((a,p)=>a+pt(p),0)/precT,
+      dflt: precs.filter(p=>p.basis==='default').reduce((a,p)=>a+pt(p),0)/precT,
+      missing: precs.filter(p=>p.basis==='supplier'&&!p.vr).reduce((a,p)=>a+pt(p),0)/precT } : null;
+  const lc = f.eu ? cbamLockChecks() : [];
+  const defend={energyOnly, mix, mixE, issues:issues.length, issueShare: totT? issueT/totT : 0, cov, recon: lc.length? lc.filter(x=>x[1]).length+'/'+lc.length : null,
+    monthsFY:`${PLATFORM.monthsFY}/12`, boundaryLocked:!!S.dom.boundaryLocked, cbamLocked:!!S.cbam.locked, etsLocked:!!S.ets.locked, steelData:S.setup.sector==='steel'};
+  const overlay={prices:S.ov.prices, goals:S.goal, holdings:{q:S.ets.holdings, asOf:S.ets.holdingsAsOf, incl:S.ets.holdingsInclFA}, today:now.toISOString().slice(0,10),
+    steps:schemes.map(s=>s.rail&&[s.rail.done,s.rail.total])};
+  const hash=ovHash({results:schemes.map(s=>s.result.hash+(s.result.drift?'!':'')), overlay});
+  if(hash!==S.ov.hash){ S.ov.hash=hash; S.ov.version++; S.ov.computedAt=now.toISOString(); }
+  return {version:S.ov.version, hash, computedAt:S.ov.computedAt, fresh:'current', ruleset:RULESET.id, installation:PLATFORM.installation, entity:PLATFORM.entity,
+          dataThrough:PLATFORM.dataThrough, monthsFY:PLATFORM.monthsFY, monthsCY:PLATFORM.monthsCY, demo:IS_DEMO_TENANT,
+          results:schemes.map(s=>({id:s.result.id, scheme:s.key, wf:s.result.wf, pinned:s.result.pinned, drift:s.result.drift})), schemes, defend};
+}
+
+/* highest-priority unresolved task: an overdue obligation's own step if it can be worked, else the first blocker in that scheme,
+   else the first blocker of the scheme with the nearest obligation */
+function ovContinue(snap){
+  const cand=snap.schemes.map(s=>({s, ob:ovObligation(s.deadlines)})).filter(x=>x.ob || (x.s.rail&&x.s.rail.blockers.length));
+  cand.sort((a,b)=> ((b.ob&&b.ob.overdue?1:0)-(a.ob&&a.ob.overdue?1:0)) || ((a.ob?a.ob.d.due:'9999').localeCompare(b.ob?b.ob.d.due:'9999')));
+  for(const {s,ob} of cand){
+    const st = ob && ob.d.step && STEP_RULES[ob.d.step] ? stepStatus(ob.d.step) : null;
+    const k = st && !st.done && !/^Waiting on/.test(st.todo[0]||'') ? ob.d.step : (s.rail&&s.rail.blockers[0]&&s.rail.blockers[0].k);
+    if(k) return {k, label:actionFor(k), why: ob ? (ob.overdue ? `${s.name}: ${ob.d.what} is ${ob.days} days overdue` : `${s.name}: ${ob.d.what} due ${ovDate(ob.d.due)}`) : `${s.name}: first open step`};
+  }
+  return null;
+}
+
+/* ---------- drill-through ---------- */
+const OV_METRIC = {
+  M1:{n:'Step progress', f:'Applicable steps done ÷ applicable steps, from the workflow’s step rules. Progress, not a compliance score.', src:'workflow'},
+  M2:{n:'Next deadline', f:'Earliest open own-duty date (statutory, customer, verifier, internal) in its governing time zone', src:'deadline source'},
+  M3:{n:'Blockers', f:'First unmet “to complete” line of each open step, in workflow order', src:'workflow'},
+  M4:{n:'Year-to-date intensity', f:'Σ emissions (or energy) in locked months ÷ Σ equivalent output in the same months', src:'ledger'},
+  M5:{n:'Projected year-end intensity', f:'(E YTD + forecast E remaining) ÷ (Q YTD + forecast Q remaining) — numerator and denominator forecast separately', src:'ledger + forecast'},
+  M6:{n:'Certificate position', f:'Read from the scheme engine (the Calculation & position result) — the Overview does not recompute it. + = shortfall', src:'scheme engine'},
+  M7:{n:'Gap to internal goal', f:'YTD intensity − goal, and the same as % of the goal; goal = target × (1 − improvement %)', src:'ledger + goal'},
+  M8:{n:'Money at stake', f:'Quantity × the price you entered (source and date shown). A price never changes the quantity’s basis or assurance.', src:'price assumption'},
+  M9:{n:'CBAM actual vs default', f:'SEE read from the CBAM engine (attributed embedded emissions ÷ production, in the scope that applies to each good); default for the same CN code, country, year and reference release, with the year’s mark-up', src:'CBAM engine + reference'},
+  M10:{n:'Gross emissions-data value scenario', f:'Σ (default SEE − actual SEE) × tonnes shipped, before CBAM adjustments (free-allocation adjustment, carbon price paid, zero floor). May be negative. € only if you enter a price.', src:'CBAM engine + price'},
+  M11a:{n:'Emissions less free allocation', f:'Emissions − applicable free allocation. Structural exposure, not a purchase requirement.', src:'ETS engine'},
+  M11b:{n:'Remaining surrender funding gap', f:'max(0, remaining obligation − available allowances); remaining = required − already surrendered; available = holding-account balance (already includes free allocation once issued)', src:'ETS engine + holdings'},
+  M12:{n:'Factor eligibility issues', f:'Source streams whose factor is not accepted for the scheme. Provenance (the bar above) is shown separately and is not a verdict.', src:'ledger'},
+  M14:{n:'Precursor evidence', f:'By tCO₂e of purchased precursors: verified actual / permitted default / missing or invalid. N/A when there are none.', src:'evidence'},
+  M16:{n:'Driver bridge', f:'Additive LMDI-I on the stated identity; method, boundary and data corrections are a separate step', src:'ledger (two locked years)'}
+};
+function ovTrace(id, label, value, unit, tr, step, inputs){ S.ov.trace={id, label, value, unit, tr, step, inputs:inputs||[]}; render(); }
+function ovNum(id, label, value, dp, unit, tr, step, inputs){
+  const v = typeof value==='number' ? fmt(value,dp) : value;
+  const enc = s => esc(JSON.stringify(s)).replace(/'/g,'&#39;');
+  return `<a href="#" class="ov-num" data-metric="${id}" onclick='ovTrace(${enc(id)},${enc(label)},${enc(v)},${enc(unit||"")},${enc(tr||null)},${enc(step||"")},${enc(inputs||[])});return false' title="Open the trace">${v}</a>`;
+}
+function ovTraceHTML(snap){
+  const t=S.ov.trace; if(!t) return '';
+  const m=OV_METRIC[t.id.split('.')[0]]||{n:t.id,f:'',src:''};
+  const ledger=/ledger|engine/.test(m.src);
+  return `<div class="ov-trace" role="dialog" aria-label="Trace for ${esc(m.n)}"><div class="ov-trace-in">
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0">${esc(t.label)}</h2><button class="btn" onclick="S.ov.trace=null;render()">Close</button></div>
+    <table class="t mt"><tbody>
+      <tr><td style="width:170px">Value</td><td><b>${esc(t.value)}</b> ${esc(t.unit)}</td></tr>
+      ${t.tr?`<tr><td>Trust</td><td>${trustChip(trust(t.tr))}</td></tr>`:''}
+      <tr><td>Metric</td><td>${esc(t.id)} · ${esc(m.n)}</td></tr>
+      <tr><td>Definition</td><td>${esc(m.f)}</td></tr>
+      <tr><td>Source type</td><td>${esc(m.src)}</td></tr>
+      ${t.inputs.map(x=>`<tr><td>${esc(x[0])}</td><td>${esc(x[1])}</td></tr>`).join('')}
+      ${IS_DEMO_TENANT?`<tr><td>Demo limitation</td><td class="small">This panel shows the definition and the trace structure. It does not list the actual source records; production does.</td></tr>`:''}
+      <tr><td>Snapshot</td><td class="mono">v${snap.version} · ${snap.hash} · ${esc(snap.ruleset)}</td></tr>
+      <tr><td>Production trace</td><td class="small muted">${ledger?'calculation ID → ledger entries → evidence files, from GET /metrics/{snapshot}/{metric}/trace':'ends at the '+esc(m.src)+' record (who entered it, when, from which source) — not a ledger entry'}</td></tr>
+    </tbody></table>
+    ${t.step?`<div class="btns"><button class="btn btn-p" onclick="S.ov.trace=null;go('${t.step}')">Open the step that produces it →</button></div>`:''}
+  </div></div>`;
+}
+
+/* ---------- band 1: deadline strip ---------- */
+function ovStrip(snap){
+  const lanes=snap.schemes.filter(s=>s.deadlines.length);
+  if(!lanes.length) return '';
+  const all=lanes.flatMap(s=>s.deadlines.map(d=>d.due)).concat([ovToday().toISOString().slice(0,10)]);
+  const t=d=>Date.parse(d)/864e5, lo=Math.min(...all.map(t))-20, hi=Math.max(...all.map(t))+20;
+  const W=760, L=120, R=24, X=d=>L+(t(d)-lo)/(hi-lo)*(W-L-R), H=48+lanes.length*34;
+  const today=ovToday().toISOString().slice(0,10);
+  const months=[]; { const a=new Date(lo*864e5); for(let d=new Date(Date.UTC(a.getUTCFullYear(),a.getUTCMonth()+1,1)); d.getTime()/864e5<hi; d=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+3,1))) months.push(d.toISOString().slice(0,10)); }
+  const mark=(d,y)=>{ const past=ovDays(d.due)<0, late=past&&OWN_DUTY(d.cls)&&!(d.done&&d.done()), x=X(d.due), c=late?'var(--coral)':past?'var(--faint)':'var(--ink2)', tip=`<title>${esc(d.what)} · ${ovDate(d.due)} (${esc(d.tz)}) · ${DL_CLASS[d.cls]} · ${esc(d.ref)}</title>`;
+    if(d.cls==='importer') return `<path d="M${x} ${y-7}l7 7l-7 7l-7 -7z" fill="#fff" stroke="${c}" stroke-width="1.5">${tip}</path>`;
+    if(d.cls==='customer') return `<circle cx="${x}" cy="${y}" r="6.5" fill="${past?'var(--faint)':'var(--teal)'}">${tip}</circle>`;
+    return `<path d="M${x} ${y-7}l7 7l-7 7l-7 -7z" fill="${c}">${tip}</path>`; };
+  return `<div class="tw"><svg class="ov-chart" data-unit="date" viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;display:block" role="img" aria-label="Upcoming deadlines by scheme">
+    ${months.map(m=>`<line x1="${X(m)}" x2="${X(m)}" y1="22" y2="${H-8}" stroke="#eef0f2"/><text x="${X(m)}" y="16" font-size="10.5" text-anchor="middle" fill="var(--mute)">${ovDate(m).split(' ').slice(1).join(' ')}</text>`).join('')}
+    ${lanes.map((s,i)=>{ const y=40+i*34; return `<text x="0" y="${y+4}" font-size="12" fill="var(--ink)">${esc(s.name)}</text><line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="#e3e6ea"/>${s.deadlines.map(d=>mark(d,y)).join('')}`; }).join('')}
+    <line x1="${X(today)}" x2="${X(today)}" y1="24" y2="${H-8}" stroke="var(--teal)" stroke-width="1.5" stroke-dasharray="4 3"/><text x="${X(today)+5}" y="30" font-size="10.5" fill="var(--teal-d)">today</text>
+  </svg></div><p class="small muted">◆ statutory · ● customer commitment · ◇ importer duty, for context (not an operator filing) · red = overdue and unresolved · dates in each scheme’s own time zone</p>`;
+}
+
+/* ---------- band 2 charts ---------- */
+function ovCbamDots(v, trAct){
+  const rows=v.rows.filter(r=>r.see!=null||r.dflt!=null), W=760, L=230, R=60, H=40+rows.length*30;
+  const mx=Math.max(...rows.flatMap(r=>[r.see||0,r.dflt||0]))*1.1||1, X=x=>L+x/mx*(W-L-R);
+  return `<div class="tw"><svg class="ov-chart" data-unit="tCO2e/t" viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;display:block" role="img" aria-label="Actual specific embedded emissions against the EU default, per CN code">
+    ${[0,.25,.5,.75,1].map(f=>`<line x1="${X(mx*f)}" x2="${X(mx*f)}" y1="14" y2="${H-18}" stroke="#eef0f2"/><text x="${X(mx*f)}" y="${H-4}" font-size="10.5" text-anchor="middle" fill="var(--mute)">${fmt(mx*f,1)}</text>`).join('')}
+    ${rows.map((r,i)=>{ const y=28+i*30; return `<text x="0" y="${y+4}" font-size="12" fill="var(--ink)">${esc(r.code)} · ${esc(String(r.name).slice(0,22))}</text>
+      ${r.dflt!=null?`<line x1="${X(r.dflt)}" x2="${X(r.dflt)}" y1="${y-9}" y2="${y+9}" stroke="var(--ink)" stroke-width="2.5"><title>Default with mark-up: ${fmt(r.dflt,2)} tCO₂e/t (illustrative reference)</title></line>`:''}
+      ${r.method==='default'?`<text x="${L}" y="${y+4}" font-size="11" fill="var(--mute)">default method — no plant data used</text>`:r.see!=null?`<circle cx="${X(r.see)}" cy="${y}" r="6" fill="var(--teal)"><title>Your data: ${fmt(r.see,2)} tCO₂e/t (${esc(trustText(trAct))})</title></circle>${r.dflt!=null?`<text x="${(X(r.see)+X(r.dflt))/2}" y="${y-10}" font-size="10.5" text-anchor="middle" fill="var(--ink2)">${r.see<=r.dflt?'−':'+'}${fmt(Math.abs(r.dflt-r.see),2)}</text>`:''}`:`<text x="${L}" y="${y+4}" font-size="11" fill="var(--mute)">no plant data yet</text>`}`; }).join('')}
+  </svg></div>
+  <p class="small muted">One row per selected 8-digit CN code, as in the customer package. ● your data (engine SEE) · ┃ EU default for the same CN code, India, ${v.year}, including the ${Math.round((REF.markup[v.year]??.3)*100)}% mark-up · tCO₂e per tonne of good</p>`;
+}
+function ovEtsBars(p){
+  const W=760, H=150, L=200, R=90, mx=Math.max(p.emissions,p.alloc,p.available)*1.08||1, X=v=>L+Math.max(0,v)/mx*(W-L-R);
+  const bar=(y,v,lab,c)=>`<text x="0" y="${y+14}" font-size="12" fill="var(--ink)">${lab}</text><rect x="${L}" y="${y}" width="${X(v)-L}" height="20" rx="3" fill="${c}"><title>${lab}: ${fmtE(v)} tCO₂e</title></rect><text x="${X(v)+6}" y="${y+14}" font-size="11.5" fill="var(--ink2)">${fmtE(v/1e6,2)} Mt</text>`;
+  return `<div class="tw"><svg class="ov-chart" data-unit="tCO2e" viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;display:block" role="img" aria-label="Emissions, free allocation and allowances available">
+    ${bar(14,p.emissions,'Emissions (required surrender)','var(--ink2)')}${bar(50,p.alloc,'Free allocation'+(p.allocMissing?' (partial)':p.inclFA?' (issued)':' (not yet issued)'),'#c8cdd3')}${bar(86,p.available,'In the account now','#7cc6a9')}
+    <line x1="${L}" x2="${L}" y1="8" y2="112" stroke="var(--line)"/>
+  </svg></div>`;
+}
+
+/* ---------- band 4: driver bridge (additive LMDI-I on a stated identity) ---------- */
+function lmdiL(a,b){ return Math.abs(a-b)<1e-12 ? a : (a-b)/(Math.log(a)-Math.log(b)); }
+function ovBridge(){
+  if(!flags().ccts || S.setup.sector!=='steel' || (typeof demoCo==='function' && demoCo())) return null;
+  const D=domCalc(), P=PLATFORM;
+  const fuelS=P.streams.filter(s=>s.gcv>0), procS=P.streams.filter(s=>!(s.gcv>0));
+  const fuelE=fuelS.reduce((a,s)=>a+s.tco2,0), procE=procS.reduce((a,s)=>a+s.tco2,0), Q=D.eqProd;
+  if(!(Q>0) || !(D.fuelToe>0)) return null;
+  const cur={eint:D.fuelToe/Q, fef:fuelE/D.fuelToe, mwh:P.elec.gridMWh/Q, gef:D.cctsEF, proc:procE/Q};
+  /* ILLUSTRATIVE base year for the fictional plant — production reads these from the locked FY2025-26 ledger, same boundary */
+  const base={eint:cur.eint*1.04, fef:cur.fef*0.99, mwh:cur.mwh*1.03, gef:cur.gef*1.04, proc:cur.proc*1.02};
+  const If=v=>v.eint*v.fef, Ie=v=>v.mwh*v.gef, Ip=v=>v.proc;
+  const Lf=lmdiL(If(cur),If(base)), Le=lmdiL(Ie(cur),Ie(base));
+  const steps=[
+    {k:'eff', t:'Energy efficiency', v: Lf*Math.log(cur.eint/base.eint) + Le*Math.log(cur.mwh/base.mwh)},
+    {k:'fuel', t:'Fuel mix', v: Lf*Math.log(cur.fef/base.fef)},
+    {k:'grid', t:'Grid factor', v: Le*Math.log(cur.gef/base.gef)},
+    {k:'proc', t:'Process emissions', v: Ip(cur)-Ip(base)},
+    {k:'meth', t:'Method / boundary / data corrections', v: 0}      /* none recorded this period — always its own step */
+  ];
+  const I0=If(base)+Ie(base)+Ip(base), I1=If(cur)+Ie(cur)+Ip(cur);
+  return {I0, I1, steps, closes: Math.abs(I0+steps.reduce((a,s)=>a+s.v,0)-I1) < 1e-9, target:S.dom.target.ccts,
+          identity:'GEI = (toe/t × tCO₂/toe) + (MWh/t × grid tCO₂/MWh) + process tCO₂/t'};
+}
+function ovBridgeSvg(b){
+  const W=760, H=250, L=64, y0=24, ih=180, cols=b.steps.length+2, bw=(W-L-30)/cols;
+  let lv=b.I0; const pts=[b.I0,b.I1,b.target]; b.steps.forEach(s=>{ lv+=s.v; pts.push(lv); });
+  const lo=Math.min(...pts)*0.97, hi=Math.max(...pts)*1.01, Y=v=>y0+ih*(1-(v-lo)/(hi-lo));
+  let run=b.I0; const bars=[{t:'FY2025-26', y1:Y(b.I0), y2:Y(lo), c:'#c8cdd3', v:b.I0}];
+  b.steps.forEach(s=>{ const a=run, z=run+s.v; bars.push({t:s.t, y1:Y(Math.max(a,z)), y2:Y(Math.min(a,z)), c:s.k==='meth'?'#9aa3ad':s.v>0?'var(--coral)':'var(--teal)', v:s.v, step:true}); run=z; });
+  bars.push({t:'FY2026-27 (projected)', y1:Y(b.I1), y2:Y(lo), c:'#c8cdd3', v:b.I1});
+  const brk=(x,w)=>`<path d="M${x-2} ${Y(lo)-10}l${w/4+2} -5l${w/4} 10l${w/4} -10l${w/4+2} 5" fill="none" stroke="#fff" stroke-width="5"/><path d="M${x-2} ${Y(lo)-10}l${w/4+2} -5l${w/4} 10l${w/4} -10l${w/4+2} 5" fill="none" stroke="var(--ink2)" stroke-width="1.2"/>`;
+  return `<div class="tw"><svg class="ov-chart" data-unit="tCO2e/t" viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;display:block" role="img" aria-label="What moved GEI from last year to this year">
+    <text x="0" y="${y0-8}" font-size="10.5" fill="var(--coral)">tCO₂e/t · axis broken: bars start at ${fmt(lo,2)}, not 0, which magnifies small changes</text>
+    <line x1="${L-6}" x2="${W-20}" y1="${Y(b.target)}" y2="${Y(b.target)}" stroke="var(--ink2)" stroke-dasharray="6 4"/><text x="${L-10}" y="${Y(b.target)-3}" font-size="10" text-anchor="end" fill="var(--ink2)">target</text><text x="${L-10}" y="${Y(b.target)+10}" font-size="10" text-anchor="end" fill="var(--ink2)">${fmt(b.target,3)}</text>
+    ${bars.map((r,i)=>{ const x=L+i*bw+bw*0.18, w=bw*0.64; return `<rect x="${x}" y="${r.y1}" width="${w}" height="${Math.max(1,r.y2-r.y1)}" fill="${r.c}" fill-opacity="${r.step?0.8:1}"><title>${esc(r.t)}: ${r.step&&r.v>0?'+':''}${fmt(r.v,4)} tCO₂e/t</title></rect>
+      ${r.step?'':brk(x,w)}<text x="${x+w/2}" y="${r.y1-5}" font-size="10.5" text-anchor="middle" fill="var(--ink)">${r.step?(r.v>0?'+':r.v<0?'−':'±')+fmt(Math.abs(r.v),3):fmt(r.v,3)}</text>${r.step?`<text x="${x+w/2}" y="${r.y1-17}" font-size="10" text-anchor="middle" fill="var(--mute)">${r.v>0?'+':r.v<0?'−':'±'}${fmt(Math.abs(r.v/b.I0*100),1)}%</text>`:''}
+      <text x="${x+w/2}" y="${y0+ih+18}" font-size="10" text-anchor="middle" fill="var(--mute)">${esc(r.t.split(' (')[0].replace('Method / boundary / data corrections','Method & data'))}</text>`; }).join('')}
+  </svg></div><p class="small muted">Identity: ${esc(b.identity)}. The axis is broken (zig-zag), so steps look larger than they are; the small % above each step is its size against last year. Red raises intensity, green lowers it. Method, boundary and data corrections are kept apart from operations (none recorded this period). The steps add up to the change for this identity.</p>`;
+}
+
+/* ---------- band 5 ---------- */
+function ovMixBar(mix, energy){
+  const W=760, H=56; let x=0; const col={lab:'var(--teal)', national:'#7cc6a9', standard:'#bfe3d4', corporate:'#9aa3ad'};
+  return `<div class="tw"><svg class="ov-chart" data-unit="%" viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;display:block" role="img" aria-label="Share of ${energy?'energy':'emissions'} by factor source">
+    ${mix.map(m=>{ const w=m.share*W, s=`<rect x="${x}" y="4" width="${Math.max(0,w-2)}" height="22" fill="${col[m.k]}"><title>${esc(m.t)}: ${fmt(m.share*100,1)}%</title></rect>${w>70?`<text x="${x+6}" y="44" font-size="11" fill="var(--ink2)">${esc(m.k)} ${fmt(m.share*100,0)}%</text>`:''}`; x+=w; return s; }).join('')}
+  </svg></div>`;
+}
+
+/* ---------- the Overview screen ---------- */
+function sOverview(){
+  const snap=computeSnapshot(); window.TC_SNAPSHOT=snap;
+  const f=flags();
+  const head=`<div class="crumb">Overview</div>
+  <h1>${esc(PLATFORM.installation)}</h1>
+  <p class="small muted ov-asof" data-fresh="${snap.fresh}">as of ${new Date(snap.computedAt).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})} · data through Sep 2026 · recomputed on every change (demo — no live data feed) · rule set ${esc(snap.ruleset)} · dashboard snapshot v${snap.version} <span class="mono">${snap.hash}</span></p>
+  ${(()=>{ const c=ovContinue(snap); return c?`<div class="row ov-noprint" style="gap:10px;align-items:center;margin:4px 0 12px"><button class="btn btn-p" id="ov-continue" data-step="${c.k}" onclick="go('${c.k}')">Continue: ${esc(c.label)} →</button><span class="small muted">${esc(c.why)}</span></div>`:''; })()}
+  ${IS_DEMO_TENANT?`<div class="note n-warn"><span class="i">!</span><div><b>Demo tenant.</b> Figures come from the fictional plant or are scenarios on real Gazette targets. Each number’s trust line says how far to rely on it.</div></div>`:''}`;
+  if(!snap.schemes.length) return head+`<div class="card"><h2>Nothing to track yet</h2><p class="sub">Finish Set up: pick the schemes this installation is in. The Overview then shows deadlines, position, money at stake and data defensibility for each.</p><div class="btns"><button class="btn btn-p" onclick="go('setup')">Set up your obligations →</button></div></div>`;
+
+  /* band 1 */
+  const b1=`<div class="card ov-band" data-band="1"><h2>1 · Obligations and deadlines</h2>
+    ${ovStrip(snap)}
+    <div class="tw mt"><table class="t"><thead><tr><th>Scheme · period</th><th>Steps</th><th>Most urgent obligation</th><th>First blocker</th><th></th></tr></thead><tbody>
+    ${snap.schemes.map(s=>{ const ob=ovObligation(s.deadlines), nd=ob&&ob.d; const r=s.rail||{done:0,total:0,blockers:[]}; const bl=r.blockers[0];
+      return `<tr data-scheme="${s.key}"><td><b>${esc(s.name)}</b><br><span class="small muted">${esc(s.period)}</span></td>
+        <td class="ov-steps" data-done="${r.done}" data-total="${r.total}">${ovNum('M1.'+s.key, s.name+' · step progress', `${r.done}/${r.total}`, 0, 'steps', null, r.firstOpen?r.firstOpen.k:'')}<div style="height:5px;background:var(--line2);border-radius:3px;margin-top:4px;width:90px"><div style="height:5px;width:${r.total?r.done/r.total*90:0}px;background:var(--teal);border-radius:3px"></div></div><span class="small muted">progress, not a score</span></td>
+        <td class="ov-deadline" data-class="${nd?nd.cls:''}" data-overdue="${ob&&ob.overdue?1:0}">${nd?(ob.overdue?`<span class="tag t-red">${ob.days} days overdue</span> <b>${esc(nd.what)}</b><br><span class="small">was due ${ovDate(nd.due)} · owner: ${esc(OWNER[s.key])}</span>`:`${esc(nd.what)}<br><span class="small"><b>${ovDate(nd.due)}</b> · ${ob.days} days · ${DL_CLASS[nd.cls]} · owner: ${esc(OWNER[s.key])}</span>`):'<span class="muted">No open obligations</span>'}</td>
+        <td class="ov-blocker" data-step="${bl?bl.k:''}">${bl?`<span class="small"><b>${esc(bl.step)}:</b> ${esc(bl.text)}</span>`:'<span class="tag t-teal">No blockers</span>'}</td>
+        <td>${bl?`<button class="btn" onclick="go('${bl.k}')">${esc(actionFor(bl.k))} →</button>`:''}</td></tr>`; }).join('')}
+    </tbody></table></div>
+    ${f.eu?`<p class="small muted">EU CBAM: as the operator you hand verified data to your customers; the declaration and certificates are the importer’s duties. Registering in the CBAM Registry as an operator is optional.</p>`:''}</div>`;
+
+  /* band 2 + 3 */
+  const b2=[], own=[], cust=[];
+  snap.schemes.forEach(s=>{
+    const R=s.result, v=R.values, wfx={wf:R.wf, assurance:R.assurance, scope:R.scope};
+    const driftNote = R.drift ? `<div class="note n-warn"><span class="i">!</span><div><b>Inputs changed after this period was ${esc(R.wf)}.</b> The figures below are the pinned result ${esc(R.id)}. The change needs an impact assessment; the filed result is not recalculated silently.</div></div>` : '';
+    if(s.key==='ccts'||s.key==='pat'){
+      if(v.state!=='ok'){ b2.push(`<div class="ov-pos" data-scheme="${s.key}"><h3>${s.name}</h3><div class="note n-info"><span class="i">i</span><div>${esc(v.state==='undefined'?'Intensity undefined: equivalent output is zero for the period. Emissions are still reported.':v.why)}</div></div></div>`); return; }
+      const p=s.plan, pct=(p.proj-v.target)/v.target*100, tr=trust({basis:v.basis, ref:v.ref, ...wfx, extra: v.preNorm?'pre-normalisation':''});
+      const trYTD=trust({basis: v.basis==='scenario'?'scenario':(IS_DEMO_TENANT?'estimated':'actual'), ref:v.ref, ...wfx, extra: IS_DEMO_TENANT?'illustrative monthly profile':''});
+      const finding=`${s.key==='ccts'?'GEI':'SEC'} ${fmt(p.ytd,v.dp)} year to date; projected ${fmt(p.proj,v.dp)}, ${fmt(Math.abs(pct),1)}% ${pct>0?'above':'below'} the target`;
+      b2.push(`<div class="ov-pos" data-scheme="${s.key}" data-unit="${v.unit}" data-result="${R.id}">
+        <div class="row" style="justify-content:space-between;align-items:baseline"><h3 style="margin:0">${s.name}: ${esc(finding)}</h3>${trustChip(tr)}</div>${driftNote}
+        ${v.ref==='draft'?`<div class="note n-warn" data-planning="1"><span class="i">!</span><div><b>Planning only.</b> The FY2026-27 target comes from a draft schedule that is not yet notified, so this installation is not yet legally obligated under it.</div></div>`:''}
+        <div class="grid2 mt" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">
+          <div class="stat"><div class="sl">Year to date</div><div class="sv">${ovNum('M4.'+s.key, s.name+' · year-to-date intensity', p.ytd, v.dp, v.unit, trYTD, 'd_calc', [['Months', `${snap.monthsFY} of 12 locked`],['Source', v.source]])}</div><div class="su">${v.unit}</div></div>
+          <div class="stat"><div class="sl">Projected year end</div><div class="sv">${ovNum('M5.'+s.key, s.name+' · projected year-end intensity', p.proj, v.dp, v.unit, trust({...tr, basis:v.basis==='scenario'?'scenario':'projected'}), 'd_calc', [['Method','(E YTD + E forecast) ÷ (Q YTD + Q forecast); monthly profile illustrative in the demo']])}</div><div class="su">target ${fmt(v.target,v.dp)}</div></div>
+          <div class="stat ${v.position>0?'hi':'ok'}" data-pos="${v.position}"><div class="sl">${v.position>0?'Projected shortfall':'Projected surplus (planning)'}</div><div class="sv">${ovNum('M6.'+s.key, s.name+' · certificate position', Math.abs(v.position), 0, v.cert+' ('+v.certUnit+')', tr, 'd_calc', [['Engine result', R.id],['Engine formula',`(${fmt(v.intensity,v.dp)} − ${fmt(v.target,v.dp)}) × ${fmt(v.q)}`],['Target', `${v.ref==='draft'?'draft notification':'notified'}`]])}</div><div class="su">${v.cert}${v.note?' · '+esc(v.note):''}</div></div>
+          <div class="stat ${p.vsGoal>0?'hi':'ok'}"><div class="sl">Gap to internal goal</div><div class="sv">${ovNum('M7.'+s.key, s.name+' · gap to internal goal', (p.vsGoal>0?'+':'−')+fmt(Math.abs(p.vsGoal),v.dp), 0, v.unit, trYTD, 'd_calc', [['Goal', `${fmt(p.goal,v.dp)} = target × (1 − ${fmt(p.imp,1)}%)`],['As %', `${p.vsGoalPct>0?'+':''}${fmt(p.vsGoalPct,1)}%`]])}</div><div class="su">${p.vsGoalPct>0?'+':''}${fmt(p.vsGoalPct,1)}% · goal ${fmt(p.imp,1)}% below target</div></div>
+        </div>
+        <div class="mt">${progressChart('ov'+s.key, p.rows, v.target, p.goal, v.dp, v.unit)}</div>
+        ${IS_DEMO_TENANT?`<p class="small" data-profile="illustrative"><b>Illustrative monthly profile — not meter-derived actuals.</b> The demo spreads the annual figure over months with a seasonal shape.</p>`:''}
+        <p class="small muted">Monthly points are unverified management data, whatever the annual filing’s status. Goal set on <a href="#" onclick="go('d_calc');return false">Calculation & position</a>. ${esc(S.goal[s.key].why||'')}</p></div>`);
+      own.push(ovMoneyTile(s, v.position, v.cert, v.pk, tr, s.key==='pat'?'pre-normalisation planning gap — not final ESCert entitlement':'projection, not a filed position'));
+    }
+    if(s.key==='cbam'){
+      if(v.state!=='ok'){ b2.push(`<div class="ov-pos" data-scheme="cbam"><h3>EU CBAM</h3><div class="note n-info"><span class="i">i</span><div>${esc(v.why)}</div></div></div>`); return; }
+      const trAct=trust({basis:'actual', ...wfx, ref:'in-force'}), trDef=trust({basis:'estimated', extra:'EU default', ref: IS_DEMO_TENANT?'illustrative':'unavailable', wf:'open'});
+      const better=v.rows.filter(r=>r.diffT!=null&&r.see<r.dflt).length, withData=v.rows.filter(r=>r.see!=null).length;
+      b2.push(`<div class="ov-pos" data-scheme="cbam" data-unit="tCO₂e/t" data-result="${R.id}">
+        <div class="row" style="justify-content:space-between;align-items:baseline"><h3 style="margin:0">EU CBAM: ${withData?`${better} of ${withData} goods below the EU default`:'no plant data for these goods yet'}</h3><span>${trustChip(trAct)} ${trustChip(trDef)}</span></div>${driftNote}
+        ${S.setup.sector!=='steel'?`<p class="small muted">${esc((SECTOR_ARCH[S.setup.sector]||{}).name||'')}: structure only — the figures come from the fictional steel plant.</p>`:''}
+        ${ovCbamDots(v, trAct)}</div>`);
+      const trV=trust({basis:'scenario', ref:trDef.ref});
+      cust.push(`<div class="stat" data-scheme="cbam" data-money="${s.money!=null?1:0}"><div class="sl">EU CBAM · gross emissions-data value scenario, before CBAM adjustments</div>
+        <div class="sv">${ovNum('M10.cbam','EU CBAM · gross emissions difference', (s.diffT<0?'−':'')+fmt(Math.abs(s.diffT)), 0, 'tCO₂e', trV, 'c_handoff', [['Formula','Σ (default SEE − actual SEE) × tonnes shipped'],['Not applied','free-allocation adjustment, carbon price paid, zero floor — the importer’s liability can differ'],['Defaults','illustrative until the in-force release is loaded']])} <span style="font-size:13px">tCO₂e</span></div>
+        <div class="su">${s.diffT>=0?'less':'more'} than on defaults · ${s.money!=null?`≈ ${money(s.money,'cbam')} at €${fmt(S.ov.prices.cbam.price)} · ${esc(S.ov.prices.cbam.source||'source not given')} `:'enter a price to see €'} ${trustChip(trV)}</div>
+        ${priceInputs('cbam')}<p class="small muted" style="margin:6px 0 0">Customer-side value. Never added to your own exposure, and not for regulatory customer packages.</p></div>`);
+    }
+    if(s.key==='EU'||s.key==='UK'){
+      const p=s.ets, trE=trust({basis:'actual', ...wfx, ref: v.allocMissing?(IS_DEMO_TENANT?'illustrative':'unavailable'):'in-force'});
+      const trH=trust({basis:'actual', fresh: p.asOf?'current':'stale', extra: p.asOf?`holdings as of ${ovDate(p.asOf)}`:'holdings date not given'});
+      b2.push(`<div class="ov-pos" data-scheme="${s.key}" data-unit="tCO₂e" data-result="${R.id}">
+        <div class="row" style="justify-content:space-between;align-items:baseline"><h3 style="margin:0">${s.name}: ${p.fundingGap>0?'funding gap '+fmtE(p.fundingGap/1e6,2)+' Mt':'surrender obligation covered by holdings'}</h3><span>${trustChip(trE)} ${trustChip(trH)}</span></div>${driftNote}
+        ${ovEtsBars(p)}
+        <div class="grid2 mt">
+          <div class="stat"><div class="sl">Emissions less free allocation</div><div class="sv">${ovNum('M11a.'+s.key, s.name+' · emissions less free allocation', p.structural, 0, 'tCO₂e', trE, 'ets_fa', [['Emissions', fmtE(p.emissions)],['Free allocation', fmtE(p.alloc)]])}</div><div class="su">structural exposure — not a purchase requirement</div></div>
+          <div class="stat ${p.fundingGap>0?'hi':'ok'}"><div class="sl">Remaining surrender funding gap</div><div class="sv">${ovNum('M11b.'+s.key, s.name+' · remaining surrender funding gap', p.fundingGap, 0, 'tCO₂e', trust({...trH, basis:'actual'}), 'ets_surr', [['Remaining obligation', fmtE(p.remaining)],['In the account now', `${fmtE(p.holdings)} ${p.inclFA?'(this year’s allocation already issued into it)':'(this year’s allocation not yet issued)'}`],['Expected allocation, not yet issued', p.expectedFA?fmtE(p.expectedFA)+' — gap after issue '+fmtE(p.gapAfterExpected)+' (projected)':'none'],['Holdings as of', p.asOf||'not given']])}</div><div class="su">${p.expectedFA?`after the expected allocation is issued: ${fmtE(p.gapAfterExpected)} (projected) · `:''}set holdings on <a href="#" onclick="go('ets_surr');return false">Surrender & registry</a></div></div>
+        </div>
+        ${p.allocMissing?`<p class="small muted">Some benchmarks are not loaded, so free allocation is partial.</p>`:''}</div>`);
+      own.push(ovMoneyTile(s, p.fundingGap, 'allowances', s.key==='UK'?'uka':'eua', trust({basis:'actual', fresh:trH.fresh}), 'remaining funding gap'));
+    }
+  });
+  const b2h=`<div class="card ov-band" data-band="2"><h2>2 · Position</h2>${b2.join('<hr class="ov-hr">')}</div>`;
+  const b3h=(own.length||cust.length)?`<div class="card ov-band" data-band="3"><h2>3 · Money at stake</h2>
+    <p class="sub">Quantities come from the engines; money only from a price you enter, shown beside it. A price never makes a projection verified. No trading advice.</p>
+    ${own.length?`<h3>Your own compliance exposure</h3><div class="grid3">${own.join('')}</div>`:''}
+    ${cust.length?`<h3 class="mt">Customer-side value (kept separate — never netted against your exposure)</h3><div class="grid3">${cust.join('')}</div>`:''}</div>`:'';
+
+  /* band 4 */
+  const br=ovBridge();
+  const b4=`<div class="card ov-band" data-band="4"><h2>4 · Why it moved</h2>
+    ${br?`<p class="sub">CCTS GEI from last year to this year’s projection, by driver. ${trustChip(trust({basis:'scenario', extra:'illustrative base year'}))} Production reads last year from the locked FY2025-26 ledger on the same boundary.</p>${ovBridgeSvg(br)}`
+        :!f.ccts?`<div class="note n-info"><span class="i">i</span><div>The intensity bridge (M16) is defined for CCTS GEI. An absolute-emissions bridge for ${esc(snap.schemes.map(x=>x.name).join(', '))} is a separate metric, planned after back-testing.</div></div>`
+        :`<div class="note n-info"><span class="i">i</span><div>The driver bridge needs two years of monthly ledger by source stream on the same boundary, plus a per-sector identity. It is shown for the fictional steel plant; for ${esc(PLATFORM.installation)} it appears once that ledger is connected.</div></div>`}</div>`;
+
+  /* band 5 — one readiness section per scheme (spec M12–M15); none of them is an "audit-ready" verdict */
+  const d=snap.defend, V=S.dom.ver||{}, ev=k=>(V.formB&&V.formB[k]&&V.formB[k].ver)||'';
+  const yes=(b,t)=>`<span class="tag ${b?'t-teal':'t-gray'}">${b?'✓':'✗'} ${t}</span>`;
+  const sec=(key,title,body)=>`<div class="ov-ready" data-scheme="${key}"><h3>${title}</h3>${body}</div>`;
+  const covCell = d.cov==null ? `<div class="sv">N/A</div><div class="su">no purchased precursors</div>`
+    : `<div class="sv" style="font-size:15px">${ovNum('M14','Precursor evidence — verified actual', d.cov.verified*100, 0, '%', null, f.eu?'c_prec':'')}% verified · ${fmt(d.cov.dflt*100,0)}% default · ${fmt(d.cov.missing*100,0)}% missing</div><div class="su">by tCO₂e of purchased precursors · default use is valid, not a defect</div>`;
+  const parts=[];
+  if(f.ccts) parts.push(sec('ccts','CCTS',`${ovMixBar(d.mix,false)}<p class="small muted">Emission-factor provenance, share of tCO₂e. Provenance is described, not judged.</p>
+    <div class="row" style="gap:6px;flex-wrap:wrap">${yes(d.boundaryLocked,'boundary locked')}${yes(true,'data months '+d.monthsFY)}${yes(!!(V.acva||'').trim(),'ACVA named')}${yes(!!ev('ccts'),'ACVA Form B recorded'+(ev('ccts')?' ('+esc(ev('ccts'))+')':''))}</div>`));
+  if(f.pat) parts.push(sec('pat','PAT',`${ovMixBar(d.mixE,true)}<p class="small muted">Energy basis: share of toe by factor source (fuels only).</p>
+    <div class="row" style="gap:6px;flex-wrap:wrap">${yes(true,'energy data months '+d.monthsFY)}${yes(false,'pro-forma and normalisation evidence (not tracked in the demo)')}${yes(!!(V.emaea||'').trim(),'EmAEA named')}${yes(!!ev('pat'),'EmAEA Form B recorded')}</div>`));
+  if(f.eu){ const rows=handoffRows(), nA=rows.filter(r=>r.s.method==='actual').length, cv=S.cbam.ver||{}, nv=Object.values(cv).filter(Boolean).length, nt=Object.keys(cv).length;
+    parts.push(sec('cbam','EU CBAM',`<div class="grid3">
+      <div class="stat ${d.issues?'hi':'ok'}"><div class="sl">Factor eligibility issues</div><div class="sv">${ovNum('M12','Factor eligibility issues', d.issues, 0, 'source streams', null, 'c_factors')}</div><div class="su">${d.issues?fmt(d.issueShare*100,1)+'% of tCO₂e on a factor not accepted for CBAM':'none open'}</div></div>
+      <div class="stat"><div class="sl">Purchased precursor evidence</div>${covCell}</div>
+      <div class="stat"><div class="sl">Methods and verification</div><div class="sv" style="font-size:15px">${nA} actual · ${rows.length-nA} default</div><div class="su">${nA?`verification evidence ${nv}/${nt} stages${S.cbam.verReportVer?' · report '+esc(S.cbam.verReportVer):''}`:'all default — verification not applicable'}${d.recon?' · lock checks '+d.recon:''}</div></div></div>`)); }
+  if(f.ets){ const e=S.ets, rc=Object.values(e.recon||{}), nr=rc.filter(Boolean).length;
+    parts.push(sec(f.ets, SCHEME_NAME[f.ets], `<div class="row" style="gap:6px;flex-wrap:wrap">${yes(!!(e.mp&&e.mp.approved),'monitoring plan (methods and tiers) approved')}${yes(nr===rc.length&&rc.length>0,`reconciliations ${nr}/${rc.length}`)}${yes(!!e.locked,'emissions locked')}${yes(!!e.vr,'verification report stored')}${yes(!!e.surrendered,'surrender confirmation stored')}</div>`)); }
+  const b5=`<div class="card ov-band" data-band="5"><h2>5 · Can we defend it?</h2>
+    <p class="sub">What a verifier tests first, scheme by scheme. These are readiness indicators — none of them, alone or together, means “audit-ready”.${!d.steelData?' Factor sources are the fictional steel plant’s (structure only).':''}</p>
+    ${parts.join('<hr class="ov-hr">')}
+    <p class="small muted">Evidence completeness (M13) comes from the evidence locker in production and is always shown with open findings, overdue calibrations, data gaps and failed reconciliations.</p></div>`;
+
+  const tools=`<div class="btns ov-noprint"><button class="btn" onclick="ovDownload()">Download snapshot (JSON)</button><button class="btn" onclick="window.print()">Print / save as PDF</button></div>`;
+  return head + b1 + b2h + b3h + b4 + b5 + tools + ovTraceHTML(snap);
+}
+function priceInputs(pk){
+  return `<div class="row ov-noprint" style="gap:6px;margin-top:8px;flex-wrap:wrap"><input class="fi" type="number" placeholder="price ${CUR[pk]}" value="${hasPrice(S.ov.prices[pk])?S.ov.prices[pk].price:''}" style="width:90px" onchange="S.ov.prices['${pk}'].price=this.value===''?null:+this.value;render()"><input class="fi" placeholder="source (e.g. exchange)" value="${esc(S.ov.prices[pk].source)}" style="width:150px" onchange="S.ov.prices['${pk}'].source=this.value;render()"><input class="fi" type="date" value="${esc(S.ov.prices[pk].asOf)}" style="width:140px" onchange="S.ov.prices['${pk}'].asOf=this.value;render()"></div>`;
+}
+function ovMoneyTile(s, qty, certName, pk, tr, what){
+  const pr=S.ov.prices[pk], m=hasPrice(pr)? qty*pr.price : null;
+  return `<div class="stat ${qty>0?'hi':'ok'}" data-scheme="${s.key}" data-money="${m!=null?1:0}"><div class="sl">${esc(s.name)} · ${qty>0?'shortfall':'surplus'} · ${esc(what)}</div>
+    <div class="sv">${fmt(Math.abs(qty))} <span style="font-size:13px">${esc(certName)}</span></div>
+    <div class="su">${m!=null?`≈ ${money(Math.abs(m),pk)} at ${CUR[pk]}${fmt(pr.price)} · ${esc(pr.source||'source not given')}${pr.asOf?' · '+esc(pr.asOf):''}`:'enter a price to see money'}</div>
+    <div style="margin-top:4px">${trustChip(m!=null ? trust({...tr, extra:[tr.extra, 'price assumption'].filter(Boolean).join(' · ')}) : tr)}</div>
+    ${priceInputs(pk)}</div>`;
+}
+function ovDownload(){
+  const snap=window.TC_SNAPSHOT||computeSnapshot();
+  const strip=JSON.parse(JSON.stringify(snap, (k,v)=> k==='rows'&&Array.isArray(v)&&v.length&&v[0].m ? v.map(r=>({m:r.m, monthly:r.mi, ytd:r.ytd, actual:r.act})) : v));
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(strip,null,2)],{type:'application/json'}));
+  a.download=`TerraCAP_overview_snapshot_v${snap.version}_${snap.hash}.json`; a.click();
+}
+
+/* ---------- Portfolio ---------- */
+const LEAD_DAYS = {d_boundary:7, d_data:30, d_calc:7, d_verify:45, c_goods:3, c_factors:10, c_prec:20, c_lock:5, c_verify:30, c_handoff:5};   /* illustrative; production: configurable */
+/* FICTIONAL sister plants of the fictional Kalinga group. Invented names, invented figures — no real company. */
+const DEMO_GROUP = [
+  {k:'kg-raigarh', name:'Kalinga Long Products', place:'Raigarh, Chhattisgarh', sector:'Iron & steel (fictional)',
+   schemes:[{key:'ccts', done:3, total:4, blocker:{step:'Verification', text:'Assign the ACVA and share the data pack'}, open:['d_verify']},
+            {key:'pat', done:3, total:4, blocker:{step:'Verification', text:'Assign the EmAEA'}, open:['d_verify']}],
+   ccts:{intensity:2.612, target:2.55, q:1150000, ref:'draft'}, overdue:null},
+  {k:'kg-barbil', name:'Kalinga Pellets & DRI', place:'Barbil, Odisha', sector:'Iron & steel (fictional)',
+   schemes:[{key:'ccts', done:0, total:4, blocker:{step:'Boundary', text:'Monitoring plan not filed'}, open:['d_boundary','d_data','d_calc','d_verify']},
+            {key:'cbam', done:2, total:11, blocker:{step:'Emission factors', text:'Two streams on a corporate factor'}, open:['c_factors','c_prec','c_lock','c_verify','c_handoff']}],
+   ccts:{intensity:1.172, target:1.21, q:2400000, ref:'draft'}, overdue:{what:'CCTS monitoring plan', due:'2026-06-30'}}
+];
+function slackOf(keys, openSteps){
+  const nd=OV_DEADLINES.filter(d=>keys.includes(d.s)&&d.cls==='statutory'&&ovDays(d.due)>=0).sort((a,b)=>a.due.localeCompare(b.due))[0];
+  const lead=openSteps.reduce((a,k)=>a+(LEAD_DAYS[k]||7),0);
+  return {nd, lead, slack: nd? ovDays(nd.due)-lead : null};
+}
+function portfolioRows(){
+  const rows=[], cur=computeSnapshot();
+  const ccts=cur.schemes.find(s=>s.key==='ccts'), v=ccts&&ccts.result.values;
+  const open=navModel().filter(g=>g.title!=='Start').flatMap(g=>g.items.filter(i=>STEP_RULES[i.k]&&!i.done).map(i=>i.k));
+  const sl=slackOf(cur.schemes.map(s=>s.key), open);
+  const real=(typeof demoCo==='function') && demoCo();   /* a real Gazette company in scenario mode is never put inside the fictional group */
+  if(!real) rows.push({k:'', name:PLATFORM.installation, place:'open in this workspace', active:true, snap:cur,
+    pos: v&&v.state==='ok'?v.position:null, tr: v&&v.state==='ok'?trust({basis:v.basis, ref:v.ref}):null, ...sl,
+    overdue: (()=>{ const o=cur.schemes.map(s=>ovObligation(s.deadlines)).filter(x=>x&&x.overdue).sort((a,b)=>a.d.due.localeCompare(b.d.due))[0]; return o?{what:SCHEME_NAME[o.d.s]+' '+o.d.what.toLowerCase(), due:o.d.due}:null; })(),
+    schemes: cur.schemes.filter(s=>s.rail).reduce((acc,s)=>{ const prev=acc.find(x=>RAIL_OF[x.key]===RAIL_OF[s.key]);   /* CCTS and PAT share one rail: one line */
+      if(prev){ prev.label=prev.label+' + '+s.name; return acc; } acc.push({key:s.key, label:s.name, done:s.rail.done, total:s.rail.total, blocker:s.rail.blockers[0]}); return acc; },[]),
+    blockers: cur.schemes.reduce((a,s)=>a+(s.rail?s.rail.blockers.length:0),0)});
+  DEMO_GROUP.forEach(g=>{
+    const sl2=slackOf(g.schemes.map(s=>s.key), g.schemes.flatMap(s=>s.open));
+    rows.push({...g, fictional:true, pos:(g.ccts.intensity-g.ccts.target)*g.ccts.q, tr:trust({basis:'projected', ref:g.ccts.ref, extra:'fictional'}), ...sl2,
+      blockers:g.schemes.filter(s=>s.blocker).length});
+  });
+  /* risk: overdue statutory items first, then least slack, then most blockers; quantity breaks ties only within CCTS */
+  rows.sort((a,b)=> ((b.overdue?1:0)-(a.overdue?1:0)) || ((a.slack??1e9)-(b.slack??1e9)) || ((b.blockers||0)-(a.blockers||0)) || ((b.pos||0)-(a.pos||0)));
+  return rows;
+}
+function partnerRows(){
+  /* Gazette facts only — notified baseline and target. No position, no performance, no workflow: these are real companies. */
+  return (typeof DEMO_COS!=='undefined'?DEMO_COS:[]).map(c=>{
+    const r=REGLOOK.ccts[c.ccts]||(REGLOOK.cctsDraft||{})[c.ccts]; if(!r) return null;
+    const [,sector,,base,,t2,,,,page,notifNo,geiUnit]=r;
+    return {k:c.k, name:c.label.split(' (')[0], sector, base, t2, cut:(base-t2)/base*100, unit:geiUnit||'tCO₂e/t', src:`${notifNo}, p.${page}`, draft:!REGLOOK.ccts[c.ccts]};
+  }).filter(Boolean);
+}
+function sPortfolio(){
+  const rows=portfolioRows();
+  const total=rows.reduce((a,r)=>a+(r.pos>0?r.pos:0),0);
+  const wf=r=>r.schemes.map(s=>`${esc(s.label||SCHEME_NAME[s.key])} ${s.done}/${s.total}${s.blocker?`<br><span class="small muted">${esc(s.blocker.step)}: ${esc(s.blocker.text)}</span>`:''}`).join('<br>');
+  const real=(typeof demoCo==='function') && demoCo();
+  const realNote = real ? `<div class="note n-info"><span class="i">i</span><div>The workspace is open on <b>${esc(PLATFORM.installation)}</b>, a real company in scenario mode. It is not part of the fictional group, so it is not listed here. Pick the fictional plant in Set up to see Kalinga Integrated Works live.</div></div>` : '';
+  const group=`<div class="card"><h2>Kalinga Steel Group <span class="tag t-amber">fictional group</span></h2>
+  <p class="sub">One row per installation, riskiest first: overdue statutory filings, then the least slack between the nearest statutory deadline and the estimated time to finish the open steps.</p>
+  <div class="tw"><table class="t" data-portfolio="group"><thead><tr><th>Installation</th><th>Nearest statutory deadline</th><th>Slack</th><th>CCTS position (FY2026-27)</th><th>Workflow</th><th></th></tr></thead><tbody>
+  ${rows.map(r=>`<tr data-row="${r.k||'live'}" data-slack="${r.slack??''}" ${r.fictional?'data-fictional="1"':''}><td><b>${esc(r.name)}</b><br><span class="small muted">${esc(r.place)}${r.sector?' · '+esc(r.sector):''}</span></td>
+    <td>${r.overdue?`<span class="tag t-red">overdue</span> ${esc(r.overdue.what)}<br><span class="small muted">was due ${ovDate(r.overdue.due)}</span>`:r.nd?`${esc(SCHEME_NAME[r.nd.s])}: ${esc(r.nd.what)}<br><span class="small muted">${ovDate(r.nd.due)} · ${ovDays(r.nd.due)} days</span>`:'<span class="muted">—</span>'}</td>
+    <td>${r.overdue?'<span class="tag t-red">overdue</span>':r.slack!=null?`<b>${r.slack}</b> days<br><span class="small muted">after ~${r.lead} days of work</span>`:'—'}</td>
+    <td>${r.pos==null?'<span class="muted">no position</span>':`<b>${r.pos>0?'Short':'Surplus'} ${fmt(Math.abs(r.pos))}</b> CCC<br>${trustChip(r.tr)}`}</td>
+    <td>${wf(r)}</td>
+    <td>${r.active?`<button class="btn" onclick="go('overview')">Open →</button>`:'<span class="small muted">demo row — no workspace</span>'}</td></tr>`).join('')}
+  </tbody><tfoot><tr><td><b>Group CCTS shortfall</b></td><td colspan="5"><b>${fmt(total)}</b> CCC (tCO₂e) — own exposure, summed only within CCTS; a surplus at one plant is not netted against another; intensities are never averaged; CBAM customer-side value is never added. ${trustChip(trust({basis:'projected', extra:'fictional group'}))}</td></tr></tfoot></table></div></div>`;
+  const P=S.ov.partner ? partnerRows() : [];
+  const partner=`<div class="card"><div class="row" style="justify-content:space-between;align-items:center"><h2 style="margin:0">Partner view</h2>
+    <label class="chk" style="margin:0"><input type="checkbox" data-partner-toggle ${S.ov.partner?'checked':''} onchange="S.ov.partner=this.checked;render()"> Show the demo companies (for partner and channel demos)</label></div>
+    ${S.ov.partner?`<p class="sub">Real companies from the CCTS notifications. Only notified facts are shown — baseline, target and the cut it implies. No position, performance or workflow is shown for a real company. Open one to run the scenario demo on its own Overview.</p>
+    <div class="tw"><table class="t" data-portfolio="partner"><thead><tr><th>Company</th><th>Baseline</th><th>FY2026-27 target</th><th>Cut required</th><th>Source</th><th></th></tr></thead><tbody>
+    ${P.map(r=>`<tr><td><b>${esc(r.name)}</b><br><span class="small muted">${esc(r.sector)}</span></td><td>${fmt(r.base,4)}</td><td>${fmt(r.t2,4)} ${r.draft?'<span class="tag t-amber">draft notification</span>':''}</td><td>${fmt(r.cut,1)}%</td><td class="small">${esc(r.src)}<br><span class="muted">${esc(r.unit)}</span></td>
+      <td><button class="btn" onclick="pickDemoCo('${r.k}');go('overview')">Open →</button></td></tr>`).join('')}
+    </tbody></table></div>`:`<p class="small muted">Off by default, so a group demo never shows real company names. Turn it on for a channel-partner demo.</p>`}</div>`;
+  return `<div class="crumb">Portfolio</div><h1>Portfolio</h1>
+  ${IS_DEMO_TENANT?`<div class="note n-warn"><span class="i">!</span><div><b>Demo.</b> Kalinga Steel Group and its plants are fictional; only Kalinga Integrated Works has a live workspace. The two other rows are fixed demo data. Lead times are illustrative.</div></div>`:''}
+  ${realNote}${group}${partner}`;
+}
+
+/* ---------- wiring into the workflow ---------- */
+document.head.insertAdjacentHTML('beforeend',`<style>
+.ov-num{color:inherit;text-decoration:none;border-bottom:1px dotted var(--mute)}
+.ov-num:hover{border-bottom-color:var(--teal)}
+.ov-hr{border:none;border-top:1px solid var(--line);margin:18px 0}
+.ov-band h3{font-size:14px;margin:10px 0 8px}
+.ov-trace{position:fixed;inset:0;background:rgba(17,24,39,.35);display:flex;align-items:flex-start;justify-content:center;z-index:50;padding:60px 16px;overflow:auto}
+.ov-trace-in{background:#fff;border-radius:12px;max-width:640px;width:100%;padding:20px 22px;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+.ni .st.ovw{background:var(--ink);border-color:var(--ink);color:#fff;font-size:9px}
+@media print{#nav,#top .chips,.ov-noprint,.stepbar{display:none !important}#app{display:block}#main{max-width:none;padding:0}.ov-band{break-inside:avoid}}
+</style>`);
+const _navV412 = navModel;
+navModel = function(){
+  const g=_navV412(); const st=g.find(x=>x.title==='Start');
+  if(st && !st.items.some(i=>i.k==='overview')){
+    st.items.push({k:'overview', t:'Overview'});
+    if(IS_DEMO_TENANT) st.items.push({k:'portfolio', t:'Portfolio (Kalinga group)'});
+  }
+  return g;
+};
+renderNav = (function(orig){ return function(){
+  orig();
+  [['overview','◉','Overview — status across all your schemes'],['portfolio','▦','Portfolio — all installations']].forEach(([k,ch,ti])=>{
+    const b=[...document.querySelectorAll('#nav .ni')].find(x=>x.getAttribute('onclick')===`go('${k}')`); if(!b) return;
+    const s=b.querySelector('.st'); s.className='st ovw'; s.textContent=ch; b.title=ti; });
+}; })(renderNav);
+const _renderV412 = render;
+render = function(){
+  if(S.ov.lastScreen!==S.screen) S.ov.trace=null;
+  S.ov.lastScreen=S.screen;
+  _renderV412();
+  const main=document.getElementById('main');
+  if(S.screen==='setup' && setupDone() && !main.querySelector('.ov-go')){
+    const last=[...main.querySelectorAll('.btns')].pop(), html=`<button class="btn btn-p ov-go" onclick="go('overview')">Open the Overview →</button>`;
+    if(last) last.insertAdjacentHTML('beforeend',html); else main.insertAdjacentHTML('beforeend',`<div class="btns">${html}</div>`);
+  }
+  const G=navModel().find(x=>x.title!=='Start' && x.items.some(i=>i.k===S.screen));
+  if(G){ const steps=G.items.filter(i=>STEP_RULES[i.k]); if(steps.length && steps[steps.length-1].k===S.screen && !main.querySelector('.ov-back')){
+    const last=[...main.querySelectorAll('.btns')].pop(), html=`<button class="btn ov-back" onclick="go('overview')">Back to Overview</button>`;
+    if(last) last.insertAdjacentHTML('beforeend',html); else main.insertAdjacentHTML('beforeend',`<div class="btns">${html}</div>`); } }
+};
+Object.assign(SCREENS, {overview:sOverview, portfolio:sPortfolio});
+RULESET.items && RULESET.items.push({k:'ovw', name:'TerraCAP Overview & Dashboards design spec', ver:'rev. 2 reference (v4.12)', status:'Snapshot rebuilt on each render in the demo; server-side in production', use:'Overview, portfolio, drill-through traces'});
+render();
+
+/* ===== v4.13 · pilot fixes from the usability review =====
+   - a green tick means one precise thing per step (levels: viewed · reviewed · validated · verified · submitted/shared)
+   - methodology decides which steps apply (N/A steps leave the denominator)
+   - CBAM handoff: draft downloaded → ready to share → shared → replacement required; actual data needs verification first
+   - two Registry routes; both can finish
+   - rail states: not started · in progress · waiting · needs attention · complete · N/A
+   - changing setup or goods invalidates what depended on it, and says so
+   - persistent context, a "Back to Overview" link on every step, Overview as the home once setup is done            */
+
+/* ---------- helpers ---------- */
+const _R413 = Object.assign({}, STEP_RULES);
+const today413 = () => new Date().toISOString().slice(0,10);
+function cbamActualCodes(){ return selectedCN8().filter(g=>(S.cbam.method[g.cn8]||'actual')==='actual'); }
+function cbamDefaultOnly(){ return selectedCN8().length>0 && cbamActualCodes().length===0; }
+const STEP_NA = { c_verify: ()=>flags().eu && cbamDefaultOnly() };
+const STEP_NA_WHY = { c_verify: 'Every selected CN code uses default values, so there are no actual emissions to verify. Customers use the defaults.' };
+
+/* ---------- domestic: validation and verification evidence ---------- */
+S.dom.ver.formB = S.dom.ver.formB || {ccts:{ver:'',date:''}, pat:{ver:'',date:''}};
+S.dom.ver.filedVer = S.dom.ver.filedVer || {ccts:'', pat:''};
+function domHasData(){ return !(typeof demoCo==='function' && demoCo()) && !!(SECTOR_ARCH[S.setup.sector]||{}).demo; }
+function domDataChecks(){
+  if(!domHasData()) return [];                         /* structure-only sectors and scenario companies: no ledger to validate in the demo */
+  const t=[]; if(!PLATFORM.streams.every(s=>s.qty>0 || s.tco2>0)) t.push('every source stream needs a quantity, or a measured or mass-balance emission');
+  if(PLATFORM.streams.some(s=>!s.fsrc)) t.push('every source stream needs a factor source');
+  if(!(domCalc().eqProd>0)) t.push('equivalent output is zero — intensity is undefined'); return t;
+}
+function domCalcChecks(){
+  if(!domHasData()) return [];
+  const D=domCalc(), t=[]; if(!isFinite(D.gei)||!isFinite(D.sec)) t.push('the calculation did not produce a finite result');
+  if(flags().ccts && !(S.dom.target.ccts>0)) t.push('no CCTS target is loaded for this year'); return t;
+}
+function domVerOk(sch){
+  const v=S.dom.ver, fb=v.formB[sch]||{}, ack=sch==='ccts'?v.icmRef:v.sdaRef, who=sch==='ccts'?v.acva:v.emaea;
+  return !!(who||'').trim() && !!(fb.ver||'').trim() && !!fb.date && !!(ack||'').trim() && (v.filedVer[sch]||'').trim()===(fb.ver||'').trim();
+}
+STEP_RULES.d_data = ()=> domDataChecks().map(x=>'Validation: '+x).concat(_R413.d_data());
+STEP_RULES.d_calc = ()=> domCalcChecks().map(x=>'Validation: '+x).concat(_R413.d_calc());
+STEP_RULES.d_verify = ()=>{
+  const f=flags(), v=S.dom.ver, t=[];
+  ['ccts','pat'].filter(k=>f[k]).forEach(k=>{
+    const N=k==='ccts'?'CCTS':'PAT', V=k==='ccts'?'ACVA':'EmAEA', fb=v.formB[k], who=k==='ccts'?v.acva:v.emaea, ack=k==='ccts'?v.icmRef:v.sdaRef;
+    if(!(who||'').trim()) t.push(`${N}: name the ${V}`);
+    if(!(fb.ver||'').trim() || !fb.date) t.push(`${N}: record the ${V}’s Form B — verification report version and date`);
+    if(!(ack||'').trim()) t.push(`${N}: enter the portal acknowledgement number after filing`);
+    else if((v.filedVer[k]||'').trim()!==(fb.ver||'').trim()) t.push(`${N}: record which version was filed — it must match the verified version`);
+  });
+  return t;
+};
+submissionHTML = (function(orig){ return function(){
+  const f=flags(), v=S.dom.ver;
+  const blk=k=>{ const fb=v.formB[k], N=k==='ccts'?'CCTS — ACVA Form B':'PAT — EmAEA Form B';
+    return `<div><h3>${N}</h3>
+      <div class="f"><div class="fl">Verification report (Form B) version</div><input class="fi" value="${esc(fb.ver)}" oninput="S.dom.ver.formB['${k}'].ver=this.value" placeholder="e.g. FB-2027-01"></div>
+      <div class="f"><div class="fl">Report date</div><input class="fi" type="date" value="${esc(fb.date)}" onchange="S.dom.ver.formB['${k}'].date=this.value;render()"></div>
+      <div class="f"><div class="fl">Version filed with the acknowledgement</div><input class="fi" value="${esc(v.filedVer[k])}" oninput="S.dom.ver.filedVer['${k}']=this.value" placeholder="must equal the verified version"></div></div>`; };
+  return orig() + `<div class="card"><h2>Verification and filing evidence</h2>
+    <p class="sub">An acknowledgement number shows that something was filed. It does not show that the verifier’s report exists, or that the verified version is the one filed — so record both. Production stores the report file, who recorded it and when.</p>
+    <div class="grid2">${f.ccts?blk('ccts'):''}${f.pat?blk('pat'):''}</div></div>`;
+}; })(submissionHTML);
+
+/* ---------- ETS: the receipt alone is not verification ---------- */
+STEP_RULES.ets_ver = ()=>{ const t=[]; if(!S.ets.vr) t.push('Store the verifier’s signed verification report'); if(!S.ets.aerSubmitted) t.push('Store the authority’s submission receipt for the verified report'); return t; };
+
+/* ---------- CBAM verification: methodology decides; evidence, not ticks ---------- */
+S.cbam.verEv = S.cbam.verEv || {}; if(S.cbam.verReportVer===undefined) S.cbam.verReportVer='';
+const VER_STAGE = {mp:'Monitoring plan shared with the verifier', contracted:'Verifier contracted', mpAssessed:'Plan assessed by the verifier', site:'Site visit', report:'Report submitted for verification', vr:'Signed verification report received', closed:'Findings closed'};
+STEP_RULES.c_verify = ()=>{
+  if(STEP_NA.c_verify()) return [];
+  const t=_R413.c_verify().map(x=>x.replace('Tick the remaining verification stages','Record evidence for the remaining verification stages'));
+  if(!(S.cbam.verReportVer||'').trim()) t.push('Record the version of the verifier’s signed report');
+  return t;
+};
+document.addEventListener('change', e=>{
+  const oc=(e.target && e.target.getAttribute && e.target.getAttribute('onchange'))||''; const m=oc.match(/S\.cbam\.ver\['(\w+)'\]/); if(!m) return;
+  if(e.target.checked) S.cbam.verEv[m[1]]={by:'Demo user (operator)', at:today413()}; else delete S.cbam.verEv[m[1]];
+}, true);
+sCVerify = (function(orig){ return function(){
+  let h=orig().replace(/>Done<\/label>/g,'>Evidence recorded</label>');
+  const codes=cbamActualCodes().map(g=>g.cn8), v=S.cbam.ver||{};
+  const card=STEP_NA.c_verify() ? `<div class="note n-info"><span class="i">i</span><div><b>Not applicable this year.</b> ${STEP_NA_WHY.c_verify} The step counts as N/A and leaves the progress count.</div></div>`
+   : `<div class="card"><h2>Verification evidence</h2>
+    <p class="sub">Each stage happens outside TerraCAP. Ticking a stage records its evidence: who recorded it and when. Production also stores the document.</p>
+    <p class="small"><b>This verification must cover the actual-data codes:</b> ${codes.map(esc).join(', ')}${selectedCN8().length>codes.length?` · default-method codes (${selectedCN8().length-codes.length}) need no verification`:''}</p>
+    <div class="tw"><table class="t"><thead><tr><th>Stage</th><th>Recorded by</th><th>On</th></tr></thead><tbody>
+      ${Object.keys(v).map(k=>`<tr><td>${esc(VER_STAGE[k]||k)}</td><td>${v[k]?esc((S.cbam.verEv[k]||{}).by||'recorded earlier'):'<span class="muted">not recorded</span>'}</td><td>${v[k]?esc((S.cbam.verEv[k]||{}).at||'—'):''}</td></tr>`).join('')}
+    </tbody></table></div>
+    <div class="f mt" style="max-width:360px"><div class="fl">Signed verification report — version</div><input class="fi" value="${esc(S.cbam.verReportVer||'')}" oninput="S.cbam.verReportVer=this.value" placeholder="e.g. VR-2026-01 v1"></div></div>`;
+  const i=h.indexOf('<div class="card">'); return i>0 ? h.slice(0,i)+card+h.slice(i) : h+card;
+}; })(sCVerify);
+SCREENS.c_verify = sCVerify;
+
+/* ---------- CBAM Registry: two routes, both can finish ---------- */
+if(S.reg.route===undefined) S.reg.route=''; if(S.reg.outsideAck===undefined) S.reg.outsideAck=false;
+STEP_RULES.c_registry = ()=>{
+  if(S.reg.route==='outside') return S.reg.outsideAck ? [] : ['Confirm that each customer gets the report and supporting documents directly'];
+  if(S.reg.route==='registered') return _R413.c_registry();
+  return ['Choose a route: register in the CBAM Registry, or share the report outside it'];
+};
+sRegistry = (function(orig){ return function(){
+  const r=S.reg.route;
+  const choose=`<div class="card"><h2>Choose your route</h2>
+    <p class="sub">Registering as an operator is optional. Registered operators can disclose to declarants through the Registry; unregistered operators share the report and its supporting documents directly. Either route completes this step.</p>
+    <select class="fi" style="max-width:520px" onchange="S.reg.route=this.value;render()">
+      <option value="" ${!r?'selected':''}>Choose…</option>
+      <option value="registered" ${r==='registered'?'selected':''}>Registered operator — disclose through the Registry</option>
+      <option value="outside" ${r==='outside'?'selected':''}>Not registered — share the report outside the Registry</option></select>
+    ${r==='outside'?`<label class="chk mt"><input type="checkbox" ${S.reg.outsideAck?'checked':''} onchange="S.reg.outsideAck=this.checked;render()"> Each customer will receive the verified report and supporting documents directly (step 11 records each share)</label>`:''}</div>`;
+  if(r==='outside'){ const h=orig(); const head=h.slice(0, h.indexOf('<div class="card">')>0?h.indexOf('<div class="card">'):0);
+    return (head||'<div class="crumb">EU CBAM · operator</div><h1>CBAM Registry</h1>') + choose + `<div class="btns"><button class="btn btn-p" onclick="go('c_handoff')">Customer package →</button></div>`; }
+  const h=orig(), i=h.indexOf('<div class="card">'); return i>0 ? h.slice(0,i)+choose+h.slice(i) : choose+h;
+}; })(sRegistry);
+SCREENS.c_registry = sRegistry;
+
+/* ---------- CBAM customer package: draft → ready → shared → replacement ---------- */
+function handoffHash(){ return ovHash(handoffRows().map(r=>[r.g.cn8, r.s.method, r.s.see!=null?+(+r.s.see).toFixed(6):null])); }
+function handoffActual(){ return cbamActualCodes().length>0; }
+function handoffGates(){
+  if(!handoffActual()) return [];
+  const t=[]; if(!S.cbam.locked) t.push('lock the period (step 7)');
+  if(!stepIsDone('c_verify')) t.push('record the verification evidence and report version (step 8)');
+  if(!dRev('c_fa')) t.push('review the free-allocation adjustment (step 9)'); return t;
+}
+function shareState(d){
+  if(d.state==='Superseded') return 'Superseded';
+  if(d.state==='Shared') return d.hash!==handoffHash() ? 'Replacement required' : 'Shared';
+  const stale = d.hash!==handoffHash() || (d.actual && (d.verVer||'')!==(S.cbam.verReportVer||''));
+  return (!stale && !handoffGates().length) ? 'Ready to share' : 'Draft downloaded';
+}
+function markDraft413(){
+  const d=S.cbam.dispatch[S.cbam.dispatch.length-1]; if(!d) return;
+  Object.assign(d, {state:'Draft downloaded', hash:handoffHash(), actual:handoffActual(), verVer:S.cbam.verReportVer||''});
+}
+['custPackage','dispatchV4'].forEach(fn=>{ const orig=window[fn]; if(typeof orig!=='function') return;
+  window[fn]=function(){ const shared=(S.cbam.dispatch||[]).filter(d=>d.state==='Shared'); const r=orig.apply(this, arguments);
+    shared.forEach(d=>d.state='Shared');           /* a new download does not supersede what the customer already has */
+    markDraft413(); render(); return r; }; });
+custPackage = window.custPackage; if(typeof dispatchV4==='function') dispatchV4 = window.dispatchV4;
+function recordShared(to){
+  const list=S.cbam.dispatch.filter(d=>d.to===to), cur=list[list.length-1];
+  if(!cur || shareState(cur)!=='Ready to share') return;
+  list.forEach(d=>{ if(d!==cur && (d.state==='Shared'||d.state==='Draft downloaded')) d.state='Superseded'; });
+  Object.assign(cur, {state:'Shared', sharedOn:today413()}); render();
+}
+STEP_RULES.c_handoff = ()=>{
+  const ds=S.cbam.dispatch||[];
+  if(ds.some(d=>shareState(d)==='Shared')) return [];
+  const t=[], g=handoffGates();
+  if(g.length) t.push('Before an actual-data package can be shared: '+g.join('; '));
+  if(ds.some(d=>shareState(d)==='Replacement required')) t.push('A shared package is out of date — download a replacement and record it as shared');
+  t.push(ds.length ? 'Record the package as shared with the customer — downloading is not sharing' : 'Download the package for a customer');
+  return t;
+};
+Object.defineProperty(STEP_DEPS, 'c_handoff', {get:()=> handoffActual() ? ['c_see','c_verify','c_fa'] : ['c_see'], configurable:true, enumerable:true});
+sHandoff = (function(orig){ return function(){
+  const g=handoffGates(), cust=[...new Set((S.cbam.dispatch||[]).map(d=>d.to))];
+  const card=`<div class="card" data-share="1"><h2>Sharing status</h2>
+    <p class="sub">${handoffActual()?'This package carries actual data, so it can be shared only from a locked, verified period whose report version matches.':'All codes use default values, so the package can be shared without verification.'} Downloading creates a draft; record the share when the customer has it.</p>
+    ${g.length?`<div class="note n-warn"><span class="i">!</span><div><b>Not ready to share yet:</b> ${esc(g.join('; '))}.</div></div>`:''}
+    ${cust.length?`<div class="tw"><table class="t"><thead><tr><th>Customer</th><th>Latest version</th><th>State</th><th></th></tr></thead><tbody>
+      ${cust.map(c=>{ const list=S.cbam.dispatch.filter(d=>d.to===c), d=list[list.length-1], st=shareState(d), shared=list.find(x=>shareState(x)==='Shared'||shareState(x)==='Replacement required');
+        const cls={'Shared':'t-teal','Ready to share':'t-gray','Draft downloaded':'t-gray','Replacement required':'t-red','Superseded':'t-gray'}[st];
+        return `<tr data-share-state="${st}"><td>${esc(c)}</td><td>${esc(d.v)} · ${esc(d.date)}</td><td><span class="tag ${cls}">${st}</span>${shared&&shared!==d?`<div class="small muted">customer holds ${esc(shared.v)} (${shareState(shared)==='Replacement required'?'out of date':'current'})</div>`:''}</td>
+          <td>${st==='Ready to share'?`<button class="btn btn-p" onclick='recordShared(${JSON.stringify(c)})'>Record as shared</button>`:''}</td></tr>`; }).join('')}
+    </tbody></table></div>`:'<p class="small muted">No package downloaded yet.</p>'}</div>`;
+  const h=orig(), i=h.indexOf('<div class="card">'); return i>0 ? h.slice(0,i)+card+h.slice(i) : h+card;
+}; })(sHandoff);
+SCREENS.c_handoff = sHandoff;
+
+/* ---------- what a tick means: levels per step ---------- */
+const LV_VALID = {
+  d_boundary:()=>!!S.dom.boundaryLocked, d_data:()=>!domDataChecks().length, d_calc:()=>!domCalcChecks().length,
+  c_mp:()=>['Approved by operator','Assessed by verifier'].includes(S.cbam.mpState), c_goods:()=>selectedCN8().length>0, c_process:()=>processes().length>0&&processes().every(p=>(S.cbam.activity[p]||0)>0),
+  c_factors:()=>!factorIssues().length, c_prec:()=>!Object.values(S.cbam.prec||{}).flat().some(p=>p.src==='buy'&&p.basis==='supplier'&&!p.vr),
+  c_see:()=>{ try{ return Object.values(seeAll()).every(x=>x&&isFinite(x.see)); }catch(e){ return false; } }, c_lock:()=>!!S.cbam.locked,
+  ets_apply:()=>S.ets.covered===true, ets_mp:()=>!!(S.ets.mp&&S.ets.mp.approved), ets_aer:()=>!!S.ets.locked, ets_fa:()=>!!S.ets.alcDone
+};
+const LV_VERIF = {
+  d_verify:()=>['ccts','pat'].filter(k=>flags()[k]).every(k=>{ const fb=S.dom.ver.formB[k]; return (fb.ver||'').trim()&&fb.date; }),
+  c_verify:()=>!STEP_NA.c_verify() && stepIsDone('c_verify'), ets_ver:()=>!!S.ets.vr,
+  c_handoff:()=>handoffActual() ? stepIsDone('c_verify') : null
+};
+const LV_SUBM = {
+  d_verify:()=>['ccts','pat'].filter(k=>flags()[k]).every(domVerOk), ets_ver:()=>!!S.ets.aerSubmitted, ets_surr:()=>!!S.ets.surrendered,
+  c_handoff:()=>(S.cbam.dispatch||[]).some(d=>shareState(d)==='Shared'), c_registry:()=> S.reg.route==='registered' ? S.reg.state==='Registered' : null
+};
+function stepLevels(k){
+  const st=(f)=> f ? (v=>v===null?'na':v?'ok':'todo')(f()) : 'na';
+  return [['Viewed', (dVis(k)||S.screen===k)?'ok':'todo'], ['Reviewed by operator', REVIEW_STEPS.includes(k)?(dRev(k)?'ok':'todo'):'na'],
+    ['Validated', st(LV_VALID[k])], ['Verified externally', st(LV_VERIF[k])], ['Submitted / shared', st(LV_SUBM[k])]];
+}
+function levelsHTML(k){
+  const L=stepLevels(k);
+  return `<div class="levels" data-levels="${k}">${L.map(([t,s])=>`<span class="lv lv-${s}" data-level="${t}" data-state="${s}">${s==='ok'?'✓':s==='todo'?'○':'—'} ${t}</span>`).join('')}
+    <div class="small muted" style="margin-top:4px">The tick in the rail needs every level marked ○ here. “Continue” saves your review; it never counts as validation or verification. — = does not apply to this step.</div></div>`;
+}
+
+/* ---------- rail: calmer states ---------- */
+function stepInvalid(k){
+  const f=flags(), on={ccts:f.ccts, pat:f.pat, cbam:f.eu, EU:f.ets==='EU', UK:f.ets==='UK'};
+  const od=OV_DEADLINES.find(d=>d.step===k && on[d.s] && OWN_DUTY(d.cls) && !(d.done&&d.done()) && ovDays(d.due)<0);
+  if(od) return `Overdue: ${SCHEME_NAME[od.s]} ${od.what.toLowerCase()} was due ${ovDate(od.due)}`;
+  if(k==='c_factors' && f.eu && dVis(k) && factorIssues().length) return `${factorIssues().length} source stream(s) on a factor not accepted for CBAM`;
+  if(k==='c_prec' && f.eu && dVis(k) && Object.values(S.cbam.prec||{}).flat().some(p=>p.src==='buy'&&p.basis==='supplier'&&!p.vr)) return 'A supplier value has no verification report';
+  if(k==='c_handoff' && (S.cbam.dispatch||[]).some(d=>shareState(d)==='Replacement required')) return 'A shared package is out of date';
+  return '';
+}
+navModel = (function(orig){ return function(){
+  const g=orig(); const st=g.find(x=>x.title==='Start'); const it=st && st.items.find(i=>i.k==='setup'); if(it) it.t='Installation & obligations';
+  g.forEach(G=>G.items.forEach(i=>{ if(STEP_NA[i.k] && STEP_NA[i.k]()){ i.na=true; i.done=true; i.why='Not applicable'; } }));
+  return g;
+}; })(navModel);
+renderNav = (function(orig){ return function(){
+  orig();
+  const nav=document.getElementById('nav'); if(!nav) return;
+  const model=navModel();
+  model.forEach(G=>G.items.forEach(i=>{ if(!STEP_RULES[i.k]) return;
+    const b=[...nav.querySelectorAll('.ni')].find(x=>x.getAttribute('onclick')===`go('${i.k}')`); if(!b) return;
+    const s=b.querySelector('.st'); s.classList.remove('warn','prog','wait','na');
+    if(i.na){ s.classList.add('done','na'); s.textContent='N/A'; b.title='Not applicable — '+(STEP_NA_WHY[i.k]||''); return; }
+    if(i.done) return;
+    s.classList.remove('done'); const ss=stepStatus(i.k), bad=stepInvalid(i.k);
+    if(bad){ s.classList.add('warn'); s.textContent='!'; b.title=bad; }
+    else if(/^Waiting on/.test(ss.todo[0]||'')){ s.classList.add('wait'); s.textContent='⋯'; b.title=ss.todo[0]; }
+    else if(dVis(i.k) && S.screen!==i.k){ s.classList.add('prog'); s.textContent=''; b.title='In progress: '+ss.todo.join(' · '); }
+    else { s.textContent=''; b.title=ss.todo.length?'To complete: '+ss.todo.join(' · '):''; }
+  }));
+  model.forEach(G=>{ const steps=G.items.filter(i=>STEP_RULES[i.k]); if(!steps.length) return; const ap=steps.filter(i=>!i.na);
+    const hdr=[...nav.querySelectorAll('.ng')].find(h=>h.textContent.startsWith(G.title)); const c=hdr&&hdr.querySelector('.cnt'); if(c) c.textContent=`${ap.filter(i=>i.done).length}/${ap.length}`; });
+  const lg=nav.querySelector('.legend'); if(lg) lg.innerHTML=`<span><span class="st done">✓</span>complete</span><span><span class="st prog"></span>in progress</span><span><span class="st wait">⋯</span>waiting on another step</span><span><span class="st warn">!</span>needs attention (invalid or overdue)</span><span><span class="st done na">N/A</span>not applicable</span><span><span class="st"></span>not started</span><span><span class="st ref">§</span>reference page</span>`;
+  /* context bar: installation · scheme · period · data through · result status */
+  const ch=document.getElementById('chips'); if(ch && setupDone()){
+    const G=model.find(x=>x.title!=='Start' && x.items.some(i=>i.k===S.screen));
+    const ctx = G ? ({'India — domestic':['ccts','Domestic','FY2026-27 · Apr–Mar'], 'EU CBAM':['cbam','EU CBAM','CY2026 · Jan–Dec'], 'EU ETS':['EU','EU ETS','CY2026 · Jan–Dec'], 'UK ETS':['UK','UK ETS','CY2026 · Jan–Dec']}[G.title]) : null;
+    ch.insertAdjacentHTML('beforeend', `<span class="chip">Data through <b>Sep 2026</b></span>`);
+    S.ov.ctx = ctx ? {name:ctx[1], period:ctx[2], wf:wfOf(ctx[0])} : null;
+  }
+}; })(renderNav);
+
+/* ---------- changing setup or goods invalidates what depended on it ---------- */
+function invalidate413(kind, what){
+  const reset=[];
+  const unrev=ks=>ks.forEach(k=>{ if(S.reviewed[k]){ S.reviewed[k]=false; reset.push(stepTitle(k)+' — review'); } });
+  if(kind==='setup'){
+    if(S.dom.boundaryLocked){ S.dom.boundaryLocked=false; reset.push('Domestic boundary lock'); }
+    unrev(['d_data','d_calc','ets_apply','ets_ship']);
+    if(S.ets.locked){ S.ets.locked=false; reset.push('ETS emissions lock'); }
+  }
+  if(kind==='setup' || kind==='cbam'){
+    if(S.cbam.locked){ S.cbam.locked=false; reset.push('EU CBAM period lock'); }
+    unrev(['c_see','c_fa']);
+    const v=S.cbam.ver||{}; if(v.vr||v.closed||S.cbam.verReportVer){ v.vr=false; v.closed=false; S.cbam.verReportVer=''; reset.push('CBAM verification report — it must cover the changed goods'); }
+    if((S.cbam.dispatch||[]).some(d=>d.state==='Shared')) reset.push('Shared customer packages — they now need a replacement');
+  }
+  if(reset.length) S.ov.invalid={what, reset};
+}
+const wrapSetter=(name, kind, what, changed)=>{ const orig=window[name]; if(typeof orig!=='function') return;
+  window[name]=function(){ if(setupDone() && changed.apply(null, arguments)) invalidate413(kind, what); return orig.apply(this, arguments); }; };
+wrapSetter('setCountry','setup','You changed the country', k=>k!==S.setup.country);
+wrapSetter('setRegime','setup','You changed the domestic schemes', r=>r!==S.setup.regime);
+wrapSetter('setSector','setup','You changed the sector', k=>k!==S.setup.sector);
+wrapSetter('toggleCN','cbam','You changed the CBAM goods', ()=>true);
+wrapSetter('toggleCN8','cbam','You changed the 8-digit CN codes', ()=>true);
+wrapSetter('setMethod','cbam','You changed a method (actual or default)', (c,v)=>(S.cbam.method[c]||'actual')!==v);
+setCountry=window.setCountry; setRegime=window.setRegime; if(typeof setSector==='function') setSector=window.setSector; toggleCN=window.toggleCN; toggleCN8=window.toggleCN8; setMethod=window.setMethod;
+
+/* ---------- screen furniture: levels, N/A, invalidation notice, planning-only, back to Overview ---------- */
+document.head.insertAdjacentHTML('beforeend',`<style>
+.st.prog{border-color:var(--teal);background:linear-gradient(90deg,var(--teal-bg2) 50%,#fff 50%)}
+.st.wait{border-style:dashed;color:var(--mute);font-size:10px}
+.st.na{background:#f1f3f5;border-color:#d5d9de;color:var(--mute);font-size:7.5px;letter-spacing:-.2px}
+.levels{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.levels .lv{font-size:11.5px;border:1px solid var(--line);border-radius:999px;padding:2px 8px;background:#fff}
+.levels .lv-ok{border-color:var(--teal);color:var(--teal-d)} .levels .lv-todo{color:var(--ink)} .levels .lv-na{color:var(--faint)}
+.levels .small{flex-basis:100%}
+.ov-ready .tag{white-space:normal;max-width:100%}
+a.ov-back{color:var(--teal-d)}
+.ctxbar{position:sticky;top:0;z-index:5;background:var(--teal-bg2);border:1px solid var(--teal);border-radius:8px;padding:6px 10px;font-size:12.5px;margin-bottom:12px}
+</style>`);
+render = (function(orig){ return function(){
+  orig();
+  const main=document.getElementById('main'); if(!main) return; const k=S.screen;
+  if(S.ov.invalid){ main.insertAdjacentHTML('afterbegin', `<div class="note n-warn" data-invalidated="1"><span class="i">!</span><div><b>${esc(S.ov.invalid.what)}.</b> These were reset because they depended on it: ${S.ov.invalid.reset.map(esc).join('; ')}. <button class="btn" style="padding:2px 8px;font-size:12px;margin-left:6px" onclick="S.ov.invalid=null;render()">Dismiss</button></div></div>`); }
+  if(S.ov.ctx && STEP_RULES[k]) main.insertAdjacentHTML('afterbegin', `<div class="ctxbar" title="Only this period is loaded in the demo; production adds a period selector"><b>${esc(PLATFORM.installation)}</b> · <b>${esc(S.ov.ctx.name)}</b> · reporting period ${esc(S.ov.ctx.period)} · data through Sep 2026 · result ${esc(S.ov.ctx.wf)}</div>`);
+  const bar=main.querySelector('.stepbar');
+  if(bar && STEP_RULES[k]){
+    if(STEP_NA[k] && STEP_NA[k]()){ bar.className='stepbar ok'; bar.innerHTML=`<span>—</span><div><b>Not applicable.</b> ${esc(STEP_NA_WHY[k])}</div>`; }
+    else (bar.lastElementChild||bar).insertAdjacentHTML('beforeend', levelsHTML(k));
+    if(setupDone() && !main.querySelector('.ov-back')) bar.insertAdjacentHTML('afterend', `<div class="small ov-noprint" style="margin:-6px 0 12px"><a href="#" class="ov-back" onclick="go('overview');return false">← Back to Overview</a></div>`);
+  }
+  if(k==='d_calc' && flags().ccts){ const e=domEngine('ccts'); if(e && e.ref==='draft' && !main.querySelector('[data-planning]')){ const h1=main.querySelector('.stepbar')||main.querySelector('h1');
+    if(h1) h1.insertAdjacentHTML('afterend', `<div class="note n-warn" data-planning="1"><span class="i">!</span><div><b>Planning only.</b> The FY2026-27 CCTS target comes from a draft schedule that is not yet notified, so this installation is not yet legally obligated under it.</div></div>`); } }
+}; })(render);
+
+/* Overview is home once the obligations are set up */
+RULESET.items && RULESET.items.push({k:'pilot', name:'Usability review fixes', ver:'v4.13', status:'Pilot candidate', use:'Step levels, N/A steps, CBAM sharing states, Registry routes, overdue-first Overview'});
+render();
+if(setupDone()) go('overview');
 
 </script>
 </body></html>
