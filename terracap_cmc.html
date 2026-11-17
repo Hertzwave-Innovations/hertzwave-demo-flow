@@ -5519,5 +5519,501 @@ render = (function(orig){ return function(){
 RULESET.items && RULESET.items.push({k:'final', name:'Final review fixes', ver:'v4.14', status:'Pilot candidate', use:'Sharing-driven CBAM state, full package identity, recipient scope, input-hash invalidation, version-bound verification'});
 render();
 
+/* ===== v4.15 · Activity data: quantities, calorific values, lab tests — captured inside CMC =====
+   The GHG data-management forms do not collect fuel and material quantities, so CMC does.
+   One entry per source stream feeds three results:
+     PAT   energy   = quantity × GCV ÷ 10^7 kcal per toe                       (gross basis)
+     CCTS  emissions= quantity × NCV × emission factor × oxidation factor      (net basis, Procedure §5(7), Annexure III)
+     CBAM  quantities and lab-test counts for the same source streams
+   Forms are built from a sector template, so each PAT/CCTS segment is asked for its own streams.
+   Rule texts are reference data with their source; the plant's approved monitoring plan prevails where stricter. */
+
+/* ---------- help popovers ---------- */
+const ACT_RULESET = 'CCTS Detailed Procedure for Compliance Mechanism (BEE, July 2024) · PAT normalisation documents · IR (EU) 2025/2547 B.5.4';
+const TIPS = {
+  how: 'Enter what the plant CONSUMED inside the boundary in the period — not what it bought. Each row is used three times: PAT energy (with GCV), CCTS emissions (with NCV and the emission factor) and, for exporters, CBAM.',
+  qty: 'Quantity consumed in the period, inside the boundary. CCTS §5(8) allows two ways: continual measurement at the process (belt weigher, flow meter), or deliveries corrected for stock: received − moved out + opening stock − closing stock. Units: tonnes; kL or m³ for liquids and gases. Keep the evidence: weighbridge or belt-weigher logs, stores issue reports (DPR/MPR), meter totals, invoices.',
+  monthly: 'Monthly entry is what a verifier samples. Months up to the last locked month are actuals; later months are projected at the run-rate until you replace them.',
+  meas: 'How the quantity was measured. A calibrated weighbridge, belt weigher or flow meter is direct measurement. Invoices with a stock balance are accepted (CCTS §5(8)(i)(b)). The monitoring plan must list each instrument with its range, uncertainty and location (§5(6)(xi)).',
+  stock: 'Consumption = received − moved out (sold or transferred) + opening stock − closing stock (CCTS §5(8)(ii)). Use it when fuel is not weighed at the point of use. Opening stock must equal last year’s closing stock.',
+  unit: 'Solids in tonnes. Liquids in tonnes, or in kL with the measured density (t/kL) so the quantity can be converted. Gas in tonnes, or in thousand Sm³ with calorific values per Sm³.',
+  used: 'Switch a stream off if the plant does not use it. Off streams are not asked for and not counted. Add any stream that is not listed.',
+  gcv: 'Gross calorific value (higher heating value), in kcal/kg. Measured on a sample in a bomb calorimeter (IS 1350 Part 2 for coal and coke). PAT energy uses GCV: toe = tonnes × 1,000 × GCV ÷ 10,000,000. Enter the quantity-weighted average of all lots: Σ(lot tonnes × lot GCV) ÷ Σ lot tonnes — not a plain average of lab results.',
+  basis: 'The basis must match the tonnes you weighed. A lab reports on air-dried basis (ADB); fuel as weighed still carries its total moisture (TM). Convert: GCV as received = GCV(ADB) × (100 − TM) ÷ (100 − IM), where IM is the inherent moisture of the air-dried sample. PAT normalisation documents ask for “as received or as fired basis as per baseline methodology”, with monthly averages of lots on as-fired basis for captive power. Never pair wet tonnes with a dry-basis GCV.',
+  ncv: 'Net calorific value (lower heating value), in GJ/t. CCTS activity data is on NCV (Procedure §5(7), Annexure III: activity = quantity × NCV). Order of preference: 1) your laboratory (IS 1350 Part 2 for solids; ASTM D1945/D1946 for gases); 2) the supplier’s value for liquid fuels and natural gas, backed by an NABL-laboratory test certificate (§5(9)(ii)); 3) only when no NCV is available, the IPCC conversion from GCV: × 0.95 for solid and liquid fuels, × 0.90 for gases (§5(9)(iii)). From an analysis: NCV = GCV − 24.42 × (9 × H% + M%) kJ/kg, all on the same basis. 1 kcal/kg = 0.0041868 GJ/t.',
+  efb: 'How CO₂ per unit of fuel is set. CCTS §5(10): site-specific (Type II) factors are required for solid and gaseous fuels and for process emissions — from your lab’s carbon content (IS 1350 Part 4/Sec 1 for solids): tCO₂ = tonnes × C% × 3.664. Type I factors (Annex IV of the Procedure, IPCC, or the national inventory) are allowed only where analysis is unreasonably costly or technically infeasible, and for small streams. Corporate reporting factors are not accepted.',
+  of: 'Oxidation factor = 1 − carbon left in ash and gas ÷ carbon in the fuel. If you have not measured it, use 1 (CCTS §5(7)(v)).',
+  bio: 'Share of the carbon that is biogenic, by analysis or supplier certificate. Biogenic CO₂ is left out of the CCTS total and reported separately as a memo item (§5(7)(iv)). The energy still counts for PAT.',
+  tests: 'Number of laboratory analyses of this stream in the period, each with a certificate. The minimum shown comes from the rule for this material; where your sampling plan asks for more, the plan wins (“whichever is higher”).',
+  lab: 'CCTS §5(14): the internal laboratory must be NABL-accredited to IS/ISO/IEC 17025:2017 — within three years of joining the scheme if it is not yet. §5(15)(iv): samples also go to an external laboratory every month. PAT asks for internal and external fuel test reports and a government-laboratory sample for cross-checking. CBAM recommends ISO/IEC 17025 accreditation (B.5.4.3).',
+  dev: 'If fewer tests were done than the minimum, do not back-fill. Record the deviation and its reason here; it goes to the verifier with the data.',
+  pf: 'Process emission = quantity × emission factor × conversion factor (CCTS Annexure III-G). For carbonates the factor is stoichiometric: limestone (CaCO₃) 0.440 and dolomite 0.477 tCO₂ per tonne of pure carbonate — multiply by purity. BEE’s sector MRV guidelines set the method per sector; follow them where they differ.',
+  direct: 'Use only where the monitoring plan sets a measured or mass-balance figure for a unit (for example PFC emissions from anode-effect records). Enter tCO₂e and keep the working.',
+  out: 'Carbon that leaves the boundary in products or by-products you sell is subtracted in a mass balance: tonnes × C% × 3.664. If the by-product is a fuel, its energy is also deducted from PAT energy.',
+  grid: 'Electricity imported from the grid or by open access, from DISCOM bills or the ABT meter. PAT converts it at 860 kcal/kWh. CCTS applies the latest CEA average grid emission factor.',
+  elecinfo: 'Captured for the record and for PAT normalisation; not added again, because the fuel behind captive generation is already counted above.',
+  prod: 'Production of the notified product in the period, from the production MIS or excise/GST records. Intensity = total ÷ equivalent product. Sector rules convert intermediates sold or bought into equivalent product.',
+  cbamqty: 'CBAM uses the same source-stream quantities, for the calendar year. IR (EU) 2025/2547 B.5.4.2 gives minimum analysis frequencies; the table on this screen compares them with the tests you recorded.',
+  cls_solid: 'Solid fuel. CCTS §5(13)(vi)(a): analyse every 20,000 t and at least once a month. CBAM B.5.4.2: every 20,000 t and at least six times a year.',
+  cls_liquid: 'Liquid fuel. CCTS states no fixed frequency; a supplier NCV with an NABL-laboratory certificate is accepted (§5(9)(ii)). CBAM B.5.4.2: every 20,000 t and at least six times a year.',
+  cls_gas: 'Natural gas. CCTS §5(13)(vii): sample at least weekly. CBAM B.5.4.2: at least weekly.',
+  cls_gasproc: 'Process or refinery gas. CCTS §5(13)(vii): at least weekly. CBAM B.5.4.2: at least daily, at different times of day.',
+  cls_bio: 'Biomass or waste fuel. CCTS: treated as other material — every 50,000 t and at least quarterly (§5(13)(vi)(c)). CBAM B.5.4.2: untreated solid waste every 5,000 t and at least four times a year; other fuels every 10,000 t and at least four times a year.',
+  cls_carb: 'Carbonate mineral. CCTS §5(13)(vi)(b): every 50,000 t and at least once a month. CBAM B.5.4.2: every 50,000 t and at least four times a year.',
+  cls_other: 'Other material. CCTS §5(13)(vi)(c): every 50,000 t and at least once a quarter. CBAM B.5.4.2: the quantity corresponding to 50,000 tCO₂ and at least four times a year.'
+};
+function insBlock(h, html){   /* put html above the screen's first content block (.cat, .card or a details card) */
+  const at=['<div class="cat"','<div class="card"','<details class="card"'].map(a=>h.indexOf(a)).filter(i=>i>0);
+  const i=at.length?Math.min(...at):-1; return i>0 ? h.slice(0,i)+html+h.slice(i) : h+html;
+}
+function tip(k, extra){ const t=(TIPS[k]||k)+(extra?' '+extra:''); return `<button type="button" class="qh" data-tip="${esc(t)}" title="${esc(t)}" aria-label="Help: ${esc(t.slice(0,60))}">?</button>`; }
+document.addEventListener('click', e=>{
+  let pop=document.getElementById('qt-pop'); const b=e.target.closest && e.target.closest('.qh');
+  if(!b){ if(pop && !e.target.closest('#qt-pop')) pop.style.display='none'; return; }
+  e.preventDefault(); if(!pop){ pop=document.createElement('div'); pop.id='qt-pop'; pop.setAttribute('role','tooltip'); document.body.appendChild(pop); }
+  pop.textContent=b.dataset.tip; pop.style.display='block';
+  const r=b.getBoundingClientRect(), w=Math.min(340, window.innerWidth-24); pop.style.width=w+'px';
+  pop.style.left=Math.max(12, Math.min(r.left, window.innerWidth-w-12))+'px';
+  const h=pop.offsetHeight; pop.style.top=(r.bottom+8+h>window.innerHeight ? Math.max(8, r.top-h-8) : r.bottom+8)+'px';
+});
+
+/* ---------- reference: fuels, materials and test rules ---------- */
+/* cls: material class for sampling rules · gcvR: plausibility range kcal/kg (illustrative) · ncv GJ/t and ef tCO₂/TJ: IPCC 2006 defaults (Type I) */
+const A_FUEL = {
+  coal_in:{n:'Indian non-coking coal', cls:'solid', gcvR:[2800,6500], ncv:18.9, ef:96.1},
+  coal_im:{n:'Imported coal', cls:'solid', gcvR:[4500,7200], ncv:25.8, ef:94.6},
+  coking:{n:'Coking coal', cls:'solid', gcvR:[6000,7800], ncv:28.2, ef:94.6},
+  coke:{n:'Coke / coke breeze (purchased)', cls:'solid', gcvR:[6000,7500], ncv:28.2, ef:107},
+  petcoke:{n:'Petroleum coke', cls:'solid', gcvR:[7500,8600], ncv:32.5, ef:97.5},
+  lignite:{n:'Lignite', cls:'solid', gcvR:[2400,4500], ncv:11.9, ef:101},
+  fo:{n:'Furnace oil / LSHS', cls:'liquid', gcvR:[9600,10500], ncv:40.4, ef:77.4},
+  hsd:{n:'Diesel (HSD / LDO)', cls:'liquid', gcvR:[10300,11000], ncv:43.0, ef:74.1},
+  naphtha:{n:'Naphtha', cls:'liquid', gcvR:[10500,11300], ncv:44.5, ef:73.3},
+  lpg:{n:'LPG / propane', cls:'liquid', gcvR:[11000,12000], ncv:47.3, ef:63.1},
+  ng:{n:'Natural gas / RLNG', cls:'gas', gcvR:[11000,13500], ncv:48.0, ef:56.1},
+  refgas:{n:'Refinery fuel gas', cls:'gasproc', gcvR:[10500,13500], ncv:49.5, ef:57.6},
+  biomass:{n:'Biomass (bagasse, husk, wood)', cls:'bio', gcvR:[2500,4500], ncv:15.6, ef:112, bio:100},
+  bliquor:{n:'Black liquor (dry solids)', cls:'bio', gcvR:[2800,3600], ncv:11.8, ef:95.3, bio:100},
+  afr:{n:'Alternative fuels / RDF / waste', cls:'bio', gcvR:[2500,5500], ncv:10.0, ef:91.7, bio:0}
+};
+const A_CLS = {
+  solid:  {t:'Solid fuel',     ccts:(q,m)=>Math.max(Math.ceil(q/20000), m),   cbam:q=>Math.max(Math.ceil(q/20000),6),  std:'IS 1350 Part 2 (GCV/NCV), Part 4/Sec 1 (carbon)'},
+  liquid: {t:'Liquid fuel',    ccts:()=>null,                                 cbam:q=>Math.max(Math.ceil(q/20000),6),  std:'Supplier certificate from an NABL laboratory'},
+  gas:    {t:'Natural gas',    ccts:(q,m)=>Math.ceil(m*52/12),                cbam:()=>52,                              std:'ASTM D1945 / D1946'},
+  gasproc:{t:'Process gas',    ccts:(q,m)=>Math.ceil(m*52/12),                cbam:()=>365,                             std:'ASTM D1945 / D1946'},
+  bio:    {t:'Biomass / waste',ccts:(q,m)=>Math.max(Math.ceil(q/50000), Math.ceil(m/3)), cbam:q=>Math.max(Math.ceil(q/10000),4), std:'As per sampling plan'},
+  carb:   {t:'Carbonate',      ccts:(q,m)=>Math.max(Math.ceil(q/50000), m),   cbam:q=>Math.max(Math.ceil(q/50000),4),  std:'Carbonate / CaO–MgO analysis'},
+  other:  {t:'Other material', ccts:(q,m)=>Math.max(Math.ceil(q/50000), Math.ceil(m/3)), cbam:()=>4,                   std:'As per sampling plan'}
+};
+/* ---------- sector templates: [id, name, role, fuel key or params, illustrative ratio per unit of main product] ----------
+   roles: prod (main product) · fuel · feed (fuel used as raw material) · proc (process material) · direct (tCO₂e entered) · out (carbon leaving) · grid · einfo */
+const F=(id,key,r,o)=>Object.assign({id, role:'fuel', key, r}, o||{});
+const A_TPL = {
+  steel:[ {id:'main', role:'prod', r:1, q:3200000},
+    F('s1','coking',0,{pid:'s1', n:'Coking coal → coke ovens', q:1550000, gcv:6800, cc:72, tests:78}),
+    F('s2','coal_im',0,{pid:'s2', n:'PCI coal → blast furnaces', q:550000, gcv:6500, cc:72, tests:28}),
+    {id:'s3', role:'proc', pid:'s3', n:'BF flux (limestone, dolomite)', cls:'carb', q:1100000, pf:0.44, pur:100, tests:22},
+    F('s4','coke',0,{pid:'s4', n:'Coke breeze (purchased) → sinter plant', q:260000, gcv:6000, cc:80, tests:13}),
+    {id:'s5', role:'direct', pid:'s5', n:'Lime kilns + BOF + electrodes (mass balance)', cls:'other', q:600000, tests:4},
+    F('s6','ng',0,{pid:'s6', n:'Natural gas → reheating furnaces', q:80000, gcv:11500, cc:75, tests:52}),
+    F('s7','coal_in',0,{pid:'s7', n:'Coal → captive power plant', q:350000, gcv:4200, cc:41, tests:18}),
+    {id:'o1', role:'out', net:'s1', n:'Coke sold', cls:'solid', q:330100, cc:86.5, gcv:6700},
+    {id:'o2', role:'out', net:'s1', n:'Tar and benzol sold', cls:'other', q:60000, cc:90, gcv:0},
+    {id:'o3', role:'out', net:'s5', n:'Carbon in crude steel', cls:'other', q:3200000, cc:0.15, gcv:0},
+    F('x1','hsd',0,{on:false}), F('x2','lpg',0,{on:false}),
+    {id:'grid', role:'grid', q:1200000}, {id:'cpp', role:'einfo', n:'Captive generation', q:1100000} ],
+  cement:[ {id:'main', role:'prod', r:1}, {id:'clk', role:'proc', n:'Clinker produced (calcination)', cls:'other', pf:0.52, r:0.70},
+    F('f1','coal_in',0.05), F('f2','coal_im',0.03), F('f3','petcoke',0.035), F('f4','afr',0.01,{bio:30}), F('f5','coal_in',0.04,{n:'Coal → captive power plant'}), F('f6','hsd',0.0004), F('f7','fo',0,{on:false}),
+    {id:'grid', role:'grid', r:0.03}, {id:'cpp', role:'einfo', n:'Captive generation', r:0.04}, {id:'whr', role:'einfo', n:'Waste heat recovery generation', r:0.012} ],
+  aluminium:[ {id:'main', role:'prod', r:1}, F('f1','coal_in',9.0,{n:'Coal → captive power plant'}), F('f2','fo',0.06), F('f3','hsd',0.002), F('f4','petcoke',0,{on:false, n:'Calcined petroleum coke → anode plant (if bought as fuel)'}),
+    {id:'an', role:'proc', n:'Net anode consumption', cls:'other', pf:3.55, r:0.42}, {id:'pfc', role:'direct', n:'PFC emissions (CF₄, C₂F₆) from anode effects', cls:'other', r:0.25},
+    {id:'grid', role:'grid', r:1.2}, {id:'cpp', role:'einfo', n:'Captive generation', r:13.5} ],
+  fertiliser:[ {id:'main', role:'prod', r:1}, {id:'fd', role:'feed', key:'ng', n:'Natural gas as feedstock (reformer)', r:0.28}, F('f1','ng',0.17,{n:'Natural gas as fuel'}), F('f2','naphtha',0,{on:false}), F('f3','coal_in',0,{on:false, n:'Coal → captive power / steam'}),
+    {id:'urea', role:'memo', n:'CO₂ recovered into urea (memo — deduct only if the sector guideline allows)', pf:0.733, r:1},
+    {id:'grid', role:'grid', r:0.05}, {id:'cpp', role:'einfo', n:'Captive generation', r:0.12} ],
+  chloralkali:[ {id:'main', role:'prod', r:1}, F('f1','coal_in',0.55,{n:'Coal → captive power plant'}), F('f2','fo',0.01), F('f3','ng',0,{on:false}), F('f4','hsd',0.001),
+    {id:'grid', role:'grid', r:1.4}, {id:'cpp', role:'einfo', n:'Captive generation', r:1.1} ],
+  pulp:[ {id:'main', role:'prod', r:1}, F('f1','coal_in',0.6), F('f2','bliquor',1.2), F('f3','biomass',0.2), F('f4','fo',0.01), {id:'lk', role:'proc', n:'Limestone make-up → lime kiln', cls:'carb', pf:0.44, pur:95, r:0.02},
+    {id:'grid', role:'grid', r:0.3}, {id:'cpp', role:'einfo', n:'Captive generation', r:0.9} ],
+  refinery:[ {id:'main', role:'prod', r:1}, F('f1','refgas',0.03), F('f2','fo',0.015), F('f3','petcoke',0.008,{n:'FCC coke burnt in the regenerator'}), F('f4','ng',0.01), {id:'fd', role:'feed', key:'ng', n:'Natural gas / naphtha → hydrogen plant', r:0.006},
+    {id:'grid', role:'grid', r:0.01}, {id:'cpp', role:'einfo', n:'Captive generation', r:0.05} ],
+  petchem:[ {id:'main', role:'prod', r:1}, {id:'fd', role:'feed', key:'naphtha', n:'Naphtha / gas feedstock', r:1.2}, F('f1','ng',0.2), F('f2','refgas',0.1), F('f3','fo',0,{on:false}),
+    {id:'o1', role:'out', n:'Carbon in products sold', cls:'other', cc:85, r:1.0}, {id:'grid', role:'grid', r:0.3}, {id:'cpp', role:'einfo', n:'Captive generation', r:0.4} ],
+  textiles:[ {id:'main', role:'prod', r:1}, F('f1','coal_in',0.8), F('f2','biomass',0.2), F('f3','fo',0.02), F('f4','ng',0,{on:false}), F('f5','hsd',0.002), {id:'grid', role:'grid', r:2.0}, {id:'cpp', role:'einfo', n:'Captive generation', r:0.5} ],
+  thermal:[ {id:'main', role:'prod', r:1, n:'Net generation', u:'MWh'}, F('f1','coal_in',0.62), F('f2','coal_im',0.05), F('f3','lignite',0,{on:false}), F('f4','fo',0.0004,{n:'Secondary oil (start-up, flame support)'}), F('f5','ng',0,{on:false}),
+    {id:'gross', role:'einfo', n:'Gross generation', r:1.07}, {id:'aux', role:'einfo', n:'Auxiliary consumption', r:0.07} ],
+  railways:[ {id:'main', role:'prod', r:1, n:'Traffic', u:'thousand GTKM'}, F('f1','hsd',0.0025,{n:'Diesel for traction'}), F('f2','hsd',0.0002,{n:'Diesel for workshops and gensets'}), {id:'grid', role:'grid', r:0.006, n:'Electricity for traction and workshops'} ],
+  discom:[ {id:'main', role:'prod', r:1, n:'Energy input at the periphery', u:'MWh'}, {id:'bill', role:'einfo', n:'Energy billed', r:0.84}, {id:'coll', role:'einfo', n:'Energy for which revenue was collected', r:0.80} ],
+  buildings:[ {id:'main', role:'prod', r:1, n:'Built-up area', u:'m²'}, {id:'grid', role:'grid', r:0.15}, F('f1','hsd',0.0012,{n:'Diesel for DG sets'}), F('f2','lpg',0.0004,{n:'LPG / PNG for kitchens'}), F('f3','ng',0,{on:false}), {id:'re', role:'einfo', n:'On-site solar generation', r:0.01} ]
+};
+const A_MEAS = ['Weighbridge','Belt weigher','Flow meter','Tank dip / level','Invoices + stock balance','Energy meter'];
+const A_BASIS = ['As received','As fired','Air dried'];
+const CCTS_GRID_EF = 0.727;      /* same placeholder the calculation screen uses (CEA average grid factor) */
+
+/* ---------- state ---------- */
+S.act = S.act || {tab:0, monthly:false, sec:{}};
+function actKey(){ return S.setup.sector; }
+function actApplies(){ return !(typeof demoCo==='function' && demoCo()) && !!A_TPL[actKey()]; }
+function actRows(sec){
+  sec=sec||actKey(); if(S.act.sec[sec]) return S.act.sec[sec];
+  const A=SECTOR_ARCH[sec]||{}, rows=(A_TPL[sec]||[]).map(t=>{
+    const f=A_FUEL[t.key]||{}, role=t.role, bound=t.q!=null;
+    const r={id:t.id, role, key:t.key||null, pid:t.pid||null, net:t.net||null, n:t.n||f.n||(role==='prod'?(A.main||A.metric||'Main product'):role==='grid'?'Grid / open-access electricity imported':t.id),
+      cls:t.cls||f.cls||'other', u:t.u||(role==='prod'?(A.unit||'t'):(role==='grid'||role==='einfo')?'MWh':role==='direct'?'tCO₂e':'t'), on:t.on!==false, m:Array(12).fill(bound?t.q/12:0),
+      gcv:t.gcv??null, basis:'As received', ncv:bound&&t.gcv?+(t.gcv*0.0041868*((f.cls==='gas')?0.90:0.95)).toFixed(1):null, ncvSrc:'lab', efb:'cc', cc:t.cc??null, ef:null, of:1, bio:t.bio??f.bio??0,
+      pf:t.pf??null, pur:t.pur??100, meas:role==='grid'||role==='einfo'?'Energy meter':(f.cls==='gas'||f.cls==='gasproc')?'Flow meter':'Weighbridge', sb:null, den:null, tests:t.tests??0, lab:bound?'Central laboratory, Kalinga Integrated Works':'', nabl:bound, dev:'', src:bound?'platform':'entry', r:t.r||0};
+    return r; });
+  S.act.sec[sec]=rows; return rows;
+}
+const actQ = r => r.sb ? Math.max(0,(+r.sb.rec||0)-(+r.sb.out||0)+(+r.sb.open||0)-(+r.sb.close||0)) : r.m.reduce((a,b)=>a+(+b||0),0);
+const actQc = r => r.u==='kL' ? actQ(r)*(+r.den||0) : actQ(r);                 /* tonnes (or '000 Sm³ for gas billed by volume) */
+const actYtd = r => r.sb ? actQ(r)*PLATFORM.monthsFY/12 : r.m.slice(0,PLATFORM.monthsFY).reduce((a,b)=>a+(+b||0),0);
+function actNcv(r){ if(r.ncvSrc==='conv') return r.gcv ? r.gcv*0.0041868*((r.cls==='gas'||r.cls==='gasproc')?0.90:0.95) : null; return r.ncv; }
+function actCalc(r, efb){
+  const q=actQc(r), f=A_FUEL[r.key]||{}, o={toe:0, t:0, bioT:0, memo:0};
+  if(!r.on) return o;
+  if(r.role==='fuel'||r.role==='feed'){
+    if(r.gcv) o.toe=q*1000*r.gcv/1e7;
+    const b=efb||r.efb, gross = b==='cc' ? (r.cc!=null ? q*r.cc/100*3.664 : 0) : (actNcv(r)&&(r.ef??f.ef) ? q*actNcv(r)*(r.ef??f.ef)/1000 : 0);
+    const g=gross*(r.of??1); o.bioT=g*(r.bio||0)/100; o.t=g-o.bioT;
+  } else if(r.role==='proc'){ o.t=q*(r.pf||0)*(r.pur??100)/100; }
+  else if(r.role==='direct'){ o.t=q; }
+  else if(r.role==='out'){ o.t=-q*(r.cc||0)/100*3.664; if(r.gcv) o.toe=-q*1000*r.gcv/1e7; }
+  else if(r.role==='grid'){ o.toe=q*1000*S.dom.patGridKcal/1e7; o.t=q*CCTS_GRID_EF; }
+  else if(r.role==='memo'){ o.memo=q*(r.pf||0); }
+  return o;
+}
+function actTotals(sec){
+  const rows=actRows(sec), T={fuelToe:0, gridToe:0, scope1:0, scope2:0, bio:0, memo:0, prod:0, gridMWh:0};
+  rows.forEach(r=>{ const c=actCalc(r); if(r.role==='grid'){ T.gridToe+=c.toe; T.scope2+=c.t; T.gridMWh+=r.on?actQ(r):0; } else { T.fuelToe+=c.toe; T.scope1+=c.t; } T.bio+=c.bioT; T.memo+=c.memo; if(r.role==='prod') T.prod=actQ(r); });
+  T.toe=T.fuelToe+T.gridToe; T.sec=T.prod>0?T.toe/T.prod:null; T.gei=T.prod>0?(T.scope1+T.scope2)/T.prod:null; return T;
+}
+function actReq(r){
+  if(!r.on || !['fuel','feed','proc','out'].includes(r.role) || r.role==='out') return {ccts:null, cbam:null};
+  const C=A_CLS[r.cls]||A_CLS.other, m=PLATFORM.monthsFY; return {ccts:C.ccts(actYtd(r), m), cbam:C.cbam(actQ(r))};
+}
+
+/* ---------- the fictional steel plant: the ledger is the source for PLATFORM, the domestic engine and CBAM ---------- */
+function actSync(){
+  const rows=S.act.sec.steel; if(!rows) return;
+  rows.filter(r=>r.pid).forEach(r=>{ const s=PLATFORM.streams.find(x=>x.id===r.pid); if(!s) return;
+    const net=rows.filter(o=>o.role==='out'&&o.net===r.id).reduce((a,o)=>a+actCalc(o).t,0), nw=actCalc(r).t+net, old=s.tco2;
+    s.qty=r.on?actQ(r):0; if(r.gcv!=null) s.gcv=r.on?r.gcv:0; s.tco2Platform=nw; s.tco2=nw;
+    if(S.cbam.alloc && S.cbam.alloc[s.proc]!=null) S.cbam.alloc[s.proc]+=nw-old; });
+  const g=rows.find(r=>r.role==='grid'); if(g) PLATFORM.elec.gridMWh=g.on?actQ(g):0;
+  const p=rows.find(r=>r.role==='prod'); if(p && actQ(p)>0) PLATFORM.prod.crude_steel=actQ(p);
+}
+streamTco2 = function(s, src){
+  const rows=S.act.sec.steel, r=rows&&rows.find(x=>x.pid===s.id); if(!r) return s.tco2Platform;
+  const net=rows.filter(o=>o.role==='out'&&o.net===r.id).reduce((a,o)=>a+actCalc(o).t,0);
+  return actCalc(r, (r.role==='fuel') ? (src==='standard'?'ef':'cc') : null).t + net;
+};
+setFsrc = (function(orig){ return function(id, src){
+  const r=(S.act.sec.steel||[]).find(x=>x.pid===id);
+  if(r && r.role==='fuel'){ const f=A_FUEL[r.key]||{}; if(src==='standard'){ if(r.efb!=='ef'){ r._lab={ncv:r.ncv, ncvSrc:r.ncvSrc}; } r.efb='ef'; r.ncv=f.ncv; r.ncvSrc='type1'; r.ef=f.ef; } else { if(r.efb==='ef' && r._lab){ r.ncv=r._lab.ncv; r.ncvSrc=r._lab.ncvSrc; } r.efb='cc'; } }
+  return orig(id, src);
+}; })(setFsrc);
+domCalc = (function(orig){ return function(){
+  const D=orig(); if(S.setup.sector!=='steel' || !S.act.sec.steel) return D;
+  const T=actTotals('steel'), d=S.dom;
+  const eqProd=D.eqProd, toe=T.toe, sec=toe/eqProd, scope1=T.scope1, scope2=T.scope2, gei=(scope1+scope2)/eqProd;
+  return Object.assign(D, {scope1, scope2, gei, fuelToe:T.fuelToe, gridToe:T.gridToe, toe, sec, cctsGap:(gei-d.target.ccts)*eqProd, patGap:(sec-d.target.pat)*eqProd});
+}; })(domCalc);
+
+/* a change to any calculation value in the ledger counts as a calculation-input change (not lab names or test counts) */
+const actDigest = sec => (S.act.sec[sec]||[]).map(r=>[r.id, r.on, Math.round(actQc(r)*100), r.gcv, actNcv(r), r.efb, r.cc, r.ef, r.of, r.bio, r.pf, r.pur]);
+domCalcHash = (o=>()=>ovHash([o(), actApplies()?actDigest(actKey()):0]))(domCalcHash);
+cbamCalcHash = (o=>()=>ovHash([o(), actDigest('steel').filter(x=>/^(s\d|o\d)$/.test(x[0]))]))(cbamCalcHash);
+
+/* ---------- validation: what "Validated" means on the Data step ---------- */
+domDataChecks = function(){
+  if(!actApplies()) return [];
+  const f=flags(), rows=actRows(), t=[], fuels=rows.filter(r=>r.on && (r.role==='fuel'||r.role==='feed'));
+  const p=rows.find(r=>r.role==='prod'); if(!p || !(actQ(p)>0)) t.push('enter the production quantity (tab 1)');
+  if(rows.some(r=>!['prod','einfo','memo'].includes(r.role)) && !rows.some(r=>r.on && r.role!=='prod' && r.role!=='einfo' && actQ(r)>0)) t.push('enter the quantity of at least one fuel, material or electricity stream');
+  rows.filter(r=>r.on && ['fuel','feed','proc','direct','grid'].includes(r.role) && !(actQ(r)>0)).forEach(r=>t.push(`${r.n}: enter the quantity, or switch the stream off`));
+  rows.filter(r=>r.on && r.u==='kL' && !(r.den>0)).forEach(r=>t.push(`${r.n}: enter the density to convert kL to tonnes`));
+  rows.filter(r=>r.sb && (+r.sb.rec||0)+(+r.sb.open||0) < (+r.sb.out||0)+(+r.sb.close||0)).forEach(r=>t.push(`${r.n}: the stock balance is negative`));
+  fuels.forEach(r=>{ if(!(actQ(r)>0)) return;
+    if(f.pat && !(r.gcv>0)) t.push(`${r.n}: enter the GCV (PAT energy)`);
+    if(f.ccts){ if(r.efb==='cc'){ if(!(r.cc>0)) t.push(`${r.n}: enter the carbon content, or choose a Type I factor (CCTS)`); }
+                else if(!(actNcv(r)>0)) t.push(`${r.n}: enter the NCV (CCTS)`); }
+    const n=actNcv(r); if(n && r.gcv && n>=r.gcv*0.0041868) t.push(`${r.n}: NCV must be lower than GCV — check the units and the basis`);
+    if(r.cc>100 || r.bio>100) t.push(`${r.n}: a percentage is above 100`); });
+  if(f.ccts) rows.forEach(r=>{ const q=actReq(r).ccts; if(q!=null && actQ(r)>0 && (+r.tests||0)<q && !(r.dev||'').trim()) t.push(`${r.n}: ${r.tests||0} lab tests recorded, CCTS minimum to date is ${q} — add the certificates or record the deviation (tab 5)`); });
+  return t;
+};
+LV_VALID.d_data = ()=> actApplies() ? !domDataChecks().length : 'skip';
+
+/* ---------- edits ---------- */
+function actRow(id){ return actRows().find(r=>r.id===id) || (S.act.sec.steel||[]).find(r=>r.id===id); }
+function actAfter(structural){ actSync(); if(typeof checkInputs414==='function') checkInputs414(); if(structural) render(); else { actPatch(); if(S.screen!=='d_data'){ clearTimeout(actAfter.t); actAfter.t=setTimeout(render, 300); } } }
+function actSet(id, f, v){ const r=actRow(id); if(!r) return;
+  if(f==='q'){ const x=Math.max(0,+v||0); r.m=Array(12).fill(x/12); r.sb=null; }
+  else if(/^m\d+$/.test(f)){ r.m[+f.slice(1)]=Math.max(0,+v||0); }
+  else if(/^sb_/.test(f)){ r.sb=r.sb||{rec:0,out:0,open:0,close:0}; r.sb[f.slice(3)]=Math.max(0,+v||0); }
+  else if(['n','lab','dev','meas','basis'].includes(f)) r[f]=v;
+  else r[f]=(v===''||v==null)?null:+v;
+  if(r.src==='platform' && f!=='lab' && f!=='dev') r.src='edited';
+  actAfter(false);
+}
+function actPick(id, f, v){ const r=actRow(id); if(!r) return;                    /* choices that change which fields show */
+  if(f==='on') r.on=v; else if(f==='nabl') r.nabl=v; else if(f==='sbmode'){ r.sb = v ? {rec:actQ(r), out:0, open:0, close:0} : null; }
+  else if(f==='efb'){ r.efb=v; const k=A_FUEL[r.key]||{}; if(v==='ef'){ r.ef=r.ef??k.ef??null; if(r.ncvSrc==='lab'&&r.ncv==null&&k.ncv){ r.ncv=k.ncv; r.ncvSrc='type1'; } } }
+  else if(f==='ncvSrc'){ r.ncvSrc=v; const k=A_FUEL[r.key]||{}; if(v==='type1') r.ncv=k.ncv??r.ncv; }
+  else if(f==='u'){ r.u=v; }
+  if(r.pid && f==='efb'){ const s=PLATFORM.streams.find(x=>x.id===r.pid); if(s){ if(v==='ef') s.fsrc='standard'; else if(s.fsrc==='standard') s.fsrc='lab'; } }
+  actAfter(true);
+}
+function actAdd(role){ const rows=actRows(), id='c'+(rows.filter(r=>/^c\d+$/.test(r.id)).length+1)+'_'+role;
+  rows.push({id, role, key:null, pid:null, net:null, n:'', cls: role==='proc'?'carb':'solid', u:'t', on:true, m:Array(12).fill(0), gcv:null, basis:'As received', ncv:null, ncvSrc:'lab', efb:'cc', cc:null, ef:null, of:1, bio:0, pf:role==='proc'?0.44:null, pur:100, meas:'Weighbridge', sb:null, den:null, tests:0, lab:'', nabl:false, dev:'', src:'entry', r:0, custom:true});
+  render(); }
+function actTab(i){ S.act.tab=i; render(); }
+function actLoadDemo(){
+  const rows=actRows(), P=1000000;
+  rows.forEach(r=>{ if(!r.on) return; const f=A_FUEL[r.key]||{}; const q=P*(r.role==='prod'?1:r.r||0); r.m=Array(12).fill(q/12); r.src='demo';
+    if(r.role==='fuel'||r.role==='feed'){ r.gcv=Math.round(f.ncv/((f.cls==='gas'||f.cls==='gasproc')?0.90:0.95)/0.0041868/10)*10; r.ncvSrc='type1'; r.ncv=f.ncv; r.efb='ef'; r.ef=f.ef; r.lab='Illustrative laboratory'; r.nabl=true; }
+    r.tests=actReq(r).ccts||0; });
+  actAfter(true);
+}
+function actClear(){ delete S.act.sec[actKey()]; actRows(); actAfter(true); }
+
+/* ---------- rendering ---------- */
+const aNum=(id,f,v,w,ph)=>`<input class="fi an" type="number" step="any" min="0" value="${v??''}" placeholder="${ph||''}" style="width:${w||96}px" onchange="actSet('${id}','${f}',this.value)">`;
+const aSel=(id,f,v,opts,w)=>`<select class="fi an" style="width:${w||130}px" onchange="actPick('${id}','${f}',this.value)">${opts.map(o=>{ const [val,lab]=Array.isArray(o)?o:[o,o]; return `<option value="${esc(val)}" ${String(v)===String(val)?'selected':''}>${esc(lab)}</option>`; }).join('')}</select>`;
+const aSelSet=(id,f,v,opts,w)=>`<select class="fi an" style="width:${w||130}px" onchange="actSet('${id}','${f}',this.value)">${opts.map(o=>`<option ${v===o?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+const aSrc=r=>r.src==='platform'?`<span class="pb pb-plat" title="Loaded with the fictional plant">Demo data</span>`:r.src==='demo'?`<span class="pb pb-def" title="Illustrative values — replace with the plant’s own">Illustrative</span>`:r.src==='edited'?`<span class="pb pb-entry" title="Changed in CMC">Edited here</span>`:`<span class="pb pb-entry" title="Entered in CMC">Entered here</span>`;
+const aUsed=r=>r.role==='prod'?'':`<span class="seg"><button class="${r.on?'on':''}" onclick="actPick('${r.id}','on',true)">Used</button><button class="${!r.on?'on':''}" onclick="actPick('${r.id}','on',false)">Not used</button></span>`;
+const aName=r=>r.custom?`<input class="fi" style="width:190px" value="${esc(r.n)}" placeholder="Name of the stream" onchange="actSet('${r.id}','n',this.value)">`:`<b>${esc(r.n)}</b>`;
+const aChips=(r,f)=>{ const c=[]; if((r.role==='fuel'||r.role==='feed'||r.role==='grid'||r.role==='out')&&f.pat) c.push('PAT'); if(r.role!=='prod'&&r.role!=='einfo'&&r.role!=='memo'&&f.ccts) c.push('CCTS'); if(r.pid&&f.eu) c.push('CBAM'); return c.map(x=>`<span class="tag t-gray" style="font-size:10px">${x}</span>`).join(' '); };
+function aQtyCells(r){
+  if(!r.on) return `<td colspan="2" class="muted small">not used at this plant</td>`;
+  if(r.sb) return `<td><div class="row" style="gap:4px;flex-wrap:wrap">${['rec','out','open','close'].map(k=>`<label class="small">${{rec:'Received',out:'Moved out',open:'Opening stock',close:'Closing stock'}[k]}<br>${aNum(r.id,'sb_'+k,r.sb[k],92)}</label>`).join('')}</div><div class="small">= <b id="ao_${r.id}_q">${fmt(actQ(r))}</b> ${esc(r.u)} consumed</div></td><td>${esc(r.u)}</td>`;
+  if(S.act.monthly) return `<td><div class="am">${r.m.map((v,i)=>`<label class="small ${i<PLATFORM.monthsFY?'':'muted'}">${['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'][i]}<br>${aNum(r.id,'m'+i,Math.round(v*100)/100,78)}</label>`).join('')}</div><div class="small">Year: <b id="ao_${r.id}_q">${fmt(actQ(r))}</b></div></td><td>${aUnit(r)}</td>`;
+  return `<td>${aNum(r.id,'q',Math.round(actQ(r)*100)/100,120)}</td><td>${aUnit(r)}</td>`;
+}
+function aUnit(r){ const liquid=r.cls==='liquid', gas=r.cls==='gas'||r.cls==='gasproc';
+  if((r.role==='fuel'||r.role==='feed') && (liquid||gas)) return aSel(r.id,'u',r.u, liquid?['t','kL']:['t',"'000 Sm³"], 96)+(r.u==='kL'?`<div class="small">density ${aNum(r.id,'den',r.den,64,'t/kL')}</div>`:'');
+  return esc(r.u); }
+function actTable(roles, f, opts){
+  const rows=actRows().filter(r=>roles.includes(r.role)); if(!rows.length) return `<p class="small muted">Nothing to enter in this group for ${esc((SECTOR_ARCH[actKey()]||{}).name||'this sector')}.</p>`;
+  return `<div class="tw"><table class="t act-t"><thead><tr><th>Stream</th>${opts.noUsed?'':`<th>Used? ${tip('used')}</th>`}<th>Quantity ${tip(opts.qtip||'qty')}</th><th>Unit ${tip('unit')}</th>${opts.meas?`<th>Measured by ${tip('meas')}</th>`:''}${opts.extra?opts.extra.map(e=>`<th>${e[0]}</th>`).join(''):''}<th>Source</th></tr></thead><tbody>
+  ${rows.map(r=>`<tr data-act="${r.id}" class="${r.on?'':'off'}"><td>${aName(r)}<div>${aChips(r,f)} ${['fuel','feed','proc'].includes(r.role)?tip('cls_'+r.cls).replace('class="qh"','class="qh qh-s"'):r.role==='direct'?tip('direct'):r.role==='out'?tip('out'):''}</div></td>${opts.noUsed?'':`<td>${aUsed(r)}</td>`}${aQtyCells(r)}
+    ${opts.meas?`<td>${r.on?aSelSet(r.id,'meas',r.meas,A_MEAS,150)+`<div class="small"><a href="#" onclick="actPick('${r.id}','sbmode',${r.sb?'false':'true'});return false">${r.sb?'enter consumption directly':'enter by stock balance'}</a> ${tip('stock')}</div>`:''}</td>`:''}
+    ${opts.extra?opts.extra.map(e=>`<td>${r.on?e[1](r):''}</td>`).join(''):''}<td>${aSrc(r)}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+function actLabTable(f){
+  const rows=actRows().filter(r=>r.on && ['fuel','feed'].includes(r.role));
+  const mats=actRows().filter(r=>r.on && ['proc','out'].includes(r.role));
+  const chip=(r)=>{ const q=actReq(r), n=+r.tests||0, bits=[];
+    if(f.ccts) bits.push(q.ccts==null?`<span class="tag t-gray">CCTS: no fixed minimum</span>`:`<span class="tag ${n>=q.ccts?'t-teal':'t-red'}" id="ao_${r.id}_rc">CCTS min to date ${q.ccts}</span>`);
+    if(f.eu && r.pid) bits.push(`<span class="tag ${n>=q.cbam?'t-teal':'t-amber'}">CBAM min per year ${q.cbam}</span>`);
+    if(f.pat && !f.ccts) bits.push(`<span class="tag t-gray">PAT: monthly lot averages</span>`);
+    return bits.join(' '); };
+  const fuelT = rows.length ? `<div class="tw"><table class="t act-t"><thead><tr><th>Fuel</th>${f.pat?`<th>GCV kcal/kg ${tip('gcv')}</th><th>Basis ${tip('basis')}</th>`:''}${f.ccts?`<th>NCV GJ/t ${tip('ncv')}</th><th>CO₂ basis ${tip('efb')}</th><th>Oxidation ${tip('of')}</th><th>Biogenic % ${tip('bio')}</th>`:''}<th>Lab tests ${tip('tests')}</th></tr></thead><tbody>
+    ${rows.map(r=>{ const k=A_FUEL[r.key]||{}, vol=r.u==="'000 Sm³"; const rng=k.gcvR&&r.gcv&&!vol&&(r.gcv<k.gcvR[0]||r.gcv>k.gcvR[1]);
+      return `<tr data-lab="${r.id}"><td style="min-width:170px"><b>${esc(r.n||'Unnamed stream')}</b><div class="small muted">${esc((A_CLS[r.cls]||{}).std||'')}</div>${r.custom?`<div class="small">Class ${aSel(r.id,'cls',r.cls,Object.keys(A_CLS).map(c=>[c,A_CLS[c].t]),120).replace("actPick(","actSetCls(")}</div>`:''}</td>
+      ${f.pat?`<td>${aNum(r.id,'gcv',r.gcv,92,vol?'kcal/Sm³':'')}${rng?`<div class="small" style="color:var(--coral-d,#b4532a)">outside the usual ${k.gcvR[0]}–${k.gcvR[1]} — check basis and units</div>`:''}</td><td>${aSelSet(r.id,'basis',r.basis,A_BASIS,116)}</td>`:''}
+      ${f.ccts?`<td>${r.ncvSrc==='conv'?`<b id="ao_${r.id}_ncv">${actNcv(r)?fmt(actNcv(r),2):'—'}</b>`:aNum(r.id,'ncv',r.ncv,80,vol?'MJ/Sm³':'')}<div>${aSel(r.id,'ncvSrc',r.ncvSrc,[['lab','Lab analysis'],['supplier','Supplier certificate (NABL lab)'],['conv','From GCV × '+((r.cls==='gas'||r.cls==='gasproc')?'0.90':'0.95')+' (IPCC)'],['type1','Type I default']],150)}</div></td>
+        <td>${aSel(r.id,'efb',r.efb,[['cc','Lab carbon content (Type II)'],['ef','Type I emission factor']],170)}<div style="margin-top:4px">${r.efb==='cc'?aNum(r.id,'cc',r.cc,70,'C %')+' <span class="small">% C</span>':aNum(r.id,'ef',r.ef??k.ef,70)+' <span class="small">tCO₂/TJ</span>'}</div></td>
+        <td>${aNum(r.id,'of',r.of,60)}</td><td>${aNum(r.id,'bio',r.bio,60)}</td>`:''}
+      <td>${aNum(r.id,'tests',r.tests,64)}<div style="margin-top:4px">${chip(r)}</div>${f.ccts&&actReq(r).ccts!=null&&(+r.tests||0)<actReq(r).ccts?`<div class="small" style="margin-top:4px">Deviation ${tip('dev')}<br><input class="fi" style="width:150px" value="${esc(r.dev)}" placeholder="Reason, if below minimum" onchange="actSet('${r.id}','dev',this.value)"></div>`:''}</td>
+</tr>`; }).join('')}
+    </tbody></table></div>` : '<p class="small muted">No fuels are switched on.</p>';
+  const matT = mats.length ? `<h3 class="mt">Process materials and carbon leaving in products</h3><div class="tw"><table class="t act-t"><thead><tr><th>Material</th><th>Factor ${tip('pf')}</th><th>Purity %</th><th>Carbon % ${tip('out')}</th>${f.pat?`<th>GCV if sold as fuel</th>`:''}<th>Lab tests ${tip('tests')}</th></tr></thead><tbody>
+    ${mats.map(r=>`<tr data-lab="${r.id}"><td><b>${esc(r.n||'Unnamed material')}</b></td><td>${r.role==='proc'?aNum(r.id,'pf',r.pf,70)+' <span class="small">tCO₂/t</span>':'—'}</td><td>${r.role==='proc'?aNum(r.id,'pur',r.pur,60):'—'}</td><td>${r.role==='out'?aNum(r.id,'cc',r.cc,70):'—'}</td>${f.pat?`<td>${r.role==='out'?aNum(r.id,'gcv',r.gcv,80):'—'}</td>`:''}
+      <td>${r.role==='proc'?aNum(r.id,'tests',r.tests,64)+`<div style="margin-top:4px">${chip(r)}</div>`+(f.ccts&&actReq(r).ccts!=null&&(+r.tests||0)<actReq(r).ccts?`<div class="small" style="margin-top:4px"><input class="fi" style="width:150px" value="${esc(r.dev)}" placeholder="Deviation reason" onchange="actSet('${r.id}','dev',this.value)"></div>`:''):'<span class="small muted">by product analysis</span>'}</td></tr>`).join('')}
+    </tbody></table></div>` : '';
+  const L=actLab();
+  const labT=`<div class="grid2" style="margin-bottom:12px" id="act-lab"><div class="f"><div class="fl">Laboratory that analysed the samples ${tip('lab')}</div><input class="fi" value="${esc(L.name)}" placeholder="Laboratory name" onchange="actLab().name=this.value">
+      <label class="chk small" style="margin:6px 0 0"><input type="checkbox" ${L.nabl?'checked':''} onchange="actLab().nabl=this.checked;render()"> NABL-accredited to IS/ISO/IEC 17025:2017</label></div>
+    <div class="f"><div class="fl">External laboratory for the monthly cross-check</div><input class="fi" value="${esc(L.ext)}" placeholder="External laboratory name" onchange="actLab().ext=this.value">
+      <div class="fh">CCTS asks for external analysis of samples every month; PAT asks for external reports and a government-laboratory sample.</div></div></div>`;
+  return labT+fuelT+matT;
+}
+function actLab(){ S.act.lab=S.act.lab||{}; const k=actKey(); return S.act.lab[k]=S.act.lab[k]||(k==='steel'?{name:'Central laboratory, Kalinga Integrated Works', nabl:true, ext:'Regional Testing Laboratory (demo)'}:{name:'', nabl:false, ext:''}); }
+function actSetCls(id, f, v){ const r=actRow(id); if(r){ r.cls=v; actAfter(true); } }
+function actResultHTML(f){
+  const rows=actRows().filter(r=>r.on && r.role!=='prod' && r.role!=='einfo'), T=actTotals(), A=SECTOR_ARCH[actKey()]||{}, p=actRows().find(r=>r.role==='prod');
+  const chk=domDataChecks();
+  return `<div id="act-result">
+    ${chk.length?`<div class="note n-warn"><span class="i">!</span><div><b>${chk.length} thing${chk.length>1?'s':''} to fix before this data validates:</b><ul style="margin:4px 0 0 18px">${chk.slice(0,8).map(x=>`<li>${esc(x)}</li>`).join('')}${chk.length>8?`<li>and ${chk.length-8} more</li>`:''}</ul></div></div>`:`<div class="note n-ok"><span class="i">✓</span><div><b>The entries validate.</b> Every active stream has a quantity, the calorific values and factors the schemes need, and enough lab tests or a recorded deviation.</div></div>`}
+    <div class="tw"><table class="t"><thead><tr><th>Stream</th><th class="r">Quantity</th>${f.pat?'<th class="r">PAT energy, toe</th>':''}${f.ccts?'<th class="r">CCTS emissions, tCO₂e</th>':''}<th>How</th></tr></thead><tbody>
+    ${rows.map(r=>{ const c=actCalc(r); const how=r.role==='grid'?`MWh × ${S.dom.patGridKcal} kcal/kWh · MWh × ${CCTS_GRID_EF} tCO₂`:r.role==='proc'?`t × ${r.pf} × ${r.pur}%`:r.role==='direct'?'entered as tCO₂e':r.role==='out'?`− t × ${r.cc}% C × 3.664`:r.role==='memo'?`memo: ${fmt(c.memo)} tCO₂, not deducted`:(r.efb==='cc'?`t × ${r.cc??'?'}% C × 3.664`:`t × NCV ${actNcv(r)?fmt(actNcv(r),2):'?'} × EF ${r.ef??(A_FUEL[r.key]||{}).ef??'?'}`)+(r.bio?` · ${r.bio}% biogenic left out`:'');
+      return `<tr><td>${esc(r.n||'Unnamed')}</td><td class="r num">${fmt(actQ(r))} ${esc(r.u)}</td>${f.pat?`<td class="r num">${c.toe?fmt(c.toe):'—'}</td>`:''}${f.ccts?`<td class="r num">${c.t?fmt(c.t):'—'}</td>`:''}<td class="small muted">${esc(how)}</td></tr>`; }).join('')}
+    </tbody><tfoot><tr><td><b>Total</b></td><td></td>${f.pat?`<td class="r num"><b>${fmt(T.toe)}</b></td>`:''}${f.ccts?`<td class="r num"><b>${fmt(T.scope1+T.scope2)}</b></td>`:''}<td class="small muted">${T.bio?`biogenic CO₂ reported separately: ${fmt(T.bio)} t`:''}</td></tr></tfoot></table></div>
+    <div class="grid3 mt">
+      ${f.pat?`<div class="stat"><div class="sl">PAT energy</div><div class="sv">${fmt(T.toe)}</div><div class="su">toe · fuels at GCV + grid electricity</div></div>`:''}
+      ${f.ccts?`<div class="stat"><div class="sl">CCTS emissions</div><div class="sv">${fmt(T.scope1+T.scope2)}</div><div class="su">tCO₂e · direct ${fmt(T.scope1)} + electricity ${fmt(T.scope2)}</div></div>`:''}
+      <div class="stat"><div class="sl">Per unit of ${esc((p&&p.n)||'product')} (before sector equivalence rules)</div><div class="sv" style="font-size:16px">${T.prod>0?`${f.pat?fmt(T.sec,4)+' toe':''}${f.pat&&f.ccts?' · ':''}${f.ccts?fmt(T.gei,4)+' tCO₂e':''}`:'Intensity undefined'}</div><div class="su">per ${esc((p&&p.u)||'t')}${actKey()==='steel'?' · the Calculation step applies the equivalent-product rules':' · position screens for this sector are structure only in the demo'}</div></div>
+    </div></div>`;
+}
+function actDone(){ const rows=actRows(), chk=domDataChecks();
+  return [ ()=>{ const p=rows.find(r=>r.role==='prod'); return !!(p&&actQ(p)>0); }, ()=>rows.filter(r=>r.on&&r.role==='fuel').every(r=>actQ(r)>0), ()=>rows.filter(r=>r.on&&['feed','proc','direct'].includes(r.role)).every(r=>actQ(r)>0),
+    ()=>rows.filter(r=>r.on&&r.role==='grid').every(r=>actQ(r)>0), ()=>!chk.some(x=>/GCV|NCV|carbon|lab tests|percentage/.test(x)), ()=>!chk.length ]; }
+function actLedgerHTML(){
+  const f=flags(), sec=actKey(), A=SECTOR_ARCH[sec]||{}, rows=actRows(), tab=S.act.tab;
+  const done=actDone();
+  const tabs=['1 · Production','2 · Fuels','3 · Feedstock & process materials','4 · Electricity','5 · Lab values & tests','6 · Check & result'];
+  const body = tab===0 ? `<p class="sub">What the plant made. ${tip('prod')}</p>${actTable(['prod'],f,{noUsed:true,qtip:'prod'})}${typeof productArchHTML==='function'&&sec!=='steel'?'':''}`
+    : tab===1 ? `<p class="sub">Every fuel burned inside the boundary, including the captive power plant, DG sets and vehicles the boundary includes. Internal gases made from these fuels (coke-oven gas, BF gas, waste heat) are not entered again.</p>${actTable(['fuel'],f,{meas:true})}<div class="btns"><button class="btn" onclick="actAdd('fuel')">+ Add a fuel that is not listed</button></div>`
+    : tab===2 ? `<p class="sub">Fuels used as raw material, carbonates and other materials that release CO₂, figures set by a mass balance, and carbon that leaves in products you sell. PAT counts feedstock energy; CCTS counts the carbon.</p>${actTable(['feed','proc','direct','out','memo'],f,{meas:true})}<div class="btns"><button class="btn" onclick="actAdd('proc')">+ Add a process material</button></div>`
+    : tab===3 ? `<p class="sub">Electricity crossing the boundary. ${tip('grid')}</p>${actTable(['grid'],f,{qtip:'grid'})}<h3 class="mt">For the record ${tip('elecinfo')}</h3>${actTable(['einfo'],f,{qtip:'elecinfo'})}`
+    : tab===4 ? `<p class="sub">Calorific values, carbon and the lab tests behind them. PAT needs GCV; CCTS needs NCV and a CO₂ basis. Enter quantity-weighted averages for the period.</p>${actLabTable(f)}
+        <details class="mt"><summary><b>Testing frequency rules used here</b> (${esc(ACT_RULESET)})</summary><div class="tw"><table class="t mt"><thead><tr><th>Material</th><th>CCTS</th><th>PAT</th><th>EU CBAM</th></tr></thead><tbody>
+        <tr><td>Solid fuels (coal, coke, petcoke, lignite)</td><td>Every 20,000 t and at least monthly — §5(13)(vi)(a)</td><td rowspan="7">Internal and external fuel test reports; monthly averages of lots on the baseline’s basis (as received or as fired); proximate and ultimate analysis; a government-laboratory sample for cross-checking. The normalisation documents set no numeric minimum — follow your sector pro-forma.</td><td>Every 20,000 t and at least 6 a year</td></tr>
+        <tr><td>Liquid fuels</td><td>No fixed frequency; supplier NCV with NABL-lab certificate accepted — §5(9)(ii)</td><td>Every 20,000 t and at least 6 a year</td></tr>
+        <tr><td>Natural gas</td><td>At least weekly — §5(13)(vii)</td><td>At least weekly</td></tr>
+        <tr><td>Process and refinery gases</td><td>At least weekly — §5(13)(vii)</td><td>At least daily</td></tr>
+        <tr><td>Carbonates (limestone, dolomite)</td><td>Every 50,000 t and at least monthly — §5(13)(vi)(b)</td><td>Every 50,000 t and at least 4 a year</td></tr>
+        <tr><td>Biomass, waste and other fuels</td><td>Every 50,000 t and at least quarterly — §5(13)(vi)(c)</td><td>Every 5,000–10,000 t and at least 4 a year</td></tr>
+        <tr><td>Other materials</td><td>Every 50,000 t and at least quarterly — §5(13)(vi)(c)</td><td>Quantity for 50,000 tCO₂ and at least 4 a year</td></tr>
+        </tbody></table></div><p class="small muted">External laboratory analysis monthly (CCTS §5(15)(iv)). Where your approved sampling plan asks for more, the plan applies. CBAM figures are from IR (EU) 2025/2547, B.5.4.2.</p></details>`
+    : `<p class="sub">What the entries add up to, stream by stream, and what is still missing.</p>${actResultHTML(f)}`;
+  return `<div class="card act" id="act-ledger">
+    <div class="row" style="justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px"><h2 style="margin:0">Activity data — ${esc(A.name||sec)} ${tip('how')}</h2>
+      <span class="seg"><button class="${!S.act.monthly?'on':''}" onclick="S.act.monthly=false;render()">Annual</button><button class="${S.act.monthly?'on':''}" onclick="S.act.monthly=true;render()">Monthly</button></span></div>
+    <p class="sub">Quantities are entered here, in CMC — the GHG data forms do not collect them. The form lists the usual streams for this sector; switch off what the plant does not use and add what is missing. Work through the six tabs in order. ${tip('monthly')}</p>
+    ${sec!=='steel'&&!rows.some(r=>r.role!=='prod'&&actQ(r)>0)?`<div class="note n-info"><span class="i">i</span><div>Nothing has been entered yet. <button class="btn" style="margin-left:6px" onclick="actLoadDemo()">Load illustrative values</button> <span class="small muted">fills typical figures for a 1,000,000-unit plant with IPCC default factors, so you can see the form work. Replace them with the plant’s own.</span></div></div>`:''}
+    <div class="act-tabs" role="tablist">${tabs.map((t,i)=>`<button role="tab" aria-selected="${tab===i}" class="${tab===i?'on':''}" onclick="actTab(${i})">${t} <span class="act-dot ${done[i]()?'ok':''}" id="act-dot-${i}">${done[i]()?'✓':'○'}</span></button>`).join('')}</div>
+    ${body}
+    <div class="btns">${tab>0?`<button class="btn" onclick="actTab(${tab-1})">← ${tabs[tab-1].slice(4)}</button>`:''}${tab<5?`<button class="btn" onclick="actTab(${tab+1})">${tabs[tab+1].slice(4)} →</button>`:''}${sec!=='steel'&&rows.some(r=>r.src==='demo')?`<button class="btn" onclick="actClear()">Clear illustrative values</button>`:''}</div>
+  </div>`;
+}
+function actPatch(){
+  const f=flags();
+  actRows().forEach(r=>{ const q=document.getElementById('ao_'+r.id+'_q'); if(q) q.textContent=fmt(actQ(r)); const n=document.getElementById('ao_'+r.id+'_ncv'); if(n) n.textContent=actNcv(r)?fmt(actNcv(r),2):'—'; });
+  const res=document.getElementById('act-result'); if(res) res.outerHTML=actResultHTML(f);
+  actDone().forEach((d,i)=>{ const e=document.getElementById('act-dot-'+i); if(e){ const ok=d(); e.textContent=ok?'✓':'○'; e.classList.toggle('ok',ok); } });
+  if(typeof refreshStatus414==='function') refreshStatus414();
+}
+
+/* ---------- Data step: the ledger replaces the read-only "Fetched from TerraCAP" table ---------- */
+sData = (function(orig){ return function(){
+  let h=orig();
+  if(!actApplies()) return h.replace('<h1>Data</h1>', '<h1>Data</h1>') + `<div class="card"><h2>Activity data</h2><p class="sub">For a real company in scenario mode no plant quantities are shown or entered. In a customer workspace this step holds the sector’s activity-data form: production, fuels, process materials, electricity, lab values and tests.</p></div>`;
+  h=h.replace('Most of what the calculation needs is already in TerraCAP. This screen shows it with its source, and asks only for what the ledger doesn’t hold — mainly flows across the boundary and scheme-specific factors.',
+              'Enter what the plant consumed and produced, with the calorific values and lab tests behind it. The same entries give PAT energy, CCTS emissions and the quantities CBAM needs.');
+  const i=h.indexOf('<h2>Fetched from TerraCAP</h2>');
+  if(i>0){ const a=h.lastIndexOf('<div class="card">', i), b=h.indexOf('<div class="card">', i); if(a>0 && b>a) return h.slice(0,a)+actLedgerHTML()+h.slice(b); }
+  return insBlock(h, actLedgerHTML());
+}; })(sData);
+SCREENS.d_data = sData;
+
+/* ---------- CBAM: the same quantities, with the CBAM testing minimum; and what to enter on each CBAM screen ---------- */
+function cbamActHTML(){
+  const rows=actRows('steel').filter(r=>r.pid), dom=flags().hasDom && S.setup.sector==='steel' && actApplies();
+  return `<div class="card" id="cbam-act"><h2>Activity data for these source streams ${tip('cbamqty')}</h2>
+    <p class="sub">${dom?'These are the same entries as India — domestic › Data. A change here changes PAT, CCTS and CBAM together.':'Quantities and lab tests are entered here; CBAM has no other source for them.'} Changing a quantity after the period is locked unlocks it.</p>
+    <div class="tw"><table class="t act-t"><thead><tr><th>Source stream</th><th>Quantity ${tip('qty')}</th><th>Unit</th><th>Lab tests recorded ${tip('tests')}</th><th>CBAM minimum per year</th><th>Rule ${tip(ACT_RULESET)}</th></tr></thead><tbody>
+    ${rows.map(r=>{ const q=actReq(r).cbam, n=+r.tests||0, ann=Math.round(n*12/PLATFORM.monthsFY); return `<tr data-act="${r.id}"><td><b>${esc(r.n)}</b></td><td>${r.role==='direct'?`${aNum(r.id,'q',Math.round(actQ(r)),120)}`:aNum(r.id,'q',Math.round(actQ(r)),120)}</td><td>${esc(r.u)}</td><td>${aNum(r.id,'tests',r.tests,70)}</td>
+      <td>${q==null?'—':`<span class="tag ${ann>=q?'t-teal':'t-amber'}">${q}</span> <span class="small muted">at this rate: ${ann} a year</span>`}</td><td class="small">${tip('cls_'+r.cls)} ${esc((A_CLS[r.cls]||{}).t||'')}</td></tr>`; }).join('')}
+    </tbody></table></div>
+    ${dom?`<div class="btns"><button class="btn" onclick="S.act.tab=4;go('d_data')">Open calorific values and lab details →</button></div>`:''}</div>`;
+}
+const CBAM_HELP = {
+  c_goods:[['8-digit CN codes','Tick every code you ship to the EU. Embedded emissions are reported per 8-digit code, exactly as it appears on the customs declaration.','Export invoices, shipping bills'],
+           ['Method per code','Actual = your plant’s monitored data. Default = the EU default value with its mark-up; no plant data or verification needed, but usually a higher figure for the customer.','Decision by product line']],
+  c_process:[['Made on site / sold separately','Tick each upstream good the plant makes (sinter, coke, pig iron, crude steel). Each becomes its own production process; anything bought in becomes a purchased precursor.','Asset register, process flow diagram'],
+           ['Activity level (t)','Total production of that goods category in the calendar year that meets product specification — including what is used on site in the next process, not only what is sold. Off-spec product that is recycled is not counted twice.','Production MIS, weighbridge, heat/cast records'],
+           ['Attributed emissions','Direct emissions of each process from the source streams feeding it. Heat and waste gases passed between processes are moved with them.','Source-stream quantities (step 4) and the monitoring plan']],
+  c_factors:[['Factor source per stream','Plant lab analysis first; then a national-inventory factor; then the standard factor; a corporate reporting factor is not accepted and blocks the lock.','Lab certificates, sampling plan'],
+           ['Quantities and lab tests','Entered in the table below — the same entries as the domestic Data step for an Indian plant.','Weighbridge and meter logs, certificates']],
+  c_prec:[['Quantity consumed (t)','Precursor consumed in the production process in the year — not the quantity purchased. Correct purchases for stock change.','Stores issues, stock records'],
+          ['Embedded emissions (tCO₂e/t)','The supplier’s specific embedded emissions for the period the precursor was made, from their verified report. Use the EU default only where the supplier gives none.','Supplier CBAM communication and verification report'],
+          ['Basis and report','“Supplier” needs the supplier’s verification report; without it the value counts as missing evidence, not as verified.','Verification report reference']],
+  c_fa:[['Carbon price paid','The price effectively paid in the country of origin for the emissions embedded in the goods, net of any rebate or free allocation, with proof of payment. A scheme obligation that was not paid in money is not a carbon price paid.','Payment proof, scheme statement'],
+        ['Free-allocation adjustment','Calculated from the EU benchmark for the production route; review it, you do not enter it.','Reference data release']]
+};
+function cbamHelpHTML(k){ const H=CBAM_HELP[k]; if(!H) return '';
+  return `<details class="card act-help" data-help="${k}"><summary><b>What to enter on this screen</b> <span class="small muted">— each field, and the document it comes from</span></summary><div class="tw"><table class="t mt"><thead><tr><th>Field</th><th>What to enter</th><th>Where it comes from</th></tr></thead><tbody>${H.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td class="small">${esc(r[2])}</td></tr>`).join('')}</tbody></table></div></details>`; }
+Object.keys(CBAM_HELP).forEach(k=>{ const fnName={c_goods:'sGoods',c_process:'sProcess',c_factors:'sCFactors',c_prec:'sPrec',c_fa:null}[k]; const f0=SCREENS[k]; if(!f0) return;
+  SCREENS[k]=function(){ let h=f0.apply(this, arguments); if(STEP_NA[k] && STEP_NA[k]()) return h;
+    return insBlock(h, cbamHelpHTML(k)+(k==='c_factors'?cbamActHTML():'')); }; });
+
+/* ---------- styles ---------- */
+document.head.insertAdjacentHTML('beforeend',`<style>
+.qh{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid var(--mute);background:#fff;color:var(--ink2);font-size:10.5px;font-weight:600;line-height:1;cursor:pointer;padding:0;vertical-align:middle;margin-left:2px}
+.qh:hover,.qh:focus{border-color:var(--teal);color:var(--teal-d);outline:none}
+.qh-s{width:14px;height:14px;font-size:9.5px}
+#qt-pop{display:none;position:fixed;z-index:80;background:#1f2937;color:#fff;font-size:12.5px;line-height:1.5;border-radius:8px;padding:10px 12px;box-shadow:0 8px 24px rgba(0,0,0,.25);max-height:60vh;overflow:auto}
+.act-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 12px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.act-tabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font-size:12.5px;cursor:pointer}
+.act-tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.act-dot{font-size:11px;margin-left:3px;color:var(--mute)} .act-dot.ok{color:var(--teal)} .act-tabs button.on .act-dot{color:#fff}
+.act-t td{vertical-align:top} .act-t tr.off td{opacity:.6} .act-t .fi{padding:5px 7px;font-size:12.5px} .act-t input.an{text-align:right}
+.am{display:grid;grid-template-columns:repeat(6,auto);gap:4px 6px;justify-content:start}
+.act-help summary{cursor:pointer} .note.n-ok{background:var(--teal-bg2);border-color:var(--teal)}
+@media(max-width:700px){.am{grid-template-columns:repeat(3,auto)}}
+</style>`);
+
+/* ---------- start-up: build the steel ledger, hand it to the engines, keep the fictional PAT story ---------- */
+(function(){
+  const before=domCalc();                       /* platform figures before the ledger takes over */
+  actRows('steel'); actSync();
+  const after=domCalc();
+  if(before.sec>0 && after.sec>0) S.dom.target.pat=+(S.dom.target.pat*after.sec/before.sec).toFixed(3);   /* fictional target keeps its distance from the plant */
+  if(S.cbam.alloc) Object.keys(S.cbam.alloc).forEach(k=>{ S.cbam.alloc[k]=PLATFORM.streams.filter(s=>s.proc===k).reduce((a,s)=>a+s.tco2,0); });
+  S.ov.inHash=null; S.ov.invalid=null;
+})();
+render = (function(orig){ return function(){ actSync(); orig(); }; })(render);
+RULESET.items && RULESET.items.push({k:'act', name:'Activity-data rules: sampling frequencies, NCV order, factor types', ver:ACT_RULESET, status:'Reference data — the approved monitoring plan prevails where stricter', use:'Data step (PAT, CCTS), CBAM source streams'});
+render();
+
+/* ===== v4.16 · Installation & obligations moves to the Organisation profile =====
+   CMC no longer owns the profile. It reads it, lands on the Overview, and reacts when it changes.
+   For the demo the profile screen stays reachable as the last item of the Start group, marked as belonging to Org profile.
+   What CMC reads from the profile (the contract for the dev team):
+     installation id and name · country · sector · domestic schemes (PAT, CCTS) with registration numbers ·
+     exports to the EU (yes/no) · exports to the UK (yes/no) · ETS coverage
+   What stays in CMC: the goods shipped (CN headings and 8-digit codes), methods, and everything from Boundary onwards.
+   Open the file with ?blank to start from an empty profile (a first-time organisation; also used by the test).        */
+const PROFILE_BLANK = /[?&]blank\b/.test(location.search);
+const PROFILE_FIELDS = [['Installation','name and ID'],['Country','decides which schemes can apply'],['Industry','decides the activity-data form, boundary units and product'],
+  ['Domestic schemes','PAT and/or CCTS, with the designated-consumer and obligated-entity numbers'],['Exports to the EU','yes or no — switches the EU CBAM workflow on'],['Exports to the UK','yes or no'],['ETS coverage','for installations inside the EU or UK']];
+if(!PROFILE_BLANK){
+  Object.assign(S.setup, {country:'IN', countryConfirmed:true, sector:'steel', regime:'both', eu:true, uk:false});
+  if(!S.setup.cns.length) S.setup.cns.push('7208');           /* demo goods data — in production this list is kept in CBAM step 2 */
+  S.ov.inHash=null; S.ov.invalid=null;
+}
+/* menu: Overview first; the profile screen last, marked as moving out */
+navModel = (function(orig){ return function(){
+  const g=orig(), st=g.find(x=>x.title==='Start');
+  if(st){ const i=st.items.findIndex(x=>x.k==='setup'); if(i>=0){ const it=st.items.splice(i,1)[0]; it.t='Installation & obligations'; it.profile=true; st.items.push(it); } }
+  return g;
+}; })(navModel);
+renderNav = (function(orig){ return function(){
+  orig();
+  const b=[...document.querySelectorAll('#nav .ni')].find(x=>x.getAttribute('onclick')==="go('setup')");
+  if(b && !b.querySelector('.prof-tag')){ b.insertAdjacentHTML('beforeend',' <span class="tag t-gray prof-tag" style="font-size:9.5px">Org profile</span>'); b.title='Belongs to the Organisation profile module. Shown here for the demo.'; }
+}; })(renderNav);
+/* the profile screen says whose it is */
+SCREENS.setup = (function(orig){ return function(){
+  const h=orig().replace('<h1>Set up your obligations</h1>','<h1>Installation & obligations</h1>').replace('<div class="crumb">Carbon market compliance</div>','<div class="crumb">Organisation profile</div>');
+  const note=`<div class="note n-info" data-profile-note="1"><span class="i">i</span><div><b>This screen belongs to the Organisation profile module.</b> It is shown inside CMC for the demo only. CMC reads the profile and opens on the Overview; it does not ask these questions itself.
+    <details style="margin-top:6px"><summary>What CMC reads from the profile</summary><ul style="margin:6px 0 0 18px">${PROFILE_FIELDS.map(f=>`<li><b>${f[0]}</b> — ${f[1]}</li>`).join('')}</ul>
+    <p class="small" style="margin:6px 0 0">The goods you ship (CN codes) are CBAM data, not profile data: they are chosen in EU CBAM step 2. A change to the profile resets the CMC steps that depended on it and says which.</p></details></div></div>`;
+  const i=h.indexOf('</h1>'); return i>0 ? h.slice(0,i+5)+note+h.slice(i+5) : note+h;
+}; })(SCREENS.setup);
+/* CBAM step 2 owns the goods list: headings can be chosen here, without the profile screen */
+SCREENS.c_goods = (function(orig){ return function(){
+  const h=orig(), s=S.setup;
+  const card=`<details class="card" data-headings="1" ${s.cns.length?'':'open'}><summary><b>Goods you ship to the EU</b> — ${s.cns.length?s.cns.map(c=>`<span class="cn-chip"><b class="mono">${c}</b></span>`).join(' ')+' <span class="small muted">change the list</span>':'choose the CN headings first'}</summary>
+    <p class="sub mt">Pick by CN code or by name. The 8-digit codes under each heading are chosen below.</p>
+    <div class="cn-search"><input class="fi" placeholder="Search a CN code (7208) or a product (rebar, HR coil, clinker)…" value="${esc(s.search||'')}" oninput="cnSearch(this.value)"></div>
+    <div class="cn-list" id="cnbox">${cnListHTML()}</div></details>`;
+  return insBlock(h, card);
+}; })(SCREENS.c_goods);
+/* Overview: an incomplete profile is the profile module's job */
+sOverview = (function(orig){ return function(){
+  return orig().replace('<h2>Nothing to track yet</h2><p class="sub">Finish Set up: pick the schemes this installation is in.','<h2>The organisation profile is incomplete</h2><p class="sub">CMC needs the installation’s country, industry and schemes from the Organisation profile.')
+               .replace('Set up your obligations →','Open Installation & obligations →');
+}; })(sOverview);
+SCREENS.overview = sOverview;
+RULESET.items && RULESET.items.push({k:'profile', name:'Installation & obligations', ver:'v4.16', status:'Moves to the Organisation profile module; read-only input to CMC', use:'Schemes, sector and country for every CMC screen'});
+render();
+go(setupDone() ? 'overview' : 'setup');
+
 </script>
 </body></html>
